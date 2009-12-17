@@ -1,0 +1,10 @@
+EXPORTS
+	_ZN18CGlxDrmIconManager4NewLER13MGlxMediaListR14MGlxVisualList @ 1 NONAME
+	_ZN18CGlxDrmIconManagerD0Ev @ 2 NONAME
+	_ZN18CGlxDrmIconManagerD1Ev @ 3 NONAME
+	_ZN18CGlxDrmIconManagerD2Ev @ 4 NONAME
+	_ZN21CGlxCommandHandlerDrm4NewLEP21MGlxMediaListProvideri @ 5 NONAME
+	_ZN21CGlxCommandHandlerDrmD0Ev @ 6 NONAME
+	_ZN21CGlxCommandHandlerDrmD1Ev @ 7 NONAME
+	_ZN21CGlxCommandHandlerDrmD2Ev @ 8 NONAME
+

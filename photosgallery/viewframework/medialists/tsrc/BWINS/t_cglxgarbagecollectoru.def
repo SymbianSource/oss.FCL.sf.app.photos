@@ -1,0 +1,55 @@
+EXPORTS
+	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 1 NONAME ; class MEUnitTest * CreateTestSuiteL(void)
+	??0CIdle@@IAE@H@Z @ 2 NONAME ; CIdle::CIdle(int)
+	??1CGlxMedia@@UAE@XZ @ 3 NONAME ; CGlxMedia::~CGlxMedia(void)
+	??1CIdle@@UAE@XZ @ 4 NONAME ; CIdle::~CIdle(void)
+	?Category@TGlxMedia@@QBE?AW4TMPXGeneralCategory@@XZ @ 5 NONAME ; enum TMPXGeneralCategory TGlxMedia::Category(void) const
+	?Comment@TGlxMedia@@QBEABVTDesC16@@XZ @ 6 NONAME ; class TDesC16 const & TGlxMedia::Comment(void) const
+	??0CGlxMedia@@QAE@ABVTGlxMediaId@@@Z @ 7 NONAME ; CGlxMedia::CGlxMedia(class TGlxMediaId const &)
+	?DeleteAttribute@CGlxMedia@@QAEXABVTMPXAttribute@@@Z @ 8 NONAME ; void CGlxMedia::DeleteAttribute(class TMPXAttribute const &)
+	?DeleteLocationAttribute@TGlxMedia@@QAEXXZ @ 9 NONAME ; void TGlxMedia::DeleteLocationAttribute(void)
+	?DoCancel@CIdle@@MAEXXZ @ 10 NONAME ; void CIdle::DoCancel(void)
+	?GetClosestThumbnail@TGlxMedia@@QBEHAAVTMPXAttribute@@ABVTSize@@H@Z @ 11 NONAME ; int TGlxMedia::GetClosestThumbnail(class TMPXAttribute &, class TSize const &, int) const
+	?GetContainedItemCount@TGlxMedia@@QBEHAAH@Z @ 12 NONAME ; int TGlxMedia::GetContainedItemCount(int &) const
+	?GetCoordinate@TGlxMedia@@QBEHAAVTCoordinate@@@Z @ 13 NONAME ; int TGlxMedia::GetCoordinate(class TCoordinate &) const
+	?GetDate@TGlxMedia@@QBEHAAVTTime@@@Z @ 14 NONAME ; int TGlxMedia::GetDate(class TTime &) const
+	?GetDimensions@TGlxMedia@@QBEHAAVTSize@@@Z @ 15 NONAME ; int TGlxMedia::GetDimensions(class TSize &) const
+	?GetDrmProtected@TGlxMedia@@QBEHAAH@Z @ 16 NONAME ; int TGlxMedia::GetDrmProtected(int &) const
+	?GetDrmValidity@TGlxMedia@@QBEHAAW4TGlxMediaGeneralRightsValidity@@@Z @ 17 NONAME ; int TGlxMedia::GetDrmValidity(enum TGlxMediaGeneralRightsValidity &) const
+	?GetDuration@TGlxMedia@@QBEHAAM@Z @ 18 NONAME ; int TGlxMedia::GetDuration(float &) const
+	?GetFrameCount@TGlxMedia@@QBEHAAH@Z @ 19 NONAME ; int TGlxMedia::GetFrameCount(int &) const
+	?GetIconInfo@TGlxMedia@@QBEHAAUTIconInfo@@@Z @ 20 NONAME ; int TGlxMedia::GetIconInfo(struct TIconInfo &) const
+	?GetLastModifiedDate@TGlxMedia@@QBEHAAVTTime@@@Z @ 21 NONAME ; int TGlxMedia::GetLastModifiedDate(class TTime &) const
+	?GetSize@TGlxMedia@@QBEHAAH@Z @ 22 NONAME ; int TGlxMedia::GetSize(int &) const
+	?GetSlideshowPlayableContainedItemCount@TGlxMedia@@QBEHAAH@Z @ 23 NONAME ; int TGlxMedia::GetSlideshowPlayableContainedItemCount(int &) const
+	?GetStaticItemCommand@TGlxMedia@@QBEHAAH@Z @ 24 NONAME ; int TGlxMedia::GetStaticItemCommand(int &) const
+	?GetSystemItem@TGlxMedia@@QBEHAAH@Z @ 25 NONAME ; int TGlxMedia::GetSystemItem(int &) const
+	?GetValueText@CGlxMedia@@QBEHAAVTPtrC16@@ABVTMPXAttribute@@@Z @ 26 NONAME ; int CGlxMedia::GetValueText(class TPtrC16 &, class TMPXAttribute const &) const
+	?HandleModified@CGlxMedia@@QAEXABV?$RArray@VTMPXAttribute@@@@@Z @ 27 NONAME ; void CGlxMedia::HandleModified(class RArray<class TMPXAttribute> const &)
+	?HasAttributeErrorL@GlxErrorManager@@SAHPBVCGlxMedia@@ABVTMPXAttribute@@@Z @ 28 NONAME ; int GlxErrorManager::HasAttributeErrorL(class CGlxMedia const *, class TMPXAttribute const &)
+	?HasAttributeErrorL@GlxErrorManager@@SAHPBVCGlxMedia@@H@Z @ 29 NONAME ; int GlxErrorManager::HasAttributeErrorL(class CGlxMedia const *, int)
+	?IdSpaceId@TGlxMedia@@QBE?AV?$TGlxId@VTGlxIdSpaceIdBase@@@@XZ @ 30 NONAME ; class TGlxId<class TGlxIdSpaceIdBase> TGlxMedia::IdSpaceId(void) const
+	?IsDrmProtected@TGlxMedia@@QBEHXZ @ 31 NONAME ; int TGlxMedia::IsDrmProtected(void) const
+	?IsSlideShowPlayableContent@TGlxMedia@@QBEHXZ @ 32 NONAME ; int TGlxMedia::IsSlideShowPlayableContent(void) const
+	?IsStatic@TGlxMedia@@QBEHXZ @ 33 NONAME ; int TGlxMedia::IsStatic(void) const
+	?MatchById@TGlxMedia@@SAHABV1@0@Z @ 34 NONAME ; int TGlxMedia::MatchById(class TGlxMedia const &, class TGlxMedia const &)
+	?MimeType@TGlxMedia@@QBEABVTDesC16@@XZ @ 35 NONAME ; class TDesC16 const & TGlxMedia::MimeType(void) const
+	?New@CIdle@@SAPAV1@H@Z @ 36 NONAME ; class CIdle * CIdle::New(int)
+	?NewL@CIdle@@SAPAV1@H@Z @ 37 NONAME ; class CIdle * CIdle::NewL(int)
+	?Reset@CGlxMedia@@QAEXXZ @ 38 NONAME ; void CGlxMedia::Reset(void)
+	?RunL@CIdle@@MAEXXZ @ 39 NONAME ; void CIdle::RunL(void)
+	?SetCObjectValueL@CGlxMedia@@QAEXABVTMPXAttribute@@PAVCBase@@@Z @ 40 NONAME ; void CGlxMedia::SetCObjectValueL(class TMPXAttribute const &, class CBase *)
+	?SetTextValueL@CGlxMedia@@QAEXABVTMPXAttribute@@ABVTDesC16@@@Z @ 41 NONAME ; void CGlxMedia::SetTextValueL(class TMPXAttribute const &, class TDesC16 const &)
+	?SetValueL@CGlxMedia@@QAEXABVTMPXAttribute@@PAXW4TMPXAttributeType@@@Z @ 42 NONAME ; void CGlxMedia::SetValueL(class TMPXAttribute const &, void *, enum TMPXAttributeType)
+	?Start@CIdle@@QAEXVTCallBack@@@Z @ 43 NONAME ; void CIdle::Start(class TCallBack)
+	?SubTitle@TGlxMedia@@QBEABVTDesC16@@XZ @ 44 NONAME ; class TDesC16 const & TGlxMedia::SubTitle(void) const
+	?ThumbnailAttribute@TGlxMedia@@QBEPBVCGlxThumbnailAttribute@@AAVTMPXAttribute@@@Z @ 45 NONAME ; class CGlxThumbnailAttribute const * TGlxMedia::ThumbnailAttribute(class TMPXAttribute &) const
+	?Title@TGlxMedia@@QBEABVTDesC16@@XZ @ 46 NONAME ; class TDesC16 const & TGlxMedia::Title(void) const
+	?Uri@TGlxMedia@@QBEABVTDesC16@@XZ @ 47 NONAME ; class TDesC16 const & TGlxMedia::Uri(void) const
+	?ValueCObject@CGlxMedia@@QBEPBVCBase@@ABVTMPXAttribute@@@Z @ 48 NONAME ; class CBase const * CGlxMedia::ValueCObject(class TMPXAttribute const &) const
+	?ValueText@CGlxMedia@@QBEABVTDesC16@@ABVTMPXAttribute@@@Z @ 49 NONAME ; class TDesC16 const & CGlxMedia::ValueText(class TMPXAttribute const &) const
+	?__DbgTestInvariant@CGlxItemList@@QBEXXZ @ 50 NONAME ; void CGlxItemList::__DbgTestInvariant(void) const
+	?__DbgTestInvariant@CGlxMedia@@QBEXXZ @ 51 NONAME ; void CGlxMedia::__DbgTestInvariant(void) const
+	?__DbgTestInvariant@CGlxNavigableList@@QBEXXZ @ 52 NONAME ; void CGlxNavigableList::__DbgTestInvariant(void) const
+	?__DbgTestInvariant@CGlxStaticItemList@@QBEXXZ @ 53 NONAME ; void CGlxStaticItemList::__DbgTestInvariant(void) const
+

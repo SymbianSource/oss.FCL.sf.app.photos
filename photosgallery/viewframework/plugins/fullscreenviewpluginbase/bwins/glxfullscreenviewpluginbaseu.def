@@ -1,0 +1,11 @@
+EXPORTS
+	?AddCommandHandlersL@CGlxFullScreenViewPluginBase@@MAEXXZ @ 1 NONAME ; void CGlxFullScreenViewPluginBase::AddCommandHandlersL(void)
+	?GetResourceFilenameL@CGlxFullScreenViewPluginBase@@MAEXAAV?$TBuf@$0BAA@@@@Z @ 2 NONAME ; void CGlxFullScreenViewPluginBase::GetResourceFilenameL(class TBuf<256> &)
+	?ImageUri@CGlxImageViewerManager@@QAEPAVHBufC16@@XZ @ 3 NONAME ; class HBufC16 * CGlxImageViewerManager::ImageUri(void)
+	?ImageFileHandle@CGlxImageViewerManager@@QBEAAVRFile64@@XZ @ 4 NONAME ; class RFile64 & CGlxImageViewerManager::ImageFileHandle(void) const
+	?IncrementRefCount@CGlxImageViewerManager@@QAEXXZ @ 5 NONAME ; void CGlxImageViewerManager::IncrementRefCount(void)
+	??1CGlxFullScreenViewPluginBase@@UAE@XZ @ 6 NONAME ; CGlxFullScreenViewPluginBase::~CGlxFullScreenViewPluginBase(void)
+	??0CGlxFullScreenViewPluginBase@@QAE@XZ @ 7 NONAME ; CGlxFullScreenViewPluginBase::CGlxFullScreenViewPluginBase(void)
+	?IsPrivate@CGlxImageViewerManager@@QAEHXZ @ 8 NONAME ; int CGlxImageViewerManager::IsPrivate(void)
+	?ConstructViewLC@CGlxFullScreenViewPluginBase@@MAEPAVCAknView@@XZ @ 9 NONAME ; class CAknView * CGlxFullScreenViewPluginBase::ConstructViewLC(void)
+

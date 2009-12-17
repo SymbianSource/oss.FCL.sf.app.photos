@@ -1,0 +1,12 @@
+EXPORTS
+	_Z16CreateTestSuiteLv @ 1 NONAME
+	_ZN22CGlxCommandHandlerBack22NewBackCommandHandlerLEv @ 2 NONAME
+	_ZN22CGlxCommandHandlerBack30NewPreviousViewCommandHandlerLEP21MGlxMediaListProvider @ 3 NONAME
+	_ZN22CGlxCommandHandlerBack39NewContainerPreviousViewCommandHandlerLEP21MGlxMediaListProvideri @ 4 NONAME
+	_ZN22CGlxCommandHandlerBackD0Ev @ 5 NONAME
+	_ZN22CGlxCommandHandlerBackD1Ev @ 6 NONAME
+	_ZN22CGlxCommandHandlerBackD2Ev @ 7 NONAME
+	_ZThn4_N22CGlxCommandHandlerBackD0Ev @ 8 NONAME ; #<thunk>#
+	_ZThn4_N22CGlxCommandHandlerBackD1Ev @ 9 NONAME ; #<thunk>#
+	_ZN22CGlxCommandHandlerBack34NewPreviousNaviViewCommandHandlerLEP21MGlxMediaListProvider @ 10 NONAME
+

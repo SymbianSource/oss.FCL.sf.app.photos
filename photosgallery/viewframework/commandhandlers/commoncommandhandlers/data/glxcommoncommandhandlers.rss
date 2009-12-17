@@ -1,0 +1,77 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Resource definitions 
+*
+*/
+
+
+
+
+#include <eikon.rh>
+#include <avkon.rsg>
+#include <avkon.rh>
+#include <avkon.loc>
+#include <appinfo.rh>
+
+#include <AiwCommon.rh>
+
+#include <data_caging_paths_strings.hrh>
+#include <glxicons.mbg>
+#include "glxutilities.hrh"
+#include <glxcommandhandlers.hrh>
+
+NAME GLXD    // 4 letter ID
+
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE TBUF { buf="GLXD"; }
+
+#define glx_icon_file    "Z:"APP_BITMAP_DIR"\\glxicons.mif"
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_album_selection_icons
+// Icons for album popup
+//
+// -----------------------------------------------------------------------------
+RESOURCE AKN_ICON_ARRAY r_glx_album_selection_icons
+    {
+    type = EAknIconArraySimple;
+    bmpfile = glx_icon_file;
+    icons =
+        {
+        AKN_ICON
+            {
+            iconId = EMbmGlxiconsQgn_prop_album_photo_small;
+            maskId = EMbmGlxiconsQgn_prop_album_photo_small_mask;
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_softkeys_ok_cancel_select
+// softkeys for media selection popup
+//
+// -----------------------------------------------------------------------------
+RESOURCE CBA r_glx_softkeys_ok_cancel
+{
+	buttons =
+	    {
+	    CBA_BUTTON {id=EAknSoftkeyOk; txt=text_softkey_ok;},
+	    CBA_BUTTON {id=EAknSoftkeyCancel; txt= text_softkey_cancel;},
+	    CBA_BUTTON {id=EAknSoftkeyForwardKeyEvent; txt=text_softkey_empty;}
+	    };
+}
+

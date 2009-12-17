@@ -1,0 +1,73 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Project definition file 
+*
+*/
+
+
+
+
+#include <platform_paths.hrh>
+#include "../../../../group/glxbuildcommon.mmh"
+#include "../../../../inc/glxalfhelper.mmh"
+
+
+#include <data_caging_paths.hrh>
+
+TARGET          glxzoomview.dll
+TARGETTYPE      dll
+UID             0x1000008d 0x200071CB
+
+#ifndef WINSCW
+EPOCALLOWDLLDATA
+#endif 
+CAPABILITY      CAP_GENERAL_DLL
+
+SOURCEPATH      ../src
+SOURCE            glxzoomcontrol.cpp 
+SOURCE            glxzoomeventhandler.cpp
+SOURCE            glxzoommathsengine.cpp 
+
+USERINCLUDE     ../inc
+
+// System includes from the source tree
+SYSTEMINCLUDE   ../inc
+SYSTEMINCLUDE   ../../../inc
+SYSTEMINCLUDE   ../../../../inc
+SYSTEMINCLUDE   ../../../medialists/inc
+SYSTEMINCLUDE   ../../../uiutilities/inc
+SYSTEMINCLUDE   ../../fullscreenview/inc
+SYSTEMINCLUDE   ../../../texturemanager/inc
+SYSTEMINCLUDE   ../../../tvout/inc
+
+APP_LAYER_SYSTEMINCLUDE
+
+LIBRARY         avkon.lib
+LIBRARY         euser.lib
+LIBRARY         eikcoctl.lib							// CEikButtonGroupContainer
+LIBRARY         glxmedialists.lib
+LIBRARY         glxuiutilities.lib
+LIBRARY         glxtexturemanager.lib
+LIBRARY         mpxcommon.lib
+LIBRARY         commonengine.lib  						// stringloader
+LIBRARY         alfclient.lib   						// ALF framework
+LIBRARY         alfwidgetmodel.lib						// AlfWidgetModel
+LIBRARY         flogger.lib
+LIBRARY         centralrepository.lib
+LIBRARY         exiflib.lib
+LIBRARY         efsrv.lib 
+LIBRARY         gesturehelper.lib
+LIBRARY		cone.lib 
+LIBRARY 	glxtvout.lib
+// End of File

@@ -1,0 +1,99 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Command ids
+*
+*/
+
+
+
+
+#ifndef __GLXCOMMANDHANDLERS_HRH__
+#define __GLXCOMMANDHANDLERS_HRH__
+
+
+/**
+ * @internal reviewed 08/02/2008 by Rhodri Byles
+ */
+
+// CONSTANTS
+
+enum TGlxCommandId
+    {
+    EGlxCmdAddToAlbum = 0x5500,
+    EGlxCmdOptions,
+    EGlxCmdDelete,
+    EGlxCmdAddTag,
+    EGlxCmdStateView,
+    EGlxCmdStateBrowse,
+    EGlxCmdDetails,
+    EGlxCmdUpload,
+    EGlxCmdRotate,
+    EGlxCmdRotateLeft,
+    EGlxCmdRotateRight,
+    EGlxCmdSlideshowPlay,
+    EGlxCmdSlideshowSettings,   
+    EGlxCmdDrmMoreInfoOnline,
+    EGlxCmdDrmGetPreview,
+    EGlxCmdDrmPlayPreview,
+    EGlxCmdStartMultipleMarking,
+    EGlxCmdEndMultipleMarking,
+    EGlxCmdMarkingSubmenu,
+    EGlxCmdAddMedia,
+    EGlxCmdRemoveFrom,
+    EGlxCmdSlideshow,
+    EGlxCmdRename,
+    EGlxCmdPlay,
+    EGlxCmdDRMOpen,
+    EGlxCmdShowOnlineInfo,
+    EGlxCmdDownloadImages,
+    EGlxCmdDownloadVideos,
+    EGlxCmdCopy,
+    EGlxCmdMove,
+    EGlxCmdCopyMoveSubmenu,
+    EGlxCmdSend,
+    EGlxShowViaUpnp,
+    EGlxStopShowing,
+    EGlxShowViaUpnpSubmenuVersion,
+    EGlxStopShowingSubmenuVersion,
+    EGlxHomeNetworkSubmenu,
+    EGlxCopyToHomeNetwork,
+    EGlxCmdHideUI,
+    EGlxCmdSortByAlphabetical,
+    EGlxCmdSortByCount,
+    EGlxCmdDisableAnimations,
+    EGlxCmdEnableAnimations,
+    EGlxCmdDetailsOption,
+    EGlxCmdAiwPrint,
+    EGlxCmdAiwAssign,
+    EGlxCmdAiwEdit,
+    EGlxCmdAiwShowMap,
+    EGlxCmdAiwShareOnOvi,
+    EGlxCmdSelectMarked,
+    EGlxCmdFullScreenBack,
+    EGlxCmdShowViaUpnpStateChanged,
+    EGlxCmdResetView,
+    EGlxCmdActivateStateView,
+    EGlxCmdShow,
+    EGlxCmdShowAll,
+    EGlxCmdShowImages,
+    EGlxCmdShowVideos,
+    EGlxCmdAddToFavourites,
+    EGlxCmdRemoveFromFavourites,
+    KGlxCmdMnShowMap,
+    EGlxCmdSave,
+    EGlxCmdAiwBase = 0x6000
+    };
+    
+
+#endif  // __GLXCOMMANDHANDLERS_HRH__

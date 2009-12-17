@@ -1,0 +1,81 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Build information for project mgallery.
+*
+*/
+
+
+
+
+
+
+#include <platform_paths.hrh>     
+
+PRJ_PLATFORMS
+DEFAULT
+
+//  Help exports
+#include "../help/group/bld.inf"
+
+
+PRJ_EXPORTS
+../rom/glxgallery.iby                   CORE_APP_LAYER_IBY_EXPORT_PATH(glxgallery.iby)
+../rom/glxgallery_resources.iby         LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(glxgallery_resources.iby)
+
+
+#ifdef APP_LAYER_LOC_EXPORT_PATH
+// export engineering english loc file
+../gallery/loc/photos.loc  		APP_LAYER_LOC_EXPORT_PATH(photos.loc)
+#endif 
+
+
+// Include the glxlogging.dll
+#include "../logging/group/bld.inf"
+
+// Include the glxcommon dll
+#include "../common/group/bld.inf"
+
+// Include the glxcommonui dll
+#include "../commonui/group/bld.inf"
+
+// include the collection framework subsystem
+#include "../collectionframework/group/bld.inf"
+
+// include the icons
+#include "../icons/bld.inf"
+
+// include the image viewer
+#include "../controllers/imageviewer/group/bld.inf"
+
+// include the view framework subsystem
+#include "../viewframework/group/bld.inf"
+
+// include the controllers subsystem
+#include "../controllers/group/bld.inf"
+
+// Include the application
+#include "../gallery/group/bld.inf"
+
+// include the slideshow build
+#include "../slideshow/group/bld.inf"
+
+
+#include "../contentharvesterplugin/group/bld.inf"
+#include "../photossuite/group/bld.inf"
+
+//include photos memory plug-in
+#include "../memoryplugin/group/bld.inf"
+
+//include Photos Suite Launcher
+#include "../photossuitelauncher/group/bld.inf"

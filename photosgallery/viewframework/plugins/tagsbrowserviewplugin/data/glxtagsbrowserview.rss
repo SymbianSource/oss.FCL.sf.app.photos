@@ -1,0 +1,203 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Resource definitions for Tags Browser View
+*
+*/
+
+
+
+
+//  RESOURCE IDENTIFIER
+NAME GLTB    // 4 letter ID
+
+
+//  INCLUDES
+#include <eikon.rh>
+#include <avkon.rh>
+#include <avkon.rsg>
+#include <avkon.loc>
+#include <appinfo.rh>
+#include <photos.loc> //for localization
+#include <glxcommandhandlers.hrh>	// For Command Ids
+#include <glxicons.mbg>
+
+//  RESOURCE DEFINITIONS
+// -----------------------------------------------------------------------------
+//
+//    Define the resource file signature
+//    This resource should be empty.
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE RSS_SIGNATURE
+    {
+    }
+    
+RESOURCE AVKON_VIEW r_tagsbrowser_view
+	{
+	menubar = r_tagsbrowser_menubar;
+	cba = r_tagsbrowser_softkeys_options_back_select;
+	toolbar = r_tagsbrowser_toolbar;
+	}
+
+RESOURCE MENU_BAR r_tagsbrowser_menubar
+	{
+	titles=
+		{
+		MENU_TITLE { menu_pane=r_tagsbrowser_menu; txt=""; }
+		};
+	}
+
+RESOURCE MENU_PANE r_tagsbrowser_menu
+	{
+	items=
+		{
+		MENU_ITEM { command = EGlxCmdSlideshow;
+                    txt = qtn_lgal_options_slideshow; 
+                    cascade = r_tile_shw_menu;},
+        MENU_ITEM { command=EGlxCmdSortByAlphabetical; 
+                    txt=qtn_lgal_options_alphabetical; },
+        MENU_ITEM { command=EGlxCmdSortByCount; 
+                    txt=qtn_lgal_options_most_used; },
+        MENU_ITEM { command = EGlxCmdDelete;
+                    txt = qtn_lgal_options_delete;}, 
+        MENU_ITEM { command = EGlxCmdRename;
+                    txt = qtn_lgal_options_rename;}, 
+        MENU_ITEM { command=EGlxStopShowing; 
+                    txt=qtn_lgal_options_stop_show; }, 
+		MENU_ITEM { command=EAknCmdHelp; 
+		            txt=qtn_clipb_litxt_help; }, 
+		MENU_ITEM { command=EAknCmdExit; 
+		            txt=qtn_options_exit; } 	
+		};
+	}
+	
+RESOURCE MENU_PANE r_tile_shw_menu
+    {
+    items=
+        {
+		MENU_ITEM { command=EGlxCmdSlideshowPlay; txt=qtn_lgal_options_slideshow_play; },
+		MENU_ITEM { command=EGlxCmdSlideshowSettings; txt=qtn_lgal_options_slideshow_settings_general; }        
+        };
+    }
+RESOURCE CBA r_tagsbrowser_softkeys_options_back_select
+	{
+	flags = 0;
+	buttons = 
+		{
+		CBA_BUTTON {id=EAknSoftkeyOptions; txt = text_softkey_option;},
+		CBA_BUTTON {id=EAknSoftkeyBack; txt = text_softkey_back; },
+		CBA_BUTTON {id=EAknCmdOpen; txt = qtn_msk_open;}
+		};	
+	}	
+RESOURCE CBA r_tagsbrowser_softkeys_msk_disabled
+	{
+	flags = 0;
+	buttons = 
+		{
+		CBA_BUTTON {id=EAknSoftkeyOptions; txt = text_softkey_option;},
+		CBA_BUTTON {id=EAknSoftkeyBack; txt = text_softkey_back; },
+		CBA_BUTTON {id=EAknSoftkeyOptions; txt = qtn_msk_open;}
+		};	
+	}	
+
+RESOURCE TBUF r_tagsbrowser_empty_text 
+	{
+	buf = qtn_lgal_empty_tag_browser;
+	}
+
+RESOURCE TBUF r_tagsbrowser_subtitle_single 
+	{
+	buf = qtn_lgal_list_detail_one_item; 
+	}
+
+RESOURCE TBUF r_tagsbrowser_subtitle_multiple 
+	{
+	buf = qtn_lgal_list_detail_multi_item; 
+	}
+
+// -----------------------------------------------------------------------------------
+// r_tagsbrowser_toolbar
+// -----------------------------------------------------------------------------------
+//
+RESOURCE AVKON_TOOLBAR r_tagsbrowser_toolbar
+    {
+    flags = KAknToolbarFixed;
+    items =
+        {
+        TBAR_CTRL
+              {
+              type = EAknCtButton;
+              id = EGlxCmdSlideshowPlay;
+              control = AVKON_BUTTON
+                  {
+                  flags = 0;
+                  states =
+                      {
+                      AVKON_BUTTON_STATE
+                          {
+                          bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                          bmpid = EMbmGlxiconsQgn_indi_tb_slideshow; 
+                          bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                          press_bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                          press_bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                          helptxt = qtn_lgal_tooltip_slideshow;
+                          }
+                      };
+                  };
+              },
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdDelete;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete; 
+                        bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                        press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
+                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                        helptxt = qtn_lgal_tooltip_delete;
+                        }
+                    };
+                };
+            },
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdRename;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsQgn_indi_tb_gallery_rename; 
+                        bmpmask = EMbmGlxiconsQgn_indi_tb_gallery_rename_mask;
+                        press_bmpid = EMbmGlxiconsQgn_indi_tb_gallery_rename;
+                        press_bmpmask = EMbmGlxiconsQgn_indi_tb_gallery_rename_mask;
+                        helptxt = qtn_lgal_tooltip_rename;
+                        }
+                    };
+                };
+            }
+        };
+    }

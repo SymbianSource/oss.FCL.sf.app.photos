@@ -1,0 +1,9 @@
+EXPORTS
+	?NewL@CGlxMetadataDialog@@SAPAV1@ABVTDesC16@@@Z @ 1 NONAME ; class CGlxMetadataDialog * CGlxMetadataDialog::NewL(class TDesC16 const &)
+	?ActivateViewL@GlxMetadataViewUtility@@SAXABVTDesC16@@@Z @ 2 NONAME ; void GlxMetadataViewUtility::ActivateViewL(class TDesC16 const &)
+	?ExecuteLD@CGlxMetadataDialog@@QAEHXZ @ 3 NONAME ; int CGlxMetadataDialog::ExecuteLD(void)
+	?ExecuteLD@CGlxImgVwrMetadataDialog@@QAEHXZ @ 4 NONAME ; int CGlxImgVwrMetadataDialog::ExecuteLD(void)
+	?GetResourceFilenameL@CGlxResourceUtilities@@SAXAAV?$TBuf@$0BAA@@@AAVRFs@@@Z @ 5 NONAME ; void CGlxResourceUtilities::GetResourceFilenameL(class TBuf<256> &, class RFs &)
+	?GetResourceFilenameL@CGlxResourceUtilities@@SAXAAV?$TBuf@$0BAA@@@@Z @ 6 NONAME ; void CGlxResourceUtilities::GetResourceFilenameL(class TBuf<256> &)
+	?NewL@CGlxImgVwrMetadataDialog@@SAPAV1@ABVTDesC16@@@Z @ 7 NONAME ; class CGlxImgVwrMetadataDialog * CGlxImgVwrMetadataDialog::NewL(class TDesC16 const &)
+

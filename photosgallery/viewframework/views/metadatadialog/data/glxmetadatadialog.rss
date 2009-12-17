@@ -1,0 +1,486 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Resource definitions for Metadata Dialog
+*
+*/
+
+
+
+
+//RESOURCE IDENTIFIER
+
+ NAME	MGMV
+
+//INCLUDES
+
+#include <eikon.rsg>
+#include <avkon.rsg>
+#include <avkon.rh>
+#include <avkon.loc>
+#include <avkon.mbg>
+#include <eikon.rh>
+#include <uikon.hrh> 
+#include <avkon.hrh> 
+
+#include <appinfo.rh> 
+
+#include <photos.loc>
+#include <glxdetailsboundcommand.hrh>
+#include "glxcommandhandlers.hrh"
+
+//RESOURCE DEFINITIONS 
+
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE TBUF { buf="MGMV"; }
+
+// -----------------------------------------------------------------------------
+//
+//    Define default menu and CBA key.
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE EIK_APP_INFO
+    {
+    menubar = r_metadata_menubar;
+    cba = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+    }
+
+// -----------------------------------------------------------------------------
+// Metadata Dialog 
+// -----------------------------------------------------------------------------
+RESOURCE DIALOG r_metadata_dialog
+    {
+    buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+    flags = EEikDialogFlagNoDrag | EEikDialogFlagFillAppClientRect |
+              EEikDialogFlagCbaButtons | EEikDialogFlagWait;// |EEikDialogFlagNoBackgroundFade |EEikDialogFlagNoBorder;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EMetaDataDialogListBox;
+            id = EMetaControlIdSettingList;
+            itemflags = EEikDlgItemTakesEnterKey | EEikDlgItemOfferAllHotKeys;
+            control = AVKON_SETTING_ITEM_LIST
+                {
+                items =
+                    {
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = ENameItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_title;
+                        empty_item_text = " ";
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EDescriptionItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_description;
+                        empty_item_text = " ";
+                        },
+
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EAlbumsItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_albums;
+                        empty_item_text = " ";
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = ETagsItem;
+                        setting_page_resource = r_tags_name_setting_page;
+                        name = qtn_lgal_details_tags;
+                        empty_item_text = " ";
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EDateAndTimeItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_date_time;
+                        empty_item_text = " ";
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = ELocationItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_location;
+                        empty_item_text = " ";
+                        },                        
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = ESizeItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_file_size;
+                        empty_item_text = " ";
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EResolutionItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_resolution_title;
+                        empty_item_text = " ";
+                        },
+                   AVKON_SETTING_ITEM
+                       {
+                       identifier = EDurationItem;
+                       setting_page_resource = r_metadata_name_settings_page;
+                       name = qtn_lgal_details_duration;
+                       empty_item_text = " ";
+                       },
+                       AVKON_SETTING_ITEM
+                       {
+                       identifier = ElicenseItem;
+                       setting_page_resource = r_metadata_name_settings_page;
+                       name = qtn_lgal_detail_drm;
+                       empty_item_text = " ";
+                       }
+       
+                    };
+                };
+            }
+        };
+    }
+
+RESOURCE AVKON_SETTING_PAGE r_metadata_name_settings_page
+  {
+  label = qtn_lgal_details_title;
+  type = EEikCtEdwin;
+  editor_resource_id = r_glx_edwin;
+  }
+
+RESOURCE POPUP_SETTING_LIST r_settingslist_details_setting_list
+    {
+    } 
+
+RESOURCE AVKON_POPUP_SETTING_TEXTS r_meta_popuptext
+    {
+    setting_texts_resource = r_meta_sample_text;
+    }
+
+RESOURCE ARRAY r_meta_sample_text
+    {
+    items =
+        {
+        AVKON_ENUMERATED_TEXT
+            {
+            value = 1;
+            text = " ";
+            },
+        AVKON_ENUMERATED_TEXT
+            {
+            value = 0;
+            text = " ";
+            }
+        };
+    }
+// -----------------------------------------------------------------------------
+// Slideshow settings music filename setting page
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_SETTING_PAGE r_tags_name_setting_page
+    {
+    label = qtn_lgal_details_tags;
+    type = EEikCtEdwin;
+    }    
+RESOURCE LBUF r_empty
+    { txt = "NOTEXT"; }
+
+
+// -----------------------------------------------------------------------------
+// reource for menubar
+// -----------------------------------------------------------------------------
+//
+RESOURCE MENU_BAR r_metadata_menubar
+	{
+	titles=
+		{
+		MENU_TITLE { menu_pane = r_metadata_menu; txt = qtn_lgal_title_details; }
+		};
+	}
+
+// -----------------------------------------------------------------------------
+// reource for menupane
+// -----------------------------------------------------------------------------
+//
+RESOURCE MENU_PANE r_metadata_menu
+	{
+	items=
+		{
+		//MENU_ITEM { command = KGlxEditBoundMenuCommandId; txt = qtn_lgal_options_edit; },
+		MENU_ITEM { command = KGlxViewBoundMenuCommandId; txt = qtn_lgal_options_view; },
+        	MENU_ITEM { command = EGlxCmdAiwShowMap; txt = qtn_lgal_option_show_on_map;},
+		MENU_ITEM { command = KGlxDeleteBoundMenuCommandId; txt = qtn_lgal_options_delete;flags = EEikMenuItemSpecific; },
+		MENU_ITEM { command = EAknCmdHelp; txt = qtn_options_help; }
+	    };
+	}
+    	
+// -----------------------------------------------------------------------------
+//
+// metadata view custom resource
+//
+// -----------------------------------------------------------------------------
+//
+	
+// -----------------------------------------------------------------------------
+// reource for CEikEdwin control
+// -----------------------------------------------------------------------------
+//
+RESOURCE EDWIN r_glx_edwin
+    {
+    flags = EAknEditorFlagDefault 
+    		| EEikEdwinNoAutoSelection  
+    		| EEikEdwinAvkonDisableCursor ;
+    width = 10;
+    lines= 1;
+    maxlength = 512;  // Max number of characters
+    allowed_input_modes = EAknEditorTextInputMode; 
+    default_input_mode = EAknEditorTextInputMode;
+    }
+
+// -----------------------------------------------------------------------------
+// reource for view title
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_title
+    {
+    buf = qtn_lgal_title_details; 
+    } 
+// -----------------------------------------------------------------------------
+// reource for options edit
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_options_edit
+    {
+    buf = qtn_lgal_options_edit;
+    } 
+    
+// -----------------------------------------------------------------------------
+// reource for options delete
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_options_delete
+    {
+    buf = qtn_lgal_options_delete;
+    } 
+    
+// -----------------------------------------------------------------------------
+// reource for options view
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_options_view
+    {
+    buf = qtn_lgal_options_view;
+    }
+    
+// -----------------------------------------------------------------------------
+// reource for options show on map
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_show_on_map_options_view
+    {
+    buf = qtn_lgal_option_show_on_map;
+    }   
+    
+// -----------------------------------------------------------------------------
+// reource for view title
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_title_details
+    {
+    buf = qtn_lgal_title_details;
+    }
+    
+// -----------------------------------------------------------------------------
+// reource for metadata view title pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_title_nseries
+    {
+    buf = qtn_lgal_details_title;
+    }
+    
+// -----------------------------------------------------------------------------
+// reource for metadata view description pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_description_nseries
+    {
+    buf = qtn_lgal_details_description;
+    }
+    
+// -----------------------------------------------------------------------------
+// reource for metadata view tags pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_tags_nseries
+    {
+    buf = qtn_lgal_details_tags;
+    }
+// -----------------------------------------------------------------------------
+// reource for metadata view albums pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_albums_nseries
+    {
+    buf = qtn_lgal_details_albums;
+    }
+// -----------------------------------------------------------------------------
+// reource for metadata view location pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_location_nseries
+    {
+    buf = qtn_lgal_details_location;
+    }
+// -----------------------------------------------------------------------------
+// reource for metadata view resolution pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_resolution_nseries
+    {
+    buf = qtn_lgal_details_resolution_title;
+    }
+// -----------------------------------------------------------------------------
+// reource for metadata view duration pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_duration_nseries
+    {
+    buf = qtn_lgal_details_duration;
+    }
+// -----------------------------------------------------------------------------
+// reource for metadata view drm pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_drm_nseries
+    {
+    buf = qtn_lgal_detail_drm; 
+    }
+// -----------------------------------------------------------------------------
+// reource for metadata view date and time pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_date_time_nseries
+    {
+    buf = qtn_lgal_details_date_time;
+    }
+// -----------------------------------------------------------------------------
+// reource for metadata view file size pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_file_size_nseries
+    {
+    buf = qtn_lgal_details_file_size;
+    }
+// -----------------------------------------------------------------------------
+// reource for metadata view file size pane
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_view_resolution_detail_nseries
+    {
+    buf = qtn_lgal_details_resolution_detail;
+    }
+
+// -----------------------------------------------------------------------------
+// reource for delete location confirmation note
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_note_delete_location
+    {
+    buf = qtn_lgal_note_delete_location;
+    }
+
+// -----------------------------------------------------------------------------
+// reource for no location info note
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_note_info_no_location
+    {
+    buf = qtn_lgal_note_no_location;
+    }
+
+//==============================================================================//
+//===========================start of Imageviewer details Dialog================//
+//==============================================================================//
+
+// -----------------------------------------------------------------------------
+// Metadata Dialog 
+// -----------------------------------------------------------------------------
+RESOURCE DIALOG r_img_viewer_metadata_dialog
+    {
+    buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+    flags = EEikDialogFlagNoDrag | EEikDialogFlagFillAppClientRect |
+              EEikDialogFlagCbaButtons | EEikDialogFlagWait;// |EEikDialogFlagNoBackgroundFade |EEikDialogFlagNoBorder;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EMetaDataDialogListBox;
+            id = EMetaControlIdSettingList;
+            itemflags = EEikDlgItemTakesEnterKey | EEikDlgItemOfferAllHotKeys;
+            control = AVKON_SETTING_ITEM_LIST
+                {
+                items =
+                    {
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EImgVwrNameItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_title;
+                        empty_item_text = " ";
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EImgVwrDescriptionItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_description;
+                        empty_item_text = " ";
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EImgVwrDateAndTimeItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_date_time;
+                        empty_item_text = " ";
+                        },                        
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EImgVwrSizeItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_file_size;
+                        empty_item_text = " ";
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EImgVwrResolutionItem;
+                        setting_page_resource = r_metadata_name_settings_page;
+                        name = qtn_lgal_details_resolution_title;
+                        empty_item_text = " ";
+                        },
+                    AVKON_SETTING_ITEM
+                       {
+                       identifier = EImgVwrlicenseItem;
+                       setting_page_resource = r_metadata_name_settings_page;
+                       name = qtn_lgal_detail_drm;
+                       empty_item_text = " ";
+                       }
+       
+                    };
+                };
+            }
+        };
+    }
+
+//End of file

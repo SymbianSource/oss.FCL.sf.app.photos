@@ -1,0 +1,51 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Resource definitions for Photos Suite
+*
+*/
+
+NAME PHTS
+
+#include <eikon.rh>
+#include <avkon.loc>	
+#include <photos.loc>
+
+RESOURCE RSS_SIGNATURE { }
+RESOURCE TBUF { buf=""; }
+
+// from avkon.loc
+RESOURCE TBUF R_OPTIONS_OPEN                            { buf = qtn_options_open; }
+RESOURCE TBUF R_OPTIONS_HELP                            { buf = qtn_options_help; }
+
+// photos specific
+RESOURCE TBUF R_LGAL_TITLE_MAIN_VIEW                    { buf = qtn_lgal_title_main_view; }
+//RESOURCE TBUF R_LGAL_LIST_TITLE_CAPTURED_NSERIES        { buf = qtn_lgal_list_title_captured; }
+RESOURCE TBUF R_LGAL_LIST_TITLE_MONTHS_NSERIES	        { buf = qtn_lgal_list_title_months; }
+RESOURCE TBUF R_LGAL_LIST_TITLE_ALBUMS_NSERIES	        { buf = qtn_lgal_list_title_albums; }
+RESOURCE TBUF R_LGAL_LIST_TITLE_TAGS_NSERIES            { buf = qtn_lgal_list_title_tags; }
+//RESOURCE TBUF R_LGAL_LIST_TITLE_DOWNLOADS_NSERIES       { buf = qtn_lgal_list_title_downloads; }
+RESOURCE TBUF R_LGAL_LIST_TITLE_ALL_NSERIES             { buf = qtn_lgal_list_title_all; }
+RESOURCE TBUF R_LGAL_LIST_DETAIL_ONE_ALBUM_NSERIES      { buf = qtn_lgal_list_detail_one_alb; }
+RESOURCE TBUF R_LGAL_LIST_DETAIL_MULTI_ALBUMS_NSERIES   { buf = qtn_lgal_list_detail_multi_alb; }
+RESOURCE TBUF R_LGAL_LIST_DETAIL_ONE_TAG_NSERIES        { buf = qtn_lgal_list_detail_one_tag; }
+RESOURCE TBUF R_LGAL_LIST_DETAIL_MULTI_TAGS_NSERIES     { buf = qtn_lgal_list_detail_multi_tag; }
+RESOURCE TBUF R_LGAL_LIST_DETAIL_NO_TAGS_NSERIES        { buf = qtn_lgal_list_detail_no_tagged_items; }
+RESOURCE TBUF R_LGAL_LIST_DETAIL_ONE_ITEM_NSERIES       { buf = qtn_lgal_list_detail_one_item; }
+RESOURCE TBUF R_LGAL_LIST_DETAIL_MULTI_ITEMS_NSERIES    { buf = qtn_lgal_list_detail_multi_item; }
+RESOURCE TBUF R_LGAL_LIST_DETAIL_NO_ITEMS_NSERIES       { buf = qtn_lgal_list_detail_no_img_vid; }
+RESOURCE TBUF R_LGAL_LIST_DETAIL_MULTI_MONTHS_NSERIES   { buf = qtn_lgal_list_title_month_year; }
+
+
+
+// End of file

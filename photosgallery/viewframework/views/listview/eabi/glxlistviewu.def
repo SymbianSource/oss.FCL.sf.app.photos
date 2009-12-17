@@ -1,0 +1,6 @@
+EXPORTS
+	_ZN12CGlxListView4NewLEP20MGlxMediaListFactoryiR20TListViewResourceIdsRK7TDesC16 @ 1 NONAME
+	_ZN12CGlxListView5NewLCEP20MGlxMediaListFactoryiR20TListViewResourceIdsRK7TDesC16 @ 2 NONAME
+	_ZTI12CGlxListView @ 3 NONAME ; #<TI>#
+	_ZTV12CGlxListView @ 4 NONAME ; #<VT>#
+

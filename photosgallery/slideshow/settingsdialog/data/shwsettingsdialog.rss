@@ -1,0 +1,532 @@
+/*
+* Copyright (c) 2007-2008 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Project definition file 
+*
+*/
+
+
+
+
+//	RESOURCE IDENTIFIER
+NAME	SHWD
+
+
+//  EXTERNAL INCLUDES
+#include <avkon.rsg>	
+#include <avkon.loc>						// for text_not_allowed, qtn_options_change
+#include <eikon.rh>
+#include <avkon.rh>
+#include <badef.rh>
+
+//  INTERNAL INCLUDES
+#include "shwslideshowsettings.hrh" 		// for control ids
+#include  <photos.loc>	// for localised strings
+#include "shwconstants.hrh"					// for constants
+
+//  RESOURCE DEFINITIONS 
+RESOURCE RSS_SIGNATURE { }
+RESOURCE TBUF {buf="SHWD";}
+
+
+// -----------------------------------------------------------------------------
+// Slideshow settings track not exist note text
+// -----------------------------------------------------------------------------
+RESOURCE TBUF r_shw_qtn_lgal_note_slideshow_define
+    { buf = qtn_lgal_note_slideshow_track; }
+
+// -----------------------------------------------------------------------------
+// Slideshow settings track not defined note text
+// -----------------------------------------------------------------------------
+RESOURCE TBUF r_shw_qtn_lgal_note_track_define
+    { buf = qtn_lgal_note_track_define; }
+    
+// -----------------------------------------------------------------------------
+// Select track (slideshow) fetcher label text string
+// -----------------------------------------------------------------------------
+RESOURCE LBUF r_shw_qtn_popup_select_track
+    { txt = qtn_lgal_popup_select_track; }    
+    
+
+// -----------------------------------------------------------------------------
+// Slideshow settings: empty text for music track
+// -----------------------------------------------------------------------------
+RESOURCE LBUF r_shw_slideshow_settings_track_none
+	{ txt = qtn_lgal_slideshow_settings_track_none; }
+
+// -----------------------------------------------------------------------------
+// Slideshow general settings title pane text
+// -----------------------------------------------------------------------------
+RESOURCE TBUF r_shw_settingslist_title_pane_txt
+    { buf = qtn_lgal_view_slideshow_settings_title_general; }
+    
+// -----------------------------------------------------------------------------
+// Slideshow DRM error text
+// -----------------------------------------------------------------------------
+RESOURCE TBUF r_shw_settingslist_drm_txt
+    { buf = qtn_lgal_note_slideshow_drm; }
+
+//-----------------------------------------------------------------------------
+// Slideshow no DRM meta data exist for file message text
+//-----------------------------------------------------------------------------
+RESOURCE TBUF r_shw_not_allowed_txt
+	{ buf = text_not_allowed; }
+
+// -----------------------------------------------------------------------------
+// Slideshow settings dialog 
+// -----------------------------------------------------------------------------
+RESOURCE DIALOG r_shw_settings_dlg
+    {
+    buttons = r_shw_softkeys_options_change_back;
+    flags = EEikDialogFlagWait | EEikDialogFlagNoDrag
+            | EEikDialogFlagCbaButtons | EEikDialogFlagFillAppClientRect;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EShwCtSettingListBox;
+            id = EShwControlIdSettingList;
+            itemflags = EEikDlgItemTakesEnterKey | EEikDlgItemOfferAllHotKeys;
+            control = AVKON_SETTING_ITEM_LIST
+                {
+                items =
+                    {
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EPlayDirectionItem;
+                        setting_page_resource = r_shw_settingslist_play_direction_setting_page;
+                        name = qtn_lgal_slideshow_settings_order;
+                        associated_resource = r_shw_settingslist_play_direction_popup_setting_texts;
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EMusicEnabledItem;
+                        setting_page_resource = r_shw_settingslist_music_setting_page;
+                        name = qtn_lgal_slideshow_settings_music;
+                        associated_resource = r_shw_settingslist_music_popup_setting_texts;
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = EFileNamePathItem;
+                        setting_page_resource = r_shw_settingslist_filename_setting_page;
+                        name = qtn_lgal_slideshow_settings_track;
+                        empty_item_text = qtn_lgal_slideshow_settings_track_none;
+                        },
+			        AVKON_SETTING_ITEM
+			            {
+			            identifier = ETransDelayItem;
+			            setting_page_resource = r_shw_settingslist_delay_setting_page;
+			            name = qtn_lgal_slideshow_settings_delay_slides;
+			            },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = ETransEffectItem;
+                        setting_page_resource = r_shw_settingslist_effect_setting_page;
+                        name = qtn_lgal_slideshow_settings_transition;
+                        associated_resource = r_shw_settingslist_effect_popup_setting_texts;
+                        },
+                    AVKON_SETTING_ITEM
+                        {
+                        identifier = ETransEffectListItem;
+                        setting_page_resource = r_shw_settingslist_effect_setting_page;
+                        name = qtn_lgal_slideshow_settings_transition;
+                        associated_resource = r_shw_settingslist_effect_popup_setting_texts;
+                        }                        
+                    };
+                };
+            }
+        };
+    }
+
+
+
+// --------------------------------------------------------------------------
+// SoftKey buttonos (Options [left] - Change [middle] - Back [right])
+// --------------------------------------------------------------------------
+//
+RESOURCE CBA r_shw_softkeys_options_change_back
+    {
+    flags = 0;
+    buttons =
+        {
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyOptions;
+            txt = text_softkey_option;
+            },
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyBack;
+            txt = text_softkey_back;
+            },
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyChange;
+            txt= qtn_options_change;
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+// Slideshow music settings page
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_SETTING_PAGE r_shw_settingslist_music_setting_page
+  {
+  label = qtn_lgal_slideshow_settings_music;
+  type = EAknCtPopupSettingList;
+  editor_resource_id = r_shw_settingslist_music_popup_setting_list;
+  }
+  
+// -----------------------------------------------------------------------------
+// Slideshow play direction settings page
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_SETTING_PAGE r_shw_settingslist_play_direction_setting_page
+  {
+  label = qtn_lgal_slideshow_settings_play_direction;
+  type = EAknCtPopupSettingList;
+  editor_resource_id = r_shw_settingslist_play_direction_popup_setting_list;
+  }
+// -----------------------------------------------------------------------------
+// Slideshow settings music editor resource
+// -----------------------------------------------------------------------------
+RESOURCE POPUP_SETTING_LIST r_shw_settingslist_music_popup_setting_list
+    {
+    }  
+// -----------------------------------------------------------------------------
+// Slideshow settings play direction editor resource
+// -----------------------------------------------------------------------------
+RESOURCE POPUP_SETTING_LIST r_shw_settingslist_play_direction_popup_setting_list
+    {
+    } 
+// -----------------------------------------------------------------------------
+// Slideshow settings music popup setting texts
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_POPUP_SETTING_TEXTS r_shw_settingslist_music_popup_setting_texts
+    {
+    setting_texts_resource = r_shw_settingslist_music_texts;
+    popped_up_texts_resource = r_shw_settingslist_music_popup_texts;
+    }  
+// -----------------------------------------------------------------------------
+// Slideshow settings play direction popup setting texts
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_POPUP_SETTING_TEXTS r_shw_settingslist_play_direction_popup_setting_texts
+    {
+    setting_texts_resource = r_shw_settingslist_play_direction_texts;
+    popped_up_texts_resource = r_shw_settingslist_play_direction_popup_texts;
+    }
+
+// -----------------------------------------------------------------------------
+// Slideshow settings music popup setting texts resource
+// -----------------------------------------------------------------------------
+RESOURCE ARRAY r_shw_settingslist_music_texts
+    {
+    items =
+        {
+        AVKON_ENUMERATED_TEXT
+            {
+            value = 1;
+            text = qtn_lgal_slideshow_settings_music_on;
+            },
+        AVKON_ENUMERATED_TEXT
+            {
+            value = 0;
+            text = qtn_lgal_slideshow_settings_music_off;
+            }
+        };
+    }
+    
+// -----------------------------------------------------------------------------
+// Slideshow music enabled page setting texts
+// -----------------------------------------------------------------------------
+RESOURCE ARRAY r_shw_settingslist_music_popup_texts
+    {
+    items =
+        {
+        LBUF
+            {
+            txt = qtn_lgal_slideshow_settings_music_on;
+            },
+        LBUF
+            {
+            txt = qtn_lgal_slideshow_settings_music_off;
+            }
+        };
+    }
+// -----------------------------------------------------------------------------
+// Slideshow settings play direction popup setting texts resource
+// -----------------------------------------------------------------------------
+RESOURCE ARRAY r_shw_settingslist_play_direction_texts
+    {
+    items =
+        {
+        AVKON_ENUMERATED_TEXT
+            {
+            value = 1;
+            text = qtn_lgal_slideshow_settings_older_to_newer;
+            },
+        AVKON_ENUMERATED_TEXT
+            {
+            value = 0;
+            text = qtn_lgal_slideshow_settings_newer_to_older;
+            }
+        };
+    }
+    
+// -----------------------------------------------------------------------------
+// Slideshow play direction enabled page setting texts
+// -----------------------------------------------------------------------------
+RESOURCE ARRAY r_shw_settingslist_play_direction_popup_texts
+    {
+    items =
+        {
+        LBUF
+            {
+            txt = qtn_lgal_slideshow_settings_older_to_newer;
+            },
+        LBUF
+            {
+            txt = qtn_lgal_slideshow_settings_newer_to_older;
+            }
+        };
+    }    
+// -----------------------------------------------------------------------------
+// Slideshow settings music filename setting page
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_SETTING_PAGE r_shw_settingslist_filename_setting_page
+	{
+  	label = qtn_lgal_slideshow_settings_track;
+	type = EEikCtEdwin;
+	editor_resource_id = r_shw_editor;
+  	}    
+    
+
+// -----------------------------------------------------------------------------
+// Slideshow music settings filename/filepath text editor
+// -----------------------------------------------------------------------------
+RESOURCE EDWIN r_shw_editor
+    {
+    flags=0;
+    }
+    
+// -----------------------------------------------------------------------------
+// Slideshow settings transition setting page
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_SETTING_PAGE r_shw_settingslist_transition_setting_page
+  {
+  label = qtn_lgal_slideshow_settings_transition;
+  type = EAknCtPopupSettingList;
+  editor_resource_id = r_shw_settingslist_transition_popup_setting_list;
+  }    
+  
+  
+// -----------------------------------------------------------------------------
+// Slideshow settings transition editor resource
+// -----------------------------------------------------------------------------
+RESOURCE POPUP_SETTING_LIST r_shw_settingslist_transition_popup_setting_list
+    {
+    }  
+    
+    
+    
+// -----------------------------------------------------------------------------
+// Slideshow settings transition delay setting page
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_SETTING_PAGE r_shw_settingslist_delay_setting_page
+  {
+  softkey_resource = R_AVKON_SOFTKEYS_OK_CANCEL;  
+  label = qtn_lgal_slideshow_settings_delay_slides;
+  type = EAknCtSlider;
+  editor_resource_id = r_shw_settingslist_delay_slider;
+  }
+
+
+// ---------------------------------------------------------------------------
+// Delay transition slider.
+// ---------------------------------------------------------------------------
+RESOURCE SLIDER r_shw_settingslist_delay_slider
+    {
+    layout 	  = EAknSettingsItemSliderLayout;
+    minvalue  = KMinTransDelay;  
+    maxvalue  = KMaxTransDelay;
+    step 	  = KTransDelayStep;	
+    valuetype = EAknSliderValueNone;
+    minlabel  = qtn_lgal_slideshow_settings_delay_slow;
+    maxlabel  = qtn_lgal_slideshow_settings_delay_fast;
+    }
+    
+    
+    
+// -----------------------------------------------------------------------------
+// Slideshow settings transition delay popup setting texts
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_POPUP_SETTING_TEXTS r_shw_settingslist_delay_popup_setting_texts
+    {
+    setting_texts_resource = r_shw_settingslist_delay_texts;
+    popped_up_texts_resource = r_shw_settingslist_delay_popup_texts;
+    }
+
+
+// -----------------------------------------------------------------------------
+// Slideshow settings transition delay popup setting texts resource
+// -----------------------------------------------------------------------------
+RESOURCE ARRAY r_shw_settingslist_delay_texts
+    {
+    }
+
+// -----------------------------------------------------------------------------
+// Slideshow settings transition delay setting page setting texts
+// -----------------------------------------------------------------------------
+RESOURCE ARRAY r_shw_settingslist_delay_popup_texts
+    {
+    }
+
+// -----------------------------------------------------------------------------
+// Slideshow settings effects page
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_SETTING_PAGE r_shw_settingslist_effect_setting_page
+    {
+    softkey_resource = R_AVKON_SOFTKEYS_OK_CANCEL;
+    label = qtn_lgal_slideshow_settings_transition;
+    type = EAknCtPopupSettingList;
+    editor_resource_id = r_shw_settingslist_effect_popup_setting_list;
+    }
+
+// -----------------------------------------------------------------------------
+// Slideshow settings effect resource
+// -----------------------------------------------------------------------------
+RESOURCE POPUP_SETTING_LIST r_shw_settingslist_effect_popup_setting_list
+	{
+	}
+
+// -----------------------------------------------------------------------------
+// Slideshow music settings effect popup setting texts
+// -----------------------------------------------------------------------------
+RESOURCE AVKON_POPUP_SETTING_TEXTS r_shw_settingslist_effect_popup_setting_texts
+	{
+	setting_texts_resource = r_shw_settingslist_effect_texts;
+	popped_up_texts_resource = r_swh_settingslist_effect_popup_texts;
+	}
+
+// -----------------------------------------------------------------------------
+// Slideshow settings effect popup setting texts resource
+// -----------------------------------------------------------------------------
+RESOURCE ARRAY r_shw_settingslist_effect_texts
+	{
+	items =
+		{
+		};
+	}
+
+
+// -----------------------------------------------------------------------------
+// Slideshow settings effect setting page setting texts
+// -----------------------------------------------------------------------------
+RESOURCE ARRAY r_swh_settingslist_effect_popup_texts
+    {
+    items =
+        {
+        LBUF
+            {
+            txt = qtn_lgal_slideshow_settings_music_on;
+            },
+        LBUF
+            {
+            txt = qtn_lgal_slideshow_settings_music_off;
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+// Slideshow music settings effect setting page setting texts
+// -----------------------------------------------------------------------------
+RESOURCE ARRAY r_shw_settingslist_effect_popup_texts
+	{
+	items =
+		{
+		LBUF
+			{
+			txt = qtn_lgal_slideshow_settings_kenburns_on;
+			},
+		LBUF
+			{
+			txt = qtn_lgal_slideshow_settings_kenburns_off;
+			}
+		};
+	}
+
+
+
+    
+// -----------------------------------------------------------------------------
+// Slideshow settings dialog menu bar
+// -----------------------------------------------------------------------------
+RESOURCE MENU_BAR r_shw_settingslist_menu_bar
+    {
+    titles=
+        {
+        MENU_TITLE
+            {
+            txt = ""; // the text is not used in Series 60
+            menu_pane = r_shw_settingslist_menu_pane;
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+// Slideshow music settings dialog menu pane
+// -----------------------------------------------------------------------------
+RESOURCE MENU_PANE r_shw_settingslist_menu_pane
+    {
+    items =
+        {
+        MENU_ITEM
+        	{
+        	command = EShwCmdSettingsChange;  
+        	txt = qtn_options_change;
+        	},
+        MENU_ITEM 
+        	{ 
+        	command = EShwCmdHelp; 
+        	txt = qtn_options_help; 
+        	},
+        MENU_ITEM
+            { 
+            command = EShwCmdExit;
+            txt = qtn_options_exit;
+            }
+        };
+    }    
+    
+    
+    
+// -----------------------------------------------------------------------------
+// Slideshow confirmation query.
+// -----------------------------------------------------------------------------
+RESOURCE DIALOG r_shw_confirmation_query
+    {
+    flags = EGeneralQueryFlags;
+    buttons = R_AVKON_SOFTKEYS_YES_NO;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtQuery;
+            id = EAknCtQuery;
+            control = AVKON_CONFIRMATION_QUERY
+                {
+                layout = EConfirmationLayout;
+                };
+            }
+        };
+    }    
+    

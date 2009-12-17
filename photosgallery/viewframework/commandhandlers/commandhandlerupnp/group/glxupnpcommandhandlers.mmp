@@ -1,0 +1,81 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Upnp Command Handler
+*
+*/
+
+
+
+
+#include "../../../../group/glxbuildcommon.mmh"
+#include <platform_paths.hrh>
+
+TARGET          glxupnpcommandhandler.dll
+TARGETTYPE      dll
+
+UID             0x1000008d 0x200071B4
+
+CAPABILITY      CAP_GENERAL_DLL
+
+//Global data
+#ifndef WINSCW
+EPOCALLOWDLLDATA
+#endif            
+
+SOURCEPATH      ../src
+SOURCE          glxcommandhandlershowviaupnp.cpp
+SOURCE          glxcommandhandlercopytohomenetwork.cpp
+SOURCE          glxupnprenderer.cpp
+SOURCE          glxupnpthumbnailsaver.cpp
+SOURCE          glxupnprendererimpl.cpp
+
+USERINCLUDE     ../inc					
+
+SYSTEMINCLUDE   ../../inc                                       //CommandHandlers Identifier
+SYSTEMINCLUDE   ../../commandhandlerbase/inc                    //MediaListCommandHandler				
+SYSTEMINCLUDE   ../../../inc                                    //MGlxCommandHandler
+SYSTEMINCLUDE   ../../../../inc                                 //Gallery Includes
+SYSTEMINCLUDE   ../../../medialists/inc                         //MGlxMediaListObserver
+SYSTEMINCLUDE   ../../../../viewframework/uiutilities/inc       //MGlxActiveMediaListChangeObserver
+SYSTEMINCLUDE	../../../../common/inc                          //CGlxResourceUtilities
+SYSTEMINCLUDE	../../../../commonui/inc
+
+deffile  glxupnpcommandhandler.def
+
+APP_LAYER_SYSTEMINCLUDE
+
+
+LIBRARY         aknicon.lib                     //AknIconUtils
+LIBRARY         avkon.lib                       
+LIBRARY         bafl.lib                        //BaflUtils
+LIBRARY         bitgdi.lib                      //CFbsBitGc,CFbsBitmapDevice
+LIBRARY         centralrepository.lib           //Central repository
+LIBRARY         cone.lib
+LIBRARY         ecom.lib                        //REcomSession
+LIBRARY         efsrv.lib                       //Rfs
+LIBRARY         euser.lib
+LIBRARY         fbscli.lib                      //CFbsBitmap
+LIBRARY         imageconversion.lib             //CImageEncoder
+LIBRARY         mpxcommon.lib                   //mpx  
+//Upnpcommand.dll is always included in image 
+//This means media app always can link to upnpcommand lib and check upnp availability via upnpcommand api. 
+LIBRARY         upnpcommand.lib                 //CUpnpCommandAPI
+
+LIBRARY         glxcommandhandlerbase.lib   
+LIBRARY         glxcommon.lib                   //CResourceUtilities, Filters
+LIBRARY         glxmedialists.lib               //medialist
+LIBRARY         glxuiutilities.lib          	//MGlxMediaListResolver
+LIBRARY         eikcoctl.lib 
+LIBRARY         eikcore.lib
+LIBRARY         flogger.lib						// For Logging Tracer

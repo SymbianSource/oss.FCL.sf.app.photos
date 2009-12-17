@@ -1,0 +1,31 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Build information for subsystem ViewFramework.
+*
+*/
+
+
+
+
+#include "../drmutility/group/bld.inf"
+#include "../medialists/group/bld.inf"
+#include "../layouts/group/bld.inf"
+#include "../texturemanager/group/bld.inf"
+#include "../tvout/group/bld.inf"
+#include "../uiutilities/group/bld.inf"
+#include "../dataprovider/group/bld.inf"
+#include "../visuallistmanager/group/bld.inf"
+#include "../commandhandlers/group/bld.inf"
+#include "../views/group/bld.inf"
+#include "../plugins/group/bld.inf"

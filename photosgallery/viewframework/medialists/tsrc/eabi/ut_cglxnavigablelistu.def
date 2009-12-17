@@ -1,0 +1,51 @@
+EXPORTS
+	_Z16CreateTestSuiteLv @ 1 NONAME
+	_ZN19GlxThumbnailUtility15IsFullThumbnailERK13TMPXAttribute @ 2 NONAME
+	_ZN19GlxThumbnailUtility16ClosestThumbnailERK5TSizeRK9CGlxMediai @ 3 NONAME
+	_ZN9CGlxMedia13SetTextValueLERK13TMPXAttributeRK7TDesC16 @ 4 NONAME
+	_ZN9CGlxMedia14HandleModifiedERK6RArrayI13TMPXAttributeE @ 5 NONAME
+	_ZN9CGlxMedia15DeleteAttributeERK13TMPXAttribute @ 6 NONAME
+	_ZN9CGlxMedia16SetCObjectValueLERK13TMPXAttributeP5CBase @ 7 NONAME
+	_ZN9CGlxMedia5ResetEv @ 8 NONAME
+	_ZN9CGlxMedia9SetValueLERK13TMPXAttributePv17TMPXAttributeType @ 9 NONAME
+	_ZN9CGlxMediaC1ERK11TGlxMediaId @ 10 NONAME
+	_ZN9CGlxMediaC2ERK11TGlxMediaId @ 11 NONAME
+	_ZN9CGlxMediaD0Ev @ 12 NONAME
+	_ZN9CGlxMediaD1Ev @ 13 NONAME
+	_ZN9CGlxMediaD2Ev @ 14 NONAME
+	_ZN9TGlxMedia23DeleteLocationAttributeEv @ 15 NONAME
+	_ZN9TGlxMedia9MatchByIdERKS_S1_ @ 16 NONAME
+	_ZNK9CGlxMedia12GetValueTextER7TPtrC16RK13TMPXAttribute @ 17 NONAME
+	_ZNK9CGlxMedia12ValueCObjectERK13TMPXAttribute @ 18 NONAME
+	_ZNK9CGlxMedia9ValueTextERK13TMPXAttribute @ 19 NONAME
+	_ZNK9TGlxMedia11GetDurationERf @ 20 NONAME
+	_ZNK9TGlxMedia11GetIconInfoER9TIconInfo @ 21 NONAME
+	_ZNK9TGlxMedia13GetCoordinateER11TCoordinate @ 22 NONAME
+	_ZNK9TGlxMedia13GetDimensionsER5TSize @ 23 NONAME
+	_ZNK9TGlxMedia13GetFrameCountERi @ 24 NONAME
+	_ZNK9TGlxMedia13GetSystemItemERi @ 25 NONAME
+	_ZNK9TGlxMedia14GetDrmValidityER30TGlxMediaGeneralRightsValidity @ 26 NONAME
+	_ZNK9TGlxMedia14IsDrmProtectedEv @ 27 NONAME
+	_ZNK9TGlxMedia15GetDrmProtectedERi @ 28 NONAME
+	_ZNK9TGlxMedia18ThumbnailAttributeER13TMPXAttribute @ 29 NONAME
+	_ZNK9TGlxMedia19GetClosestThumbnailER13TMPXAttributeRK5TSizei @ 30 NONAME
+	_ZNK9TGlxMedia19GetLastModifiedDateER5TTime @ 31 NONAME
+	_ZNK9TGlxMedia20GetStaticItemCommandERi @ 32 NONAME
+	_ZNK9TGlxMedia21GetContainedItemCountERi @ 33 NONAME
+	_ZNK9TGlxMedia26IsSlideShowPlayableContentEv @ 34 NONAME
+	_ZNK9TGlxMedia38GetSlideshowPlayableContainedItemCountERi @ 35 NONAME
+	_ZNK9TGlxMedia3UriEv @ 36 NONAME
+	_ZNK9TGlxMedia5TitleEv @ 37 NONAME
+	_ZNK9TGlxMedia7CommentEv @ 38 NONAME
+	_ZNK9TGlxMedia7GetDateER5TTime @ 39 NONAME
+	_ZNK9TGlxMedia7GetSizeERi @ 40 NONAME
+	_ZNK9TGlxMedia8CategoryEv @ 41 NONAME
+	_ZNK9TGlxMedia8IsStaticEv @ 42 NONAME
+	_ZNK9TGlxMedia8MimeTypeEv @ 43 NONAME
+	_ZNK9TGlxMedia8SubTitleEv @ 44 NONAME
+	_ZNK9TGlxMedia9IdSpaceIdEv @ 45 NONAME
+	_ZTI16CGlxListTestBaseI17CGlxNavigableList31CGlxNavigableListReconstructionE @ 46 NONAME ; #<TI>#
+	_ZTI26CGlxListReconstructionBase @ 47 NONAME ; #<TI>#
+	_ZTV16CGlxListTestBaseI17CGlxNavigableList31CGlxNavigableListReconstructionE @ 48 NONAME ; #<VT>#
+	_ZTV26CGlxListReconstructionBase @ 49 NONAME ; #<VT>#
+

@@ -1,0 +1,27 @@
+EXPORTS
+	??1CShwSettingsModel@@UAE@XZ @ 1 NONAME ; CShwSettingsModel::~CShwSettingsModel(void)
+	??1CShwSlideshowEngine@@UAE@XZ @ 2 NONAME ; CShwSlideshowEngine::~CShwSlideshowEngine(void)
+	?AvailableEffectsL@CShwSlideshowEngine@@SAXAAV?$RArray@VTShwEffectInfo@@@@@Z @ 3 NONAME ; void CShwSlideshowEngine::AvailableEffectsL(class RArray<class TShwEffectInfo> &)
+	?LSKPressedL@CShwSlideshowEngine@@QAEXXZ @ 4 NONAME ; void CShwSlideshowEngine::LSKPressedL(void)
+	?MusicNamePathL@CShwSettingsModel@@QBEXAAVTDes16@@@Z @ 5 NONAME ; void CShwSettingsModel::MusicNamePathL(class TDes16 &) const
+	?MusicOnL@CShwSettingsModel@@QBEHXZ @ 6 NONAME ; int CShwSettingsModel::MusicOnL(void) const
+	?NewL@CShwSettingsModel@@SAPAV1@XZ @ 7 NONAME ; class CShwSettingsModel * CShwSettingsModel::NewL(void)
+	?NewL@CShwSlideshowEngine@@SAPAV1@AAVMShwEngineObserver@@@Z @ 8 NONAME ; class CShwSlideshowEngine * CShwSlideshowEngine::NewL(class MShwEngineObserver &)
+	?NextItemL@CShwSlideshowEngine@@QAEXXZ @ 9 NONAME ; void CShwSlideshowEngine::NextItemL(void)
+	?PauseL@CShwSlideshowEngine@@QAEXXZ @ 10 NONAME ; void CShwSlideshowEngine::PauseL(void)
+	?PlayOrderL@CShwSettingsModel@@QAEHXZ @ 11 NONAME ; int CShwSettingsModel::PlayOrderL(void)
+	?PreviousItemL@CShwSlideshowEngine@@QAEXXZ @ 12 NONAME ; void CShwSlideshowEngine::PreviousItemL(void)
+	?ResumeL@CShwSlideshowEngine@@QAEXXZ @ 13 NONAME ; void CShwSlideshowEngine::ResumeL(void)
+	?SaveMusicNamePathL@CShwSettingsModel@@QAEXABVTDesC16@@@Z @ 14 NONAME ; void CShwSettingsModel::SaveMusicNamePathL(class TDesC16 const &)
+	?SaveMusicStateL@CShwSettingsModel@@QAEXH@Z @ 15 NONAME ; void CShwSettingsModel::SaveMusicStateL(int)
+	?SavePlayOrderL@CShwSettingsModel@@QAEXH@Z @ 16 NONAME ; void CShwSettingsModel::SavePlayOrderL(int)
+	?SaveTransDelayL@CShwSettingsModel@@QAEXH@Z @ 17 NONAME ; void CShwSettingsModel::SaveTransDelayL(int)
+	?SaveTransitionTypeL@CShwSettingsModel@@QAEXVTUid@@I@Z @ 18 NONAME ; void CShwSettingsModel::SaveTransitionTypeL(class TUid, unsigned int)
+	?StartL@CShwSlideshowEngine@@QAEXAAVCAlfEnv@@AAVCAlfDisplay@@AAVMGlxMediaList@@AAVMShwMusicObserver@@VTSize@@@Z @ 19 NONAME ; void CShwSlideshowEngine::StartL(class CAlfEnv &, class CAlfDisplay &, class MGlxMediaList &, class MShwMusicObserver &, class TSize)
+	?State@CShwSlideshowEngine@@QBE?AW4TShwState@1@XZ @ 20 NONAME ; enum CShwSlideshowEngine::TShwState CShwSlideshowEngine::State(void) const
+	?ToggleUiControlsVisibiltyL@CShwSlideshowEngine@@QAEXXZ @ 21 NONAME ; void CShwSlideshowEngine::ToggleUiControlsVisibiltyL(void)
+	?TransDelayL@CShwSettingsModel@@QBEHXZ @ 22 NONAME ; int CShwSettingsModel::TransDelayL(void) const
+	?TransitionTypeL@CShwSettingsModel@@QBEXAAVTUid@@AAI@Z @ 23 NONAME ; void CShwSettingsModel::TransitionTypeL(class TUid &, unsigned int &) const
+	?VolumeDownL@CShwSlideshowEngine@@QAEXXZ @ 24 NONAME ; void CShwSlideshowEngine::VolumeDownL(void)
+	?VolumeUpL@CShwSlideshowEngine@@QAEXXZ @ 25 NONAME ; void CShwSlideshowEngine::VolumeUpL(void)
+

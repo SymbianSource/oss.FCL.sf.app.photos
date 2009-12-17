@@ -1,0 +1,4 @@
+EXPORTS
+	?NewL@CGlxListView@@SAPAV1@PAVMGlxMediaListFactory@@HAAUTListViewResourceIds@@ABVTDesC16@@@Z @ 1 NONAME ; class CGlxListView * CGlxListView::NewL(class MGlxMediaListFactory *, int, struct TListViewResourceIds &, class TDesC16 const &)
+	?NewLC@CGlxListView@@SAPAV1@PAVMGlxMediaListFactory@@HAAUTListViewResourceIds@@ABVTDesC16@@@Z @ 2 NONAME ; class CGlxListView * CGlxListView::NewLC(class MGlxMediaListFactory *, int, struct TListViewResourceIds &, class TDesC16 const &)
+

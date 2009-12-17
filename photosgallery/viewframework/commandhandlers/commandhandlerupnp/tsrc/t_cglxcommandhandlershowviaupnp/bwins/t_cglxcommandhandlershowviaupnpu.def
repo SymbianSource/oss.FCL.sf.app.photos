@@ -1,0 +1,8 @@
+EXPORTS
+	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 1 NONAME ; class MEUnitTest * CreateTestSuiteL(void)
+	?NewL@CGlxCommandHandlerShowViaUpnp@@SAPAV1@PAVMGlxMediaListProvider@@H@Z @ 2 NONAME ; class CGlxCommandHandlerShowViaUpnp * CGlxCommandHandlerShowViaUpnp::NewL(class MGlxMediaListProvider *, int)
+	??1CGlxCommandHandlerShowViaUpnp@@UAE@XZ @ 3 NONAME ; CGlxCommandHandlerShowViaUpnp::~CGlxCommandHandlerShowViaUpnp(void)
+	?StopShowingL@GlxUpnpRenderer@@SAXXZ @ 4 NONAME ; void GlxUpnpRenderer::StopShowingL(void)
+	?Status@GlxUpnpRenderer@@SA?AW4TStatus@NGlxUpnpRenderer@@XZ @ 5 NONAME ; enum NGlxUpnpRenderer::TStatus GlxUpnpRenderer::Status(void)
+	
+

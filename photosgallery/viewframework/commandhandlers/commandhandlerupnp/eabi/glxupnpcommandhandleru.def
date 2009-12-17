@@ -1,0 +1,6 @@
+EXPORTS
+	_ZN15GlxUpnpRenderer12StopShowingLEv @ 1 NONAME
+	_ZN15GlxUpnpRenderer6StatusEv @ 2 NONAME
+	_ZN29CGlxCommandHandlerShowViaUpnp4NewLEP21MGlxMediaListProvideri @ 3 NONAME
+	_ZN35CGlxCommandHandlerCopyToHomeNetwork4NewLER21MGlxMediaListProvider @ 4 NONAME
+

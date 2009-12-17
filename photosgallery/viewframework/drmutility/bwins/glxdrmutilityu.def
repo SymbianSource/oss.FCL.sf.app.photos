@@ -1,0 +1,15 @@
+EXPORTS
+	?CanSetAsAutomatedL@CGlxDRMUtility@@QAEHABVTDesC16@@W4TGlxDrmAutomatedType@@@Z @ 1 NONAME ; int CGlxDRMUtility::CanSetAsAutomatedL(class TDesC16 const &, enum TGlxDrmAutomatedType)
+	?CanShowInfoOnlineL@CGlxDRMUtility@@QAEHAAVTDesC16@@@Z @ 2 NONAME ; int CGlxDRMUtility::CanShowInfoOnlineL(class TDesC16 &)
+	?CheckDisplayRightsL@CGlxDRMUtility@@QAEHABVTDesC16@@H@Z @ 3 NONAME ; int CGlxDRMUtility::CheckDisplayRightsL(class TDesC16 const &, int)
+	?CheckOpenRightsL@CGlxDRMUtility@@QAEHABVTDesC16@@H@Z @ 4 NONAME ; int CGlxDRMUtility::CheckOpenRightsL(class TDesC16 const &, int)
+	?Close@CGlxDRMUtility@@QAEXXZ @ 5 NONAME ; void CGlxDRMUtility::Close(void)
+	?ConsumeRightsL@CGlxDRMUtility@@QAEHABVTDesC16@@@Z @ 6 NONAME ; int CGlxDRMUtility::ConsumeRightsL(class TDesC16 const &)
+	?DRMThumbnailSize@CGlxDRMUtility@@QAE?AVTSize@@AAV2@@Z @ 7 NONAME ; class TSize CGlxDRMUtility::DRMThumbnailSize(class TSize &)
+	?InstanceL@CGlxDRMUtility@@SAPAV1@XZ @ 8 NONAME ; class CGlxDRMUtility * CGlxDRMUtility::InstanceL(void)
+	?IsForwardLockedL@CGlxDRMUtility@@QAEHABVTDesC16@@@Z @ 9 NONAME ; int CGlxDRMUtility::IsForwardLockedL(class TDesC16 const &)
+	?SetAsAutomatedL@CGlxDRMUtility@@QAEXABVTDesC16@@W4TGlxDrmAutomatedType@@@Z @ 10 NONAME ; void CGlxDRMUtility::SetAsAutomatedL(class TDesC16 const &, enum TGlxDrmAutomatedType)
+	?ShowDRMDetailsPaneL@CGlxDRMUtility@@QAEXABVTDesC16@@@Z @ 11 NONAME ; void CGlxDRMUtility::ShowDRMDetailsPaneL(class TDesC16 const &)
+	?ShowInfoOnlineL@CGlxDRMUtility@@QAEXAAVTDesC16@@@Z @ 12 NONAME ; void CGlxDRMUtility::ShowInfoOnlineL(class TDesC16 &)
+	?ShowRightsInfoL@CGlxDRMUtility@@QAEXABVTDesC16@@@Z @ 13 NONAME ; void CGlxDRMUtility::ShowRightsInfoL(class TDesC16 const &)
+

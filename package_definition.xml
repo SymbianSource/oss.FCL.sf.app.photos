@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SystemDefinition schema="3.0.0">
+  <package id="photos" name="Photos" levels="support fw ui app">
+    <collection id="photosgallery" name="Photos Gallery" level="app">
+    	<!-- consider splitting collection into the application itself, and the frameworks behind it -->
+      <component id="photosgallery_help" filter="s60" name="Photos Help" introduced="^2">
+        <unit bldFile="photosgallery/help/group"/>
+      </component>
+      <component id="logging" filter="s60" name="Photos Logging" introduced="^2">
+        <!-- <unit bldFile="photosgallery/logging/app/group"/> -->
+        <unit bldFile="photosgallery/logging/group"/>
+      </component>
+      <component id="photosgallery_common" filter="s60" name="Photos Common" introduced="^2">
+        <unit bldFile="photosgallery/common/group"/>
+      </component>
+      <component id="photosgallery_commonui" filter="s60" name="Photos Common UI" introduced="^2">
+        <unit bldFile="photosgallery/commonui/group"/>
+      </component>
+      <component id="photosgalleryollectionfw" filter="s60" name="Photos Collection Framework" introduced="^2">
+        <unit bldFile="photosgallery/collectionframework/group"/>
+        <!-- <unit bldFile="photosgallery/collectionframework/plugins/glxcollectionpluginalbums/group"/> -->
+      </component>
+      <component id="photosgalleryviewfw" filter="s60" name="View Framework" introduced="^2">
+        <unit bldFile="photosgallery/viewframework/group"/>
+        	<!-- do the following need to be #included? -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/commandhandlerbase/tsrc/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/commandhandlerupnp/tsrc/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/commandhandlerupnp/tsrc/t_glxupnprenderer/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/commoncommandhandlers/tsrc/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/commoncommandhandlers/tsrc/t_cglxaiwservicehandler/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/commoncommandhandlers/tsrc/t_glxcommandhandlerback/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/tsrc/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/tsrc/ut_commandhandlerdrm/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/tsrc/ut_commandhandlermoreinfo/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/commandhandlers/tsrc/ut__commandhandlermarking/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/plugins/metadataviewplugin/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/views/listview/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/views/metadataview/group"/> -->
+        <!-- <unit bldFile="photosgallery/viewframework/views/viewbase/group"/> -->
+      </component>
+      <component id="controllers" filter="s60" name="Photos Controllers" introduced="^2">
+        <unit bldFile="photosgallery/controllers/group"/>
+      </component>
+      <component id="photogallery" filter="s60" name="Media Gallery" introduced="^2">
+        <unit bldFile="photosgallery/gallery/group"/>
+      </component>
+      <component id="slideshow" filter="s60" name="Slideshow" introduced="^2">
+        <unit bldFile="photosgallery/slideshow/group"/>
+        	<!-- does the test need to be #included? -->
+        <!-- <unit bldFile="photosgallery/slideshow/engine/tsrc/group"/> -->
+      </component>
+      <component id="contentharvesterplugin" filter="s60" name="Gallery Content Harvester Plugin" class="plugin" introduced="^2">
+        <unit bldFile="photosgallery/contentharvesterplugin/group"/>
+      </component>
+      <component id="photossuite" filter="s60" name="Photos Suite" class="config" introduced="^2">
+        <unit bldFile="photosgallery/photossuite/group"/>
+      </component>
+      <component id="galleryicons" filter="s60" name="Photos Icons" class="config" introduced="^2">
+        <unit bldFile="photosgallery/icons"/>
+      </component>
+      <component id="photosgallery_build" filter="s60" name="Photos Gallery Build" introduced="^2">
+      	<!--  remove the #included above bld.infs from this  -->
+        <unit bldFile="photosgallery/group"/>
+      </component>
+    </collection>
+    <collection id="photos_info" name="Photos Info" level="app">
+      <component id="photos_plat" filter="s60" name="Photos Platform Interfaces" class="api" introduced="^2">
+        <unit bldFile="photos_plat/group"/>
+        <!-- should these be #included in the above? -->
+        <!-- <unit bldFile="photos_plat/controllers_collection_api/tsrc/ui_metadatadialog/group"/> -->
+        <!-- <unit bldFile="photos_plat/controllers_collection_api/tsrc/ut_collectioninfo/group"/> -->
+        <!-- <unit bldFile="photos_plat/controllers_collection_api/tsrc/ut_collectionmanager/group"/> -->
+      </component>
+    </collection>
+  </package>
+</SystemDefinition>

@@ -1,0 +1,10 @@
+EXPORTS
+	_ZN22CGlxImageViewerManager12SetImageUriLERK7TDesC16 @ 1 NONAME
+	_ZN22CGlxImageViewerManager14DeleteInstanceEv @ 2 NONAME
+	_ZN22CGlxImageViewerManager17IncrementRefCountEv @ 3 NONAME
+	_ZN22CGlxImageViewerManager19SetImageFileHandleLERK5RFile @ 4 NONAME
+	_ZN22CGlxImageViewerManager5ResetEv @ 5 NONAME
+	_ZN22CGlxImageViewerManager9InstanceLEv @ 6 NONAME
+	_ZTI22CGlxImageViewerManager @ 7 NONAME
+	_ZTV22CGlxImageViewerManager @ 8 NONAME
+

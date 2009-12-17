@@ -1,0 +1,62 @@
+EXPORTS
+	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 1 NONAME ; class MEUnitTest * CreateTestSuiteL(void)
+	?MediaList@CGlxMediaListCommandHandler@@IBEABVMGlxMediaList@@XZ @ 2 NONAME ; class MGlxMediaList const & CGlxMediaListCommandHandler::MediaList(void) const
+	?ViewNavigationDirection@CGlxUiUtility@@QAE?AW4TGlxNavigationDirection@@XZ @ 3 NONAME ; enum TGlxNavigationDirection CGlxUiUtility::ViewNavigationDirection(void)
+	?InstanceL@CGlxDRMUtility@@SAPAV1@XZ @ 4 NONAME ; class CGlxDRMUtility * CGlxDRMUtility::InstanceL(void)
+	?CanShowInfoOnlineL@CGlxDRMUtility@@QAEHAAVTDesC16@@@Z @ 5 NONAME ; int CGlxDRMUtility::CanShowInfoOnlineL(class TDesC16 &)
+	??1CGlxCommandHandlerMoreInfo@@UAE@XZ @ 6 NONAME ; CGlxCommandHandlerMoreInfo::~CGlxCommandHandlerMoreInfo(void)
+	?CreateIconTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@HAAVTDesC16@@VTSize@@@Z @ 7 NONAME ; class CAlfTexture & CGlxTextureManager::CreateIconTextureL(int, class TDesC16 &, class TSize)
+	??1CGlxMediaListCommandHandler@@UAE@XZ @ 8 NONAME ; CGlxMediaListCommandHandler::~CGlxMediaListCommandHandler(void)
+	?DRMThumbnailSize@CGlxDRMUtility@@QAE?AVTSize@@AAV2@@Z @ 9 NONAME ; class TSize CGlxDRMUtility::DRMThumbnailSize(class TSize &)
+	?SelectionLength@CGlxMediaListCommandHandler@@IBEHXZ @ 10 NONAME ; int CGlxMediaListCommandHandler::SelectionLength(void) const
+	?CreateThumbnailTextureL@@YAAAVCAlfTexture@@VTGlxMediaId@@V?$TGlxId@VTGlxIdSpaceIdBase@@@@ABVTSize@@PAVMGlxTextureObserver@@AAH@Z @ 11 NONAME ; class CAlfTexture & CreateThumbnailTextureL(class TGlxMediaId, class TGlxId<class TGlxIdSpaceIdBase>, class TSize const &, class MGlxTextureObserver *, int &)
+	?CommandInfo@CGlxMediaListCommandHandler@@IAEAAUTCommandInfo@1@H@Z @ 12 NONAME ; struct CGlxMediaListCommandHandler::TCommandInfo & CGlxMediaListCommandHandler::CommandInfo(int)
+	?GlxTextureManager@CGlxUiUtility@@QAEAAVCGlxTextureManager@@XZ @ 13 NONAME ; class CGlxTextureManager & CGlxUiUtility::GlxTextureManager(void)
+	?Deactivate@CGlxMediaListCommandHandler@@UAEXXZ @ 14 NONAME ; void CGlxMediaListCommandHandler::Deactivate(void)
+	?DynInitMenuPaneL@CGlxMediaListCommandHandler@@UAEXHPAVCEikMenuPane@@@Z @ 15 NONAME ; void CGlxMediaListCommandHandler::DynInitMenuPaneL(int, class CEikMenuPane *)
+	?Close@CGlxDRMUtility@@QAEXXZ @ 16 NONAME ; void CGlxDRMUtility::Close(void)
+	?ShowAlfDisplayL@CGlxUiUtility@@SAXXZ @ 17 NONAME ; void CGlxUiUtility::ShowAlfDisplayL(void)
+	?HandleActionL@CGlxUiUtility@@UAEXABVTAlfActionCommand@@@Z @ 18 NONAME ; void CGlxUiUtility::HandleActionL(class TAlfActionCommand const &)
+	??0TCommandInfo@CGlxMediaListCommandHandler@@QAE@H@Z @ 19 NONAME ; CGlxMediaListCommandHandler::TCommandInfo::TCommandInfo(int)
+	?BypassFiltersForExecute@CGlxMediaListCommandHandler@@MBEHXZ @ 20 NONAME ; int CGlxMediaListCommandHandler::BypassFiltersForExecute(void) const
+	?ConsumeRightsL@CGlxDRMUtility@@QAEHABVTDesC16@@@Z @ 21 NONAME ; int CGlxDRMUtility::ConsumeRightsL(class TDesC16 const &)
+	?DoIsDisabled@CGlxMediaListCommandHandler@@MBEHHAAVMGlxMediaList@@@Z @ 22 NONAME ; int CGlxMediaListCommandHandler::DoIsDisabled(int, class MGlxMediaList &) const
+	?CreateAvkonIconTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@ABVTAknsItemID@@HVTSize@@@Z @ 23 NONAME ; class CAlfTexture & CGlxTextureManager::CreateAvkonIconTextureL(class TAknsItemID const &, int, class TSize)
+	??0CGlxMedia@@QAE@ABVTGlxMediaId@@@Z @ 24 NONAME ; CGlxMedia::CGlxMedia(class TGlxMediaId const &)
+	?HandleTvStatusChangedL@CGlxUiUtility@@UAEXW4TTvChangeType@@@Z @ 25 NONAME ; void CGlxUiUtility::HandleTvStatusChangedL(enum TTvChangeType)
+	?AddCommandL@CGlxMediaListCommandHandler@@IAEXABUTCommandInfo@1@@Z @ 26 NONAME ; void CGlxMediaListCommandHandler::AddCommandL(struct CGlxMediaListCommandHandler::TCommandInfo const &)
+	?MediaList@CGlxMediaListCommandHandler@@IAEAAVMGlxMediaList@@XZ @ 27 NONAME ; class MGlxMediaList & CGlxMediaListCommandHandler::MediaList(void)
+	?Close@CGlxUiUtility@@QAEXXZ @ 28 NONAME ; void CGlxUiUtility::Close(void)
+	?NewL@CGlxTextureManager@@SAPAV1@AAVCAlfTextureManager@@@Z @ 29 NONAME ; class CGlxTextureManager * CGlxTextureManager::NewL(class CAlfTextureManager &)
+	?IsDisabledL@CGlxMediaListCommandHandler@@IBEHHAAVMGlxMediaList@@@Z @ 30 NONAME ; int CGlxMediaListCommandHandler::IsDisabledL(int, class MGlxMediaList &) const
+	?CreateZoomedTextureL@@YAAAVCAlfTexture@@ABVTGlxMedia@@ABVTMPXAttribute@@V?$TGlxId@VTGlxIdSpaceIdBase@@@@AAH@Z @ 31 NONAME ; class CAlfTexture & CreateZoomedTextureL(class TGlxMedia const &, class TMPXAttribute const &, class TGlxId<class TGlxIdSpaceIdBase>, int &)
+	??1CGlxMedia@@UAE@XZ @ 32 NONAME ; CGlxMedia::~CGlxMedia(void)
+	?NewL@CGlxCommandHandlerMoreInfo@@SAPAV1@PAVMGlxMediaListProvider@@H@Z @ 33 NONAME ; class CGlxCommandHandlerMoreInfo * CGlxCommandHandlerMoreInfo::NewL(class MGlxMediaListProvider *, int)
+	?HandleSkinChanged@CGlxTextureManager@@UAEXXZ @ 34 NONAME ; void CGlxTextureManager::HandleSkinChanged(void)
+	?UtilityL@CGlxUiUtility@@SAPAV1@XZ @ 35 NONAME ; class CGlxUiUtility * CGlxUiUtility::UtilityL(void)
+	?HideAlfDisplayL@CGlxUiUtility@@SAXXZ @ 36 NONAME ; void CGlxUiUtility::HideAlfDisplayL(void)
+	?ExecuteL@CGlxMediaListCommandHandler@@UAEHH@Z @ 37 NONAME ; int CGlxMediaListCommandHandler::ExecuteL(int)
+	?DisplaySize@CGlxUiUtility@@QBE?AVTSize@@XZ @ 38 NONAME ; class TSize CGlxUiUtility::DisplaySize(void) const
+	?ShowRightsInfoL@CGlxDRMUtility@@QAEXABVTDesC16@@@Z @ 39 NONAME ; void CGlxDRMUtility::ShowRightsInfoL(class TDesC16 const &)
+	?IsSupported@CGlxMediaListCommandHandler@@IBEHH@Z @ 40 NONAME ; int CGlxMediaListCommandHandler::IsSupported(int) const
+	?GetRequiredAttributesL@CGlxMediaListCommandHandler@@UBEXAAV?$RArray@VTMPXAttribute@@@@HHH@Z @ 41 NONAME ; void CGlxMediaListCommandHandler::GetRequiredAttributesL(class RArray<class TMPXAttribute> &, int, int, int) const
+	?DoActivateL@CGlxMediaListCommandHandler@@MAEXH@Z @ 42 NONAME ; void CGlxMediaListCommandHandler::DoActivateL(int)
+	?RemoveTexture@CGlxTextureManager@@QAEXABVCAlfTexture@@@Z @ 43 NONAME ; void CGlxTextureManager::RemoveTexture(class CAlfTexture const &)
+	?PreDynInitMenuPaneL@CGlxMediaListCommandHandler@@UAEXH@Z @ 44 NONAME ; void CGlxMediaListCommandHandler::PreDynInitMenuPaneL(int)
+	?RetrieveL@GlxAttributeRetriever@@SAHABVMGlxFetchContext@@AAVMGlxMediaList@@H@Z @ 45 NONAME ; int GlxAttributeRetriever::RetrieveL(class MGlxFetchContext const &, class MGlxMediaList &, int)
+	?DoGetRequiredAttributesL@CGlxMediaListCommandHandler@@MBEXAAV?$RArray@VTMPXAttribute@@@@H@Z @ 46 NONAME ; void CGlxMediaListCommandHandler::DoGetRequiredAttributesL(class RArray<class TMPXAttribute> &, int) const
+	?TextStyleIdL@CGlxUiUtility@@QAEHHH@Z @ 47 NONAME ; int CGlxUiUtility::TextStyleIdL(int, int)
+	?BypassFiltersForMenu@CGlxMediaListCommandHandler@@MBEHXZ @ 48 NONAME ; int CGlxMediaListCommandHandler::BypassFiltersForMenu(void) const
+	?ViewingState@CGlxMediaListCommandHandler@@IBE?AW4TViewingState@TCommandInfo@1@XZ @ 49 NONAME ; enum CGlxMediaListCommandHandler::TCommandInfo::TViewingState CGlxMediaListCommandHandler::ViewingState(void) const
+	?ShowInfoOnlineL@CGlxDRMUtility@@QAEXAAVTDesC16@@@Z @ 50 NONAME ; void CGlxDRMUtility::ShowInfoOnlineL(class TDesC16 &)
+	?CommandInfoIndex@CGlxMediaListCommandHandler@@ABEHH@Z @ 51 NONAME ; int CGlxMediaListCommandHandler::CommandInfoIndex(int) const
+	?IsForwardLockedL@CGlxDRMUtility@@QAEHABVTDesC16@@@Z @ 52 NONAME ; int CGlxDRMUtility::IsForwardLockedL(class TDesC16 const &)
+	?OfferKeyEventL@CGlxMediaListCommandHandler@@UAE?AW4TKeyResponse@@ABUTKeyEvent@@W4TEventCode@@@Z @ 53 NONAME ; enum TKeyResponse CGlxMediaListCommandHandler::OfferKeyEventL(struct TKeyEvent const &, enum TEventCode)
+	?Display@CGlxUiUtility@@QBEPAVCAlfDisplay@@XZ @ 54 NONAME ; class CAlfDisplay * CGlxUiUtility::Display(void) const
+	??0CGlxMediaListCommandHandler@@QAE@PAVMGlxMediaListProvider@@H@Z @ 55 NONAME ; CGlxMediaListCommandHandler::CGlxMediaListCommandHandler(class MGlxMediaListProvider *, int)
+	?Env@CGlxUiUtility@@QBEPAVCAlfEnv@@XZ @ 56 NONAME ; class CAlfEnv * CGlxUiUtility::Env(void) const
+	?DoDynInitMenuPaneL@CGlxMediaListCommandHandler@@MAEXHPAVCEikMenuPane@@@Z @ 57 NONAME ; void CGlxMediaListCommandHandler::DoDynInitMenuPaneL(int, class CEikMenuPane *)
+	?SetViewNavigationDirection@CGlxUiUtility@@QAEXW4TGlxNavigationDirection@@@Z @ 58 NONAME ; void CGlxUiUtility::SetViewNavigationDirection(enum TGlxNavigationDirection)
+	?CheckOpenRightsL@CGlxDRMUtility@@QAEHABVTDesC16@@H@Z @ 59 NONAME ; int CGlxDRMUtility::CheckOpenRightsL(class TDesC16 const &, int)
+	?ScreenFurniture@CGlxUiUtility@@QAEPAVCGlxScreenFurniture@@XZ @ 60 NONAME ; class CGlxScreenFurniture * CGlxUiUtility::ScreenFurniture(void)
+

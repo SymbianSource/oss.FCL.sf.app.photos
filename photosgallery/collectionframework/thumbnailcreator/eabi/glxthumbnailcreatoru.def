@@ -1,0 +1,14 @@
+EXPORTS
+	_ZN22CGlxtnThumbnailCreator13CancelRequestERK11TGlxMediaId @ 1 NONAME
+	_ZN22CGlxtnThumbnailCreator15FetchThumbnailLERK20TGlxThumbnailRequestR28MGlxtnThumbnailCreatorClient @ 2 NONAME
+	_ZN22CGlxtnThumbnailCreator17DeleteThumbnailsLERK11TGlxMediaIdR28MGlxtnThumbnailCreatorClient @ 3 NONAME
+	_ZN22CGlxtnThumbnailCreator18CleanupThumbnailsLEP22MGlxtnThumbnailStorage @ 4 NONAME
+	_ZN22CGlxtnThumbnailCreator26FilterAvailableThumbnailsLERK6TArrayI11TGlxMediaIdERK5TSizeR28MGlxtnThumbnailCreatorClient @ 5 NONAME
+	_ZN22CGlxtnThumbnailCreator5CloseEP22MGlxtnThumbnailStorage @ 6 NONAME
+	_ZN22CGlxtnThumbnailCreator9InstanceLEv @ 7 NONAME
+	_ZN23CGlxtnThumbnailDatabase4NewLERK7TDesC16P30MGlxtnThumbnailStorageObserver @ 8 NONAME
+	_ZTI22CGlxtnThumbnailCreator @ 9 NONAME ; #<TI>#
+	_ZTI23CGlxtnThumbnailDatabase @ 10 NONAME ; #<TI>#
+	_ZTV22CGlxtnThumbnailCreator @ 11 NONAME ; #<VT>#
+	_ZTV23CGlxtnThumbnailDatabase @ 12 NONAME ; #<VT>#
+

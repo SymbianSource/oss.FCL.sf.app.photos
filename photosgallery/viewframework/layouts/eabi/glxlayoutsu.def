@@ -1,0 +1,80 @@
+EXPORTS
+	_ZN10CGlxLayout15SetLayoutValuesER14TGlxLayoutInfo @ 1 NONAME
+	_ZN10CGlxLayout17DoSetLayoutValuesER14TGlxLayoutInfo @ 2 NONAME
+	_ZN10CGlxLayout7SetNextEP10MGlxLayout @ 3 NONAME
+	_ZN10CGlxLayoutC1Ev @ 4 NONAME
+	_ZN10CGlxLayoutC2Ev @ 5 NONAME
+	_ZN10CGlxLayoutD0Ev @ 6 NONAME
+	_ZN10CGlxLayoutD1Ev @ 7 NONAME
+	_ZN10CGlxLayoutD2Ev @ 8 NONAME
+	_ZN10TGlxLayout15SetLayoutValuesER14TGlxLayoutInfo @ 9 NONAME
+	_ZN10TGlxLayout17DoSetLayoutValuesER14TGlxLayoutInfo @ 10 NONAME
+	_ZN10TGlxLayout7SetNextEP10MGlxLayout @ 11 NONAME
+	_ZN10TGlxLayoutC1Ev @ 12 NONAME
+	_ZN10TGlxLayoutC2Ev @ 13 NONAME
+	_ZN10TGlxLayoutD0Ev @ 14 NONAME
+	_ZN10TGlxLayoutD1Ev @ 15 NONAME
+	_ZN10TGlxLayoutD2Ev @ 16 NONAME
+	_ZN16TGlxLayoutHelper12LayoutVisualEi5TSize @ 17 NONAME
+	_ZN16TGlxLayoutHelper15LayoutPanVisualEi5TSize @ 18 NONAME
+	_ZN16TGlxLayoutHelper20GetUpdatedLayoutInfoEv @ 19 NONAME
+	_ZN16TGlxLayoutHelper20GetUpdatedVisualSizeEv @ 20 NONAME
+	_ZN16TGlxLayoutHelper9SetLayoutEP10MGlxLayout @ 21 NONAME
+	_ZN16TGlxLayoutHelperC1ER10CAlfVisual @ 22 NONAME
+	_ZN16TGlxLayoutHelperC2ER10CAlfVisual @ 23 NONAME
+	_ZN16TGlxLayoutHelperD1Ev @ 24 NONAME
+	_ZN16TGlxLayoutHelperD2Ev @ 25 NONAME
+	_ZN18TGlxLayoutSplitter10SetLayoutLEP10MGlxLayoutPK10CAlfVisual @ 26 NONAME
+	_ZN18TGlxLayoutSplitter12RemoveLayoutEPK10CAlfVisual @ 27 NONAME
+	_ZN18TGlxLayoutSplitter14SetVisualListLEP14MGlxVisualList @ 28 NONAME
+	_ZN18TGlxLayoutSplitter16SetDefaultLayoutEP10MGlxLayout @ 29 NONAME
+	_ZN18TGlxLayoutSplitter5ResetEv @ 30 NONAME
+	_ZN18TGlxLayoutSplitterC1Ev @ 31 NONAME
+	_ZN18TGlxLayoutSplitterC2Ev @ 32 NONAME
+	_ZN18TGlxLayoutSplitterD0Ev @ 33 NONAME
+	_ZN18TGlxLayoutSplitterD1Ev @ 34 NONAME
+	_ZN18TGlxLayoutSplitterD2Ev @ 35 NONAME
+	_ZN18TGlxRotationLayout11SetRotationEfi @ 36 NONAME
+	_ZN18TGlxRotationLayoutC1Ev @ 37 NONAME
+	_ZN18TGlxRotationLayoutC2Ev @ 38 NONAME
+	_ZN18TGlxRotationLayoutD0Ev @ 39 NONAME
+	_ZN18TGlxRotationLayoutD1Ev @ 40 NONAME
+	_ZN18TGlxRotationLayoutD2Ev @ 41 NONAME
+	_ZN18TGlxSetValueLayout10SetOpacityEfi @ 42 NONAME
+	_ZN18TGlxSetValueLayout11SetPositionEffi @ 43 NONAME
+	_ZN18TGlxSetValueLayout7SetSizeEffi @ 44 NONAME
+	_ZN18TGlxSetValueLayoutC1Ev @ 45 NONAME
+	_ZN18TGlxSetValueLayoutC2Ev @ 46 NONAME
+	_ZN18TGlxSetValueLayoutD0Ev @ 47 NONAME
+	_ZN18TGlxSetValueLayoutD1Ev @ 48 NONAME
+	_ZN18TGlxSetValueLayoutD2Ev @ 49 NONAME
+	_ZN21TGlxFollowFocusLayout14SetVisualListLEP14MGlxVisualList @ 50 NONAME
+	_ZN21TGlxFollowFocusLayoutC2Ev @ 51 NONAME
+	_ZN21TGlxFollowFocusLayoutD0Ev @ 52 NONAME
+	_ZN21TGlxFollowFocusLayoutD1Ev @ 53 NONAME
+	_ZN21TGlxFollowFocusLayoutD2Ev @ 54 NONAME
+	_ZN22TGlxLayoutInfoResetter13SetScreenSizeE5TSize @ 55 NONAME
+	_ZN22TGlxLayoutInfoResetter5ResetEi @ 56 NONAME
+	_ZN22TGlxLayoutInfoResetter9SetVisualEP10CAlfVisual @ 57 NONAME
+	_ZN22TGlxLayoutInfoResetterC1EP10CAlfVisual @ 58 NONAME
+	_ZN22TGlxLayoutInfoResetterC1Ev @ 59 NONAME
+	_ZN22TGlxLayoutInfoResetterC2EP10CAlfVisual @ 60 NONAME
+	_ZN22TGlxLayoutInfoResetterC2Ev @ 61 NONAME
+	_ZNK10CGlxLayout4NextEv @ 62 NONAME
+	_ZNK10TGlxLayout4NextEv @ 63 NONAME
+	_ZTI10CGlxLayout @ 64 NONAME ; #<TI>#
+	_ZTI10TGlxLayout @ 65 NONAME ; #<TI>#
+	_ZTI18TGlxLayoutSplitter @ 66 NONAME ; #<TI>#
+	_ZTI18TGlxRotationLayout @ 67 NONAME ; #<TI>#
+	_ZTI18TGlxSetValueLayout @ 68 NONAME ; #<TI>#
+	_ZTI21TGlxFollowFocusLayout @ 69 NONAME ; #<TI>#
+	_ZTV10CGlxLayout @ 70 NONAME ; #<VT>#
+	_ZTV10TGlxLayout @ 71 NONAME ; #<VT>#
+	_ZTV18TGlxLayoutSplitter @ 72 NONAME ; #<VT>#
+	_ZTV18TGlxRotationLayout @ 73 NONAME ; #<VT>#
+	_ZTV18TGlxSetValueLayout @ 74 NONAME ; #<VT>#
+	_ZTV21TGlxFollowFocusLayout @ 75 NONAME ; #<VT>#
+	_ZThn4_N10CGlxLayout15SetLayoutValuesER14TGlxLayoutInfo @ 76 NONAME ; #<thunk>#
+	_ZThn4_N10CGlxLayout7SetNextEP10MGlxLayout @ 77 NONAME ; #<thunk>#
+	_ZThn4_NK10CGlxLayout4NextEv @ 78 NONAME ; #<thunk>#
+

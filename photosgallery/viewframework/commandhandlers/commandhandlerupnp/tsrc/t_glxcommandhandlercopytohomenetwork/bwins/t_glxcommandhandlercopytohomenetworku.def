@@ -1,0 +1,6 @@
+EXPORTS
+	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 1 NONAME ; class MEUnitTest * CreateTestSuiteL(void)
+	??1CGlxCommandHandlerCopyToHomeNetwork@@UAE@XZ @ 2 NONAME ; CGlxCommandHandlerCopyToHomeNetwork::~CGlxCommandHandlerCopyToHomeNetwork(void)
+	?RetrieveL@GlxAttributeRetriever@@SAHABVMGlxFetchContext@@AAVMGlxMediaList@@H@Z @ 3 NONAME ; int GlxAttributeRetriever::RetrieveL(class MGlxFetchContext const &, class MGlxMediaList &, int)
+	
+

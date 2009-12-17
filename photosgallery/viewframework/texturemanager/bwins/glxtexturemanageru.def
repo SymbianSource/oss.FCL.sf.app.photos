@@ -1,0 +1,17 @@
+EXPORTS
+	?CreateColorAvkonIconTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@ABVTAknsItemID@@HVTRgb@@0HVTSize@@@Z @ 1 NONAME ; class CAlfTexture & CGlxTextureManager::CreateColorAvkonIconTextureL(class TAknsItemID const &, int, class TRgb, class TAknsItemID const &, int, class TSize)
+	?CreateFlatColourTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@VTRgb@@@Z @ 2 NONAME ; class CAlfTexture & CGlxTextureManager::CreateFlatColourTextureL(class TRgb)
+	?CreateAvkonIconTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@ABVTAknsItemID@@HVTSize@@@Z @ 3 NONAME ; class CAlfTexture & CGlxTextureManager::CreateAvkonIconTextureL(class TAknsItemID const &, int, class TSize)
+	?CreateIconTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@HAAVTDesC16@@VTSize@@@Z @ 4 NONAME ; class CAlfTexture & CGlxTextureManager::CreateIconTextureL(int, class TDesC16 &, class TSize)
+	?CreateZoomedTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@ABVTGlxMedia@@ABVTMPXAttribute@@V?$TGlxId@VTGlxIdSpaceIdBase@@@@PAVMGlxTextureObserver@@@Z @ 5 NONAME ; class CAlfTexture & CGlxTextureManager::CreateZoomedTextureL(class TGlxMedia const &, class TMPXAttribute const &, class TGlxId<class TGlxIdSpaceIdBase>, class MGlxTextureObserver *)
+	?NewL@CGlxTextureManager@@SAPAV1@AAVCAlfTextureManager@@@Z @ 6 NONAME ; class CGlxTextureManager * CGlxTextureManager::NewL(class CAlfTextureManager &)
+	?RemoveTexture@CGlxTextureManager@@QAEXABVTGlxMediaId@@H@Z @ 7 NONAME ; void CGlxTextureManager::RemoveTexture(class TGlxMediaId const &, int)
+	?TextureNeedsUpdating@CGlxTextureManager@@QAEHVTGlxMedia@@V?$TGlxId@VTGlxIdSpaceIdBase@@@@ABVTSize@@@Z @ 8 NONAME ; int CGlxTextureManager::TextureNeedsUpdating(class TGlxMedia, class TGlxId<class TGlxIdSpaceIdBase>, class TSize const &)
+	?RemoveTexture@CGlxTextureManager@@QAEXABVCAlfTexture@@@Z @ 9 NONAME ; void CGlxTextureManager::RemoveTexture(class CAlfTexture const &)
+	?RemoveZoomList@CGlxTextureManager@@QAEXXZ @ 10 NONAME ; void CGlxTextureManager::RemoveZoomList(void)
+	?CreateAnimatedGifTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@ABVTDesC16@@ABVTSize@@@Z @ 11 NONAME ; class CAlfTexture & CGlxTextureManager::CreateAnimatedGifTextureL(class TDesC16 const &, class TSize const &)
+	?CreateAvkonIconTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@ABVTAknsItemID@@VTSize@@@Z @ 12 NONAME ; class CAlfTexture & CGlxTextureManager::CreateAvkonIconTextureL(class TAknsItemID const &, class TSize)
+	?CreateColorIconTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@HAAVTDesC16@@VTRgb@@ABVTAknsItemID@@HVTSize@@@Z @ 13 NONAME ; class CAlfTexture & CGlxTextureManager::CreateColorIconTextureL(int, class TDesC16 &, class TRgb, class TAknsItemID const &, int, class TSize)
+	?CreateThumbnailTextureL@CGlxTextureManager@@QAEAAVCAlfTexture@@ABVTGlxMedia@@ABV?$TGlxId@VTGlxIdSpaceIdBase@@@@ABVTSize@@PAVMGlxTextureObserver@@H@Z @ 14 NONAME ; class CAlfTexture & CGlxTextureManager::CreateThumbnailTextureL(class TGlxMedia const &, class TGlxId<class TGlxIdSpaceIdBase> const &, class TSize const &, class MGlxTextureObserver *, int)
+	?CreateNewTextureForMediaL@CGlxTextureManager@@QAEAAVCAlfTexture@@VTSize@@ABVTGlxMedia@@ABV?$TGlxId@VTGlxIdSpaceIdBase@@@@PAVMGlxTextureObserver@@@Z @ 15 NONAME ; class CAlfTexture & CGlxTextureManager::CreateNewTextureForMediaL(class TSize, class TGlxMedia const &, class TGlxId<class TGlxIdSpaceIdBase> const &, class MGlxTextureObserver *)
+

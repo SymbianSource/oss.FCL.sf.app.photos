@@ -1,0 +1,69 @@
+EXPORTS
+	_Z16CreateTestSuiteLv @ 1 NONAME
+	_ZN15GlxErrorManager18HasAttributeErrorLEPK9CGlxMediaRK13TMPXAttribute @ 2 NONAME
+	_ZN15GlxErrorManager18HasAttributeErrorLEPK9CGlxMediai @ 3 NONAME
+	_ZN5CIdle3NewEi @ 4 NONAME
+	_ZN5CIdle4NewLEi @ 5 NONAME
+	_ZN5CIdle4RunLEv @ 6 NONAME
+	_ZN5CIdle5StartE9TCallBack @ 7 NONAME
+	_ZN5CIdle8DoCancelEv @ 8 NONAME
+	_ZN5CIdleC1Ei @ 9 NONAME
+	_ZN5CIdleC2Ei @ 10 NONAME
+	_ZN5CIdleD0Ev @ 11 NONAME
+	_ZN5CIdleD1Ev @ 12 NONAME
+	_ZN5CIdleD2Ev @ 13 NONAME
+	_ZN9CGlxMedia13SetTextValueLERK13TMPXAttributeRK7TDesC16 @ 14 NONAME
+	_ZN9CGlxMedia14HandleModifiedERK6RArrayI13TMPXAttributeE @ 15 NONAME
+	_ZN9CGlxMedia15DeleteAttributeERK13TMPXAttribute @ 16 NONAME
+	_ZN9CGlxMedia16SetCObjectValueLERK13TMPXAttributeP5CBase @ 17 NONAME
+	_ZN9CGlxMedia5ResetEv @ 18 NONAME
+	_ZN9CGlxMedia9SetValueLERK13TMPXAttributePv17TMPXAttributeType @ 19 NONAME
+	_ZN9CGlxMediaC1ERK11TGlxMediaId @ 20 NONAME
+	_ZN9CGlxMediaC2ERK11TGlxMediaId @ 21 NONAME
+	_ZN9CGlxMediaD0Ev @ 22 NONAME
+	_ZN9CGlxMediaD1Ev @ 23 NONAME
+	_ZN9CGlxMediaD2Ev @ 24 NONAME
+	_ZN9TGlxMedia23DeleteLocationAttributeEv @ 25 NONAME
+	_ZN9TGlxMedia9MatchByIdERKS_S1_ @ 26 NONAME
+	_ZNK9CGlxMedia12GetValueTextER7TPtrC16RK13TMPXAttribute @ 27 NONAME
+	_ZNK9CGlxMedia12ValueCObjectERK13TMPXAttribute @ 28 NONAME
+	_ZNK9CGlxMedia9ValueTextERK13TMPXAttribute @ 29 NONAME
+	_ZNK9TGlxMedia11GetDurationERf @ 30 NONAME
+	_ZNK9TGlxMedia11GetIconInfoER9TIconInfo @ 31 NONAME
+	_ZNK9TGlxMedia13GetCoordinateER11TCoordinate @ 32 NONAME
+	_ZNK9TGlxMedia13GetDimensionsER5TSize @ 33 NONAME
+	_ZNK9TGlxMedia13GetFrameCountERi @ 34 NONAME
+	_ZNK9TGlxMedia13GetSystemItemERi @ 35 NONAME
+	_ZNK9TGlxMedia14GetDrmValidityER30TGlxMediaGeneralRightsValidity @ 36 NONAME
+	_ZNK9TGlxMedia14IsDrmProtectedEv @ 37 NONAME
+	_ZNK9TGlxMedia15GetDrmProtectedERi @ 38 NONAME
+	_ZNK9TGlxMedia18ThumbnailAttributeER13TMPXAttribute @ 39 NONAME
+	_ZNK9TGlxMedia19GetClosestThumbnailER13TMPXAttributeRK5TSizei @ 40 NONAME
+	_ZNK9TGlxMedia19GetLastModifiedDateER5TTime @ 41 NONAME
+	_ZNK9TGlxMedia20GetStaticItemCommandERi @ 42 NONAME
+	_ZNK9TGlxMedia21GetContainedItemCountERi @ 43 NONAME
+	_ZNK9TGlxMedia26IsSlideShowPlayableContentEv @ 44 NONAME
+	_ZNK9TGlxMedia38GetSlideshowPlayableContainedItemCountERi @ 45 NONAME
+	_ZNK9TGlxMedia3UriEv @ 46 NONAME
+	_ZNK9TGlxMedia5TitleEv @ 47 NONAME
+	_ZNK9TGlxMedia7CommentEv @ 48 NONAME
+	_ZNK9TGlxMedia7GetDateER5TTime @ 49 NONAME
+	_ZNK9TGlxMedia7GetSizeERi @ 50 NONAME
+	_ZNK9TGlxMedia8CategoryEv @ 51 NONAME
+	_ZNK9TGlxMedia8IsStaticEv @ 52 NONAME
+	_ZNK9TGlxMedia8MimeTypeEv @ 53 NONAME
+	_ZNK9TGlxMedia8SubTitleEv @ 54 NONAME
+	_ZNK9TGlxMedia9IdSpaceIdEv @ 55 NONAME
+	_ZTI13CGlxMediaList @ 56 NONAME ; #<TI>#
+	_ZTI16CGlxCacheManager @ 57 NONAME ; #<TI>#
+	_ZTI20CGlxGarbageCollector @ 58 NONAME ; #<TI>#
+	_ZTI5CIdle @ 59 NONAME ; #<TI>#
+	_ZTIN22T_CGlxGarbageCollector10CTimerTestE @ 60 NONAME ; #<TI>#
+	_ZTIN22T_CGlxGarbageCollector17CGlxMediaUserTestE @ 61 NONAME ; #<TI>#
+	_ZTV13CGlxMediaList @ 62 NONAME ; #<VT>#
+	_ZTV16CGlxCacheManager @ 63 NONAME ; #<VT>#
+	_ZTV20CGlxGarbageCollector @ 64 NONAME ; #<VT>#
+	_ZTV5CIdle @ 65 NONAME ; #<VT>#
+	_ZTVN22T_CGlxGarbageCollector10CTimerTestE @ 66 NONAME ; #<VT>#
+	_ZTVN22T_CGlxGarbageCollector17CGlxMediaUserTestE @ 67 NONAME ; #<VT>#
+

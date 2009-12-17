@@ -1,0 +1,122 @@
+/*
+* Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Project definition file for project Media gallery
+*
+*/
+
+
+
+ 
+#include <data_caging_paths.hrh>
+#include <platform_paths.hrh>
+
+#include "../../inc/glxcapabilities.hrh"
+#include "../../../photos_plat/gallery_utilities_api/inc/glxgallery.hrh"
+#include "../../group/glxbuildcommon.mmh"
+#include "../../inc/glxalfhelper.mmh"
+
+TARGET                  glx.exe
+TARGETTYPE              exe
+UID                     0x100039CE KGlxGalleryApplicationUid
+
+CAPABILITY              GLX_CAPABILITIES
+
+SOURCEPATH              ../src
+SOURCE                  glxapplication.cpp 
+SOURCE                  glxappui.cpp
+SOURCE                  glxdocument.cpp 
+
+SOURCEPATH              ../group
+
+START RESOURCE          glx.rss
+HEADER
+TARGETPATH              /resource/apps
+LANGUAGE_IDS
+END // RESOURCE
+
+USERINCLUDE             ../inc
+USERINCLUDE		../../viewframework/medialists/inc
+
+APP_LAYER_SYSTEMINCLUDE
+
+// System includes from the source tree
+SYSTEMINCLUDE           ../../inc
+SYSTEMINCLUDE           ../../common/inc
+SYSTEMINCLUDE           ../../commonui/inc
+SYSTEMINCLUDE           ../../slideshow/engine/inc
+SYSTEMINCLUDE           ../../slideshow/utils
+SYSTEMINCLUDE           ../../viewframework/inc
+SYSTEMINCLUDE           ../../viewframework/uiutilities/inc
+SYSTEMINCLUDE           ../../viewframework/plugins/gridviewplugin/inc
+SYSTEMINCLUDE           ../../viewframework/plugins/fullscreenviewplugin/inc
+SYSTEMINCLUDE           ../../viewframework/commandhandlers/commandhandlerupnp/inc  //Upnp Stop Showing
+SYSTEMINCLUDE           ../../viewframework/commandhandlers/inc
+SYSTEMINCLUDE           ../../gallery/loc
+SYSTEMINCLUDE           ../../controllers/imageviewer/inc
+
+LIBRARY                 apparc.lib
+LIBRARY                 avkon.lib  
+LIBRARY                 cone.lib 
+LIBRARY                 eikcoctl.lib
+LIBRARY                 eikcore.lib
+LIBRARY                 ws32.lib
+LIBRARY                 estor.lib 
+LIBRARY                 euser.lib
+LIBRARY                 fbscli.lib
+LIBRARY                 gdi.lib  
+LIBRARY                 mpxcollectionutility.lib
+LIBRARY                 mpxcommon.lib
+LIBRARY                 mpxviewutility.lib
+LIBRARY                 glxuiutilities.lib
+LIBRARY                 centralrepository.lib 
+LIBRARY                 glxupnpcommandhandler.lib  //Upnp Stop Showing
+LIBRARY                 glxcommonui.lib // for NGlxZoomStatePublisher::PublishStateL
+LIBRARY                 alfclient.lib // for CAlfEnv
+LIBRARY			glxmedialists.lib // to get the cache manager handle
+LIBRARY    		apgrfx.lib 
+LIBRARY                 glximageviewermanager.lib
+
+
+LIBRARY 		        liwservicehandler.lib //CLiwVariant
+LIBRARY                 glxcommon.lib
+LIBRARY                 efsrv.lib // for RFile
+
+EPOCHEAPSIZE 0x1000 0xC00000 //HEAP SIZE SET TO DEFAULT MIN OF 4KB AND MAX OF 12 MB
+START WINS
+END
+
+START MARM
+END
+
+// DEFFILE                 ?filename
+
+START RESOURCE          glx_loc.rss
+HEADER
+TARGETPATH              /resource/apps
+LANGUAGE_IDS
+END // RESOURCE
+
+START RESOURCE           glx_reg.rss
+DEPENDS glx_loc.rsg
+// Do not change the UID 10003a3f below.
+TARGETPATH              /private/10003a3f/import/apps
+LANGUAGE_IDS
+END // RESOURCE
+
+
+LIBRARY oommonitor.lib
+LIBRARY aknnotify.lib
+LIBRARY hal.lib              // HAL, HALData
+LIBRARY commonengine.lib		// for StringLoader
+// MACRO                   ?macro_name

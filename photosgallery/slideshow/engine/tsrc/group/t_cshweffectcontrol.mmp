@@ -1,0 +1,85 @@
+/*
+* Copyright (c) 2006-2007 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Slideshow engine build file for test
+ *
+*/
+
+
+
+#include        <platform_paths.hrh>
+#include "../../../../group/glxbuildcommon.mmh"
+
+TARGET		t_cshweffectcontrol.dll
+TARGETTYPE	dll
+UID			0x1000af5a 0x01700000
+
+CAPABILITY	ALL -TCB
+
+SOURCEPATH	../t_cshweffectcontrol
+SOURCE		t_cshweffectcontrol.cpp
+SOURCE		t_cshweffectcontrol_dllmain.cpp
+
+SOURCEPATH	../stubs
+SOURCE		tmglxvisuallist_adapter.cpp
+SOURCE		stub_tglxlayoutsplitter.cpp
+SOURCE		tmshweffectmanager_adapter.cpp
+SOURCE		stub_glxfetchcontexts.cpp
+
+// Sources required by the test suite
+SOURCEPATH	../../controlsrc
+SOURCE		shweffectcontrol.cpp
+SOURCE		shweventpublisherbase.cpp
+SOURCE		shwevent.cpp
+SOURCEPATH	../../coresrc
+SOURCE		shwthumbnailloader.cpp
+SOURCE		shwthumbnailcontext.cpp
+SOURCE		shwtimer.cpp
+
+USERINCLUDE	../t_cshweffectcontrol
+USERINCLUDE	../stubs
+USERINCLUDE	../../../../viewframework/medialists/tsrc/inc
+
+// User include folders required by the tested code
+SYSTEMINCLUDE   ../../inc
+SYSTEMINCLUDE   ../../controlsrc
+SYSTEMINCLUDE   ../../coresrc
+SYSTEMINCLUDE   ../../effectsrc
+SYSTEMINCLUDE   ../../../utils
+SYSTEMINCLUDE   ../../../../commonui/inc
+SYSTEMINCLUDE   ../../../../inc
+SYSTEMINCLUDE   ../../../../viewframework/medialists/inc
+SYSTEMINCLUDE   ../../../../viewframework/layouts/inc
+SYSTEMINCLUDE   ../../../../viewframework/visuallistmanager/inc
+SYSTEMINCLUDE   ../../../../viewframework/uiutilities/inc // for attribute retriever
+
+
+// System include folders required by the tested code
+APP_LAYER_SYSTEMINCLUDE
+
+LIBRARY EUnit.lib
+LIBRARY EUnitUtil.lib
+LIBRARY euser.lib
+LIBRARY mpxcommon.lib
+// glx dependencies
+LIBRARY	 glxlayouts.lib
+
+// allow static data
+#ifndef WINSCW
+EPOCALLOWDLLDATA
+#endif
+
+// no need to export test DLLs
+EXPORTUNFROZEN
+
+// End of file

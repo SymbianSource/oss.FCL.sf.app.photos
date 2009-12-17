@@ -1,0 +1,9 @@
+EXPORTS
+	_ZN12CGlxGridView4NewLEP20MGlxMediaListFactoryRK20TGridViewResourceIdsiRK7TDesC16 @ 1 NONAME
+	_ZN12CGlxGridView5NewLCEP20MGlxMediaListFactoryRK20TGridViewResourceIdsiRK7TDesC16 @ 2 NONAME
+	_ZN22CGlxGridViewMLObserver4NewLER13MGlxMediaListP7CHgGrid @ 3 NONAME
+	_ZTI21CGlxGridViewContainer @ 4 NONAME ; #<TI>#
+	_ZTI22CGlxGridViewMLObserver @ 5 NONAME ; #<TI>#
+	_ZTV21CGlxGridViewContainer @ 6 NONAME ; #<VT>#
+	_ZTV22CGlxGridViewMLObserver @ 7 NONAME ; #<VT>#
+

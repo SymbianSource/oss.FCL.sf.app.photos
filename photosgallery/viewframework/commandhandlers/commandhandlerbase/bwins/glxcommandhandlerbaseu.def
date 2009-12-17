@@ -1,0 +1,58 @@
+EXPORTS
+	??0CGlxCommandHandler@@QAE@H@Z @ 1 NONAME ; CGlxCommandHandler::CGlxCommandHandler(int)
+	??0CGlxMediaListCommandHandler@@QAE@PAVMGlxMediaListProvider@@H@Z @ 2 NONAME ; CGlxMediaListCommandHandler::CGlxMediaListCommandHandler(class MGlxMediaListProvider *, int)
+	??0CGlxMpxCommandCommandHandler@@QAE@PAVMGlxMediaListProvider@@H@Z @ 3 NONAME ; CGlxMpxCommandCommandHandler::CGlxMpxCommandCommandHandler(class MGlxMediaListProvider *, int)
+	??0TCommandInfo@CGlxMediaListCommandHandler@@QAE@H@Z @ 4 NONAME ; CGlxMediaListCommandHandler::TCommandInfo::TCommandInfo(int)
+	??1CGlxCommandHandler@@UAE@XZ @ 5 NONAME ; CGlxCommandHandler::~CGlxCommandHandler(void)
+	??1CGlxMediaListCommandHandler@@UAE@XZ @ 6 NONAME ; CGlxMediaListCommandHandler::~CGlxMediaListCommandHandler(void)
+	??1CGlxMpxCommandCommandHandler@@UAE@XZ @ 7 NONAME ; CGlxMpxCommandCommandHandler::~CGlxMpxCommandCommandHandler(void)
+	?ActivateL@CGlxCommandHandler@@QAEXH@Z @ 8 NONAME ; void CGlxCommandHandler::ActivateL(int)
+	?AddCommandL@CGlxMediaListCommandHandler@@IAEXABUTCommandInfo@1@@Z @ 9 NONAME ; void CGlxMediaListCommandHandler::AddCommandL(struct CGlxMediaListCommandHandler::TCommandInfo const &)
+	?BypassFiltersForExecute@CGlxMediaListCommandHandler@@MBEHXZ @ 10 NONAME ; int CGlxMediaListCommandHandler::BypassFiltersForExecute(void) const
+	?BypassFiltersForMenu@CGlxMediaListCommandHandler@@MBEHXZ @ 11 NONAME ; int CGlxMediaListCommandHandler::BypassFiltersForMenu(void) const
+	?CommandInfo@CGlxMediaListCommandHandler@@IAEAAUTCommandInfo@1@H@Z @ 12 NONAME ; struct CGlxMediaListCommandHandler::TCommandInfo & CGlxMediaListCommandHandler::CommandInfo(int)
+	?CommandInfoIndex@CGlxMediaListCommandHandler@@ABEHH@Z @ 13 NONAME ; int CGlxMediaListCommandHandler::CommandInfoIndex(int) const
+	?CompletionTextL@CGlxMpxCommandCommandHandler@@MBEPAVHBufC16@@XZ @ 14 NONAME ; class HBufC16 * CGlxMpxCommandCommandHandler::CompletionTextL(void) const
+	?ConfirmationNoteL@CGlxMpxCommandCommandHandler@@EBEHHAAVMGlxMediaList@@@Z @ 15 NONAME ; int CGlxMpxCommandCommandHandler::ConfirmationNoteL(int, class MGlxMediaList &) const
+	?ConfirmationNoteMultipleL@CGlxMpxCommandCommandHandler@@ABEHHAAVMGlxMediaList@@@Z @ 16 NONAME ; int CGlxMpxCommandCommandHandler::ConfirmationNoteMultipleL(int, class MGlxMediaList &) const
+	?ConfirmationNoteSingleL@CGlxMpxCommandCommandHandler@@ABEHHAAVMGlxMediaList@@@Z @ 17 NONAME ; int CGlxMpxCommandCommandHandler::ConfirmationNoteSingleL(int, class MGlxMediaList &) const
+	?ConfirmationTextL@CGlxMpxCommandCommandHandler@@MBEPAVHBufC16@@HH@Z @ 18 NONAME ; class HBufC16 * CGlxMpxCommandCommandHandler::ConfirmationTextL(int, int) const
+	?Deactivate@CGlxMediaListCommandHandler@@UAEXXZ @ 19 NONAME ; void CGlxMediaListCommandHandler::Deactivate(void)
+	?Deactivate@CGlxMpxCommandCommandHandler@@MAEXXZ @ 20 NONAME ; void CGlxMpxCommandCommandHandler::Deactivate(void)
+	?DialogDismissedL@CGlxMpxCommandCommandHandler@@UAEXH@Z @ 21 NONAME ; void CGlxMpxCommandCommandHandler::DialogDismissedL(int)
+	?DoActivateL@CGlxCommandHandler@@MAEXH@Z @ 22 NONAME ; void CGlxCommandHandler::DoActivateL(int)
+	?DoActivateL@CGlxMediaListCommandHandler@@MAEXH@Z @ 23 NONAME ; void CGlxMediaListCommandHandler::DoActivateL(int)
+	?DoActivateL@CGlxMpxCommandCommandHandler@@MAEXH@Z @ 24 NONAME ; void CGlxMpxCommandCommandHandler::DoActivateL(int)
+	?DoDynInitMenuPaneL@CGlxMediaListCommandHandler@@MAEXHPAVCEikMenuPane@@@Z @ 25 NONAME ; void CGlxMediaListCommandHandler::DoDynInitMenuPaneL(int, class CEikMenuPane *)
+	?DoExecuteL@CGlxMpxCommandCommandHandler@@EAEHHAAVMGlxMediaList@@@Z @ 26 NONAME ; int CGlxMpxCommandCommandHandler::DoExecuteL(int, class MGlxMediaList &)
+	?DoGetRequiredAttributesL@CGlxMediaListCommandHandler@@MBEXAAV?$RArray@VTMPXAttribute@@@@H@Z @ 27 NONAME ; void CGlxMediaListCommandHandler::DoGetRequiredAttributesL(class RArray<class TMPXAttribute> &, int) const
+	?DoHandleCommandCompleteL@CGlxMpxCommandCommandHandler@@MAEXPAXPAVCMPXMedia@@HPAVMGlxMediaList@@@Z @ 28 NONAME ; void CGlxMpxCommandCommandHandler::DoHandleCommandCompleteL(void *, class CMPXMedia *, int, class MGlxMediaList *)
+	?DoHandleItemAddedL@CGlxMpxCommandCommandHandler@@MAEXHHPAVMGlxMediaList@@@Z @ 29 NONAME ; void CGlxMpxCommandCommandHandler::DoHandleItemAddedL(int, int, class MGlxMediaList *)
+	?DoHandleMessageL@CGlxMpxCommandCommandHandler@@MAEHABVCMPXMedia@@AAVMGlxMediaList@@@Z @ 30 NONAME ; int CGlxMpxCommandCommandHandler::DoHandleMessageL(class CMPXMedia const &, class MGlxMediaList &)
+	?DoIsDisabled@CGlxMediaListCommandHandler@@MBEHHAAVMGlxMediaList@@@Z @ 31 NONAME ; int CGlxMediaListCommandHandler::DoIsDisabled(int, class MGlxMediaList &) const
+	?DynInitMenuPaneL@CGlxMediaListCommandHandler@@UAEXHPAVCEikMenuPane@@@Z @ 32 NONAME ; void CGlxMediaListCommandHandler::DynInitMenuPaneL(int, class CEikMenuPane *)
+	?ExecuteL@CGlxMediaListCommandHandler@@UAEHH@Z @ 33 NONAME ; int CGlxMediaListCommandHandler::ExecuteL(int)
+	?GetRequiredAttributesL@CGlxMediaListCommandHandler@@UBEXAAV?$RArray@VTMPXAttribute@@@@HHH@Z @ 34 NONAME ; void CGlxMediaListCommandHandler::GetRequiredAttributesL(class RArray<class TMPXAttribute> &, int, int, int) const
+	?HandleAttributesAvailableL@CGlxMpxCommandCommandHandler@@MAEXHABV?$RArray@VTMPXAttribute@@@@PAVMGlxMediaList@@@Z @ 35 NONAME ; void CGlxMpxCommandCommandHandler::HandleAttributesAvailableL(int, class RArray<class TMPXAttribute> const &, class MGlxMediaList *)
+	?HandleCommandCompleteL@CGlxMpxCommandCommandHandler@@MAEXPAXPAVCMPXMedia@@HPAVMGlxMediaList@@@Z @ 36 NONAME ; void CGlxMpxCommandCommandHandler::HandleCommandCompleteL(void *, class CMPXMedia *, int, class MGlxMediaList *)
+	?HandleErrorL@CGlxMpxCommandCommandHandler@@MAEXH@Z @ 37 NONAME ; void CGlxMpxCommandCommandHandler::HandleErrorL(int)
+	?HandleFocusChangedL@CGlxMpxCommandCommandHandler@@MAEXW4TFocusChangeType@NGlxListDefs@@HHPAVMGlxMediaList@@@Z @ 38 NONAME ; void CGlxMpxCommandCommandHandler::HandleFocusChangedL(enum NGlxListDefs::TFocusChangeType, int, int, class MGlxMediaList *)
+	?HandleItemAddedL@CGlxMpxCommandCommandHandler@@MAEXHHPAVMGlxMediaList@@@Z @ 39 NONAME ; void CGlxMpxCommandCommandHandler::HandleItemAddedL(int, int, class MGlxMediaList *)
+	?HandleItemModifiedL@CGlxMpxCommandCommandHandler@@MAEXABV?$RArray@H@@PAVMGlxMediaList@@@Z @ 40 NONAME ; void CGlxMpxCommandCommandHandler::HandleItemModifiedL(class RArray<int> const &, class MGlxMediaList *)
+	?HandleItemRemovedL@CGlxMpxCommandCommandHandler@@MAEXHHPAVMGlxMediaList@@@Z @ 41 NONAME ; void CGlxMpxCommandCommandHandler::HandleItemRemovedL(int, int, class MGlxMediaList *)
+	?HandleItemSelectedL@CGlxMpxCommandCommandHandler@@MAEXHHPAVMGlxMediaList@@@Z @ 42 NONAME ; void CGlxMpxCommandCommandHandler::HandleItemSelectedL(int, int, class MGlxMediaList *)
+	?HandleMediaL@CGlxMpxCommandCommandHandler@@MAEXHPAVMGlxMediaList@@@Z @ 43 NONAME ; void CGlxMpxCommandCommandHandler::HandleMediaL(int, class MGlxMediaList *)
+	?HandleMessageL@CGlxMpxCommandCommandHandler@@MAEXABVCMPXMedia@@PAVMGlxMediaList@@@Z @ 44 NONAME ; void CGlxMpxCommandCommandHandler::HandleMessageL(class CMPXMedia const &, class MGlxMediaList *)
+	?IsDisabledL@CGlxMediaListCommandHandler@@IBEHHAAVMGlxMediaList@@@Z @ 45 NONAME ; int CGlxMediaListCommandHandler::IsDisabledL(int, class MGlxMediaList &) const
+	?IsSupported@CGlxMediaListCommandHandler@@IBEHH@Z @ 46 NONAME ; int CGlxMediaListCommandHandler::IsSupported(int) const
+	?MediaList@CGlxMediaListCommandHandler@@IAEAAVMGlxMediaList@@XZ @ 47 NONAME ; class MGlxMediaList & CGlxMediaListCommandHandler::MediaList(void)
+	?MediaList@CGlxMediaListCommandHandler@@IBEABVMGlxMediaList@@XZ @ 48 NONAME ; class MGlxMediaList const & CGlxMediaListCommandHandler::MediaList(void) const
+	?OfferKeyEventL@CGlxMediaListCommandHandler@@UAE?AW4TKeyResponse@@ABUTKeyEvent@@W4TEventCode@@@Z @ 49 NONAME ; enum TKeyResponse CGlxMediaListCommandHandler::OfferKeyEventL(struct TKeyEvent const &, enum TEventCode)
+	?OkToExit@CGlxMpxCommandCommandHandler@@MBEHXZ @ 50 NONAME ; int CGlxMpxCommandCommandHandler::OkToExit(void) const
+	?PopulateToolbarL@CGlxCommandHandler@@MAEXXZ @ 51 NONAME ; void CGlxCommandHandler::PopulateToolbarL(void)
+	?PreDynInitMenuPaneL@CGlxMediaListCommandHandler@@UAEXH@Z @ 52 NONAME ; void CGlxMediaListCommandHandler::PreDynInitMenuPaneL(int)
+	?ProgressTextL@CGlxMpxCommandCommandHandler@@MBEPAVHBufC16@@H@Z @ 53 NONAME ; class HBufC16 * CGlxMpxCommandCommandHandler::ProgressTextL(int) const
+	?SelectionLength@CGlxMediaListCommandHandler@@IBEHXZ @ 54 NONAME ; int CGlxMediaListCommandHandler::SelectionLength(void) const
+	?TryExitL@CGlxMpxCommandCommandHandler@@IAEXH@Z @ 55 NONAME ; void CGlxMpxCommandCommandHandler::TryExitL(int)
+	?ViewingState@CGlxMediaListCommandHandler@@IBE?AW4TViewingState@TCommandInfo@1@XZ @ 56 NONAME ; enum CGlxMediaListCommandHandler::TCommandInfo::TViewingState CGlxMediaListCommandHandler::ViewingState(void) const
+

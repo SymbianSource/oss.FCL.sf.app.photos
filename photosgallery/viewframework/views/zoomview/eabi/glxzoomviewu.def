@@ -1,0 +1,11 @@
+EXPORTS
+	_ZN15CGlxZoomControl10DeactivateEv @ 1 NONAME
+	_ZN15CGlxZoomControl25HandleZoomForegroundEventEi @ 2 NONAME
+	_ZN15CGlxZoomControl4NewLER20MGlxUiCommandHandlerR13MGlxMediaListR24CEikButtonGroupContainerRN3Alf16IMulSliderWidgetEPN13GestureHelper14CGestureHelperE @ 3 NONAME
+	_ZN15CGlxZoomControl9ActivateLEi14TZoomStartModeiR9TGlxMediaP6TPoint @ 4 NONAME
+	_ZN15CGlxZoomControl9ActivatedEv @ 5 NONAME
+	_ZTI15CGlxZoomControl @ 6 NONAME
+	_ZTI23CGlxZoomPanEventHandler @ 7 NONAME
+	_ZTV15CGlxZoomControl @ 8 NONAME
+	_ZTV23CGlxZoomPanEventHandler @ 9 NONAME
+

@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mm:content xmlns:mm="http://nokia.com/mmenu" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://nokia.com/mmenu ../mmenuschema.xsd" genre="photossuite">
+
+   <!-- ALL ITEM -->
+	
+	<mm:item count="1" template="logical_template_6a" id="photossuite_allcs">
+	
+		<!-- QUERIES -->
+		
+		<mm:query namespace="cps_photos_publisher" service="Service.ContentPublishing" interface="IDataSource">
+			<mm:command mode="sync" name="GetList">
+				<mm:key name="type" type="string" value="cp_data"/>
+				<mm:key name="filter">
+					<mm:key name="publisher" type="string" value="photossuite"/>
+					<mm:key name="content_type" type="string" value="allcs"/>
+				</mm:key>
+				<mm:key name="sort_order" type="string" value="recent"/>
+			</mm:command>
+		</mm:query>
+		
+		<mm:query namespace="cps_photos_publisher1" service="Service.ContentPublishing" interface="IDataSource">
+			<mm:command mode="sync" name="GetList">
+				<mm:key name="type" type="string" value="cp_data"/>
+				<mm:key name="filter">
+					<mm:key name="publisher" type="string" value="photossuiteAllcs"/>
+						<mm:key name="content_type" type="string" value="allcs1"/>
+				</mm:key>
+				<mm:key name="sort_order" type="string" value="recent"/>
+			</mm:command>
+		</mm:query>
+		
+		<!-- NOTIFICATION REQUESTS -->
+		
+		<mm:notify_request service="Service.ContentPublishing" interface="IDataSource">
+	            <mm:command name="RequestNotification">
+	                <mm:key name="type" type="string" value="cp_data"/>
+	                <mm:key name="filter">
+	                <mm:key name="publisher" type="string" value="photossuite"/>
+					<mm:key name="content_type" type="string" value="allcs"/>
+	                </mm:key>
+	            </mm:command>
+		</mm:notify_request>
+		
+		<!-- OUTPUTS -->
+		
+		<!-- TITLE -->
+		
+		<mm:output alias="mul_title" type="string" value="photos_texts:R_LGAL_LIST_TITLE_ALL_NSERIES"/>
+		
+		<!-- SUBTITLE-->
+		
+		<mm:output alias="mul_detail">
+			<mm:text value="cps_photos_publisher1:results/[$index]/data_map/AllcsSubtitle"/>
+        </mm:output>
+		
+		<!--ICONS-->
+		
+		<mm:output alias="mul_icon">
+		   	<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/first_icon"></mm:image>
+		</mm:output>
+		
+		<mm:output alias="mul_icon_2">
+			<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/second_icon"></mm:image>
+		</mm:output>
+		
+		<mm:output alias="mul_icon_3">
+			<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/third_icon"></mm:image>
+		</mm:output>
+		
+		<!-- MENU ITEMS -->
+		
+		<mm:menuitem name="photos_texts:R_OPTIONS_HELP" event="custom:help" position="2" />		
+		
+		
+		<!-- EVENTS -->
+		
+		<mm:event event="key:select">
+			<mm:action service="Service.ActionHandler" interface="IDataAction">
+				<mm:command name="Execute">
+					<mm:key name="plugin_id" type="uid" value="0x10282E5F"/>
+					<mm:key name="data" type="map">
+						<mm:key name="type" type="string" value="launch_application"/>
+						<mm:key name="launch_method" type="string" value="message_with_tail"/>
+						<mm:key name="application_uid" type="integer" value="0x200009EE"/>
+						<mm:key name="additional_data" type="string8" value="Allcs"/>
+						<mm:key name="message_uid" type="integer" value="0x2000A7C1"/>
+					</mm:key>	
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="item:focus">
+			<mm:action service="Service.ContentPublishing" interface="IDataSource">
+				<mm:command name="Add">
+					<mm:key name="type" type="string" value="publisher"/>
+						<mm:key name="item">
+							<mm:key name="publisher" type="string" value="photossuite"/>
+							<mm:key name="content_type" type="string" value="allcs"/>
+							<mm:key name="content_id" type="string" value="default"/>
+							<mm:key name="flag" type="integer" value="1"/>
+						</mm:key>                    
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="item:unfocus">
+			<mm:action service="Service.ContentPublishing" interface="IDataSource">
+				<mm:command name="Add">
+					<mm:key name="type" type="string" value="publisher"/>
+						<mm:key name="item">
+							<mm:key name="publisher" type="string" value="photossuite"/>
+							<mm:key name="content_type" type="string" value="allcs"/>
+							<mm:key name="content_id" type="string" value="default"/>
+							<mm:key name="flag" type="integer" value="0"/>
+						</mm:key>                    
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="custom:help">
+			<mm:action service="Service.ActionHandler" interface="IDataAction">
+				<mm:command name="Execute">
+					<mm:key name="plugin_id" type="uid" value="0x2001B285"/>
+					<mm:key name="data">
+						<mm:key name="help_uid" type="integer64" value="0x200009EE"/>
+						<mm:key name="help_topic" type="string" value="LGAL_HLP_DOWNLOADS_GRID"/>
+					</mm:key>	
+				</mm:command>
+			</mm:action>
+		</mm:event>	
+		
+	</mm:item>
+	
+	<!-- MONTHS ITEM -->
+	
+	<mm:item count="1" template="logical_template_6a" id="photossuite_months">
+	
+		<!-- QUERIES -->
+		
+		<mm:query namespace="cps_photos_publisher" service="Service.ContentPublishing" interface="IDataSource">
+			<mm:command mode="sync" name="GetList">
+				<mm:key name="type" type="string" value="cp_data"/>
+				<mm:key name="filter">
+					<mm:key name="publisher" type="string" value="photossuite"/>
+					<mm:key name="content_type" type="string" value="months"/>
+				</mm:key>
+				<mm:key name="sort_order" type="string" value="recent"/>
+			</mm:command>
+		</mm:query>
+		
+		<mm:query namespace="cps_photos_publisher1" service="Service.ContentPublishing" interface="IDataSource">
+			<mm:command mode="sync" name="GetList">
+				<mm:key name="type" type="string" value="cp_data"/>
+				<mm:key name="filter">	
+					<mm:key name="publisher" type="string" value="photossuiteMonths"/>
+					<mm:key name="content_type" type="string" value="months1"/>
+				</mm:key>
+				<mm:key name="sort_order" type="string" value="recent"/>
+			</mm:command>
+		</mm:query>
+		
+		<!-- NOTIFICATION REQUESTS -->
+		
+		<mm:notify_request service="Service.ContentPublishing" interface="IDataSource">
+	            <mm:command name="RequestNotification">
+	                    <mm:key name="type" type="string" value="cp_data"/>
+	                    <mm:key name="filter">
+	                    <mm:key name="publisher" type="string" value="photossuite"/>
+						<mm:key name="content_type" type="string" value="months"/>
+	                    </mm:key>
+	            </mm:command>
+		</mm:notify_request>
+		
+		<!-- OUTPUTS -->
+		
+		<!-- TITLE-->
+		
+		<mm:output alias="mul_title" type="string" value="photos_texts:R_LGAL_LIST_TITLE_MONTHS_NSERIES"/>
+			
+		<!-- SUBTITLE-->
+		
+		<mm:output alias="mul_detail">
+			<mm:text value="cps_photos_publisher1:results/[$index]/data_map/MonthsSubtitle"/>
+        </mm:output>
+		
+		<!--ICONS-->
+	
+		<mm:output alias="mul_icon">
+		   	<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/first_icon"></mm:image>
+		</mm:output>
+		
+		<mm:output alias="mul_icon_2">
+			<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/second_icon"></mm:image>
+		</mm:output>
+		
+		<mm:output alias="mul_icon_3">
+			<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/third_icon"></mm:image>
+		</mm:output>
+		
+		<!-- MENU ITEMS -->
+	
+		<mm:menuitem name="photos_texts:R_OPTIONS_HELP" event="custom:help" position="2" />	
+		
+		<!-- EVENTS -->
+	
+		<mm:event event="key:select">
+			<mm:action service="Service.ActionHandler" interface="IDataAction">
+				<mm:command name="Execute">
+					<mm:key name="plugin_id" type="uid" value="0x10282E5F"/>
+					<mm:key name="data" type="map">
+						<mm:key name="type" type="string" value="launch_application"/>
+						<mm:key name="launch_method" type="string" value="message_with_tail"/>
+						<mm:key name="application_uid" type="integer" value="0x200009EE"/>
+						<mm:key name="additional_data" type="string8" value="Months"/>
+						<mm:key name="message_uid" type="integer" value="0x2000a769"/>
+					</mm:key>	
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="item:focus">
+			<mm:action service="Service.ContentPublishing" interface="IDataSource">
+				<mm:command name="Add">
+					<mm:key name="type" type="string" value="publisher"/>
+						<mm:key name="item">
+							<mm:key name="publisher" type="string" value="photossuite"/>
+							<mm:key name="content_type" type="string" value="months"/>
+							<mm:key name="content_id" type="string" value="default"/>
+							<mm:key name="flag" type="integer" value="1"/>
+						</mm:key>                    
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="item:unfocus">
+			<mm:action service="Service.ContentPublishing" interface="IDataSource">
+				<mm:command name="Add">
+					<mm:key name="type" type="string" value="publisher"/>
+						<mm:key name="item">
+							<mm:key name="publisher" type="string" value="photossuite"/>
+							<mm:key name="content_type" type="string" value="months"/>
+							<mm:key name="content_id" type="string" value="default"/>
+							<mm:key name="flag" type="integer" value="0"/>
+						</mm:key>                    
+				</mm:command>
+			</mm:action>
+		</mm:event>	
+	
+	
+		<mm:event event="custom:help">
+			<mm:action service="Service.ActionHandler" interface="IDataAction">
+				<mm:command name="Execute">
+					<mm:key name="plugin_id" type="uid" value="0x2001B285"/>
+					<mm:key name="data">
+						<mm:key name="help_uid" type="integer64" value="0x200009EE"/>
+						<mm:key name="help_topic" type="string" value="LGAL_HLP_MONTH_LIST"/>
+					</mm:key>	
+				</mm:command>
+			</mm:action>
+		</mm:event>	
+			
+	</mm:item>
+	
+	<!-- ALBUMS ITEM -->
+	
+	<mm:item count="1" template="logical_template_6a" id="photossuite_albums">
+	
+		<!-- QUERIES -->
+		
+		<mm:query namespace="cps_photos_publisher" service="Service.ContentPublishing" interface="IDataSource">
+			<mm:command mode="sync" name="GetList">
+				<mm:key name="type" type="string" value="cp_data"/>
+				<mm:key name="filter">
+					<mm:key name="publisher" type="string" value="photossuite"/>
+					<mm:key name="content_type" type="string" value="albums"/>
+				</mm:key>
+				<mm:key name="sort_order" type="string" value="recent"/>
+			</mm:command>
+		</mm:query>
+		
+		
+		<mm:query namespace="cps_photos_publisher1" service="Service.ContentPublishing" interface="IDataSource">
+			<mm:command mode="sync" name="GetList">
+				<mm:key name="type" type="string" value="cp_data"/>
+				<mm:key name="filter">
+					<mm:key name="publisher" type="string" value="photossuiteAlbums"/>
+					<mm:key name="content_type" type="string" value="albums1"/>
+				</mm:key>
+				<mm:key name="sort_order" type="string" value="recent"/>
+			</mm:command>
+		</mm:query>
+		
+		<!-- NOTIFICATION REQUESTS -->
+		
+		<mm:notify_request service="Service.ContentPublishing" interface="IDataSource">
+	            <mm:command name="RequestNotification">
+	                    <mm:key name="type" type="string" value="cp_data"/>
+	                    <mm:key name="filter">
+	                        <mm:key name="publisher" type="string" value="photossuite"/>
+			   <mm:key name="content_type" type="string" value="albums"/>
+	                    </mm:key>
+	            </mm:command>
+		</mm:notify_request>
+		
+		<!-- OUTPUTS -->
+		
+		<!-- TITLE-->
+		
+		<mm:output alias="mul_title" type="string" value="photos_texts:R_LGAL_LIST_TITLE_ALBUMS_NSERIES"/>
+			
+		<!-- SUBTITLE-->
+		
+		<mm:output alias="mul_detail">
+			<mm:text value="cps_photos_publisher1:results/[$index]/data_map/AlbumsSubtitle"/>
+        </mm:output>
+		
+		<!--ICONS-->
+		
+		<mm:output alias="mul_icon">
+		   	<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/first_icon"></mm:image>
+		</mm:output>
+
+		<mm:output alias="mul_icon_2">
+			<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/second_icon"></mm:image>
+		</mm:output>
+		
+		<mm:output alias="mul_icon_3">
+			<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/third_icon"></mm:image>
+		</mm:output>
+		
+		<!-- MENU ITEMS -->
+
+		<mm:menuitem name="photos_texts:R_OPTIONS_HELP" event="custom:help" position="2" />			
+		
+		<!-- EVENTS -->
+		
+		<mm:event event="key:select">
+			<mm:action service="Service.ActionHandler" interface="IDataAction">
+				<mm:command name="Execute">
+					<mm:key name="plugin_id" type="uid" value="0x10282E5F"/>
+					<mm:key name="data" type="map">
+						<mm:key name="type" type="string" value="launch_application"/>
+						<mm:key name="launch_method" type="string" value="message_with_tail"/>
+						<mm:key name="application_uid" type="integer" value="0x200009EE"/>
+						<mm:key name="additional_data" type="string8" value="Albums"/>
+						<mm:key name="message_uid" type="integer" value="0x20007197"/>
+					</mm:key>	
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="item:focus">
+			<mm:action service="Service.ContentPublishing" interface="IDataSource">
+				<mm:command name="Add">
+					<mm:key name="type" type="string" value="publisher"/>
+						<mm:key name="item">
+							<mm:key name="publisher" type="string" value="photossuite"/>
+							<mm:key name="content_type" type="string" value="albums"/>
+							<mm:key name="content_id" type="string" value="default"/>
+							<mm:key name="flag" type="integer" value="1"/>
+						</mm:key>                    
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="item:unfocus">
+			<mm:action service="Service.ContentPublishing" interface="IDataSource">
+				<mm:command name="Add">
+					<mm:key name="type" type="string" value="publisher"/>
+						<mm:key name="item">
+							<mm:key name="publisher" type="string" value="photossuite"/>
+							<mm:key name="content_type" type="string" value="albums"/>
+							<mm:key name="content_id" type="string" value="default"/>
+							<mm:key name="flag" type="integer" value="0"/>
+						</mm:key>                    
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="custom:help">
+			<mm:action service="Service.ActionHandler" interface="IDataAction">
+				<mm:command name="Execute">
+					<mm:key name="plugin_id" type="uid" value="0x2001B285"/>
+					<mm:key name="data">
+						<mm:key name="help_uid" type="integer64" value="0x200009EE"/>
+						<mm:key name="help_topic" type="string" value="LGAL_HLP_ALBUM_LIST"/>
+					</mm:key>	
+				</mm:command>
+			</mm:action>
+		</mm:event>	
+		
+	</mm:item>
+	
+	<!-- TAGS ITEM -->
+	
+	<mm:item count="1" template="logical_template_6a" id="photossuite_tags">
+	
+		<!-- QUERIES -->
+		
+		<mm:query namespace="cps_photos_publisher" service="Service.ContentPublishing" interface="IDataSource">
+			<mm:command mode="sync" name="GetList">
+				<mm:key name="type" type="string" value="cp_data"/>
+				<mm:key name="filter">
+					<mm:key name="publisher" type="string" value="photossuite"/>
+					<mm:key name="content_type" type="string" value="tags"/>
+				</mm:key>
+				<mm:key name="sort_order" type="string" value="recent"/>
+			</mm:command>
+		</mm:query>
+		
+		
+		<mm:query namespace="cps_photos_publisher1" service="Service.ContentPublishing" interface="IDataSource">
+			<mm:command mode="sync" name="GetList">
+				<mm:key name="type" type="string" value="cp_data"/>
+				<mm:key name="filter">
+					<mm:key name="publisher" type="string" value="photossuiteTags"/>
+					<mm:key name="content_type" type="string" value="tags1"/>
+				</mm:key>
+				<mm:key name="sort_order" type="string" value="recent"/>
+			</mm:command>
+		</mm:query>
+		
+		<!-- NOTIFICATION REQUESTS -->
+		
+		<mm:notify_request service="Service.ContentPublishing" interface="IDataSource">
+	            <mm:command name="RequestNotification">
+	                    <mm:key name="type" type="string" value="cp_data"/>
+	                    <mm:key name="filter">
+	                    <mm:key name="publisher" type="string" value="photossuite"/>
+						<mm:key name="content_type" type="string" value="tags"/>
+	                    </mm:key>
+	            </mm:command>
+		</mm:notify_request>
+		
+		<!-- OUTPUTS -->
+		
+		<!-- TITLE -->
+		
+		<mm:output alias="mul_title" type="string" value="photos_texts:R_LGAL_LIST_TITLE_TAGS_NSERIES"/>
+				
+		<!-- SUBTITLE-->
+		
+		<mm:output alias="mul_detail">
+			<mm:text value="cps_photos_publisher1:results/[$index]/data_map/TagsSubtitle"/>
+        </mm:output>
+		
+		<!--ICONS-->
+		
+		<mm:output alias="mul_icon">
+		   	<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/first_icon"></mm:image>
+		</mm:output>
+		
+		<mm:output alias="mul_icon_2">
+			<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/second_icon"></mm:image>
+		</mm:output>
+		
+		<mm:output alias="mul_icon_3">
+			<mm:image bitmap="cps_photos_publisher:results/[$index]/data_map/third_icon"></mm:image>
+		</mm:output>
+		
+		<!-- MENU ITEMS -->
+		
+		<mm:menuitem name="photos_texts:R_OPTIONS_HELP" event="custom:help" position="2" />
+		
+		<!-- EVENTS -->
+		
+		<mm:event event="key:select">
+			<mm:action service="Service.ActionHandler" interface="IDataAction">
+				<mm:command name="Execute">
+					<mm:key name="plugin_id" type="uid" value="0x10282E5F"/>
+					<mm:key name="data" type="map">
+						<mm:key name="type" type="string" value="launch_application"/>
+						<mm:key name="launch_method" type="string" value="message_with_tail"/>
+						<mm:key name="application_uid" type="integer" value="0x200009EE"/>
+						<mm:key name="additional_data" type="string8" value="Tags"/>
+						<mm:key name="message_uid" type="integer" value="0x200071AE"/>
+					</mm:key>	
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="item:focus">
+			<mm:action service="Service.ContentPublishing" interface="IDataSource">
+				<mm:command name="Add">
+					<mm:key name="type" type="string" value="publisher"/>
+						<mm:key name="item">
+							<mm:key name="publisher" type="string" value="photossuite"/>
+							<mm:key name="content_type" type="string" value="tags"/>
+							<mm:key name="content_id" type="string" value="default"/>
+							<mm:key name="flag" type="integer" value="1"/>
+						</mm:key>                    
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="item:unfocus">
+			<mm:action service="Service.ContentPublishing" interface="IDataSource">
+				<mm:command name="Add">
+					<mm:key name="type" type="string" value="publisher"/>
+						<mm:key name="item">
+							<mm:key name="publisher" type="string" value="photossuite"/>
+							<mm:key name="content_type" type="string" value="tags"/>
+							<mm:key name="content_id" type="string" value="default"/>
+							<mm:key name="flag" type="integer" value="0"/>
+						</mm:key>                    
+				</mm:command>
+			</mm:action>
+		</mm:event>
+		
+		<mm:event event="custom:help">
+			<mm:action service="Service.ActionHandler" interface="IDataAction">
+				<mm:command name="Execute">
+					<mm:key name="plugin_id" type="uid" value="0x2001B285"/>
+					<mm:key name="data">
+						<mm:key name="help_uid" type="integer64" value="0x200009EE"/>
+						<mm:key name="help_topic" type="string" value="LGAL_HLP_TAGS_BROWSER"/>
+					</mm:key>	
+				</mm:command>
+			</mm:action>
+		</mm:event>	
+			
+	</mm:item>
+	
+</mm:content>
