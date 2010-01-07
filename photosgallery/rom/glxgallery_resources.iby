@@ -26,7 +26,10 @@
 
   		
 data=DATAZ_\APP_RESOURCE_DIR\glx_loc.Rsc                      APP_RESOURCE_DIR\glx_loc.Rsc  
-data=DATAZ_\APP_RESOURCE_DIR\glx.Rsc                          APP_RESOURCE_DIR\glx.Rsc  
+data=DATAZ_\APP_RESOURCE_DIR\glx.Rsc                          APP_RESOURCE_DIR\glx.Rsc
+ 
+data=DATAZ_\APP_RESOURCE_DIR\glxivwr_loc.Rsc                      APP_RESOURCE_DIR\glxivwr_loc.Rsc  
+data=DATAZ_\APP_RESOURCE_DIR\glxivwr.Rsc                          APP_RESOURCE_DIR\glxivwr.Rsc 
 
 //photosuitelauncher application resource file
 data=DATAZ_\APP_RESOURCE_DIR\photossuitelauncher.Rsc          APP_RESOURCE_DIR\photossuitelauncher.Rsc  

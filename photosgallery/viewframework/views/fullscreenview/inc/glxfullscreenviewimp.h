@@ -227,10 +227,10 @@ private:
     /*
     * Calculates and returns the Initial Zoom factor
     */		
-    TInt GetIntialZoomLevel();
+    TInt GetInitialZoomLevel();
     
     /*
-    * Calls GetIntialZoomLevel() to get the Zoom Level and Sets the Value to the
+    * Calls GetInitialZoomLevel() to get the Zoom Level and Sets the Value to the
     * Slider Level
     */
     void SetSliderLevel();

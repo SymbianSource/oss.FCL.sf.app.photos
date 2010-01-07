@@ -280,13 +280,15 @@ void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(CMPXMedia* aRespons
                 {
                 if( aResponse->IsSupported(KGlxMediaCollectionInternalSystemItemType) )
 					{
-					if( TGlxMediaId(KCapturedAlbumId) == aMediaId )
+					TGlxMediaId responseMediaid ((TUint32)aResponse->ValueTObjectL<TMPXItemId>(KMPXMediaGeneralId));
+					// Set the text value based on the Media ID in aResponse
+					if( TGlxMediaId(KCapturedAlbumId) == responseMediaid )
 						{
 						HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_CAMERA_TITLE);
 						aResponse->SetTextValueL(attr, *title);  
 						CleanupStack::PopAndDestroy(title);						
 						}
-					else if (TGlxMediaId(KFavoriteAlbumId) == aMediaId  )
+					else if (TGlxMediaId(KFavoriteAlbumId) == responseMediaid  )
 						{
 						HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_FAVORITES_TITLE);
 						aResponse->SetTextValueL(attr, *title);  

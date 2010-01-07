@@ -44,6 +44,7 @@ public: // from CAknDocument
     CEikAppUi* CreateAppUiL();
 
 public: // from CEikDocument
+    CFileStore* OpenFileL( TBool aDoOpen, const TDesC& aFilename, RFs& aFs );
     void OpenFileL( CFileStore*& aFileStore, RFile& aFile );
     
 private:

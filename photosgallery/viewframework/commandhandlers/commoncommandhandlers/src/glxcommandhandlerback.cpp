@@ -41,6 +41,7 @@
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionplugintags.hrh>
+#include <glxcollectionpluginimageviewer.hrh>
 #include <glxbackservicewrapper.h>
 #include <glxgallery.hrh>
 
@@ -199,25 +200,36 @@ TBool CGlxCommandHandlerBack::ExecuteL( TInt aCommandId )
     			break;
     			}
     		case EGlxCmdPreviousView:
-    			{
-    			GLX_LOG_INFO("CGlxCommandHandlerBack::ExecuteL::Go back \
-                to the previous view");
-                if (!(iNavigationalState->BackExitStatus()))
-                    {
-                    if(iAppUi)
-                        {
-                        iAppUi->ProcessCommandL(EAknSoftkeyExit);    
-                        }
-                    }
-    			if( iIsViewActivated )
-    			    {
-                    iIsViewActivated = EFalse;
-                    iNavigationalState->ActivatePreviousViewL();
-    			    
-    			    }
-    			consume = ETrue;
-    			break;
-    			}
+    		    {
+    		    GLX_LOG_INFO("CGlxCommandHandlerBack::ExecuteL::Go back \
+    		    to the previous view");
+    		    CMPXCollectionPath* path = iNavigationalState->StateLC();
+    		    if (path->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
+    		        {
+    		        if(iAppUi)
+    		            {
+    		            iAppUi->ProcessCommandL(EAknSoftkeyExit);    
+    		            }
+    		        }
+    		    else
+    		        {
+    		        if (!(iNavigationalState->BackExitStatus()))
+    		            {
+    		            if(iAppUi)
+    		                {
+    		                iAppUi->ProcessCommandL(EAknSoftkeyExit);    
+    		                }
+    		            }
+    		        if( iIsViewActivated )
+    		            {
+    		            iIsViewActivated = EFalse;
+    		            iNavigationalState->ActivatePreviousViewL();
+    		            }
+    		        }
+    		    CleanupStack::PopAndDestroy( path );
+    		    consume = ETrue;
+    		    break;
+    		    }
     			
     		case EGlxCmdContainerPreviousView:
     			{

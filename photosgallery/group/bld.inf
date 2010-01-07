@@ -79,3 +79,6 @@ PRJ_EXPORTS
 
 //include Photos Suite Launcher
 #include "../photossuitelauncher/group/bld.inf"
+
+//include imageviewer
+#include "../imgvwr/group/bld.inf"

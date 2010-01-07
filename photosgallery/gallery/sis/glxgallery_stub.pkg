@@ -20,7 +20,7 @@
 &EN
 
 ; Package header
-#{"Photos"},(0x200009EE),9,200,0,TYPE=SA
+#{"Photos"},(0x200009EE),9,20,0,TYPE=SA
 
 
 ;Localised Vendor name

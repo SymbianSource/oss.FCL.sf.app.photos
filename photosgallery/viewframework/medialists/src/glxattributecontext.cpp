@@ -23,6 +23,7 @@
 #include "glxtracer.h"
 #include "glxlog.h"
 #include "glxlistutils.h"
+#include "glxthumbnailattributeinfo.h"
 
 // Default granularity of items to request for
 const TUint KGlxAttributeContextDefaultGranularity = 200;
@@ -120,7 +121,7 @@ EXPORT_C void CGlxAttributeContext::SetGranularity(TUint aGranularity)
 //
 TInt CGlxAttributeContext::AttributeRequestL(const MGlxMediaList* aList, 
         RArray<TInt>& aItemIndices, RArray<TMPXAttribute>& aAttributes, 
-        CMPXAttributeSpecs*& /*aDetailedSpecs*/) const
+        CMPXAttributeSpecs*& aDetailedSpecs) const
     {
     TRACER("CGlxAttributeContext::AttributeRequestL");
     
@@ -170,6 +171,34 @@ TInt CGlxAttributeContext::AttributeRequestL(const MGlxMediaList* aList,
             error = KErrNone;
             }
         }
+    
+    
+    // If the attribute request is for Thumbnail, Check if there is a match found.
+    // And set the size and thumbnail quality
+	TIdentityRelation<TMPXAttribute> matchContent(&TMPXAttribute::MatchContentId);
+	TMPXAttribute tnAttr(KGlxMediaIdThumbnail, 0);
+	
+	if (iAttributes.Find(tnAttr, matchContent) != KErrNotFound) 
+		{
+		// Allocate CMPXAttributeSpecs
+		CMPXAttributeSpecs* attributeSpecs = CMPXAttributeSpecs::NewL();
+		CleanupStack::PushL(attributeSpecs);
+		
+	attributeSpecs->SetTObjectValueL(
+	   TMPXAttribute( KGlxMediaIdThumbnail,
+					   KGlxAttribSpecThumbnailSize ), 
+					   TSize(iDefaultSpecSize.iWidth,iDefaultSpecSize.iHeight) );
+		
+		attributeSpecs->SetTObjectValueL(
+		   TMPXAttribute( KGlxMediaIdThumbnail,
+					   KGlxAttribSpecThumbnailQualityOverSpeed ), ETrue );
+		
+		aDetailedSpecs = attributeSpecs;
+		
+		// Pop from stack
+		CleanupStack::Pop(attributeSpecs);
+		
+		}
 
     // If an error was found, return KErrGeneral
     if (error != KErrNone)
@@ -372,3 +401,16 @@ EXPORT_C void CGlxDefaultAttributeContext::SetRangeOffsets(TInt aFrontOffset, TI
     
     iFromFocusIterator.SetRangeOffsets(aRearOffset, aFrontOffset);
     }
+
+// -----------------------------------------------------------------------------
+// Sets the default fetch specification
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxAttributeContext::SetDefaultSpec(TInt aWidth, TInt aHeight)
+
+    {
+    TRACER( " CGlxAttributeContext::SetDefaultSpec");
+
+    iDefaultSpecSize = TSize(aWidth, aHeight);
+    }
+

@@ -284,7 +284,7 @@ CAlfTexture& CGlxTextureManagerImpl::CreateIconTextureL(
        TRAPD(err, texture = &iAlfTextureManager.CreateTextureL(
                                                icon.iTextureId, 
                                                this, 
-                                               EAlfTextureFlagDefault));                                     
+                                               EAlfTextureFlagDefault));
         if(err)
             {
             // if error delete entry and leave
@@ -298,7 +298,11 @@ CAlfTexture& CGlxTextureManagerImpl::CreateIconTextureL(
             }
         }
 
-    User::LeaveIfNull(texture); //should not be possible        
+    if (NULL == texture)
+        {
+        User::Leave(KErrNotFound);
+        }
+    
     return *texture;
     }
 
@@ -324,6 +328,15 @@ CAlfTexture& CGlxTextureManagerImpl::CreateNewTextureForMediaL(
     // create a new one.
     if (!GetThumbnailAttributeAndIndexL(aSize, aMedia, aIdSpaceId, thumbnailIndex, thumbNailAttribute))
         {
+        // only texture is missing. 
+        if ( (NULL != iThumbnailList[thumbnailIndex].iBitmap) && (NULL == iThumbnailList[thumbnailIndex].iTexture)) 
+            {
+            CAlfTexture* newTexture = &iAlfTextureManager.CreateTextureL(
+                                                                    iThumbnailList[thumbnailIndex].iTextureId, 
+                                                                    this, 
+                                                                    EAlfTextureFlagDefault);
+            iThumbnailList[thumbnailIndex].iTexture = newTexture ;
+            }
         return *iThumbnailList[thumbnailIndex].iTexture;
         }
          
@@ -517,6 +530,45 @@ void CGlxTextureManagerImpl::RemoveTexture(const TGlxMediaId& aMediaId,TBool aAl
             }
         }
     }
+
+// -----------------------------------------------------------------------------
+// FlushTextures Removes All Textures
+// -----------------------------------------------------------------------------
+//
+void CGlxTextureManagerImpl::FlushTextures()
+    {
+    TRACER("CGlxTextureManagerImpl::FlushTextures");
+
+    TInt textureID ;
+    TInt i = iThumbnailList.Count();
+    
+    while(i > 0)
+        {
+        --i;
+        textureID = iThumbnailList[i].iTextureId;
+        iAlfTextureManager.UnloadTexture(textureID );
+        iThumbnailList[i].iTexture = NULL;
+        }
+    
+    i = iIconList.Count();
+    while(i > 0)
+        {
+        --i;
+        textureID = iIconList[i].iTextureId;
+        iAlfTextureManager.UnloadTexture(textureID );
+        iIconList[i].iTexture = NULL;
+        }
+    
+    i = iZoomedList.Count();
+    while(i > 0)
+        {
+        --i;
+        textureID = iZoomedList[i].iTextureId;
+        iAlfTextureManager.UnloadTexture(textureID );
+        iZoomedList[i].iTexture = NULL;
+        }
+    }
+
 // -----------------------------------------------------------------------------
 // GetThumbnailAttributeAndIndexL
 // -----------------------------------------------------------------------------
@@ -551,10 +603,35 @@ TBool CGlxTextureManagerImpl::GetThumbnailAttributeAndIndexL( TSize aSize,
                 }
             }
         }
-        
     return ETrue;
     }
-
+// -----------------------------------------------------------------------------
+// CreateNewTextureL
+// -----------------------------------------------------------------------------
+CAlfTexture* CGlxTextureManagerImpl::CreateZoomedTextureL()
+    {
+    TRACER("CGlxTextureManagerImpl::CreateZoomedTextureL");
+    TInt count = iZoomedList.Count();
+    TInt index = 0 ;
+    
+    for (index = count-1; index >=0  ; index--)
+        {
+        if (NULL == iZoomedList[index].iTexture)
+            {
+            if (NULL != iZoomedList[index].iBitmap)
+                {
+                // If we got this far we need to create a new texture
+                iZoomedList[index].iTextureId = NextTextureId();
+                iZoomedList[index].iTexture = &iAlfTextureManager.CreateTextureL(
+                                                                       iZoomedList[index].iTextureId, 
+                                                                       this, 
+                                                                       EAlfTextureFlagDefault);
+                return iZoomedList[index].iTexture ;
+                }
+            }
+        }
+    return NULL;
+    }
 // -----------------------------------------------------------------------------
 // CreateNewTextureL
 // -----------------------------------------------------------------------------
@@ -610,7 +687,7 @@ CAlfTexture& CGlxTextureManagerImpl::CreateNewTextureL( TSize aSize,
 	     //Add to the thumbnail list
         GLX_LOG_INFO("CGlxTextureManagerImpl::CreateNewTextureL iThumbnailList.Append ");
 	    iThumbnailList.Append(aThumbData); 	
-	    }   
+	    }
    else
 	   {
         GLX_LOG_INFO1("CGlxTextureManagerImpl::CreateNewTextureL,count=%d",iZoomedList.Count());
@@ -631,7 +708,6 @@ CAlfTexture& CGlxTextureManagerImpl::CreateNewTextureL( TSize aSize,
 	    iThumbnailList[index].iTexture = newTexture;
 	    iThumbnailList[index].iRequiredSize = aSize;
 	    }
-	    
 	else
 	    {
         GLX_LOG_INFO("CGlxTextureManagerImpl::CreateNewTextureL else aIsThumbnailTexture ");
@@ -656,7 +732,6 @@ CAlfTexture& CGlxTextureManagerImpl::CreateNewTextureL( TSize aSize,
     return *newTexture;
     }
 
-
 // -----------------------------------------------------------------------------
 // CreateZoomedTextureL
 // -----------------------------------------------------------------------------
@@ -667,13 +742,13 @@ CAlfTexture& CGlxTextureManagerImpl::CreateZoomedTextureL(
     {
     TRACER("CGlxTextureManagerImpl::CreateZoomedTextureL");
     if(!iZoomDecoder)
-		{
-		 GLX_LOG_INFO("CGlxTextureManagerImpl:: CreateZoomedTextureL,iZoomDecoder == NULL");
-		 iZoomDecoder = CGlxBitmapDecoderWrapper::NewL(this);
-		}
-    
-    TGlxThumbnailIcon aThumbData;
+        {
+        GLX_LOG_INFO("CGlxTextureManagerImpl:: CreateZoomedTextureL,iZoomDecoder == NULL");
+        iZoomDecoder = CGlxBitmapDecoderWrapper::NewL(this);
+        }
         
+    TGlxThumbnailIcon aThumbData;
+            
     aThumbData.iTextureId = NextTextureId();
     aThumbData.iTexture = NULL;
     aThumbData.iAttribId = aAttribute;
@@ -693,7 +768,6 @@ CAlfTexture& CGlxTextureManagerImpl::CreateZoomedTextureL(
 	iZoomedList[index].iObserver = aObserver ;  
 
 	iZoomDecoder->DoDecodeImageL(aMedia.Uri(), iZoomedList.Count()-1);
-		
 	return *(iZoomedList[index].iTexture);
     }
 
@@ -881,8 +955,12 @@ void CGlxTextureManagerImpl::ProvideBitmapL(TInt aTextureId,
         }
 
     // Leave if bitmap or mask is NULL.
-    User::LeaveIfNull( aBitmap );
-
+    
+    if (NULL == aBitmap)
+        {
+        User::Leave(KErrNotFound);
+        }
+    
     // set size
     // In preference use requested size if there is one
     TInt height =TInt(iResUtil->PossToPixels(icon.iHeightInPoss));
@@ -1023,66 +1101,60 @@ void CGlxTextureManagerImpl::HandleBitmapDecodedL(TInt aThumbnailIndex,CFbsBitma
     TBool textureCreated = ETrue;
     TInt textureID = -1;
     TInt textureToBeUnloaded = -1;
-    
+
     //check if the image is decoded
     if(aBitmap != NULL)
-		    {
-		    iZoomedList[aThumbnailIndex].iBitmap = aBitmap;
-  			
-  			//if we already have a texture then dont unload the texture before creating 
-  			//the next one. It might happen that because of low memory we might not be able
-  			//to create a new texture.
-			  if(iZoomedList[aThumbnailIndex].iTexture)
-			    {				    
-			    textureID = NextTextureId();
-			    textureToBeUnloaded = iZoomedList[aThumbnailIndex].iTextureId  ;   
-			    iZoomedList[aThumbnailIndex].iTextureId = textureID  ;
-			  	}
-			  else
-				  {
-				  textureID = iZoomedList[aThumbnailIndex].iTextureId;
-				  }
-				  		
-		    TRAPD(err, newTexture = &iAlfTextureManager.CreateTextureL(
-		    												 textureID, this, EAlfTextureFlagDefault));
-		    if ( KErrNone != err && KErrNoMemory == err )
-		        {  
-		        GLX_LOG_INFO("CGlxTextureManagerImpl::HandleBitmapDecoded ReleaseRam : START RAM  RELEASE");
-		        iCache->ReleaseRAML(ETrue);
-		        TRAPD(err, newTexture = &iAlfTextureManager.CreateTextureL(textureID, this, EAlfTextureFlagDefault));
-		        if ( KErrNone != err && KErrNoMemory == err )
-		            {
-		            GLX_LOG_INFO("CGlxTextureManagerImpl::HandleBitmapDecoded CreateTextureL : LOW MEMORY CONDITION");
-		            textureCreated = EFalse;
-		            }		
-		        }
-		    }    
-		    else
-		    {
-		     textureCreated = EFalse;	     
-		    }
-    
-    if(iZoomedList[aThumbnailIndex].iBitmap)
         {
-        GLX_LOG_INFO("CGlxTextureManagerImpl::HandleBitmapDecoded delete iBitmap");
-    		delete iZoomedList[aThumbnailIndex].iBitmap;
-    		iZoomedList[aThumbnailIndex].iBitmap = NULL;
-        }
+        iZoomedList[aThumbnailIndex].iBitmap = aBitmap;
+
+        //if we already have a texture then dont unload the texture before creating 
+        //the next one. It might happen that because of low memory we might not be able
+        //to create a new texture.
+        if(iZoomedList[aThumbnailIndex].iTexture)
+            {				    
+            textureID = NextTextureId();
+            textureToBeUnloaded = iZoomedList[aThumbnailIndex].iTextureId  ;   
+            iZoomedList[aThumbnailIndex].iTextureId = textureID  ;
+            }
+        else
+            {
+            textureID = iZoomedList[aThumbnailIndex].iTextureId;
+            }
         
+        TRAPD(err, newTexture = &iAlfTextureManager.CreateTextureL(
+                                             textureID, this, EAlfTextureFlagDefault));
+        if ( KErrNone != err && KErrNoMemory == err )
+            {  
+            GLX_LOG_INFO("CGlxTextureManagerImpl::HandleBitmapDecoded ReleaseRam : START RAM  RELEASE");
+            iCache->ReleaseRAML(ETrue);
+            TRAPD(err, newTexture = &iAlfTextureManager.CreateTextureL(textureID, this, EAlfTextureFlagDefault));
+            if ( KErrNone != err && KErrNoMemory == err )
+                {
+                GLX_LOG_INFO("CGlxTextureManagerImpl::HandleBitmapDecoded CreateTextureL : LOW MEMORY CONDITION");
+                textureCreated = EFalse;
+                }		
+            }
+        }    
+    else
+        {
+        textureCreated = EFalse;	     
+        }
+
+
+
     if (textureCreated && (NULL != newTexture))
         {
         GLX_LOG_INFO("CGlxTextureManagerImpl::HandleBitmapDecoded textureCreated && newTexture");
         //If the new texture is created then unload the old texture and store the new texture and textureID.
         if(iZoomedList[aThumbnailIndex].iTexture)
-				    {				    
-				    GLX_LOG_INFO("CGlxTextureManagerImpl::HandleBitmapDecoded Unloading Old Texture");
-				    iAlfTextureManager.UnloadTexture(textureToBeUnloaded );
-				  	}
-				iZoomedList[aThumbnailIndex].iTextureId = textureID;
-				
+            {				    
+            GLX_LOG_INFO("CGlxTextureManagerImpl::HandleBitmapDecoded Unloading Old Texture");
+            iAlfTextureManager.UnloadTexture(textureToBeUnloaded );
+            }
+        iZoomedList[aThumbnailIndex].iTextureId = textureID;
         iZoomedList[aThumbnailIndex].iTexture = newTexture;
         }
-    
+
     if (iZoomedList[aThumbnailIndex].iObserver)
         {
         GLX_LOG_INFO("CGlxTextureManagerImpl::HandleBitmapDecoded TextureContentChangedL");

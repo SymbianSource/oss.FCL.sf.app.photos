@@ -195,7 +195,6 @@ void CGlxZoomControl::CreateZoomVisualL()
     iImageVisual->SetScaleMode(CAlfImageVisual::EScaleFitInside);
 
     iEventHandler = CGlxZoomPanEventHandler::NewL(*this);
-    
     }
 
 // -----------------------------------------------------------------------------
@@ -275,12 +274,13 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
         //This Varaiable updates that we are in zoom state now.
         iZoomActive = ETrue;
         //To Retrive the image details
-        TMPXAttribute thumbNailAttribute(0,0);        
+        TMPXAttribute thumbNailAttribute(0,0);
+
         TGlxIdSpaceId idspace = iMediaList.IdSpaceId( aFocusIndex );
         //Get the texture Created in fullscreen View.
         iImageTexture = &(iTextureMgr->CreateNewTextureForMediaL(
-              ScreenSize(),aItem, idspace, this ));
-        iImageVisual->SetImage(*iImageTexture);         
+                ScreenSize(),aItem, idspace, this ));
+        iImageVisual->SetImage(*iImageTexture);
         
         if(iGlxTvOut->IsConnected())
             {
@@ -292,52 +292,53 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
             iZoomSliderWidget.AddEventHandler(*this);
             iZoomSliderWidget.SetHandleKeyEvent(EFalse);
             iZoomSliderModel = (IMulSliderModel*) iZoomSliderWidget.model();
-        // Get size, return value tells us if it was available
-        //We need this Value to calculate the size of the visual/Layout corresponding to the Zoom factor
-        TSize imageSize;
-        aItem.GetDimensions( imageSize );
-        TSize maxVirtualImageSize = imageSize;
-
-        if (KGlxDecodingThreshold < (imageSize.iWidth * imageSize.iHeight))
-            {
-            TReal areaRatio = TReal(imageSize.iWidth*imageSize.iHeight)/KGlxDecodingThreshold ;
-            
-            TReal sideRatio;
-            Math::Sqrt(sideRatio, areaRatio);
-
-            
-            maxVirtualImageSize.iHeight = imageSize.iHeight /  sideRatio ;
-            maxVirtualImageSize.iWidth  = imageSize.iWidth  /  sideRatio ;
-
-            }
-        
-        TInt initialZoomRatio = GetIntialZoomLevel(maxVirtualImageSize);
-        iZoomSliderModel->SetMinRange(initialZoomRatio);
-
-        iEventHandler->SetZoomActivated(ETrue);
-        iEventHandler->ActivateZoom(initialZoomRatio,
-                maxVirtualImageSize,
-                aStartMode,
-                iZoomSliderModel->MinRange(), 
-                iZoomSliderModel->MaxRange(),
-                maxVirtualImageSize,
-                aZoomFocus);
-        
-        TRAP_IGNORE(iImageTexture = 
-        &(iTextureMgr->CreateZoomedTextureL(aItem,thumbNailAttribute,idspace,this)));
-       
-        //This is for handling the alaram interrupt events,that causes the phone to freeze.
-        CEikButtonGroupContainer* cba = CEikButtonGroupContainer::Current();
-        if (NULL != cba)
-            {
-            if (cba->IsVisible())
+            // Get size, return value tells us if it was available
+            //We need this Value to calculate the size of the visual/Layout corresponding to the Zoom factor
+            TSize imageSize;
+            aItem.GetDimensions( imageSize );
+            TSize maxVirtualImageSize = imageSize;
+    
+            if (KGlxDecodingThreshold < (imageSize.iWidth * imageSize.iHeight))
                 {
-                cba->ActivateL();
+                TReal areaRatio = TReal(imageSize.iWidth*imageSize.iHeight)/KGlxDecodingThreshold ;
+                
+                TReal sideRatio;
+                Math::Sqrt(sideRatio, areaRatio);
+                
+                maxVirtualImageSize.iHeight = imageSize.iHeight /  sideRatio ;
+                maxVirtualImageSize.iWidth  = imageSize.iWidth  /  sideRatio ;
+                }
+            
+            // Now since our maximum size possible is 3 MP. all our zoom percentages will be relative to it. 
+            // So our initial zoom ratio will be different and cnsequently our minimum slider value too will change. 
+            // Maximum is an
+            TInt initialZoomRatio = GetInitialZoomLevel(maxVirtualImageSize);
+            iZoomSliderModel->SetMinRange(initialZoomRatio);
+    
+            iEventHandler->SetZoomActivated(ETrue);
+            iEventHandler->ActivateZoom(initialZoomRatio,
+                    maxVirtualImageSize,
+                    aStartMode,
+                    iZoomSliderModel->MinRange(), 
+                    iZoomSliderModel->MaxRange(),
+                    maxVirtualImageSize,
+                    aZoomFocus);
+            
+            TRAP_IGNORE(iImageTexture = 
+            &(iTextureMgr->CreateZoomedTextureL(aItem,thumbNailAttribute,idspace,this)));
+           
+            //This is for handling the alaram interrupt events,that causes the phone to freeze.
+            CEikButtonGroupContainer* cba = CEikButtonGroupContainer::Current();
+            if (NULL != cba)
+                {
+                if (cba->IsVisible())
+                    {
+                    cba->ActivateL();
+                    }
                 }
             }
         }
     }
-}
 // ---------------------------------------------------------------------------
 // StartZoomAnimation
 // ---------------------------------------------------------------------------
@@ -433,9 +434,35 @@ EXPORT_C void CGlxZoomControl::Deactivate()
 EXPORT_C void CGlxZoomControl::HandleZoomForegroundEvent(TBool aForeground)
     {
     TRACER("CGlxZoomControl::HandleZoomForegroundEventL()");
+
+    //Refeed the textures if we are coming back to foreground from background
+    //To Retrive the image details
+    TMPXAttribute thumbNailAttribute(0,0);
+    TInt focusIndex = iMediaList.FocusIndex();
+    TGlxIdSpaceId idspace = iMediaList.IdSpaceId( focusIndex );
+    //Get the texture Created in fullscreen View.
+    TGlxMedia item = iMediaList.Item( focusIndex );
+    
     if (!aForeground)
         {
         iEventHandler->CancelZoomPanTimer();
+        iEventHandler->CancelUITimer();
+        iEventHandler->CancelAnimationTimer();
+        }
+    else
+        {
+        // if we already have the decoded zoomed image bitmap use the texture corresponding to that.
+        // Else make do with the fullscreen texture till that happens.  
+        TRAP_IGNORE(iImageTexture = 
+            iTextureMgr->CreateZoomedTextureL());
+        
+        if (NULL == iImageTexture)
+            {
+            iImageTexture = &(iTextureMgr->CreateNewTextureForMediaL(
+                    ScreenSize(),item, idspace, this ));
+            }
+
+        iImageVisual->SetImage(*iImageTexture);
         }
     } 
 
@@ -504,9 +531,9 @@ void CGlxZoomControl::TextureContentChangedL( TBool /*aHasContent*/ , CAlfTextur
     //decode and show anything. So try and check if the fullscreen texture 
     //is created by now if not then go to fullscreen view.
 
-    if(aNewTexture == NULL)
+    if(NULL == aNewTexture )
         {
-        if(iImageTexture == NULL)
+        if(NULL == iImageTexture)
             {
             TSize TextureSize = ScreenSize();
             TInt focus = iMediaList.FocusIndex();
@@ -818,9 +845,13 @@ void CGlxZoomControl::HandleGestureL( const GestureHelper::MGestureEvent& aEvent
     iEventHandler->SetPreviousEventCode(code);
     }
 
-TInt CGlxZoomControl::GetIntialZoomLevel(TSize& aSize )
+// -----------------------------------------------------------------------------
+// GetInitialZoomLevel
+// -----------------------------------------------------------------------------
+//
+TInt CGlxZoomControl::GetInitialZoomLevel(TSize& aSize )
     {
-    TRACER("CGlxZoomControl::IntialZoomLevel");
+    TRACER("CGlxZoomControl::InitialZoomLevel");
 
     TRect rect = AlfUtil::ScreenSize();
     TUint8 initialZoomLevel;

@@ -197,10 +197,12 @@ private: // data
     /// Owned: Media list
     MGlxMediaList* iMediaList;
   
-    /// Own: the thumbnail context
-    CGlxThumbnailContext* iThumbnailContext;
+    /// Own: the Attribte Context    
+    CGlxAttributeContext* iUriAttributeContext;
+    
+    CGlxAttributeContext* iThumbnailAttributeContext;
 
-    /// Own: Thuimbnail Iterator
+    /// Own: Thumbnail Iterator
     TGlxSequentialIterator iThumbnailIterator;
 
     RArray<TInt> iPreviewItemCount;

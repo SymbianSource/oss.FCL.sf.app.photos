@@ -74,13 +74,11 @@ using namespace Alf;
 #define GetAppViewUi() (dynamic_cast<CAknViewAppUi*>(CEikonEnv::Static()->EikAppUi()))
 const TInt KGlxScreenTimeout =10000000;
 const TInt KCoverflowDataWindowSize = 1;
-const TInt KGlxRotationDelay = 800;    // Milliseconds
 const TInt KGlxMaxSmallImageZoomLevel =150;
 const TInt KGlxMaxBigImageZoomLevel   =100;
 const TInt KGlxMinSmallImageZoomLevel =100;
 const TInt KGlxNeutralPinchPosition   =100;
 const TInt KGlxSliderTickValue        =5;
-_LIT(KGlxIconsFilename, "glxicons.mif");
 /**
  * Start Delay for the periodic timer, in microseconds
  */
@@ -291,6 +289,12 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
 		const TDesC8 & /* aCustomMessage */)
 	{
     TRACER("CGlxFullScreenViewImp::DoMLViewActivateL");
+    // hide the toolbar
+    CAknToolbar* toolbar = Toolbar();
+    if(toolbar)
+        {
+        toolbar->SetToolbarVisibility(EFalse); 
+        }
     	//Fix For EPKA-7U5DT7-slideshow launched from FullScreen and connect USB in mass storage mode results in Photos crash
 	if(!iMediaList->Count())
 		{
@@ -317,6 +321,9 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
             }    
 	    }
     iScreenFurniture->SetActiveView(iViewUid);
+
+    // create the screen furniture for touch devices
+    CreateScreenFurnitureL();
     
     //set the ui state to off,when the Fullscreen launches
     SetUiSate(NGlxNFullScreenUIState::EUiOff);
@@ -326,8 +333,6 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
     // create the coverflow
     CreateCoverflowWidgetL();
     
-    // create the screen furniture for touch devices
-    CreateScreenFurnitureL();
     
     CreateSliderWidgetL();
     
@@ -391,13 +396,13 @@ void CGlxFullScreenViewImp::CreateCoverflowWidgetL()
     iCoverFlowWidget->SetFlags(IMulMultiItemWidget::EMulWidgetDoubleTap);
 
     // Widget takes the ownership
-        iCoverFlowWidget->AddEventHandler (*this);
-    
-        // hide appui's status pane  
-        GetAppViewUi()->StatusPane()->MakeVisible(EFalse);
-    
-        // hide appui's softkeys
-        GetAppViewUi()->Cba()->MakeVisible(EFalse);
+    iCoverFlowWidget->AddEventHandler (*this);
+
+    // hide appui's status pane  
+    GetAppViewUi()->StatusPane()->MakeVisible(EFalse);
+
+    // hide appui's softkeys
+    GetAppViewUi()->Cba()->MakeVisible(EFalse);
     iCoverFlowWidget->ShowWidget(ETrue);
     iCoverFlowWidget->control()->AcquireFocus();
 
@@ -555,6 +560,9 @@ void  CGlxFullScreenViewImp::CreateScreenFurnitureL()
     CEikButtonGroupContainer* cba = CEikButtonGroupContainer::Current();
     CleanupStack::PushL( cba );
     cba->SetCommandSetL(R_GLX_FULLSCREEN_SOFTKEYS);
+    // hide the softkeys
+    cba->MakeVisible( EFalse );
+    cba->DrawNow();
     CleanupStack::Pop(cba);
     }
 
@@ -665,11 +673,10 @@ void CGlxFullScreenViewImp::ActivateZoomControlL(TZoomStartMode aStartMode, TPoi
             if(iZoomControl && !iZoomControl->Activated())
                 {
                 iHdmiController->ActivateZoom();
-                iZoomControl->ActivateL(GetIntialZoomLevel(),aStartMode, focus, item, apZoomFocus);
-                
-                //==Removing all textures other than the focussed one===============
+                iZoomControl->ActivateL(GetInitialZoomLevel(),aStartMode, focus, item, apZoomFocus);
+
+                // Now to remove all textures other than the one we are focussing on.  
                 TInt count = iMediaList->Count();
-                
                 while (count > 0)
                     {
                     TGlxMedia mediaItem = iMediaList->Item(count-1);	
@@ -679,7 +686,6 @@ void CGlxFullScreenViewImp::ActivateZoomControlL(TZoomStartMode aStartMode, TPoi
                         }
                     count--;
                     }
-                //==\Removing all textures==============
                 }
             else
                 {
@@ -755,14 +761,25 @@ void CGlxFullScreenViewImp::HandleForegroundEventL(TBool aForeground)
     {
     TRACER("CGlxFullScreenViewImp::HandleForegroundEventL");
     CAknView::HandleForegroundEventL(aForeground);
+    
 	
-	if(!aForeground)
-	    {
-	    if(iZoomControl && iZoomControl->Activated())
-	        {
-			iZoomControl->HandleZoomForegroundEvent(aForeground);
-			}
-		}
+    if(iZoomControl && iZoomControl->Activated())
+        {
+        iZoomControl->HandleZoomForegroundEvent(aForeground);
+        }
+
+    if (!aForeground)
+        {
+        iUiUtility->GlxTextureManager().FlushTextures();
+        }
+    else
+        {
+        if (iMediaList && iMediaList->Count() && iMediaListMulModelProvider)
+            {
+            TInt focusIndex = iMediaList->FocusIndex();
+            iMediaListMulModelProvider->UpdateItems(focusIndex, 1);
+            }
+        }
     }
 
 
@@ -1053,14 +1070,10 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
 	 // and activates the fullscreenview
 	 if((aControl == iZoomControl)&& (aCommandId == KGlxZoomOutCommand))
 	     {
-	     	SetSliderLevel();
-        DeactivateZoomControlL();
-        }
-    /*else if(aControl == iSingleLineMetaPane)
-        {
-        ProcessCommandL(aCommandId);
-        }*/
-    } 
+	     SetSliderLevel();
+	     DeactivateZoomControlL();
+	     }
+	 } 
 
 // ---------------------------------------------------------------------------
 // From HandleResourceChangeL..
@@ -1082,12 +1095,12 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
     }   
 
 //----------------------------------------------------------------------------------
-// IntialZoomLevel:Calculate the initial Zoom Level for the Image
+// InitialZoomLevel:Calculate the initial Zoom Level for the Image
 //----------------------------------------------------------------------------------
 //
-TInt CGlxFullScreenViewImp::GetIntialZoomLevel()
+TInt CGlxFullScreenViewImp::GetInitialZoomLevel()
     {
-    TRACER("CGlxFullScreenViewImp::IntialZoomLevel");
+    TRACER("CGlxFullScreenViewImp::InitialZoomLevel");
     TInt focus     = iMediaList->FocusIndex();
     TGlxMedia item = iMediaList->Item( focus );
     TSize size;
@@ -1120,7 +1133,7 @@ void CGlxFullScreenViewImp::SetSliderLevel()
     {
     TRACER("CGlxFullScreenViewImp::SetSliderLevel");
 
-    TInt value = GetIntialZoomLevel();
+    TInt value = GetInitialZoomLevel();
     if(iSliderModel)
         {
         iSliderModel->SetMinRange(value);
@@ -1308,5 +1321,5 @@ void CGlxFullScreenViewImp::RemoveTexture()
     TRACER("CGlxFullScreenViewImp::RemoveTexture");
     
     const TGlxMedia& item = iMediaList->Item(GetIndexToBeRemoved());
-     iUiUtility->GlxTextureManager().RemoveTexture(item.Id(),EFalse);
+    iUiUtility->GlxTextureManager().RemoveTexture(item.Id(),EFalse);
     }

@@ -213,12 +213,15 @@ TBool CGlxFetcherDialog::OkToExitL(TInt aKeycode)
                     {
                     iSelectedFiles.Reset();
                     retVal = EFalse;
+                    //if the corrupt file is selected then reset the flag to again enable
+                    //the selection.
+                    iFetcherContainer->SetFileAttached(EFalse);
                     } 
                 if (!retrieveUriValue)
                     {
                     retVal = EFalse;
                     }
-                if (iMultiSelectionEnabled)
+                if (iMultiSelectionEnabled && retVal)
                     {
                     iFetcherContainer->DoExecuteL(EGlxCmdEndMultipleMarking);    
                     }

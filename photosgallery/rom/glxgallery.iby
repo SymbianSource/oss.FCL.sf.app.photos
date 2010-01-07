@@ -24,6 +24,9 @@
 
 data=\epoc32\data\z\private\10003a3f\import\apps\glx_reg.rsc         private\10003a3f\import\apps\glx_reg.rsc
 
+// photos image viewer
+data=\epoc32\data\z\private\10003a3f\import\apps\glxivwr_reg.rsc         private\10003a3f\import\apps\glxivwr_reg.rsc
+
 //photosuitelauncher application resource file
 data=\epoc32\data\z\private\10003a3f\import\apps\photossuitelauncher_reg.rsc         private\10003a3f\import\apps\photossuitelauncher_reg.rsc
 
@@ -34,6 +37,10 @@ S60_APP_EXE(glx)
 
 //photosuitelauncher application 
 S60_APP_EXE(photossuitelauncher)
+
+//photos image viewer exe
+S60_APP_EXE(glxivwr)
+
 data=DATAZ_\APP_RESOURCE_DIR\photossuitelauncher.mif          APP_RESOURCE_DIR\photossuitelauncher.mif
 
 

@@ -1096,7 +1096,7 @@ void CGlxDataSourceMde::FetchThumbnailL(CGlxRequest* aRequest,
     CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(
                                      request->ThumbnailInfo()->FilePath(), 0);
     iTnThumbnailCbId = iTnEngine->GetThumbnailL(*source);
-    CleanupStack::PopAndDestroy();
+    CleanupStack::PopAndDestroy(source);
 
     iTnRequestInProgress = ETrue;
 	}

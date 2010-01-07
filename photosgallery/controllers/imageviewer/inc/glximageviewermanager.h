@@ -1,28 +1,20 @@
 /*
- ============================================================================
- Name		: glximageviewermanager.h
- Author	  : Hariharan Narayanan
- Version	 : 1.0
- Copyright   : /*
- * Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
- * All rights reserved.
- * This component and the accompanying materials are made available
- * under the terms of "Eclipse Public License v1.0"
- * which accompanies this distribution, and is available
- * at the URL "http://www.eclipse.org/legal/epl-v10.html".
- *
- * Initial Contributors:
- * Nokia Corporation - initial contribution.
- *
- * Contributors:
- *
- * Description:    Image Viewer Manager
- *
- */
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description: Image Viewer Manager header file : CCGlxImageViewerManager declaration
+*
+*/
 
-/*
- * Description : CCGlxImageViewerManager declaration
- */
 
 #ifndef GLXIMAGEVIEWERMANAGER_H
 #define GLXIMAGEVIEWERMANAGER_H
@@ -87,10 +79,12 @@ private:
     
 
 private:
+	//need to declare as it is initialised
+    TInt iRefCount; /// Reference count
     HBufC* iImageUri; /// image file uri in case of Photos starting as Image viewer 
     RFile64* iFile;  /// Handle to image file which will be shown in Image viewer
     TBool iIsPrivate; /// Flag that stores if the image file is in a private folder. ETrue means the image is private, else EFalse 
-    TInt iRefCount; /// Reference count
+    
     };
 
 #include "glximageviewermanager.inl"

@@ -63,10 +63,6 @@ CGlxImageViewerManager::~CGlxImageViewerManager()
     TRACER("CGlxImageViewerManager::~CGlxImageViewerManager()");
     delete iImageUri;
 
-    if( iFile )
-        {
-        iFile->Close();
-        }
     }
 
 CGlxImageViewerManager* CGlxImageViewerManager::NewLC()
@@ -82,7 +78,7 @@ CGlxImageViewerManager* CGlxImageViewerManager::NewL()
     {
     TRACER("CGlxImageViewerManager::NewLC()");
     CGlxImageViewerManager* self = CGlxImageViewerManager::NewLC();
-    CleanupStack::Pop(); // self;
+    CleanupStack::Pop(self);
     return self;
     }
 
@@ -104,7 +100,14 @@ EXPORT_C void CGlxImageViewerManager::SetImageUriL(const TDesC& aFileName)
         delete iImageUri;
         iImageUri = NULL;
         }
-    iImageUri = aFileName.AllocL();    
+    if (aFileName.Length() == 0)
+        {
+        User::Leave(KErrNotSupported);    
+        }
+    else
+        {
+    	iImageUri = aFileName.AllocL();    
+		}
     }
 
 // ---------------------------------------------------------------------------

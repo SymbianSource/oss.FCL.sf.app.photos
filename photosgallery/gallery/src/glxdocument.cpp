@@ -84,6 +84,20 @@ CGlxDocument::~CGlxDocument()
 	}
 
 // -----------------------------------------------------------------------------
+// OpenFileL()
+// Open document.
+// -----------------------------------------------------------------------------
+CFileStore* CGlxDocument::OpenFileL( TBool /*aDoOpen*/,
+                                    const TDesC& aFilename, RFs& /*aFs*/ )
+    {
+    TRACER("CFileStore* CGlxDocument::OpenFileL");
+	// Reset old data
+    ResetDocument();
+    iImageViewerInstance->SetImageUriL(aFilename);
+    return NULL;
+    }
+
+// -----------------------------------------------------------------------------
 // CGlxDocument::OpenFileL()
 // Open document.
 // -----------------------------------------------------------------------------

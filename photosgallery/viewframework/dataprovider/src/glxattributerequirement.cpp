@@ -118,7 +118,7 @@ void CGlxAttributeRequirements::AddThumbnailL( const TSize& aSize )
     TRACER("CGlxAttributeRequirements::AddThumbnailL");
     if( aSize.iHeight > 200 )
     	{
-    	iFromFocusOutwardIterator.SetRangeOffsets( 2,2 );
+    	iFromFocusOutwardIterator.SetRangeOffsets( 5,5 );
     	//check if Fullscreen thumbnail context is initialized
 		if(!iFsThumbnailContext)
 			{

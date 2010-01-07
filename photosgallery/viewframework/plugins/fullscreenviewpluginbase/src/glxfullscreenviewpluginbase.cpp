@@ -257,15 +257,6 @@ EXPORT_C void CGlxFullScreenViewPluginBase::AddCommandHandlersL()
     GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShowMapHardKey");
     iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwShowMapHardKey::NewL(
             iFullScreenView, ETrue));
-
-    GLX_LOG_INFO("Adding CGlxCommandHandlerRemoveFrom");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::
-            NewL(iFullScreenView, EMPXTag));
-    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerRemoveFromFavourites");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::
-            NewRemFromFavCommandHandlerL(iFullScreenView ));
-
     }
 
 // ---------------------------------------------------------------------------

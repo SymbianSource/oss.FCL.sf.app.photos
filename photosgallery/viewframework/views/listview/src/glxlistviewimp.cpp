@@ -558,7 +558,7 @@ void CGlxListViewImp::HandleItemRemovedL( TInt aStartIndex, TInt aEndIndex,
 	
 	if(iMediaList == aList)
 		{
-		for(TInt i = aStartIndex;i <= aEndIndex; i++ )
+		for(TInt i = aEndIndex ;i >= aStartIndex; i-- )
 			{
 			iList->RemoveItem(i);
 			}

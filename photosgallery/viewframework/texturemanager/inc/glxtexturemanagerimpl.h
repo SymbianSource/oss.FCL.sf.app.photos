@@ -144,6 +144,13 @@ public:
                                             TGlxIdSpaceId aIdSpaceId, MGlxTextureObserver* aObserver);
 
     /**
+    * If we have a texture ID, we recreate the Zoomed texture based on that
+    * 
+    * @param aTextureID the texture ID to create the texture on. 
+    */
+    CAlfTexture* CreateZoomedTextureL( );
+
+    /**
     * Create an animated texture from a GIF file
     * @param aFilename The filename of the GIF file
     * @param aSize The size of the GIF file
@@ -158,6 +165,13 @@ public:
      * @param aTexture The texture to be removed
      */
     void RemoveTexture( const CAlfTexture& aTexture );
+    
+    /**
+     * Removes all Texteures 
+     * 
+     */
+    void FlushTextures() ;
+    
     /**
      * Removes the texture if it was created by CreateThumbnailTextureL or
      * CreateZoomedTextureL

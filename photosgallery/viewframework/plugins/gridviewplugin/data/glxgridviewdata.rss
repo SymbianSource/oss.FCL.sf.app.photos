@@ -223,7 +223,8 @@ RESOURCE MENU_PANE r_glx_album_grid_menu
                               txt = qtn_lgal_options_add_to_album; 
                               flags = EEikMenuItemSpecific; },                  
                   MENU_ITEM { command = EGlxCmdAddTag;
-                              txt = qtn_lgal_options_properties_add_tag; }, 
+                              txt = qtn_lgal_options_properties_add_tag;
+                              flags = EEikMenuItemSpecific;}, 
                   MENU_ITEM { command = EGlxCmdAiwAssign;
                               txt = qtn_lgal_options_use_items; 
                               cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },                     
@@ -272,14 +273,15 @@ RESOURCE MENU_PANE r_taggrid_menu
         MENU_ITEM { command = EGlxCmdAiwEdit; 
                     txt = qtn_lgal_options_edit; 
                     cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; 
-                    flags = EEikMenuItemSpecific;},
+                    flags = EEikMenuItemSpecificListQuery;},
         MENU_ITEM { command = EGlxCmdDetails;
                     txt = qtn_lgal_options_details; },    
         MENU_ITEM { command = EGlxCmdMarkingSubmenu;
                     txt = qtn_options_list;
                     cascade = r_viu_editlist_menu; },                        
         MENU_ITEM { command = EGlxCmdAddToAlbum;
-                    txt = qtn_lgal_options_add_to_album; },
+                    txt = qtn_lgal_options_add_to_album;
+                    flags = EEikMenuItemSpecific;},
         MENU_ITEM { command = EGlxCmdAddTag;
                     txt = qtn_lgal_options_properties_add_tag; 
                     flags = EEikMenuItemSpecific; }, 

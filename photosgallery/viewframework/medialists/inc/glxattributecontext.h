@@ -70,6 +70,13 @@ public:
 	 * Sets granularity of the item index array returned from AttributeRequestL
 	 */
 	IMPORT_C void SetGranularity(TUint aGranularity);
+	
+	/**
+	 * Sets the default fetch specification. 
+	 * @param aWidth the width of required bitmap. 
+	 * @param aHeight the heigth of required bitmap. 
+	 */
+	IMPORT_C void SetDefaultSpec(TInt aWidth, TInt aHeight);
 
 public: // From MGlxFetchContext
     /// See @ref MGlxFetchContext::AttributeRequestL
@@ -114,6 +121,9 @@ private:
 	 * Granularity of the item index array returned from AttributeRequestL
 	 */
 	TUint iGranularity;
+	
+	/** Size of the default spec */
+	TSize iDefaultSpecSize;
 
 	/** Tester class */
 	friend class T_CGlxAttributeContext;

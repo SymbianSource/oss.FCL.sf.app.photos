@@ -197,6 +197,7 @@ void CGlxSingleGraphicPopupMenuStyleListBox::HandleListBoxEventL (CEikListBox *a
 	switch(aEventType)
 		{
 		case EEventItemClicked :
+		case EEventItemSingleClicked :
 			{
 			CGlxMediaListAdaptor* mediaListAdaptor = static_cast <CGlxMediaListAdaptor*>(Model()->ItemTextArray());
 	        if (mediaListAdaptor->MultiSelectionEnabled() && View()->CurrentItemIndex() >= 0 )

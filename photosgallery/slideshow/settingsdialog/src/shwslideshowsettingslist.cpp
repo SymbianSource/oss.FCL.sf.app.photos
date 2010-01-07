@@ -1235,7 +1235,7 @@ TBool CShwSlideShowSettingsList::ConfirmationQueryL(TInt aQueryStrId)
     query->SetPromptL(*titleText);
     CleanupStack::Pop(query);
 	TInt retVal = query->ExecuteLD(R_SHW_CONFIRMATION_QUERY);
-	CleanupStack::PopAndDestroy(); //titleText
+	CleanupStack::PopAndDestroy(titleText);
     return (retVal == EAknSoftkeyOk || retVal == EAknSoftkeyYes);
     }
 

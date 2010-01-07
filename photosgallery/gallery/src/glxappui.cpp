@@ -78,7 +78,11 @@
 //constants
 const TInt KGlxGridThumbnailPages          = 9 ;       // 4 page Down + 4 page Up + 1 Visible page = 9 page 
 const TInt KGlxFullThumbnailCount         = 11 ;       // 5 Thumnail Front + 5 Thumbnail Rear + 1 Visible = 11 page
+#ifdef __MARM
 const TInt KGlxMaxMegaPixelsSupportedByCamera = 5242880 ; // 5 MB
+#else
+const TInt KGlxMaxMegaPixelsSupportedByCamera = 2097152 ; // 2 MB
+#endif
 const TInt KGlxMaxMemoryToDecodeCapturedPicture = 2 * KGlxMaxMegaPixelsSupportedByCamera ;
 const TInt KGlxMemoryForOOMFwk          = 1048576 ; // 1 MB
 const TInt KGlxThumbNailRepresentation    = 2;         // Thumbnail Representation; Could be 3 also 
@@ -90,6 +94,7 @@ _LIT8( KPhotosTags, "Tags" );
 _LIT8( KPhotosAlbums, "Albums" );
 _LIT8( KPhotosAllValue,"Allcs");
 
+_LIT8( KPhotoSuiteActivationMessage, "mm://root/photossuite?exit=hide" );
 _LIT8( KPhotosSuiteExitMessage, "mm://photossuite?action=exit" );
 
 // Matrix uid, needed for activating the suite view.
@@ -196,6 +201,7 @@ void CGlxAppUi::HandleCommandL(TInt aCommand)
 	            {
 	            LaunchMmViewL( KPhotosSuiteExitMessage );	
 	            }
+            iUiUtility->SetExitingState(ETrue);
             Exit();
             }
             break;
@@ -276,16 +282,21 @@ TBool CGlxAppUi::ProcessCommandParametersL(TApaCommand aCommand,
     TRAPD(err, HandleActivationMessageL(aCommand, aDocumentName, aTail));
     if ( KErrNone != err )
         {
-        // Open collection for main view
-        iStartupViewUid = TUid::Null();
-        // Open navigational state at root level
-        CMPXCollectionPath* newState = CMPXCollectionPath::NewL();
-        CleanupStack::PushL( newState );
-        iNavigationalState->NavigateToL( *newState );
-        CleanupStack::PopAndDestroy( newState );
+        // Open photos suite view
+        LaunchMmViewL( KPhotoSuiteActivationMessage );
+        Exit();
         }
 
-    return (EApaCommandOpen == aCommand) && (0 != aDocumentName.Size());
+    if(0 == aTail.CompareC(KNullDesC8))
+        {
+      	return ETrue;
+        }
+    else
+        {
+        //other case
+        return EFalse;
+        }
+
     }
 
 // ---------------------------------------------------------------------------
@@ -464,17 +475,16 @@ void CGlxAppUi::HandleActivationMessageL(const TApaCommand& aCommand,
         const TFileName& aDocumentName, const TDesC8& aData)
     {
     TRACER("void CGlxAppUi::HandleActivationMessageL(const TApaCommand& aCommand, const TFileName& aDocumentName, const TDesC8& aData)");
+    GLX_LOG_INFO1("Glx-HandleActivationMessageL() aCommand=%d", aCommand);
+    GLX_LOG_INFO1("Glx-HandleActivationMessageL() aDocumentName length=%d",
+                                                    aDocumentName.Length());
 
     delete iActivationParam;
     iActivationParam = NULL;
 
-    //Check for the IADUpdate
-    //TBD: Need to check the location this has to be called.
-    //This might not be proper place.
-    DoCheckForIADUpdatesL();
-
-    if ( aDocumentName.Length() > 0 && EApaCommandOpen == aCommand )
+    if (aDocumentName.Length() > 0 && 0 == aData.CompareC(KNullDesC8) )
         {
+        GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL() Image Viewer!");        
         CMPXCollectionPath* path = CMPXCollectionPath::NewL();
         CleanupStack::PushL(path);
         iNavigationalState->SetBackExitStatus( EFalse );
@@ -484,6 +494,7 @@ void CGlxAppUi::HandleActivationMessageL(const TApaCommand& aCommand,
         }
     else
         {
+        GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL(aData)");        
         HandleActivationMessageL( aData );
         }
 
@@ -774,13 +785,13 @@ void CGlxAppUi::StopCleanupL()
     }
 
 // ---------------------------------------------------------------------------
-// CCGlxNsAppUi::DoCheckForIADUpdatesL()
+// CGlxAppUi::DoCheckForIADUpdatesL()
 // Check for updates via IAD
 // ---------------------------------------------------------------------------
 // 
 void CGlxAppUi::DoCheckForIADUpdatesL()
     {
-    TRACER("CGlxNsAppUi::CheckForUpdatesL()");
+    TRACER("CGlxAppUi::DoCheckForIADUpdatesL()");
     
     if ( !iIadUpdate )
         {

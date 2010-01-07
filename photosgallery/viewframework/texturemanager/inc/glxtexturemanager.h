@@ -188,6 +188,13 @@ public:
                                             TGlxIdSpaceId aIdSpaceId, MGlxTextureObserver* aObserver);
 
     /**
+    * Create a texture from a zoomed thumbnail for a given texture ID
+    * @param aTextureId The texture id, for which the texture is removed.
+    * @return Created texture
+    */
+    IMPORT_C CAlfTexture* CreateZoomedTextureL() ;
+    
+    /**
     * Create an animated texture from a GIF file
     * @param aFilename The filename of the GIF file
     * @param aSize The size of the GIF file
@@ -224,6 +231,11 @@ public:
 	* Bug fix for PKAA-7NRBYZ - added bAllTexture param
     */
     IMPORT_C void RemoveTexture(const TGlxMediaId& aMediaId, TBool aAllTexture=EFalse);
+    
+    /**
+       * Removes ALL Textures 
+       */
+    IMPORT_C void FlushTextures() ;
     
 public: // from MGlxSkinChangeObserver
 

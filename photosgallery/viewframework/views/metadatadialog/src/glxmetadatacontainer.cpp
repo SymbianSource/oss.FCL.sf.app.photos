@@ -543,12 +543,11 @@ void CGlxMetadataContainer::ViewDynInitMenuPaneL(TInt aMenuId, CEikMenuPane* aMe
     if( aMenuId == R_METADATA_MENU )
         {
         //Set dim the options based on the utem selected
-        //Edit option will be available only for ENameItem,EDescriptionItem,ETagsItem,EAlbumItem
         //Viewdetails option will be availble only for the license item
         //Delete option will be available only for the location item	
-        //aMenuPane->SetItemDimmed(KGlxEditBoundMenuCommandId,IsItemModifiable());
         aMenuPane->SetItemDimmed(KGlxViewBoundMenuCommandId,IsLicenseItem());
-        aMenuPane->SetItemDimmed(KGlxDeleteBoundMenuCommandId,IsLocationItem());
+        //location info will be enabled if the item has a location info
+		aMenuPane->SetItemDimmed(KGlxDeleteBoundMenuCommandId,IsLocationItem());
         aMenuPane->SetItemDimmed(EGlxCmdAiwShowMap,IsLocationItem());
         }
         

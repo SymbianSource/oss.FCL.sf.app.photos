@@ -1165,6 +1165,11 @@
 //
 #define qtn_lgal_title_places "Places"
 
+// d:Discreet pop-up for fetching location(places) info
+// l:popup_discreet_window/opt5
+// r:11.0
+#define qtn_lgal_note_fetching_location "Fetching location data, connecting to server…"
+
 //-----------------------------------------------------------------------------
 // Slideshow related strings
 //-----------------------------------------------------------------------------

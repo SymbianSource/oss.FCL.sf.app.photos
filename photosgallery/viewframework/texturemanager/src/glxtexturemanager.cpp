@@ -215,6 +215,17 @@ EXPORT_C CAlfTexture& CGlxTextureManager::CreateZoomedTextureL(
     }
 
 // -----------------------------------------------------------------------------
+// CreateZoomedTextureL
+// -----------------------------------------------------------------------------
+//  
+EXPORT_C CAlfTexture* CGlxTextureManager::CreateZoomedTextureL()
+    {
+    TRACER("CGlxTextureManager::CreateZoomedTextureL 2");
+    GLX_LOG_INFO( "CGlxTextureManager::CreateZoomedTextureL 2" );
+    return iImpl->CreateZoomedTextureL();
+    }
+
+// -----------------------------------------------------------------------------
 // CreateAnimatedGifTextureL
 // -----------------------------------------------------------------------------
 //  
@@ -259,6 +270,16 @@ EXPORT_C void CGlxTextureManager::RemoveTexture(const TGlxMediaId& aMediaId,TBoo
     GLX_LOG_INFO( "CGlxTextureManager::RemoveTexture 2" );
 	//Bug fix for PKAA-7NRBYZ - added aAllTexture param
     iImpl->RemoveTexture(aMediaId, aAllTexture);
+    }
+
+// -----------------------------------------------------------------------------
+// FlushTextures
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxTextureManager::FlushTextures() 
+    {
+    TRACER("CGlxTextureManager::FlushTextures ");
+    iImpl->FlushTextures();
     }
 
 // -----------------------------------------------------------------------------

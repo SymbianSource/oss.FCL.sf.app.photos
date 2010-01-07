@@ -1,126 +1,127 @@
 EXPORTS
-	?SetToFirst@TGlxSelectionIterator@@UAEXPBVMGlxMediaList@@@Z @ 1 NONAME ; void TGlxSelectionIterator::SetToFirst(class MGlxMediaList const *)
-	??0TGlxExclusionIterator@@QAE@AAVMGlxMediaListIterator@@0@Z @ 2 NONAME ; TGlxExclusionIterator::TGlxExclusionIterator(class MGlxMediaListIterator &, class MGlxMediaListIterator &)
-	?SetHighQualityOnly@CGlxThumbnailContext@@QAEXH@Z @ 3 NONAME ; void CGlxThumbnailContext::SetHighQualityOnly(int)
-	??0TGlxFetchContextRemover@@QAE@PAVMGlxFetchContext@@AAVMGlxMediaList@@@Z @ 4 NONAME ; TGlxFetchContextRemover::TGlxFetchContextRemover(class MGlxFetchContext *, class MGlxMediaList &)
-	?SetToFirst@TGlxExclusionIterator@@UAEXPBVMGlxMediaList@@@Z @ 5 NONAME ; void TGlxExclusionIterator::SetToFirst(class MGlxMediaList const *)
-	?NewL@CGlxThumbnailContext@@SAPAV1@PAVMGlxMediaListIterator@@@Z @ 6 NONAME ; class CGlxThumbnailContext * CGlxThumbnailContext::NewL(class MGlxMediaListIterator *)
-	??1CGlxListWindow@@UAE@XZ @ 7 NONAME ; CGlxListWindow::~CGlxListWindow(void)
-	?SetDisabledIfMoreThanRangeSelected@TGlxSelectionIterator@@QAEXH@Z @ 8 NONAME ; void TGlxSelectionIterator::SetDisabledIfMoreThanRangeSelected(int)
-	??0TGlxWindowIterator@@QAE@ABV0@@Z @ 9 NONAME ; TGlxWindowIterator::TGlxWindowIterator(class TGlxWindowIterator const &)
-	?NewL@CGlxDefaultAttributeContext@@SAPAV1@XZ @ 10 NONAME ; class CGlxDefaultAttributeContext * CGlxDefaultAttributeContext::NewL(void)
-	?SetRangeOffsets@TGlxFromFocusOutwardIterator@@QAEXHH@Z @ 11 NONAME ; void TGlxFromFocusOutwardIterator::SetRangeOffsets(int, int)
-	?GetSize@TGlxMedia@@QBEHAAH@Z @ 12 NONAME ; int TGlxMedia::GetSize(int &) const
-	??ETGlxWindowIterator@@QAEHH@Z @ 13 NONAME ; int TGlxWindowIterator::operator++(int)
-	?__DbgTestInvariant@CGlxListWindow@@QBEXXZ @ 14 NONAME ; void CGlxListWindow::__DbgTestInvariant(void) const
-	?NewL@CGlxUStringConverter@@SAPAV1@XZ @ 15 NONAME ; class CGlxUStringConverter * CGlxUStringConverter::NewL(void)
-	?InstanceL@MGlxCache@@SAPAV1@XZ @ 16 NONAME ; class MGlxCache * MGlxCache::InstanceL(void)
-	?Reset@CGlxMedia@@QAEXXZ @ 17 NONAME ; void CGlxMedia::Reset(void)
-	?AddObjects@CGlxListWindow@@QAEXHHHH@Z @ 18 NONAME ; void CGlxListWindow::AddObjects(int, int, int, int)
-	??0CGlxThumbnailContext@@QAE@PAVMGlxMediaListIterator@@@Z @ 19 NONAME ; CGlxThumbnailContext::CGlxThumbnailContext(class MGlxMediaListIterator *)
-	?SetRangeOffsetsL@CGlxListWindow@@QAEXHHHH@Z @ 20 NONAME ; void CGlxListWindow::SetRangeOffsetsL(int, int, int, int)
-	??0TGlxFromFocusOutwardBlockyIterator@@QAE@XZ @ 21 NONAME ; TGlxFromFocusOutwardBlockyIterator::TGlxFromFocusOutwardBlockyIterator(void)
-	?UnmarkAllL@MGlxMediaList@@SAXAAV1@@Z @ 22 NONAME ; void MGlxMediaList::UnmarkAllL(class MGlxMediaList &)
-	?IdSpaceId@TGlxMedia@@QBE?AV?$TGlxId@VTGlxIdSpaceIdBase@@@@XZ @ 23 NONAME ; class TGlxId<class TGlxIdSpaceIdBase> TGlxMedia::IdSpaceId(void) const
-	??1TGlxSelectionIterator@@QAE@XZ @ 24 NONAME ; TGlxSelectionIterator::~TGlxSelectionIterator(void)
-	?SetGranularity@CGlxAttributeContext@@QAEXI@Z @ 25 NONAME ; void CGlxAttributeContext::SetGranularity(unsigned int)
-	??0TGlxSelectionIterator@@QAE@XZ @ 26 NONAME ; TGlxSelectionIterator::TGlxSelectionIterator(void)
-	??0TGlxFromFocusOutwardIterator@@QAE@XZ @ 27 NONAME ; TGlxFromFocusOutwardIterator::TGlxFromFocusOutwardIterator(void)
+	??ETGlxSelectionIterator@@UAEHH@Z @ 1 NONAME ; int TGlxSelectionIterator::operator++(int)
+	??0TGlxFromManualIndexOutwardBlockyIterator@@QAE@XZ @ 2 NONAME ; TGlxFromManualIndexOutwardBlockyIterator::TGlxFromManualIndexOutwardBlockyIterator(void)
+	?UnmarkAllL@MGlxMediaList@@SAXAAV1@@Z @ 3 NONAME ; void MGlxMediaList::UnmarkAllL(class MGlxMediaList &)
+	??1TGlxFromManualIndexOutwardBlockyIterator@@QAE@XZ @ 4 NONAME ; TGlxFromManualIndexOutwardBlockyIterator::~TGlxFromManualIndexOutwardBlockyIterator(void)
+	?SetRangeOffsetsL@CGlxListWindow@@QAEXHH@Z @ 5 NONAME ; void CGlxListWindow::SetRangeOffsetsL(int, int)
+	?InstanceL@MGlxCache@@SAPAV1@XZ @ 6 NONAME ; class MGlxCache * MGlxCache::InstanceL(void)
+	??ETGlxWindowIterator@@QAEHH@Z @ 7 NONAME ; int TGlxWindowIterator::operator++(int)
+	?ImageFileHandle@CGlxImageViewerManager@@QBEAAVRFile64@@XZ @ 8 NONAME ; class RFile64 & CGlxImageViewerManager::ImageFileHandle(void) const
+	??0CGlxListWindow@@QAE@AAVMGlxWindowObjectFactory@@@Z @ 9 NONAME ; CGlxListWindow::CGlxListWindow(class MGlxWindowObjectFactory &)
+	?At@CGlxListWindow@@QAEPAVCBase@@H@Z @ 10 NONAME ; class CBase * CGlxListWindow::At(int)
+	??0TGlxFromManualIndexBlockyIterator@@QAE@XZ @ 11 NONAME ; TGlxFromManualIndexBlockyIterator::TGlxFromManualIndexBlockyIterator(void)
+	?SetDefaultSpec@CGlxThumbnailContext@@QAEXHH@Z @ 12 NONAME ; void CGlxThumbnailContext::SetDefaultSpec(int, int)
+	?SetTextValueL@CGlxMedia@@QAEXABVTMPXAttribute@@ABVTDesC16@@@Z @ 13 NONAME ; void CGlxMedia::SetTextValueL(class TMPXAttribute const &, class TDesC16 const &)
+	?GetStaticItemCommand@TGlxMedia@@QBEHAAH@Z @ 14 NONAME ; int TGlxMedia::GetStaticItemCommand(int &) const
+	?MatchById@TGlxMedia@@SAHABV1@0@Z @ 15 NONAME ; int TGlxMedia::MatchById(class TGlxMedia const &, class TGlxMedia const &)
+	?IsFullThumbnail@GlxThumbnailUtility@@SAHABVTMPXAttribute@@@Z @ 16 NONAME ; int GlxThumbnailUtility::IsFullThumbnail(class TMPXAttribute const &)
+	?GetSize@TGlxMedia@@QBEHAAH@Z @ 17 NONAME ; int TGlxMedia::GetSize(int &) const
+	?Iterator@CGlxListWindow@@QBE?AVTGlxWindowIterator@@XZ @ 18 NONAME ; class TGlxWindowIterator CGlxListWindow::Iterator(void) const
+	?AttributeCount@CGlxAttributeContext@@QAEHXZ @ 19 NONAME ; int CGlxAttributeContext::AttributeCount(void)
+	??1TGlxFromManualIndexBlockyIterator@@QAE@XZ @ 20 NONAME ; TGlxFromManualIndexBlockyIterator::~TGlxFromManualIndexBlockyIterator(void)
+	??1TGlxExclusionIterator@@QAE@XZ @ 21 NONAME ; TGlxExclusionIterator::~TGlxExclusionIterator(void)
+	?RemoveAttribute@CGlxAttributeContext@@QAEXABVTMPXAttribute@@@Z @ 22 NONAME ; void CGlxAttributeContext::RemoveAttribute(class TMPXAttribute const &)
+	?GetDrmProtected@TGlxMedia@@QBEHAAH@Z @ 23 NONAME ; int TGlxMedia::GetDrmProtected(int &) const
+	??0TGlxSequentialIterator@@QAE@XZ @ 24 NONAME ; TGlxSequentialIterator::TGlxSequentialIterator(void)
+	?SetRangeOffsets@CGlxDefaultThumbnailContext@@QAEXHH@Z @ 25 NONAME ; void CGlxDefaultThumbnailContext::SetRangeOffsets(int, int)
+	?GetCoordinate@TGlxMedia@@QBEHAAVTCoordinate@@@Z @ 26 NONAME ; int TGlxMedia::GetCoordinate(class TCoordinate &) const
+	?SetToFirst@TGlxSelectionIterator@@UAEXPBVMGlxMediaList@@@Z @ 27 NONAME ; void TGlxSelectionIterator::SetToFirst(class MGlxMediaList const *)
 	?SubTitle@TGlxMedia@@QBEABVTDesC16@@XZ @ 28 NONAME ; class TDesC16 const & TGlxMedia::SubTitle(void) const
-	??1TGlxFromManualIndexOutwardBlockyIterator@@QAE@XZ @ 29 NONAME ; TGlxFromManualIndexOutwardBlockyIterator::~TGlxFromManualIndexOutwardBlockyIterator(void)
-	?GetFrameCount@TGlxMedia@@QBEHAAH@Z @ 30 NONAME ; int TGlxMedia::GetFrameCount(int &) const
-	??0TGlxFromManualIndexBlockyIterator@@QAE@XZ @ 31 NONAME ; TGlxFromManualIndexBlockyIterator::TGlxFromManualIndexBlockyIterator(void)
-	?SetRangeOffsets@TGlxFromIndexOutwardBlockyIterator@@QAEXHH@Z @ 32 NONAME ; void TGlxFromIndexOutwardBlockyIterator::SetRangeOffsets(int, int)
-	?SetFocusIndex@CGlxListWindow@@QAEXH@Z @ 33 NONAME ; void CGlxListWindow::SetFocusIndex(int)
-	??1TGlxFromFocusOutwardBlockyIterator@@QAE@XZ @ 34 NONAME ; TGlxFromFocusOutwardBlockyIterator::~TGlxFromFocusOutwardBlockyIterator(void)
-	??1CGlxDefaultThumbnailContext@@UAE@XZ @ 35 NONAME ; CGlxDefaultThumbnailContext::~CGlxDefaultThumbnailContext(void)
-	?IsFullThumbnail@GlxThumbnailUtility@@SAHABVTMPXAttribute@@@Z @ 36 NONAME ; int GlxThumbnailUtility::IsFullThumbnail(class TMPXAttribute const &)
-	??0TGlxFromIndexOutwardBlockyIterator@@QAE@ABVMGlxIndex@0@@Z @ 37 NONAME ; TGlxFromIndexOutwardBlockyIterator::TGlxFromIndexOutwardBlockyIterator(class TGlxFromIndexOutwardBlockyIterator::MGlxIndex const &)
-	?ConstructL@CGlxListWindow@@QAEXXZ @ 38 NONAME ; void CGlxListWindow::ConstructL(void)
-	?SetRange@TGlxSequentialIterator@@QAEXH@Z @ 39 NONAME ; void TGlxSequentialIterator::SetRange(int)
-	?ImageUri@CGlxImageViewerManager@@QAEPAVHBufC16@@XZ @ 40 NONAME ; class HBufC16 * CGlxImageViewerManager::ImageUri(void)
-	?GetStaticItemCommand@TGlxMedia@@QBEHAAH@Z @ 41 NONAME ; int TGlxMedia::GetStaticItemCommand(int &) const
-	?SetRangeOffsets@TGlxFromManualIndexBlockyIterator@@QAEXHH@Z @ 42 NONAME ; void TGlxFromManualIndexBlockyIterator::SetRangeOffsets(int, int)
-	?SetIndex@TGlxFromManualIndexOutwardBlockyIterator@@QAEXH@Z @ 43 NONAME ; void TGlxFromManualIndexOutwardBlockyIterator::SetIndex(int)
-	?HandleModified@CGlxMedia@@QAEXABV?$RArray@VTMPXAttribute@@@@@Z @ 44 NONAME ; void CGlxMedia::HandleModified(class RArray<class TMPXAttribute> const &)
-	?GetLastModifiedDate@TGlxMedia@@QBEHAAVTTime@@@Z @ 45 NONAME ; int TGlxMedia::GetLastModifiedDate(class TTime &) const
-	?GetContainedItemCount@TGlxMedia@@QBEHAAH@Z @ 46 NONAME ; int TGlxMedia::GetContainedItemCount(int &) const
-	?SetRange@TGlxSelectionIterator@@QAEXH@Z @ 47 NONAME ; void TGlxSelectionIterator::SetRange(int)
-	?GetDimensions@TGlxMedia@@QBEHAAVTSize@@@Z @ 48 NONAME ; int TGlxMedia::GetDimensions(class TSize &) const
-	?GetDate@TGlxMedia@@QBEHAAVTTime@@@Z @ 49 NONAME ; int TGlxMedia::GetDate(class TTime &) const
-	?GetValueText@CGlxMedia@@QBEHAAVTPtrC16@@ABVTMPXAttribute@@@Z @ 50 NONAME ; int CGlxMedia::GetValueText(class TPtrC16 &, class TMPXAttribute const &) const
-	?IsPrivate@CGlxImageViewerManager@@QAEHXZ @ 51 NONAME ; int CGlxImageViewerManager::IsPrivate(void)
-	?SetTextValueL@CGlxMedia@@QAEXABVTMPXAttribute@@ABVTDesC16@@@Z @ 52 NONAME ; void CGlxMedia::SetTextValueL(class TMPXAttribute const &, class TDesC16 const &)
-	?IsStatic@TGlxMedia@@QBEHXZ @ 53 NONAME ; int TGlxMedia::IsStatic(void) const
-	??0CGlxListWindow@@QAE@AAVMGlxWindowObjectFactory@@@Z @ 54 NONAME ; CGlxListWindow::CGlxListWindow(class MGlxWindowObjectFactory &)
-	?AddSpecForItemL@CGlxThumbnailContext@@QAEXHHH@Z @ 55 NONAME ; void CGlxThumbnailContext::AddSpecForItemL(int, int, int)
-	??1CGlxDefaultAttributeContext@@UAE@XZ @ 56 NONAME ; CGlxDefaultAttributeContext::~CGlxDefaultAttributeContext(void)
-	?ThumbnailAttribute@TGlxMedia@@QBEPBVCGlxThumbnailAttribute@@AAVTMPXAttribute@@@Z @ 57 NONAME ; class CGlxThumbnailAttribute const * TGlxMedia::ThumbnailAttribute(class TMPXAttribute &) const
-	??1TGlxFirstThenLastIterator@@QAE@XZ @ 58 NONAME ; TGlxFirstThenLastIterator::~TGlxFirstThenLastIterator(void)
-	?Title@TGlxMedia@@QBEABVTDesC16@@XZ @ 59 NONAME ; class TDesC16 const & TGlxMedia::Title(void) const
-	??ETGlxSelectionIterator@@UAEHH@Z @ 60 NONAME ; int TGlxSelectionIterator::operator++(int)
-	?AddAttributeL@CGlxAttributeContext@@QAEXABVTMPXAttribute@@@Z @ 61 NONAME ; void CGlxAttributeContext::AddAttributeL(class TMPXAttribute const &)
-	?SetRangeOffsets@CGlxDefaultThumbnailContext@@QAEXHH@Z @ 62 NONAME ; void CGlxDefaultThumbnailContext::SetRangeOffsets(int, int)
-	?__DbgTestInvariant@CGlxStaticItemList@@QBEXXZ @ 63 NONAME ; void CGlxStaticItemList::__DbgTestInvariant(void) const
-	?GetDuration@TGlxMedia@@QBEHAAM@Z @ 64 NONAME ; int TGlxMedia::GetDuration(float &) const
-	?DeleteAttribute@CGlxMedia@@QAEXABVTMPXAttribute@@@Z @ 65 NONAME ; void CGlxMedia::DeleteAttribute(class TMPXAttribute const &)
-	?IncrementRefCount@CGlxImageViewerManager@@QAEXXZ @ 66 NONAME ; void CGlxImageViewerManager::IncrementRefCount(void)
-	?InstanceL@MGlxMediaList@@SAPAV1@ABVCMPXCollectionPath@@ABV?$TGlxId@VTGlxIdHierarchyBase@@@@PAVCMPXMedia@@@Z @ 67 NONAME ; class MGlxMediaList * MGlxMediaList::InstanceL(class CMPXCollectionPath const &, class TGlxId<class TGlxIdHierarchyBase> const &, class CMPXMedia *)
-	?SetCObjectValueL@CGlxMedia@@QAEXABVTMPXAttribute@@PAVCBase@@@Z @ 68 NONAME ; void CGlxMedia::SetCObjectValueL(class TMPXAttribute const &, class CBase *)
-	?RemoveObjects@CGlxListWindow@@QAEXHHHH@Z @ 69 NONAME ; void CGlxListWindow::RemoveObjects(int, int, int, int)
-	?Iterator@CGlxListWindow@@QBE?AVTGlxWindowIterator@@XZ @ 70 NONAME ; class TGlxWindowIterator CGlxListWindow::Iterator(void) const
-	?Category@TGlxMedia@@QBE?AW4TMPXGeneralCategory@@XZ @ 71 NONAME ; enum TMPXGeneralCategory TGlxMedia::Category(void) const
-	??0CGlxAttributeContext@@QAE@PAVMGlxMediaListIterator@@@Z @ 72 NONAME ; CGlxAttributeContext::CGlxAttributeContext(class MGlxMediaListIterator *)
-	?GetIconInfo@TGlxMedia@@QBEHAAUTIconInfo@@@Z @ 73 NONAME ; int TGlxMedia::GetIconInfo(struct TIconInfo &) const
-	?__DbgTestInvariant@CGlxItemList@@QBEXXZ @ 74 NONAME ; void CGlxItemList::__DbgTestInvariant(void) const
-	?AddObjects@CGlxListWindow@@QAEXHH@Z @ 75 NONAME ; void CGlxListWindow::AddObjects(int, int)
-	?Comment@TGlxMedia@@QBEABVTDesC16@@XZ @ 76 NONAME ; class TDesC16 const & TGlxMedia::Comment(void) const
-	?HasAttributeErrorL@GlxErrorManager@@SAHPBVCGlxMedia@@ABVTMPXAttribute@@@Z @ 77 NONAME ; int GlxErrorManager::HasAttributeErrorL(class CGlxMedia const *, class TMPXAttribute const &)
-	??0TGlxSequentialIterator@@QAE@XZ @ 78 NONAME ; TGlxSequentialIterator::TGlxSequentialIterator(void)
-	?AttributeCount@CGlxAttributeContext@@QAEHXZ @ 79 NONAME ; int CGlxAttributeContext::AttributeCount(void)
-	?GetDrmValidity@TGlxMedia@@QBEHAAW4TGlxMediaGeneralRightsValidity@@@Z @ 80 NONAME ; int TGlxMedia::GetDrmValidity(enum TGlxMediaGeneralRightsValidity &) const
-	?__DbgTestInvariant@CGlxNavigableList@@QBEXXZ @ 81 NONAME ; void CGlxNavigableList::__DbgTestInvariant(void) const
-	?SetFocusIndex@CGlxListWindow@@QAEXHH@Z @ 82 NONAME ; void CGlxListWindow::SetFocusIndex(int, int)
-	?SetValueL@CGlxMedia@@QAEXABVTMPXAttribute@@PAXW4TMPXAttributeType@@@Z @ 83 NONAME ; void CGlxMedia::SetValueL(class TMPXAttribute const &, void *, enum TMPXAttributeType)
-	?ValueText@CGlxMedia@@QBEABVTDesC16@@ABVTMPXAttribute@@@Z @ 84 NONAME ; class TDesC16 const & CGlxMedia::ValueText(class TMPXAttribute const &) const
-	??0CGlxMedia@@QAE@ABVTGlxMediaId@@@Z @ 85 NONAME ; CGlxMedia::CGlxMedia(class TGlxMediaId const &)
-	?DeleteLocationAttribute@TGlxMedia@@QAEXXZ @ 86 NONAME ; void TGlxMedia::DeleteLocationAttribute(void)
-	?GetClosestThumbnail@TGlxMedia@@QBEHAAVTMPXAttribute@@ABVTSize@@H@Z @ 87 NONAME ; int TGlxMedia::GetClosestThumbnail(class TMPXAttribute &, class TSize const &, int) const
-	??1CGlxMedia@@UAE@XZ @ 88 NONAME ; CGlxMedia::~CGlxMedia(void)
-	?__DbgTestInvariant@CGlxMedia@@QBEXXZ @ 89 NONAME ; void CGlxMedia::__DbgTestInvariant(void) const
-	?IsDrmProtected@TGlxMedia@@QBEHXZ @ 90 NONAME ; int TGlxMedia::IsDrmProtected(void) const
-	??1CGlxThumbnailContext@@UAE@XZ @ 91 NONAME ; CGlxThumbnailContext::~CGlxThumbnailContext(void)
-	?GetDrmProtected@TGlxMedia@@QBEHAAH@Z @ 92 NONAME ; int TGlxMedia::GetDrmProtected(int &) const
-	?GetSystemItem@TGlxMedia@@QBEHAAH@Z @ 93 NONAME ; int TGlxMedia::GetSystemItem(int &) const
-	?RemoveObjects@CGlxListWindow@@QAEXHH@Z @ 94 NONAME ; void CGlxListWindow::RemoveObjects(int, int)
-	?Close@TGlxFetchContextRemover@@QAEXXZ @ 95 NONAME ; void TGlxFetchContextRemover::Close(void)
-	?At@CGlxListWindow@@QBEPBVCBase@@H@Z @ 96 NONAME ; class CBase const * CGlxListWindow::At(int) const
-	?HasAttributeErrorL@GlxErrorManager@@SAHPBVCGlxMedia@@H@Z @ 97 NONAME ; int GlxErrorManager::HasAttributeErrorL(class CGlxMedia const *, int)
-	?At@CGlxListWindow@@QAEPAVCBase@@H@Z @ 98 NONAME ; class CBase * CGlxListWindow::At(int)
-	??1TGlxFromManualIndexBlockyIterator@@QAE@XZ @ 99 NONAME ; TGlxFromManualIndexBlockyIterator::~TGlxFromManualIndexBlockyIterator(void)
-	?RemoveAttribute@CGlxAttributeContext@@QAEXABVTMPXAttribute@@@Z @ 100 NONAME ; void CGlxAttributeContext::RemoveAttribute(class TMPXAttribute const &)
-	??1TGlxFromIndexOutwardBlockyIterator@@QAE@XZ @ 101 NONAME ; TGlxFromIndexOutwardBlockyIterator::~TGlxFromIndexOutwardBlockyIterator(void)
-	?ClosestThumbnail@GlxThumbnailUtility@@SAHABVTSize@@ABVCGlxMedia@@H@Z @ 102 NONAME ; int GlxThumbnailUtility::ClosestThumbnail(class TSize const &, class CGlxMedia const &, int)
-	??0TGlxFromManualIndexOutwardBlockyIterator@@QAE@XZ @ 103 NONAME ; TGlxFromManualIndexOutwardBlockyIterator::TGlxFromManualIndexOutwardBlockyIterator(void)
-	?Cleanup@CGlxListWindow@@QAEXXZ @ 104 NONAME ; void CGlxListWindow::Cleanup(void)
-	??1TGlxExclusionIterator@@QAE@XZ @ 105 NONAME ; TGlxExclusionIterator::~TGlxExclusionIterator(void)
-	??1TGlxFetchContextRemover@@QAE@XZ @ 106 NONAME ; TGlxFetchContextRemover::~TGlxFetchContextRemover(void)
-	?SetDefaultSpec@CGlxThumbnailContext@@QAEXHH@Z @ 107 NONAME ; void CGlxThumbnailContext::SetDefaultSpec(int, int)
-	?ImageFileHandle@CGlxImageViewerManager@@QBEAAVRFile64@@XZ @ 108 NONAME ; class RFile64 & CGlxImageViewerManager::ImageFileHandle(void) const
-	??0TGlxSpecificIdIterator@@QAE@ABV?$TGlxId@VTGlxIdSpaceIdBase@@@@VTGlxMediaId@@@Z @ 109 NONAME ; TGlxSpecificIdIterator::TGlxSpecificIdIterator(class TGlxId<class TGlxIdSpaceIdBase> const &, class TGlxMediaId)
-	?GetSlideshowPlayableContainedItemCount@TGlxMedia@@QBEHAAH@Z @ 110 NONAME ; int TGlxMedia::GetSlideshowPlayableContainedItemCount(int &) const
-	?MatchById@TGlxMedia@@SAHABV1@0@Z @ 111 NONAME ; int TGlxMedia::MatchById(class TGlxMedia const &, class TGlxMedia const &)
-	?SetRangeOffsetsL@CGlxListWindow@@QAEXHH@Z @ 112 NONAME ; void CGlxListWindow::SetRangeOffsetsL(int, int)
-	?MimeType@TGlxMedia@@QBEABVTDesC16@@XZ @ 113 NONAME ; class TDesC16 const & TGlxMedia::MimeType(void) const
-	?Uri@TGlxMedia@@QBEABVTDesC16@@XZ @ 114 NONAME ; class TDesC16 const & TGlxMedia::Uri(void) const
-	??0TGlxFirstThenLastIterator@@QAE@XZ @ 115 NONAME ; TGlxFirstThenLastIterator::TGlxFirstThenLastIterator(void)
-	??1CGlxAttributeContext@@UAE@XZ @ 116 NONAME ; CGlxAttributeContext::~CGlxAttributeContext(void)
-	?SetRangeOffsets@CGlxDefaultAttributeContext@@QAEXHH@Z @ 117 NONAME ; void CGlxDefaultAttributeContext::SetRangeOffsets(int, int)
-	?AsStringL@CGlxUStringConverter@@QBEXABVTGlxMedia@@ABVTMPXAttribute@@HAAPAVHBufC16@@@Z @ 118 NONAME ; void CGlxUStringConverter::AsStringL(class TGlxMedia const &, class TMPXAttribute const &, int, class HBufC16 * &) const
-	?ValueCObject@CGlxMedia@@QBEPBVCBase@@ABVTMPXAttribute@@@Z @ 119 NONAME ; class CBase const * CGlxMedia::ValueCObject(class TMPXAttribute const &) const
-	?GetCoordinate@TGlxMedia@@QBEHAAVTCoordinate@@@Z @ 120 NONAME ; int TGlxMedia::GetCoordinate(class TCoordinate &) const
-	?NewL@CGlxDefaultThumbnailContext@@SAPAV1@XZ @ 121 NONAME ; class CGlxDefaultThumbnailContext * CGlxDefaultThumbnailContext::NewL(void)
-	?IsSlideShowPlayableContent@TGlxMedia@@QBEHXZ @ 122 NONAME ; int TGlxMedia::IsSlideShowPlayableContent(void) const
-	??1TGlxFromFocusOutwardIterator@@QAE@XZ @ 123 NONAME ; TGlxFromFocusOutwardIterator::~TGlxFromFocusOutwardIterator(void)
-	?InRange@TGlxSelectionIterator@@UBEHH@Z @ 124 NONAME ; int TGlxSelectionIterator::InRange(int) const
+	?HandleModified@CGlxMedia@@QAEXABV?$RArray@VTMPXAttribute@@@@@Z @ 29 NONAME ; void CGlxMedia::HandleModified(class RArray<class TMPXAttribute> const &)
+	??1TGlxFetchContextRemover@@QAE@XZ @ 30 NONAME ; TGlxFetchContextRemover::~TGlxFetchContextRemover(void)
+	?DeleteAttribute@CGlxMedia@@QAEXABVTMPXAttribute@@@Z @ 31 NONAME ; void CGlxMedia::DeleteAttribute(class TMPXAttribute const &)
+	?AddAttributeL@CGlxAttributeContext@@QAEXABVTMPXAttribute@@@Z @ 32 NONAME ; void CGlxAttributeContext::AddAttributeL(class TMPXAttribute const &)
+	?GetClosestThumbnail@TGlxMedia@@QBEHAAVTMPXAttribute@@ABVTSize@@H@Z @ 33 NONAME ; int TGlxMedia::GetClosestThumbnail(class TMPXAttribute &, class TSize const &, int) const
+	?__DbgTestInvariant@CGlxStaticItemList@@QBEXXZ @ 34 NONAME ; void CGlxStaticItemList::__DbgTestInvariant(void) const
+	?Category@TGlxMedia@@QBE?AW4TMPXGeneralCategory@@XZ @ 35 NONAME ; enum TMPXGeneralCategory TGlxMedia::Category(void) const
+	??0TGlxSelectionIterator@@QAE@XZ @ 36 NONAME ; TGlxSelectionIterator::TGlxSelectionIterator(void)
+	??1TGlxFromFocusOutwardIterator@@QAE@XZ @ 37 NONAME ; TGlxFromFocusOutwardIterator::~TGlxFromFocusOutwardIterator(void)
+	??1TGlxSelectionIterator@@QAE@XZ @ 38 NONAME ; TGlxSelectionIterator::~TGlxSelectionIterator(void)
+	?SetValueL@CGlxMedia@@QAEXABVTMPXAttribute@@PAXW4TMPXAttributeType@@@Z @ 39 NONAME ; void CGlxMedia::SetValueL(class TMPXAttribute const &, void *, enum TMPXAttributeType)
+	?SetRangeOffsetsL@CGlxListWindow@@QAEXHHHH@Z @ 40 NONAME ; void CGlxListWindow::SetRangeOffsetsL(int, int, int, int)
+	?HasAttributeErrorL@GlxErrorManager@@SAHPBVCGlxMedia@@ABVTMPXAttribute@@@Z @ 41 NONAME ; int GlxErrorManager::HasAttributeErrorL(class CGlxMedia const *, class TMPXAttribute const &)
+	??0TGlxFromFocusOutwardIterator@@QAE@XZ @ 42 NONAME ; TGlxFromFocusOutwardIterator::TGlxFromFocusOutwardIterator(void)
+	??0CGlxAttributeContext@@QAE@PAVMGlxMediaListIterator@@@Z @ 43 NONAME ; CGlxAttributeContext::CGlxAttributeContext(class MGlxMediaListIterator *)
+	??1CGlxDefaultAttributeContext@@UAE@XZ @ 44 NONAME ; CGlxDefaultAttributeContext::~CGlxDefaultAttributeContext(void)
+	?ConstructL@CGlxListWindow@@QAEXXZ @ 45 NONAME ; void CGlxListWindow::ConstructL(void)
+	?GetSystemItem@TGlxMedia@@QBEHAAH@Z @ 46 NONAME ; int TGlxMedia::GetSystemItem(int &) const
+	??0TGlxSpecificIdIterator@@QAE@ABV?$TGlxId@VTGlxIdSpaceIdBase@@@@VTGlxMediaId@@@Z @ 47 NONAME ; TGlxSpecificIdIterator::TGlxSpecificIdIterator(class TGlxId<class TGlxIdSpaceIdBase> const &, class TGlxMediaId)
+	?__DbgTestInvariant@CGlxItemList@@QBEXXZ @ 48 NONAME ; void CGlxItemList::__DbgTestInvariant(void) const
+	?SetToFirst@TGlxExclusionIterator@@UAEXPBVMGlxMediaList@@@Z @ 49 NONAME ; void TGlxExclusionIterator::SetToFirst(class MGlxMediaList const *)
+	?GetDuration@TGlxMedia@@QBEHAAM@Z @ 50 NONAME ; int TGlxMedia::GetDuration(float &) const
+	??1TGlxFromIndexOutwardBlockyIterator@@QAE@XZ @ 51 NONAME ; TGlxFromIndexOutwardBlockyIterator::~TGlxFromIndexOutwardBlockyIterator(void)
+	?RemoveObjects@CGlxListWindow@@QAEXHHHH@Z @ 52 NONAME ; void CGlxListWindow::RemoveObjects(int, int, int, int)
+	?SetRangeOffsets@CGlxDefaultAttributeContext@@QAEXHH@Z @ 53 NONAME ; void CGlxDefaultAttributeContext::SetRangeOffsets(int, int)
+	?RemoveObjects@CGlxListWindow@@QAEXHH@Z @ 54 NONAME ; void CGlxListWindow::RemoveObjects(int, int)
+	?ValueText@CGlxMedia@@QBEABVTDesC16@@ABVTMPXAttribute@@@Z @ 55 NONAME ; class TDesC16 const & CGlxMedia::ValueText(class TMPXAttribute const &) const
+	??0TGlxFromFocusOutwardBlockyIterator@@QAE@XZ @ 56 NONAME ; TGlxFromFocusOutwardBlockyIterator::TGlxFromFocusOutwardBlockyIterator(void)
+	??1TGlxFirstThenLastIterator@@QAE@XZ @ 57 NONAME ; TGlxFirstThenLastIterator::~TGlxFirstThenLastIterator(void)
+	?IsSlideShowPlayableContent@TGlxMedia@@QBEHXZ @ 58 NONAME ; int TGlxMedia::IsSlideShowPlayableContent(void) const
+	??1TGlxFromFocusOutwardBlockyIterator@@QAE@XZ @ 59 NONAME ; TGlxFromFocusOutwardBlockyIterator::~TGlxFromFocusOutwardBlockyIterator(void)
+	?IncrementRefCount@CGlxImageViewerManager@@QAEXXZ @ 60 NONAME ; void CGlxImageViewerManager::IncrementRefCount(void)
+	?At@CGlxListWindow@@QBEPBVCBase@@H@Z @ 61 NONAME ; class CBase const * CGlxListWindow::At(int) const
+	?SetRangeOffsets@TGlxFromFocusOutwardIterator@@QAEXHH@Z @ 62 NONAME ; void TGlxFromFocusOutwardIterator::SetRangeOffsets(int, int)
+	?ClosestThumbnail@GlxThumbnailUtility@@SAHABVTSize@@ABVCGlxMedia@@H@Z @ 63 NONAME ; int GlxThumbnailUtility::ClosestThumbnail(class TSize const &, class CGlxMedia const &, int)
+	?InRange@TGlxSelectionIterator@@UBEHH@Z @ 64 NONAME ; int TGlxSelectionIterator::InRange(int) const
+	?GetDrmValidity@TGlxMedia@@QBEHAAW4TGlxMediaGeneralRightsValidity@@@Z @ 65 NONAME ; int TGlxMedia::GetDrmValidity(enum TGlxMediaGeneralRightsValidity &) const
+	?InstanceL@MGlxMediaList@@SAPAV1@ABVCMPXCollectionPath@@ABV?$TGlxId@VTGlxIdHierarchyBase@@@@PAVCMPXMedia@@@Z @ 66 NONAME ; class MGlxMediaList * MGlxMediaList::InstanceL(class CMPXCollectionPath const &, class TGlxId<class TGlxIdHierarchyBase> const &, class CMPXMedia *)
+	?Reset@CGlxMedia@@QAEXXZ @ 67 NONAME ; void CGlxMedia::Reset(void)
+	?GetContainedItemCount@TGlxMedia@@QBEHAAH@Z @ 68 NONAME ; int TGlxMedia::GetContainedItemCount(int &) const
+	?SetDefaultSpec@CGlxAttributeContext@@QAEXHH@Z @ 69 NONAME ; void CGlxAttributeContext::SetDefaultSpec(int, int)
+	??0CGlxMedia@@QAE@ABVTGlxMediaId@@@Z @ 70 NONAME ; CGlxMedia::CGlxMedia(class TGlxMediaId const &)
+	?MimeType@TGlxMedia@@QBEABVTDesC16@@XZ @ 71 NONAME ; class TDesC16 const & TGlxMedia::MimeType(void) const
+	?AddObjects@CGlxListWindow@@QAEXHH@Z @ 72 NONAME ; void CGlxListWindow::AddObjects(int, int)
+	?SetDisabledIfMoreThanRangeSelected@TGlxSelectionIterator@@QAEXH@Z @ 73 NONAME ; void TGlxSelectionIterator::SetDisabledIfMoreThanRangeSelected(int)
+	??0TGlxWindowIterator@@QAE@ABV0@@Z @ 74 NONAME ; TGlxWindowIterator::TGlxWindowIterator(class TGlxWindowIterator const &)
+	?AsStringL@CGlxUStringConverter@@QBEXABVTGlxMedia@@ABVTMPXAttribute@@HAAPAVHBufC16@@@Z @ 75 NONAME ; void CGlxUStringConverter::AsStringL(class TGlxMedia const &, class TMPXAttribute const &, int, class HBufC16 * &) const
+	?SetIndex@TGlxFromManualIndexOutwardBlockyIterator@@QAEXH@Z @ 76 NONAME ; void TGlxFromManualIndexOutwardBlockyIterator::SetIndex(int)
+	?NewL@CGlxThumbnailContext@@SAPAV1@PAVMGlxMediaListIterator@@@Z @ 77 NONAME ; class CGlxThumbnailContext * CGlxThumbnailContext::NewL(class MGlxMediaListIterator *)
+	?SetFocusIndex@CGlxListWindow@@QAEXHH@Z @ 78 NONAME ; void CGlxListWindow::SetFocusIndex(int, int)
+	?ValueCObject@CGlxMedia@@QBEPBVCBase@@ABVTMPXAttribute@@@Z @ 79 NONAME ; class CBase const * CGlxMedia::ValueCObject(class TMPXAttribute const &) const
+	??0TGlxExclusionIterator@@QAE@AAVMGlxMediaListIterator@@0@Z @ 80 NONAME ; TGlxExclusionIterator::TGlxExclusionIterator(class MGlxMediaListIterator &, class MGlxMediaListIterator &)
+	?AddSpecForItemL@CGlxThumbnailContext@@QAEXHHH@Z @ 81 NONAME ; void CGlxThumbnailContext::AddSpecForItemL(int, int, int)
+	?DeleteLocationAttribute@TGlxMedia@@QAEXXZ @ 82 NONAME ; void TGlxMedia::DeleteLocationAttribute(void)
+	??1CGlxMedia@@UAE@XZ @ 83 NONAME ; CGlxMedia::~CGlxMedia(void)
+	?GetSlideshowPlayableContainedItemCount@TGlxMedia@@QBEHAAH@Z @ 84 NONAME ; int TGlxMedia::GetSlideshowPlayableContainedItemCount(int &) const
+	?IsDrmProtected@TGlxMedia@@QBEHXZ @ 85 NONAME ; int TGlxMedia::IsDrmProtected(void) const
+	?SetRangeOffsets@TGlxFromManualIndexBlockyIterator@@QAEXHH@Z @ 86 NONAME ; void TGlxFromManualIndexBlockyIterator::SetRangeOffsets(int, int)
+	?NewL@CGlxDefaultThumbnailContext@@SAPAV1@XZ @ 87 NONAME ; class CGlxDefaultThumbnailContext * CGlxDefaultThumbnailContext::NewL(void)
+	?HasAttributeErrorL@GlxErrorManager@@SAHPBVCGlxMedia@@H@Z @ 88 NONAME ; int GlxErrorManager::HasAttributeErrorL(class CGlxMedia const *, int)
+	?GetValueText@CGlxMedia@@QBEHAAVTPtrC16@@ABVTMPXAttribute@@@Z @ 89 NONAME ; int CGlxMedia::GetValueText(class TPtrC16 &, class TMPXAttribute const &) const
+	??1CGlxThumbnailContext@@UAE@XZ @ 90 NONAME ; CGlxThumbnailContext::~CGlxThumbnailContext(void)
+	?SetCObjectValueL@CGlxMedia@@QAEXABVTMPXAttribute@@PAVCBase@@@Z @ 91 NONAME ; void CGlxMedia::SetCObjectValueL(class TMPXAttribute const &, class CBase *)
+	?SetRangeOffsets@TGlxFromIndexOutwardBlockyIterator@@QAEXHH@Z @ 92 NONAME ; void TGlxFromIndexOutwardBlockyIterator::SetRangeOffsets(int, int)
+	?SetRange@TGlxSequentialIterator@@QAEXH@Z @ 93 NONAME ; void TGlxSequentialIterator::SetRange(int)
+	??1CGlxAttributeContext@@UAE@XZ @ 94 NONAME ; CGlxAttributeContext::~CGlxAttributeContext(void)
+	?GetIconInfo@TGlxMedia@@QBEHAAUTIconInfo@@@Z @ 95 NONAME ; int TGlxMedia::GetIconInfo(struct TIconInfo &) const
+	?SetHighQualityOnly@CGlxThumbnailContext@@QAEXH@Z @ 96 NONAME ; void CGlxThumbnailContext::SetHighQualityOnly(int)
+	?IdSpaceId@TGlxMedia@@QBE?AV?$TGlxId@VTGlxIdSpaceIdBase@@@@XZ @ 97 NONAME ; class TGlxId<class TGlxIdSpaceIdBase> TGlxMedia::IdSpaceId(void) const
+	??0TGlxFromIndexOutwardBlockyIterator@@QAE@ABVMGlxIndex@0@@Z @ 98 NONAME ; TGlxFromIndexOutwardBlockyIterator::TGlxFromIndexOutwardBlockyIterator(class TGlxFromIndexOutwardBlockyIterator::MGlxIndex const &)
+	?Comment@TGlxMedia@@QBEABVTDesC16@@XZ @ 99 NONAME ; class TDesC16 const & TGlxMedia::Comment(void) const
+	?GetLastModifiedDate@TGlxMedia@@QBEHAAVTTime@@@Z @ 100 NONAME ; int TGlxMedia::GetLastModifiedDate(class TTime &) const
+	?IsPrivate@CGlxImageViewerManager@@QAEHXZ @ 101 NONAME ; int CGlxImageViewerManager::IsPrivate(void)
+	?AddObjects@CGlxListWindow@@QAEXHHHH@Z @ 102 NONAME ; void CGlxListWindow::AddObjects(int, int, int, int)
+	?ThumbnailAttribute@TGlxMedia@@QBEPBVCGlxThumbnailAttribute@@AAVTMPXAttribute@@@Z @ 103 NONAME ; class CGlxThumbnailAttribute const * TGlxMedia::ThumbnailAttribute(class TMPXAttribute &) const
+	??0TGlxFetchContextRemover@@QAE@PAVMGlxFetchContext@@AAVMGlxMediaList@@@Z @ 104 NONAME ; TGlxFetchContextRemover::TGlxFetchContextRemover(class MGlxFetchContext *, class MGlxMediaList &)
+	?GetFrameCount@TGlxMedia@@QBEHAAH@Z @ 105 NONAME ; int TGlxMedia::GetFrameCount(int &) const
+	?GetDimensions@TGlxMedia@@QBEHAAVTSize@@@Z @ 106 NONAME ; int TGlxMedia::GetDimensions(class TSize &) const
+	?__DbgTestInvariant@CGlxMedia@@QBEXXZ @ 107 NONAME ; void CGlxMedia::__DbgTestInvariant(void) const
+	?SetRange@TGlxSelectionIterator@@QAEXH@Z @ 108 NONAME ; void TGlxSelectionIterator::SetRange(int)
+	??0TGlxFirstThenLastIterator@@QAE@XZ @ 109 NONAME ; TGlxFirstThenLastIterator::TGlxFirstThenLastIterator(void)
+	?NewL@CGlxDefaultAttributeContext@@SAPAV1@XZ @ 110 NONAME ; class CGlxDefaultAttributeContext * CGlxDefaultAttributeContext::NewL(void)
+	??0CGlxThumbnailContext@@QAE@PAVMGlxMediaListIterator@@@Z @ 111 NONAME ; CGlxThumbnailContext::CGlxThumbnailContext(class MGlxMediaListIterator *)
+	?Close@TGlxFetchContextRemover@@QAEXXZ @ 112 NONAME ; void TGlxFetchContextRemover::Close(void)
+	?NewL@CGlxUStringConverter@@SAPAV1@XZ @ 113 NONAME ; class CGlxUStringConverter * CGlxUStringConverter::NewL(void)
+	?IsStatic@TGlxMedia@@QBEHXZ @ 114 NONAME ; int TGlxMedia::IsStatic(void) const
+	??1CGlxDefaultThumbnailContext@@UAE@XZ @ 115 NONAME ; CGlxDefaultThumbnailContext::~CGlxDefaultThumbnailContext(void)
+	?__DbgTestInvariant@CGlxNavigableList@@QBEXXZ @ 116 NONAME ; void CGlxNavigableList::__DbgTestInvariant(void) const
+	?Title@TGlxMedia@@QBEABVTDesC16@@XZ @ 117 NONAME ; class TDesC16 const & TGlxMedia::Title(void) const
+	??1CGlxListWindow@@UAE@XZ @ 118 NONAME ; CGlxListWindow::~CGlxListWindow(void)
+	?__DbgTestInvariant@CGlxListWindow@@QBEXXZ @ 119 NONAME ; void CGlxListWindow::__DbgTestInvariant(void) const
+	?Cleanup@CGlxListWindow@@QAEXXZ @ 120 NONAME ; void CGlxListWindow::Cleanup(void)
+	?SetFocusIndex@CGlxListWindow@@QAEXH@Z @ 121 NONAME ; void CGlxListWindow::SetFocusIndex(int)
+	?ImageUri@CGlxImageViewerManager@@QAEPAVHBufC16@@XZ @ 122 NONAME ; class HBufC16 * CGlxImageViewerManager::ImageUri(void)
+	?Uri@TGlxMedia@@QBEABVTDesC16@@XZ @ 123 NONAME ; class TDesC16 const & TGlxMedia::Uri(void) const
+	?GetDate@TGlxMedia@@QBEHAAVTTime@@@Z @ 124 NONAME ; int TGlxMedia::GetDate(class TTime &) const
+	?SetGranularity@CGlxAttributeContext@@QAEXI@Z @ 125 NONAME ; void CGlxAttributeContext::SetGranularity(unsigned int)
 

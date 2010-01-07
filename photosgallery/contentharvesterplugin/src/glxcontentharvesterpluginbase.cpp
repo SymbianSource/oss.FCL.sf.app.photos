@@ -37,6 +37,7 @@
 #include <glxthumbnailcontext.h>
 #include <glxmedialistiterator.h>
 #include <mglxcache.h>
+#include <glxthumbnailattributeinfo.h>
 
 #include "glxcontentharvesterplugin.h"
 #include "glxcontentharvesterpluginbase.h"
@@ -447,28 +448,45 @@ void CGlxContentHarvesterPluginBase::FillInputListWithDataL(
     }
 
 // ---------------------------------------------------------------------------
-// CreateMedialistAndThumbnailContextL
+// CreateMedialistAndAttributeContextL
 // ---------------------------------------------------------------------------
 //
-MGlxMediaList* CGlxContentHarvesterPluginBase::CreateMedialistAndThumbnailContextL(const TGlxMediaId& 
-        aPluginId,CGlxThumbnailContext* aThumbnailContext) const
-        {
-        TRACER( "CGlxContentHarvesterPluginBase::CreateMedialistAndThumbnailContextL" );        
+MGlxMediaList* CGlxContentHarvesterPluginBase::CreateMedialistAndAttributeContextL(
+					const TGlxMediaId& aPluginId,
+					CGlxAttributeContext* aUriAttributeContext, 
+					CGlxAttributeContext* aThumbnailAttributeContext) const    		
+    		{
+            TRACER( "CGlxContentHarvesterPluginBase::CreateMedialistAndThumbnailContextL" );        
+                 
+            CMPXCollectionPath* path = CMPXCollectionPath::NewL();
+            CleanupStack::PushL( path );
+            path->AppendL( aPluginId.Value() );               
 
-        CMPXCollectionPath* path = CMPXCollectionPath::NewL();
-        CleanupStack::PushL( path );
-        path->AppendL( aPluginId.Value() );               
+            CMPXFilter* filter = NULL;
+            filter = TGlxFilterFactory::CreatePreviewFilterL(); 
+            CleanupStack::PushL( filter );
 
-        CMPXFilter* filter = NULL;
-        filter = TGlxFilterFactory::CreatePreviewFilterL(); 
-        CleanupStack::PushL( filter );
-
-        MGlxMediaList* mediaList = MGlxMediaList::InstanceL( *path, KGlxIdNone , filter);
-        CleanupStack::PopAndDestroy( filter );
-        CleanupStack::PopAndDestroy( path );
-        aThumbnailContext->SetDefaultSpec(iGridIconSize.iWidth,iGridIconSize.iHeight); 
-        return mediaList;
-        }
+            MGlxMediaList* mediaList = MGlxMediaList::InstanceL( *path, KGlxIdNone , filter);
+            CleanupStack::PopAndDestroy( filter );
+            CleanupStack::PopAndDestroy( path );  
+            
+            // Two different contexts are added. One for URI with high priority
+            // and for Thumbnail with low priority. Because URI attribute should be
+            // fetched first before placing thumbnail fetch request
+            
+            aUriAttributeContext->AddAttributeL(KMPXMediaGeneralUri);  
+     
+            TMPXAttribute attr( KGlxMediaIdThumbnail,
+								GlxFullThumbnailAttributeId(ETrue,
+									iGridIconSize.iWidth,iGridIconSize.iHeight) );
+            
+            aThumbnailAttributeContext->SetDefaultSpec(iGridIconSize.iWidth,
+            											iGridIconSize.iHeight);
+            
+            aThumbnailAttributeContext->AddAttributeL(attr);    
+         
+            return mediaList;
+            }
 
 // ---------------------------------------------------------------------------
 // CGlxContentHarvesterPluginBase::IsFocused

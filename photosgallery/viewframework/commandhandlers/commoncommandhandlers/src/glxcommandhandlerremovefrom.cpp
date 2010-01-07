@@ -37,30 +37,15 @@
 #include "glxcommandfactory.h"
 
 // ---------------------------------------------------------------------------
-// Return add (to) tags command handler
-// ---------------------------------------------------------------------------
-//
-EXPORT_C CGlxCommandHandlerRemoveFrom* 
-    CGlxCommandHandlerRemoveFrom::NewRemFromFavCommandHandlerL(
-        MGlxMediaListProvider* aMediaListProvider) 
-    {
-    return CGlxCommandHandlerRemoveFrom::NewL(aMediaListProvider, 
-                                EMPXAlbum, EGlxCmdRemoveFromFavourites);
-    }
-
-
-// ---------------------------------------------------------------------------
 // Two-phased constructor.
 // ---------------------------------------------------------------------------
 //
 EXPORT_C CGlxCommandHandlerRemoveFrom* CGlxCommandHandlerRemoveFrom::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TMPXGeneralCategory aContainerType, 
-                TInt aCommandId)
+        MGlxMediaListProvider* aMediaListProvider, TMPXGeneralCategory aContainerType)
     {
-    CGlxCommandHandlerRemoveFrom* self = new (ELeave) CGlxCommandHandlerRemoveFrom(
-            aMediaListProvider, aContainerType);
+    CGlxCommandHandlerRemoveFrom* self = new (ELeave) CGlxCommandHandlerRemoveFrom(aMediaListProvider, aContainerType);
     CleanupStack::PushL(self);
-    self->ConstructL(aCommandId);
+    self->ConstructL();
     CleanupStack::Pop(self);
     return self;
     }
@@ -70,9 +55,8 @@ EXPORT_C CGlxCommandHandlerRemoveFrom* CGlxCommandHandlerRemoveFrom::NewL(
 // might leave.
 // ---------------------------------------------------------------------------
 //
-CGlxCommandHandlerRemoveFrom::CGlxCommandHandlerRemoveFrom(MGlxMediaListProvider* 
-        aMediaListProvider, TMPXGeneralCategory aContainerType): 
-        CGlxMpxCommandCommandHandler(aMediaListProvider), iContainerType(aContainerType)
+CGlxCommandHandlerRemoveFrom::CGlxCommandHandlerRemoveFrom(MGlxMediaListProvider* aMediaListProvider, TMPXGeneralCategory aContainerType)
+        : CGlxMpxCommandCommandHandler(aMediaListProvider), iContainerType(aContainerType)
     {
     // Do nothing
     }
@@ -81,7 +65,7 @@ CGlxCommandHandlerRemoveFrom::CGlxCommandHandlerRemoveFrom(MGlxMediaListProvider
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerRemoveFrom::ConstructL(TInt aCommandId)
+void CGlxCommandHandlerRemoveFrom::ConstructL()
     {
     // Load resource file
 	TParse parse;
@@ -97,15 +81,6 @@ void CGlxCommandHandlerRemoveFrom::ConstructL(TInt aCommandId)
     info.iMinSelectionLength = 1;
     info.iMaxSelectionLength = KMaxTInt;
    	AddCommandL(info);
-
-    // Add Remove From Favourites Command
-    TCommandInfo removeFav(EGlxCmdRemoveFromFavourites);
-    removeFav.iMinSelectionLength = 1;
-    removeFav.iMaxSelectionLength = 1;
-    AddCommandL(removeFav);
-
-    // Store this value to show the correct Text
-   	iCommandId = aCommandId;
 	}
 
 // ---------------------------------------------------------------------------
@@ -133,62 +108,37 @@ EXPORT_C void CGlxCommandHandlerRemoveFrom::SetContainerId(TGlxMediaId aContaine
 // Create an add to container command
 // ---------------------------------------------------------------------------
 //
-CMPXCommand* CGlxCommandHandlerRemoveFrom::CreateCommandL(TInt aCommandId, 
+CMPXCommand* CGlxCommandHandlerRemoveFrom::CreateCommandL(TInt /*aCommandId*/, 
         MGlxMediaList& aMediaList, TBool& /*aConsume*/) const
     {
     CMPXCollectionPath* path = aMediaList.PathLC();
+    
     CMPXCommand* command = NULL;
-    if (aCommandId == EGlxCmdRemoveFromFavourites)
-        {
-        // Hardcoding this to the favourites
-        TGlxMediaId favId(1);
-
-        command = TGlxCommandFactory::RemoveFromContainerCommandLC(favId, *path);
-        }
+    if (iRemoveFromContainerId == KGlxIdNone)
+    	{
+    	command = TGlxCommandFactory::RemoveFromContainerCommandLC(*path);
+    	}
     else
-        {
-        if (iRemoveFromContainerId == KGlxIdNone)
-            {
-            command = TGlxCommandFactory::RemoveFromContainerCommandLC(*path);
-            }
-        else
-            {
-            command = TGlxCommandFactory::RemoveFromContainerCommandLC(iRemoveFromContainerId, *path);
-            }
-        }
+    	{
+    	command = TGlxCommandFactory::RemoveFromContainerCommandLC(iRemoveFromContainerId, *path);
+    	}
     CleanupStack::Pop(command);
     CleanupStack::PopAndDestroy(path);
     return command;
     } 
     
 // -----------------------------------------------------------------------------
-// CGlxCommandHandlerAddToFavourites::CompletionTextL
-// -----------------------------------------------------------------------------
-//  
-HBufC* CGlxCommandHandlerRemoveFrom::CompletionTextL() const
-    {
-    HBufC* text = NULL;
-    if (iCommandId == EGlxCmdRemoveFromFavourites)
-        {
-        text = StringLoader::LoadL(R_GLX_COMPLETION_REM_FROM_FAVOURITES);            
-        }
-    return text;
-    }
-    
-
-// -----------------------------------------------------------------------------
 // Return confirmation string
 // -----------------------------------------------------------------------------
 //	
-HBufC* CGlxCommandHandlerRemoveFrom::ConfirmationTextL(TInt aCommandId, 
+HBufC* CGlxCommandHandlerRemoveFrom::ConfirmationTextL(TInt /*aCommandId*/, 
         TBool aMultiSelection) const
     {
-    HBufC* text = NULL;
-    if (EGlxCmdRemoveFromFavourites != aCommandId)
-        {
-        switch (iContainerType)
-            {
-            case EMPXAlbum:
+	HBufC* text = NULL;
+    switch (iContainerType)
+    	{
+/// @todo Rowland Cook 08/06/07 Check the indenting is correct here
+    	case EMPXAlbum:
     	if (aMultiSelection)
     		{
     		text = StringLoader::LoadL(R_GLX_CONFIRMATION_REMOVE_ITEMS_ALBUM);
@@ -208,9 +158,8 @@ HBufC* CGlxCommandHandlerRemoveFrom::ConfirmationTextL(TInt aCommandId,
     		text = StringLoader::LoadL(R_GLX_CONFIRMATION_REMOVE_NAME_TAG);
     		}
     	break;
-            default: break; // return NULL
-            }
-        }
+    	default: break; // return NULL
+    	}
     return text;
     }
     

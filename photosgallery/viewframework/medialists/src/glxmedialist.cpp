@@ -39,16 +39,6 @@
 #include "mglxmedialistobserver.h"
 #include "glxmediastaticitemdefs.h"
 
-/**
- * Min & Max wait interval for a modify event, in microseconds
- * This is to allow thumbnail manager to procees the event first.
- */
-const TInt KModifyEventMinWaitInterval = 2000000;
-const TInt KModifyEventMaxWaitInterval = 3000000;
-/**
- * Maximum items count for minimum wait interval.
- */
-const TInt KMaxItemsCount = 500;
 namespace NGlxMediaList
     {
     /**
@@ -1520,31 +1510,6 @@ void CGlxMediaList::HandleItemModifiedL(TInt aId, const RArray<TMPXAttribute>& a
             }
 
         CleanupStack::PopAndDestroy(&itemIndices);
-        RPointerArray<CGlxMediaList>& mediaLists = iMediaListArray->Array();
-        TInt listCount = mediaLists.Count();
-        GLX_DEBUG2("ML:HandleItemModifiedL listCount=%d", listCount);
-        if (listCount > 0)
-            {
-            CGlxMediaList* mediaList = mediaLists[listCount-1];
-            // Force a delay to allow TNM to process the modified event
-            if (mediaList == this)
-                {
-                GLX_DEBUG3("ML:HandleItemModifiedL(wait) listCount=%d, Id=%d",
-                                                  listCount, id.Value());
-                TTimeIntervalMicroSeconds32 timeout;
-                timeout = (mediaList->Count() > KMaxItemsCount ?
-                  KModifyEventMaxWaitInterval : KModifyEventMinWaitInterval );
-                RTimer timer;
-                CleanupClosePushL(timer);
-                TRequestStatus status;
-                timer.CreateLocal();
-                timer.After(status, timeout);
-			 	// User::WaitForRequest() will add codescanner warning but is necessary 
-			 	// as User::WaitForAnyRequest() cannot be used in this case
-                User::WaitForRequest(status);
-                CleanupStack::PopAndDestroy(&timer);
-                }
-            }
         }
     }
 

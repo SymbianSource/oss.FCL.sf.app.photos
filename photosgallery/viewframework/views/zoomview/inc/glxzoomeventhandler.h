@@ -62,6 +62,13 @@ public:
     */     
     void CancelZoomPanTimer();
     
+    void CancelAnimationTimer();
+
+    /**
+    * Stops the timer for showing the UI. 
+    */ 
+    void CancelUITimer();
+    
     /*
      * ActivateZoom from the Zoom control
      */
@@ -167,10 +174,6 @@ private:
     */ 
     void StartPanTimer();
     
-    /**
-    * Stops the timer for showing the UI. 
-    */ 
-    void CancelUITimer();
     
     /**
     * Starts the timer for showing the UI.
@@ -250,7 +253,6 @@ private:
 
     void NextStepInerticPan();
 
-    void CancelAnimationTimer();
     
 
     
@@ -268,7 +270,7 @@ private:
     TPoint              iStartDisplayPoint;             // The variable holds the starting pointer posistion to determine the Drag Distance
     TTime               iDoubleTap;                     // This Variable is used to determine the double tap,by using the difference of the time 
                                                         // between subsequent single Tap.
-    // [todo] do we need this variable to be global
+    // [todo] do we need this variable to be at a class level
     TInt                iZoomRatio;
     TRect               iDoubleTapRect;                 // This varaible holds the rect for the Double Tap
     TBool               iDragOngoing;                   // Is a drag event ongoing
@@ -278,25 +280,20 @@ private:
     TPoint              iPreviousPointerPosition;
     TPoint              iPreviousDragStartPosition;
 
-    // for the animated zoom to 50 % allowed. 
     TBool               iIsZoomingInAnimatedState;
     TAnimationMode      iAnimatedZoomMode;
     CPeriodic*          iZoomAnimationTimer;
     TInt                iZoomPerInterval;
     TInt                iTargetAnimatedZoomRatio;
-    // for the animated zoom to 50 % allowed. END 
-
-    // For considering Zoom Focus. 
-    TPoint              iZoomFocus;            // Not used right now. WIll soon carry the coordinates of the zoom focus. 
-    // For considering Zoom Focus. END 
     
-    // For Pan Inertia.
+    
+    TPoint              iZoomFocus;             
+    
     GestureHelper::TGestureCode        iPreviousGestureCode ;
-    // For Pan Inertia. END
     
     
     
-    TGlxZoomAndPanMathsEngine iMathsEngine;             // The new Maths engine at the core of the Zoom Component
+    TGlxZoomAndPanMathsEngine iMathsEngine;             
     
     
     };

@@ -57,6 +57,14 @@ public:
 	* Destructor
 	*/            
     IMPORT_C ~CGlxMediaListMulModelProvider();
+    
+      /**
+      * Requests the data model to update
+      * 
+      * @param aIndex Position from where items have to be updated.
+      * @param aCount Number of items to be updated.
+      */ 
+    IMPORT_C void UpdateItems( TInt aIndex, TInt aCount );
 
 private:
     CGlxMediaListMulModelProvider();

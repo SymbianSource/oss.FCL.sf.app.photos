@@ -104,7 +104,13 @@ public:
       *  Sets the status pane title with what it was for the calling application
       */
      void SetPreviousTitleL();
-
+     
+     /** 
+      *  SetFileAttached
+      *  Sets the File attached flag.
+      */
+     void SetFileAttached(TBool aIsFileAttached);
+     
 public:     
      /** 
       *  HandleSizeChange

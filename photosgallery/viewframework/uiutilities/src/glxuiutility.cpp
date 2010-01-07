@@ -673,7 +673,6 @@ void CGlxUiUtility::GridIconSizeL()
 EXPORT_C TBool CGlxUiUtility::IsExitingState()
     {
     TRACER("CGlxUiUtility::ExitingState");
-    RDebug::Printf("iIsExiting = %d", iIsExiting);
     return iIsExiting;
     }
 

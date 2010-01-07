@@ -109,7 +109,7 @@ RESOURCE DIALOG r_metadata_dialog
                         {
                         identifier = EDateAndTimeItem;
                         setting_page_resource = r_metadata_name_settings_page;
-                        name = qtn_lgal_details_date_time;
+                        name = qtn_lgal_details_date_and_time;
                         empty_item_text = " ";
                         },
                     AVKON_SETTING_ITEM
@@ -374,7 +374,7 @@ RESOURCE TBUF r_glx_metadata_view_drm_nseries
 //
 RESOURCE TBUF r_glx_metadata_view_date_time_nseries
     {
-    buf = qtn_lgal_details_date_time;
+    buf = qtn_lgal_details_date_and_time;
     }
 // -----------------------------------------------------------------------------
 // reource for metadata view file size pane
@@ -415,6 +415,36 @@ RESOURCE TBUF r_glx_metadata_note_info_no_location
 //===========================start of Imageviewer details Dialog================//
 //==============================================================================//
 
+RESOURCE EIK_APP_INFO
+    {
+    menubar = r_imgvwr_metadata_menubar;
+    cba = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+    }
+    // -----------------------------------------------------------------------------
+// reource for menubar
+// -----------------------------------------------------------------------------
+//
+RESOURCE MENU_BAR r_imgvwr_metadata_menubar
+	{
+	titles=
+		{
+		MENU_TITLE { menu_pane = r_imgvwr_metadata_menu; txt = qtn_lgal_title_details; }
+		};
+	}
+	
+
+// -----------------------------------------------------------------------------
+// reource for menupane
+// -----------------------------------------------------------------------------
+//
+RESOURCE MENU_PANE r_imgvwr_metadata_menu
+	{
+	items=
+		{
+		MENU_ITEM { command = EAknCmdHelp; txt = qtn_options_help; }
+	  	};
+	}
+	
 // -----------------------------------------------------------------------------
 // Metadata Dialog 
 // -----------------------------------------------------------------------------
@@ -452,7 +482,7 @@ RESOURCE DIALOG r_img_viewer_metadata_dialog
                         {
                         identifier = EImgVwrDateAndTimeItem;
                         setting_page_resource = r_metadata_name_settings_page;
-                        name = qtn_lgal_details_date_time;
+                        name = qtn_lgal_details_date_and_time;
                         empty_item_text = " ";
                         },                        
                     AVKON_SETTING_ITEM

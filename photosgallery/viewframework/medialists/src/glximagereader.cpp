@@ -69,10 +69,17 @@ CGlxImageReader::CGlxImageReader(MImageReadyCallBack& aNotify)
 CGlxImageReader::~CGlxImageReader()
     {
     TRACER("CGlxImageReader::~");
-    
-    Cancel();
-    delete iFrame;
-    delete iImageDecoder;
+    if(iImageDecoder)
+        {
+        Cancel();
+        delete iImageDecoder;
+        }  
+
+    if(iFrame)
+        {
+        delete iFrame;
+        }
+
     if(iImgViewerMgr)
         {
         iImgViewerMgr->DeleteInstance();
@@ -89,7 +96,6 @@ void CGlxImageReader::ConstructL()
     
     CActiveScheduler::Add(this);
     iIsLaunchedFromFMngr = EFalse;
-    TDataType imageType;
 
     iImgViewerMgr = CGlxImageViewerManager::InstanceL();
     if (iImgViewerMgr && iImgViewerMgr->IsPrivate())
@@ -97,47 +103,27 @@ void CGlxImageReader::ConstructL()
         iIsLaunchedFromFMngr = ETrue;    
         }
     
-    GetFileTypeL(imageType);
+    TInt errInImage = KErrNone;
     if (iIsLaunchedFromFMngr)
         {
         // TODO type cast handle to RFile
-        iImageDecoder = CImageDecoder::FileNewL(iImgViewerMgr->ImageFileHandle(), ContentAccess::EPeek);
+        TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(iImgViewerMgr->ImageFileHandle(), ContentAccess::EPeek));
         }
     else
-        { 
-        iImageDecoder = CImageDecoder::FileNewL(CCoeEnv::Static()->FsSession(), iImgViewerMgr->ImageUri()->Des());
+        {
+        TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(CCoeEnv::Static()->FsSession(), iImgViewerMgr->ImageUri()->Des()));
         }
 
+    if(errInImage != KErrNone)
+        {
+        User::Leave(errInImage);
+        }
     iFrame = new(ELeave)CFbsBitmap();
     iFrame->Create(iImageDecoder->FrameInfo(0).iOverallSizeInPixels,iImageDecoder->FrameInfo(0).iFrameDisplayMode);
     iImageDecoder->Convert(&iStatus,*iFrame,0);
     SetActive();
     }
 
-// ---------------------------------------------------------
-// CGlxImageReader::GetFileTypeL
-// ---------------------------------------------------------
-//
-void CGlxImageReader::GetFileTypeL(TDataType aMimeType)
-    {
-    TRACER("CGlxImageReader::GetFileTypeL");
-    
-    RApaLsSession session;
-    User::LeaveIfError(session.Connect());
-    CleanupClosePushL(session);
-
-    TUid uid;
-    if(iIsLaunchedFromFMngr)
-        {
-        // TODO type cast handle to RFile
-        User::LeaveIfError(session.AppForDocument(iImgViewerMgr->ImageFileHandle(), uid, aMimeType));
-        }
-    else
-        {
-        User::LeaveIfError(session.AppForDocument(iImgViewerMgr->ImageUri()->Des(),uid,aMimeType));
-        }
-    CleanupStack::PopAndDestroy(); // session
-    }
 
 // ---------------------------------------------------------
 // CGlxImageReader::DoCancel
@@ -189,13 +175,13 @@ TBool CGlxImageReader::HasDRMRightsL()
     attributeSet.GetValue(EIsProtected,drmProtected);
     if(!drmProtected)
         {
-        CleanupStack::PopAndDestroy();
+        CleanupStack::PopAndDestroy(&attributeSet);
         delete content;
         content = NULL;
         return EFalse;
         }
     attributeSet.GetValue(ECanView,rights);
-    CleanupStack::PopAndDestroy();
+    CleanupStack::PopAndDestroy(&attributeSet);
 
     if(content)
         {

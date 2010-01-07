@@ -73,3 +73,12 @@ CGlxMediaListMulModelProvider::~CGlxMediaListMulModelProvider()
 	delete iImpl;
   	}
   	
+// ----------------------------------------------------------------------------
+// UpdateItems
+// ----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxMediaListMulModelProvider::UpdateItems( TInt aIndex, TInt aCount )
+    {
+    TRACER("CGlxMediaListMulModelProvider::UpdateItems");
+    iImpl->UpdateItems(aIndex, aCount);
+    }

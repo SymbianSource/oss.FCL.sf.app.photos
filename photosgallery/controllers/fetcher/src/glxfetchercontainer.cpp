@@ -107,8 +107,8 @@ void CGlxFetcherContainer::ConstructL()
     iGridIconSize = iUiUtility->GetGridIconSize();
 
     // For DRM Utility
-    iDRMUtility = CGlxDRMUtility::InstanceL();
-    iIsFileAttached = EFalse;
+    iDRMUtility = CGlxDRMUtility::InstanceL();    
+    SetFileAttached(EFalse);
     }
 
 //-----------------------------------------------------------------------------
@@ -608,12 +608,12 @@ TBool CGlxFetcherContainer::RetrieveUrisL( CDesCArray& aSelectedFiles, TBool& aF
     // to send key events to the dialog.
     if( !iMediaList || !iHgGrid )
         {
-        aFetchUri = EFalse;
-		iIsFileAttached = EFalse;
+        aFetchUri = EFalse;		
+        SetFileAttached(EFalse);
         return iIsFileAttached;
         }
-    //To Block call to HandleDoubleTapEventL() when control is in RetrieveUrisL()
-    iIsFileAttached = ETrue;
+    //To Block call to HandleDoubleTapEventL() when control is in RetrieveUrisL()    
+    SetFileAttached(ETrue);
     GLX_LOG_INFO1("CGlxFetcherContainer::RetrieveUrisL() Medialist count is %d",
                 iMediaList->Count());
     TGlxSelectionIterator iterator;
@@ -654,11 +654,11 @@ TBool CGlxFetcherContainer::RetrieveUrisL( CDesCArray& aSelectedFiles, TBool& aF
             if( uri != KNullDesC )
                 {
                 aSelectedFiles.AppendL( uri );
-                iIsFileAttached = ETrue;
+                SetFileAttached(ETrue);
                 }   
             else
-                {
-                iIsFileAttached = EFalse;
+                {                
+                SetFileAttached(EFalse);
                 }
             }
         }
@@ -773,6 +773,15 @@ TTypeUid::Ptr CGlxFetcherContainer::MopSupplyObject(TTypeUid aId)
         return MAknsControlContext::SupplyMopObject(aId, iBgContext );
         }
     return CCoeControl::MopSupplyObject(aId);
+    }
+
+// -----------------------------------------------------------------------------
+// SetFileAttached
+// -----------------------------------------------------------------------------
+//
+void CGlxFetcherContainer::SetFileAttached(TBool aIsFileAttached)
+    {
+    iIsFileAttached = aIsFileAttached;
     }
 
 //END OF FILE

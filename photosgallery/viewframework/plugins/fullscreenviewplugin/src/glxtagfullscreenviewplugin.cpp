@@ -98,7 +98,7 @@ void CGlxTagFullScreenViewPlugin::AddCommandHandlersL()
     
    //For tag tile view
    GLX_LOG_INFO("Adding CGlxCommandHandlerRemoveFrom");
-   //iTileView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(iTileView, EMPXTag)); 
+   iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(iFullScreenView, EMPXTag)); 
 
     // set up help context info
     TGlxHelpContext helpInfo;

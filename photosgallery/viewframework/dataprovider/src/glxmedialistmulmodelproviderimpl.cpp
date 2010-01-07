@@ -267,7 +267,7 @@ void  CGlxMediaListMulModelProviderImpl::ProvideData (int aIndex, int aCount,
         {
         for(int i = aIndex; i < aIndex + aCount ; i++)
             {
-		    		SetDataT( *iBindingSet, iMediaList.Item(i), i );            
+		    SetDataT( *iBindingSet, iMediaList.Item(i), i );            
             }
         }
     else
@@ -307,4 +307,14 @@ void CGlxMediaListMulModelProviderImpl::HandleItemModifiedL( const RArray<TInt>&
     //Now update the items, this would create the new textures and update the view.
     for(TInt index = 0;index<aItemIndexes.Count();index++)
         UpdateItems(aItemIndexes[index],1);
+    }
+
+// ----------------------------------------------------------------------------
+// UpdateItems
+// ----------------------------------------------------------------------------
+//  
+void CGlxMediaListMulModelProviderImpl::UpdateItems( TInt aIndex, TInt aCount )
+    {
+    TRACER("CGlxMediaListMulModelProviderImpl::UpdateItems");
+    CGlxMulModelProviderBase::UpdateItems(aIndex, aCount);
     }

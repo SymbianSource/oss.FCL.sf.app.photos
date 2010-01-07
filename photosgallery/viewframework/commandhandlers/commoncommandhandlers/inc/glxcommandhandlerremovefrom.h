@@ -48,17 +48,8 @@ public:
      * unsupported types.
      */
 	IMPORT_C static CGlxCommandHandlerRemoveFrom* NewL(
-	    MGlxMediaListProvider* aMediaListProvider, 
-            TMPXGeneralCategory aContainerType, TInt aCommandId = NULL);
+	    MGlxMediaListProvider* aMediaListProvider, TMPXGeneralCategory aContainerType);
 	    
-    /** 
-    * Create remove (from) Favourites command handler 
-    * @param aMediaListProvider object that provides the media list.
-    */
-   IMPORT_C static CGlxCommandHandlerRemoveFrom* NewRemFromFavCommandHandlerL(
-       MGlxMediaListProvider* aMediaListProvider);
-
-
 	/** Destructor */
 	IMPORT_C ~CGlxCommandHandlerRemoveFrom();
 	
@@ -79,15 +70,13 @@ protected: // From CGlxMpxCommandCommandHandler
     /** See CGlxMpxCommandCommandHandler::ConfirmationTextL */
     virtual HBufC* ConfirmationTextL(TInt aCommandId, TBool aMultiSelection) const;
 
-    virtual HBufC* CompletionTextL() const;
-    
 protected: // from CGlxCommandHandler
     /** See @ref CGlxCommandHandler::DoActivateL */
     void DoActivateL(TInt /*aViewId*/);
     
 private:
     /** Second phase constructor */
-	void ConstructL(TInt aCommandId);
+	void ConstructL();
 
     /** Constructor */
 	CGlxCommandHandlerRemoveFrom(MGlxMediaListProvider* aMediaListProvider, TMPXGeneralCategory aContainerType);
@@ -97,7 +86,6 @@ private:
 	TInt iResourceOffset;
 	TGlxMediaId iRemoveFromContainerId;
 	TMPXGeneralCategory iContainerType;
-	TInt iCommandId;
 	};
 
 #endif // __C_GLXCOMMANDHANDLERREMOVEFROM_H__

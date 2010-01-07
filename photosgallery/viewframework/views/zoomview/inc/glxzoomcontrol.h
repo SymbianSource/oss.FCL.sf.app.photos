@@ -220,7 +220,7 @@ private:
 
     TBool HandlePointerEventsL(const TAlfEvent &aEvent);
     
-    TInt GetIntialZoomLevel(TSize& aSize );
+    TInt GetInitialZoomLevel(TSize& aSize );
 
 private:    // Data
     CAlfEnv* iEnv;                                      // AlfEnv

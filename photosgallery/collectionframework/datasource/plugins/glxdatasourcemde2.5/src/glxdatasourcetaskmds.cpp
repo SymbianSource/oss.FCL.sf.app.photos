@@ -352,9 +352,12 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
 			}
 		else if(EGlxFilterOriginAll == aFilterProperties.iOrigin )            
 			{
-			// The Months Collection Populates All the Items
-			aLogicCondition.AddPropertyConditionL(originProperty, TMdEUintGreaterEqual(
-			        MdeConstants::Object::EOther));            
+			// The Months Collection Populates All the Items, filter 
+		    // it for Images and Videos only
+            CMdELogicCondition& logicCondition = 
+                aLogicCondition.AddLogicConditionL(ELogicConditionOperatorOr);
+            logicCondition.AddObjectConditionL( DataSource()->ImageDef() ); 
+            logicCondition.AddObjectConditionL( DataSource()->VideoDef() );          
 			}        
         }
         

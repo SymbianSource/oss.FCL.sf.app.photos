@@ -119,8 +119,9 @@ public: // Constructors and destructor
     /*
      * Creates Medialist based on the plugin id
      */
-    MGlxMediaList* CreateMedialistAndThumbnailContextL(const TGlxMediaId& aPluginId,
-            CGlxThumbnailContext* aThumbnailContext) const;
+    MGlxMediaList* CreateMedialistAndAttributeContextL(const TGlxMediaId& aPluginId,
+    		CGlxAttributeContext* aUriAttributeContext, 
+    		CGlxAttributeContext* aThumbnailAttributeContext) const;
 
     /**
      * Method to fill input list for CPS add command

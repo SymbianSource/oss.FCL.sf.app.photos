@@ -158,9 +158,9 @@ RESOURCE REGISTRY_INFO theInfo
                     {
                     implementation_uid = KGlxImageViewerFullScreenViewImplementationId;
                     version_no = 1;
-                    display_name = "Tag fullscreen view";
+                    display_name = "Image Viewer fullscreen view";
                     default_data = "";
-                    opaque_data = "<p>0x200104DD;0x200071CC;0x200104E6;0x200104E6;0x200104E6;0x200104E6</p>"                
+                    opaque_data = "<p>0x200104DD;0x2000A775;0x200104E6;0x200104E6;0x200104E6;0x200104E6</p>"                
                     "<t>0x2000D24F</t>"
                     "<f>0x0002</f>"
                     "<i>"EMPXViewPluginPriorityLowest"</i>";

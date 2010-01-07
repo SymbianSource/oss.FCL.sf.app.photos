@@ -71,9 +71,11 @@ void CGlxContentHarvesterPluginAlbums::ConstructL()
     //Call the base class ConstructL
     CGlxContentHarvesterPluginBase::ConstructL(EMbmGlxiconsQgn_prop_image_notcreated);
     
-    iPeriodic = CPeriodic::NewL( CActive::EPriorityLow );
-    iThumbnailContext = CGlxThumbnailContext::NewL(&iThumbnailIterator);
-        
+    iPeriodic = CPeriodic::NewL( CActive::EPriorityLow );    
+       
+    iUriAttributeContext = new (ELeave) CGlxAttributeContext(&iThumbnailIterator); 
+    iThumbnailAttributeContext = new (ELeave) CGlxAttributeContext(&iThumbnailIterator); 
+    
     //Register/Subscribe with matrix menu for the notifications 
     GetInterfaceForNotificationL();
     SetupPublisherL(KItemIndexAlbums);
@@ -437,8 +439,12 @@ void CGlxContentHarvesterPluginAlbums::DestroyMedialist()
         {
         GLX_LOG_INFO("CGlxContentHarvesterPluginAlbums::DestroyMedialist,media list deleted");
         RemoveContextAndObserver();
-        delete iThumbnailContext;
-        iThumbnailContext = NULL;
+        
+        delete iUriAttributeContext;
+        iUriAttributeContext = NULL;
+        delete iThumbnailAttributeContext;
+        iThumbnailAttributeContext = NULL;
+        
         iMediaList->Close();
         iMediaList = NULL;
         }
@@ -463,9 +469,10 @@ void CGlxContentHarvesterPluginAlbums::CreateMedialistL( )
             {
             iThumbnailIterator.SetRange( KSinglePreviewThumbnail );
             }
-
-        iMediaList = CreateMedialistAndThumbnailContextL( TGlxMediaId( 
-                KGlxCollectionPluginAlbumsImplementationUid ),iThumbnailContext);
+        iMediaList = CreateMedialistAndAttributeContextL( TGlxMediaId( 
+                        KGlxCollectionPluginAlbumsImplementationUid ),
+                        iUriAttributeContext,iThumbnailAttributeContext);         
+        
         AddContextAndObserverL();
         }
     }
@@ -542,11 +549,12 @@ void CGlxContentHarvesterPluginAlbums::AddContextAndObserverL()
     if(iMediaList)
         {
         iMediaList->AddMediaListObserverL( this );
-        iMediaList->AddContextL(iThumbnailContext, KGlxFetchContextPriorityNormal);
+        iMediaList->AddContextL(iUriAttributeContext, KGlxFetchContextPriorityNormal);
+        iMediaList->AddContextL(iThumbnailAttributeContext, KGlxFetchContextPriorityLow);        
         }
     }
 
-// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------c
 // CGlxContentHarvesterPluginAlbums::RemoveContextAndObserver
 // ---------------------------------------------------------------------------
 //
@@ -556,7 +564,8 @@ void CGlxContentHarvesterPluginAlbums::RemoveContextAndObserver()
     if(iMediaList)
         {
         iMediaList->RemoveMediaListObserver( this );
-        iMediaList->RemoveContext(iThumbnailContext);
+        iMediaList->RemoveContext(iUriAttributeContext);
+        iMediaList->RemoveContext(iThumbnailAttributeContext);        
         }
     }
 

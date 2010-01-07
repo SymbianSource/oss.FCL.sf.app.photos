@@ -69,7 +69,8 @@
 #include "glxdatasourcemdsutility.h"
 
 // CONSTANTS
-//const TInt KGlxAlbumPromotionPosition = 0;
+const TInt KGlxCameraAlbumPromotionPosition = 0;
+const TInt KGlxfavoritesAlbumPromotionPosition = 1;
 
 _LIT(KPropertyDefNameCreationDate, "CreationDate");
 
@@ -258,7 +259,9 @@ void CGlxDataSourceTaskMdeIdList::DoMonthListCreationL(CMdEQuery& aQuery,
             User::Leave(KErrCorrupt);
             }
         currentMonth = static_cast<CMdETimeProperty*>(time)->Value();
-        if( !DataSource()->SameMonth(lastMonth, currentMonth) )
+
+        // Also Checking for a Valid Month Entry Based on a Year Greater than 0000.
+        if( !DataSource()->SameMonth(lastMonth, currentMonth) && (currentMonth.DateTime().Year() > 0) )
             {
             const TGlxMediaId monthId = DataSource()->GetMonthIdL(currentMonth);
             monthList.AppendL(monthId);
@@ -297,14 +300,36 @@ void CGlxDataSourceTaskMdeIdList::PostFilterL(const RArray<TGlxMediaId>&
 	if( aFilterProperties.iPromoteSystemItems )
 		{
 		RArray<TGlxMediaId> list = aFilteredList;
-		/*
-		TInt favoritesIndex = list.Find(DataSource()->FavoritesId());
-		if( KErrNotFound != favoritesIndex )
-			{
-			list.Remove(favoritesIndex);
-			list.Insert(DataSource()->FavoritesId(), KGlxAlbumPromotionPosition);
+		TInt cameraAlbumIndex = list.Find(DataSource()->CameraAlbumId());
+		
+		// If Camera Index is not KErrNotFound, 1st Album should be Captured and 
+		// 2nd should be Favourites(In Albums List View)		
+		
+		if( KErrNotFound != cameraAlbumIndex )
+			{	
+			list.Remove(cameraAlbumIndex);	
+			list.Insert(DataSource()->CameraAlbumId(), KGlxCameraAlbumPromotionPosition);    			
+
+			TInt favoritesIndex = list.Find(DataSource()->FavoritesId());			
+			if( KErrNotFound != favoritesIndex )
+				{
+				list.Remove(favoritesIndex);
+				list.Insert(DataSource()->FavoritesId(),KGlxfavoritesAlbumPromotionPosition);		
+				} 
 			}
-		*/			
+		else
+			{
+			// In Selection popup, 1st item should be Favourites(from grid view/fullscreen view
+			// and Camera post captured mode) 
+			
+			TInt favoritesIndex = list.Find(DataSource()->FavoritesId());
+			if( KErrNotFound != favoritesIndex )
+				{
+				list.Remove(favoritesIndex);
+				list.Insert(DataSource()->FavoritesId(),KGlxfavoritesAlbumPromotionPosition - 1);		
+				} 			
+			}
+					
 		DoPostFilterComplete(list, KErrNone);
 		}
 	else
