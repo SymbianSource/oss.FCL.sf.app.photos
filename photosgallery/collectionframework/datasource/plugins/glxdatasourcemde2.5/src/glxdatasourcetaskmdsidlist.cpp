@@ -114,6 +114,9 @@ void CGlxDataSourceTaskMdeIdList::FilterAvailableComplete(
 void CGlxDataSourceTaskMdeIdList::ExecuteRequestL()
     {
     TRACER("CGlxDataSourceTaskMdeIdList::ExecuteRequestL()") 
+#ifdef _DEBUG
+    iStartTime.HomeTime(); 
+#endif    
     CGlxIdListRequest* request = static_cast<CGlxIdListRequest*>(iRequest);
     TGlxMediaId container = request->ContainerId();
     TGlxQueryType queryType = EIdListQuery;
@@ -207,6 +210,11 @@ void CGlxDataSourceTaskMdeIdList::DoHandleQueryCompletedL(CMdEQuery& /*aQuery*/)
     TRACER("CGlxDataSourceTaskMdeIdList::DoHandleQueryCompletedL()")
     __ASSERT_DEBUG(iQueryTypes[0] == EIdListQuery, Panic(EGlxPanicLogicError));
     DoHandleListQueryCompletedL();
+#ifdef _DEBUG
+    iStopTime.HomeTime(); 
+    GLX_DEBUG2("GlxDataSrcTaskMdeIdList:DoHandleQueryCompletedL() took %d us",
+                     (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif    
     }
 
 // ----------------------------------------------------------------------------

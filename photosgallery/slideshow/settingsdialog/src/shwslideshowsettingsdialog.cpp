@@ -45,7 +45,6 @@
 #include "shwsettingsmodel.h"			 // for CShwSettingsModel
 #include "shwslideshowsettingslist.h"	 // for CShwSlideshowSettingsList
 
-#define GetAppUi() (dynamic_cast<CAknAppUi*>(iEikonEnv->EikAppUi()))
 //CONSTANTS
 namespace
 	{
@@ -119,7 +118,7 @@ void CShwSlideshowSettingsDialog::ConstructL()
 	// hide toolbar.	
 	SetSlShwToolbarVisibility(EFalse);
 	iStatusPaneChanged = EFalse;
-	iStatusPane = GetAppUi()->StatusPane();
+	iStatusPane = iAvkonAppUi->StatusPane();
     iTitlePane = ( CAknTitlePane* )iStatusPane->ControlL(
             TUid::Uid( EEikStatusPaneUidTitle ));
 	// If Status pane not visible, then make it visible.
@@ -155,8 +154,9 @@ void CShwSlideshowSettingsDialog::ConstructL()
 void CShwSlideshowSettingsDialog::SetSlShwToolbarVisibility(TBool aVisible)
     {
     TRACER("CShwSlideshowSettingsDialog::SetSlShwToolbarVisibility");
-    CAknAppUi* appUi = GetAppUi();
+    CAknAppUi* appUi = iAvkonAppUi;
     __ASSERT_DEBUG(appUi, Panic(EGlxPanicNullPointer));
+
     CAknToolbar* popupToolbar = appUi->PopupToolbar();
     if(popupToolbar)
         {
@@ -220,12 +220,6 @@ void CShwSlideshowSettingsDialog::ProcessCommandL(TInt aCommandId)
 	GLX_LOG_INFO("CShwSlideshowSettingsDialog::ProcessCommandL");			
 	switch (aCommandId)
 		{
-		case EShwCmdSettingsChange: 
-			{
-			CAknDialog::ProcessCommandL(aCommandId);
-		    iItemList->UpdateListBoxL(iItemList->ListBox()->CurrentItemIndex());
-			break;			
-			}
 		case EShwCmdHelp:
 			{
 			TCoeHelpContext helpContext;

@@ -27,21 +27,14 @@ data=\epoc32\data\z\private\10003a3f\import\apps\glx_reg.rsc         private\100
 // photos image viewer
 data=\epoc32\data\z\private\10003a3f\import\apps\glxivwr_reg.rsc         private\10003a3f\import\apps\glxivwr_reg.rsc
 
-//photosuitelauncher application resource file
-data=\epoc32\data\z\private\10003a3f\import\apps\photossuitelauncher_reg.rsc         private\10003a3f\import\apps\photossuitelauncher_reg.rsc
 
 // stub sisx file to be included in ROM
 data=\epoc32\data\z\system\install\glxgallery_stub.sis        \system\install\glxgallery_stub.sis
 
 S60_APP_EXE(glx)
 
-//photosuitelauncher application 
-S60_APP_EXE(photossuitelauncher)
-
 //photos image viewer exe
 S60_APP_EXE(glxivwr)
-
-data=DATAZ_\APP_RESOURCE_DIR\photossuitelauncher.mif          APP_RESOURCE_DIR\photossuitelauncher.mif
 
 
 data=DATAZ_\APP_RESOURCE_DIR\glxicons.mif                     APP_RESOURCE_DIR\glxicons.mif  

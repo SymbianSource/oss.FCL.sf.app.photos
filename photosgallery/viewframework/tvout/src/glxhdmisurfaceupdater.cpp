@@ -359,8 +359,8 @@ void CGlxHdmiSurfaceUpdater::HandleRunL()
     
     #ifdef _DEBUG
     iStopTime.HomeTime();
-    GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::HandleRunL() ConvertImageL took us %d us",
-            iStopTime.MicroSecondsFrom(iStartTime) );
+    GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::HandleRunL() ConvertImageL took"
+                " <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
     #endif
     
     iZoomRectSz = iDecodedBitmap->SizeInPixels(); 

@@ -76,6 +76,7 @@ LIBRARY         glxcommon.lib                   // for CResourceUtilities
 
 LIBRARY         cdlengine.lib
 LIBRARY      	aknlayout2scalable.lib
+LIBRARY      	aknphysics.lib
 
 
 // End of File

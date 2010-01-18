@@ -87,10 +87,6 @@ public: // Constructors and destructor
      */
     TInt GetBitmapHandle() const;
 
-    /**
-     * Returns if the collection is in focus or not  
-     */
-    TBool IsFocused() const;
 
     /**
      * Updates  the focus value of the collection to true or false

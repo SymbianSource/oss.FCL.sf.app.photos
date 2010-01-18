@@ -19,7 +19,6 @@
 #include <StringLoader.h>
 #include <AknsBasicBackgroundControlContext.h>
 #include <caf/caferr.h>
-#include <featmgr.h>		                            // Feature Manager
 
 // Ganes Headers
 #include <gulicon.h>                                    // Gul Icons
@@ -28,7 +27,6 @@
 
 // Framework
 #include <data_caging_path_literals.hrh>
-#include <glxcollectionplugindownloads.hrh>
 #include <glxcommandhandlers.hrh>                       // For EGlxCmdFullScreenBack
 #include <glxcollectionpluginall.hrh> 	            	// All item collection plugin id
 
@@ -48,7 +46,6 @@
 
 const TInt KNoOfPages(3);
 const TInt KBufferTresholdSize(3); 						// in rows
-const TInt KMaxNoOfSeamlessLinks(2);
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -105,10 +102,6 @@ CGlxGridViewContainer::~CGlxGridViewContainer()
 		{
 		iMediaList->RemoveContext(iThumbnailContext);
 		delete iThumbnailContext;
-		}
-	if(iUiUtility->IsPenSupported())
-		{
-		RemoveFSThumbnailContext();
 		}
 	if(iNavigationalstate)
 		{
@@ -289,11 +282,6 @@ void CGlxGridViewContainer::RequestL(TInt aRequestStart, TInt aRequestEnd)
 				}
 			}
 		}
-
-	if (iDownloadsPlugin && aRequestStart == KMaxNoOfSeamlessLinks)
-		{
-		SetDownloadLinksTimeL();
-		}
 	}
 
 // ----------------------------------------------------------------------------
@@ -384,35 +372,19 @@ void CGlxGridViewContainer::CreateHgGridWidgetL()
 	TInt mediaCount = iMediaList->Count();
 	if (!iHgGrid)
 		{
+        TSize tnSize = CHgGrid::PreferredImageSize();
+        GLX_DEBUG3("GlxGrid: CHgGrid::PreferredImageSize() w(%d) h(%d)", 
+                tnSize.iWidth, tnSize.iHeight);
 		TFileName resFile(KDC_APP_BITMAP_DIR);
 		resFile.Append(KGlxIconsFilename);
 		CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
 				EMbmGlxiconsQgn_prop_image_notcreated);
-		AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize());
+        AknIconUtils::SetSize(bitmap, tnSize);
 		TRect rect = iEikonEnv->EikAppUi()->ClientRect();
 		// Create Hg grid object
 		iHgGrid = CHgGrid::NewL (rect,mediaCount,CGulIcon::NewL(bitmap));
 		}
-	if (mediaCount)
-		{
-		// Mediacount would give the no of static items present and
-		// coz medialist doesnt have all the item at
-		// this stage, it will focus index for only download icons.
-		// For other grid views, we have to set focus elsewhere
-		for (TInt i=0; i<mediaCount; i++)
-			{
-			const TGlxMedia& item = iMediaList->Item(i);
-			TIconInfo icon;
-			if (item.GetIconInfo(icon) )
-				{
-				CFbsBitmap* bitmap = AknIconUtils::CreateIconL(icon.bmpfile, icon.bitmapId);
-				AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize());
-				iHgGrid->ItemL(i).SetIcon(CGulIcon::NewL(bitmap));
-				}
-			}
-		// Setting the initial focus
-		iHgGrid->SetSelectedIndex(iMediaList->FocusIndex());
-		}
+
 	// Setting to MopParent to update background skin
 	iHgGrid->SetMopParent(this);
 	// Setting Selction observer for getting callback on key event change
@@ -448,11 +420,6 @@ void CGlxGridViewContainer::CreateGridL()
 	CreateGridMediaListObserverL();
 	// Create Grid once again after returning from FS as No calls for handleItem added.
 	CreateGridAfterFSDeactivatedL();
-	if (iUiUtility->IsPenSupported())
-		{
-		// Fetch fullscreen thumbnails of the focused item with low priority
-		FetchFSThumbnailL();
-		}
 	}
 	
 // ---------------------------------------------------------------------------
@@ -468,14 +435,6 @@ void CGlxGridViewContainer::SetGridThumbnailContextL()
 	iThumbnailContext = CGlxThumbnailContext::NewL( &iBlockyIterator ); // set the thumbnail context
 	iThumbnailContext->SetDefaultSpec( iGridIconSize.iWidth,iGridIconSize.iHeight );
 	iMediaList->AddContextL(iThumbnailContext, KGlxFetchContextPriorityNormal );
-
-	iDownloadsPlugin = EFalse;
-	CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathParent );
-	if (path->Id() == KGlxCollectionPluginDownloadsImplementationUid)
-		{
-		iDownloadsPlugin = ETrue;
-		}
-	CleanupStack::PopAndDestroy(path);
 	}
     
 // ---------------------------------------------------------------------------
@@ -525,8 +484,6 @@ void CGlxGridViewContainer::CreateGridAfterFSDeactivatedL()
 			SetIconsL(index);
 			}
 			
-		SetDownloadLinksTimeL();
-
 		iHgGrid->SetSelectedIndex(focusIndex);
 		iHgGrid->RefreshScreen(focusIndex);
 		}
@@ -564,14 +521,6 @@ void CGlxGridViewContainer::SetIconsL(TInt index)
 		bitmap->Duplicate( speedTn->iBitmap->Handle());
 		iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap));
 		GLX_LOG_INFO1("### CGlxGridViewContainer::SetIconsL speedTn-Index is %d",index);
-		}
-	else if (item.GetIconInfo(icon))
-		{
-		GLX_LOG_INFO1("CGlxGridViewContainer::SetIconsL - icon(%d)", index);
-		CFbsBitmap* bitmap = AknIconUtils::CreateIconL(icon.bmpfile, icon.bitmapId);
-		AknIconUtils::SetSize(bitmap, setSize);
-		iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap));
-		GLX_LOG_INFO1("### CGlxGridViewContainer::SetIconsL GetIconInfo-Index is %d",index);
 		}
 	else if ( KErrNone != tnError && KErrNotSupported != tnError && KErrCANoRights !=tnError)
 		{
@@ -660,76 +609,7 @@ void CGlxGridViewContainer::SetIconsL(TInt index)
 		}
 	}
    
-// ---------------------------------------------------------------------------
-// FetchFSThumbnailL
-// ---------------------------------------------------------------------------
-//
-void CGlxGridViewContainer::FetchFSThumbnailL()
-	{
-	TRACER("CGlxGridViewContainer::FetchFSThumbnailL()");
-	TSize dispSize = iUiUtility->DisplaySize();
-	iFsFromFocusOutwardIterator.SetRangeOffsets(0,0);
-
-	iFsThumbnailContext = CGlxThumbnailContext::NewL(&iFsFromFocusOutwardIterator);
-
-	if (dispSize.iHeight > dispSize.iWidth)
-		{
-		iFsThumbnailContext->SetDefaultSpec(dispSize.iHeight, dispSize.iWidth);
-		}
-	else
-		{
-		iFsThumbnailContext->SetDefaultSpec(dispSize.iWidth, dispSize.iHeight);
-		}
-	iMediaList->AddContextL(iFsThumbnailContext, KGlxFetchContextPriorityLow);
-	}
-
-// ---------------------------------------------------------------------------
-// SetDownloadLinksTimeL
-// ---------------------------------------------------------------------------
-//
-void CGlxGridViewContainer::SetDownloadLinksTimeL()
-	{
-	TRACER("CGlxGridViewContainer::SetDownloadLinksTimeL()");
-	// Sets up TLS, must be done before FeatureManager is used.
-	FeatureManager::InitializeLibL();
-	TInt mediaCount = iMediaList->Count();
-	if (FeatureManager::FeatureSupported(KFeatureIdSeamlessLinks))
-		{
-		if (iDownloadsPlugin && mediaCount > iHgGrid->ItemsOnScreen() )
-			{
-			TTime time(0);
-			if (iMediaList->Item(KMaxNoOfSeamlessLinks).GetDate(time))
-				{
-				if (iMediaList->Item(0).IsStatic())
-					{
-					iHgGrid->ItemL(0).SetTime(time); // Image Downloads link Icon
-					}
-				if (iMediaList->Item(1).IsStatic())
-					{
-					iHgGrid->ItemL(1).SetTime(time); // Video Downloads link Icon
-					}
-				}
-			}
-		}
-	// Frees the TLS. Must be done after FeatureManager is used.
-	FeatureManager::UnInitializeLib();
-	}
-    
-// ---------------------------------------------------------------------------
-// RemoveFSThumbnailContext
-// ---------------------------------------------------------------------------
-//
-void CGlxGridViewContainer::RemoveFSThumbnailContext()
-	{
-	TRACER("CGlxGridViewContainer::RemoveFSThumbnailContext()");
-	if (iMediaList)
-		{
-		iMediaList->RemoveContext(iFsThumbnailContext);
-		delete iFsThumbnailContext;
-		iFsThumbnailContext = NULL;
-		}
-	}
-    
+        
 // -----------------------------------------------------------------------------
 // MopSupplyObject
 // To handle Skin support

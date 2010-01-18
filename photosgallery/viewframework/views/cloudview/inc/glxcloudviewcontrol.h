@@ -35,6 +35,7 @@
 #include <alf/alfeventhandler.h>
 
 #include <AknLayout2Def.h>
+#include <AknPhysicsObserverIface.h> //Physics - Kinetic scrolling listener
 using namespace Alf;
 
 
@@ -52,6 +53,7 @@ class MTouchFeedback;
 class MGlxCloudViewMskObserver;
 class MGlxEnterKeyEventObserver;
 class MGlxCloudViewLayoutObserver;
+class CAknPhysics;
 
 enum TTagEventType
     {
@@ -66,6 +68,7 @@ enum TTagEventType
 
 class CGlxCloudViewControl : public CAlfControl,public IAlfWidgetEventHandler
                             ,public MGlxMediaListObserver
+                            ,public MAknPhysicsObserver
 	{
 public:
 
@@ -304,9 +307,39 @@ private:
 	 * */
 	 void AppendToCloudArrayL( TGlxCloudInfo& aCloudInfo, 
 	     const TInt& aStartIndex, const TInt& aEndIndex );
-	
-private:
+	 
+private: // from MAknPhysicsObserver
+    
+	 /*
+	  * Observer to get notified about new position to be displayed in
+	  * @param aNewPosition The new point where the virtual port should start from 
+	  * @param aDrawNow value to determine whether to draw at new position or not
+	  * @param aFags Special value (not used here)
+	  */
+    void ViewPositionChanged( const TPoint& aNewPosition, TBool aDrawNow, TUint /*aFlags*/ );
+    
+    /*
+     * Obsrever to get notified whether the physics emulation ended
+     */
+    void PhysicEmulationEnded();
+    
+    /*
+     * Observer callback used by CAknPhysics to know our current viewposition
+     * (which is with reference to displayable viewportposition + screeenheight/2) 
+     * Returns current viewposition point  
+     */
+    TPoint ViewPosition() const;
 
+
+private:
+    
+    TBool IsLandscape();
+    
+    /*
+     * Initializes the physcs library with total size, displayable size, etc 
+     */
+    void InitPhysicsL();
+    
     /** 
 	 * Sets focused item color
 	 **/
@@ -568,7 +601,30 @@ private:
 	TInt iIsDragging;
 	
 	TAknWindowLineLayout iScrollPaneHandle;
-		
+
+	//View position w.r.t. viewportposition + (screeenwidth/2, screenheight/2)
+	TPoint iViewPosition;
+	
+	//determins whether dragging is currently going on or not
+	TBool iDragging;
+	
+	//Notes the time before dragging, when pointer down event happens  
+	TTime iStartTime;
+	
+	//Notes the last pointer co-ordinates
+	TPoint iPrev;
+	
+	//The pointer coordinates before dragging when pointerDown event happened 
+	TPoint iStart;
+	
+	//owning - Physics library object
+	CAknPhysics* iPhysics;
+	
+	//boolean to check whether physics emulation is going on or not
+	TBool iPhysicsStarted;
+	
+	//boolean to check if dragging really happened
+	TBool iViewDragged;
 	};
 
 #endif // C_GLXCLOUDVIEWCONTROL_H

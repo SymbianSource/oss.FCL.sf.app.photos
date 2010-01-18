@@ -41,6 +41,7 @@
 #include <glxuistd.h>
 #include <glxuiutilities.rsg>
 #include <glxcommandhandlers.hrh>
+#include <glxtracer.h>
 #include <glxresourceutilities.h>                // for CGlxResourceUtilities
 
 /// @todo Move elsewhere
@@ -54,6 +55,7 @@ EXPORT_C CGlxMpxCommandCommandHandler::
     CGlxMpxCommandCommandHandler(MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem)
         : CGlxMediaListCommandHandler(aMediaListProvider, aHasToolbarItem)
 	{
+    TRACER("CGlxMpxCommandCommandHandler::CGlxMpxCommandCommandHandler");
     iAppUi = static_cast< CAknAppUi* >( CCoeEnv::Static()->AppUi() );
 	}
 	
@@ -63,6 +65,7 @@ EXPORT_C CGlxMpxCommandCommandHandler::
 //	
 EXPORT_C CGlxMpxCommandCommandHandler::~CGlxMpxCommandCommandHandler()
 	{
+    TRACER("CGlxMpxCommandCommandHandler::~CGlxMpxCommandCommandHandler");
 	// cancel command if running
 	if (iProgressComplete)
 	    {
@@ -84,6 +87,7 @@ EXPORT_C CGlxMpxCommandCommandHandler::~CGlxMpxCommandCommandHandler()
 EXPORT_C TBool CGlxMpxCommandCommandHandler::DoExecuteL(TInt aCommandId, 
         MGlxMediaList& aList)
     {
+    TRACER("CGlxMpxCommandCommandHandler::DoExecuteL");
     // reset progress complete flag
     iProgressComplete = EFalse;
     
@@ -130,8 +134,7 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::DoExecuteL(TInt aCommandId,
             		static_cast<TAny*>(this));
 
        		aList.AddMediaListObserverL(this);
-
-            // @todo TRAP this?
+			
             aList.CommandL(*command);
             
             // raise progress note. Note will be closed when complete message received
@@ -150,6 +153,7 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::DoExecuteL(TInt aCommandId,
 //	
 EXPORT_C void CGlxMpxCommandCommandHandler::TryExitL(TInt aErrorCode)
 	{
+    TRACER("CGlxMpxCommandCommandHandler::TryExitL");
 	// any error will abort the command execution
     if ( KErrNone != aErrorCode ) 
 	    {
@@ -187,6 +191,7 @@ EXPORT_C void CGlxMpxCommandCommandHandler::TryExitL(TInt aErrorCode)
 //	
 EXPORT_C void CGlxMpxCommandCommandHandler::HandleErrorL(TInt aErrorCode) 
     {
+    TRACER("CGlxMpxCommandCommandHandler::HandleErrorL");
 	// show error note
 	GlxGeneralUiUtilities::ShowErrorNoteL(aErrorCode);
     }
@@ -198,6 +203,7 @@ EXPORT_C void CGlxMpxCommandCommandHandler::HandleErrorL(TInt aErrorCode)
 TBool CGlxMpxCommandCommandHandler::UpdateProgressL(const CMPXMessage& aMessage,
         TInt& aError)
     {
+    TRACER("CGlxMpxCommandCommandHandler::UpdateProgressL");
     TBool isComplete = EFalse;
     
     // should not receive any progress messages after progress is completed
@@ -246,6 +252,7 @@ TBool CGlxMpxCommandCommandHandler::UpdateProgressL(const CMPXMessage& aMessage,
 EXPORT_C void CGlxMpxCommandCommandHandler::DoHandleCommandCompleteL(TAny* /*aSessionId*/, 
         CMPXCommand* /*aCommandResult*/, TInt /*aError*/, MGlxMediaList* /*aList*/)
     {
+    TRACER("CGlxMpxCommandCommandHandler::DoHandleCommandCompleteL");
     }
 
 
@@ -256,6 +263,7 @@ EXPORT_C void CGlxMpxCommandCommandHandler::DoHandleCommandCompleteL(TAny* /*aSe
 EXPORT_C TInt CGlxMpxCommandCommandHandler::DoHandleMessageL(const CMPXMessage& /*aMessage*/,
 	    MGlxMediaList& /*aList*/)
     {
+    TRACER("CGlxMpxCommandCommandHandler::DoHandleMessageL");
     return KErrNone;
     }
 
@@ -266,6 +274,7 @@ EXPORT_C TInt CGlxMpxCommandCommandHandler::DoHandleMessageL(const CMPXMessage& 
 EXPORT_C void CGlxMpxCommandCommandHandler::DoHandleItemAddedL(TInt /*aStartIndex*/, 
 		TInt /*aEndIndex*/, MGlxMediaList* /*aList*/)
 	{
+    TRACER("CGlxMpxCommandCommandHandler::DoHandleItemAddedL");
 	}
 
 // -----------------------------------------------------------------------------
@@ -274,6 +283,7 @@ EXPORT_C void CGlxMpxCommandCommandHandler::DoHandleItemAddedL(TInt /*aStartInde
 //	
 EXPORT_C TBool CGlxMpxCommandCommandHandler::OkToExit() const
     {
+    TRACER("CGlxMpxCommandCommandHandler:::OkToExit()");
     return ETrue;
     }
 
@@ -284,6 +294,7 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::OkToExit() const
 EXPORT_C TBool CGlxMpxCommandCommandHandler::ConfirmationNoteL(TInt aCommandId,
         MGlxMediaList& aMediaList) const
 	{
+    TRACER("CGlxMpxCommandCommandHandler::ConfirmationNoteL");
 	TInt selectionCount = aMediaList.SelectionCount();
 
     // If media list is not empty, treat focused item as selected
@@ -315,6 +326,7 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::ConfirmationNoteL(TInt aCommandId,
 EXPORT_C TBool CGlxMpxCommandCommandHandler::ConfirmationNoteSingleL(TInt aCommandId, 
         MGlxMediaList& aMediaList) const
     {
+    TRACER("CGlxMpxCommandCommandHandler::ConfirmationNoteSingleL");
     // if no confirmation note shown, assume command is confirmed
     TBool confirmed = ETrue;
 
@@ -377,6 +389,7 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::ConfirmationNoteSingleL(TInt aComma
 EXPORT_C TBool CGlxMpxCommandCommandHandler::ConfirmationNoteMultipleL(TInt aCommandId, 
         MGlxMediaList& aMediaList) const
 	{
+    TRACER("CGlxMpxCommandCommandHandler::ConfirmationNoteMultipleL");
 	// if no confirmation note shown, assume command is confirmed
 	TBool confirmed = ETrue;
 
@@ -417,6 +430,7 @@ EXPORT_C HBufC* CGlxMpxCommandCommandHandler::ConfirmationTextL(TInt /*aCommandI
 //	
 EXPORT_C HBufC* CGlxMpxCommandCommandHandler::ProgressTextL(TInt /*aCommandId*/) const
     {
+    TRACER("CGlxMpxCommandCommandHandler::ProgressTextL");
     // Lazy construction for resource file
     if (iResourceOffset == 0)
         {
@@ -451,6 +465,7 @@ EXPORT_C HBufC* CGlxMpxCommandCommandHandler::CompletionTextL() const
 //	
 void CGlxMpxCommandCommandHandler::ProgressNoteL(TInt aCommandId)
 	{
+    TRACER("CGlxMpxCommandCommandHandler::ProgressNoteL(TInt aCommandId)");
 	//MGlxMediaList& mediaList = MediaList();
 
     // get progress note 
@@ -478,6 +493,7 @@ void CGlxMpxCommandCommandHandler::ProgressNoteL(TInt aCommandId)
 //	
 void CGlxMpxCommandCommandHandler::DismissProgressNoteL()
 	{
+    TRACER("CGlxMpxCommandCommandHandler::DismissProgressNoteL");
     // Close the progress note, if displayed
     if (iProgressDialog) 
         {
@@ -493,6 +509,7 @@ void CGlxMpxCommandCommandHandler::DismissProgressNoteL()
 //
 void CGlxMpxCommandCommandHandler::RemoveMediaListObserver()
 	{
+    TRACER("CGlxMpxCommandCommandHandler::RemoveMediaListObserver");
 	MGlxMediaList& mediaList = MediaList();
 	mediaList.RemoveMediaListObserver(this);
 	}
@@ -503,6 +520,7 @@ void CGlxMpxCommandCommandHandler::RemoveMediaListObserver()
 //	
 void CGlxMpxCommandCommandHandler::CompletionNoteL() const
 	{
+    TRACER("CGlxMpxCommandCommandHandler::CompletionNoteL");
 	// Get completion note text 
 	HBufC* noteText = CompletionTextL(); 
 	if ( noteText )
@@ -587,6 +605,7 @@ EXPORT_C void CGlxMpxCommandCommandHandler::HandleItemSelectedL(TInt /*aIndex*/,
 EXPORT_C void CGlxMpxCommandCommandHandler::HandleMessageL(const CMPXMessage& aMessage, 
         MGlxMediaList* aList)
 	{
+    TRACER("CGlxMpxCommandCommandHandler::HandleMessageL");
     if ((aMessage.IsSupported(KMPXMessageGeneralId) &&
     	(aMessage.IsSupported(KMPXCommandGeneralSessionId))))
         {
@@ -619,6 +638,7 @@ EXPORT_C void CGlxMpxCommandCommandHandler::HandleMessageL(const CMPXMessage& aM
 EXPORT_C void CGlxMpxCommandCommandHandler::HandleCommandCompleteL(TAny* aSessionId,
 	CMPXCommand* aCommandResult, TInt aError, MGlxMediaList* aList)
     {
+    TRACER("CGlxMpxCommandCommandHandler::HandleCommandCompleteL");
     // Unmark all medialist items. Exit Multiple marking mode upon command completion
     iAppUi->ProcessCommandL(EGlxCmdEndMultipleMarking);
 
@@ -634,6 +654,7 @@ EXPORT_C void CGlxMpxCommandCommandHandler::HandleCommandCompleteL(TAny* aSessio
 //  
 EXPORT_C void CGlxMpxCommandCommandHandler::DialogDismissedL(TInt /*aButtonId*/)
 	{
+    TRACER("CGlxMpxCommandCommandHandler::DialogDismissedL");
 	if (!iProgressComplete)
 		{
 		// Remove as media list observer
@@ -658,6 +679,7 @@ EXPORT_C void CGlxMpxCommandCommandHandler::DoActivateL(TInt /*aViewId*/)
 //
 EXPORT_C void CGlxMpxCommandCommandHandler::Deactivate()
     {
+    TRACER("CGlxMpxCommandCommandHandler::Deactivate");
     // Close the progress note, if displayed
 	if (iProgressDialog)
         {

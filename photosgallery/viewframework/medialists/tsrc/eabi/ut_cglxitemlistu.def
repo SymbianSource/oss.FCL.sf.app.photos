@@ -44,8 +44,8 @@ EXPORTS
 	_ZNK9TGlxMedia8MimeTypeEv @ 43 NONAME
 	_ZNK9TGlxMedia8SubTitleEv @ 44 NONAME
 	_ZNK9TGlxMedia9IdSpaceIdEv @ 45 NONAME
-	_ZTI16CGlxListTestBaseI12CGlxItemList26CGlxItemListReconstructionE @ 46 NONAME ; #<TI>#
-	_ZTI26CGlxListReconstructionBase @ 47 NONAME ; #<TI>#
-	_ZTV16CGlxListTestBaseI12CGlxItemList26CGlxItemListReconstructionE @ 48 NONAME ; #<VT>#
-	_ZTV26CGlxListReconstructionBase @ 49 NONAME ; #<VT>#
+	_ZTI16CGlxListTestBaseI12CGlxItemList26CGlxItemListReconstructionE @ 46 NONAME
+	_ZTI26CGlxListReconstructionBase @ 47 NONAME
+	_ZTV16CGlxListTestBaseI12CGlxItemList26CGlxItemListReconstructionE @ 48 NONAME
+	_ZTV26CGlxListReconstructionBase @ 49 NONAME
 

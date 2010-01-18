@@ -27,7 +27,6 @@
 #include "glxlistview.h"
 #include "glxpreviewthumbnailbinding.h"
 
-#include <glxthumbnailcontext.h>         // Fetch context to retrieve thumbnails
 #include <glxmedialistiterator.h>        // Interface for going through items in
 
 #include <ganes/HgScrollBufferObserverIface.h>
@@ -149,6 +148,7 @@ protected:
     	 
 protected:
     void Request(TInt aRequestStart, TInt aRequestEnd, THgScrollDirection aDirection);
+    void RequestL(TInt aRequestStart, TInt aRequestEnd);
     void Release(TInt aReleaseStart, TInt aReleaseEnd);
 
 protected:
@@ -190,9 +190,6 @@ private:    // Data
     // Fetch context for retrieving subtitle
     CGlxDefaultAttributeContext* iSubtitleAttributeContext;
 	
-	// Thumbnail context
-	CGlxThumbnailContext* iThumbnailContext; //Own
-
 	// for thumbnail context
 	TGlxSequentialIterator iThumbnailIterator;
 
@@ -207,6 +204,8 @@ private:    // Data
     
     TBool iPopulateListTNs;
 	
+    TBool iBackwardNavigation;
+
     TInt iStartIndex;
 
     TInt iLastFocusedIndex;

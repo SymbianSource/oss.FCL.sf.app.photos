@@ -1,3 +1,4 @@
 EXPORTS
 	_Z16CreateTestSuiteLv @ 1 NONAME
+	_ZN35CGlxCommandHandlerCopyToHomeNetwork4NewLER21MGlxMediaListProvider @ 2 NONAME
 

@@ -53,11 +53,6 @@ namespace
     const TUid KCmdGetOneClickToolTip = { 15 };    
     }
 
-// Get the AppUi instance
-// This class does not have access to a CEikonEnv and hence 
-// pls ignore the code scanner warning - Using CEikonEnv::Static
-#define GetAppUi() (dynamic_cast<CAknAppUi*>(CEikonEnv::Static()->EikAppUi()))
-
 // ----------------------------------------------------------------------------
 // Two-phased constructor.
 // ----------------------------------------------------------------------------
@@ -370,47 +365,48 @@ void CGlxCommandHandlerUpload::GetToolTipL( HBufC*& aToolTipText )
 void CGlxCommandHandlerUpload::SetToolTipL()
     {
     TRACER("CGlxCommandHandlerUpload::SetToolTipL");
-    
-    CAknToolbar* toolbar = GetAppUi()->CurrentFixedToolbar();
 
-    if(toolbar)
+    CAknToolbar* toolbar = iAvkonAppUi->CurrentFixedToolbar();
+    if (!toolbar)
         {
-        CAknButton* uploadButton = static_cast<CAknButton*>     
-        (toolbar->ControlOrNull( EGlxCmdUpload ));
-                    
-        if(uploadButton && iUploadSupported)
+        return;
+        }
+
+    CAknButton* uploadButton =
+            static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdUpload));
+
+    if (uploadButton && iUploadSupported)
+        {
+        // Get the tooltip text from AIW ShareOnline application
+        HBufC* toolTipText = NULL;
+
+        // GetToolTipL might allocate memory. Hence toolTipText should 
+        // be popped and destroyed if present.
+        GetToolTipL(toolTipText);
+
+        if (toolTipText)
             {
-            // Get the tooltip text from AIW ShareOnline application
-            HBufC* toolTipText = NULL;
-            
-            // GetToolTipL might allocate memory. Hence toolTipText should 
-            // be popped and destroyed if present.
-            GetToolTipL(toolTipText);     
-            
-            if( toolTipText )
-                {                
-                // Get current button state and set the help text(tool tip)             
-                CAknButtonState* currentState = uploadButton->State();
-                
-               TBool dimmed = uploadButton->IsDimmed();
-               if(dimmed)
-               		{
-               		uploadButton->SetDimmed(EFalse);
-                	currentState->SetHelpTextL( toolTipText->Des()); 
-                	uploadButton->SetDimmed(ETrue);
-              		}
-              	else
-              		{
-              		currentState->SetHelpTextL( toolTipText->Des()); 	
-              		}
-                CleanupStack::PopAndDestroy(toolTipText);
+            // Get current button state and set the help text(tool tip)             
+            CAknButtonState* currentState = uploadButton->State();
+
+            TBool dimmed = uploadButton->IsDimmed();
+            if (dimmed)
+                {
+                uploadButton->SetDimmed(EFalse);
+                currentState->SetHelpTextL(toolTipText->Des());
+                uploadButton->SetDimmed(ETrue);
                 }
             else
                 {
-                User::Leave(KErrArgument);
-                }            
+                currentState->SetHelpTextL(toolTipText->Des());
+                }
+            CleanupStack::PopAndDestroy(toolTipText);
             }
-        }
+        else
+            {
+            User::Leave(KErrArgument);
+            }
+        } // if(uploadButton && iUploadSupported)
     }
 
 // End of file

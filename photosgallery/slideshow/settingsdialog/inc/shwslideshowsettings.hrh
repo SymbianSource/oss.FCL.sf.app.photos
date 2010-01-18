@@ -36,7 +36,7 @@
 #define ETransEffectListItem    5
 
 
-#define EShwCmdSettingsChange   0x6000
+
 #define EShwCmdHelp	            0x6001	
 #define EShwCmdExit	            0x6002
 

@@ -16,7 +16,7 @@
 */
 
 
-
+#include "../ut_commandhandlermoreinfo/group/bld.inf"
 
 PRJ_PLATFORMS
     ARMV5 GCCE WINSCW
@@ -27,9 +27,6 @@ PRJ_MMPFILES
 
 
 PRJ_TESTMMPFILES
-//../ut__commandhandlermarking/group/t_glxcommandhandlermarking.mmp
-//../ut_commandhandlerdrm/group/t_glxcommandhandlerdrm.mmp
-../ut_commandhandlermoreinfo/group/t_glxcommandhandlermoreinfo.mmp
 
 
 // End of file

@@ -91,11 +91,6 @@ void CGlxCommandHandlerVideoPlayback::ConstructL()
     {
     iUiUtility = CGlxUiUtility::UtilityL();
     
-    const TUid playbackMode = { 0x200009EE };  // photos UID
-    iPlaybackUtility = MMPXPlaybackUtility::UtilityL( playbackMode );
-    MMPXPlayerManager& manager = iPlaybackUtility->PlayerManager();
-    manager.SelectPlayerL( KVideoHelixPlaybackPluginUid );
-    iPlaybackUtility->AddObserverL( *this ); 
      
     iViewUtility = MMPXViewUtility::UtilityL(); 
 
@@ -215,6 +210,16 @@ void CGlxCommandHandlerVideoPlayback::ActivateViewL()
 		{
         if(media->IsSupported(KMPXMediaGeneralUri))
             {
+            if (!iPlaybackUtility)
+                {
+                GLX_LOG_INFO( "CmdHandler VideoPlayback - SelectPlayerL(+)" );
+                const TUid playbackMode = { 0x200009EE };  // photos UID
+                iPlaybackUtility = MMPXPlaybackUtility::UtilityL( playbackMode );
+                MMPXPlayerManager& manager = iPlaybackUtility->PlayerManager();
+                manager.SelectPlayerL( KVideoHelixPlaybackPluginUid );
+                iPlaybackUtility->AddObserverL( *this ); 
+                GLX_LOG_INFO( "CmdHandler VideoPlayback - SelectPlayerL(-)" );
+                }
             // MPX playbackutility instead of VIA Player 
             const TDesC& filename = media->ValueText(KMPXMediaGeneralUri); 
             // Causes callback to HandlePlaybackMessage() 

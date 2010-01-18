@@ -180,7 +180,7 @@ public: // From MGlxCache
     void StopRAMReleaseL();
 	//OOM
     void ForceCleanupMedia(TGlxIdSpaceId aSpaceId,TGlxMediaId aId); 
-    TBool HasDRMRightsL(TDesC& aFileName);
+
 public:
     void ImageReadyL(const TInt& aError, const TSize aSz);
 private:
@@ -287,7 +287,8 @@ private:
      */
     CMPXCollectionPath* RequestAsPathLC(const CGlxMediaList& aList);
     
-    void GetMimeType(TFileName& aFileName, TDataType& aMimeType );
+    void GetMimeTypeL(TFileName& aFileName, TDataType& aMimeType );
+    
 #ifdef USE_S60_TNM
     /*
      * This function doesnt add up any value, added to reduce compiler warnings

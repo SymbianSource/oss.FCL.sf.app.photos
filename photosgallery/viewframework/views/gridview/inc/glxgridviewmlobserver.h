@@ -117,9 +117,6 @@ private:
     //No of visible items in a page/view
     TInt  iItemsPerPage;
 
-    // Flag to indicate the downloads plugin
-    TBool iDownloadsPlugin;
-    
     // Modified Indexes array to refresh the screen
     RArray<TInt> iModifiedIndexes;
 

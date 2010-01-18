@@ -162,6 +162,7 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
         iMediaList = &iMediaListFactory->CreateMediaListL(*iCollectionUtility);
     	iMediaList->AddContextL(iPreloadContextForCommandHandlers, 0);
         }
+    __ASSERT_ALWAYS(iMediaList, Panic(EGlxPanicNullMediaList));
 
     if(iFixedTitle)
         {
@@ -181,7 +182,7 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
    
     //Allow the MskController to observe medialist everytime a view with a valid
     //medialist becomes active
-    if( iCbaControl && iMediaList && Cba()&& iEnableMidddleSoftkey )
+    if( iCbaControl && Cba()&& iEnableMidddleSoftkey )
         {
         CMPXCollectionPath* navigationalState = iCollectionUtility->Collection().PathL();
         CleanupStack::PushL(navigationalState);
@@ -215,21 +216,25 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
 EXPORT_C void CGlxMediaListViewBase::DoViewDeactivate()
     {
     DoMLViewDeactivate();
-    if( iCbaControl && iMediaList && Cba() )
+
+    if( iMediaList )
         {
-        //Remove Mskcontroller from medialist observer
-        iCbaControl->RemoveFromObserver(*iMediaList);
-        }
-    if( Toolbar() && iToolbarControl )
-        {
-        //Remove Toolbarcontroller from medialist observer
-        iToolbarControl->RemoveFromObserver(*iMediaList);
-        }    
-    
-    // Only close the medialist if navigating backwards
-    if ( iUiUtility->ViewNavigationDirection() == EGlxNavigationBackwards )
-        {
-        CloseMediaList();
+        if (iCbaControl && Cba())
+            {
+            //Remove Mskcontroller from medialist observer
+            iCbaControl->RemoveFromObserver(*iMediaList);
+            }
+        if (Toolbar() && iToolbarControl)
+            {
+            //Remove Toolbarcontroller from medialist observer
+            iToolbarControl->RemoveFromObserver(*iMediaList);
+            }
+
+        // Only close the medialist if navigating backwards
+        if (iUiUtility->ViewNavigationDirection() == EGlxNavigationBackwards)
+            {
+            CloseMediaList();
+            }
         }
 
     delete iTitleFetcher;

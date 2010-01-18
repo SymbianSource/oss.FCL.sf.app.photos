@@ -28,7 +28,7 @@
 // NewL()
 // ---------------------------------------------------------------------------
 //  
-CGlxSLMPFavMLObserver* CGlxSLMPFavMLObserver::NewL( CGlxSinleLineMetaPane& aSingleLineMetapane,
+CGlxSLMPFavMLObserver* CGlxSLMPFavMLObserver::NewL( CGlxSingleLineMetaPane& aSingleLineMetapane,
         TInt aFocusIndex, MGlxMediaList* aList)
     {
     TRACER("CGlxSLMPFavMLObserver::NewL()");
@@ -43,7 +43,7 @@ CGlxSLMPFavMLObserver* CGlxSLMPFavMLObserver::NewL( CGlxSinleLineMetaPane& aSing
 // CGlxSLMPFavMLObserver()
 // ---------------------------------------------------------------------------
 //  
-CGlxSLMPFavMLObserver::CGlxSLMPFavMLObserver(CGlxSinleLineMetaPane& aSingleLineMetaPane) 
+CGlxSLMPFavMLObserver::CGlxSLMPFavMLObserver(CGlxSingleLineMetaPane& aSingleLineMetaPane) 
             : iSingleLineMetaPane( aSingleLineMetaPane)
     {
     TRACER("CGlxSLMPFavMLObserver::CGlxSLMPFavMLObserver()");

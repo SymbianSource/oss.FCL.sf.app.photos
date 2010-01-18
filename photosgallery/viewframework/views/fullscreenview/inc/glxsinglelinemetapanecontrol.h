@@ -61,7 +61,7 @@ public:
 /*
  * For craeting and maintaining the Single Line metapane 
  */
-class CGlxSinleLineMetaPane: public CAlfControl,
+class CGlxSingleLineMetaPane: public CAlfControl,
                             public MGlxMediaListObserver,
                             public MGlxSLMPObserver
      {
@@ -69,13 +69,13 @@ public:
     /*
      * NewL()
      */
-    static CGlxSinleLineMetaPane* NewL( CGlxFullScreenViewImp& aFullscreenView,
+    static CGlxSingleLineMetaPane* NewL( CGlxFullScreenViewImp& aFullscreenView,
             MGlxMediaList& aMediaList, CGlxUiUtility& aUiUtility);
     
     /*
      * destructor
      */
-    ~CGlxSinleLineMetaPane();
+    ~CGlxSingleLineMetaPane();
     
     /*
      * Show/Hide the Metapane
@@ -109,7 +109,7 @@ private:
     /*
      * Constructor
      */
-    CGlxSinleLineMetaPane(CGlxFullScreenViewImp& aFullscreenView,
+    CGlxSingleLineMetaPane(CGlxFullScreenViewImp& aFullscreenView,
             MGlxMediaList& aMediaList,CGlxUiUtility& aUiUtility);
     
     /*

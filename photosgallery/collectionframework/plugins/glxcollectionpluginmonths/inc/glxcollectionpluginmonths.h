@@ -104,6 +104,37 @@ private:
 	TBool IsUpdateMessageIgnored(CMPXMessage& aMessage);
 
     TGlxFilterProperties DefaultFilter(TInt aLevel);
+    
+private:
+    /**
+     * enum TMonthStringType
+     *
+     * This is mainly passed as a param to be used by the method 
+     * GetMonthNameAsStringLC().
+     * GetMonthNameAsStringLC() manipulates and returns the months name in 
+     * Title format or sub-title format based on this enum which is passed as 
+     * param.
+     */  
+    enum TMonthStringType
+        {
+        EMonthNameAsSubtitle, /// Month name is desired in sub-title format
+        EMonthNameAsTitle  /// Month name is desired in title format
+        };
+
+private:
+    /**
+     * Utility method to take a TMonth param, and convert it into a string. This
+     * string is returned to the calling method. The returned string can contain
+     * the month name in sub-title or title format. Subtitle format is used in 
+     * the list views to signify months ("Jan", "Feb", ... ). Title format is 
+     * used in mpnth-grid views to name the view ("January", "February", ...).     
+     *
+     * @param aMonth The month whose name is desired as a string.
+     * @param aStrType enum specified by calling method to tell how it wants the 
+     * month string to be.   
+     */  
+    HBufC* GetMonthNameAsStringLC( const TMonth& aMonth,
+            const TMonthStringType& aStrType);
     };
 
 #endif      // C_GLXCOLLECTIONPLUGINMONTHS_H

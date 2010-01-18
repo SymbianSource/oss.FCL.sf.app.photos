@@ -128,6 +128,10 @@ private:
     
     void PostFilterL(const RArray<TGlxMediaId>& aFilteredList,
             const TGlxFilterProperties& aFilterProperties);                                                                            
+#ifdef _DEBUG
+    TTime iStartTime;
+    TTime iStopTime;
+#endif
 	};
 
 #endif // GLXDATASOURCETASKMDSIDLIST_H_

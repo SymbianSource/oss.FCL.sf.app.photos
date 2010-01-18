@@ -123,18 +123,6 @@ private:
 	// Create Grid once again after returning from FS as No calls for handleItem added.
 	void CreateGridAfterFSDeactivatedL();
 	/**
-	 * Set FS thumbnail context with FromFocusOutwardIterator
-	 * for FS thumbnails
-	 */
-	void FetchFSThumbnailL();
-	/**
-	 * Set the Time stamp for Scrollbar Time Strip
-	 */
-	void SetDownloadLinksTimeL();
-	/**
-	 * Removes the thumbnail contexts for FS
-	 */
-	void RemoveFSThumbnailContext();
 	/**
 	 * Handle Multiple marking
 	 */
@@ -178,18 +166,12 @@ private:
 	// Thumbnail context
 	CGlxThumbnailContext* iThumbnailContext;
 
-	// FS thumbnail context
-	CGlxThumbnailContext* iFsThumbnailContext;
 
 	// Iterators for Grid and FS
 	TGlxFromManualIndexBlockyIterator iBlockyIterator;
-	TGlxFromFocusOutwardIterator iFsFromFocusOutwardIterator;
 
 	// Grid Icon size from FS view
 	TSize iGridIconSize;
-
-	// Flag to indicate the downloads plugin
-	TBool iDownloadsPlugin;
 
 	// Bool to check backward navigation
 	TBool iBackwardActivation;

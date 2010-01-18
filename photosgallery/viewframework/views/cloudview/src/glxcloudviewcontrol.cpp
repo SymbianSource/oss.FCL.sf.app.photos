@@ -33,7 +33,7 @@
 #include <alf/alfdisplay.h> // For CAlfDisplay
 #include <alf/ialfscrollbarmodel.h> // For alfScrollbar model
 #include <aknlayoutscalable_uiaccel.cdl.h>
-
+#include <aknphysics.h> // For Kinetic Scrolling
 #include <glxuiutility.h>
 #include <glxgeneraluiutilities.h>
 #include <glxuistd.h>
@@ -65,8 +65,9 @@ const TInt KColSpace = 20;
 const TInt KRightmargin = 20;
 const TInt KMinTagSize = 77;
 const TInt KTagScreenHeight = 460;
-const TInt KDragHoldTime = 500;
-
+const TReal KBoundaryMargin = 0.1; //10% = 10/100 = 0.1 
+const TInt KFastCloudMovement = 100; //Transition time to move cloud view
+const TInt KSlowCloudMovement = 1000; //Transition time to move cloud view
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
@@ -142,7 +143,7 @@ void CGlxCloudViewControl::ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisp
     iParentLayout = CAlfLayout::AddNewL(*this, aAnchorLayout);                    
     iTagScreenWidth = rect.Width() - iScrollPaneHandle.iW - KRightmargin;
 
-    if (GlxGeneralUiUtilities::IsLandscape())
+    if(IsLandscape())
         {	
         iTagScreenHeight = rect.Height();	
         }
@@ -194,6 +195,8 @@ void CGlxCloudViewControl::ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisp
         }
     //get touch feedback instance
     iTouchFeedback = MTouchFeedback::Instance(); 
+    iPhysics = CAknPhysics::NewL(*this, NULL);
+    InitPhysicsL();
     }
 
 
@@ -206,10 +209,10 @@ void CGlxCloudViewControl::VisualLayoutUpdated(CAlfVisual &/* aVisual*/)
     TRACER("GLX_CLOUD::CGlxCloudViewControl::VisualLayoutUpdated");
     TRect rect;
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
-    if ( (rect.Width() != iTagScreenWidth) && ( rect.Height () != iScreenHeight))
+    if ((rect.Width() != (iTagScreenWidth + iScrollPaneHandle.iW + KRightmargin)) || (rect.Height() != iScreenHeight))
         {
         //set the new screen dimensions
-        UpdateLayoutL();
+        TRAP_IGNORE(UpdateLayoutL());
         }
     }
 
@@ -237,6 +240,7 @@ CGlxCloudViewControl::~CGlxCloudViewControl()
         iUiUtility->Close ();
         }	
     delete iEmptyText;
+    delete iPhysics;
     }
 
 // --------------------------------------------------------------------------- 
@@ -408,7 +412,7 @@ void CGlxCloudViewControl::LayoutVisibleArea()
     iViewPortLayout->SetSize(TAlfRealSize(iTagScreenWidth,iTagScreenHeight), 0);
     iViewPortSize.iWidth = iTagScreenWidth;
     iViewPortSize.iHeight = iTagScreenHeight;	
-    iViewPortLayout->SetViewportPos(TAlfRealPoint(0, 0),1000);
+    iViewPortLayout->SetViewportPos(TAlfRealPoint(0, 0), KSlowCloudMovement);
 
     iViewPortPosition.iX =0;
     iViewPortPosition.iY =0;
@@ -475,7 +479,7 @@ TBool CGlxCloudViewControl::OfferEventL(const TAlfEvent &aEvent)
 
             case EKeyDownArrow:
                 {              
-                if(iCloudInfo.Count() >1 )
+                if (iCloudInfo.Count() > 1)
                     {
                     HandleKeyDownL ();
                     consumed = ETrue;
@@ -594,35 +598,6 @@ TBool CGlxCloudViewControl::OfferEventL(const TAlfEvent &aEvent)
         //if its a pointer event
         consumed = HandlePointerEventL(aEvent);
         }
-    else if( aEvent.IsCustomEvent() )
-        {
-        if(aEvent.CustomParameter() == ECustomEventFocusDragScroll)
-            {
-            //dragging down
-            if( iIsDragging == 1 )
-                {
-                if(iFocusRowIndex!=iCloudInfo.Count()-1)
-                    {
-                    SetRelativeFocusL(iFocusRowIndex+1);
-                    iFocusRowIndex = RowNumber (iMediaList.FocusIndex ()); 
-                    // iScrollDirection = 0;               
-                    MoveDownIfRequired();  
-                    }
-                }
-            //dragging up
-            else if(iIsDragging == 2)
-                {
-                if(iFocusRowIndex!=0)
-                    {
-                    SetRelativeFocusL(iFocusRowIndex-1);
-                    iFocusRowIndex = RowNumber (iMediaList.FocusIndex ()); 
-                    // iScrollDirection = 0;               
-                    MoveUpIfRequired();  
-                    }
-                }
-            }
-        consumed = EFalse;
-        }
     return consumed;
     }
 
@@ -663,10 +638,9 @@ void CGlxCloudViewControl::HandleKeyDownL()
 
     // If the last item is focused and if we are navigating downwards,then set the
     // focus to first element.
-    if( iFocusRowIndex == iCloudInfo.Count()-1 )
-        {   
-        iMediaList.SetFocusL (NGlxListDefs::EAbsolute,
-                0); 
+    if (iFocusRowIndex == iCloudInfo.Count() - 1)
+        {
+        iMediaList.SetFocusL(NGlxListDefs::EAbsolute, 0);
         }
 
     //else set the focus to the item which is in the next row,that overlaps with midpoint of the 
@@ -818,6 +792,7 @@ void CGlxCloudViewControl::HandleItemAddedL(TInt aStartIndex, TInt aEndIndex,
         UpdateRowDataL (); //updates the row data and reassigns font sizes and draw the layout on screen.
         }
 
+    InitPhysicsL();
     }
 
 
@@ -859,6 +834,7 @@ void CGlxCloudViewControl::HandleItemRemovedL(TInt aStartIndex, TInt aEndIndex,
             DisplayEmptyCloudViewL();
             }
         }
+    InitPhysicsL();
     }
 
 // ---------------------------------------------------------------------------
@@ -910,6 +886,8 @@ void CGlxCloudViewControl::HandleAttributesAvailableL(TInt aItemIndex,
             }
         //generate row structures and draw rows on screen
         UpdateRowDataL ();
+
+        InitPhysicsL();
         }
     }
 
@@ -1336,7 +1314,7 @@ void CGlxCloudViewControl::MoveUpIfRequired()
         {
         iViewPortPosition.iY = iViewPortVirtualSize.iHeight - iViewPortSize.iHeight;
         }
-    iViewPortLayout->SetViewportPos (iViewPortPosition,1000); 
+    iViewPortLayout->SetViewportPos(iViewPortPosition, KSlowCloudMovement);
     iScrollEventData.mViewStartPos = iViewPortPosition.iY;
     Scroll();  
     //CalculateBubleMidPoint ();   
@@ -1371,7 +1349,7 @@ void CGlxCloudViewControl::MoveDownIfRequired()
         {
         iViewPortPosition.iY = 0;
         }     
-    iViewPortLayout->SetViewportPos (iViewPortPosition,1000); 
+    iViewPortLayout->SetViewportPos(iViewPortPosition, KSlowCloudMovement);
     iScrollEventData.mViewStartPos = iViewPortPosition.iY;
     if(iScrollBarWidget)
         {
@@ -1434,8 +1412,21 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
     TRACER("GLX_CLOUD::CGlxCloudViewControl::HandlePointerEventL");
     CAlfVisual* tappedvisual = aEvent.Visual();	
     TBool consumed = EFalse;
+    
     if(aEvent.PointerEvent().iType == TPointerEvent::EButton1Down)
         {	
+        //reset variables & Physics simulator 
+        iPhysics->StopPhysics();
+        iPhysics->ResetFriction();
+        iDragging = EFalse;
+        iPhysicsStarted = EFalse;
+        iStartTime.HomeTime();
+        iViewDragged = EFalse;
+        Display()->Roster().SetPointerEventObservers(
+                EAlfPointerEventReportDrag + EAlfPointerEventReportLongTap
+                        + EAlfPointerEventReportUnhandled, *this);
+        Display()->Roster().DisableLongTapEventsWhenDragging(*this);
+
         if(tappedvisual)
             {
             for(TInt index=0;index<iLayout->Count();index++)
@@ -1445,19 +1436,53 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
                 if(layoutvisual == tappedvisual)
                     {
                     TInt focus = iMediaList.FocusIndex();
-                    //if the visual is already focused then for next tap open the next view
-                    if( focus == index )
+                    if (index != focus)
                         {
-                        iTouchFeedback->InstantFeedback( ETouchFeedbackBasic );
-                        iObserverEnterKeyEvent.HandleEnterKeyEventL( (TInt)EAknCmdOpen );		    			
-                        consumed = ETrue;
+                        iTouchFeedback->InstantFeedback(ETouchFeedbackBasic);
+                        iMediaList.SetFocusL(NGlxListDefs::EAbsolute, index);
+                        SetFocusColor();
                         }
-                    else if( index!= focus )
+                    consumed = ETrue;
+                    break;
+                    }
+                }
+            }
+        }
+    else if (aEvent.PointerEvent().iType == TPointerEvent::EDrag)
+        {
+        GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::HandlePointerEventL(EDrag) event");
+        iTouchFeedback->InstantFeedback(ETouchFeedbackBasic);
+
+        consumed = HandleDragL(aEvent.PointerEvent());
+        }
+    else if (aEvent.PointerUp())
+        {
+        Display()->Roster().SetPointerEventObservers(0, *this);
+        consumed = ETrue;
+
+        //Check if dragging actually happened using iViewDragged 
+        if (iDragging && iViewDragged)
+            {
+            iDragging = EFalse;
+            TPoint drag = iStart - aEvent.PointerEvent().iPosition;
+            iPhysics->StartPhysics(drag, iStartTime);
+            iPhysicsStarted = ETrue;
+            }
+        //If dragging not happened consider it as Tapped event
+        else if (tappedvisual && !iViewDragged)
+            {
+            for (TInt index = 0; index < iLayout->Count(); index++)
+                {
+                CAlfVisual* layoutvisual = &(iLayout->Visual(index));
+                //if the tapped visual is same as the visual in the layout then focus that visual
+                if (layoutvisual == tappedvisual)
+                    {
+                    TInt focus = iMediaList.FocusIndex();
+                    if (index != focus)
                         {
                         iTouchFeedback->InstantFeedback( ETouchFeedbackBasic );
                         TInt focusrowindex = iFocusRowIndex;
-                        iMediaList.SetFocusL (NGlxListDefs::EAbsolute,
-                                index);
+                        iMediaList.SetFocusL(NGlxListDefs::EAbsolute, index);
                         SetFocusColor();
                         iFocusRowIndex = RowNumber (iMediaList.FocusIndex ());
                         if( iFocusRowIndex > focusrowindex)
@@ -1473,29 +1498,15 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
                             MoveUpIfRequired();                 
                             }
                         }
+
+                    iTouchFeedback->InstantFeedback(ETouchFeedbackBasic);
+                    iObserverEnterKeyEvent.HandleEnterKeyEventL((TInt) EAknCmdOpen);
                     consumed = ETrue;
-                    Display()->Roster().SetPointerEventObservers( EAlfPointerEventReportDrag 
-                            + EAlfPointerEventReportLongTap 
-                            + EAlfPointerEventReportUnhandled, *this );
-                    Display()->Roster().DisableLongTapEventsWhenDragging(*this);
                     break;
                     }
                 }
             }
-        }			
-
-    else if (aEvent.PointerEvent().iType == TPointerEvent::EDrag)
-        {
-        GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::HandlePointerEventL(EDrag) event");
-        iTouchFeedback->InstantFeedback( ETouchFeedbackBasic );
-        consumed =  HandleDragL(aEvent.PointerEvent());
-        }
-    else if (aEvent.PointerUp())
-        {
-        
-        Env().CancelCustomCommands(this,ECustomEventFocusDragScroll);
-        Display()->Roster().SetPointerEventObservers(0, *this);
-        consumed =  ETrue;
+        iViewDragged = EFalse;
         }
     return consumed;
     }
@@ -1506,59 +1517,65 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
 //
 TBool CGlxCloudViewControl::HandleDragL(const TPointerEvent& aPointerEvent)
     {
-    TRACER("GLX_CLOUD::CGlxCloudViewControl::HandleDragL");
-    TBool consumed = EFalse;
-    TInt itemindex = GetAbsoluteIndex(aPointerEvent.iPosition);
-    TInt focus = iMediaList.FocusIndex();
-    TInt focusrowindex = iFocusRowIndex;
+    TBool consumed(EFalse);
+    
+    // If Physics Emulation is going on, no need to entertain drag event
+    if (iPhysicsStarted)
+        return consumed;
 
-    //if index is not NULL then focus the tag and move the viewport down if necessary
-    if ( itemindex != KErrNotFound )
+    //Simply ignore the first drag event as there is huge difference between position 
+    //coordinates in drag event and corordinates in normal pointer down / up events  
+    if (!iDragging)
         {
-        if (focus != itemindex )
-            {
-            iTouchFeedback->InstantFeedback( ETouchFeedbackSensitive );
-            iMediaList.SetFocusL (NGlxListDefs::EAbsolute,itemindex);			
-            iFocusRowIndex = RowNumber (iMediaList.FocusIndex ());
-            GLX_LOG_INFO1("GLX_CLOUD :: CGlxCloudViewControl::HandleDragL,focusrowindex = %d",iFocusRowIndex);
-            if( iFocusRowIndex > focusrowindex)
-                {
-                GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::HandleDragL,b4 movedown");
-                iScrollDirection = 0;
-                MoveDownIfRequired(); 				
-                }
-            else if( iFocusRowIndex < focusrowindex )
-                {
-                GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::HandleDragL,b4 moveup");
-                iScrollDirection = 1;
-                MoveUpIfRequired();					
-                }			
-            }
-        consumed = ETrue;
+        //Note the current position for future reference
+        iStart = aPointerEvent.iPosition;
+        iPrev = iStart; 
+        iDragging = ETrue;
+        return consumed;
         }
 
-    TRect screenstartrect;
-    //the starting rect of the visible screen
-    screenstartrect.SetRect(0,0,iTagScreenWidth,2*KRowHeight);
+    TRect rect;
+    AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EMainPane, rect);
+    TInt cntrlTopYLimit = rect.iTl.iY;
+    TInt cntrlBottomYLimit = rect.iBr.iY;
+    TInt delta = iPrev.iY - aPointerEvent.iPosition.iY;
 
-    TRect screenendrect;
-    //the end rect of the visible screen
-    screenendrect.SetRect(0,(iTagScreenHeight-(2*KRowHeight)),iTagScreenWidth,iTagScreenHeight);
-
-    //dragging down
-    if(screenendrect.Contains(aPointerEvent.iPosition))
-        {            
-        iIsDragging = 1;            
-        Env().Send(TAlfCustomEventCommand(ECustomEventFocusDragScroll,
-                this),KDragHoldTime);
-        }
-    //dragging up
-    else if  (screenstartrect.Contains(aPointerEvent.iPosition))
+    //Check for physics threshold, before regidterting drag corordinates
+    TInt deltaAbs = delta < 0 ? -delta : delta;
+    TBool panning = deltaAbs >= iPhysics->DragThreshold();
+    if (panning)
         {
-        iIsDragging = 2;             
-        Env().Send(TAlfCustomEventCommand(ECustomEventFocusDragScroll,
-                this),KDragHoldTime);
-        }        
+        TPoint deltaPt = iPrev - aPointerEvent.iPosition;
+        iPhysics->RegisterPanningPosition(deltaPt);
+        iPrev = aPointerEvent.iPosition;
+        iViewDragged = ETrue;
+        }
+    consumed = ETrue;
+
+    //Calculate margin after which we might get pointer out of screen, and we might not 
+    //get further pointer events. Also This is currently only 10% of total delta we can find, 
+    //to get margin corresponding to movement of user flicking speed
+    //This implies higher speed - higher margin
+    //Lower speed - 0 margin
+    TInt deltaMargin = deltaAbs * KBoundaryMargin;
+
+    //Code to predict future movement if same delta movement we might get in future
+    //For flick event down - If the movement goes below screen, start physics
+    //or For flick event up - If the movement goes above screen, start physics 
+    if (((delta < 0) && (aPointerEvent.iPosition.iY - delta >= cntrlBottomYLimit - deltaMargin))
+            || ((delta > 0) && (aPointerEvent.iPosition.iY - delta <= cntrlTopYLimit + deltaMargin)))
+        {
+        iPhysicsStarted = ETrue;
+        }
+
+    //If found that possibly in next move it might go out of bounds, start physics
+    //emulation
+    if (iPhysicsStarted && iDragging)
+        {
+        TPoint drag = iStart - aPointerEvent.iPosition;
+        iPhysics->StartPhysics(drag, iStartTime);
+        iDragging = EFalse;
+        }
 
     return consumed;
     }
@@ -1684,6 +1701,8 @@ AlfEventStatus CGlxCloudViewControl::offerEvent( CAlfWidgetControl& aControl, co
                         TInt steps = TInt(aEvent.CustomEventData());
                         UpdateScrollBar(steps,EFalse);                        
                         Scroll();                       
+                        iPhysics->StopPhysics();
+
                         status = EEventHandled; 
                         }
                         break;                   
@@ -1692,7 +1711,8 @@ AlfEventStatus CGlxCloudViewControl::offerEvent( CAlfWidgetControl& aControl, co
                         GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::offerEvent(EEventScrollPageUp) event");                       
                         UpdateScrollBar(-iScrollEventData.mViewLength); 
                         Scroll();                        
-                        status = EEventHandled;    		    	    
+                        iPhysics->StopPhysics();
+                        status = EEventHandled;
                         }
                         break;
                     case EEventScrollPageDown:
@@ -1700,6 +1720,7 @@ AlfEventStatus CGlxCloudViewControl::offerEvent( CAlfWidgetControl& aControl, co
                         GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::offerEvent(EEventScrollPageDown) event");                       
                         UpdateScrollBar(iScrollEventData.mViewLength); 
                         Scroll();
+                        iPhysics->StopPhysics();
                         status = EEventHandled; 		    	    
                         }
                         break;                    
@@ -1755,7 +1776,7 @@ void CGlxCloudViewControl::Scroll()
     iScrollbarElement->offerEvent(*(iScrollBarWidget->control()),customevent);
     GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::Scroll(),position %d ",iScrollEventData.mViewStartPos);
     iViewPortPosition.iY = iScrollEventData.mViewStartPos;
-    iViewPortLayout->SetViewportPos (iViewPortPosition,1000);  
+    iViewPortLayout->SetViewportPos(iViewPortPosition, KSlowCloudMovement);
     }
 
 // ---------------------------------------------------------------------------
@@ -1820,12 +1841,12 @@ void CGlxCloudViewControl::UpdateLayoutL()
     {
     TRect rect;
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
-    if ( (rect.Width() != iTagScreenWidth) && ( rect.Height () != iScreenHeight))
+    if ((rect.Width() != (iTagScreenWidth + iScrollPaneHandle.iW + KRightmargin)) || (rect.Height() != iScreenHeight))
         {
         //set the new screen dimensions
         iScreenHeight=rect.Height();
        iTagScreenWidth = rect.Width()- iScrollPaneHandle.iW - KRightmargin;
-        if (GlxGeneralUiUtilities::IsLandscape())
+        if(IsLandscape())
             {   
             iTagScreenHeight = rect.Height();   
             }
@@ -1842,8 +1863,79 @@ void CGlxCloudViewControl::UpdateLayoutL()
             FetchAttributeFromCacheL();
             //generate row structures and draw rows on screen
             UpdateRowDataL ();                                    
+
+            InitPhysicsL();
             }
         }
     }
+
+// ---------------------------------------------------------------------------
+// InitPhysicsL() 
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewControl::InitPhysicsL()
+    {
+    //Update physics with new total layout, viewable size and our landscape mode 
+    iPhysics->InitPhysicsL(TSize(iViewPortVirtualSize.iWidth,
+            iViewPortVirtualSize.iHeight), TSize(iTagScreenWidth,
+            iTagScreenHeight), EFalse);
+
+    //Note: Physics viewposition must always be mid of viewable screen size to get best result
+    //I learned the hard way
+    iViewPosition.SetXY(iTagScreenWidth / 2, iTagScreenHeight / 2);
+    }
+
+// ---------------------------------------------------------------------------
+// ViewPositionChanged() 
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewControl::ViewPositionChanged(const TPoint& aNewPosition,
+        TBool aDrawNow, TUint /*aFlags*/)
+    {
+    iViewPosition = aNewPosition;
+    iViewPortPosition.iY = iViewPosition.iY - iTagScreenHeight / 2;
+    if (aDrawNow)
+        {
+        iViewPortLayout->SetViewportPos(iViewPortPosition, KFastCloudMovement);
         
+        iScrollEventData.mViewStartPos = iViewPortPosition.iY;
+        Scroll();
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// PhysicEmulationEnded() 
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewControl::PhysicEmulationEnded()
+    {
+    iPhysicsStarted = EFalse;
+    }
+
+// ---------------------------------------------------------------------------
+// ViewPosition() 
+// ---------------------------------------------------------------------------
+//
+TPoint CGlxCloudViewControl::ViewPosition() const
+    {
+    return iViewPosition;
+    }
+
+// ---------------------------------------------------------------------------
+// IsLandscape() 
+// ---------------------------------------------------------------------------
+//
+TBool CGlxCloudViewControl::IsLandscape()
+    {
+    TRect rect;
+    AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EScreen, rect);
+    if(rect.Width() > rect.Height())
+        {
+        return ETrue;
+        }
+    else
+        {
+        return EFalse;
+        }
+    }
 //End of file

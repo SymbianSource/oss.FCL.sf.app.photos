@@ -11,53 +11,27 @@
 *
 * Contributors:
 *
-* Description:    Delete command handler
+* Description:    Save command handler
 *
 */
 
 
-
-
 #include "glxcommandhandlersave.h"
 
-#include <AknUtils.h>
-#include <AknCommonDialogsDynMem.h>
-#include <CAknCommonDialogsBase.h>
-#include <CAknMemorySelectionDialogMultiDrive.h>
-#include <bautils.h>
-#include <data_caging_path_literals.hrh>
 #include <glxcommandhandlers.hrh>
-#include <glxuiutility.h>
-#include <glxuistd.h>
-#include <glxuiutilities.rsg>
-#include <mglxmedialist.h>
-#include <glxresourceutilities.h>                // for CGlxResourceUtilities
 #include <glxscreenfurniture.h>
-#include <mpxcollectionpath.h>
-#include <StringLoader.h>
-#include <f32file.h>
-#include <glxappui.h>
-#include <aknViewAppUi.h>
-#include <glxicons.mbg>
 #include <glxtracer.h>
-#include <glxtextentrypopup.h>
 #include <DocumentHandler.h>
-#include <apmstd.h>
-#include <glximageviewermanager.h>
-#include "glxcommandfactory.h"
-
-
-
+#include <glxpanic.h>
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CGlxCommandHandlerSave* CGlxCommandHandlerSave::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem)
+EXPORT_C CGlxCommandHandlerSave* CGlxCommandHandlerSave::NewL()
     {
     TRACER("CGlxCommandHandlerSave::NewL");
-    CGlxCommandHandlerSave* self = new (ELeave) CGlxCommandHandlerSave(aMediaListProvider, aHasToolbarItem);
+    CGlxCommandHandlerSave* self = new (ELeave) CGlxCommandHandlerSave();
     CleanupStack::PushL( self );
     self->ConstructL();
     CleanupStack::Pop( self );
@@ -69,8 +43,7 @@ EXPORT_C CGlxCommandHandlerSave* CGlxCommandHandlerSave::NewL(
 // might leave.
 // ---------------------------------------------------------------------------
 //
-CGlxCommandHandlerSave::CGlxCommandHandlerSave(MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem)
-        : CGlxMpxCommandCommandHandler( aMediaListProvider, aHasToolbarItem )
+CGlxCommandHandlerSave::CGlxCommandHandlerSave()
     {
     // Don't do anything.
     }
@@ -82,21 +55,7 @@ CGlxCommandHandlerSave::CGlxCommandHandlerSave(MGlxMediaListProvider* aMediaList
 void CGlxCommandHandlerSave::ConstructL()
     {
     TRACER("CGlxCommandHandlerSave::ConstructL");    
-    iUiUtility = CGlxUiUtility::UtilityL();
     iImageViewerInstance = CGlxImageViewerManager::InstanceL();
-    // Load resource file
-	TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
-   	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
-
-   	// Add supported command
-   	TCommandInfo saveInfo( EGlxCmdSave );
-   	// Filter out static items
-    saveInfo.iMinSelectionLength = 1;
-   	AddCommandL(saveInfo);
 	}
 
 // ---------------------------------------------------------------------------
@@ -106,14 +65,6 @@ void CGlxCommandHandlerSave::ConstructL()
 EXPORT_C CGlxCommandHandlerSave::~CGlxCommandHandlerSave()
     {
     TRACER("CGlxCommandHandlerSave::~CGlxCommandHandlerSave");
-    if (iResourceOffset)
-        {
-        CCoeEnv::Static()->DeleteResourceFile(iResourceOffset);
-        }
-    if(iUiUtility)
-        {
-        iUiUtility->Close();
-        }
     if ( NULL != iImageViewerInstance)
         {
         iImageViewerInstance->DeleteInstance();
@@ -121,20 +72,26 @@ EXPORT_C CGlxCommandHandlerSave::~CGlxCommandHandlerSave()
     }
 
 // ---------------------------------------------------------------------------
-// Create an add to container command
+// Create save command
 // ---------------------------------------------------------------------------
 //
-CMPXCommand* CGlxCommandHandlerSave::CreateCommandL(TInt /*aCommandId*/, 
-        MGlxMediaList& /*aMediaList*/, TBool& /*aConsume*/) const
+TBool CGlxCommandHandlerSave::ExecuteL(TInt aCommandId)
     {
     TRACER("CGlxCommandHandlerSave::CreateCommandL");
-    CMPXCommand* command = NULL;
-    TDataType nullType;
-    CDocumentHandler* handler = CDocumentHandler::NewLC( NULL );
-    HBufC* imagePath = iImageViewerInstance->ImageUri();
-    TInt err = handler->CopyL( *imagePath, *imagePath, nullType, NULL );
-    CleanupStack::PopAndDestroy(handler);    
-    return command;
+    if(aCommandId == EGlxCmdSave)
+    	{
+    	TDataType nullType;
+    	RFile64& imageHandle = iImageViewerInstance->ImageFileHandle();
+    	if ( imageHandle.SubSessionHandle() != KNullHandle )
+    		{
+    		CDocumentHandler* handler = CDocumentHandler::NewLC(NULL);
+    		__ASSERT_ALWAYS(handler, Panic(EGlxPanicNullPointer));        
+    		TRAP_IGNORE(handler->CopyL(imageHandle, KNullDesC, nullType, NULL));
+    		CleanupStack::PopAndDestroy(handler);
+    		}
+    	return ETrue;
+    	}
+    return EFalse;
     } 
 // ---------------------------------------------------------------------------
 // DynInitMenuPaneL
@@ -161,7 +118,16 @@ void CGlxCommandHandlerSave::DynInitMenuPaneL(TInt /*aResourceId*/, CEikMenuPane
 // ----------------------------------------------------------------------------
 void CGlxCommandHandlerSave::DoActivateL(TInt /*aViewId*/)
 	{
+	// Do Nothing
+	}
 
+// -----------------------------------------------------------------------------
+// Deactivate
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerSave::Deactivate()
+	{
+	// Do Nothing
 	}
 
 // ----------------------------------------------------------------------------
@@ -174,7 +140,7 @@ TKeyResponse CGlxCommandHandlerSave::OfferKeyEventL(const TKeyEvent& aKeyEvent,
     // Is the key event from the Cancel (Backspace) key
 	if (aKeyEvent.iCode == EKeyBackspace && aType == EEventKey)
 		{
-		// try to execute the delete command
+		// try to execute the save command
 		if(ExecuteL( EGlxCmdSave ))
 		    {
     		response = EKeyWasConsumed;
@@ -183,15 +149,13 @@ TKeyResponse CGlxCommandHandlerSave::OfferKeyEventL(const TKeyEvent& aKeyEvent,
 	return response;	
 	}
 
-// ----------------------------------------------------------------------------
-// PopulateToolbar
-// ----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// PreDynInitMenuPaneL
+// -----------------------------------------------------------------------------
 //
-void CGlxCommandHandlerSave::PopulateToolbarL()
+void CGlxCommandHandlerSave::PreDynInitMenuPaneL( TInt /*aResourceId*/ )
 	{
-	TRACER( "CGlxCommandHandlerRename::PopulateToolbar" );
-	
-	iUiUtility->ScreenFurniture()->SetTooltipL( EGlxCmdSave, CAknButton::EPositionLeft );
+	// Do Nothing		
 	}
-
-
+		
+//End of file

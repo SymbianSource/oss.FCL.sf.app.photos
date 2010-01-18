@@ -21,6 +21,6 @@ EXPORTS
 	_ZN18TGlxWindowIteratorppEi @ 20 NONAME
 	_ZNK14CGlxListWindow2AtEi @ 21 NONAME
 	_ZNK14CGlxListWindow8IteratorEv @ 22 NONAME
-	_ZTI14CGlxListWindow @ 23 NONAME ; #<TI>#
-	_ZTV14CGlxListWindow @ 24 NONAME ; #<VT>#
+	_ZTI14CGlxListWindow @ 23 NONAME
+	_ZTV14CGlxListWindow @ 24 NONAME
 

@@ -47,9 +47,6 @@
 #include <glxpanic.h>                    // For Panics
 #include "glxmetadatacommandhandler.h"
 
-#define GetAppUi() (dynamic_cast<CAknAppUi*>(iEikonEnv->EikAppUi()))
-
-
 // ============================ MEMBER FUNCTIONS ===============================
 
 // -----------------------------------------------------------------------------
@@ -110,7 +107,7 @@ void CGlxImgVwrMetadataDialog::ConstructL()
             {
             delete text;
             }
-        GetAppUi()->StatusPane()->MakeVisible(ETrue);             
+        iAvkonAppUi->StatusPane()->MakeVisible(ETrue);             
         }
 
     iUiUtility = CGlxUiUtility::UtilityL(); 
@@ -131,13 +128,12 @@ CGlxImgVwrMetadataDialog::~CGlxImgVwrMetadataDialog()
 
 
     //To Disable the status pane if the dialog is launched from fullscreenview  
-    if(!iStatusPaneAvailable)
+    if (!iStatusPaneAvailable && iAvkonAppUi)
         {
-        GetAppUi()->StatusPane()->MakeVisible(EFalse);
+        iAvkonAppUi->StatusPane()->MakeVisible(EFalse);
         }       
 
     TRAP_IGNORE(SetPreviousTitleL());
-
     delete iPreviousTitle;
 
     // Restore the Toolbar as it was in the Calling application
@@ -145,7 +141,10 @@ CGlxImgVwrMetadataDialog::~CGlxImgVwrMetadataDialog()
 
     // If details launched from FullScreen View, while moving back,
     // all the UI components should be hidden. Hence processing this command here.
-    TRAP_IGNORE(GetAppUi()->ProcessCommandL(EGlxCmdResetView));
+    if (iAvkonAppUi)
+        {
+        TRAP_IGNORE(iAvkonAppUi->ProcessCommandL(EGlxCmdResetView));
+        }
 
     if( iUiUtility )
         {
@@ -164,11 +163,9 @@ CGlxImgVwrMetadataDialog::~CGlxImgVwrMetadataDialog()
 void CGlxImgVwrMetadataDialog::SetDetailsDlgToolbarVisibility(TBool aVisible)
     {
     TRACER("CGlxImgVwrMetadataDialog::SetDetailsDlgToolbarVisibility");
-    CAknAppUi* appUi = GetAppUi();
-    __ASSERT_DEBUG(appUi, Panic(EGlxPanicNullPointer));
 
     HandleToolbarResetting(aVisible);
-    CAknToolbar* currentPopupToolbar = appUi->CurrentPopupToolbar();
+    CAknToolbar* currentPopupToolbar = iAvkonAppUi->CurrentPopupToolbar();
     if(currentPopupToolbar)
         {
         currentPopupToolbar->SetToolbarVisibility(aVisible);
@@ -235,7 +232,7 @@ SEikControlInfo CGlxImgVwrMetadataDialog::CreateCustomControlL(TInt
     controlInfo.iFlags          = 0;
     if (aControlType == EMetaDataDialogListBox)
         {
-        iContainer = CGlxImgVwrMetadataContainer::NewL(GetAppUi()->ClientRect(),iUri);        
+        iContainer = CGlxImgVwrMetadataContainer::NewL(iAvkonAppUi->ClientRect(),iUri);        
         controlInfo.iControl = iContainer; // giving ownership   
         }
     return controlInfo; // returns ownership of ItemList
@@ -245,9 +242,10 @@ SEikControlInfo CGlxImgVwrMetadataDialog::CreateCustomControlL(TInt
 // CGlxImgVwrMetadataDialog::DynInitMenuPaneL
 // -----------------------------------------------------------------------------
 //
-void CGlxImgVwrMetadataDialog::DynInitMenuPaneL( TInt aMenuId, CEikMenuPane* aMenuPane )
+void CGlxImgVwrMetadataDialog::DynInitMenuPaneL(TInt /*aMenuId*/,
+        CEikMenuPane* /*aMenuPane*/)
     {
-		//no implementation
+    //no implementation
     }
 
 //-----------------------------------------------------------------------------
@@ -389,10 +387,8 @@ void CGlxImgVwrMetadataDialog::HandleResourceChange( TInt aType )
 void CGlxImgVwrMetadataDialog::HandleToolbarResetting(TBool aVisible)
     {
     TRACER("CGlxImgVwrMetadataDialog::HandleToolbarResetting");
-    CAknAppUi* appUi = GetAppUi();
-    __ASSERT_DEBUG(appUi, Panic(EGlxPanicNullPointer));
 
-    CAknToolbar* popupToolbar = appUi->PopupToolbar();
+    CAknToolbar* popupToolbar = iAvkonAppUi->PopupToolbar();
     if(popupToolbar)
         {
         popupToolbar->SetToolbarVisibility( !aVisible ); 
@@ -402,7 +398,7 @@ void CGlxImgVwrMetadataDialog::HandleToolbarResetting(TBool aVisible)
             popupToolbar->DrawNow();    
             }
         }   
-    CAknToolbar* toolbar = appUi->CurrentFixedToolbar();
+    CAknToolbar* toolbar = iAvkonAppUi->CurrentFixedToolbar();
     if(toolbar)
         {
         toolbar->HideItemsAndDrawOnlyBackground(!aVisible);

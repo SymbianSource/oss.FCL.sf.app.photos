@@ -17,7 +17,7 @@ EXPORTS
 	_ZN22CGlxCommandHandlerOpenD0Ev @ 16 NONAME
 	_ZN22CGlxCommandHandlerOpenD1Ev @ 17 NONAME
 	_ZN22CGlxCommandHandlerOpenD2Ev @ 18 NONAME
-	_ZN22CGlxCommandHandlerSave4NewLEP21MGlxMediaListProvideri @ 19 NONAME
+	_ZN22CGlxCommandHandlerSave4NewLEv @ 19 NONAME
 	_ZN22CGlxCommandHandlerSaveD0Ev @ 20 NONAME
 	_ZN22CGlxCommandHandlerSaveD1Ev @ 21 NONAME
 	_ZN22CGlxCommandHandlerSaveD2Ev @ 22 NONAME

@@ -175,16 +175,11 @@ TBool CGlxCommandHandlerBack::ExecuteL( TInt aCommandId )
                 CleanupStack::PushL(navigationalState);
 
                 // let Back Stepping Service handle the event
-                if(2 == navigationalState->Levels()&&  iNavigationalState->BackExitStatus())
+                if((2 == navigationalState->Levels()||
+                		iNavigationalState->StartingLevel() == navigationalState->Levels()-1)
+                		&&  iNavigationalState->BackExitStatus())
                     {
                     iBSWrapper->HandleBackCommandL( KPhotosSuiteNavigation );
-                    if(iAppUi)
-                        {
-                        iAppUi->ProcessCommandL(EAknSoftkeyExit);    
-                        }
-                    }
-                else if (!(iNavigationalState->BackExitStatus()))
-                    {
                     if(iAppUi)
                         {
                         iAppUi->ProcessCommandL(EAknSoftkeyExit);    
@@ -213,13 +208,6 @@ TBool CGlxCommandHandlerBack::ExecuteL( TInt aCommandId )
     		        }
     		    else
     		        {
-    		        if (!(iNavigationalState->BackExitStatus()))
-    		            {
-    		            if(iAppUi)
-    		                {
-    		                iAppUi->ProcessCommandL(EAknSoftkeyExit);    
-    		                }
-    		            }
     		        if( iIsViewActivated )
     		            {
     		            iIsViewActivated = EFalse;

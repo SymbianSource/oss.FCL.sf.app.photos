@@ -31,9 +31,9 @@
 
 const TInt KInitialThumbnailsTimeDelay(100000);
 const TInt KWaitCount(5);
-const TInt KThumbnailStartTimeDelay(2000000);
-const TInt KThumbnailIntervalTimeDelay(2000000);
-const TInt KPreviewThumbnailFetchCount(18);
+const TInt KThumbnailStartTimeDelay(250000);
+const TInt KThumbnailIntervalTimeDelay(50000);
+const TInt KPreviewThumbnailFetchCount(1);
 
 // ----------------------------------------------------------------------------
 // NewL
@@ -83,8 +83,18 @@ void CGlxPreviewThumbnailBinding::ConstructL()
     CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
     iGridIconSize = uiUtility->GetGridIconSize();
     uiUtility->Close() ;
+    
+    // Filter that filters out any GIF, corrupted images     
+    iPreviewFilter = TGlxFilterFactory::CreatePreviewFilterL();    
+    iThumbnailIterator.SetRange(KPreviewThumbnailFetchCount);
+    iThumbnailContext = new (ELeave) CGlxAttributeContext(&iThumbnailIterator); 
+    TMPXAttribute tnAttr( KGlxMediaIdThumbnail,
+                        GlxFullThumbnailAttributeId(ETrue,
+                            iGridIconSize.iWidth,iGridIconSize.iHeight) );
+    iThumbnailContext->SetDefaultSpec(iGridIconSize.iWidth,
+                                                iGridIconSize.iHeight);
+    iThumbnailContext->AddAttributeL(tnAttr);
     }
-
 
 // ----------------------------------------------------------------------------
 // Destructor
@@ -98,11 +108,11 @@ CGlxPreviewThumbnailBinding::~CGlxPreviewThumbnailBinding()
 		{
         iMediaList->RemoveMediaListObserver( this );
         iMediaList->RemoveContext(iThumbnailContext);
-        delete iThumbnailContext;
         iMediaList->Close();
         iMediaList = NULL;
 		}
-		
+    delete iThumbnailContext;
+    delete iPreviewFilter;
 	// cancel any outstanding request of the timer
 	if(iTimer->IsActive())
 	    {
@@ -139,13 +149,6 @@ void CGlxPreviewThumbnailBinding::TimerTickedL()
                 CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
                 bitmap->Duplicate( value->iBitmap->Handle());
                 iObserver.PreviewTNReadyL(bitmap, NULL,iProgressIndex);
-                iProgressIndex++;
-                if (iProgressIndex >= KPreviewThumbnailFetchCount || 
-                    iProgressIndex >= iPreviewItemCount.Count() ||
-                    iProgressIndex >= iMediaList->Count())
-                    {
-                    iProgressIndex = 0;
-                    }
                 }
     	    }
        	}
@@ -177,12 +180,6 @@ void CGlxPreviewThumbnailBinding::TimerTickedL()
 			CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
 			bitmap->Duplicate( value->iBitmap->Handle());
 			iObserver.PreviewTNReadyL(bitmap, NULL,iProgressIndex);
-			iProgressIndex++;
-			if (iProgressIndex >= KPreviewThumbnailFetchCount || 
-				iProgressIndex >= iMediaList->Count())
-				{
-				iProgressIndex = 0;
-				}
 			}
 		else
 			{
@@ -223,11 +220,12 @@ TInt CGlxPreviewThumbnailBinding::IsTimeL( TAny* aSelf )
 // ----------------------------------------------------------------------------
 //    
 void CGlxPreviewThumbnailBinding::HandleItemChangedL(const CMPXCollectionPath& aPath,
-        TBool aPopulateListTNs )
+        TBool aPopulateListTNs, TBool aBackwardNavigation)
     {
     TRACER("CGlxPreviewThumbnailBinding::HandleItemChangedL");
     iTimerTicked = EFalse;
     iPopulateListTNs = aPopulateListTNs;
+    iBackwardNavigation = aBackwardNavigation;
     iProgressIndex = KErrNone;
 
     // remove and close old medialist   
@@ -238,29 +236,14 @@ void CGlxPreviewThumbnailBinding::HandleItemChangedL(const CMPXCollectionPath& a
 	    iTrialCount = 0;
 	    iMediaList->RemoveMediaListObserver( this );
         iMediaList->RemoveContext(iThumbnailContext);
-        delete iThumbnailContext;
-        iThumbnailContext = NULL;
         iMediaList->Close();
         iMediaList = NULL;
 	    }
 	    
-	// Filter that filters out any GIF, corrupted images    
-    CMPXFilter* filter = NULL;
-    filter = TGlxFilterFactory::CreatePreviewFilterL(); 
-    CleanupStack::PushL( filter );
-    // create new medialist with the required filter which filters out all DRM, GIFS and corrupt 
-    // thumbnial
-	iMediaList = MGlxMediaList::InstanceL( aPath ,KGlxIdNone, filter);
-	iThumbnailContext = CGlxThumbnailContext::NewL( &iThumbnailIterator ); // set the thumbnail context
-	iThumbnailIterator.SetRange( KPreviewThumbnailFetchCount ); // request for fifiteen thumbnails
-	iThumbnailContext->SetDefaultSpec( iGridIconSize.iWidth,iGridIconSize.iHeight );
-	iMediaList->AddContextL(iThumbnailContext ,KGlxFetchContextPriorityNormal );
+    iMediaList = MGlxMediaList::InstanceL(aPath, KGlxIdNone, iPreviewFilter);
+    iMediaList->AddContextL(iThumbnailContext, KGlxFetchContextPriorityNormal);
 	// adding the medialist to observ any changes or updates done
 	iMediaList->AddMediaListObserverL(this);
-	CleanupStack::PopAndDestroy( filter );
-	
-	//Start the timer
-	StartTimer(iPopulateListTNs);
     }
 
 // ----------------------------------------------------------------------------
@@ -282,31 +265,33 @@ void CGlxPreviewThumbnailBinding::StartTimer(TBool aPopulateListTNs)
         
     if (iPopulateListTNs)
         {
-        iTimer->Start(KInitialThumbnailsTimeDelay, KInitialThumbnailsTimeDelay, 
-            TCallBack(IsTimeL,this));   
+        if (iBackwardNavigation)
+            {
+            iTimer->Start(KThumbnailIntervalTimeDelay, KThumbnailIntervalTimeDelay/KWaitCount,
+                    TCallBack(IsTimeL,this));
+            }
+        else
+            {
+            iTimer->Start(KThumbnailStartTimeDelay, 
+                    KInitialThumbnailsTimeDelay, TCallBack(IsTimeL,this));
+            }
         }
-    else
+     }
+
+// ----------------------------------------------------------------------------
+// StopTimer - Stop the timer
+// ----------------------------------------------------------------------------
+//    
+void CGlxPreviewThumbnailBinding::StopTimer()
+    {
+    TRACER("CGlxPreviewThumbnailBinding::StopTimer");
+        
+    if (iTimer && iTimer->IsActive())
         {
-        iTimer->Start(KThumbnailStartTimeDelay, KThumbnailIntervalTimeDelay,
-            TCallBack(IsTimeL,this));               
+        iTimer->Cancel();
         }
     }
 
-// ----------------------------------------------------------------------------
-// HasFirstThumbnail
-// ----------------------------------------------------------------------------
-// 
- TBool CGlxPreviewThumbnailBinding::HasFirstThumbnail( const RArray< TMPXAttribute >& aAttributes )
-     {
-     TRACER("CGlxPreviewThumbnailBinding::HasFirstThumbnail");
-     TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail, 
-                                          GlxFullThumbnailAttributeId( ETrue, 
-                                               iGridIconSize.iWidth,
-                                                   iGridIconSize.iHeight) );
-                                                          
-     TIdentityRelation< TMPXAttribute > match ( &TMPXAttribute::Match );
-     return ( KErrNotFound != aAttributes.Find( thumbnailAttribute, match ) );    
-     }
 // ----------------------------------------------------------------------------
 // HandleItemAddedL
 // ----------------------------------------------------------------------------
@@ -428,3 +413,15 @@ void CGlxPreviewThumbnailBinding::HandleItemModifiedL( const RArray<TInt>&
     {
     
     }
+
+// ----------------------------------------------------------------------------
+// HandlePopulatedL
+// ----------------------------------------------------------------------------
+//
+void CGlxPreviewThumbnailBinding::HandlePopulatedL( MGlxMediaList* /*aList*/ )
+    {
+    TRACER("CGlxPreviewThumbnailBinding::HandlePopulatedL()");
+    //Start the timer
+    StartTimer(iPopulateListTNs);
+    }
+

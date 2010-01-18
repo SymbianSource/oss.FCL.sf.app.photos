@@ -125,7 +125,13 @@ CGlxContentHarvesterPluginDownloads::~CGlxContentHarvesterPluginDownloads()
 void CGlxContentHarvesterPluginDownloads::UpdateDataL() 
     {
     TRACER( "CGlxContentHarvesterPluginDownloads::UpdateDataL" );
-    if(iMediaList && iMediaList->Count() && iPreviewItemCount.Count() )
+
+    if (!iMediaList)
+        {
+        return;
+        }
+
+    if (iMediaList->Count() && iPreviewItemCount.Count())
         {
         GLX_LOG_INFO1("CGlxContentHarvesterPluginDownloads::UpdateDataL(),iProgressIndex=%d",iProgressIndex);
         TInt ret = UpdateItem(iPreviewItemCount[iProgressIndex]);

@@ -551,7 +551,7 @@ RESOURCE AVKON_TOOLBAR r_glx_grid_view_toolbar
                           bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
                           press_bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
                           press_bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
-                          helptxt = qtn_lgal_options_slideshow;
+                          helptxt = qtn_lgal_tooltip_slideshow;
                           }
                       };
                   };

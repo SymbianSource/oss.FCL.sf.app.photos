@@ -334,28 +334,26 @@ TInt CGlxPreviewThumbnailBinding::IsTime( TAny* aSelf )
 // This function resets any existing timer and starts a new timer tick
 // ----------------------------------------------------------------------------
 //    
-    
-CGlxBinding::TResponse CGlxPreviewThumbnailBinding::HandleFocusChanged( TBool aIsGained )
+CGlxBinding::TResponse CGlxPreviewThumbnailBinding::HandleFocusChanged(
+        TBool aIsGained)
     {
     TRACER("CGlxPreviewThumbnailBinding::HandleFocusChanged");
-	if(aIsGained)
-	    {
-	    if(iTimer)
-	        {
-	        iTimer->Cancel();
-	        }
-	   
-	     if(!iTimer->IsActive() ) 
-	        {
-	        iTimer->Start(KThumbnailStartTimeDelay, KThumbnailIntervalTimeDelay,
-	            TCallBack(IsTime,this));
-	      
-	        }
-	    }
-	//return EUpdateRequested;
-	return ENoUpdateNeeded;
+    if (aIsGained && iTimer)
+        {
+        if (iTimer->IsActive())
+            {
+            iTimer->Cancel();
+            }
+
+        if (!iTimer->IsActive())
+            {
+            iTimer->Start(KThumbnailStartTimeDelay,
+                    KThumbnailIntervalTimeDelay, TCallBack(IsTime, this));
+            }
+        }
+
+    return ENoUpdateNeeded;
     }
-    
 
 // ----------------------------------------------------------------------------
 // HandleItemChangedL

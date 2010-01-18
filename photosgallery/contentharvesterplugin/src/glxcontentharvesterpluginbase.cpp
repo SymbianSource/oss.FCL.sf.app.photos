@@ -488,16 +488,6 @@ MGlxMediaList* CGlxContentHarvesterPluginBase::CreateMedialistAndAttributeContex
             return mediaList;
             }
 
-// ---------------------------------------------------------------------------
-// CGlxContentHarvesterPluginBase::IsFocused
-// ---------------------------------------------------------------------------
-//
-TBool CGlxContentHarvesterPluginBase::IsFocused() const
-    {
-    TRACER( "CGlxContentHarvesterPluginBase::IsFocused" );
-    GLX_LOG_INFO1("CGlxContentHarvesterPluginBase::IsFocused,isFocused=%d",iIsFocused);
-    return iIsFocused;
-    }
 
 // ---------------------------------------------------------------------------
 // CGlxContentHarvesterPluginBase::Focused

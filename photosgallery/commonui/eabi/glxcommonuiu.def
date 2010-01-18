@@ -6,34 +6,36 @@ EXPORTS
 	_ZN21CGlxNavigationalState11ViewingModeEv @ 5 NONAME
 	_ZN21CGlxNavigationalState12AddObserverLER29MGlxNavigationalStateObserver @ 6 NONAME
 	_ZN21CGlxNavigationalState13SetToViewModeEv @ 7 NONAME
-	_ZN21CGlxNavigationalState14BackExitStatusEv @ 8 NONAME
-	_ZN21CGlxNavigationalState14RemoveObserverER29MGlxNavigationalStateObserver @ 9 NONAME
-	_ZN21CGlxNavigationalState16NavigateToChildLERK11TGlxMediaId @ 10 NONAME
-	_ZN21CGlxNavigationalState17NavigateToParentLEv @ 11 NONAME
-	_ZN21CGlxNavigationalState17SetBackExitStatusEi @ 12 NONAME
-	_ZN21CGlxNavigationalState21ActivatePreviousViewLEv @ 13 NONAME
-	_ZN21CGlxNavigationalState5CloseEv @ 14 NONAME
-	_ZN21CGlxNavigationalState9InstanceLEv @ 15 NONAME
-	_ZN21CGlxResolutionManager14SetScreenSizeLE5TSize @ 16 NONAME
-	_ZN21CGlxResolutionManager4NewLEv @ 17 NONAME
-	_ZN21CGlxResolutionManagerD0Ev @ 18 NONAME
-	_ZN21CGlxResolutionManagerD1Ev @ 19 NONAME
-	_ZN21CGlxResolutionManagerD2Ev @ 20 NONAME
-	_ZN21CGlxResolutionUtility12AddObserverLER28MGlxResolutionChangeObserver @ 21 NONAME
-	_ZN21CGlxResolutionUtility14RemoveObserverER28MGlxResolutionChangeObserver @ 22 NONAME
-	_ZN21CGlxResolutionUtility5CloseEv @ 23 NONAME
-	_ZN21CGlxResolutionUtility9InstanceLEv @ 24 NONAME
-	_ZN22CGlxBackServiceWrapper18HandleBackCommandLERK6TDesC8i @ 25 NONAME
-	_ZN22CGlxBackServiceWrapper23ForwardActivationEventLERK6TDesC8i @ 26 NONAME
-	_ZN22CGlxBackServiceWrapper4NewLE4TUid @ 27 NONAME
-	_ZN22CGlxBackServiceWrapper5NewLCE4TUid @ 28 NONAME
-	_ZN22NGlxZoomStatePublisher13PublishStateLEi @ 29 NONAME
-	_ZNK21CGlxNavigationalState7StateLCEv @ 30 NONAME
-	_ZNK21CGlxResolutionUtility10ScreenSizeEv @ 31 NONAME
-	_ZNK21CGlxResolutionUtility12PixelsToPossERKf @ 32 NONAME
-	_ZNK21CGlxResolutionUtility12PossToPixelsERKf @ 33 NONAME
-	_ZTI21CGlxNavigationalState @ 34 NONAME ; #<TI>#
-	_ZTI22CGlxBackServiceWrapper @ 35 NONAME ; #<TI>#
-	_ZTV21CGlxNavigationalState @ 36 NONAME ; #<VT>#
-	_ZTV22CGlxBackServiceWrapper @ 37 NONAME ; #<VT>#
+	_ZN21CGlxNavigationalState13StartingLevelEv @ 8 NONAME
+	_ZN21CGlxNavigationalState14BackExitStatusEv @ 9 NONAME
+	_ZN21CGlxNavigationalState14RemoveObserverER29MGlxNavigationalStateObserver @ 10 NONAME
+	_ZN21CGlxNavigationalState16NavigateToChildLERK11TGlxMediaId @ 11 NONAME
+	_ZN21CGlxNavigationalState16SetStartingLevelEi @ 12 NONAME
+	_ZN21CGlxNavigationalState17NavigateToParentLEv @ 13 NONAME
+	_ZN21CGlxNavigationalState17SetBackExitStatusEi @ 14 NONAME
+	_ZN21CGlxNavigationalState21ActivatePreviousViewLEv @ 15 NONAME
+	_ZN21CGlxNavigationalState5CloseEv @ 16 NONAME
+	_ZN21CGlxNavigationalState9InstanceLEv @ 17 NONAME
+	_ZN21CGlxResolutionManager14SetScreenSizeLE5TSize @ 18 NONAME
+	_ZN21CGlxResolutionManager4NewLEv @ 19 NONAME
+	_ZN21CGlxResolutionManagerD0Ev @ 20 NONAME
+	_ZN21CGlxResolutionManagerD1Ev @ 21 NONAME
+	_ZN21CGlxResolutionManagerD2Ev @ 22 NONAME
+	_ZN21CGlxResolutionUtility12AddObserverLER28MGlxResolutionChangeObserver @ 23 NONAME
+	_ZN21CGlxResolutionUtility14RemoveObserverER28MGlxResolutionChangeObserver @ 24 NONAME
+	_ZN21CGlxResolutionUtility5CloseEv @ 25 NONAME
+	_ZN21CGlxResolutionUtility9InstanceLEv @ 26 NONAME
+	_ZN22CGlxBackServiceWrapper18HandleBackCommandLERK6TDesC8i @ 27 NONAME
+	_ZN22CGlxBackServiceWrapper23ForwardActivationEventLERK6TDesC8i @ 28 NONAME
+	_ZN22CGlxBackServiceWrapper4NewLE4TUid @ 29 NONAME
+	_ZN22CGlxBackServiceWrapper5NewLCE4TUid @ 30 NONAME
+	_ZN22NGlxZoomStatePublisher13PublishStateLEi @ 31 NONAME
+	_ZNK21CGlxNavigationalState7StateLCEv @ 32 NONAME
+	_ZNK21CGlxResolutionUtility10ScreenSizeEv @ 33 NONAME
+	_ZNK21CGlxResolutionUtility12PixelsToPossERKf @ 34 NONAME
+	_ZNK21CGlxResolutionUtility12PossToPixelsERKf @ 35 NONAME
+	_ZTI21CGlxNavigationalState @ 36 NONAME
+	_ZTI22CGlxBackServiceWrapper @ 37 NONAME
+	_ZTV21CGlxNavigationalState @ 38 NONAME
+	_ZTV22CGlxBackServiceWrapper @ 39 NONAME
 

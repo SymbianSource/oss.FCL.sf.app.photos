@@ -15,11 +15,10 @@
 *
 */
 
-
-
-PRJ_TESTMMPFILES
 #include "../t_cglxcommandhandlershowviaupnp/group/bld.inf"
 //#include "../t_glxupnprenderer/group/bld.inf"
 #include "../t_cglxupnprendererimpl/group/bld.inf"
 #include "../t_cglxthumbnailsaver/group/bld.inf"
 #include "../t_glxcommandhandlercopytohomenetwork/group/bld.inf"
+
+PRJ_TESTMMPFILES

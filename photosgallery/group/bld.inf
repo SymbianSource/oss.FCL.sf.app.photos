@@ -77,8 +77,5 @@ PRJ_EXPORTS
 //include photos memory plug-in
 #include "../memoryplugin/group/bld.inf"
 
-//include Photos Suite Launcher
-#include "../photossuitelauncher/group/bld.inf"
-
 //include imageviewer
 #include "../imgvwr/group/bld.inf"

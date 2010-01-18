@@ -108,9 +108,6 @@ void CGlxMainGridViewPlugin::AddCommandHandlersL()
     TGlxHelpContext helpInfo;
     helpInfo.iBrowseContext = LGAL_HLP_ALL_GRID;
     helpInfo.iViewContext = LGAL_HLP_ALL_FULLSCREEN;
-    GLX_LOG_INFO( "Adding CGlxCommandHandlerSlideshow" );
-    iGridView->AddCommandHandlerL(
-                    CGlxCommandHandlerSlideshow::NewL( iGridView, ETrue , EFalse ) );
     iGridView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
     }
 

@@ -67,11 +67,6 @@ public:
 	 */
 	~CGlxPreviewThumbnailBinding();
 	
-	/**
-	 * HasFirstThumbnail
-	 */
-	TBool HasFirstThumbnail( const RArray< TMPXAttribute >& aAttributes );
-	
 private:
 
 	 /**
@@ -85,8 +80,10 @@ private:
 	void ConstructL();
 
 public:	
-      void HandleItemChangedL(const CMPXCollectionPath& aPath, TBool aPopulateListTNs);
+      void HandleItemChangedL(const CMPXCollectionPath& aPath,
+              TBool aPopulateListTNs, TBool aBackwardNavigation);
       void StartTimer(TBool aPopulateListTNs);
+      void StopTimer();
       
       // From MGlxMediaListObserver
       void HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
@@ -102,6 +99,7 @@ public:
           MGlxMediaList* aList );
       void HandleMediaL( TInt aListIndex, MGlxMediaList* aList );
       void HandleItemModifiedL( const RArray<TInt>& aItemIndexes, MGlxMediaList* aList );
+      void HandlePopulatedL( MGlxMediaList* aList );
      
 private:
 	/**
@@ -123,8 +121,8 @@ private:
 	//Medialist that holds the thumbnail information
 	MGlxMediaList* iMediaList;
 	
-	// Thumbnail context
-	CGlxThumbnailContext* iThumbnailContext;
+	// Thumbnail Attrib context
+    CGlxAttributeContext* iThumbnailContext;	
 	
 	// for thumbnail context
 	TGlxSequentialIterator iThumbnailIterator;
@@ -149,6 +147,10 @@ private:
     TInt iTrialCount;
     
     TInt iTrial;
+        
+    TBool iBackwardNavigation;
+    
+    CMPXFilter* iPreviewFilter;
 };
     
 

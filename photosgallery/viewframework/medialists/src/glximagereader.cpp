@@ -18,6 +18,9 @@
 
 #include <apgcli.h>
 #include <glxtracer.h>
+#include <glxlog.h>
+#include <glxpanic.h>
+
 //for DRM
 #include <caf/content.h>
 #include <caf/attributeset.h>
@@ -93,16 +96,21 @@ CGlxImageReader::~CGlxImageReader()
 void CGlxImageReader::ConstructL()
     {
     TRACER("CGlxImageReader::ConstructL");
-    
+
     CActiveScheduler::Add(this);
     iIsLaunchedFromFMngr = EFalse;
 
     iImgViewerMgr = CGlxImageViewerManager::InstanceL();
-    if (iImgViewerMgr && iImgViewerMgr->IsPrivate())
+    if (!iImgViewerMgr)
         {
-        iIsLaunchedFromFMngr = ETrue;    
+        return;
         }
-    
+
+    if (iImgViewerMgr->IsPrivate())
+        {
+        iIsLaunchedFromFMngr = ETrue;
+        }
+
     TInt errInImage = KErrNone;
     if (iIsLaunchedFromFMngr)
         {
@@ -114,13 +122,15 @@ void CGlxImageReader::ConstructL()
         TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(CCoeEnv::Static()->FsSession(), iImgViewerMgr->ImageUri()->Des()));
         }
 
-    if(errInImage != KErrNone)
+    if (errInImage != KErrNone)
         {
         User::Leave(errInImage);
         }
-    iFrame = new(ELeave)CFbsBitmap();
-    iFrame->Create(iImageDecoder->FrameInfo(0).iOverallSizeInPixels,iImageDecoder->FrameInfo(0).iFrameDisplayMode);
-    iImageDecoder->Convert(&iStatus,*iFrame,0);
+    iFrame = new (ELeave) CFbsBitmap();
+    iFrame->Create(iImageDecoder->FrameInfo(0).iOverallSizeInPixels,
+            iImageDecoder->FrameInfo(0).iFrameDisplayMode);
+    iImageDecoder->Convert(&iStatus, *iFrame, 0);
+
     SetActive();
     }
 
@@ -143,55 +153,52 @@ void CGlxImageReader::RunL()
     {
     TRACER("CGlxImageReader::RunL");
     
-    const TSize sz = iFrame->SizeInPixels();
-    iNotify.ImageReadyL(iStatus.Int(),sz);
+    TSize size = TSize();
+    TInt reqStatus = iStatus.Int(); 
+    if (reqStatus == KErrNone && iFrame)
+        {
+        size = iFrame->SizeInPixels();
+        }
+    GLX_DEBUG2("CGlxImageReader::RunL() reqStatus=%d", reqStatus);   
+    iNotify.ImageReadyL(reqStatus, size);
     }
 // ---------------------------------------------------------
-// CGlxImageReader::HasDRMRightsL
+// CGlxImageReader::GetDRMRightsL
 // ---------------------------------------------------------
 //
-TBool CGlxImageReader::HasDRMRightsL()
+TInt CGlxImageReader::GetDRMRightsL(TInt aAttribute)
     {
-    TRACER("Entering CGlxImageReader::HasDRMRightsL");
- 
-    RAttributeSet attributeSet;
-    CleanupClosePushL(attributeSet);
-    attributeSet.AddL(ECanView);
-    attributeSet.AddL(EIsProtected);
-    CContent* content;
+    TRACER("CGlxImageReader::GetDRMRightsL");
+    
+    TInt value = KErrNone;
+    TInt error = KErrNone;
+    CContent* content = NULL;
     if(iIsLaunchedFromFMngr)
         {
-        content = CContent::NewL(iImgViewerMgr->ImageFileHandle());    
+        content = CContent::NewLC(iImgViewerMgr->ImageFileHandle());    
         }
     else
         {
-        content = CContent::NewL(iImgViewerMgr->ImageUri()->Des());
+        content = CContent::NewLC(iImgViewerMgr->ImageUri()->Des());
         }
 
-    // Retrieve the attributes from the agent
-    User::LeaveIfError(content->GetAttributeSet(attributeSet));
-    TInt rights = ERightsNone;
-    TBool drmProtected = EFalse;
-    attributeSet.GetValue(EIsProtected,drmProtected);
-    if(!drmProtected)
-        {
-        CleanupStack::PopAndDestroy(&attributeSet);
-        delete content;
-        content = NULL;
-        return EFalse;
-        }
-    attributeSet.GetValue(ECanView,rights);
-    CleanupStack::PopAndDestroy(&attributeSet);
-
-    if(content)
-        {
-        delete content;
-        content = NULL;
-        }
-
-    if(rights)
-        {
-        return ETrue;
-        }
-    return EFalse;
+    __ASSERT_ALWAYS(content, Panic(EGlxPanicNullPointer));
+    error = content->GetAttribute(aAttribute, value);
+    CleanupStack::PopAndDestroy( content );
+    GLX_DEBUG2("CGlxImageReader::GetDRMRightsL value=%d", value);
+    if(error != KErrNone)
+	    {
+	    switch	( aAttribute )
+			{
+			case ContentAccess::EIsProtected : 
+				value = ETrue;
+				break;
+			case ContentAccess::ECanView : 
+				value = EFalse;
+				break;
+		    default:
+		    	value = EFalse;
+			}
+	    }
+    return value;
     }

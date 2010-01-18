@@ -230,6 +230,10 @@ CGlxZoomControl::~CGlxZoomControl()
         iTimer->Cancel();
         }
     delete iTimer;
+    if(iGlxTvOut)
+        {
+        delete iGlxTvOut;
+        }
     if(iEventHandler)
         {
         delete iEventHandler;

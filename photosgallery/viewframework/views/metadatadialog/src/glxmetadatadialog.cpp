@@ -46,9 +46,6 @@
 #include <glxpanic.h>                    // For Panics
 #include "glxmetadatacommandhandler.h"
 
-#define GetAppUi() (dynamic_cast<CAknAppUi*>(iEikonEnv->EikAppUi()))
-
-
 // ============================ MEMBER FUNCTIONS ===============================
 
 // -----------------------------------------------------------------------------
@@ -107,7 +104,7 @@ void CGlxMetadataDialog::ConstructL()
 		    {
 		    delete text;
 		    }
-		GetAppUi()->StatusPane()->MakeVisible(ETrue);			  
+		iAvkonAppUi->StatusPane()->MakeVisible(ETrue);			  
 		}
 		
 	iUiUtility = CGlxUiUtility::UtilityL();	
@@ -128,46 +125,48 @@ void CGlxMetadataDialog::ConstructL()
 //
 CGlxMetadataDialog::~CGlxMetadataDialog()
 	{
-		
-	TRACER("CGlxMetadataDialog::~CGlxMetadataDialog");
-		
-	//To Disable the status pane if the dialog is launched from fullscreenview	
-	if(!iStatusPaneAvailable)
-	    {
-	    GetAppUi()->StatusPane()->MakeVisible(EFalse);
-	    }	    
-	
-	TRAP_IGNORE(SetPreviousTitleL());
-		
-	delete iPreviousTitle;
-	delete iMetadataCmdHandler;	
+    TRACER("CGlxMetadataDialog::~CGlxMetadataDialog");
+
+    //To Disable the status pane if the dialog is launched from fullscreenview	
+    if (!iStatusPaneAvailable && iAvkonAppUi)
+        {
+        iAvkonAppUi->StatusPane()->MakeVisible(EFalse);
+        }
+
+    TRAP_IGNORE(SetPreviousTitleL());
+
+    delete iPreviousTitle;
+    delete iMetadataCmdHandler;
 
     // Restore the Toolbar as it was in the Calling application
     SetDetailsDlgToolbarVisibility(ETrue);
-	
-	// If details launched from FullScreen View, while moving back,
-	// all the UI components should be hidden. Hence processing this command here.
-	TRAP_IGNORE(GetAppUi()->ProcessCommandL(EGlxCmdResetView));
-	
-  if(iAddToTag)
-	   {
-      delete iAddToTag;
-      }
-      
-  if(iAddToAlbum)
-      {
-      delete iAddToAlbum;
-      }
-       
-	if( iUiUtility )
-		{
-		iUiUtility->Close();
-		}
-		
-	if (iResourceOffset)
-		{
-		CCoeEnv::Static()->DeleteResourceFile(iResourceOffset);
-        }   
+
+    // If details launched from FullScreen View, while moving back,
+    // all the UI components should be hidden. Hence processing this command here.
+    if (iAvkonAppUi)
+        {
+        TRAP_IGNORE(iAvkonAppUi->ProcessCommandL(EGlxCmdResetView));
+        }
+
+    if (iAddToTag)
+        {
+        delete iAddToTag;
+        }
+
+    if (iAddToAlbum)
+        {
+        delete iAddToAlbum;
+        }
+
+    if (iUiUtility)
+        {
+        iUiUtility->Close();
+        }
+
+    if (iResourceOffset)
+        {
+        CCoeEnv::Static()->DeleteResourceFile(iResourceOffset);
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -176,12 +175,9 @@ CGlxMetadataDialog::~CGlxMetadataDialog()
 void CGlxMetadataDialog::SetDetailsDlgToolbarVisibility(TBool aVisible)
     {
     TRACER("CGlxMetadataDialog::SetDetailsDlgToolbarVisibility");
-    CAknAppUi* appUi = GetAppUi();
-    __ASSERT_DEBUG(appUi, Panic(EGlxPanicNullPointer));
-
   
     HandleToolbarResetting(aVisible);
-    CAknToolbar* currentPopupToolbar = appUi->CurrentPopupToolbar();
+    CAknToolbar* currentPopupToolbar = iAvkonAppUi->CurrentPopupToolbar();
     if(currentPopupToolbar)
         {
         currentPopupToolbar->SetToolbarVisibility(aVisible);
@@ -284,7 +280,7 @@ SEikControlInfo CGlxMetadataDialog::CreateCustomControlL(TInt
     controlInfo.iFlags          = 0;
     if (aControlType == EMetaDataDialogListBox)
         {
-        iContainer = CGlxMetadataContainer::NewL(GetAppUi()->ClientRect(),
+        iContainer = CGlxMetadataContainer::NewL(iAvkonAppUi->ClientRect(),
 		                                         *this, iUri, *this);        
         controlInfo.iControl = iContainer; // giving ownership   
         }
@@ -565,10 +561,8 @@ void CGlxMetadataDialog::HandleResourceChange( TInt aType )
 void CGlxMetadataDialog::HandleToolbarResetting(TBool aVisible)
     {
     TRACER("CGlxMetadataDialog::HandleToolbarResetting");
-    CAknAppUi* appUi = GetAppUi();
-    __ASSERT_DEBUG(appUi, Panic(EGlxPanicNullPointer));
 
-    CAknToolbar* popupToolbar = appUi->PopupToolbar();
+    CAknToolbar* popupToolbar = iAvkonAppUi->PopupToolbar();
     if(popupToolbar)
         {
         popupToolbar->SetToolbarVisibility( !aVisible ); 
@@ -578,7 +572,7 @@ void CGlxMetadataDialog::HandleToolbarResetting(TBool aVisible)
         	popupToolbar->DrawNow();    
         	}
         }   
-    CAknToolbar* toolbar = appUi->CurrentFixedToolbar();
+    CAknToolbar* toolbar = iAvkonAppUi->CurrentFixedToolbar();
     if(toolbar)
         {
         toolbar->HideItemsAndDrawOnlyBackground(!aVisible);

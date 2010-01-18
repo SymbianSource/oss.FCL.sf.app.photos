@@ -28,8 +28,8 @@
 
 
 //  EXTERNAL INCLUDES
-#include <FavouritesLimits.h>               // for favourites context IDs
-#include <BrowserLauncher.h>
+#include <favouriteslimits.h>               // for favourites context IDs
+#include <browserlauncher.h>
 
 //  INTERNAL INCLUDES
 #include <glxcommandhandlers.hrh>           // for EGlxCmdDownloadImages,

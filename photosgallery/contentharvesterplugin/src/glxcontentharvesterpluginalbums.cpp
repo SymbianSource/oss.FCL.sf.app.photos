@@ -40,12 +40,6 @@
 
 
 // ============================ MEMBER FUNCTIONS ==============================
-LOCAL_C TInt TimerCallbackL( TAny* aPtr )
-    {
-    TRACER( "CGlxContentHarvesterPluginAlbums::TimerCallbackL" );
-    static_cast<CGlxContentHarvesterPluginAlbums*>(aPtr)->UpdateDataL();
-    return KErrNone;
-    }
 
 // ----------------------------------------------------------------------------
 // Constructor
@@ -70,9 +64,6 @@ void CGlxContentHarvesterPluginAlbums::ConstructL()
     
     //Call the base class ConstructL
     CGlxContentHarvesterPluginBase::ConstructL(EMbmGlxiconsQgn_prop_image_notcreated);
-    
-    iPeriodic = CPeriodic::NewL( CActive::EPriorityLow );    
-       
     iUriAttributeContext = new (ELeave) CGlxAttributeContext(&iThumbnailIterator); 
     iThumbnailAttributeContext = new (ELeave) CGlxAttributeContext(&iThumbnailIterator); 
     
@@ -107,11 +98,6 @@ CGlxContentHarvesterPluginAlbums::~CGlxContentHarvesterPluginAlbums()
     TRACER( "CGlxContentHarvesterPluginAlbums::~CGlxContentHarvesterPluginAlbums" );
 
     DestroyMedialist();
-    if ( iPeriodic )
-        {
-        iPeriodic->Cancel();
-        }
-    delete iPeriodic;
     }
 
 // ----------------------------------------------------------------------------
@@ -121,31 +107,31 @@ CGlxContentHarvesterPluginAlbums::~CGlxContentHarvesterPluginAlbums()
 void CGlxContentHarvesterPluginAlbums::UpdateDataL() 
     {
     TRACER( "CGlxContentHarvesterPluginAlbums::UpdateDataL" );
-    if(iMediaList && iMediaList->Count() && iPreviewItemCount.Count() )
+
+    if (!iMediaList)
         {
-        GLX_LOG_INFO1("CGlxContentHarvesterPluginAlbums::UpdateDataL(),iProgressIndex=%d",iProgressIndex);
-        TInt ret = UpdateItem(iPreviewItemCount[iProgressIndex]);
-        if(ret != KErrNotFound)
+        return;
+        }
+
+    if (iMediaList->Count())
+        {
+        TInt ret = UpdateItem(KPreviewItemIndex);
+        if (ret != KErrNotFound)
             {
             //Updates the thumbnail in the collection 
             UpdateDataInCPSL(ret);
-            }
-        else
-            {
-            UpdateDataInCPSL(GetBitmapHandle());
             }
         }
     else
         {
         // Show previous thumbnail until the new thumbnail is
         // fecthed.Added this check to avoid flicker
-        if(!GetCHPlugin()->IsRefreshNeeded() || (iMediaList->Count() == 0))
-        	{
-			//Don't Show the Thumbnail/Show nothing
-			GLX_LOG_INFO("CGlxContentHarvesterPluginAlbums::UpdateDataL() --O");
-			UpdateDataInCPSL(GetBitmapHandle());
-        	}
-        
+        if (!GetCHPlugin()->IsRefreshNeeded() || (iMediaList->Count() == 0))
+            {
+            //Don't Show the Thumbnail/Show nothing
+            GLX_LOG_INFO("CGlxContentHarvesterPluginAlbums::UpdateDataL() --O");
+            UpdateDataInCPSL(GetBitmapHandle());
+            }
         }
     }
 
@@ -162,52 +148,6 @@ TInt CGlxContentHarvesterPluginAlbums::HandleNotifyL(
     TRACER( "CGlxContentHarvesterPluginAlbums::HandleNotifyL" );
     HandleStateChangeL(KItemIndexAlbums);
     return KErrNone;
-    }
-
-// ----------------------------------------------------------------------------
-// CGlxContentHarvesterPluginAlbums::HandleItemChanged()
-// ----------------------------------------------------------------------------
-//
-void CGlxContentHarvesterPluginAlbums::HandleItemChanged()
-    {
-    TRACER("CGlxContentHarvesterPluginAlbums::HandleItemChanged");
-
-    iProgressIndex = 0;
-    iPreviewItemCount.Reset();
-
-    TSize gridIconSize = GetGridIconSize();
-    TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail, 
-            GlxFullThumbnailAttributeId( ETrue,  gridIconSize.iWidth, gridIconSize.iHeight ) );
-    if(iMediaList)  
-        {
-        TInt count = iMediaList->Count();
-        GLX_LOG_INFO1("CGlxContentHarvesterPluginAlbums:: HandleItemChanged ,count=%d",count);
-
-        TBool inFocus = IsFocused();
-        for(TInt aItemIndex = 0; aItemIndex < count; aItemIndex++)
-            {
-            const TGlxMedia& item = iMediaList->Item( aItemIndex );
-            const CGlxThumbnailAttribute* value = item.ThumbnailAttribute( thumbnailAttribute );
-            if (value)
-                {
-                iPreviewItemCount.InsertInOrder(aItemIndex);
-                if(!inFocus)
-                    {
-                    //if the collection is in Focus,retrieve only one thumbnail and break
-                    GLX_LOG_INFO1("CGlxContentHarvesterPluginAlbums::HandleItemChanged,iRange=1,aItemIndex=%d",aItemIndex);
-                    break;
-                    }
-                else if(iPreviewItemCount.Count() == KPreviewThumbnailFetchCount ||
-                        iPreviewItemCount.Count() == count )
-                    {
-                    //if the collection is not in Focus,retrieve 15 thumbnail and break
-                    GLX_LOG_INFO1("CGlxContentHarvesterPluginAlbums::HandleItemChanged,iRange=15,aItemIndex=%d",aItemIndex);
-                    break;
-                    }
-
-                }
-            }
-        }
     }
 
 // ----------------------------------------------------------------------------
@@ -251,14 +191,6 @@ TInt CGlxContentHarvesterPluginAlbums::UpdateItem(TInt aItemIndex)
     const CGlxThumbnailAttribute* value = item.ThumbnailAttribute( thumbnailAttribute );
     if (value)
         {
-        GLX_LOG_INFO1("CGlxContentHarvesterPluginAlbums::UpdateItem,iProgressIndex=%d ",iProgressIndex);
-        iProgressIndex++;
-        if (iProgressIndex >= KPreviewThumbnailFetchCount || 
-                iProgressIndex >= iPreviewItemCount.Count() ||
-                iProgressIndex >= iMediaList->Count())
-            {
-            iProgressIndex = 0;
-            }
         return value->iBitmap->Handle();
         }
     return KErrNotFound;
@@ -275,7 +207,7 @@ void CGlxContentHarvesterPluginAlbums::ActivateL( TBool aOn )
     GLX_LOG_INFO1("CGlxContentHarvesterPluginAlbums::ActivateL aOn =%d",aOn);
     SetFocus(aOn);
 
-    if (IsMatrixMenuInForegroundL() && aOn && !iPeriodic->IsActive() )
+    if (IsMatrixMenuInForegroundL() && aOn )
         {
         if(GetCHPlugin()->IsRefreshNeeded())
             {
@@ -288,10 +220,6 @@ void CGlxContentHarvesterPluginAlbums::ActivateL( TBool aOn )
             //to update the thumbnails on the focus , need to call the below function
             UpdatePreviewThumbnailListL();
             }
-
-        iPeriodic->Start( KTimerInterval, 
-                KTimerInterval, 
-                TCallBack( TimerCallbackL, this ) );
         }
     else if ( !aOn )
         {
@@ -302,7 +230,6 @@ void CGlxContentHarvesterPluginAlbums::ActivateL( TBool aOn )
             GLX_LOG_INFO1("CGlxContentHarvesterPluginAlbums::ActivateL !aOn =%d and matrix not in foreground",aOn);
             GetCHPlugin()->UpdatePlugins(aOn);
             }
-        iPeriodic->Cancel();
         }
     }
 
@@ -370,25 +297,12 @@ void CGlxContentHarvesterPluginAlbums::HandleAttributesAvailableL(TInt aItemInde
         if (value)
             {
             GLX_LOG_INFO("CGlxContentHarvesterPluginAlbums::HandleAttributesAvailableL Thumbnail is present ");
-            iPreviewItemCount.InsertInOrder(aItemIndex);
-            //if the collection on the matrix menu is not focused,then show only one thumbnail
-            if(!IsFocused())
-                {
-                //if one thumbnail is fetched,it is sufficent when the collection is not in focus.
-                //remove the observer as client need not listen to the callbacks 
-                GLX_LOG_INFO("CGlxContentHarvesterPluginAll::HandleAttributesAvailableL,one thumbnail fetched");
-                UpdateDataInCPSL( value->iBitmap->Handle());
-                iMediaList->RemoveMediaListObserver( this );          
-                }
-            else if (iPreviewItemCount.Count()  == KPreviewThumbnailFetchCount ||
-                    iPreviewItemCount.Count() == aList->Count() )
-                {
 
-                GLX_LOG_INFO1("CGlxContentHarvesterPluginAlbums::HandleAttributesAvailableL,media list count=%d",aList->Count());
-                //if the PreviewItemCount  equals 15 or if it is eqaul to the total count
-                //remove the observer as client need not listen to the callbacks 
-                iMediaList->RemoveMediaListObserver( this );
-                }
+			// Update the preview thumbnail
+			//remove the observer as client need not listen to the callbacks
+			GLX_LOG_INFO("CGlxContentHarvesterPluginAll::HandleAttributesAvailableL,one thumbnail fetched");
+			UpdateDataInCPSL( value->iBitmap->Handle());
+			iMediaList->RemoveMediaListObserver( this );
             }//end of  check against value 
         }//end of  attribute match
     }
@@ -459,16 +373,8 @@ void CGlxContentHarvesterPluginAlbums::CreateMedialistL( )
     TRACER( "CGlxContentHarvesterPluginAlbums::CreateMedialistL" );
     if(!iMediaList)
         {
-        //if the collection is in focus then , create media list with context of 15 items else
-        // with context of single item.
-        if(IsFocused())
-            {
-            iThumbnailIterator.SetRange( KPreviewThumbnailFetchCount ); 
-            }
-        else
-            {
-            iThumbnailIterator.SetRange( KSinglePreviewThumbnail );
-            }
+		iThumbnailIterator.SetRange( KSinglePreviewThumbnail );
+
         iMediaList = CreateMedialistAndAttributeContextL( TGlxMediaId( 
                         KGlxCollectionPluginAlbumsImplementationUid ),
                         iUriAttributeContext,iThumbnailAttributeContext);         
@@ -491,8 +397,6 @@ void CGlxContentHarvesterPluginAlbums::UpdatePreviewThumbnailListL( )
         {
         //media list is not created yet,create it.
         CreateMedialistL( );
-        //This is called to show the preview thumbnails. If no thumbnails are
-        //present, display nothing
         UpdateDataL();
         }
     else
@@ -501,28 +405,12 @@ void CGlxContentHarvesterPluginAlbums::UpdatePreviewThumbnailListL( )
             {
             ContainerCacheCleanupL(iMediaList);
             }
-   		if(IsFocused())
-	        {
-	        //1.This loop is executed,when the collection gets focus
-	        //2.This loop is executed,when the contents are updated for this collection
-	        //and this collection has focus,so 15 thumbnails are fetched.
-	        HandleItemChanged();
-	        iThumbnailIterator.SetRange( KPreviewThumbnailFetchCount );
-	        RemoveContextAndObserver();
-	        AddContextAndObserverL();
-	        }
-	    else
-	        {
-	        //1.This loop is executed,when the contents are updated for this collection
-	        //and this collection doesn't have the focus,so only one thumbnail is fetched.
 
-	        //here we need to fetch only one item 
 	        //1.if the content is deleted,then creating a context doesn't fetch the attributes
 	        //2.if the content is added and the content is not the latest as per the sorted order of the
 	        // media list,then the thumbnails are not fetched.
 	        // so show the first available thumbnail in the media list.
 
-	        HandleItemChanged();
 	        UpdateDataL();
 
 	        //Adding the context doesn't gaurantee we get a call back for
@@ -536,7 +424,7 @@ void CGlxContentHarvesterPluginAlbums::UpdatePreviewThumbnailListL( )
 	        RemoveContextAndObserver();
 	        AddContextAndObserverL();
 			}
-        }
+
     }
 
 // ---------------------------------------------------------------------------

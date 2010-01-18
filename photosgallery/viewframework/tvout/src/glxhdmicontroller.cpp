@@ -53,6 +53,10 @@ EXPORT_C CGlxHdmiController::~CGlxHdmiController()
     DestroyContainer();
     delete iStoredImagePath;
     iStoredImagePath = NULL;
+    if(iGlxTvOut)
+		{
+        delete iGlxTvOut;
+		}
     }
 
 // -----------------------------------------------------------------------------

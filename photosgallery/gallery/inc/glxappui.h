@@ -62,6 +62,10 @@ public: // from CAknAppUi
     //OOM Method
     void HandleApplicationSpecificEventL(TInt aEventType, const TWsEvent& aWsEvent);
 
+    // Callback for periodic timer, static, 
+    static TInt PeriodicCallback( TAny* aPtr );
+    //nonstatic func called from periodic timer
+    void PeriodicCallback();
 
 private:    // From CEikAppUi
     MCoeMessageObserver::TMessageResponse HandleMessageL(
@@ -213,7 +217,11 @@ private:
     */
     TBool iEndKeyPressed;
 
-};
+    /**
+     *Timer to check for IAD updates 30 seconds after application startup.
+     */
+     CPeriodic* iPeriodic ;
+} ;
 
 
 #endif // C_GLXWERAPPUI_H

@@ -11,79 +11,97 @@
 *
 * Contributors:
 *
-* Description:    Delete command handler
+* Description:    Save command handler
 *
 */
-
-
-
 
 #ifndef __C_GLXCOMMANDHANDLERSAVE_H__
 #define __C_GLXCOMMANDHANDLERSAVE_H__
 
 #include <e32base.h>
-#include <glxmpxcommandcommandhandler.h>
+#include <glxcommandhandler.h>
 #include <glximageviewermanager.h>
-
-class MGlxMediaListProvider;
-class CGlxUiUtility;
 
 /**
  * @class CGlxCommandHandlerSave
  *
- * Command handler that deletes selected items from a media list.
+ * Command handler that saves the current item to the file system.
  *
  */
 
 NONSHARABLE_CLASS( CGlxCommandHandlerSave)
-    : public CGlxMpxCommandCommandHandler
+    : public CGlxCommandHandler
     {
 public:
     /**
      * Two-phase constructor
-     * @param aMediaListProvider object that provides the media list
-     * @param aHasToolbarItem Whether Command Should be toolbar item (ETrue - if toolbar item)
      * @return pointer to CGlxCommandHandlerSave object
      */
-    IMPORT_C static CGlxCommandHandlerSave* NewL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
-        
+    IMPORT_C static CGlxCommandHandlerSave* NewL();
+
     /** Destructor */
     IMPORT_C ~CGlxCommandHandlerSave();
-    
-public: // From CGlxMpxCommandCommandHandler
-    /** See @ref CGlxMpxCommandCommandHandler::CreateCommandL */
-    virtual CMPXCommand* CreateCommandL(TInt aCommandId, MGlxMediaList& aList,
-        TBool& aConsume) const;    
+   
+public: // From MGlxCommandHandler
+	/**
+	 * Execute the command, if applicable
+	 * @param aCommand The command to handle
+	 * @return ETrue if command was handled
+	 */
+	TBool ExecuteL( TInt aCommandId);    
 
-public: // From CGlxCommandHandler
-    /** See @ref CGlxCommandHandler::DoActivateL */
-    void DoActivateL(TInt aViewId);
-    virtual void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
-     /** See @ref CGlxCommandHandler::OfferKeyEventL  */
-    TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent, TEventCode aType);
+	/**
+	 * Modify a menu before it is displayed.
+	 * @param aResourceId The resource ID of the menu
+	 * @param aMenuPane The in-memory representation of the menu pane
+	 */
+	void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
+	
+	/**
+	 * Called when the owning view is activated
+	 * @param aViewId The ID of the view
+	 */
+	void DoActivateL(TInt aViewId);
 
-protected:
-     /** See @ref CGlxCommandHandler::PopulateToolbar*/
-    void PopulateToolbarL();
+	/**
+	 * Called when the owning view is deactivated
+	 */
+	void Deactivate();
+	
+	/**
+	 * Offers key events to the command handler
+	 * @param aKeyEvent The key event. 
+	 * @param aType The type of key event: EEventKey, EEventKeyUp or EEventKeyDown
+	 * @return Indicates whether or not the key event was used by this control. EKeyWasNotConsumed or EKeyWasConsumed
+	 */
+	TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent, TEventCode aType);
+
+	/**
+	 * Perform any actions needed before the options menu is displayed.
+	 * The view calling this must first arrange a wait dialog to be displayed, as this operation may take
+	 * a long time to complete
+	 */
+	void PreDynInitMenuPaneL( TInt aResourceId );
+	
+    /**
+     * See @ref MGlxCommandHandler::GetRequiredAttributesL
+     * No implementation required
+     */	
+    void GetRequiredAttributesL(RArray< TMPXAttribute >& /*aAttributes*/,
+                                TBool /*aFilterUsingSelection*/,
+                                TBool /*aFilterUsingCommandId*/, 
+                                TInt /*aCommandId*/) const {}
 
 private:
     /** Second phase constructor */
     void ConstructL();
 
     /** Constructor */
-    CGlxCommandHandlerSave(MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);    
-
-    
-private:
-    /// Resource file offset
-    TInt iResourceOffset;
-    
- 
-    CGlxUiUtility* iUiUtility;
+    CGlxCommandHandlerSave();    
+   
+private:  
     // Not own
     CGlxImageViewerManager* iImageViewerInstance;
-    };
-    
+    }; 
 
 #endif // __C_GLXCOMMANDHANDLERSAVE_H__

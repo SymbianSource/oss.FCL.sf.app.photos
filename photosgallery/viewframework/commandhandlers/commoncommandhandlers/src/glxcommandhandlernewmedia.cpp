@@ -35,6 +35,7 @@
 #include <glxfetchcontextremover.h>
 #include <glxgeneraluiutilities.h>
 #include <glxpanic.h>
+#include <glxtracer.h>
 #include <glxresourceutilities.h>                // for CGlxResourceUtilities
 #include <glxsetappstate.h>
 #include <glxtextentrypopup.h>
@@ -61,6 +62,7 @@ _LIT(KFileNameFormatString, "(%+02u)");
 //
 EXPORT_C CGlxCommandHandlerNewMedia* CGlxCommandHandlerNewMedia::NewL(MGlxMediaListProvider* aMediaListProvider)
     {
+    TRACER("CGlxCommandHandlerNewMedia* CGlxCommandHandlerNewMedia::NewL");
     CGlxCommandHandlerNewMedia* self = new (ELeave) CGlxCommandHandlerNewMedia(aMediaListProvider);
     CleanupStack::PushL(self);
     self->ConstructL();
@@ -86,6 +88,7 @@ CGlxCommandHandlerNewMedia::CGlxCommandHandlerNewMedia(MGlxMediaListProvider* aM
 void CGlxCommandHandlerNewMedia::DoHandleCommandCompleteL(TAny* /*aSessionId*/, CMPXCommand* aCommandResult, 
             							TInt aError, MGlxMediaList* /*aList*/)
 	{
+    TRACER("CGlxCommandHandlerNewMedia::DoHandleCommandCompleteL");
 	if (aError == KErrNone && aCommandResult && aCommandResult->IsSupported(KMPXMediaGeneralId))
     	{	
     	iNewMediaId = TGlxMediaId(aCommandResult->ValueTObjectL<TMPXItemId>(KMPXMediaGeneralId));
@@ -117,6 +120,7 @@ EXPORT_C TBool CGlxCommandHandlerNewMedia::OkToExit() const
 //
 void CGlxCommandHandlerNewMedia::ConstructL()
     {
+    TRACER("CGlxCommandHandlerNewMedia::ConstructL()");
     iFileNameAlreadyExists = EFalse ;
     // Load resource file
 	TParse parse;
@@ -139,6 +143,7 @@ void CGlxCommandHandlerNewMedia::ConstructL()
 //
 EXPORT_C CGlxCommandHandlerNewMedia::~CGlxCommandHandlerNewMedia()
     {
+    TRACER("CGlxCommandHandlerNewMedia::~CGlxCommandHandlerNewMedia()");
     if ( iResourceOffset )
         {
         CCoeEnv::Static()->DeleteResourceFile(iResourceOffset);
@@ -155,6 +160,7 @@ EXPORT_C CGlxCommandHandlerNewMedia::~CGlxCommandHandlerNewMedia()
 //
 EXPORT_C TInt CGlxCommandHandlerNewMedia::ExecuteLD(TGlxMediaId& aNewMediaId)
 	{
+    TRACER("CGlxCommandHandlerNewMedia::ExecuteLD");
 	CleanupStack::PushL(this);
 	iSchedulerWait = new (ELeave) CActiveSchedulerWait();
 	
@@ -182,6 +188,7 @@ EXPORT_C TInt CGlxCommandHandlerNewMedia::ExecuteLD(TGlxMediaId& aNewMediaId)
 CMPXCommand* CGlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/, 
         MGlxMediaList& aMediaList, TBool& /*aConsume*/) const
     {
+    TRACER("CGlxCommandHandlerNewMedia::CreateCommandL");
     iOkToExit = ETrue;
     
     CMPXCollectionPath* path = aMediaList.PathLC( NGlxListDefs::EPathParent );
@@ -189,7 +196,13 @@ CMPXCommand* CGlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
 
     TBuf <KMaxNewMediaItemTitleLength> defaultNewMediaItemTitle;
     
-    TitlesL(TGlxMediaId(path->Id(0)), defaultNewMediaItemTitle);
+    TRAPD(error, TitlesL(TGlxMediaId(path->Id(0)), defaultNewMediaItemTitle));
+    if(error != KErrNone)
+        {
+        iNewMediaCreationError = KErrCancel;
+        CleanupStack::PopAndDestroy(path);
+        return command;
+        }
     
     HBufC* mediaPopupTitle = StringLoader::LoadLC(R_GLX_PROMPT_NAME);
     if(iFileNameAlreadyExists)
@@ -229,6 +242,7 @@ CMPXCommand* CGlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
 // 
 void CGlxCommandHandlerNewMedia::HandleErrorL(TInt aError) 
 	{
+    TRACER("CGlxCommandHandlerNewMedia::HandleErrorL");
 	if (aError == KErrAlreadyExists && iNewMediaItemTitle)
 		{
 		HBufC* info = StringLoader::LoadLC(R_GLX_NAME_ALREADY_USED, *iNewMediaItemTitle);
@@ -258,6 +272,7 @@ void CGlxCommandHandlerNewMedia::HandleErrorL(TInt aError)
 //	
 EXPORT_C TBool CGlxCommandHandlerNewMedia::BypassFiltersForExecute() const
     {
+    TRACER("CGlxCommandHandlerNewMedia::BypassFiltersForExecute()");
     // if iSchedulerWait exists then we know the command is being executed from
     // the ExecuteLD() method and filtering is not required.
     return iSchedulerWait != NULL;
@@ -271,6 +286,7 @@ EXPORT_C TBool CGlxCommandHandlerNewMedia::BypassFiltersForExecute() const
 
 void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId, TDes& aDefaultNewMediaItemTitle) const
 	{
+    TRACER("CGlxCommandHandlerNewMedia::TitlesL");
     CMPXCollectionPath* path = CMPXCollectionPath::NewL();
     CleanupStack::PushL(path);
     MGlxMediaList* rootList = MGlxMediaList::InstanceL(*path);
@@ -315,6 +331,7 @@ void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId, TDes& 
 HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL
                                    (const TDesC& aDefaultNewMediaItemTitle, MGlxMediaList& aList) const
     {        
+    TRACER("CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL");
     TGlxSequentialIterator iter;
     CGlxAttributeContext* attributeContext = new (ELeave) CGlxAttributeContext(&iter);
     CleanupStack::PushL(attributeContext);
@@ -415,6 +432,7 @@ HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL
 // 
 void CGlxCommandHandlerNewMedia::SetFocusL(TInt aIndex)
     {
+    TRACER("CGlxCommandHandlerNewMedia::SetFocusL");
     iOkToExit = ETrue;
     MediaList().SetFocusL(NGlxListDefs::EAbsolute, aIndex);
     TryExitL(KErrNone);
@@ -426,6 +444,7 @@ void CGlxCommandHandlerNewMedia::SetFocusL(TInt aIndex)
 //  
 EXPORT_C void CGlxCommandHandlerNewMedia::HandleItemAddedL(TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList)
     {
+    TRACER("CGlxCommandHandlerNewMedia::HandleItemAddedL");
     if(aList == &MediaList() && iNewMediaId != KGlxCollectionRootId)
         {
         for (TInt i = aStartIndex; i <= aEndIndex; i++)
@@ -450,6 +469,7 @@ CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::
     // running before it. (Unless they too are scheduled to run and have the maximum
     // possible priority
     {
+    TRACER("CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::CGlxAsyncFocuser");
     __ASSERT_DEBUG(aGlxCommandHandlerNewMedia, Panic(EGlxPanicNullPointer));
     CActiveScheduler::Add(this);
     }
@@ -461,6 +481,7 @@ CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::
 CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::
     ~CGlxAsyncFocuser()
     {
+    TRACER("CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::~CGlxAsyncFocuser()");
     Cancel();
     }
 
@@ -470,6 +491,7 @@ CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::
 //  
 void CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::RunL()
     {
+    TRACER("CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::RunL()");
     iGlxCommandHandlerNewMedia->SetFocusL(iFocusIndex);
     }
 
@@ -489,6 +511,7 @@ void CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::DoCancel()
 //  
 void CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::SetFocus(TInt aIndex)
     {
+    TRACER("CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::SetFocus()");
     iFocusIndex = aIndex;
     TRequestStatus* requestStatus = &iStatus;
     User::RequestComplete(requestStatus,KErrNone);

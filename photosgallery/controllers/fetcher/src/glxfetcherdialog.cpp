@@ -44,7 +44,6 @@
 #include "glxfetchercontainer.h"
 #include "glxfetcher.hrh"
 
-#define GetAppUi() (dynamic_cast<CAknAppUi*>(iEikonEnv->EikAppUi()))
 const TInt KControlId = 1;
      
 //-----------------------------------------------------------------------------
@@ -92,9 +91,9 @@ CGlxFetcherDialog::~CGlxFetcherDialog()
 	if(iFetcherContainer)
 	    {
 	    // Restore the Toolbar as it was in the Calling application
-	    if(GetAppUi()->CurrentFixedToolbar())  // there is Hardware Specific Output for Fixed ToolBar
+	    if(iAvkonAppUi->CurrentFixedToolbar())  // there is Hardware Specific Output for Fixed ToolBar
 	        {
-	        GetAppUi()->CurrentFixedToolbar()->SetToolbarVisibility(ETrue);
+	        iAvkonAppUi->CurrentFixedToolbar()->SetToolbarVisibility(ETrue);
 	        }
 
 	    TRAP_IGNORE(iFetcherContainer->SetPreviousTitleL());
@@ -116,9 +115,9 @@ void CGlxFetcherDialog::ConstructL()
     CAknDialog::ConstructL( R_MULTISELECT_FETCHER_MENUBAR );
 
     // Get the Instance of the toolbar and disable it as it is note required in the Fetcher Application
-    if(GetAppUi()->CurrentFixedToolbar())  // there is Hardware Specific Output for Fixed ToolBar
+    if (iAvkonAppUi->CurrentFixedToolbar())  // there is Hardware Specific Output for Fixed ToolBar
         {
-        GetAppUi()->CurrentFixedToolbar()->SetToolbarVisibility(EFalse);
+        iAvkonAppUi->CurrentFixedToolbar()->SetToolbarVisibility(EFalse);
         }
 	// Get the Hitchcock environment.
     iUiUtility = CGlxUiUtility::UtilityL();

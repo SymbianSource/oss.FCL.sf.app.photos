@@ -69,6 +69,9 @@ public:
 	    
     /** Destructor */
 	IMPORT_C ~CGlxCommandHandlerAddToContainer();
+	
+	// from MProgressDialogCallback
+	void DialogDismissedL(TInt aButtonId);
 
 protected: // From CGlxMediaListCommandHandler
 

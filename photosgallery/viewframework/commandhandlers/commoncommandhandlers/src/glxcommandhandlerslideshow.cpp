@@ -50,10 +50,6 @@ namespace
 	const TInt KShwDefaultBufferSize = 128;
 	}
 
-// This class does not have access to a CEikonEnv and hence 
-// pls ignore the code scanner warning - Using CEikonEnv::Static	
-#define GetAppUi() (dynamic_cast<CAknViewAppUi*>(CEikonEnv::Static()->EikAppUi()))
-
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
 // ---------------------------------------------------------------------------
@@ -300,7 +296,7 @@ TBool CGlxCommandHandlerSlideshow::DoExecuteL(TInt aCommandId,
 				}
 			// show HUI display
 			CGlxUiUtility::ShowAlfDisplayL();           	
-			GetAppUi()->ProcessCommandL(EGlxCmdResetView);
+			iAvkonAppUi->ProcessCommandL(EGlxCmdResetView);
             break;
             }
         case EGlxCmdShowViaUpnpStateChanged:

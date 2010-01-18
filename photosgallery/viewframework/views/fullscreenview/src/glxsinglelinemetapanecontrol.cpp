@@ -70,18 +70,15 @@ _LIT(KFormat, " ");
 _LIT8(KTagLoc, "Loc");
 _LIT8(KTagFav, "Fav");
 
-#define GetAppUi() (dynamic_cast<CAknAppUi*>(CEikonEnv::Static()->EikAppUi()))
-
-
 // ---------------------------------------------------------------------------
 // NewL
 // ---------------------------------------------------------------------------
 //  
-CGlxSinleLineMetaPane* CGlxSinleLineMetaPane::NewL(CGlxFullScreenViewImp& aFullscreenView,
+CGlxSingleLineMetaPane* CGlxSingleLineMetaPane::NewL(CGlxFullScreenViewImp& aFullscreenView,
         MGlxMediaList& aMediaList, CGlxUiUtility& aUiUtility)
     {
-    TRACER("CGlxSinleLineMetaPane* CGlxSinleLineMetaPane::NewL()");
-    CGlxSinleLineMetaPane* self = new (ELeave) CGlxSinleLineMetaPane(aFullscreenView,
+    TRACER("CGlxSingleLineMetaPane* CGlxSingleLineMetaPane::NewL()");
+    CGlxSingleLineMetaPane* self = new (ELeave) CGlxSingleLineMetaPane(aFullscreenView,
             aMediaList, aUiUtility);
     CleanupStack::PushL(self);
     self->ConstructL();
@@ -90,14 +87,14 @@ CGlxSinleLineMetaPane* CGlxSinleLineMetaPane::NewL(CGlxFullScreenViewImp& aFulls
     }
 
 // ---------------------------------------------------------------------------
-// CGlxSinleLineMetaPane() constructor
+// CGlxSingleLineMetaPane() constructor
 // ---------------------------------------------------------------------------
 //  
-CGlxSinleLineMetaPane::CGlxSinleLineMetaPane(CGlxFullScreenViewImp& aFullscreenView, 
+CGlxSingleLineMetaPane::CGlxSingleLineMetaPane(CGlxFullScreenViewImp& aFullscreenView, 
         MGlxMediaList& aMediaList, CGlxUiUtility& aUiUtility) :iFullscreenView(aFullscreenView),
         iMediaList(aMediaList), iUiUtility(aUiUtility)
     {
-    TRACER("CGlxSinleLineMetaPane* CGlxSinleLineMetaPane::NewL()");
+    TRACER("CGlxSingleLineMetaPane* CGlxSingleLineMetaPane::NewL()");
     // No Implementation
     }
 
@@ -105,9 +102,9 @@ CGlxSinleLineMetaPane::CGlxSinleLineMetaPane(CGlxFullScreenViewImp& aFullscreenV
 // ConstructL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::ConstructL()
+void CGlxSingleLineMetaPane::ConstructL()
     {
-    TRACER("CGlxSinleLineMetaPane::ConstructL()");
+    TRACER("CGlxSingleLineMetaPane::ConstructL()");
     // Construct the base class.
     // Get the icon file
     TFileName resFile(KDC_APP_BITMAP_DIR);
@@ -185,12 +182,12 @@ void CGlxSinleLineMetaPane::ConstructL()
     }
 
 // ---------------------------------------------------------------------------
-// ~CGlxSinleLineMetaPane Destructor
+// ~CGlxSingleLineMetaPane Destructor
 // ---------------------------------------------------------------------------
 //  
-CGlxSinleLineMetaPane::~CGlxSinleLineMetaPane()
+CGlxSingleLineMetaPane::~CGlxSingleLineMetaPane()
     {
-    TRACER("CGlxSinleLineMetaPane::~CGlxSinleLineMetaPane()");
+    TRACER("CGlxSingleLineMetaPane::~CGlxSingleLineMetaPane()");
     iMediaList.RemoveMediaListObserver(this);
     if( iAttribContext )
         {
@@ -213,9 +210,9 @@ CGlxSinleLineMetaPane::~CGlxSinleLineMetaPane()
 // CreateIconTextureAndUpdateVisualsL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::CreateIconTextureAndUpdateVisualsL()
+void CGlxSingleLineMetaPane::CreateIconTextureAndUpdateVisualsL()
     {
-    TRACER("CGlxSinleLineMetaPane::CreateIconTextureAndUpdateVisualsL()");
+    TRACER("CGlxSingleLineMetaPane::CreateIconTextureAndUpdateVisualsL()");
     // Get the icon file
     TFileName resFile(KDC_APP_BITMAP_DIR);
     resFile.Append(KGlxIconsFilename);
@@ -235,9 +232,9 @@ void CGlxSinleLineMetaPane::CreateIconTextureAndUpdateVisualsL()
 // @bug :tapadar :major :This function is using magic numbers, would be corrected with updated LAF docs
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::CreateGridL()
+void CGlxSingleLineMetaPane::CreateGridL()
     {
-    TRACER("CGlxSinleLineMetaPane::CreateGridL()");
+    TRACER("CGlxSingleLineMetaPane::CreateGridL()");
 
     iGridVisual->SetPadding(TPoint(1,1));
     iGridVisual->SetInnerPadding( TPoint(1,1) );
@@ -289,10 +286,10 @@ void CGlxSinleLineMetaPane::CreateGridL()
 // ShowMetaPane
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::ShowMetaPane(TBool aShow)
+void CGlxSingleLineMetaPane::ShowMetaPane(TBool aShow)
     {
-    TRACER("CGlxSinleLineMetaPane::ShowMetaPane()");
-    GLX_LOG_INFO1("CGlxSinleLineMetaPane::ShowMetaPane() value %d",aShow);
+    TRACER("CGlxSingleLineMetaPane::ShowMetaPane()");
+    GLX_LOG_INFO1("CGlxSingleLineMetaPane::ShowMetaPane() value %d",aShow);
     if(aShow)
         {
         iMainVisual->SetOpacity(KOpacityOpaque);    
@@ -307,14 +304,14 @@ void CGlxSinleLineMetaPane::ShowMetaPane(TBool aShow)
 // OfferEventL
 // ---------------------------------------------------------------------------
 //  
-TBool CGlxSinleLineMetaPane::OfferEventL(const TAlfEvent &aEvent)
+TBool CGlxSingleLineMetaPane::OfferEventL(const TAlfEvent &aEvent)
     {
-    TRACER("CGlxSinleLineMetaPane::OfferEventL()");
+    TRACER("CGlxSingleLineMetaPane::OfferEventL()");
     TBool consumed = EFalse;
     
     if (aEvent.IsKeyEvent())
         {
-        GLX_LOG_INFO( "CGlxSinleLineMetaPane::OfferEventL::KeyEvent");
+        GLX_LOG_INFO( "CGlxSingleLineMetaPane::OfferEventL::KeyEvent");
         }
 
     // Dont handle if not visible. [HACK ALERT]: This might probably be a hack. 
@@ -326,27 +323,27 @@ TBool CGlxSinleLineMetaPane::OfferEventL(const TAlfEvent &aEvent)
     
     if(aEvent.IsPointerEvent() && aEvent.PointerDown() )
         {
-        GLX_LOG_INFO( "CGlxSinleLineMetaPane::OfferEventL::PointerEvent");
+        GLX_LOG_INFO( "CGlxSingleLineMetaPane::OfferEventL::PointerEvent");
         CAlfVisual* onVisual = NULL;
         onVisual = aEvent.Visual();
         if(AlfUtil::TagMatches(onVisual->Tag(), KTagFav))
             {
-            GLX_LOG_INFO( "CGlxSinleLineMetaPane::OfferEventL::PointerEvent - KTagFav");
+            GLX_LOG_INFO( "CGlxSingleLineMetaPane::OfferEventL::PointerEvent - KTagFav");
             if (iFavIconStatus)
                 {
-                GLX_LOG_INFO( "CGlxSinleLineMetaPane::OfferEventL::PointerEvent - Already Fav");
+                GLX_LOG_INFO( "CGlxSingleLineMetaPane::OfferEventL::PointerEvent - Already Fav");
                 iFullscreenView.HandleCommandL(EGlxCmdRemoveFromFavourites,this);
                 }
             else
                 {
-                GLX_LOG_INFO( "CGlxSinleLineMetaPane::OfferEventL::PointerEvent - Add to Fav");
+                GLX_LOG_INFO( "CGlxSingleLineMetaPane::OfferEventL::PointerEvent - Add to Fav");
                 iFullscreenView.HandleCommandL(EGlxCmdAddToFavourites,this);    
                 }
             consumed = ETrue;
             }
         else if (AlfUtil::TagMatches(onVisual->Tag(), KTagLoc))
             {
-            GLX_LOG_INFO( "CGlxSinleLineMetaPane::OfferEventL::PointerEvent - KTagLoc , Location info present");
+            GLX_LOG_INFO( "CGlxSingleLineMetaPane::OfferEventL::PointerEvent - KTagLoc , Location info present");
             iFullscreenView.HandleCommandL(KGlxCmdMnShowMap,this); 
             consumed = ETrue;
             }
@@ -358,9 +355,9 @@ TBool CGlxSinleLineMetaPane::OfferEventL(const TAlfEvent &aEvent)
 // VisualLayoutUpdated
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::VisualLayoutUpdated(CAlfVisual&/* aVisual*/)
+void CGlxSingleLineMetaPane::VisualLayoutUpdated(CAlfVisual&/* aVisual*/)
     {
-    TRACER("CGlxSinleLineMetaPane::VisualLayoutUpdated()");
+    TRACER("CGlxSingleLineMetaPane::VisualLayoutUpdated()");
     // Update the Screen positions only if the layout has changed.
     // For performace improvement
     TRect presentScreenSize = GetScreenSize();
@@ -375,9 +372,9 @@ void CGlxSinleLineMetaPane::VisualLayoutUpdated(CAlfVisual&/* aVisual*/)
 // DetermineOrientation
 // ---------------------------------------------------------------------------
 //  
-TInt CGlxSinleLineMetaPane::DetermineOrientation(TRect aRect)
+TInt CGlxSingleLineMetaPane::DetermineOrientation(TRect aRect)
     {
-    TRACER("CGlxSinleLineMetaPane::DetermineOrientation()");
+    TRACER("CGlxSingleLineMetaPane::DetermineOrientation()");
     TInt orientationValue = (aRect.Width()>aRect.Height()?EMetaOrinentaionLandscape:
                                                             EMetaOrinentaionPortrait);
     return orientationValue;
@@ -387,9 +384,9 @@ TInt CGlxSinleLineMetaPane::DetermineOrientation(TRect aRect)
 // GetScreenSize
 // ---------------------------------------------------------------------------
 //  
-TRect CGlxSinleLineMetaPane::GetScreenSize()
+TRect CGlxSingleLineMetaPane::GetScreenSize()
     {
-    TRACER("CGlxSinleLineMetaPane::GetScreenSize()");
+    TRACER("CGlxSingleLineMetaPane::GetScreenSize()");
     return AlfUtil::ScreenSize();
     }
 // ---------------------------------------------------------------------------
@@ -398,9 +395,9 @@ TRect CGlxSinleLineMetaPane::GetScreenSize()
 // @bug :tapadar :major :This function needs to be worked upon across corrolla and ivalo once LAF present
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::UpdatePosition()
+void CGlxSingleLineMetaPane::UpdatePosition()
     {
-    TRACER("CGlxSinleLineMetaPane::UpdatePosition()");
+    TRACER("CGlxSingleLineMetaPane::UpdatePosition()");
     TRect rect = GetScreenSize();
     TInt screenWidth = rect.Width();
     TInt screenHeight = rect.Height();
@@ -410,8 +407,8 @@ void CGlxSinleLineMetaPane::UpdatePosition()
     iMainVisual->ClearFlag( EAlfVisualFlagLayoutUpdateNotification);
     if (EMetaOrinentaionPortrait == orientation)
         {
-        GLX_LOG_INFO("CGlxSinleLineMetaPane::UpdatePosition - EMetaOrinentaionPortrait Orientation");
-        CAknToolbar* toolbar = GetAppUi()->CurrentFixedToolbar();
+        GLX_LOG_INFO("CGlxSingleLineMetaPane::UpdatePosition - EMetaOrinentaionPortrait Orientation");
+        CAknToolbar* toolbar = iAvkonAppUi->CurrentFixedToolbar();
         
         if (toolbar->IsToolbarDisabled())
             {
@@ -428,14 +425,14 @@ void CGlxSinleLineMetaPane::UpdatePosition()
         }
     else if(EMetaOrinentaionLandscape == orientation)
         {
-        GLX_LOG_INFO("CGlxSinleLineMetaPane::UpdatePosition - EMetaOrinentaionLandscape Orientation");
+        GLX_LOG_INFO("CGlxSingleLineMetaPane::UpdatePosition - EMetaOrinentaionLandscape Orientation");
         //set the control size
         iMainVisual->SetSize(TSize(screenWidth-100,45));
         iMainVisual->SetPos(TAlfRealPoint(3,screenHeight-45));
         }
     else
         {
-        GLX_LOG_INFO("CGlxSinleLineMetaPane::UpdatePosition - Wrong Orientation");
+        GLX_LOG_INFO("CGlxSingleLineMetaPane::UpdatePosition - Wrong Orientation");
         }
     iMainVisual->SetFlag ( EAlfVisualFlagLayoutUpdateNotification);
     }
@@ -444,10 +441,10 @@ void CGlxSinleLineMetaPane::UpdatePosition()
 // UpdateMetaPaneL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::UpdateMetaPaneL(TInt aFocusIndex, MGlxMediaList* aList, 
+void CGlxSingleLineMetaPane::UpdateMetaPaneL(TInt aFocusIndex, MGlxMediaList* aList, 
             TBool aUpdateFavIcon)
     {
-    TRACER("CGlxSinleLineMetaPane::UpdateMetaPaneL()");
+    TRACER("CGlxSingleLineMetaPane::UpdateMetaPaneL()");
     
     const TGlxMedia& item = aList->Item(aFocusIndex);
     const CGlxMedia* media = item.Properties();
@@ -497,9 +494,9 @@ void CGlxSinleLineMetaPane::UpdateMetaPaneL(TInt aFocusIndex, MGlxMediaList* aLi
 // HandleUpdateIconL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleUpdateIconL(TBool aModify)
+void CGlxSingleLineMetaPane::HandleUpdateIconL(TBool aModify)
     {
-    TRACER("CGlxSinleLineMetaPane::HandleUpdateIconL()");
+    TRACER("CGlxSingleLineMetaPane::HandleUpdateIconL()");
     // Check if the item is added to favourites already
     if (aModify)
         {
@@ -517,10 +514,10 @@ void CGlxSinleLineMetaPane::HandleUpdateIconL(TBool aModify)
 // HandleItemAddedL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndIndex*/,
+void CGlxSingleLineMetaPane::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndIndex*/,
         MGlxMediaList* /*aList*/ )
     {
-    TRACER("CGlxSinleLineMetaPane::HandleItemAddedL()");
+    TRACER("CGlxSingleLineMetaPane::HandleItemAddedL()");
     // No Implementation
     }
 
@@ -528,10 +525,10 @@ void CGlxSinleLineMetaPane::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndI
 // HandleItemRemovedL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleItemRemovedL( TInt/* aStartIndex*/, 
+void CGlxSingleLineMetaPane::HandleItemRemovedL( TInt/* aStartIndex*/, 
         TInt/* aEndIndex*/, MGlxMediaList*/* aList */)
     {
-    TRACER("CGlxSinleLineMetaPane::HandleItemRemovedL()");
+    TRACER("CGlxSingleLineMetaPane::HandleItemRemovedL()");
     // No Implementation
     }
 
@@ -539,13 +536,13 @@ void CGlxSinleLineMetaPane::HandleItemRemovedL( TInt/* aStartIndex*/,
 // HandleAttributesAvailableL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleAttributesAvailableL( TInt aItemIndex, 
+void CGlxSingleLineMetaPane::HandleAttributesAvailableL( TInt aItemIndex, 
     const RArray<TMPXAttribute>& /*aAttributes*/, MGlxMediaList* aList )
     {
-    TRACER("CGlxSinleLineMetaPane::HandleAttributesAvailableL()");
+    TRACER("CGlxSingleLineMetaPane::HandleAttributesAvailableL()");
 
     TInt focusIndex = iMediaList.FocusIndex();
-    GLX_LOG_INFO2("CGlxSinleLineMetaPane::HandleAttributesAvailableL FocusIndex is : %d and ItemIdex is : %d", 
+    GLX_LOG_INFO2("CGlxSingleLineMetaPane::HandleAttributesAvailableL FocusIndex is : %d and ItemIdex is : %d", 
             focusIndex, aItemIndex);
     
     // Update the metapane only for the focus Index, do not make unnecessary calls.
@@ -561,10 +558,10 @@ void CGlxSinleLineMetaPane::HandleAttributesAvailableL( TInt aItemIndex,
 // HandleFocusChangedL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleFocusChangedL( NGlxListDefs::TFocusChangeType /*aType*/, 
+void CGlxSingleLineMetaPane::HandleFocusChangedL( NGlxListDefs::TFocusChangeType /*aType*/, 
 TInt aNewIndex, TInt /*aOldIndex*/, MGlxMediaList* aList )
     {
-    TRACER("CGlxSinleLineMetaPane::HandleFocusChangedL()");
+    TRACER("CGlxSingleLineMetaPane::HandleFocusChangedL()");
     // Check the count here to ensure the medialist is present
     // this case may be occurred when the last item of the Fs view is deleted and it 
     // wants to go back to the grid view
@@ -585,10 +582,10 @@ TInt aNewIndex, TInt /*aOldIndex*/, MGlxMediaList* aList )
 // HandleItemSelectedL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleItemSelectedL(TInt/* aIndex*/, TBool/* aSelected*/,
+void CGlxSingleLineMetaPane::HandleItemSelectedL(TInt/* aIndex*/, TBool/* aSelected*/,
         MGlxMediaList* /*aList*/ )
     {
-    TRACER("CGlxSinleLineMetaPane::HandleItemSelectedL()");
+    TRACER("CGlxSingleLineMetaPane::HandleItemSelectedL()");
     // No Implementation
     }
 
@@ -596,10 +593,10 @@ void CGlxSinleLineMetaPane::HandleItemSelectedL(TInt/* aIndex*/, TBool/* aSelect
 // HandleMessageL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleMessageL( const CMPXMessage& /*aMessage*/, 
+void CGlxSingleLineMetaPane::HandleMessageL( const CMPXMessage& /*aMessage*/, 
         MGlxMediaList*/* aList */)
     {
-    TRACER("CGlxSinleLineMetaPane::HandleMessageL()");
+    TRACER("CGlxSingleLineMetaPane::HandleMessageL()");
     // No Implementation
     }
 
@@ -607,9 +604,9 @@ void CGlxSinleLineMetaPane::HandleMessageL( const CMPXMessage& /*aMessage*/,
 // HandleError
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleError( TInt /*aError*/ )
+void CGlxSingleLineMetaPane::HandleError( TInt /*aError*/ )
     {
-    TRACER("CGlxSinleLineMetaPane::HandleError()");
+    TRACER("CGlxSingleLineMetaPane::HandleError()");
     // No Implementation
     }
 
@@ -617,10 +614,10 @@ void CGlxSinleLineMetaPane::HandleError( TInt /*aError*/ )
 // HandleCommandCompleteL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleCommandCompleteL( CMPXCommand* /*aCommandResult*/, 
+void CGlxSingleLineMetaPane::HandleCommandCompleteL( CMPXCommand* /*aCommandResult*/, 
         TInt /*aError*/, MGlxMediaList*/* aList */)
     {
-    TRACER("CGlxSinleLineMetaPane::HandleCommandCompleteL()");
+    TRACER("CGlxSingleLineMetaPane::HandleCommandCompleteL()");
     // No Implementation
     }
 
@@ -628,9 +625,9 @@ void CGlxSinleLineMetaPane::HandleCommandCompleteL( CMPXCommand* /*aCommandResul
 // HandleMediaL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleMediaL( TInt /*aListIndex*/, MGlxMediaList*/* aList */)
+void CGlxSingleLineMetaPane::HandleMediaL( TInt /*aListIndex*/, MGlxMediaList*/* aList */)
     {
-    TRACER("CGlxSinleLineMetaPane::HandleMediaL()");
+    TRACER("CGlxSingleLineMetaPane::HandleMediaL()");
     // No Implementation
     }
 
@@ -638,10 +635,10 @@ void CGlxSinleLineMetaPane::HandleMediaL( TInt /*aListIndex*/, MGlxMediaList*/* 
 // HandleItemModifiedL
 // ---------------------------------------------------------------------------
 //  
-void CGlxSinleLineMetaPane::HandleItemModifiedL( const RArray<TInt>& /*aItemIndexes*/,
+void CGlxSingleLineMetaPane::HandleItemModifiedL( const RArray<TInt>& /*aItemIndexes*/,
         MGlxMediaList*/* aList */)
     {
-    TRACER("CGlxSinleLineMetaPane::HandleItemModifiedL()");
+    TRACER("CGlxSingleLineMetaPane::HandleItemModifiedL()");
     // No Implementation
     }
 

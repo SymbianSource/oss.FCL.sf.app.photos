@@ -40,7 +40,7 @@ class TGlxMulFullScreenBindingSetFactory;
 class CEikButtonGroupContainer;
 class CGlxActiveMediaListRegistry;
 class CGlxZoomControl;
-class CGlxSinleLineMetaPane;
+class CGlxSingleLineMetaPane;
 class CGlxCommandHandlerAiwShowMapHardKey;
 class CGlxDRMUtility;
 class CGlxHdmiController;
@@ -295,7 +295,7 @@ private:
 	CGlxCommandHandlerAiwShowMapHardKey* iShowOnMapHardKeyhandler;
     
     CGlxScreenFurniture* iScreenFurniture;
-    //CGlxSinleLineMetaPane* iSingleLineMetaPane;
+    //CGlxSingleLineMetaPane* iSingleLineMetaPane;
 //    CHgContextUtility* iContextUtility;
     CGlxHdmiController* iHdmiController;
 	    

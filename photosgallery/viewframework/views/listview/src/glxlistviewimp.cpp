@@ -42,8 +42,12 @@
 #include <aknViewAppUi.h>
 #include <StringLoader.h>					//StringLoader		
 #include <glxsetappstate.h>
+#include <glxthumbnailattributeinfo.h>
 
-const TInt KListDataWindowSize(10);
+const TInt KListDataWindowSize(25);
+const TInt KNoOfPages(2);
+const TInt KBufferTresholdSize(6);
+const TInt KRecreateListSize(5);
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -112,6 +116,8 @@ void CGlxListViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
     
     //Register the view to recieve toolbar events. ViewBase handles the events    
     SetToolbarObserver(this);
+    
+    iBackwardNavigation = EFalse;
     }
 
 // ---------------------------------------------------------------------------
@@ -198,6 +204,11 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
     iBgContext = CAknsBasicBackgroundControlContext::NewL( 
             KAknsIIDQsnBgScreen,apRect,ETrue);
     
+    if(iUiUtility->ViewNavigationDirection() == EGlxNavigationBackwards )
+        {
+        iBackwardNavigation = ETrue;
+        }
+
     iPreviewTNBinding = CGlxPreviewThumbnailBinding::NewL(*this);
     CreateListL();
     if (iPreviewTNBinding)
@@ -205,7 +216,8 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
         iPopulateListTNs  = ETrue;
         CMPXCollectionPath* path = iMediaList->PathLC( 
                 NGlxListDefs::EPathFocusOrSelection );
-        iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs);
+        iPreviewTNBinding->HandleItemChangedL(*path, 
+                iPopulateListTNs, iBackwardNavigation);
         CleanupStack::PopAndDestroy( path );        
         }
 
@@ -328,11 +340,64 @@ TTypeUid::Ptr CGlxListViewImp::MopSupplyObject(TTypeUid aId)
     return CAknView::MopSupplyObject(aId);
 	}
 
-void CGlxListViewImp::Request(TInt /*aRequestStart*/, TInt /*aRequestEnd*/, 
+void CGlxListViewImp::Request(TInt aRequestStart, TInt aRequestEnd, 
         THgScrollDirection /*aDirection*/)
     {
     TRACER("CGlxListViewImp::Request");
+    //Doing this to avoid codescanner warning.
+    TRAP_IGNORE(RequestL(aRequestStart, aRequestEnd));    
     }
+
+// ---------------------------------------------------------------------------
+// RequestL
+// ---------------------------------------------------------------------------
+//
+void CGlxListViewImp::RequestL(TInt aRequestStart, TInt aRequestEnd)
+    {
+    TRACER("CGlxListViewImp::RequestL()");
+    TInt mediaCount = iMediaList->Count();
+    GLX_LOG_INFO1("CGlxListViewImp::RequestL - mediaCount(%d)", mediaCount);
+    if(mediaCount<=0)
+        {
+        return;
+        }
+    
+    TInt visIndex = iList->FirstIndexOnScreen();
+    aRequestStart = (aRequestStart < 0 ? 0 : aRequestStart) ;
+    aRequestEnd = (aRequestEnd >= mediaCount ? (mediaCount-1) : aRequestEnd);
+    GLX_LOG_INFO3("CGlxListViewImp::RequestL - aRequestStart(%d), "
+       "aRequestEnd(%d), visIndex(%d)", aRequestStart, aRequestEnd, visIndex);
+
+    if (visIndex >= mediaCount )
+        {
+        visIndex = mediaCount-1;
+        }
+    if (visIndex < 0 || mediaCount <= 0)
+        {
+        visIndex = 0;
+        }
+
+    for (TInt i=aRequestStart; i<= aRequestEnd; i++)
+        {
+        const TGlxMedia& item = iMediaList->Item(i);
+        iList->ItemL(i).SetTitleL(item.Title());
+        iList->ItemL(i).SetTextL(item.SubTitle());
+        }
+    
+    iList->RefreshScreen(visIndex);
+    
+    if ( visIndex != iLastFocusedIndex && !iPopulateListTNs)
+        {
+        GLX_LOG_INFO1("CGlxListViewImp::RequestL - SetFocusL()"
+                " iPopulateListTNs(%d)", iPopulateListTNs);      
+        GLX_LOG_INFO1("CGlxListViewImp::RequestL - SetFocusL()"
+                " visIndex(%d)", visIndex);
+        iPopulateListTNs = ETrue;
+        iStartIndex = KErrNotFound;
+        iMediaList->SetFocusL(NGlxListDefs::EAbsolute, visIndex);
+        }
+    }
+
 
 void CGlxListViewImp::Release(TInt /*aBufferStart*/, TInt /*aBufferEnd*/)
     {
@@ -371,7 +436,9 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
         /*aMask*/, TInt /*aIndex*/)
     {
     TRACER("CGlxListViewImp::PreviewTNReadyL");
-    
+
+    iPreviewTNBinding->StopTimer();
+
 	TInt focusIndex = iMediaList->FocusIndex();
     TInt mediaCount = iMediaList->Count();
     
@@ -448,7 +515,11 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
                  */
                 if(count==1)
                     {                        
-                    iPreviewTNBinding->StartTimer( iPopulateListTNs );
+                    CMPXCollectionPath* path = iMediaList->PathLC( 
+                            NGlxListDefs::EPathFocusOrSelection );
+                    iPreviewTNBinding->HandleItemChangedL(*path, 
+                            iPopulateListTNs, iBackwardNavigation);
+                    CleanupStack::PopAndDestroy( path );
                     }
                 }
 			}
@@ -486,14 +557,18 @@ void CGlxListViewImp::CreateListL()
 	    
 		iList->SetSelectionObserver(*this);
 		
+	    // Enable Buffer support
+		iList->EnableScrollBufferL(*this, (KNoOfPages * KBufferTresholdSize),
+	            KBufferTresholdSize);
+		
         if (iUiUtility->ViewNavigationDirection() == EGlxNavigationBackwards)
             {
             GLX_DEBUG1("CGlxListViewImp::CreateListL() - SetEmptyTextL()");			
             //set the text to be shown if the list is empty.
             HBufC* emptyText = StringLoader::LoadLC(R_LIST_EMPTY_VIEW_TEXT); 
             iList->SetEmptyTextL(*emptyText);
-            CleanupStack::PopAndDestroy(emptyText);
-            iLastFocusedIndex = iMediaList->FocusIndex();
+            CleanupStack::PopAndDestroy(emptyText);            
+            iLastFocusedIndex = iList->FirstIndexOnScreen();            
             }		
         
 		//Fix for ESLM-7SAHPT::Clear Flag to Disable QWERTY search input in list view
@@ -522,30 +597,36 @@ void CGlxListViewImp::CreateListL()
 // ----------------------------------------------------------------------------
 // 
 void CGlxListViewImp::HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, 
-     MGlxMediaList* /*aList*/ )
-	{
-	TRACER("CGlxListViewImp::HandleItemAddedL");
-	
-	if (iList)
-		{
-		for (TInt i = aStartIndex; i<= aEndIndex; i++)
-			{
-		   	const TGlxMedia& item = iMediaList->Item(i);
-			iList->InsertItem(CHgItem::NewL(CHgItem::EHgItemFlagsNone,
-			        NULL, item.Title(), item.SubTitle()), i);
-			}
-		
-		if(aStartIndex == aEndIndex )
-		    {
-			iLastFocusedIndex = aStartIndex;
-	        iPopulateListTNs = EFalse;
-	        iMediaList->SetFocusL(NGlxListDefs::EAbsolute, iLastFocusedIndex);			
-		    }
+     MGlxMediaList* aList )
+    {
+    TRACER("CGlxListViewImp::HandleItemAddedL");
+    if (iList)
+        {
+        if ((aEndIndex - aStartIndex) >= KRecreateListSize)
+            {
+            iList->ResizeL(aList->Count());
+            }
+        else
+            {
+            for (TInt i = aStartIndex; i<= aEndIndex; i++)
+                {
+                const TGlxMedia& item = iMediaList->Item(i);
+                iList->InsertItem(CHgItem::NewL(CHgItem::EHgItemFlagsNone,
+                        NULL, item.Title(), item.SubTitle()), i);
+                }
 
-		iList->SetSelectedIndex(iLastFocusedIndex);	
-		iList->RefreshScreen(iLastFocusedIndex);
-		}
-	}
+            if(aStartIndex == aEndIndex )
+                {
+                iLastFocusedIndex = aStartIndex;
+                iPopulateListTNs = EFalse;
+                iMediaList->SetFocusL(NGlxListDefs::EAbsolute, iLastFocusedIndex);			
+                }
+
+            iList->SetSelectedIndex(iLastFocusedIndex);	
+            iList->RefreshScreen(iLastFocusedIndex);
+            }
+        }
+    }
 
 // ----------------------------------------------------------------------------
 // HandleItemRemoved
@@ -605,7 +686,8 @@ void CGlxListViewImp::HandleAttributesAvailableL( TInt aItemIndex,
 			iStartIndex = KErrNotFound;
 			CMPXCollectionPath* path = iMediaList->PathLC( 
 					NGlxListDefs::EPathFocusOrSelection );
-			iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs);
+	        iPreviewTNBinding->HandleItemChangedL(*path, 
+	                iPopulateListTNs, iBackwardNavigation);
 			CleanupStack::PopAndDestroy( path ); 		
 			}
     	}
@@ -625,7 +707,8 @@ void CGlxListViewImp::HandleFocusChangedL( NGlxListDefs::
 		{
 		CMPXCollectionPath* path = iMediaList->PathLC( 
 		        NGlxListDefs::EPathFocusOrSelection );
-		iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs);
+        iPreviewTNBinding->HandleItemChangedL(*path, 
+                iPopulateListTNs, iBackwardNavigation);
 		CleanupStack::PopAndDestroy( path );		
 		}
 	}

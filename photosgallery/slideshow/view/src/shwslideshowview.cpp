@@ -337,13 +337,12 @@ void CShwSlideshowView::ConstructL()
 	iShwGestureControl = CShwGestureControl::NewL(*iEnv,*iDisplay,*this);
 	iGestureControlGroup->AppendL( iShwGestureControl );
 	
-	iGestureControl = GestureHelper::CGestureControl::NewLC( 
+	GestureHelper::CGestureControl* gestureControl = GestureHelper::CGestureControl::NewLC( 
             *iShwGestureControl, *iEnv, *iDisplay, KGestureControlGroupId );
+    iGestureControl = gestureControl;
+    CleanupStack::Pop( gestureControl ); // doc says the following takes ownership, but reality is different!
 	iGestureControlGroup->AppendL( iGestureControl );
-	
-    // doc says the following takes ownership, but reality is different!
-    
-    CleanupStack::Pop( iGestureControl );
+
 	// Need a mechanism to distinguish when we receive the MusicVolume 
 	// callback for the first time
 	iCurrentVolume = -1;

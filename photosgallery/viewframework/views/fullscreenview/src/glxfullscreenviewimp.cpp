@@ -70,8 +70,6 @@ using namespace GestureHelper;
 
 using namespace Alf;
 
-//To disable AppUi status pane
-#define GetAppViewUi() (dynamic_cast<CAknViewAppUi*>(CEikonEnv::Static()->EikAppUi()))
 const TInt KGlxScreenTimeout =10000000;
 const TInt KCoverflowDataWindowSize = 1;
 const TInt KGlxMaxSmallImageZoomLevel =150;
@@ -343,7 +341,7 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
             *iZoomButtonGroup, *iSliderWidget, iGestureHelper);
 
     // Create the Metapane
-    //iSingleLineMetaPane = CGlxSinleLineMetaPane::NewL(*this,*iMediaList,*iUiUtility);
+    //iSingleLineMetaPane = CGlxSingleLineMetaPane::NewL(*this,*iMediaList,*iUiUtility);
 
     // hide the screen furniture
     HideUi(ETrue);
@@ -380,39 +378,41 @@ void CGlxFullScreenViewImp::CreateCoverflowWidgetL()
         // Get widget factory from CAlfEnv
         // Factory is then used to create the individual widgets & data model
 
-        IAlfWidgetFactory& widgetFactory = AlfWidgetEnvExtension::widgetFactory(*iEnv); 
+        IAlfWidgetFactory& widgetFactory =
+                AlfWidgetEnvExtension::widgetFactory(*iEnv);
 
-    // create a view widget  
-    iViewWidget = widgetFactory.createViewWidget (
-            KCoverflowViewWidget, 0x113);
-    // hide control and status pane
-    iViewWidget->enableControlPane(EFalse);
-    iViewWidget->enableStatusPane(EFalse);
-    iViewWidget->setRect(TRect(TPoint(0,0),AlfUtil::ScreenSize()));
-    iViewWidget->show(true);
-    // create coverflow widget
-    iCoverFlowWidget = widgetFactory.createWidget<IMulCoverFlowWidget> (
-            KWidgetName, KCoverflowWidget, *iViewWidget, NULL);			
-    iCoverFlowWidget->SetFlags(IMulMultiItemWidget::EMulWidgetDoubleTap);
+        // create a view widget  
+        iViewWidget = widgetFactory.createViewWidget(KCoverflowViewWidget,
+                0x113);
+        // hide control and status pane
+        iViewWidget->enableControlPane(EFalse);
+        iViewWidget->enableStatusPane(EFalse);
+        iViewWidget->setRect(TRect(TPoint(0, 0), AlfUtil::ScreenSize()));
+        iViewWidget->show(true);
+        // create coverflow widget
+        iCoverFlowWidget = widgetFactory.createWidget<IMulCoverFlowWidget> (
+                KWidgetName, KCoverflowWidget, *iViewWidget, NULL);
+        iCoverFlowWidget->SetFlags(IMulMultiItemWidget::EMulWidgetDoubleTap);
 
-    // Widget takes the ownership
-    iCoverFlowWidget->AddEventHandler (*this);
+        // Widget takes the ownership
+        iCoverFlowWidget->AddEventHandler(*this);
 
-    // hide appui's status pane  
-    GetAppViewUi()->StatusPane()->MakeVisible(EFalse);
+        CAknViewAppUi* appui = AppUi();
+        if ( appui )
+            {
+            appui->StatusPane()->MakeVisible(EFalse);
+            appui->Cba()->MakeVisible(EFalse);
+            }
 
-    // hide appui's softkeys
-    GetAppViewUi()->Cba()->MakeVisible(EFalse);
-    iCoverFlowWidget->ShowWidget(ETrue);
-    iCoverFlowWidget->control()->AcquireFocus();
+        iCoverFlowWidget->ShowWidget(ETrue);
+        iCoverFlowWidget->control()->AcquireFocus();
+        iMediaListMulModelProvider = CGlxMediaListMulModelProvider::NewL(
+                *iEnv, *iCoverFlowWidget, *iMediaList, iFullScreenBindingSet,
+                mulwidget::KTemplate4, KCoverflowDataWindowSize);
 
-        iMediaListMulModelProvider = CGlxMediaListMulModelProvider::NewL (*iEnv,
-                *iCoverFlowWidget, *iMediaList, iFullScreenBindingSet,
-                mulwidget::KTemplate4, KCoverflowDataWindowSize );
-        
-        iGestureHelper = (GestureHelper::CGestureHelper*)iCoverFlowWidget->Gesturehelper();
+        iGestureHelper
+                = (GestureHelper::CGestureHelper*) iCoverFlowWidget->Gesturehelper();
         }
-
     catch(...)
         {
         User::Leave(KErrGeneral);

@@ -52,7 +52,8 @@ const TInt KTimerInterval( 2000000 );
 const TInt KPreviewThumbnailFetchCount(15);
 //The Thumbnails to shown/fetched when the collection is not in focus
 const TInt KSinglePreviewThumbnail(1);
-
+// The preview item Index
+const TInt KPreviewItemIndex = 0;
 //The constants to identify the plugin/collection
 const TInt KMaxInt = 0x7fffffff;
 

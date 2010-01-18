@@ -94,13 +94,16 @@ _LIT8( KPhotosTags, "Tags" );
 _LIT8( KPhotosAlbums, "Albums" );
 _LIT8( KPhotosAllValue,"Allcs");
 
-_LIT8( KPhotoSuiteActivationMessage, "mm://root/photossuite?exit=hide" );
 _LIT8( KPhotosSuiteExitMessage, "mm://photossuite?action=exit" );
 
 // Matrix uid, needed for activating the suite view.
 const TInt KMatrixUid = 0x101F4CD2;
 const TInt KCapturedAlbumId = 2 ;
         
+/**
+ * Start Delay for the periodic timer, in microseconds
+ */
+const TInt KPeriodicStartDelay = 60000000; // 60 secs
 // -----------------------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------------------
@@ -171,6 +174,11 @@ CGlxAppUi::~CGlxAppUi()
     if( iBSWrapper )
         {	
         delete iBSWrapper;    
+        }
+    if (iPeriodic)
+        {
+        iPeriodic->Cancel();
+        delete iPeriodic;
         }
     
     if( iIadUpdate )
@@ -282,9 +290,11 @@ TBool CGlxAppUi::ProcessCommandParametersL(TApaCommand aCommand,
     TRAPD(err, HandleActivationMessageL(aCommand, aDocumentName, aTail));
     if ( KErrNone != err )
         {
-        // Open photos suite view
-        LaunchMmViewL( KPhotoSuiteActivationMessage );
-        Exit();
+        // Open navigational state at root level
+        CMPXCollectionPath* newState = CMPXCollectionPath::NewL();
+        CleanupStack::PushL( newState );
+        iNavigationalState->NavigateToL( *newState );
+        CleanupStack::PopAndDestroy( newState );
         }
 
     if(0 == aTail.CompareC(KNullDesC8))
@@ -524,10 +534,16 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
     CleanupClosePushL(stream);
     stream >> msgUid;
     
-    //Check for the IADUpdate
-    //TBD: Need to check the location this has to be called.
-    //This might not be proper place.
-    DoCheckForIADUpdatesL();
+    //Start a timer to check for thr IAD update after 30 Secs.
+    if(!iPeriodic)
+        {
+        iPeriodic = CPeriodic::NewL(CActive::EPriorityLow);
+        }    
+    if ( !iPeriodic->IsActive() )
+        {
+        iPeriodic->Start( KPeriodicStartDelay, KMaxTInt, 
+                TCallBack( &PeriodicCallback, static_cast<TAny*>(this) ) );
+        }
     
     switch ( msgUid.iUid )
         {
@@ -537,6 +553,7 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
             // Send the command to reset the view
             ProcessCommandL(EGlxCmdResetView);
             // Not using KGlxCollectionPluginCameraImplementationUid
+            iNavigationalState->SetBackExitStatus(ETrue);
             path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);            
             path->AppendL(KCapturedAlbumId);
             SetActivationParamL(KGlxActivationFullScreen);
@@ -545,6 +562,7 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
         case KGlxActivationCameraAlbum:
             // Go to camera album tile view
             GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: camera album");
+            iNavigationalState->SetBackExitStatus(ETrue);
             path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
             path->AppendL(KCapturedAlbumId);
             break;
@@ -552,7 +570,14 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
         case KGlxActivationPhotosMenu:
             // Open the main view
             GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: photos menu");
-            break;            
+            break;
+            
+        case KGlxActivationAllView:
+            GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: Show all photos");
+            // Send the command to reset the view
+            ProcessCommandL(EGlxCmdResetView);
+            path->AppendL(KGlxCollectionPluginAllImplementationUid);            
+        	break;            
 
         default:
             GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: unknown command");
@@ -560,34 +585,30 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
 
             if(0 == aData.CompareC(KPhotosCaptured))
                 {
-                iNavigationalState->SetBackExitStatus(ETrue);
                 path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
 				path->AppendL(KCapturedAlbumId);
                 }
             else if(0 == aData.CompareC(KPhotosAllValue))
                 {
-                iNavigationalState->SetBackExitStatus(ETrue);
                 path->AppendL(KGlxCollectionPluginAllImplementationUid);
                 }
             else if(0 == aData.CompareC(KPhotosMonths))
                 {
-                iNavigationalState->SetBackExitStatus(ETrue);
                 path->AppendL(KGlxCollectionPluginMonthsImplementationUid);
                 }
             else if(0 == aData.CompareC(KPhotosAlbums))
                 {
-                iNavigationalState->SetBackExitStatus(ETrue);
                 path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
                 }
             else if(0 == aData.CompareC(KPhotosTags))
                 {
-                iNavigationalState->SetBackExitStatus(ETrue);
                 path->AppendL(KGlxTagCollectionPluginImplementationUid);
                 }
             else
                 {
                 User::Leave(KErrNotSupported);
                 }
+            iNavigationalState->SetBackExitStatus(ETrue);
             TBuf8<15> buf;
             buf.Append( KPhotosSuiteNavigation );
             TRAP_IGNORE(iBSWrapper->ForwardActivationEventL( buf, ETrue ))
@@ -595,6 +616,7 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
             break;
         }
     CleanupStack::PopAndDestroy(&stream);
+    iNavigationalState->SetStartingLevel(path->Levels());
     iNavigationalState->NavigateToL( *path );
     CleanupStack::PopAndDestroy(path);
     
@@ -784,20 +806,53 @@ void CGlxAppUi::StopCleanupL()
     cacheManager->Close();
     }
 
+// -----------------------------------------------------------------------------
+// Callback from periodic timer
+// -----------------------------------------------------------------------------
+//
+TInt CGlxAppUi::PeriodicCallback(TAny* aPtr)
+    {
+    TRACER("CGlxAppUi::PeriodicCallback(TAny* aPtr)");
+    // get "this" pointer    
+    static_cast<CGlxAppUi*>(aPtr)->PeriodicCallback();
+    return KErrNone;
+    }
+
+// -----------------------------------------------------------------------------
+// Callback from periodic timer, non-static
+// -----------------------------------------------------------------------------
+//
+void CGlxAppUi::PeriodicCallback()
+    {
+    TRACER("CGlxAppUi::PeriodicCallback()");
+    TRAP_IGNORE(DoCheckForIADUpdatesL());
+    iPeriodic->Cancel();
+    }    
+
 // ---------------------------------------------------------------------------
-// CGlxAppUi::DoCheckForIADUpdatesL()
+// CCGlxNsAppUi::DoCheckForIADUpdatesL()
 // Check for updates via IAD
 // ---------------------------------------------------------------------------
 // 
 void CGlxAppUi::DoCheckForIADUpdatesL()
     {
     TRACER("CGlxAppUi::DoCheckForIADUpdatesL()");
-    
+#ifdef _DEBUG
+    TTime startTime;
+    GLX_LOG_INFO("CGlxAppUi::DoCheckForIADUpdatesL(+)");  
+    startTime.HomeTime();
+#endif
     if ( !iIadUpdate )
         {
         iIadUpdate = CGlxIadUpdate::NewL();
         }
     iIadUpdate->StartL();
+#ifdef _DEBUG
+    TTime stopTime;
+    stopTime.HomeTime();
+    GLX_DEBUG2("CGlxAppUi::DoCheckForIADUpdatesL(-) took <%d> us", 
+                    (TInt)stopTime.MicroSecondsFrom(startTime).Int64());
+#endif    
     }
 
 // ---------------------------------------------------------------------------

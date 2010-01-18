@@ -211,6 +211,7 @@ void CGlxCacheManager::CancelPreviousRequest()
 		// Cancel the pending attribute request
 		collection.CancelRequest();	
 		
+#ifdef USE_S60_TNM
 		GLX_DEBUG2("CGlxCacheManager::CancelPreviousRequest() iThumbnailRequestIds.Count() %d", iThumbnailRequestIds.Count());
 		
 		// Check if any thumbnail requests are pending and cancel the requests.		
@@ -219,6 +220,7 @@ void CGlxCacheManager::CancelPreviousRequest()
 			iTnEngine->CancelRequest(iThumbnailRequestIds[i].iId);									
 			}
 		iThumbnailRequestIds.Reset();		
+#endif
 		iRequestOwner = NULL;
 		}
 	}
@@ -595,7 +597,7 @@ void CGlxCacheManager::MaintainCacheL()
 #ifdef MEDIA_ID_BASED_TN_FETCH_ENABLED
 	               	 	GLX_DEBUG2("CGlxCacheManager::MaintainCacheL() requesting TN attribute (Medialist) itemId %d", itemId.Value());
 						if (item.Uri().Find(KFileIdentifier) != KErrNotFound ||
-						    item.Uri().Length() == 0 && itemId.Value())
+						    item.Uri().Length() && itemId.Value())
 #else
 	               	 	GLX_DEBUG1("CGlxCacheManager::MaintainCacheL() requesting TN attribute (Medialist) Uri");
 						if (item.Uri().Find(KFileIdentifier) != KErrNotFound)
@@ -764,9 +766,22 @@ void CGlxCacheManager::MaintainCacheL()
                                 }
                             else if ( iRequestedAttrs[i] == KGlxMediaGeneralLastModifiedDate )
                                 {
-                                TTime time;
-                                time.HomeTime();
-                                iMPXMedia->SetTObjectValueL(KGlxMediaGeneralLastModifiedDate, time.Int64());
+                                if(errInImage == KErrNone)
+                                    {
+                                    RFs fs; 
+                                    fs.Connect();   
+                                    TEntry entry;   
+                                    fs.Entry(fileName,entry);    
+                                    TTime time = entry.iModified;   
+                                    fs.Close();
+                                    iMPXMedia->SetTObjectValueL(KGlxMediaGeneralLastModifiedDate, time.Int64());
+                                    }
+                                else
+                                    {
+                                    TTime time;
+                                    time.HomeTime();
+                                    iMPXMedia->SetTObjectValueL(KGlxMediaGeneralLastModifiedDate, time.Int64());
+                                    }
                                 }
                             else if ( iRequestedAttrs[i] == KMPXMediaGeneralSize )
                                 {
@@ -805,7 +820,7 @@ void CGlxCacheManager::MaintainCacheL()
                                 if(errInImage == KErrNone)
                                     {
                                     TDataType dataType;
-                                    GetMimeType(fileName, dataType);
+                                    GetMimeTypeL(fileName, dataType);
                                     iMPXMedia->SetTextValueL(KMPXMediaGeneralMimeType, dataType.Des());
                                     }
                                 else
@@ -846,12 +861,17 @@ void CGlxCacheManager::MaintainCacheL()
                                 }
                             else if (iRequestedAttrs[i] == KMPXMediaDrmProtected )
                                 {
-                                iMPXMedia->SetTObjectValueL(KMPXMediaDrmProtected, EFalse); 
+                                TBool protection = iReader->GetDRMRightsL
+                                		(ContentAccess::EIsProtected);
+                                iMPXMedia->SetTObjectValueL(KMPXMediaDrmProtected, protection); 
                                 }
-                            else if ( iRequestedAttrs[i] == KGlxMediaGeneralDRMRightsValid )            
-                                {
+                            else if ( iRequestedAttrs[i] == KGlxMediaGeneralDRMRightsValid )
+                                { 
+                                TBool canView = iReader->GetDRMRightsL(ContentAccess::ECanView);
+                                TInt rightsValid = canView ? 
+                                		EGlxDrmRightsValid : EGlxDrmRightsInvalid;
                                 iMPXMedia->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid,
-                                            EGlxDrmRightsValidityUnknown); 
+                                                             rightsValid); 
                                 }
                             else if ( iRequestedAttrs[i] == KMPXMediaGeneralCount )
                                 {
@@ -860,7 +880,8 @@ void CGlxCacheManager::MaintainCacheL()
                             else if ( iRequestedAttrs[i] == KMPXMediaColDetailSpaceId )
                                 {
                                 TGlxIdSpaceId spaceId = list->IdSpaceId(iRequestedItemIndexes[0]);
-                                iMPXMedia->SetTObjectValueL(KMPXMediaColDetailSpaceId, spaceId.Value());
+                                iMPXMedia->SetTObjectValueL(KMPXMediaColDetailSpaceId,
+                                		 spaceId.Value());
                                 }
                             else if ( iRequestedAttrs[i] == KGlxMediaGeneralSlideshowableContent )
                                 {
@@ -1406,8 +1427,10 @@ void CGlxCacheManager::ThumbnailReadyL(TInt aError, MThumbnailData& aThumbnail,
     }
 #endif
 
-void CGlxCacheManager::GetMimeType(TFileName& aFileName, TDataType& aMimeType)
+void CGlxCacheManager::GetMimeTypeL(TFileName& aFileName, TDataType& aMimeType)
     {
+    TRACER("CGlxCacheManager::GetMimeTypeL");
+    
     RApaLsSession session;
     User::LeaveIfError( session.Connect() );
     CleanupClosePushL( session );
@@ -1419,9 +1442,13 @@ void CGlxCacheManager::GetMimeType(TFileName& aFileName, TDataType& aMimeType)
     }
 void CGlxCacheManager::ImageReadyL(const TInt& aError, const TSize aSz)
     {
+    TRACER("CGlxCacheManager::ImageReadyL");              
+    GLX_DEBUG2("CGlxCacheManager::ImageReadyL aError=%d", aError);             
+    iImgSz = TSize();
     if(iSchedulerWait)
         {
         iSchedulerWait->AsyncStop();    
         }    
+    User::LeaveIfError( aError );                    
     iImgSz = aSz;
     }

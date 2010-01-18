@@ -124,11 +124,17 @@ CGlxContentHarvesterPluginCaptured::~CGlxContentHarvesterPluginCaptured()
 void CGlxContentHarvesterPluginCaptured::UpdateDataL() 
     {
     TRACER( "CGlxContentHarvesterPluginCaptured::UpdateDataL" );
-    if(iMediaList && iMediaList->Count() && iPreviewItemCount.Count() )
+
+    if (!iMediaList)
+        {
+        return;
+        }
+    
+    if (iMediaList->Count() && iPreviewItemCount.Count())
         {
         GLX_LOG_INFO1("CGlxContentHarvesterPluginCaptured::UpdateDataL(),iProgressIndex=%d",iProgressIndex);
         TInt ret = UpdateItem(iPreviewItemCount[iProgressIndex]);
-        if(ret != KErrNotFound)
+        if (ret != KErrNotFound)
             {
             //Updates the thumbnail in the collection 
             UpdateDataInCPSL(ret);
@@ -141,13 +147,13 @@ void CGlxContentHarvesterPluginCaptured::UpdateDataL()
     else
         {
         // Show previous thumbnail until the new thumbnail is
-		// fecthed.Added this check to avoid flicker
-		if(iMediaList->Count() == 0)
-			{
-			//Don't Show the Thumbnail/Show nothing
-			GLX_LOG_INFO("CGlxContentHarvesterPluginCaptured::UpdateDataL() --O");
-			UpdateDataInCPSL(GetBitmapHandle());
-			}
+        // fecthed.Added this check to avoid flicker
+        if (iMediaList->Count() == 0)
+            {
+            //Don't Show the Thumbnail/Show nothing
+            GLX_LOG_INFO("CGlxContentHarvesterPluginCaptured::UpdateDataL() --O");
+            UpdateDataInCPSL(GetBitmapHandle());
+            }
         }
     }
 

@@ -48,6 +48,7 @@
 
 #include "glxmediaselectionpopup.h"
 #include <glxicons.mbg>
+#include <glxtracer.h>
 
 TInt CGlxCommandHandlerAddToContainer::iSelectionCount = 0;
 
@@ -59,6 +60,7 @@ EXPORT_C CGlxCommandHandlerAddToContainer*
     CGlxCommandHandlerAddToContainer::NewAddToAlbumCommandHandlerL(
         MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
     {
+    TRACER("CGlxCommandHandlerAddToContainer::NewAddToAlbumCommandHandlerL");
     return CGlxCommandHandlerAddToContainer::NewL (aMediaListProvider, 
                                                 EGlxCmdAddToAlbum, aHasToolbarItem);
     }
@@ -71,6 +73,7 @@ EXPORT_C CGlxCommandHandlerAddToContainer*
     CGlxCommandHandlerAddToContainer::NewAddToTagCommandHandlerL(
         MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
     {
+    TRACER("CGlxCommandHandlerAddToContainer::NewAddToTagCommandHandlerL");
     return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider, 
                                                 EGlxCmdAddTag, aHasToolbarItem);
     }
@@ -83,6 +86,7 @@ EXPORT_C CGlxCommandHandlerAddToContainer*
     CGlxCommandHandlerAddToContainer::NewAddToFavCommandHandlerL(
         MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
     {
+    TRACER("CGlxCommandHandlerAddToContainer::NewAddToFavCommandHandlerL");
     return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider, 
                                     EGlxCmdAddToFavourites, aHasToolbarItem);
     }
@@ -94,6 +98,7 @@ EXPORT_C CGlxCommandHandlerAddToContainer*
 EXPORT_C CGlxCommandHandlerAddToContainer* CGlxCommandHandlerAddToContainer::NewL(
         MGlxMediaListProvider* aMediaListProvider, TInt aCommandId, TBool aHasToolbarItem)
     {
+    TRACER("CGlxCommandHandlerAddToContainer::NewL");
     CGlxCommandHandlerAddToContainer* self = 
         new ( ELeave ) CGlxCommandHandlerAddToContainer( aMediaListProvider, aHasToolbarItem );
     CleanupStack::PushL( self );
@@ -119,6 +124,7 @@ CGlxCommandHandlerAddToContainer::CGlxCommandHandlerAddToContainer(
 //
 void CGlxCommandHandlerAddToContainer::ConstructL(TInt aCommandId)
     {
+    TRACER("CGlxCommandHandlerAddToContainer::ConstructL");
     // Load resource
 	TParse parse;
     parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
@@ -146,6 +152,7 @@ void CGlxCommandHandlerAddToContainer::ConstructL(TInt aCommandId)
 //
 EXPORT_C CGlxCommandHandlerAddToContainer::~CGlxCommandHandlerAddToContainer()
     {
+    TRACER("CGlxCommandHandlerAddToContainer::~CGlxCommandHandlerAddToContainer");
     if ( iResourceOffset )
         {
         CCoeEnv::Static()->DeleteResourceFile(iResourceOffset);
@@ -161,6 +168,7 @@ EXPORT_C CGlxCommandHandlerAddToContainer::~CGlxCommandHandlerAddToContainer()
 CMPXCommand* CGlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId, 
         MGlxMediaList& aMediaList, TBool& /*aConsume*/) const
     {
+    TRACER("CGlxCommandHandlerAddToContainer::CreateCommandL");
 	// Ignore the current command in case the previous command has still not been completed
 	if(iIsProcessOngoing)
 	    {
@@ -253,6 +261,7 @@ CMPXCommand* CGlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
 //	
 HBufC* CGlxCommandHandlerAddToContainer::CompletionTextL() const
     {
+    TRACER("CGlxCommandHandlerAddToContainer::CompletionTextL()");
     if (iCommandId == EGlxCmdAddToAlbum)
     	{
    		if (iSelectionCount > 1)
@@ -282,10 +291,26 @@ HBufC* CGlxCommandHandlerAddToContainer::CompletionTextL() const
 void CGlxCommandHandlerAddToContainer::DoHandleCommandCompleteL(TAny* /*aSessionId*/,
         CMPXCommand* /*aCommandResult*/, TInt /*aError*/, MGlxMediaList* /*aList*/)
       {
+      TRACER("CGlxCommandHandlerAddToContainer::DoHandleCommandCompleteL()");
 	  // Reset the Flag inorder to allow any new selection pop-up to be created.
       iIsProcessOngoing = EFalse;
       }
-    
+
+
+
+// -----------------------------------------------------------------------------
+// DialogDismissedL
+// -----------------------------------------------------------------------------
+//  
+void CGlxCommandHandlerAddToContainer::DialogDismissedL(TInt aButtonId)
+    {
+    TRACER("CGlxCommandHandlerAddToContainer::DialogDismissedL");
+    iIsProcessOngoing = EFalse;
+    CGlxMpxCommandCommandHandler::DialogDismissedL(aButtonId);
+    }
+
+
+
 // ---------------------------------------------------------------------------
 // CGlxCommandHandlerAddToContainer::DoActivateL
 // ---------------------------------------------------------------------------

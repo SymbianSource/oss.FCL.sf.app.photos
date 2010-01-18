@@ -111,10 +111,30 @@ public:
      * Sets the mode to "view"
      */
      IMPORT_C void SetToViewMode();
-
+     
+     /**
+     * Sets the BackExitStatus
+     * @param aStatus ETrue photos navigates to parent on Back EFalse photos exits on back.
+     */
      IMPORT_C void SetBackExitStatus(TBool aStatus);
      
+     /**
+     * Gets the BackExitStatus
+     * @return BackExitStatus
+     */          
      IMPORT_C TBool BackExitStatus();
+     
+     /**
+     * Sets the starting navigation level
+     * @param aLevel starting level
+     */
+     IMPORT_C void SetStartingLevel(TInt aLevel);
+     
+     /**
+     * Gets the starting navigation level
+     * @return starting navigation level
+     */     
+     IMPORT_C TInt StartingLevel();
   
 private:
     /** Constructor for singleton store */
@@ -127,8 +147,10 @@ private:
     /// Implementation 
     CGlxNavigationalStateImp* iImp;
     
-public:
     TBool iBackExitStatus;
+    
+    TInt iStartingLevel ;
+    
     };
     
     

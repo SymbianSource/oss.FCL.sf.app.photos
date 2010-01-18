@@ -112,11 +112,6 @@ private:
     TInt UpdateItem(TInt aItemIndex); 
 
     /*
-     * This Updates the thumbnail/Preview list with thumbnails already present
-     */
-    void HandleItemChanged();
-
-    /*
      * This Function is called when the collection recives a focus and losses the focus
      * @param aOn :True   : The collection is in focus
      *            : False : The collection lost the focus 
@@ -192,7 +187,6 @@ private: // data
     MLiwInterface* iCPSInterface;
     CLiwGenericParamList* iInParamList;
     CLiwGenericParamList* iOutParamList;
-    CPeriodic* iPeriodic;
 
     /// Owned: Media list
     MGlxMediaList* iMediaList;
@@ -205,11 +199,6 @@ private: // data
     /// Own: Thumbnail Iterator
     TGlxSequentialIterator iThumbnailIterator;  
 
-    RArray<TInt> iPreviewItemCount;
-
-    // Preview thumbnail index
-    TInt iProgressIndex;
-    
     };
 
 #endif /*GLXCONTENTHARVESTERPLUGINALBUMS_H*/

@@ -49,7 +49,7 @@
 
 #include "glxgridviewmlobserver.h"
 
-const TInt KRecreateGridSize(100); //minimum no of items added to trigger recreate grid
+const TInt KRecreateGridSize(5); //minimum no of items added to trigger recreate grid
 // ======== MEMBER FUNCTIONS ========
 
 // ---------------------------------------------------------------------------
@@ -96,15 +96,6 @@ void CGlxGridViewMLObserver::ConstructL()
     iItemsPerPage = uiUtility->VisibleItemsInPageGranularityL();
     uiUtility->Close() ;
     
-   	iDownloadsPlugin = EFalse;
-   	
-    CMPXCollectionPath* path = iMediaList.PathLC( NGlxListDefs::EPathParent );
-    if (path->Id() == KGlxCollectionPluginDownloadsImplementationUid)
-    	{
-    	iDownloadsPlugin = ETrue;
-    	}
-    CleanupStack::PopAndDestroy(path);
-
     iQualityTnAttrib = TMPXAttribute (KGlxMediaIdThumbnail, 
         GlxFullThumbnailAttributeId( ETrue,  iGridIconSize.iWidth, 
                 iGridIconSize.iHeight ) );
@@ -140,28 +131,27 @@ void CGlxGridViewMLObserver::HandleItemAddedL( TInt aStartIndex, TInt aEndIndex,
     GLX_DEBUG3("CGlxGridViewMLObserver::HandleItemAddedL() aStartIndex(%d),"
             " aEndIndex(%d)", aStartIndex, aEndIndex);
 
-    if (iHgGrid)
+    if (!iHgGrid)
         {
-        if ((aEndIndex - aStartIndex) >= KRecreateGridSize)
+        return;
+        }
+
+    if ((aEndIndex - aStartIndex) > KRecreateGridSize)
+        {
+        iHgGrid->ResizeL(aList->Count());
+        }
+    else
+        {
+        for (TInt i = aStartIndex; i <= aEndIndex; i++)
             {
-            iHgGrid->ResizeL(aList->Count());
-            }
-        else
-            {
-            for (TInt i = aStartIndex; i<= aEndIndex; i++)
-                {
-                iHgGrid->InsertItem(CHgItem::NewL(), i);
-                }
+            iHgGrid->InsertItem(CHgItem::NewL(), i);
             }
         }
+
     // Setting the initial focus for all grid views except downloads,
     // for downloads it is already set.
-	TInt focusIndex = aList->FocusIndex();
+    TInt focusIndex = aList->FocusIndex();
     iHgGrid->SetSelectedIndex(focusIndex);
-    
-    // if the Medialist has any item, set the First index context to Hg Context Utility
-//    TGlxMedia item = aList->Item( focusIndex );
-//    iContextUtility->PublishPhotoContextL(item.Uri());
     }
 
 // ----------------------------------------------------------------------------
@@ -255,14 +245,6 @@ void CGlxGridViewMLObserver::HandleAttributesAvailableL( TInt aItemIndex,
             iHgGrid->ItemL(aItemIndex).SetIcon(CGulIcon::NewL(bitmap));
             GLX_LOG_INFO1("### CGlxGridViewMLObserver::HandleAttributesAvailableL"
                     " speedTn-Index is %d",aItemIndex);
-            }
-        else if (item.GetIconInfo(icon))
-            {  
-            CFbsBitmap* bitmap = AknIconUtils::CreateIconL(icon.bmpfile, icon.bitmapId);
-            AknIconUtils::SetSize(bitmap, setSize );
-            iHgGrid->ItemL(aItemIndex).SetIcon(CGulIcon::NewL(bitmap));
-            GLX_LOG_INFO1("### CGlxGridViewMLObserver::HandleAttributesAvailableL "
-                    "GetIconInfo-Index is %d",aItemIndex);
             }
         else if ( KErrNone != tnError && KErrNotSupported != tnError &&
                             KErrArgument != tnError )
@@ -409,7 +391,6 @@ void CGlxGridViewMLObserver::HandlePopulatedL( MGlxMediaList* /*aList*/ )
         CleanupStack::PopAndDestroy(emptyText);
         GLX_DEBUG2("GridMLObserver::HandlePopulatedL() iMediaList.Count()=%d",
                                                           iMediaList.Count());
-           
         
         if (iMediaList.Count() <= 0)
             {
@@ -474,6 +455,15 @@ void CGlxGridViewMLObserver::RefreshScreen(TInt aItemIndex,
             GLX_DEBUG2("## GridMLObserver::HandleAttributesAvailableL()"
                      " RefreshScreen - firstIndex(%d)", firstIndex);
             iHgGrid->RefreshScreen(firstIndex);
+            }
+        else if (aItemIndex > firstIndex && aItemIndex <= lastOnScreen)
+            {
+            if ( HasRelevantThumbnail(lastOnScreen) )
+                {
+                GLX_DEBUG2("GridMLObserver::HandleAttributesAvailableL()"
+                        " RefreshScreen - aItemIndex(%d)", aItemIndex);					
+                iHgGrid->RefreshScreen(aItemIndex);
+                }
             }
         }
     else if (aItemIndex > firstIndex && aItemIndex <= lastOnScreen)
@@ -582,28 +572,6 @@ void CGlxGridViewMLObserver::UpdateItemsL (TInt aItemIndex,
             {
             iHgGrid->ItemL(aItemIndex).SetTime(time);
             }
-        
-        // Sets up TLS, must be done before FeatureManager is used.
-        FeatureManager::InitializeLibL();
-
-        if (FeatureManager::FeatureSupported(KFeatureIdSeamlessLinks))
-            {
-            if (iDownloadsPlugin && mediaCount > iHgGrid->ItemsOnScreen()
-                    && aItemIndex == 2)
-                {
-                if (iMediaList.Item(0).IsStatic())
-                    {
-                    iHgGrid->ItemL(0).SetTime(time); // Image Downloads link Icon	
-                    }
-                if (iMediaList.Item(1).IsStatic())
-                    {
-                    iHgGrid->ItemL(1).SetTime(time); // Video Downloads link Icon
-                    }
-                }
-            }
-        
-        // Frees the TLS. Must be done after FeatureManager is used.
-        FeatureManager::UnInitializeLib(); 
         }
     
     if (aAttributes.Find(KMPXMediaGeneralCategory, match) != KErrNotFound)

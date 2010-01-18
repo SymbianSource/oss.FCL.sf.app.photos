@@ -31,6 +31,4 @@ RESOURCE APP_REGISTRATION_INFO
 	//
 	localisable_resource_file="\\resource\\apps\\glx_loc";
   	localisable_resource_id = R_GLX_LOCALISABLE_APP_INFO;
-	//
-	hidden = KAppIsHidden;
 	}

@@ -31,7 +31,7 @@ public:
     /*
      * Newl()
      */
-    static CGlxSLMPFavMLObserver* NewL( CGlxSinleLineMetaPane& aSingleLineMetaPane,
+    static CGlxSLMPFavMLObserver* NewL( CGlxSingleLineMetaPane& aSingleLineMetaPane,
             TInt aFocusIndex,MGlxMediaList* aList);
     
     /*
@@ -58,7 +58,7 @@ private:
     /*
      * Constructor
      */
-    CGlxSLMPFavMLObserver(CGlxSinleLineMetaPane& aSingleLineMetaPane);
+    CGlxSLMPFavMLObserver(CGlxSingleLineMetaPane& aSingleLineMetaPane);
     
     /*
      * 2nd Phase Ctor
@@ -68,7 +68,7 @@ private:
     void ConstructL(TInt aFocusIndex, MGlxMediaList* aList);
     
 private:
-    CGlxSinleLineMetaPane&          iSingleLineMetaPane;        // SingleLineMetapane Reference
+    CGlxSingleLineMetaPane&          iSingleLineMetaPane;        // SingleLineMetapane Reference
     MGlxMediaList*                  iFavMediaList;              // Favourite Medialist
     CGlxDefaultAttributeContext*    iFavAttribContext;          // Attribute context for favourites
     };

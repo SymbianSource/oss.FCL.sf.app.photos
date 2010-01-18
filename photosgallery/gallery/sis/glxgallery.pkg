@@ -147,13 +147,6 @@
 "\epoc32\release\armv5\urel\glxcontentharvesterplugin.dll"          -"!:\sys\bin\glxcontentharvesterplugin.dll"
 "\epoc32\data\Z\resource\plugins\glxcontentharvesterplugin.rsc" 		-"!:\resource\plugins\glxcontentharvesterplugin.rsc"
 
-;photosuitelauncher - for the shortcut.
-
-"\epoc32\release\armv5\urel\photossuitelauncher.exe"-"!:\sys\bin\photossuitelauncher.exe"
-"\epoc32\data\z\resource\apps\photossuitelauncher.mif"-"!:\resource\apps\photossuitelauncher.mif"
-"\epoc32\data\z\private\10003a3f\import\apps\photossuitelauncher_reg.rsc"-"!:\private\10003a3f\import\apps\photossuitelauncher_reg.rsc"
-"\epoc32\data\z\resource\apps\photossuitelauncher.Rsc"-"!:\resource\apps\photossuitelauncher.Rsc"
-
 ; For photossuite component
 
 

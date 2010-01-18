@@ -489,11 +489,6 @@ RESOURCE MENU_PANE r_shw_settingslist_menu_pane
     {
     items =
         {
-        MENU_ITEM
-        	{
-        	command = EShwCmdSettingsChange;  
-        	txt = qtn_options_change;
-        	},
         MENU_ITEM 
         	{ 
         	command = EShwCmdHelp; 

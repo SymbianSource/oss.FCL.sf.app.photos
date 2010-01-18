@@ -58,6 +58,8 @@ const TInt KDateFormat1 = 1;
 const TInt KDateFormat2 = 2;
 const TInt KDateFormat3 = 3;
 
+_LIT(KResourceFile, "z:glxpluginmonths.rsc");
+
 // ============================ LOCAL FUNCTIONS ==============================
     
 // ============================ MEMBER FUNCTIONS ==============================
@@ -259,8 +261,6 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
     {
     TRACER("CGlxCollectionPluginMonths::HandleCpiAttributeResponseL");
     
-    _LIT(KResourceFile, "z:glxpluginmonths.rsc");
-
 	TInt count = aCpiAttributes.Count();
 	TLanguage lang;
     lang = User::Language();
@@ -357,70 +357,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
                 	AknTextUtils::DisplayTextLanguageSpecificNumberConversion(yearTitle);
 					}
 
-                HBufC* monthTitle = NULL;
-                switch(start.DateTime().Month())
-                    {
-                    case EJanuary:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_JAN);
-                        break;
-                        }
-                    case EFebruary:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_FEB);
-                        break;
-                        }
-                    case EMarch:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_MAR);
-                        break;
-                        }
-                    case EApril:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_APR);
-                        break;
-                        }
-                    case EMay:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_MAY);
-                        break;
-                        }
-                    case EJune:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_JUN);
-                        break;
-                        }
-                    case EJuly:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_JUL);
-                        break;
-                        }
-                    case EAugust:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_AUG);
-                        break;
-                        }
-                    case ESeptember:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_SEP);
-                        break;
-                        }
-                    case EOctober:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_OCT);
-                        break;
-                        }
-                    case ENovember:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_NOV);
-                        break;
-                        }
-                    case EDecember:
-                        {
-                        monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_DEC);
-                        break;
-                        }
-                    }
+                HBufC* monthTitle = GetMonthNameAsStringLC(
+                        start.DateTime().Month(), EMonthNameAsSubtitle );
                 TBuf<KYearBufferSize> yearTitle2;
                 end.FormatL(yearTitle2, KGlxTempMonthYearTitleFormat);
 
@@ -430,70 +368,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
                 	AknTextUtils::DisplayTextLanguageSpecificNumberConversion(yearTitle2);
 					}
 
-                HBufC* monthTitle2 = NULL;
-                switch(end.DateTime().Month())
-                    {
-                    case EJanuary:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_JAN);
-                        break;
-                        }
-                    case EFebruary:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_FEB);
-                        break;
-                        }
-                    case EMarch:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_MAR);
-                        break;
-                        }
-                    case EApril:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_APR);
-                        break;
-                        }
-                    case EMay:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_MAY);
-                        break;
-                        }
-                    case EJune:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_JUN);
-                        break;
-                        }
-                    case EJuly:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_JUL);
-                        break;
-                        }
-                    case EAugust:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_AUG);
-                        break;
-                        }
-                    case ESeptember:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_SEP);
-                        break;
-                        }
-                    case EOctober:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_OCT);
-                        break;
-                        }
-                    case ENovember:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_NOV);
-                        break;
-                        }
-                    case EDecember:
-                        {
-                        monthTitle2 = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_DEC);
-                        break;
-                        }
-                    }
+                HBufC* monthTitle2 = GetMonthNameAsStringLC(
+                        end.DateTime().Month(), EMonthNameAsSubtitle );
 
                 HBufC* title1 = HBufC::NewLC(formatString.Length() + KDateBufferPaddingMax);
                 TPtr ptr1 = title1->Des();
@@ -724,70 +600,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 	                	AknTextUtils::DisplayTextLanguageSpecificNumberConversion(yearTitle);
 						}
 
-                    HBufC* monthTitle = NULL;
-                    switch(month.DateTime().Month())
-                        {
-                        case EJanuary:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_JAN);
-                            break;
-                            }
-                        case EFebruary:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_FEB);
-                            break;
-                            }
-                        case EMarch:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_MAR);
-                            break;
-                            }
-                        case EApril:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_APR);
-                            break;
-                            }
-                        case EMay:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_MAY);
-                            break;
-                            }
-                        case EJune:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_JUN);
-                            break;
-                            }
-                        case EJuly:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_JUL);
-                            break;
-                            }
-                        case EAugust:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_AUG);
-                            break;
-                            }
-                        case ESeptember:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_SEP);
-                            break;
-                            }
-                        case EOctober:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_OCT);
-                            break;
-                            }
-                        case ENovember:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_NOV);
-                            break;
-                            }
-                        case EDecember:
-                            {
-                            monthTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_TITLE_DEC);
-                            break;
-                            }
-                        }
+                    HBufC* monthTitle = GetMonthNameAsStringLC( 
+                            month.DateTime().Month(), EMonthNameAsTitle );
 
                     HBufC* title1 = HBufC::NewLC(formatString.Length() + KDateBufferPaddingMax);
                     TPtr ptr = title1->Des();
@@ -853,4 +667,112 @@ TGlxFilterProperties CGlxCollectionPluginMonths::DefaultFilter(TInt aLevel)
     }
     
 
+
+HBufC* CGlxCollectionPluginMonths::GetMonthNameAsStringLC(
+        const TMonth& aMonth, const TMonthStringType& aStrType)
+    {
+    TInt monthResourceId = 0;
+
+    switch (aMonth)
+        {
+        case EJanuary:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_JAN
+                                                            : R_MONTHS_TITLE_JAN;
+            break;
+            }
+        case EFebruary:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_FEB
+                                                            : R_MONTHS_TITLE_FEB;
+            break;
+            }
+        case EMarch:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_MAR
+                                                            : R_MONTHS_TITLE_MAR;
+            break;
+            }
+        case EApril:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_APR
+                                                            : R_MONTHS_TITLE_APR;
+            break;
+            }
+        case EMay:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_MAY
+                                                            : R_MONTHS_TITLE_MAY;
+            break;
+            }
+        case EJune:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_JUN
+                                                            : R_MONTHS_TITLE_JUN;
+            break;
+            }
+        case EJuly:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_JUL
+                                                            : R_MONTHS_TITLE_JUL;
+            break;
+            }
+        case EAugust:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_AUG
+                                                            : R_MONTHS_TITLE_AUG;
+            break;
+            }
+        case ESeptember:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_SEP
+                                                            : R_MONTHS_TITLE_SEP;
+            break;
+            }
+        case EOctober:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_OCT
+                                                            : R_MONTHS_TITLE_OCT;
+            break;
+            }
+        case ENovember:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_NOV
+                                                            : R_MONTHS_TITLE_NOV;
+            break;
+            }
+        case EDecember:
+            {
+            monthResourceId
+                    = (EMonthNameAsSubtitle == aStrType)
+                                                         ? R_MONTHS_SUB_TITLE_DEC
+                                                            : R_MONTHS_TITLE_DEC;
+            break;
+            }
+        }
+
+    return LoadLocalizedStringLC(KResourceFile, monthResourceId);
+    }
  // End of file

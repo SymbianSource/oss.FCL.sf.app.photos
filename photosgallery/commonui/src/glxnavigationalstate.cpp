@@ -428,27 +428,60 @@ EXPORT_C void CGlxNavigationalState::ActivatePreviousViewL()
     GLX_LOG_ENTRY_EXIT( "CGlxNavigationalState::ActivatePreviousViewL");
     iImp->ActivatePreviousViewL();
     }
-    
+
+// -----------------------------------------------------------------------------
+// Set the ViewingMode
+// -----------------------------------------------------------------------------
+//    
 EXPORT_C void CGlxNavigationalState::SetToViewMode()
     {
-     iImp->SetToViewMode();
-     // inform the observers( only appui!! ) that the mode is view
-    }
-    
-EXPORT_C  NGlxNavigationalState::TViewingMode CGlxNavigationalState::ViewingMode()
-    {
-     return iImp->ViewingMode();
+    iImp->SetToViewMode();
+    // inform the observers( only appui!! ) that the mode is view
     }
 
- 
+// -----------------------------------------------------------------------------
+// Get the ViewingMode
+// -----------------------------------------------------------------------------
+//    
+EXPORT_C  NGlxNavigationalState::TViewingMode CGlxNavigationalState::ViewingMode()
+    {
+    return iImp->ViewingMode();
+    }
+// -----------------------------------------------------------------------------
+// Set the BackExitStatus
+// -----------------------------------------------------------------------------
+// 
 EXPORT_C void CGlxNavigationalState::SetBackExitStatus(TBool aStatus)
     {
     iBackExitStatus = aStatus;
     }
 
+// -----------------------------------------------------------------------------
+// Get the BackExitStatus
+// -----------------------------------------------------------------------------
+//
 EXPORT_C TBool CGlxNavigationalState::BackExitStatus()
     {
     return iBackExitStatus;
     }
 
-// EOF	
+// -----------------------------------------------------------------------------
+// Set the Starting navigation Level
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxNavigationalState::SetStartingLevel(TInt aLevel)
+    {
+    iStartingLevel = aLevel;
+    }
+    
+// -----------------------------------------------------------------------------
+// Get the Starting navigation Level
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TInt CGlxNavigationalState::StartingLevel()
+    {
+    return iStartingLevel;
+    }
+
+// EOF
+

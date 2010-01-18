@@ -68,26 +68,26 @@ EXPORTS
 	_ZNK14CGlxListWindow2AtEi @ 67 NONAME
 	_ZNK14CGlxListWindow8IteratorEv @ 68 NONAME
 	_ZNK21TGlxSelectionIterator7InRangeEi @ 69 NONAME
-	_ZTI14CGlxListWindow @ 70 NONAME ; #<TI>#
-	_ZTI21TGlxExclusionIterator @ 71 NONAME ; #<TI>#
-	_ZTI21TGlxSelectionIterator @ 72 NONAME ; #<TI>#
-	_ZTI22TGlxSequentialIterator @ 73 NONAME ; #<TI>#
-	_ZTI22TGlxSpecificIdIterator @ 74 NONAME ; #<TI>#
-	_ZTI25TGlxFirstThenLastIterator @ 75 NONAME ; #<TI>#
-	_ZTI28TGlxFromFocusOutwardIterator @ 76 NONAME ; #<TI>#
-	_ZTI33TGlxFromManualIndexBlockyIterator @ 77 NONAME ; #<TI>#
-	_ZTI34TGlxFromFocusOutwardBlockyIterator @ 78 NONAME ; #<TI>#
-	_ZTI34TGlxFromIndexOutwardBlockyIterator @ 79 NONAME ; #<TI>#
-	_ZTI40TGlxFromManualIndexOutwardBlockyIterator @ 80 NONAME ; #<TI>#
-	_ZTV14CGlxListWindow @ 81 NONAME ; #<VT>#
-	_ZTV21TGlxExclusionIterator @ 82 NONAME ; #<VT>#
-	_ZTV21TGlxSelectionIterator @ 83 NONAME ; #<VT>#
-	_ZTV22TGlxSequentialIterator @ 84 NONAME ; #<VT>#
-	_ZTV22TGlxSpecificIdIterator @ 85 NONAME ; #<VT>#
-	_ZTV25TGlxFirstThenLastIterator @ 86 NONAME ; #<VT>#
-	_ZTV28TGlxFromFocusOutwardIterator @ 87 NONAME ; #<VT>#
-	_ZTV33TGlxFromManualIndexBlockyIterator @ 88 NONAME ; #<VT>#
-	_ZTV34TGlxFromFocusOutwardBlockyIterator @ 89 NONAME ; #<VT>#
-	_ZTV34TGlxFromIndexOutwardBlockyIterator @ 90 NONAME ; #<VT>#
-	_ZTV40TGlxFromManualIndexOutwardBlockyIterator @ 91 NONAME ; #<VT>#
+	_ZTI14CGlxListWindow @ 70 NONAME
+	_ZTI21TGlxExclusionIterator @ 71 NONAME
+	_ZTI21TGlxSelectionIterator @ 72 NONAME
+	_ZTI22TGlxSequentialIterator @ 73 NONAME
+	_ZTI22TGlxSpecificIdIterator @ 74 NONAME
+	_ZTI25TGlxFirstThenLastIterator @ 75 NONAME
+	_ZTI28TGlxFromFocusOutwardIterator @ 76 NONAME
+	_ZTI33TGlxFromManualIndexBlockyIterator @ 77 NONAME
+	_ZTI34TGlxFromFocusOutwardBlockyIterator @ 78 NONAME
+	_ZTI34TGlxFromIndexOutwardBlockyIterator @ 79 NONAME
+	_ZTI40TGlxFromManualIndexOutwardBlockyIterator @ 80 NONAME
+	_ZTV14CGlxListWindow @ 81 NONAME
+	_ZTV21TGlxExclusionIterator @ 82 NONAME
+	_ZTV21TGlxSelectionIterator @ 83 NONAME
+	_ZTV22TGlxSequentialIterator @ 84 NONAME
+	_ZTV22TGlxSpecificIdIterator @ 85 NONAME
+	_ZTV25TGlxFirstThenLastIterator @ 86 NONAME
+	_ZTV28TGlxFromFocusOutwardIterator @ 87 NONAME
+	_ZTV33TGlxFromManualIndexBlockyIterator @ 88 NONAME
+	_ZTV34TGlxFromFocusOutwardBlockyIterator @ 89 NONAME
+	_ZTV34TGlxFromIndexOutwardBlockyIterator @ 90 NONAME
+	_ZTV40TGlxFromManualIndexOutwardBlockyIterator @ 91 NONAME
 

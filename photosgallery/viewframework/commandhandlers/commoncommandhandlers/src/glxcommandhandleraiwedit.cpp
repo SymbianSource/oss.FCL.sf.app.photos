@@ -57,8 +57,9 @@ void CGlxCommandHandlerAiwEdit::DoGetRequiredAttributesL
 	{
 	if (!aFilterUsingSelection || SelectionLength() <= MaxSelectedItems())
 		{
-		// Add filename attribute to fetch context
-		aAttributes.AppendL(KMPXMediaGeneralUri);
+	    // Add MIME type and fileaname attributes
+	    aAttributes.AppendL(KMPXMediaGeneralMimeType);
+		aAttributes.AppendL(KMPXMediaGeneralUri);		
 		}
 	}
 
@@ -109,7 +110,8 @@ TBool CGlxCommandHandlerAiwEdit::AppendAiwParameterL(const TGlxMedia& aItem,
     return AppendDefaultAiwParameterL(  aItem, 
                                         aAiwServiceHandler, 
                                         ETrue,                  // Add the Uri
-                                        EFalse);                // Don't add the Mime Type
+                                        ETrue);                // Add the Mime Type
+		                                       
     }
 
 // -----------------------------------------------------------------------------

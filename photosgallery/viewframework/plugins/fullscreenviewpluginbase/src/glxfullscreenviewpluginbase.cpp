@@ -171,7 +171,7 @@ EXPORT_C void CGlxFullScreenViewPluginBase::AddCommandHandlersL()
     
     GLX_LOG_INFO( "Adding CGlxCommandHandlerSave" );
             iFullScreenView->AddCommandHandlerL(
-                            CGlxCommandHandlerSave::NewL( iFullScreenView, ETrue ) );
+                            CGlxCommandHandlerSave::NewL() );
     
     GLX_LOG_INFO( "Adding CGlxCommandHandlerSlideshow" );
     iFullScreenView->AddCommandHandlerL(

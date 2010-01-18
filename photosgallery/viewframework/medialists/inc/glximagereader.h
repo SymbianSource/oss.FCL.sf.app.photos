@@ -48,7 +48,7 @@ protected:
 public:
     static CGlxImageReader* NewL(MImageReadyCallBack& aNotify);
     ~CGlxImageReader();
-    TBool HasDRMRightsL();
+    TInt GetDRMRightsL(TInt aAttribute);
 
 private:
     MImageReadyCallBack&                iNotify;
