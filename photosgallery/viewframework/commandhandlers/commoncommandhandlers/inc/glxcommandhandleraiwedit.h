@@ -45,13 +45,15 @@ public:
      * @param aMediaListProvider object that provides the media list
      * @param aMenuResource The menu resource that the AIW command will be 
      *          implented in
+     * @param aCommandSingleClick Flag to identify single click command
      * @return Fully constructed command handler
      * @warning ConstructL of base class is called. If ConstructL is 
      *          implemented in this class, then care must be taken to call 
      *          CGlxCommandHandlerAiwBase::ConstructL
      */
 	IMPORT_C static CGlxCommandHandlerAiwEdit* NewL(
-	    MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource);
+	    MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
+	    TBool aCommandSingleClick=EFalse);
 	    
 protected: // From CGlxMediaListCommandHandler
 	/**
@@ -74,6 +76,15 @@ private:
      */
     CGlxCommandHandlerAiwEdit(MGlxMediaListProvider* aMediaListProvider, 
             TInt aMenuResource);
+    
+    /** 
+     * Second phase constructor
+     * @param aCommandSingleClick Flag to identify single click command
+     */
+    void ConstructL(TBool aCommandSingleClick);
+    
+private:
+    TBool iCommandSingleClick;
     };
 
 #endif // C_GLXCOMMANDHANDLERAIWEDIT_H

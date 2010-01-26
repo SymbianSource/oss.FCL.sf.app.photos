@@ -152,12 +152,6 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
                 {
                 TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL( 
                                                     EMbmGlxiconsQgn_prop_image_notcreated, resFile, defaultSize ).Id() );
-                // check if rights have expired
-                // show expiry note
-                if( aSize.iWidth > 200  && aIsFocused )
-                    {
-                    iDrmUtility->ShowRightsInfoL(uri);
-                    }                              
                 }
             } 
 		else

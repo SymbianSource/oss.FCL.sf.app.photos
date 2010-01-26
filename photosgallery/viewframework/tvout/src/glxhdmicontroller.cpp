@@ -215,6 +215,11 @@ void CGlxHdmiController::StoreImageInfoL(const TDesC& aImageFile,
         TSize aImageDimensions, TInt aFrameCount)
     {
     TRACER("CGlxHdmiController::StoreImageInfoL()");
+    if(iStoredImagePath)
+        {
+        delete iStoredImagePath;
+        iStoredImagePath = NULL;
+        }
     iStoredImagePath = aImageFile.AllocL();
     iImageDimensions = aImageDimensions;
     iFrameCount = aFrameCount;

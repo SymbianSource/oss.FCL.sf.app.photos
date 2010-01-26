@@ -114,20 +114,26 @@ EXPORT_C CAknView* CGlxGridViewPluginBase::ConstructViewLC()
 EXPORT_C void CGlxGridViewPluginBase::AddCommandHandlersL()
     {
     TRACER("CGlxGridViewPluginBase::AddCommandHandlersL()");
+#ifdef _DEBUG
+    TTime startTime;
+    GLX_LOG_INFO("CGlxGridViewPluginBase::AddCommandHandlersL()");	
+    startTime.HomeTime();
+#endif
         
     GLX_LOG_INFO( "Adding CGlxCommandHandlerSlideshow" );
-    
     iGridView->AddCommandHandlerL(
                         CGlxCommandHandlerSlideshow::NewL( iGridView, ETrue , EFalse ) );
     
-
     GLX_LOG_INFO("Adding CGlxCommandHandlerSend");
                 iGridView->AddCommandHandlerL(CGlxCommandHandlerSend::NewL(iGridView, ETrue));
         
-    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer");
+    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Album");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
-                                NewAddToAlbumCommandHandlerL(iGridView, EFalse));                             
+                                NewAddToAlbumCommandHandlerL(iGridView, EFalse));   
+								    
+    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Album SingleClick");
+        iGridView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
+                                NewAddToAlbumSingleClickCommandHandlerL(iGridView, EFalse));  
     GLX_LOG_INFO("Adding CGlxCommandHandlerDetails");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerDetails::
                                 NewL(iGridView));
@@ -140,9 +146,13 @@ EXPORT_C void CGlxGridViewPluginBase::AddCommandHandlersL()
     iGridView->AddCommandHandlerL(CGlxCommandHandlerDelete::
                                 NewL(iGridView, EFalse, EFalse));
                                 
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer");
+    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Tag");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
                                 NewAddToTagCommandHandlerL(iGridView, EFalse));
+								
+    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Tag Single Click");
+        iGridView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
+                                NewAddToTagSingleClickCommandHandlerL(iGridView, EFalse));
     // The AIW service handlers 
     // ShowMap must be the first one                           
     GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShowMap");
@@ -155,6 +165,10 @@ EXPORT_C void CGlxGridViewPluginBase::AddCommandHandlersL()
     GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::
                                 NewL(iGridView, iResourceIds.iMenuId));
+    
+    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit-Single Click");
+    iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::
+                                NewL(iGridView, iResourceIds.iMenuId, ETrue));
     GLX_LOG_INFO("Adding CGlxCommandHandlerAiwPrintPreview");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwPrintPreview::
                                 NewL(iGridView, iResourceIds.iMenuId));
@@ -203,6 +217,12 @@ EXPORT_C void CGlxGridViewPluginBase::AddCommandHandlersL()
     GLX_LOG_INFO("Adding CGlxCommandHandlerShowVisUpnp");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerShowViaUpnp::NewL(iGridView, ETrue));
 
+#ifdef _DEBUG
+    TTime stopTime;
+    stopTime.HomeTime();
+    GLX_DEBUG2("CGlxGridViewPluginBase::AddCommandHandlersL() took <%d> us", 
+                    (TInt)stopTime.MicroSecondsFrom(startTime).Int64());
+#endif    
     }
 
 // ---------------------------------------------------------------------------

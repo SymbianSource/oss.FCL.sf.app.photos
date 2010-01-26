@@ -66,6 +66,19 @@ EXPORT_C CGlxCommandHandlerAddToContainer*
     }
 
 // ---------------------------------------------------------------------------
+// Return add to album command handler for singleclick options menu
+// ---------------------------------------------------------------------------
+//
+EXPORT_C CGlxCommandHandlerAddToContainer* 
+    CGlxCommandHandlerAddToContainer::NewAddToAlbumSingleClickCommandHandlerL(
+        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
+    {
+    return CGlxCommandHandlerAddToContainer::NewL (aMediaListProvider, 
+                              EGlxCmdSingleClickAddToAlbum, aHasToolbarItem);
+    }
+
+
+// ---------------------------------------------------------------------------
 // Return add (to) tags command handler
 // ---------------------------------------------------------------------------
 //
@@ -77,6 +90,19 @@ EXPORT_C CGlxCommandHandlerAddToContainer*
     return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider, 
                                                 EGlxCmdAddTag, aHasToolbarItem);
     }
+
+// ---------------------------------------------------------------------------
+// Return add (to) tags command handler for singleclick option menu
+// ---------------------------------------------------------------------------
+//
+EXPORT_C CGlxCommandHandlerAddToContainer* 
+    CGlxCommandHandlerAddToContainer::NewAddToTagSingleClickCommandHandlerL(
+        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
+    {
+    return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider, 
+                                EGlxCmdSingleClickAddTag, aHasToolbarItem);
+    }
+
 
 // ---------------------------------------------------------------------------
 // Return add (to) Favourites command handler
@@ -194,6 +220,7 @@ CMPXCommand* CGlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
             break;
             }
         case EGlxCmdAddToAlbum:
+        case EGlxCmdSingleClickAddToAlbum:
             {
             enablePopup = ETrue;
             targetCollection->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
@@ -202,6 +229,7 @@ CMPXCommand* CGlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
             break;
             }
         case EGlxCmdAddTag:
+        case EGlxCmdSingleClickAddTag:
             {
             enableMultipleSelection = ETrue;
             enablePopup = ETrue;
@@ -262,7 +290,8 @@ CMPXCommand* CGlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
 HBufC* CGlxCommandHandlerAddToContainer::CompletionTextL() const
     {
     TRACER("CGlxCommandHandlerAddToContainer::CompletionTextL()");
-    if (iCommandId == EGlxCmdAddToAlbum)
+    if (iCommandId == EGlxCmdAddToAlbum || 
+        iCommandId == EGlxCmdSingleClickAddToAlbum )
     	{
    		if (iSelectionCount > 1)
    			{
@@ -270,7 +299,8 @@ HBufC* CGlxCommandHandlerAddToContainer::CompletionTextL() const
    			}
    		return StringLoader::LoadL(R_GLX_COMPLETION_ADD_TO_CONTAINER_ONE_ITEM_ALBUM);
     	}
-   	else if (iCommandId == EGlxCmdAddTag)
+   	else if (iCommandId == EGlxCmdAddTag || 
+             iCommandId == EGlxCmdSingleClickAddTag)
    		{
    		if (iSelectionCount > 1)
    			{
@@ -324,3 +354,26 @@ void CGlxCommandHandlerAddToContainer::PopulateToolbarL()
 	{
 
 	}
+
+// ---------------------------------------------------------------------------
+// CGlxCommandHandlerAddToContainer::DoIsDisabled
+// ---------------------------------------------------------------------------
+//
+TBool CGlxCommandHandlerAddToContainer::DoIsDisabled(TInt aCommandId, 
+                                                 MGlxMediaList& aList) const
+    {
+	TRACER("CGlxCommandHandlerAddToContainer::DoIsDisabled");
+    if ( (EGlxCmdSingleClickAddToAlbum==aCommandId || 
+          EGlxCmdSingleClickAddTag == aCommandId) && 
+          aList.SelectionCount() > 0 )
+        {   
+        return EFalse;
+        }
+    else if (EGlxCmdAddToAlbum==aCommandId || EGlxCmdAddTag == aCommandId)
+        {
+        return EFalse;
+        }
+
+    return ETrue;
+    }
+

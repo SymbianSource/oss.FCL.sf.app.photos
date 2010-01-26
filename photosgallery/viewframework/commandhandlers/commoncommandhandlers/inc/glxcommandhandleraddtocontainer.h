@@ -44,12 +44,26 @@ public:
     IMPORT_C static CGlxCommandHandlerAddToContainer* NewAddToAlbumCommandHandlerL(
         MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
 
+	/** 
+	 * Create add to album command handler for singleclick
+	 * @param aMediaListProvider object that provides the media list.
+	 */
+    IMPORT_C static CGlxCommandHandlerAddToContainer* NewAddToAlbumSingleClickCommandHandlerL(
+            MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
+
      /** 
      * Create add (to) tags command handler 
      * @param aMediaListProvider object that provides the media list.
      */
     IMPORT_C static CGlxCommandHandlerAddToContainer* NewAddToTagCommandHandlerL(
         MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
+
+     /** 
+     * Create add (to) tags command handler for singleclick
+     * @param aMediaListProvider object that provides the media list.
+     */
+    IMPORT_C static CGlxCommandHandlerAddToContainer* NewAddToTagSingleClickCommandHandlerL(
+            MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
 
     /** 
     * Create add (to) Favourites command handler 
@@ -90,8 +104,10 @@ protected: // From CGlxMediaListCommandHandler
     void DoActivateL(TInt aViewId);
 
     /** See @ref CGlxCommandHandler::PopulateToolbar*/
-	void PopulateToolbarL();   
-
+	void PopulateToolbarL();  
+	
+	/** See @ref CGlxCommandHandler::DoIsDisabled*/ 
+	TBool DoIsDisabled(TInt aCommandId, MGlxMediaList& aList) const;
 private:
 	/** 
 	 * Second phase constructor

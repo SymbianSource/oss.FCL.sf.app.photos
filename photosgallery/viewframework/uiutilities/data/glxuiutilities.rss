@@ -488,6 +488,26 @@ RESOURCE AIW_INTEREST r_glx_aiw_edit_interest
 
 // -----------------------------------------------------------------------------
 //
+// r_glx_aiw_single_click_edit_interest
+// AIW interest structure for edit
+//
+// -----------------------------------------------------------------------------
+RESOURCE AIW_INTEREST r_glx_aiw_single_click_edit_interest
+    {
+    items=
+        {
+        AIW_CRITERIA_ITEM
+            {
+            id = EGlxCmdAiwSingleClickEdit;
+            serviceCmd = KAiwCmdEdit;
+            contentType = "*";
+            serviceClass = KAiwClassMenu;
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+//
 // r_glx_aiw_print_interest
 // AIW interest structure for print preview
 //

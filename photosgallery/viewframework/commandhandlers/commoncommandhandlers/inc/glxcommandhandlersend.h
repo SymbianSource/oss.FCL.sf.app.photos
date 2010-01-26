@@ -66,10 +66,11 @@ public:  // Constructors and destructor
     IMPORT_C ~CGlxCommandHandlerSend();
 
 protected:
-	/*
-	 * 
-	 */
-	void PopulateToolbarL();
+	/** @ref CGlxCommandHandler::PopulateToolbar*/
+	void PopulateToolbarL();  
+	
+	/** @ref CGlxCommandHandler::DoIsDisabled*/ 
+	TBool DoIsDisabled(TInt aCommandId, MGlxMediaList& aList) const;
 
 private:
 	/**

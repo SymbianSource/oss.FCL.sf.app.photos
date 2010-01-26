@@ -28,6 +28,9 @@
 #include <glxmediageneraldefs.h>
 #include <glxtracer.h>
 #include <mglxmedialist.h>
+#include <glxnavigationalstate.h>
+#include <mpxcollectionpath.h>
+#include <glxcollectionpluginimageviewer.hrh>
 
 
 // For LocationFW
@@ -110,7 +113,9 @@ void CGlxCommandHandlerAiwShowMap::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/,
             TBool isDisabled = IsItemWithLocationInfoSelected(MediaList());
             
             // Should it be disabled
-            if ((isDisabled) || (MediaList().SelectionCount() > 1))
+            if ( (isDisabled) || 
+                 (MediaList().SelectionCount() != 1 && 
+                 !IsInFullScreenViewingModeL()) )
                 {
                 // if so delete it. 
                 aMenuPane->DeleteMenuItem(EGlxCmdAiwShowMap);
@@ -248,3 +253,35 @@ void CGlxCommandHandlerAiwShowMap::PreDynInitMenuPaneL(TInt aResourceId)
 	{
 	CGlxCommandHandlerAiwBase::PreDynInitMenuPaneL(aResourceId);
 	}
+
+// -----------------------------------------------------------------------------
+// IsInFullScreenViewingModeL
+// -----------------------------------------------------------------------------
+//
+TBool CGlxCommandHandlerAiwShowMap::IsInFullScreenViewingModeL()
+    {
+    TBool fullscreenViewingMode = EFalse;
+    CGlxNavigationalState* aNavigationalState = CGlxNavigationalState::InstanceL();
+    CMPXCollectionPath* naviState = aNavigationalState->StateLC();
+    
+    if ( naviState->Levels() >= 1)
+        {
+        if (aNavigationalState->ViewingMode() == NGlxNavigationalState::EBrowse) 
+            {
+            // For image viewer collection, goto view mode
+            if (naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
+                {
+                //it means we are in img viewer
+                fullscreenViewingMode = ETrue;
+                }
+            } 
+        else 
+            {
+            //it means we are in Fullscreen
+            fullscreenViewingMode = ETrue;
+            }                
+        }
+    CleanupStack::PopAndDestroy( naviState );
+    aNavigationalState->Close();
+    return fullscreenViewingMode;
+    }

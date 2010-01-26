@@ -86,8 +86,8 @@ void CGlxTvConnectionMonitor::ConstructL()
     User::LeaveIfError( iTvAccServer.Connect() );
     User::LeaveIfError( iTvAccMode.CreateSubSession( iTvAccServer ) );
     User::LeaveIfError( iTvAccMode.GetAccessoryMode( iCurrentAccMode ) );
-    iConnectionState = ( iCurrentAccMode.iAccessoryMode == EAccModeTVOut );
-
+    iConnectionState = ( iCurrentAccMode.iAccessoryMode == EAccModeTVOut 
+                            || iCurrentAccMode.iAccessoryMode == EAccModeHDMI);
     IssueRequest();  
     }
 
@@ -166,7 +166,8 @@ void CGlxTvConnectionMonitor::IssueRequest()
 void CGlxTvConnectionMonitor::IssueNotificationL()
     {
     GLX_LOG_INFO("CGlxTvConnectionMonitor::IssueNotificationL");
-    iConnectionState = ( iCurrentAccMode.iAccessoryMode == EAccModeTVOut );
+    iConnectionState = ( iCurrentAccMode.iAccessoryMode == EAccModeTVOut || 
+            iCurrentAccMode.iAccessoryMode == EAccModeHDMI );
     iConnectionObserver.HandleTvConnectionStatusChangedL();
     }
 

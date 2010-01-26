@@ -972,13 +972,8 @@ void CGlxZoomPanEventHandler::ActivateZoom(TInt /*aInitialZoomRatio*/,
             TInt(center.iY)  
               );
     
-    // A zoom ratio is calculated by multiplying the the new virtual size with 100 and dividing it with the original size. 
-    // this division using integers might cause truncation. The +1 is added to make sure that every such truncation 
-    // is pegged to the next higher integer than the next lower, thus ensuring that the zoom ratio in the zoom mode will always
-    // be greater than that in the full screen mode.
-    //
-    // The only other solution is to introduce a real number for this calculation. But do we really need such a deep level of accuracy?
-    iMinZoomRatio = iZoomRatio = aMinSliderRange + 1;
+    // Minimum and Maximum Zoom Ratio     
+    iMinZoomRatio = iZoomRatio = aMinSliderRange;
     iMaxZoomRatio = aMaxSliderRange   ;
 
     iMathsEngine.Initialize(center,

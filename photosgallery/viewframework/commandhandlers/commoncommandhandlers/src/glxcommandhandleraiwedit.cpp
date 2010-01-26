@@ -38,14 +38,26 @@ const TInt KGlxAiwEditCommandSpace = 0x00000200;
 // -----------------------------------------------------------------------------
 //	
 EXPORT_C CGlxCommandHandlerAiwEdit* CGlxCommandHandlerAiwEdit::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource)
+        MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
+        TBool aCommandSingleClick)
     {
     CGlxCommandHandlerAiwEdit* self = new ( ELeave ) 
         CGlxCommandHandlerAiwEdit(aMediaListProvider, aMenuResource);
     CleanupStack::PushL( self );
-    self->ConstructL();
+    self->ConstructL(aCommandSingleClick);
     CleanupStack::Pop( self );
     return self;
+    }
+
+// ---------------------------------------------------------------------------
+// Symbian 2nd phase constructor can leave.
+// ---------------------------------------------------------------------------
+//
+void CGlxCommandHandlerAiwEdit::ConstructL(TBool aCommandSingleClick)
+    {
+    TRACER("CGlxCommandHandlerAiwEdit::ConstructL");
+    CGlxCommandHandlerAiwBase::ConstructL();
+    iCommandSingleClick = aCommandSingleClick;
     }
 
 // -----------------------------------------------------------------------------
@@ -79,6 +91,10 @@ CGlxCommandHandlerAiwEdit::CGlxCommandHandlerAiwEdit(
 //	
 TInt CGlxCommandHandlerAiwEdit::CommandId() const
     {
+    if (iCommandSingleClick)
+        {
+        return EGlxCmdAiwSingleClickEdit;
+        }
     return EGlxCmdAiwEdit;
     }
     
@@ -97,6 +113,10 @@ TInt CGlxCommandHandlerAiwEdit::AiwCommandId() const
 //	
 TInt CGlxCommandHandlerAiwEdit::AiwInterestResource() const
     {
+    if (iCommandSingleClick)
+        {
+        return R_GLX_AIW_SINGLE_CLICK_EDIT_INTEREST;
+        }    
     return R_GLX_AIW_EDIT_INTEREST;
     }
         
@@ -134,11 +154,17 @@ void CGlxCommandHandlerAiwEdit::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/,
     HBufC* currentTitle = StringLoader::LoadLC( R_QTN_LGAL_OPTIONS_EDIT );
     TInt cmdId = AiwMenuCmdIdL( *currentTitle,aMenuPane ) ;
     CleanupStack::PopAndDestroy(currentTitle);
-    if( KErrNotFound != cmdId )
+
+    if (KErrNotFound != cmdId)
         {
-        if ((MediaList().SelectionCount() > 1))
+        if (iCommandSingleClick && (MediaList().SelectionCount() > 1))
             {
             aMenuPane->SetItemDimmed(cmdId,ETrue);    
             }
+        else if ( MediaList().SelectionCount() != 1) 
+            {
+            // Enable ONLY when a single item marked
+            aMenuPane->SetItemDimmed(cmdId,ETrue);    
+            }    
         }
     }

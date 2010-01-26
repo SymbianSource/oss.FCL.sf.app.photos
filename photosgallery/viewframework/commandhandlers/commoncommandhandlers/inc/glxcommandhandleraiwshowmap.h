@@ -99,7 +99,11 @@ private:
      * @return ETrue if location information is there. EFalse if not
      */
     TBool IsItemWithLocationInfoSelected(MGlxMediaList& aList);
-            
+
+	/**
+	 * Checks the viewing mode [FS/Grid]
+	 */
+    TBool IsInFullScreenViewingModeL();
 private:
     RPointerArray<HBufC8> iBufferArray;  // owned
     };

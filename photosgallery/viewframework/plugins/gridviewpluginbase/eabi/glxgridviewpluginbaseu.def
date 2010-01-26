@@ -7,6 +7,6 @@ EXPORTS
 	_ZN22CGlxGridViewPluginBaseD0Ev @ 6 NONAME
 	_ZN22CGlxGridViewPluginBaseD1Ev @ 7 NONAME
 	_ZN22CGlxGridViewPluginBaseD2Ev @ 8 NONAME
-	_ZTI22CGlxGridViewPluginBase @ 9 NONAME ; #<TI>#
-	_ZTV22CGlxGridViewPluginBase @ 10 NONAME ; #<VT>#
+	_ZTI22CGlxGridViewPluginBase @ 9 NONAME
+	_ZTV22CGlxGridViewPluginBase @ 10 NONAME
 

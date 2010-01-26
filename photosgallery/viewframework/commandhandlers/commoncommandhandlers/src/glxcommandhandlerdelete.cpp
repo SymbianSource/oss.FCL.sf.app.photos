@@ -89,6 +89,11 @@ void CGlxCommandHandlerDelete::ConstructL(TBool aIsContainerList)
     info.iMinSelectionLength = 1;
     info.iDisallowSystemItems = aIsContainerList;
    	AddCommandL(info);
+   	
+   	TCommandInfo singleclkinfo( EGlxCmdSingleClickDelete );
+    singleclkinfo.iMinSelectionLength = 1;
+    singleclkinfo.iDisallowSystemItems = aIsContainerList;
+    AddCommandL(singleclkinfo);
 	}
 
 // ---------------------------------------------------------------------------
@@ -228,11 +233,6 @@ TBool CGlxCommandHandlerDelete::DoIsDisabled(TInt aCommandId,
                     //it means we are in img viewer.
                     fullscreenViewingMode = ETrue;
                     }
-                else
-                    {
-                     //it means we are in grid view.
-                    fullscreenViewingMode = EFalse;
-                    }
                 } 
             else 
                 {
@@ -242,10 +242,17 @@ TBool CGlxCommandHandlerDelete::DoIsDisabled(TInt aCommandId,
             }
         CleanupStack::PopAndDestroy( naviState );
         aNavigationalState->Close();
-        if(EGlxCmdDelete==aCommandId && (0 == aList.Count() ) && !fullscreenViewingMode)
+        if (EGlxCmdDelete==aCommandId && 0 == aList.Count() &&
+		                                 !fullscreenViewingMode)
             {   
             return ETrue;
             }
+        
+        if (EGlxCmdSingleClickDelete==aCommandId && 0 == aList.SelectionCount())
+            {
+            return ETrue;
+            }
+        
         return EFalse;
         }
 //end of file

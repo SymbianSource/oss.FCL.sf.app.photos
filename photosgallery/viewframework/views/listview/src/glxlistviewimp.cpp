@@ -43,6 +43,7 @@
 #include <StringLoader.h>					//StringLoader		
 #include <glxsetappstate.h>
 #include <glxthumbnailattributeinfo.h>
+#include <glxcollectionpluginalbums.hrh>
 
 const TInt KListDataWindowSize(25);
 const TInt KNoOfPages(2);
@@ -574,6 +575,14 @@ void CGlxListViewImp::CreateListL()
 		//Fix for ESLM-7SAHPT::Clear Flag to Disable QWERTY search input in list view
 		iList->ClearFlags(CHgScroller::EHgScrollerSearchWithQWERTY ); 
 		
+        // Set the scrollbar type for albums list
+        CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathParent );
+        if (path->Id() == KGlxCollectionPluginAlbumsImplementationUid)
+            {
+            iList->SetScrollBarTypeL(CHgScroller::EHgScrollerLetterStripLite );
+            }
+        CleanupStack::PopAndDestroy(path);
+        
 		AppUi()->AddToStackL(iList);
 		}
 		

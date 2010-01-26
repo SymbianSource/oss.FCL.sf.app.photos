@@ -834,7 +834,6 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                     //when the timer activates while launching the zoom 
                     //it causes the crash.
                     ShowUiL(EFalse);
-                    SetSliderLevel();
                     TRAP_IGNORE( ActivateZoomControlL(EZoomStartKey));
                     return EEventConsumed;
                     }
@@ -1014,7 +1013,6 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 // of fullscreenlevel.
                 iTimer->Cancel();
                 iSliderWidget->ShowWidget( ETrue, 0 );
-                SetSliderLevel();
                 TRAP_IGNORE( ActivateZoomControlL(EZoomStartSlider));
                 }
                 return EEventConsumed;

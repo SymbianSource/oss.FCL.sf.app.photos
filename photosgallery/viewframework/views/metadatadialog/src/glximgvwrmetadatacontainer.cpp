@@ -670,7 +670,11 @@ void CGlxImgVwrMetadataContainer::SetNameDescriptionL(TInt aItem)
     //Launch the text entry editor.
     CGlxTextEntryPopup* popup = CGlxTextEntryPopup::NewL( *buf, textPtr );
     CleanupStack::PopAndDestroy(buf);
-
+    if(aItem == EImgVwrDescriptionItem)
+        {
+        popup->SetLeftSoftKeyL(ETrue);
+        }
+    
     //action upon selecting ok from the editor 
     if ( popup->ExecuteLD() == EEikBidOk )
     {

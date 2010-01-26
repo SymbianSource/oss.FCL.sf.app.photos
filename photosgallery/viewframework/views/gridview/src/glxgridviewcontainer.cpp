@@ -787,6 +787,8 @@ TBool CGlxGridViewContainer::HandleViewCommandL(TInt aCommand)
 					{
 					iHgGrid->ClearFlags( CHgScroller::EHgScrollerSelectionMode );
 					}
+				iGlxGridViewObserver.HandleLatchToolbar();
+				iGlxGridViewObserver.HandleGridEventsL(EGlxCmdEndMultipleMarking);
 				}
 			break;
 			}

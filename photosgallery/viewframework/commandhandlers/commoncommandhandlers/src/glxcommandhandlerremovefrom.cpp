@@ -81,6 +81,11 @@ void CGlxCommandHandlerRemoveFrom::ConstructL()
     info.iMinSelectionLength = 1;
     info.iMaxSelectionLength = KMaxTInt;
    	AddCommandL(info);
+   	
+   	TCommandInfo singleclickinfo(EGlxCmdSingleClickRemoveFrom);
+   	singleclickinfo.iMinSelectionLength = 1;
+   	singleclickinfo.iMaxSelectionLength = KMaxTInt;
+    AddCommandL(singleclickinfo);
 	}
 
 // ---------------------------------------------------------------------------
@@ -171,3 +176,19 @@ void CGlxCommandHandlerRemoveFrom::DoActivateL(TInt /*aViewId*/)
 	{
 		
  	}
+
+// ---------------------------------------------------------------------------
+// CGlxCommandHandlerRemoveFrom::DoIsDisabled
+// ---------------------------------------------------------------------------
+//
+TBool CGlxCommandHandlerRemoveFrom::DoIsDisabled(TInt aCommandId, 
+                                                 MGlxMediaList& aList) const
+    {
+    if (aCommandId == EGlxCmdSingleClickRemoveFrom && 
+                                  aList.SelectionCount()== 0)
+        {
+        return ETrue;
+        }
+    
+    return EFalse;
+    }
