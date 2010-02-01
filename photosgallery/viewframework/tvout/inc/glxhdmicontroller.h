@@ -50,7 +50,7 @@ public:
      * @param3 - frame count
      */
     IMPORT_C void SetImageL(const TDesC& aImageFile,TSize aImageDimensions, 
-            TInt aFrameCount);
+            TInt aFrameCount, TBool aStore = ETrue);
 
     /*
      * To Determine it is a video and not image 
@@ -118,6 +118,8 @@ private:
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;
+    TBool iIsHDMIconnected;
+    TBool iIsHDMIdisConnected;
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

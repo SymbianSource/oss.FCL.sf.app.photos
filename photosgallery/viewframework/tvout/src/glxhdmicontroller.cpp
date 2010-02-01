@@ -63,15 +63,19 @@ EXPORT_C CGlxHdmiController::~CGlxHdmiController()
 // Setting an Image Path 
 // -----------------------------------------------------------------------------
 EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
-        TSize aImageDimensions, TInt aFrameCount)
+        TSize aImageDimensions, TInt aFrameCount, TBool aStore)
     {
     TRACER("CGlxHdmiController::SetImageL()");
-    StoreImageInfoL(aImageFile, aImageDimensions, aFrameCount);
-    if (iGlxTvOut->IsConnected())
+    if (aStore)
+        StoreImageInfoL(aImageFile, aImageDimensions, aFrameCount);
+		
+    if (iGlxTvOut->IsHDMIConnected())
         {
+        iIsHDMIconnected = ETrue;
         if(aImageDimensions.iHeight<=KHdTvHeight && 
                 aImageDimensions.iWidth<= KHdTvWidth && aFrameCount > 0)
             {
+            GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 1");
             DestroySurfaceUpdater();
             if (!iHdmiContainer)
                 {
@@ -81,6 +85,7 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
             }
         else
             {
+            GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 2");
             // do not close the surface , use the same surface instead.
             // Call a function to pass imagefile, imagedimension, framecount
             if (!iHdmiContainer)
@@ -95,6 +100,7 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
                 }
             else
                 {
+                GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 3");
                 iSurfaceUpdater->UpdateNewImageL(aImageFile, aFrameCount);
                 }
             iHdmiContainer->DrawNow();
@@ -108,7 +114,7 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
 EXPORT_C void CGlxHdmiController::IsVideo()
     {
     TRACER("CGlxHdmiController::IsVideo()");
-    if (iGlxTvOut->IsConnected())
+    if (iGlxTvOut->IsHDMIConnected())
         {
         DestroySurfaceUpdater();
         }
@@ -121,7 +127,7 @@ EXPORT_C void CGlxHdmiController::IsVideo()
 EXPORT_C void CGlxHdmiController::ActivateZoom()
     {
     TRACER("CGlxHdmiController::ActivateZoom()");
-    if (iGlxTvOut->IsConnected())
+    if (iGlxTvOut->IsHDMIConnected())
         {
         iSurfaceUpdater->ActivateZoom();
         }
@@ -133,7 +139,7 @@ EXPORT_C void CGlxHdmiController::ActivateZoom()
 EXPORT_C void CGlxHdmiController::DeactivateZoom()
     {
     TRACER("CGlxHdmiController::DeactivateZoom()");
-    if (iGlxTvOut->IsConnected())
+    if (iGlxTvOut->IsHDMIConnected())
         {
         iSurfaceUpdater->DeactivateZoom();
         }
@@ -155,6 +161,8 @@ void CGlxHdmiController::ConstructL()
     {
     TRACER("CGlxHdmiController::ConstructL()");
     iGlxTvOut = CGlxTv::NewL(*this);
+    iIsHDMIconnected = EFalse;
+    iIsHDMIdisConnected = EFalse;
     }
 
 // -----------------------------------------------------------------------------
@@ -231,18 +239,27 @@ void CGlxHdmiController::StoreImageInfoL(const TDesC& aImageFile,
 void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
     {
     TRACER("CGlxHdmiController::HandleTvStatusChangedL()");
-    if ( aChangeType == ETvConnectionChanged )          
+    if(iIsHDMIdisConnected)
         {
-        if ( iGlxTvOut->IsConnected() )
+        iIsHDMIdisConnected = EFalse;
+        }
+    else if ( aChangeType == ETvConnectionChanged )          
+        {
+        if ( iGlxTvOut->IsHDMIConnected() )
             {
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Connected");
             // Calling SetImageL() with appropriate parameters
-            SetImageL(iStoredImagePath->Des(), iImageDimensions, iFrameCount);
+            if(!iIsHDMIconnected)
+                {
+                SetImageL(iStoredImagePath->Des(), iImageDimensions, iFrameCount, EFalse);
+                }
             }
         else
             {
             // if it gets disconnected, destroy the surface 
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Not Connected");
+            iIsHDMIconnected = EFalse;
+            iIsHDMIdisConnected = ETrue;
             DestroySurfaceUpdater();
             }
         }

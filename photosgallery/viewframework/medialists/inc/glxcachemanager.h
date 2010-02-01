@@ -53,9 +53,12 @@ class CGlxImageViewerManager;
  *
  *  @lib glxmedialists.lib
  */
-class CGlxCacheManager : public CBase, public MGlxCache, public MGlxMediaPool
+class CGlxCacheManager : public CBase, 
+                         public MGlxCache, 
+                         public MGlxMediaPool,
+                         public MImageReadyCallBack
 #ifdef USE_S60_TNM
-, public MThumbnailManagerObserver,public MImageReadyCallBack
+, public MThumbnailManagerObserver
 #endif
 	{
 public:
@@ -182,7 +185,8 @@ public: // From MGlxCache
     void ForceCleanupMedia(TGlxIdSpaceId aSpaceId,TGlxMediaId aId); 
 
 public:
-    void ImageReadyL(const TInt& aError, const TSize aSz);
+    void ImageSizeReady(TInt aError, const TSize aSz);
+
 private:
     /**
      * Constructor
@@ -287,7 +291,22 @@ private:
      */
     CMPXCollectionPath* RequestAsPathLC(const CGlxMediaList& aList);
     
+    /**
+     * Gets the mime type of a given file.
+     * @param aFileName The file name for which a MIME type to be determined
+     * @aMimeType The MIME type associated with the given file will be returned
+     */
     void GetMimeTypeL(TFileName& aFileName, TDataType& aMimeType );
+
+    /**
+     * Creates the image viewer instance, if not created already.
+     */    
+    void CreateImageViewerInstanceL();
+    
+    /**
+     * Deletes the image viewer instance, if created already.
+     */    
+    void DeleteImageViewerInstance();
     
 #ifdef USE_S60_TNM
     /*

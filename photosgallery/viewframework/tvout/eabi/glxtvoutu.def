@@ -3,7 +3,7 @@ EXPORTS
 	_ZN18CGlxHdmiController14DeactivateZoomEv @ 2 NONAME
 	_ZN18CGlxHdmiController4NewLERK7TDesC16 @ 3 NONAME
 	_ZN18CGlxHdmiController7IsVideoEv @ 4 NONAME
-	_ZN18CGlxHdmiController9SetImageLERK7TDesC165TSizei @ 5 NONAME
+	_ZN18CGlxHdmiController9SetImageLERK7TDesC165TSizeii @ 5 NONAME
 	_ZN18CGlxHdmiControllerD0Ev @ 6 NONAME
 	_ZN18CGlxHdmiControllerD1Ev @ 7 NONAME
 	_ZN18CGlxHdmiControllerD2Ev @ 8 NONAME
@@ -14,12 +14,13 @@ EXPORTS
 	_ZNK6CGlxTv11IsConnectedEv @ 13 NONAME
 	_ZNK6CGlxTv11ScreenSizeLEv @ 14 NONAME
 	_ZNK6CGlxTv12IsWidescreenEv @ 15 NONAME
-	_ZTI17CGlxHdmiContainer @ 16 NONAME
-	_ZTI17CGlxHdmiDecoderAO @ 17 NONAME
-	_ZTI18CGlxHdmiController @ 18 NONAME
-	_ZTI22CGlxHdmiSurfaceUpdater @ 19 NONAME
-	_ZTV17CGlxHdmiContainer @ 20 NONAME
-	_ZTV17CGlxHdmiDecoderAO @ 21 NONAME
-	_ZTV18CGlxHdmiController @ 22 NONAME
-	_ZTV22CGlxHdmiSurfaceUpdater @ 23 NONAME
+	_ZNK6CGlxTv15IsHDMIConnectedEv @ 16 NONAME
+	_ZTI17CGlxHdmiContainer @ 17 NONAME
+	_ZTI17CGlxHdmiDecoderAO @ 18 NONAME
+	_ZTI18CGlxHdmiController @ 19 NONAME
+	_ZTI22CGlxHdmiSurfaceUpdater @ 20 NONAME
+	_ZTV17CGlxHdmiContainer @ 21 NONAME
+	_ZTV17CGlxHdmiDecoderAO @ 22 NONAME
+	_ZTV18CGlxHdmiController @ 23 NONAME
+	_ZTV22CGlxHdmiSurfaceUpdater @ 24 NONAME
 

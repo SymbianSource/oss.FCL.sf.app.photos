@@ -25,27 +25,27 @@ EXPORTS
 	_ZN22CGlxCommandHandlerSendD0Ev @ 24 NONAME
 	_ZN22CGlxCommandHandlerSendD1Ev @ 25 NONAME
 	_ZN22CGlxCommandHandlerSendD2Ev @ 26 NONAME
-	_ZN22CGlxImageViewerManager17IncrementRefCountEv @ 27 NONAME
-	_ZN22CGlxImageViewerManager8ImageUriEv @ 28 NONAME
-	_ZN22CGlxImageViewerManager9IsPrivateEv @ 29 NONAME
-	_ZN23CGlxMediaSelectionPopup9ExecuteLDER18CMPXCollectionPathRiiiP9CMPXMedia @ 30 NONAME
-	_ZN23CGlxMediaSelectionPopupC1Ev @ 31 NONAME
-	_ZN23CGlxMediaSelectionPopupC2Ev @ 32 NONAME
-	_ZN24CGlxCommandHandlerDelete4NewLEP21MGlxMediaListProviderii @ 33 NONAME
-	_ZN24CGlxCommandHandlerDeleteD0Ev @ 34 NONAME
-	_ZN24CGlxCommandHandlerDeleteD1Ev @ 35 NONAME
-	_ZN24CGlxCommandHandlerDeleteD2Ev @ 36 NONAME
-	_ZN24CGlxCommandHandlerHideUi4NewLEv @ 37 NONAME
-	_ZN24CGlxCommandHandlerRename4NewLEP21MGlxMediaListProvideri @ 38 NONAME
-	_ZN24CGlxCommandHandlerRenameD0Ev @ 39 NONAME
-	_ZN24CGlxCommandHandlerRenameD1Ev @ 40 NONAME
-	_ZN24CGlxCommandHandlerRenameD2Ev @ 41 NONAME
-	_ZN24CGlxCommandHandlerRotate4NewLEP21MGlxMediaListProviderP15MGlxLayoutOwneri @ 42 NONAME
-	_ZN24CGlxCommandHandlerUpload4NewLEP21MGlxMediaListProvideri @ 43 NONAME
-	_ZN24CGlxCommandHandlerUploadD0Ev @ 44 NONAME
-	_ZN24CGlxCommandHandlerUploadD1Ev @ 45 NONAME
-	_ZN24CGlxCommandHandlerUploadD2Ev @ 46 NONAME
-	_ZN25CGlxCommandHandlerAiwEdit4NewLEP21MGlxMediaListProviderii @ 47 NONAME
+	_ZN23CGlxMediaSelectionPopup9ExecuteLDER18CMPXCollectionPathRiiiP9CMPXMedia @ 27 NONAME
+	_ZN23CGlxMediaSelectionPopupC1Ev @ 28 NONAME
+	_ZN23CGlxMediaSelectionPopupC2Ev @ 29 NONAME
+	_ZN24CGlxCommandHandlerDelete4NewLEP21MGlxMediaListProviderii @ 30 NONAME
+	_ZN24CGlxCommandHandlerDeleteD0Ev @ 31 NONAME
+	_ZN24CGlxCommandHandlerDeleteD1Ev @ 32 NONAME
+	_ZN24CGlxCommandHandlerDeleteD2Ev @ 33 NONAME
+	_ZN24CGlxCommandHandlerHideUi4NewLEv @ 34 NONAME
+	_ZN24CGlxCommandHandlerRename4NewLEP21MGlxMediaListProvideri @ 35 NONAME
+	_ZN24CGlxCommandHandlerRenameD0Ev @ 36 NONAME
+	_ZN24CGlxCommandHandlerRenameD1Ev @ 37 NONAME
+	_ZN24CGlxCommandHandlerRenameD2Ev @ 38 NONAME
+	_ZN24CGlxCommandHandlerRotate4NewLEP21MGlxMediaListProviderP15MGlxLayoutOwneri @ 39 NONAME
+	_ZN24CGlxCommandHandlerUpload4NewLEP21MGlxMediaListProvideri @ 40 NONAME
+	_ZN24CGlxCommandHandlerUploadD0Ev @ 41 NONAME
+	_ZN24CGlxCommandHandlerUploadD1Ev @ 42 NONAME
+	_ZN24CGlxCommandHandlerUploadD2Ev @ 43 NONAME
+	_ZN25CGlxCommandHandlerAiwEdit4NewLEP21MGlxMediaListProvideri @ 44 NONAME
+	_ZN25CGlxCommandHandlerAiwEditD0Ev @ 45 NONAME
+	_ZN25CGlxCommandHandlerAiwEditD1Ev @ 46 NONAME
+	_ZN25CGlxCommandHandlerAiwEditD2Ev @ 47 NONAME
 	_ZN25CGlxCommandHandlerDetails4NewLEP21MGlxMediaListProvider @ 48 NONAME
 	_ZN25CGlxCommandHandlerDetailsD0Ev @ 49 NONAME
 	_ZN25CGlxCommandHandlerDetailsD1Ev @ 50 NONAME
@@ -102,10 +102,9 @@ EXPORTS
 	_ZN38CGlxSingleGraphicPopupMenuStyleListBox14OfferKeyEventLERK9TKeyEvent10TEventCode @ 101 NONAME
 	_ZNK20CGlxMediaListAdaptor9MdcaCountEv @ 102 NONAME
 	_ZNK20CGlxMediaListAdaptor9MdcaPointEi @ 103 NONAME
-	_ZNK22CGlxImageViewerManager15ImageFileHandleEv @ 104 NONAME
-	_ZNK26CGlxCommandHandlerNewMedia23BypassFiltersForExecuteEv @ 105 NONAME
-	_ZNK26CGlxCommandHandlerNewMedia8OkToExitEv @ 106 NONAME
-	_ZThn48_N26CGlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 107 NONAME
-	_ZThn4_NK20CGlxMediaListAdaptor9MdcaCountEv @ 108 NONAME
-	_ZThn4_NK20CGlxMediaListAdaptor9MdcaPointEi @ 109 NONAME
+	_ZNK26CGlxCommandHandlerNewMedia23BypassFiltersForExecuteEv @ 104 NONAME
+	_ZNK26CGlxCommandHandlerNewMedia8OkToExitEv @ 105 NONAME
+	_ZThn48_N26CGlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 106 NONAME
+	_ZThn4_NK20CGlxMediaListAdaptor9MdcaCountEv @ 107 NONAME
+	_ZThn4_NK20CGlxMediaListAdaptor9MdcaPointEi @ 108 NONAME
 

@@ -161,7 +161,7 @@ EXPORT_C void CGlxViewBase::HandleCommandL(TInt aCommand)
         iUiUtility->SetViewNavigationDirection(EGlxNavigationForwards); 
         }
 
-    if ( EGlxCmdOptions == aCommand )
+    if ( EAknSoftkeyOptions == aCommand )
         {
         FetchAttributesL();
         // Open the options menu properly

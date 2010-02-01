@@ -123,7 +123,6 @@ void CGlxCacheManager::ConstructL()
     iTnEngine = CThumbnailManager::NewL( *this);
     iTnEngine->SetDisplayModeL( EColor64K );
 #endif
-    iImageViewerInstance = CGlxImageViewerManager::InstanceL();
     }
         
 // -----------------------------------------------------------------------------
@@ -167,10 +166,6 @@ CGlxCacheManager::~CGlxCacheManager()
 #endif
     
     delete iMaintainCacheCallback;
-    if ( NULL != iImageViewerInstance)
-        {
-        iImageViewerInstance->DeleteInstance();
-        }
 	}
 
 // -----------------------------------------------------------------------------
@@ -638,10 +633,15 @@ void CGlxCacheManager::MaintainCacheL()
                                     parse.Path().Length() > KPrivateFolder().Length() &&
                                     parse.Path().Left( KPrivateFolder().Length() ).CompareF( KPrivateFolder ) == 0 )
                                     {
+                                    CreateImageViewerInstanceL();
                                     GLX_DEBUG1("KGlxCollectionPluginImageViewerImplementationUid - Fetch (Private) TN!");
-                                    CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(iImageViewerInstance->ImageFileHandle());
-                                    iThumbnailRequestIds.AppendL(TLoadingTN(iTnEngine->GetThumbnailL(*source), spaceId, tnSize, itemId));
-                                    CleanupStack::PopAndDestroy(source);
+                                    if ( &(iImageViewerInstance->ImageFileHandle()) != NULL )
+                                        {
+                                        CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(iImageViewerInstance->ImageFileHandle());
+                                        iThumbnailRequestIds.AppendL(TLoadingTN(iTnEngine->GetThumbnailL(*source), spaceId, tnSize, itemId));
+                                        CleanupStack::PopAndDestroy(source);
+                                        }
+                                    DeleteImageViewerInstance();
                                     }
                                 else
                                     {
@@ -695,36 +695,88 @@ void CGlxCacheManager::MaintainCacheL()
 						}
                     }
                 else
-                	{
-	                GLX_DEBUG3("MGallery - CGlxCacheManager::MaintainCacheL() requesting attribute for list %x and item %d", list, itemId.Value());
+                    {
+                    GLX_DEBUG3("MGallery - CGlxCacheManager::MaintainCacheL() requesting attribute for list %x and item %d", list, itemId.Value());
 
-	                // Use list's isolated collection
-	                MMPXCollection& collection = list->Collection();
+                    // Use list's isolated collection
+                    MMPXCollection& collection = list->Collection();
                     if (collection.UidL().iUid == KGlxCollectionPluginImageViewerImplementationUid)
                         {
+                        CreateImageViewerInstanceL();
                         TInt mediaCnt = list->Count();
                         TInt errInImage = KErrNone;
- 
-                        
+
                         GLX_DEBUG3("Image Viewer Collection - Attrib population! mediaCnt=%d, Media Id=%d",
                                 mediaCnt, itemId.Value());
-                        
+
                         delete iMPXMedia;
                         iMPXMedia = NULL;
 
-                        TFileName fileName;
+                        TFileName fileName(KNullDesC);
                         //retrieve the filename as per the caller app.
-						if(!iImageViewerInstance->IsPrivate())
+                        if(iImageViewerInstance->IsPrivate())
                             {
-							//filemngr
-                            fileName.Append(iImageViewerInstance->ImageUri()->Des());
+                            const TGlxMedia& item = list->Item( iRequestedItemIndexes[0] );
+                            // If there is an URI available, then the request is due to EPathChanged message 
+                            // due to a file save from Image Viewer, and attribs needs to be re-populated. 
+                            // So, use the same URI; Oherwise getting fullname from handle might result in a crash.
+                            if (item.Uri().Length())
+                                {
+                                fileName.Append(item.Uri());
+                                }
+                            else
+                                {
+                                // private path
+                                RFile64& imageHandle = iImageViewerInstance->ImageFileHandle();
+                                if ( &imageHandle != NULL )
+                                    {
+                                    fileName.Append(imageHandle.FullName(fileName));
+                                    }
+                                else
+                                    {
+                                    errInImage = KErrArgument;
+                                    }   
+                                }
                             }
                         else
                             {
-							//msging
-                            fileName.Append(iImageViewerInstance->ImageFileHandle().FullName(fileName));
+                            // user data path
+                            if(  iImageViewerInstance->ImageUri() != NULL  )
+                                {
+                                fileName.Append(iImageViewerInstance->ImageUri()->Des());
+                                RFs fs;
+                                CleanupClosePushL(fs);
+                                TInt err = fs.Connect();   
+                                errInImage = KErrArgument;
+                                if(err == KErrNone)
+                                    {
+                                    if (fs.IsValidName(fileName))
+                                        {
+                                        errInImage = KErrNone;
+                                        }
+                                    }
+                                CleanupStack::PopAndDestroy(&fs);
+                                }
+                            else
+                                {
+                                errInImage = KErrArgument;
+                                }
                             }
+
                         iMPXMedia = CMPXMedia::NewL();
+
+                        if (errInImage != KErrNone)
+                            {
+                            HandleGarbageCollectionL(EFalse);
+                            CleanupStack::PopAndDestroy(path);
+                            iRequestOwner = list;
+                            CleanupStack::PopAndDestroy(attrSpecs); 
+                            TGlxIdSpaceId spaceId = list->IdSpaceId(iRequestedItemIndexes[0]);
+                            HandleCollectionMediaL(spaceId, *iMPXMedia, KErrArgument);
+                            DeleteImageViewerInstance();
+                            return;
+                            }
+
                         if(!iReader)
                             {
                             TRAP(errInImage,iReader = CGlxImageReader::NewL(*this));
@@ -733,7 +785,7 @@ void CGlxCacheManager::MaintainCacheL()
                                 iSchedulerWait->Start();
                                 }
                             }
-                    
+
                         for ( TInt i = 0; i < iRequestedAttrs.Count(); i++ )
                             {
                             if ( iRequestedAttrs[i] == KMPXMediaGeneralId )
@@ -768,13 +820,27 @@ void CGlxCacheManager::MaintainCacheL()
                                 {
                                 if(errInImage == KErrNone)
                                     {
-                                    RFs fs; 
-                                    fs.Connect();   
-                                    TEntry entry;   
-                                    fs.Entry(fileName,entry);    
-                                    TTime time = entry.iModified;   
-                                    fs.Close();
-                                    iMPXMedia->SetTObjectValueL(KGlxMediaGeneralLastModifiedDate, time.Int64());
+                                    RFs fs;
+                                    CleanupClosePushL(fs);
+                                    TInt err = fs.Connect();   
+                                    if(err == KErrNone)
+                                        {                                    
+                                        TEntry entry;   
+                                        fs.Entry(fileName,entry);    
+                                        TTime time = entry.iModified;   
+                                        iMPXMedia->SetTObjectValueL(
+                                                KGlxMediaGeneralLastModifiedDate, 
+                                                time.Int64());
+                                        }
+                                    else
+                                        {
+                                        TTime time;
+                                        time.HomeTime();
+                                        iMPXMedia->SetTObjectValueL(
+                                                KGlxMediaGeneralLastModifiedDate, 
+                                                time.Int64());
+                                        }
+                                    CleanupStack::PopAndDestroy(&fs);                                    
                                     }
                                 else
                                     {
@@ -785,24 +851,45 @@ void CGlxCacheManager::MaintainCacheL()
                                 }
                             else if ( iRequestedAttrs[i] == KMPXMediaGeneralSize )
                                 {
-				if(errInImage == KErrNone)
-					{
-					RFs fs; 
-					TInt err = fs.Connect();   
-					if(err == KErrNone)
-				    	{
-						TEntry entry;   
-                    	fs.Entry(fileName,entry);    
-						TInt sz;
-						sz = entry.iSize;   
-						fs.Close();                                    
-						iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, sz);
-						}
-					else
-				    	{
-						iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, 0);
-						}
-					}
+                                if(errInImage == KErrNone)
+                                    {
+                                    if(iImageViewerInstance->IsPrivate())
+                                        {
+                                        TInt64 sz = 0;
+                                        TInt err = KErrNotFound;                                      
+                                        RFile64& imageHandle = iImageViewerInstance->ImageFileHandle();
+                                        if ( imageHandle.SubSessionHandle() != KNullHandle )
+                                            {
+                                            err = imageHandle.Size(sz);
+                                            }
+                                        if(err == KErrNone)
+                                            {
+                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, sz);
+                                            }
+                                        else
+                                            {
+                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, 0);                                            
+                                            }
+                                        }
+                                    else
+                                        {
+                                        RFs fs;
+                                        CleanupClosePushL(fs);
+                                        TInt err = fs.Connect();   
+                                        if(err == KErrNone)
+                                            {
+                                            TEntry entry;   
+                                            fs.Entry(fileName,entry);    
+                                            TInt sz = (TUint)entry.iSize;                                      
+                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, sz);
+                                            }
+                                        else
+                                            {
+                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, 0);
+                                            }
+                                        CleanupStack::PopAndDestroy(&fs);
+                                        }
+                                    }
                                 // If any error while image is being decoded by image decorder, Need to set
                                 // default vaule for that image. Typical case is corrupted image.
                                 else
@@ -861,17 +948,25 @@ void CGlxCacheManager::MaintainCacheL()
                                 }
                             else if (iRequestedAttrs[i] == KMPXMediaDrmProtected )
                                 {
-                                TBool protection = iReader->GetDRMRightsL
-                                		(ContentAccess::EIsProtected);
-                                iMPXMedia->SetTObjectValueL(KMPXMediaDrmProtected, protection); 
+                                TBool protection = EFalse;
+                                if(errInImage == KErrNone)
+                                    {
+                                    protection = iReader->GetDRMRightsL
+                                    (ContentAccess::EIsProtected);
+                                    }
+                                iMPXMedia->SetTObjectValueL(KMPXMediaDrmProtected, protection);
                                 }
                             else if ( iRequestedAttrs[i] == KGlxMediaGeneralDRMRightsValid )
-                                { 
-                                TBool canView = iReader->GetDRMRightsL(ContentAccess::ECanView);
-                                TInt rightsValid = canView ? 
-                                		EGlxDrmRightsValid : EGlxDrmRightsInvalid;
+                                {
+                                TInt rightsValid = EGlxDrmRightsValidityUnknown;
+                                if(errInImage == KErrNone)
+                                    {
+                                    TBool canView = iReader->GetDRMRightsL(ContentAccess::ECanView);
+                                    rightsValid = canView ? 
+                                        EGlxDrmRightsValid : EGlxDrmRightsInvalid;
+                                    }
                                 iMPXMedia->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid,
-                                                             rightsValid); 
+                                        rightsValid); 
                                 }
                             else if ( iRequestedAttrs[i] == KMPXMediaGeneralCount )
                                 {
@@ -881,7 +976,7 @@ void CGlxCacheManager::MaintainCacheL()
                                 {
                                 TGlxIdSpaceId spaceId = list->IdSpaceId(iRequestedItemIndexes[0]);
                                 iMPXMedia->SetTObjectValueL(KMPXMediaColDetailSpaceId,
-                                		 spaceId.Value());
+                                        spaceId.Value());
                                 }
                             else if ( iRequestedAttrs[i] == KGlxMediaGeneralSlideshowableContent )
                                 {
@@ -894,22 +989,24 @@ void CGlxCacheManager::MaintainCacheL()
                                 }
                             else
                                 {
+                                DeleteImageViewerInstance();
                                 User::Leave(KErrNotSupported);
                                 }
                             }
-                        
+
                         HandleGarbageCollectionL(EFalse);
                         CleanupStack::PopAndDestroy(path);
                         iRequestOwner = list;
                         CleanupStack::PopAndDestroy(attrSpecs); 
                         TGlxIdSpaceId spaceId = list->IdSpaceId(iRequestedItemIndexes[0]);
                         HandleCollectionMediaL(spaceId, *iMPXMedia, KErrNone);
+                        DeleteImageViewerInstance();
                         return;
                         }
                     else
                         {
-                    // Issue the request
-                    collection.MediaL(*path, iRequestedAttrs.Array(), attrSpecs);
+                        // Issue the request
+                        collection.MediaL(*path, iRequestedAttrs.Array(), attrSpecs);
                         }
                     }
 #else // USE_S60_TNM
@@ -1427,10 +1524,13 @@ void CGlxCacheManager::ThumbnailReadyL(TInt aError, MThumbnailData& aThumbnail,
     }
 #endif
 
+// -----------------------------------------------------------------------------
+// GetMimeTypeL()
+// -----------------------------------------------------------------------------
+//
 void CGlxCacheManager::GetMimeTypeL(TFileName& aFileName, TDataType& aMimeType)
     {
     TRACER("CGlxCacheManager::GetMimeTypeL");
-    
     RApaLsSession session;
     User::LeaveIfError( session.Connect() );
     CleanupClosePushL( session );
@@ -1438,17 +1538,52 @@ void CGlxCacheManager::GetMimeTypeL(TFileName& aFileName, TDataType& aMimeType)
     TUid uid;
     User::LeaveIfError( session.AppForDocument( aFileName, uid, aMimeType ) );
     CleanupStack::PopAndDestroy(&session);
-
     }
-void CGlxCacheManager::ImageReadyL(const TInt& aError, const TSize aSz)
+
+// -----------------------------------------------------------------------------
+// ImageSizeReady()
+// -----------------------------------------------------------------------------
+//
+void CGlxCacheManager::ImageSizeReady(TInt aError, const TSize aSz)
     {
-    TRACER("CGlxCacheManager::ImageReadyL");              
-    GLX_DEBUG2("CGlxCacheManager::ImageReadyL aError=%d", aError);             
+    TRACER("CGlxCacheManager::ImageSizeReady");
+    GLX_DEBUG2("CGlxCacheManager::ImageSizeReady aError=%d", aError);
     iImgSz = TSize();
     if(iSchedulerWait)
         {
         iSchedulerWait->AsyncStop();    
         }    
-    User::LeaveIfError( aError );                    
+
     iImgSz = aSz;
+    GLX_DEBUG3("CGlxCacheManager::ImageSizeReady() iImgSz w(%d) h(%d)", 
+            iImgSz.iWidth, iImgSz.iHeight);    
     }
+
+// -----------------------------------------------------------------------------
+// CreateImageViewerInstanceL
+// -----------------------------------------------------------------------------
+//
+void CGlxCacheManager::CreateImageViewerInstanceL()
+    {
+    TRACER("CGlxCacheManager::CreateImageViewerInstanceL");
+    if ( iImageViewerInstance == NULL )
+        {
+        iImageViewerInstance = CGlxImageViewerManager::InstanceL();
+        }
+    __ASSERT_ALWAYS(iImageViewerInstance, Panic(EGlxPanicNullPointer));
+    }
+
+// -----------------------------------------------------------------------------
+// DeleteImageViewerInstance
+// -----------------------------------------------------------------------------
+//
+void CGlxCacheManager::DeleteImageViewerInstance()
+    {
+    TRACER("CGlxCacheManager::DeleteImageViewerInstance");
+    if ( iImageViewerInstance != NULL )
+        {
+        iImageViewerInstance->DeleteInstance();
+        }
+    }
+
+//End of file

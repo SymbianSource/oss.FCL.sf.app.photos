@@ -164,11 +164,12 @@ EXPORT_C void CGlxGridViewPluginBase::AddCommandHandlersL()
                                 NewL(iGridView, iResourceIds.iMenuId));
     GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::
-                                NewL(iGridView, iResourceIds.iMenuId));
+                                NewL(iGridView));
     
     GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit-Single Click");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::
-                                NewL(iGridView, iResourceIds.iMenuId, ETrue));
+                                NewL(iGridView, ETrue));
+
     GLX_LOG_INFO("Adding CGlxCommandHandlerAiwPrintPreview");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwPrintPreview::
                                 NewL(iGridView, iResourceIds.iMenuId));

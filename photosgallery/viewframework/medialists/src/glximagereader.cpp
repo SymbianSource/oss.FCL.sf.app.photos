@@ -98,7 +98,6 @@ void CGlxImageReader::ConstructL()
     TRACER("CGlxImageReader::ConstructL");
 
     CActiveScheduler::Add(this);
-    iIsLaunchedFromFMngr = EFalse;
 
     iImgViewerMgr = CGlxImageViewerManager::InstanceL();
     if (!iImgViewerMgr)
@@ -106,32 +105,34 @@ void CGlxImageReader::ConstructL()
         return;
         }
 
+    TInt errInImage = KErrNone;
     if (iImgViewerMgr->IsPrivate())
         {
-        iIsLaunchedFromFMngr = ETrue;
-        }
-
-    TInt errInImage = KErrNone;
-    if (iIsLaunchedFromFMngr)
-        {
-        // TODO type cast handle to RFile
-        TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(iImgViewerMgr->ImageFileHandle(), ContentAccess::EPeek));
+        if ( &(iImgViewerMgr->ImageFileHandle()) != NULL )
+            {
+            TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(iImgViewerMgr->ImageFileHandle(), ContentAccess::EPeek));
+            }
         }
     else
         {
-        TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(CCoeEnv::Static()->FsSession(), iImgViewerMgr->ImageUri()->Des()));
+        if ( iImgViewerMgr->ImageUri() != NULL )
+            {
+            TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(CCoeEnv::Static()->FsSession(), iImgViewerMgr->ImageUri()->Des()));
+            }
         }
-
     if (errInImage != KErrNone)
         {
         User::Leave(errInImage);
         }
-    iFrame = new (ELeave) CFbsBitmap();
-    iFrame->Create(iImageDecoder->FrameInfo(0).iOverallSizeInPixels,
-            iImageDecoder->FrameInfo(0).iFrameDisplayMode);
-    iImageDecoder->Convert(&iStatus, *iFrame, 0);
 
-    SetActive();
+    if ( iImageDecoder )
+        {
+        iFrame = new (ELeave) CFbsBitmap();
+        iFrame->Create(iImageDecoder->FrameInfo(0).iOverallSizeInPixels,
+                iImageDecoder->FrameInfo(0).iFrameDisplayMode);
+        iImageDecoder->Convert(&iStatus, *iFrame, 0);
+        SetActive();
+        }
     }
 
 
@@ -160,7 +161,7 @@ void CGlxImageReader::RunL()
         size = iFrame->SizeInPixels();
         }
     GLX_DEBUG2("CGlxImageReader::RunL() reqStatus=%d", reqStatus);   
-    iNotify.ImageReadyL(reqStatus, size);
+    iNotify.ImageSizeReady(reqStatus, size);
     }
 // ---------------------------------------------------------
 // CGlxImageReader::GetDRMRightsL
@@ -173,15 +174,20 @@ TInt CGlxImageReader::GetDRMRightsL(TInt aAttribute)
     TInt value = KErrNone;
     TInt error = KErrNone;
     CContent* content = NULL;
-    if(iIsLaunchedFromFMngr)
+    if(iImgViewerMgr->IsPrivate())
         {
-        content = CContent::NewLC(iImgViewerMgr->ImageFileHandle());    
+        if ( &(iImgViewerMgr->ImageFileHandle()) != NULL )
+            {
+            content = CContent::NewLC(iImgViewerMgr->ImageFileHandle());
+            }
         }
     else
         {
-        content = CContent::NewLC(iImgViewerMgr->ImageUri()->Des());
+        if ( iImgViewerMgr->ImageUri() != NULL )
+            {
+            content = CContent::NewLC(iImgViewerMgr->ImageUri()->Des());
+            }
         }
-
     __ASSERT_ALWAYS(content, Panic(EGlxPanicNullPointer));
     error = content->GetAttribute(aAttribute, value);
     CleanupStack::PopAndDestroy( content );

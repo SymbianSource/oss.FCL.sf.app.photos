@@ -17,42 +17,43 @@
 
 
 #include "glximageviewermanager.h"
-
+#include <glxsingletonstore.h>
 #include <glxtracer.h>
 
 #include <f32file.h>
 
-CGlxImageViewerManager* singleInstance = NULL; /// The singleton instance
-
 EXPORT_C CGlxImageViewerManager* CGlxImageViewerManager::InstanceL()
     {
     TRACER("CGlxImageViewerManager::InstanceL()");
-    if ( NULL != singleInstance )
-        {
-        singleInstance->IncrementRefCount();
-        }
-    else
-        {
-        singleInstance = CGlxImageViewerManager::NewLC();
-        CleanupStack::Pop( singleInstance );
-        }
-
-    return singleInstance;
+    return CGlxSingletonStore::InstanceL(&NewL);
     }
 
 EXPORT_C void CGlxImageViewerManager::DeleteInstance()
     {
     TRACER("CGlxImageViewerManager::DeleteInstance()");
-    iRefCount--;
-    
-    if (0 == iRefCount)
-        {
-        delete this;
-        }
+    CGlxSingletonStore::Close(this);
+    }
+
+EXPORT_C HBufC* CGlxImageViewerManager::ImageUri()
+    {
+    TRACER("CGlxImageViewerManager::ImageUri()");    
+    return iImageUri;
+    }
+
+EXPORT_C RFile64& CGlxImageViewerManager::ImageFileHandle()
+    {
+    TRACER("CGlxImageViewerManager::ImageFileHandle()");    
+    return *iFile;
+    }
+
+EXPORT_C TBool CGlxImageViewerManager::IsPrivate()
+    {
+    TRACER("CGlxImageViewerManager::IsPrivate()");    
+    return iIsPrivate;
     }
 
 CGlxImageViewerManager::CGlxImageViewerManager()
-    : iRefCount(0), iImageUri(NULL), iFile(NULL), iIsPrivate(EFalse)
+    : iImageUri(NULL), iFile(NULL), iIsPrivate(EFalse)
     {
     TRACER("CGlxImageViewerManager::CGlxImageViewerManager()");
     // No implementation required
@@ -61,8 +62,7 @@ CGlxImageViewerManager::CGlxImageViewerManager()
 CGlxImageViewerManager::~CGlxImageViewerManager()
     {
     TRACER("CGlxImageViewerManager::~CGlxImageViewerManager()");
-    delete iImageUri;
-
+    Reset();
     }
 
 CGlxImageViewerManager* CGlxImageViewerManager::NewLC()
@@ -76,7 +76,7 @@ CGlxImageViewerManager* CGlxImageViewerManager::NewLC()
 
 CGlxImageViewerManager* CGlxImageViewerManager::NewL()
     {
-    TRACER("CGlxImageViewerManager::NewLC()");
+    TRACER("CGlxImageViewerManager::NewL()");
     CGlxImageViewerManager* self = CGlxImageViewerManager::NewLC();
     CleanupStack::Pop(self);
     return self;
@@ -85,7 +85,6 @@ CGlxImageViewerManager* CGlxImageViewerManager::NewL()
 void CGlxImageViewerManager::ConstructL()
     {
     TRACER("CGlxImageViewerManager::ConstructL()");
-    IncrementRefCount();
     }
 
 // ---------------------------------------------------------------------------
@@ -104,10 +103,8 @@ EXPORT_C void CGlxImageViewerManager::SetImageUriL(const TDesC& aFileName)
         {
         User::Leave(KErrNotSupported);    
         }
-    else
-        {
-    	iImageUri = aFileName.AllocL();    
-		}
+   	
+    iImageUri = aFileName.AllocL();    
     }
 
 // ---------------------------------------------------------------------------
@@ -122,6 +119,7 @@ EXPORT_C void CGlxImageViewerManager::Reset()
         iFile->Close();
         }
     delete iFile;
+    iFile = NULL;
 
     if ( iImageUri )
         {

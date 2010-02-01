@@ -707,7 +707,6 @@ void CGlxFullScreenViewImp::DeactivateZoomControlL()
     ActivateFullScreenL(); 
     if(iZoomControl->Activated())
         {
-        iHdmiController->DeactivateZoom();
         iZoomControl->Deactivate();
         }
     //Once into fullscreen view,show the screen furniture

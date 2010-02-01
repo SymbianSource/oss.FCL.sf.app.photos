@@ -76,6 +76,12 @@ public: // class member functions
      */
     TBool IsConnected() const;
 
+    /*
+     * Provides the caller with the current HDMI connetion state
+     * @return The HDMI connection state
+     */
+    TBool IsHDMIConnected() const;
+
 
 private: // From CActive
     /**
@@ -112,9 +118,12 @@ private: // class member data
     // Not owned: TV connection observer
     MGlxTvConnectionObserver& iConnectionObserver;
 
-    // The Connection state 
-    TBool iConnectionState;
+    // TVout The Connection state 
+    TBool iTvOutConnectionState;
     
+    // TVout The Connection state 
+    TBool iHDMIConnectionState;
+
     // The (external device) Accessory Server
     RAccessoryServer iTvAccServer;
     

@@ -77,17 +77,20 @@ EXPORT_C CGlxCommandHandlerSave::~CGlxCommandHandlerSave()
 //
 TBool CGlxCommandHandlerSave::ExecuteL(TInt aCommandId)
     {
-    TRACER("CGlxCommandHandlerSave::CreateCommandL");
+    TRACER("CGlxCommandHandlerSave::ExecuteL");
     if(aCommandId == EGlxCmdSave)
     	{
-    	TDataType nullType;
-    	RFile64& imageHandle = iImageViewerInstance->ImageFileHandle();
-    	if ( imageHandle.SubSessionHandle() != KNullHandle )
-    		{
-    		CDocumentHandler* handler = CDocumentHandler::NewLC(NULL);
-    		__ASSERT_ALWAYS(handler, Panic(EGlxPanicNullPointer));        
-    		TRAP_IGNORE(handler->CopyL(imageHandle, KNullDesC, nullType, NULL));
-    		CleanupStack::PopAndDestroy(handler);
+        RFile64& imageHandle = iImageViewerInstance->ImageFileHandle();
+    	if ( &imageHandle != NULL )
+    	    {
+            if ( imageHandle.SubSessionHandle() != KNullHandle )
+                {
+                TDataType nullType;
+                CDocumentHandler* handler = CDocumentHandler::NewLC(NULL); 
+                __ASSERT_ALWAYS(handler, Panic(EGlxPanicNullPointer));
+                TRAP_IGNORE(handler->CopyL(imageHandle, KNullDesC, nullType, NULL));
+                CleanupStack::PopAndDestroy(handler);
+                }            
     		}
     	return ETrue;
     	}

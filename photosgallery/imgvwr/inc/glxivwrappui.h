@@ -61,6 +61,11 @@ public: // from CAknAppUi
     //OOM Method
     void HandleApplicationSpecificEventL(TInt aEventType, const TWsEvent& aWsEvent);
 
+    /**
+     * Open the viewer on receving OpenFileL() callback in CViewerDocument
+     */
+    void HandleOpenFileL();
+    
 private:    // From CEikAppUi
 
     TBool ProcessCommandParametersL(TApaCommand aCommand,
@@ -71,28 +76,6 @@ private: // From CCoeAppUi
     void HandleForegroundEventL( TBool aForeground );
 
 private:
-    enum TEntryType
-        {
-        EEntryTypeStartUp = 0,
-        EEntryTypeFocusGained
-        };
-
-
-    /**
-     * Handle an activation message.
-     * @param aCommand command data sent from the activating application.
-     * @param aDocumentName image file name data sent from the activating application.
-     * @param aData Message data from activating application.
-     */
-    void HandleActivationMessageL(const TApaCommand& aCommand, const TFileName& aDocumentName, const TDesC8& aData);
-
-    /**
-     * Set activation parameter for startup view, converting to 16-bit
-     * descriptor used by MPX.
-     * @param aParam Activation parameter.
-     */
-    void SetActivationParamL(const TDesC8& aParam);
-
     /**
      * Get view scoring ids based on current navigational state
      * (using Get in the name since the function does not return anything)
@@ -114,7 +97,6 @@ private:
      */
     TUid ViewScoringIdForNaviStateDepth( const CMPXCollectionPath& aNaviState ) const;
 
-
     /**
      * close photos app.
      */
@@ -128,12 +110,6 @@ private:
 
     /** Optional view plugin UID to activate when the collection is opened */
     TUid iStartupViewUid;
-
-    /** Optional activation parameter for the next view */
-    HBufC* iActivationParam;
-
-
-    TBool iStartUpSequence;
 
     ///Ui utility
     CGlxUiUtility* iUiUtility;

@@ -211,7 +211,7 @@ EXPORT_C void CGlxFullScreenViewPluginBase::AddCommandHandlersL()
                                 NewL(iFullScreenView, iResourceIds.iMenuId));
     GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit");
     iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::
-                                NewL(iFullScreenView, iResourceIds.iMenuId));
+                                NewL(iFullScreenView));
     GLX_LOG_INFO("Adding CGlxCommandHandlerAiwPrintPreview");
     iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwPrintPreview::
                                 NewL(iFullScreenView, iResourceIds.iMenuId));

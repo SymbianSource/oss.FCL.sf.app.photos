@@ -252,6 +252,7 @@ private:    // Data
     CGlxTv*  iGlxTvOut;
     CPeriodic* iTimer;
     TBool iZoomIn;
+    TBool iIsHDMIconnected;
     };
 
 #endif  // C_GLXZOOMCONTROL_H

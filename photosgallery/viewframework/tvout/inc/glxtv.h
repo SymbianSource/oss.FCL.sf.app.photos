@@ -107,7 +107,7 @@ public: // class public method
     IMPORT_C TSize ScreenSizeL() const;
    
     /**
-     * Is the TV Connected
+     * Is the Analog TV Connected
      * @return ETrue if active, otherwise EFalse
      */
     IMPORT_C TBool IsConnected() const; 
@@ -118,6 +118,11 @@ public: // class public method
      */
     IMPORT_C TBool IsWidescreen() const; 
     
+    /**
+     * Is the HDMI TV Connected
+     * @return ETrue if active, otherwise EFalse
+     */
+    IMPORT_C TBool IsHDMIConnected() const;
     
 public: // from MGlxWindowVisibilityObserver
     /**

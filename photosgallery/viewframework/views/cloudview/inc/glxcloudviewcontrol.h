@@ -35,7 +35,7 @@
 #include <alf/alfeventhandler.h>
 
 #include <AknLayout2Def.h>
-#include <AknPhysicsObserverIface.h> //Physics - Kinetic scrolling listener
+#include <aknphysicsobserveriface.h> //Physics - Kinetic scrolling listener
 using namespace Alf;
 
 

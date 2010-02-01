@@ -161,7 +161,7 @@ RESOURCE CBA r_glx_list_view_softkeys
         {
         CBA_BUTTON
             {
-            id = EGlxCmdOptions;
+            id = EAknSoftkeyOptions;
             txt = text_softkey_option;
             },
         CBA_BUTTON
@@ -183,7 +183,7 @@ RESOURCE CBA r_glx_main_list_view_softkeys
         {
         CBA_BUTTON
             {
-            id = EGlxCmdOptions;
+            id = EAknSoftkeyOptions;
             txt = text_softkey_option;
             },
         CBA_BUTTON

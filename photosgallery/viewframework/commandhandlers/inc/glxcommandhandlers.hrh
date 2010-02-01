@@ -30,8 +30,7 @@
 
 enum TGlxCommandId
     {
-    EGlxCmdAddToAlbum = 0x5500,
-    EGlxCmdOptions,
+    EGlxCmdAddToAlbum = 0x5500,   
     EGlxCmdDelete,
     EGlxCmdAddTag,
     EGlxCmdStateView,

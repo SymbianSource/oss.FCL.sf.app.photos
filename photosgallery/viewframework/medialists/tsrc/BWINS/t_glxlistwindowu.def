@@ -1,21 +1,21 @@
 EXPORTS
-	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 1 NONAME ; class MEUnitTest * CreateTestSuiteL(void)
-	??0CGlxListWindow@@QAE@AAVMGlxWindowObjectFactory@@@Z @ 2 NONAME ; CGlxListWindow::CGlxListWindow(class MGlxWindowObjectFactory &)
-	??0TGlxWindowIterator@@QAE@ABV0@@Z @ 3 NONAME ; TGlxWindowIterator::TGlxWindowIterator(class TGlxWindowIterator const &)
-	??1CGlxListWindow@@UAE@XZ @ 4 NONAME ; CGlxListWindow::~CGlxListWindow(void)
-	??ETGlxWindowIterator@@QAEHH@Z @ 5 NONAME ; int TGlxWindowIterator::operator++(int)
-	?AddObjects@CGlxListWindow@@QAEXHH@Z @ 6 NONAME ; void CGlxListWindow::AddObjects(int, int)
-	?AddObjects@CGlxListWindow@@QAEXHHHH@Z @ 7 NONAME ; void CGlxListWindow::AddObjects(int, int, int, int)
-	?At@CGlxListWindow@@QAEPAVCBase@@H@Z @ 8 NONAME ; class CBase * CGlxListWindow::At(int)
-	?At@CGlxListWindow@@QBEPBVCBase@@H@Z @ 9 NONAME ; class CBase const * CGlxListWindow::At(int) const
+	?ConstructL@CGlxListWindow@@QAEXXZ @ 1 NONAME ; void CGlxListWindow::ConstructL(void)
+	?At@CGlxListWindow@@QBEPBVCBase@@H@Z @ 2 NONAME ; class CBase const * CGlxListWindow::At(int) const
+	??1CGlxListWindow@@UAE@XZ @ 3 NONAME ; CGlxListWindow::~CGlxListWindow(void)
+	?At@CGlxListWindow@@QAEPAVCBase@@H@Z @ 4 NONAME ; class CBase * CGlxListWindow::At(int)
+	??0TGlxWindowIterator@@QAE@ABV0@@Z @ 5 NONAME ; TGlxWindowIterator::TGlxWindowIterator(class TGlxWindowIterator const &)
+	??ETGlxWindowIterator@@QAEHH@Z @ 6 NONAME ; int TGlxWindowIterator::operator++(int)
+	?__DbgTestInvariant@CGlxListWindow@@QBEXXZ @ 7 NONAME ; void CGlxListWindow::__DbgTestInvariant(void) const
+	?RemoveObjects@CGlxListWindow@@QAEXHHHH@Z @ 8 NONAME ; void CGlxListWindow::RemoveObjects(int, int, int, int)
+	?Iterator@CGlxListWindow@@QBE?AVTGlxWindowIterator@@XZ @ 9 NONAME ; class TGlxWindowIterator CGlxListWindow::Iterator(void) const
 	?Cleanup@CGlxListWindow@@QAEXXZ @ 10 NONAME ; void CGlxListWindow::Cleanup(void)
-	?ConstructL@CGlxListWindow@@QAEXXZ @ 11 NONAME ; void CGlxListWindow::ConstructL(void)
-	?Iterator@CGlxListWindow@@QBE?AVTGlxWindowIterator@@XZ @ 12 NONAME ; class TGlxWindowIterator CGlxListWindow::Iterator(void) const
-	?RemoveObjects@CGlxListWindow@@QAEXHH@Z @ 13 NONAME ; void CGlxListWindow::RemoveObjects(int, int)
-	?RemoveObjects@CGlxListWindow@@QAEXHHHH@Z @ 14 NONAME ; void CGlxListWindow::RemoveObjects(int, int, int, int)
-	?SetFocusIndex@CGlxListWindow@@QAEXH@Z @ 15 NONAME ; void CGlxListWindow::SetFocusIndex(int)
+	?AddObjects@CGlxListWindow@@QAEXHH@Z @ 11 NONAME ; void CGlxListWindow::AddObjects(int, int)
+	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 12 NONAME ; class MEUnitTest * CreateTestSuiteL(void)
+	?AddObjects@CGlxListWindow@@QAEXHHHH@Z @ 13 NONAME ; void CGlxListWindow::AddObjects(int, int, int, int)
+	?SetRangeOffsetsL@CGlxListWindow@@QAEXHHHH@Z @ 14 NONAME ; void CGlxListWindow::SetRangeOffsetsL(int, int, int, int)
+	??0CGlxListWindow@@QAE@AAVMGlxWindowObjectFactory@@@Z @ 15 NONAME ; CGlxListWindow::CGlxListWindow(class MGlxWindowObjectFactory &)
 	?SetFocusIndex@CGlxListWindow@@QAEXHH@Z @ 16 NONAME ; void CGlxListWindow::SetFocusIndex(int, int)
 	?SetRangeOffsetsL@CGlxListWindow@@QAEXHH@Z @ 17 NONAME ; void CGlxListWindow::SetRangeOffsetsL(int, int)
-	?SetRangeOffsetsL@CGlxListWindow@@QAEXHHHH@Z @ 18 NONAME ; void CGlxListWindow::SetRangeOffsetsL(int, int, int, int)
-	?__DbgTestInvariant@CGlxListWindow@@QBEXXZ @ 19 NONAME ; void CGlxListWindow::__DbgTestInvariant(void) const
+	?SetFocusIndex@CGlxListWindow@@QAEXH@Z @ 18 NONAME ; void CGlxListWindow::SetFocusIndex(int)
+	?RemoveObjects@CGlxListWindow@@QAEXHH@Z @ 19 NONAME ; void CGlxListWindow::RemoveObjects(int, int)
 

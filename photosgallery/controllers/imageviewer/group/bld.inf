@@ -23,7 +23,6 @@
 
 PRJ_EXPORTS
 ../inc/glximageviewermanager.h           APP_LAYER_PLATFORM_EXPORT_PATH(glximageviewermanager.h)
-../inc/glximageviewermanager.inl           APP_LAYER_PLATFORM_EXPORT_PATH(glximageviewermanager.inl)
 
 PRJ_MMPFILES
 glximageviewermanager.mmp

@@ -114,6 +114,8 @@ void CGlxZoomControl::ConstructL()
     // Hide the Zoom at the construction
     ShowZoom(EFalse);
     iZoomActive = EFalse;
+	iIsHDMIconnected = EFalse;
+	
     //To know if HDMi cable is connected.
     iGlxTvOut = CGlxTv::NewL(*this);
     iTimer = CPeriodic::NewL( CActive::EPriorityStandard );
@@ -230,10 +232,12 @@ CGlxZoomControl::~CGlxZoomControl()
         iTimer->Cancel();
         }
     delete iTimer;
+
     if(iGlxTvOut)
         {
         delete iGlxTvOut;
         }
+
     if(iEventHandler)
         {
         delete iEventHandler;
@@ -273,6 +277,8 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
         TInt aFocusIndex, TGlxMedia& aItem, TPoint* aZoomFocus)
     {
     TRACER("CGlxZoomControl::ActivateL()");
+
+    //To know if HDMi cable is connected.
     if ( !iZoomActive )
         {
         //This Varaiable updates that we are in zoom state now.
@@ -286,8 +292,10 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
                 ScreenSize(),aItem, idspace, this ));
         iImageVisual->SetImage(*iImageTexture);
         
-        if(iGlxTvOut->IsConnected())
+        
+        if(iGlxTvOut->IsHDMIConnected())
             {
+            iIsHDMIconnected = ETrue;
             StartZoomAnimation();
             }
         else
@@ -408,7 +416,8 @@ void CGlxZoomControl::ActivateFullscreen()
 EXPORT_C void CGlxZoomControl::Deactivate()
     {
     TRACER("CGlxZoomControl::Deactivate()");
-    
+    iIsHDMIconnected = EFalse;
+
     if ( iZoomActive )
         {
          if(iTimer->IsActive())
@@ -882,9 +891,9 @@ TInt CGlxZoomControl::GetInitialZoomLevel(TSize& aSize )
 void CGlxZoomControl::HandleTvStatusChangedL( TTvChangeType aChangeType )
     {
     TRACER("CGlxZoomControl::HandleTvStatusChangedL()");
-    if ( aChangeType == ETvConnectionChanged )          
+    if ( aChangeType == ETvConnectionChanged && !iIsHDMIconnected && iZoomActive)          
         {
-        if ( iGlxTvOut->IsConnected() )
+        if ( iGlxTvOut->IsHDMIConnected() )
             {
             //go to fullscreen.
             HandleZoomOutL(KGlxZoomOutCommand);

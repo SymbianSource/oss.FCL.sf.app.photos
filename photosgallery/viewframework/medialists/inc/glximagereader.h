@@ -23,22 +23,36 @@
 #include "glximageviewermanager.h"
 class CFbsBitmap;
 
-
+/**
+ *  Image Size observer.
+ *
+ *  Callback interface for getting size information of a given image.
+ */
 class MImageReadyCallBack
     {
 public:
-    virtual void ImageReadyL(const TInt& aError, const TSize aSz) = 0;
+    /**
+     * Getting image size information is complete.
+     *
+     * @param aError         Error code.
+     * @param aSz            Size of the image.
+     */    
+    virtual void ImageSizeReady(TInt aError, const TSize aSz) = 0;
     };
 
-
+/**
+ *  CGlxImageReader
+ *
+ *  Image Attributes Reader
+ *
+ *  @lib glxmedialists.lib
+ */
 class CGlxImageReader : public CActive
     {
-
 private:
     static CGlxImageReader* NewLC(MImageReadyCallBack& aNotify);
     CGlxImageReader(MImageReadyCallBack& aNotify);
     void ConstructL();
-
     void GetFileTypeL(TDataType aMimeType);
 
 protected:
@@ -54,7 +68,6 @@ private:
     MImageReadyCallBack&                iNotify;
     CImageDecoder*                      iImageDecoder;
     CFbsBitmap*                         iFrame;
-    TBool                               iIsLaunchedFromFMngr;
     CGlxImageViewerManager*             iImgViewerMgr;
     };
 

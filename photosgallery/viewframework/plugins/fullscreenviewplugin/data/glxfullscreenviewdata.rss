@@ -145,8 +145,7 @@ RESOURCE MENU_PANE r_glx_fullscreen_menu
                             txt = qtn_lgal_options_slideshow; 
                             cascade = r_glx_fullscreen_shw_menu;},
                 MENU_ITEM { command = EGlxCmdAiwEdit; 
-                            txt = qtn_lgal_options_edit; 
-                            cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
+                            txt = qtn_lgal_options_edit; },
                 MENU_ITEM { command = EGlxCmdDetails;
                             txt = qtn_lgal_options_details; },  
                 MENU_ITEM { command = EGlxCmdAddToAlbum;
@@ -200,8 +199,7 @@ RESOURCE MENU_PANE r_glx_album_fullscreen_menu
                         txt = qtn_lgal_options_slideshow; 
                         cascade = r_glx_fullscreen_shw_menu;},
             MENU_ITEM { command = EGlxCmdAiwEdit; 
-                        txt = qtn_lgal_options_edit; 
-                        cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
+                        txt = qtn_lgal_options_edit; },
             MENU_ITEM { command = EGlxCmdDetails;
                         txt = qtn_lgal_options_details; },  
             MENU_ITEM { command = EGlxCmdAddToAlbum;
@@ -254,8 +252,7 @@ RESOURCE MENU_PANE r_glx_tagfullscreen_menu
                        txt = qtn_lgal_options_slideshow; 
                        cascade = r_glx_fullscreen_shw_menu;},
            MENU_ITEM { command = EGlxCmdAiwEdit; 
-                       txt = qtn_lgal_options_edit; 
-                       cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
+                       txt = qtn_lgal_options_edit; },
            MENU_ITEM { command = EGlxCmdDetails;
                        txt = qtn_lgal_options_details; },  
            MENU_ITEM { command = EGlxCmdAddToAlbum;
@@ -363,7 +360,7 @@ RESOURCE CBA r_glx_fullscreen_softkeys
         {
         CBA_BUTTON
             {
-            id = EGlxCmdOptions;
+            id = EAknSoftkeyOptions;
             txt = text_softkey_option;
             },
         CBA_BUTTON

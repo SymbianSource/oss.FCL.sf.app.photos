@@ -152,11 +152,9 @@ RESOURCE MENU_PANE r_glx_grid_menu
                               txt = qtn_lgal_options_slideshow;
                               cascade = r_grid_shw_menu; },
                   MENU_ITEM { command = EGlxCmdAiwEdit; 
-                              txt = qtn_lgal_options_edit; 
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE;}, 
+                              txt = qtn_lgal_options_edit; }, 
                   MENU_ITEM { command = EGlxCmdAiwSingleClickEdit; 
                               txt = qtn_lgal_options_edit; 
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE;
                               flags = EEikMenuItemSpecificListQuery;}, 
                   MENU_ITEM { command = EGlxCmdDetails;
                               txt = qtn_lgal_options_details; },    
@@ -229,11 +227,9 @@ RESOURCE MENU_PANE r_glx_album_grid_menu
                               txt = qtn_lgal_options_slideshow;
                               cascade = r_grid_shw_menu; },
                   MENU_ITEM { command = EGlxCmdAiwEdit; 
-                              txt = qtn_lgal_options_edit; 
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE;}, 
+                              txt = qtn_lgal_options_edit; }, 
                   MENU_ITEM { command = EGlxCmdAiwSingleClickEdit; 
                               txt = qtn_lgal_options_edit; 
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE;
                               flags = EEikMenuItemSpecificListQuery;}, 
                   MENU_ITEM { command = EGlxCmdDetails;
                               txt = qtn_lgal_options_details; },    
@@ -303,11 +299,9 @@ RESOURCE MENU_PANE r_taggrid_menu
                     txt = qtn_lgal_options_slideshow;
                     cascade = r_grid_shw_menu; },
         MENU_ITEM { command = EGlxCmdAiwEdit; 
-                    txt = qtn_lgal_options_edit; 
-                    cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE;}, 
+                    txt = qtn_lgal_options_edit; }, 
         MENU_ITEM { command = EGlxCmdAiwSingleClickEdit; 
                     txt = qtn_lgal_options_edit; 
-                    cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE;
                     flags = EEikMenuItemSpecificListQuery;}, 
         MENU_ITEM { command = EGlxCmdDetails;
                     txt = qtn_lgal_options_details; },    
@@ -506,7 +500,7 @@ RESOURCE CBA r_grid_softkeys
         {
         CBA_BUTTON
             {
-            id = EGlxCmdOptions;
+            id = EAknSoftkeyOptions;
             txt = text_softkey_option;
             },
         CBA_BUTTON
@@ -529,7 +523,7 @@ RESOURCE CBA r_grid_softkeys_fullscreen
         {
         CBA_BUTTON
             {
-            id = EGlxCmdOptions;
+            id = EAknSoftkeyOptions;
             txt = text_softkey_option;
             },
         CBA_BUTTON

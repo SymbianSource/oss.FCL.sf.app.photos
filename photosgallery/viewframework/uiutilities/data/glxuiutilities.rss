@@ -32,6 +32,10 @@
 #include "glxutilities.hrh"
 #include <glxcommandhandlers.hrh>
 
+#if defined(FF_IMAGE_EDITOR) || defined(FF_VIDEO_EDITOR)
+#include <bldnokia.hrh> //for Editor feature flags
+#endif
+
 NAME GLXR    // 4 letter ID
 
 //  RESOURCE DEFINITIONS
@@ -451,6 +455,21 @@ RESOURCE DIALOG r_glx_wait_note_blocking
 // AIW interest structure for assign
 //
 // -----------------------------------------------------------------------------
+#if defined(FF_IMAGE_EDITOR) || defined(FF_VIDEO_EDITOR)
+RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest
+    {
+    items=
+        {
+        AIW_CRITERIA_ITEM
+            {
+            id = EGlxCmdAiwAssign;
+            serviceCmd = KAiwCmdAssign;
+            contentType = "ArcsoftEditor/*";
+            serviceClass = KAiwClassMenu;
+            }
+        };
+    }
+#else
 RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest
     {
     items=
@@ -465,6 +484,7 @@ RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest
             }
         };
     }
+#endif
 
 // -----------------------------------------------------------------------------
 //

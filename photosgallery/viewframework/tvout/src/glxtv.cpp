@@ -318,7 +318,7 @@ EXPORT_C TSize CGlxTv::ScreenSizeL() const
 
 
 //-----------------------------------------------------------------------------
-// Is the TV Connected
+// Is the analog TV Connected
 //-----------------------------------------------------------------------------
 //
 EXPORT_C TBool CGlxTv::IsConnected() const
@@ -328,6 +328,15 @@ EXPORT_C TBool CGlxTv::IsConnected() const
     }
     
     
+//-----------------------------------------------------------------------------
+// Is the HDMI TV Connected
+//-----------------------------------------------------------------------------
+//
+EXPORT_C TBool CGlxTv::IsHDMIConnected() const
+    {
+    TRACER("CGlxTv::IsHDMIConnected()");
+    return iTvConnectionMonitor->IsHDMIConnected();
+    }
     
 //-----------------------------------------------------------------------------
 // Is the TV widescreen

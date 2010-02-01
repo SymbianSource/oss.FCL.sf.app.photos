@@ -93,7 +93,12 @@ CFileStore* CGlxIVwrDocument::OpenFileL( TBool /*aDoOpen*/,
     TRACER("CFileStore* CGlxIVwrDocument::OpenFileL");
     // Reset old data
     ResetDocument();
+    
     iImageViewerInstance->SetImageUriL(aFilename);
+    
+    // Open the viewer
+    static_cast<CGlxIVwrAppUi*>(iAppUi)->HandleOpenFileL();
+    
     return NULL;
     }
 
@@ -104,13 +109,16 @@ CFileStore* CGlxIVwrDocument::OpenFileL( TBool /*aDoOpen*/,
 void CGlxIVwrDocument::OpenFileL( CFileStore*& /*aFileStore*/, RFile& aFile )
     {	
     TRACER("CGlxIVwrDocument::OpenFileL()");
-    // Make sure that aFile is closed in leave situation
-    CleanupClosePushL( aFile );
-
     // Reset old data
     ResetDocument();    
+    
+    // Make sure that aFile is closed in leave situation
+    CleanupClosePushL( aFile );
     iImageViewerInstance->SetImageFileHandleL(aFile);	
     CleanupStack::PopAndDestroy(); // Close aFile
+    
+    // Open the viewer
+    static_cast<CGlxIVwrAppUi*>(iAppUi)->HandleOpenFileL();
     }
 
 // ----------------------------------------------------------------------------

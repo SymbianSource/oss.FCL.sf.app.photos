@@ -46,10 +46,9 @@ public: // Constructors and destructor
     static CGlxImageViewerManager* InstanceL();
     
 public:
-    IMPORT_C inline HBufC* ImageUri( void );
-    IMPORT_C inline RFile64& ImageFileHandle() const;
-    IMPORT_C inline TBool IsPrivate();
-    IMPORT_C inline void IncrementRefCount();
+    IMPORT_C HBufC* ImageUri();
+    IMPORT_C RFile64& ImageFileHandle();
+    IMPORT_C TBool IsPrivate();
     IMPORT_C void DeleteInstance( void );
     IMPORT_C void SetImageUriL(const TDesC& aFileName);
     IMPORT_C void SetImageFileHandleL(const RFile& aFileHandle);
@@ -76,17 +75,17 @@ private:
      * EPOC default constructor for performing 2nd stage construction
      */
     void ConstructL();
-    
 
 private:
-	//need to declare as it is initialised
-    TInt iRefCount; /// Reference count
-    HBufC* iImageUri; /// image file uri in case of Photos starting as Image viewer 
-    RFile64* iFile;  /// Handle to image file which will be shown in Image viewer
-    TBool iIsPrivate; /// Flag that stores if the image file is in a private folder. ETrue means the image is private, else EFalse 
-    
-    };
+    /// image file uri in case of Photos starting as Image viewer 
+    HBufC* iImageUri;
 
-#include "glximageviewermanager.inl"
+    /// Handle to image file which will be shown in Image viewer
+    RFile64* iFile;
+
+    /// Flag that stores if the image file is in a private folder. 
+    /// ETrue means the image is private, else EFalse 
+    TBool iIsPrivate;
+    };
 
 #endif // GLXIMAGEVIEWERMANAGER_H

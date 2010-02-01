@@ -27,7 +27,7 @@ class CGlxAttributeContext;
 class CAiwGenericParamList;
 class CGlxMedia;
 class MGlxMediaListProvider;
-
+class CAiwServiceHandler;
 
 /**
  *  CGlxCommandHandlerAiwEdit
@@ -36,54 +36,59 @@ class MGlxMediaListProvider;
  *
  *  @lib glxcommoncommandhandlers.lib
  */
+
 NONSHARABLE_CLASS (CGlxCommandHandlerAiwEdit)
-    : public CGlxCommandHandlerAiwBase
+    : public CGlxMediaListCommandHandler
     {
-public:
+public:     
     /**
      * Two-phase constructor
      * @param aMediaListProvider object that provides the media list
-     * @param aMenuResource The menu resource that the AIW command will be 
-     *          implented in
      * @param aCommandSingleClick Flag to identify single click command
      * @return Fully constructed command handler
      * @warning ConstructL of base class is called. If ConstructL is 
      *          implemented in this class, then care must be taken to call 
      *          CGlxCommandHandlerAiwBase::ConstructL
      */
-	IMPORT_C static CGlxCommandHandlerAiwEdit* NewL(
-	    MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
-	    TBool aCommandSingleClick=EFalse);
-	    
-protected: // From CGlxMediaListCommandHandler
-	/**
-	 * See @ref CGlxMediaListCommandHandler::DoGetRequiredAttributesL
-	 */
-    virtual void DoGetRequiredAttributesL(RArray<TMPXAttribute>& aAttributes, TBool aFilterUsingSelection) const;
+    IMPORT_C static CGlxCommandHandlerAiwEdit* NewL(MGlxMediaListProvider* aMediaListProvider, TBool aCommandSingleClick=EFalse);        
 
-protected: // From CGlxCommandHandlerAiwBase
-    virtual TBool AppendAiwParameterL(const TGlxMedia& aItem, 
-                                     CGlxAiwServiceHandler& aAiwServiceHandler);
-    virtual TInt CommandId() const;
-    virtual TInt AiwCommandId() const ;
-    virtual TInt AiwInterestResource() const ;
-    virtual TInt CommandSpace() const ;
-	//single clk chng-hide edit for 0 or >1 items
-    void AiwDoDynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
-private:
     /**
-     * Constructor
+     * Destructor
      */
-    CGlxCommandHandlerAiwEdit(MGlxMediaListProvider* aMediaListProvider, 
-            TInt aMenuResource);
+    IMPORT_C ~CGlxCommandHandlerAiwEdit();
     
+private:
     /** 
      * Second phase constructor
+     */
+    void ConstructL();
+    
+    /**
+     * Constructor
+     * @param aMediaListProvider object that provides the media list
      * @param aCommandSingleClick Flag to identify single click command
      */
-    void ConstructL(TBool aCommandSingleClick);
+    CGlxCommandHandlerAiwEdit( MGlxMediaListProvider* aMediaListProvider, TBool aCommandSingleClick);
     
-private:
+    /*
+     * return if the viewing mode is fullscreen or grid
+     */
+    TBool IsInFullScreenViewingModeL();    
+    
+private: // From CGlxMediaListCommandHandler
+
+    void DoActivateL(TInt aViewId);
+    TBool DoExecuteL( TInt aCommandId , MGlxMediaList& aList);
+    void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
+    
+private: // Data Members
+    
+     // Owned - AIW Service Handler
+    CAiwServiceHandler* iServiceHandler;    
+    
+     //Edit Supported
+    TBool iEditSupported;
+    
     TBool iCommandSingleClick;
     };
 

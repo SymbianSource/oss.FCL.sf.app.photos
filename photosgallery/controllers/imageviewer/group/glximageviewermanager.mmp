@@ -34,11 +34,13 @@ SOURCE                  glximageviewermanager.cpp
 
 APP_LAYER_SYSTEMINCLUDE
 SYSTEMINCLUDE             ../../../inc
+SYSTEMINCLUDE           ../../../common/inc
 
 USERINCLUDE             ../inc
 
 LIBRARY 				efsrv.lib
 LIBRARY					euser.lib
 LIBRARY                 flogger.lib         // For Logging Tracer
+LIBRARY                 glxcommon.lib       // CGlxSingetonStore
 
 //EXPORTUNFROZEN

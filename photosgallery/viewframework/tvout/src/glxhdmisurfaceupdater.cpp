@@ -61,10 +61,10 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
     TRACER("CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()");
     ReleaseContent();
     if(iTimer->IsActive())
-         {
-         iTimer->Cancel();
-         }
-     delete iTimer;   
+        {
+        iTimer->Cancel();
+        }
+    delete iTimer;   
     if (iGlxDecoderAO)
         {
         delete iGlxDecoderAO;
@@ -145,9 +145,9 @@ void CGlxHdmiSurfaceUpdater::ConstructL(TSize /*aImageDimensions*/)
     CreateBitmapL();
     CreateHdmiL();
     error = iSurfUpdateSession.Connect();
-    #ifdef _DEBUG
+#ifdef _DEBUG
     iStartTime.HomeTime();
-    #endif
+#endif
     //to refresh the HD screen for the first time.
     iFirstTime = ETrue;
     //start decoding the image    
@@ -175,9 +175,9 @@ void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile,
     CreateImageDecoderL(aImageFile);    
     CreateBitmapL();
     CreateHdmiL(EFalse);
-    #ifdef _DEBUG
+#ifdef _DEBUG
     iStartTime.HomeTime();
-    #endif
+#endif
     //start decoding the image
     iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,0,iImageDecoder);
     }
@@ -238,10 +238,13 @@ void CGlxHdmiSurfaceUpdater::CreateSurfaceL(TSize aSize)
         GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::CreateSurfaceL, Creating surface failed with error : %d",error);
         User::LeaveIfError(error);
         }    
-    //Map the surface and stire the surface info
+    //Map the surface and stride the surface info
     MapSurfaceL();
     }
 
+// -----------------------------------------------------------------------------
+// MapSurfaceL 
+// -----------------------------------------------------------------------------
 void CGlxHdmiSurfaceUpdater::MapSurfaceL()
     {
     TRACER("CGlxHdmiSurfaceUpdater::MapSurfaceL()");
@@ -283,11 +286,11 @@ void CGlxHdmiSurfaceUpdater::Refresh()
     SwapBuffers();   
     iCallBack->DoGenCallback();       
     if(iFirstTime)  
-	{
-	iFirstTime = EFalse;
-	iWindow->RemoveBackgroundSurface(ETrue);
-	iWindow->SetBackgroundSurface(iSurfId);
-	}
+        {
+        iFirstTime = EFalse;
+        iWindow->RemoveBackgroundSurface(ETrue);
+        iWindow->SetBackgroundSurface(iSurfId);
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -356,22 +359,22 @@ void CGlxHdmiSurfaceUpdater::CreateBitmapL()
 void CGlxHdmiSurfaceUpdater::HandleRunL()
     {
     TRACER("CGlxHdmiSurfaceUpdater::HandleRunL()");
-    
-    #ifdef _DEBUG
+
+#ifdef _DEBUG
     iStopTime.HomeTime();
     GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::HandleRunL() ConvertImageL took"
-                " <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
-    #endif
-    
+            " <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif
+
     iZoomRectSz = iDecodedBitmap->SizeInPixels(); 
     if (iSurfBufferAO->iStatus != KRequestPending && !iSurfBufferAO->IsActive())
-           {
-           Refresh();              
-           iSurfBufferAO->iStatus = KRequestPending;
-           iSurfBufferAO->SetActive();    
-           iSurfUpdateSession.NotifyWhenAvailable(iSurfBufferAO->iStatus);
-           TInt err = iSurfUpdateSession.SubmitUpdate(1, iSurfId, 0, NULL);       
-           }
+        {
+        Refresh();              
+        iSurfBufferAO->iStatus = KRequestPending;
+        iSurfBufferAO->SetActive();    
+        iSurfUpdateSession.NotifyWhenAvailable(iSurfBufferAO->iStatus);
+        TInt err = iSurfUpdateSession.SubmitUpdate(1, iSurfId, 0, NULL);       
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -466,7 +469,6 @@ void CGlxHdmiSurfaceUpdater::Zoom(TBool aZoom)
         GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::Zoom()--- 4,iZoomRectSz.iWidth = %d, iZoomRectSz.iHeight = %d", iZoomRectSz.iWidth,iZoomRectSz.iHeight);
         iConfig.SetViewport(TRect(iLeftCornerForZoom.iX,iLeftCornerForZoom.iY,iZoomRectSz.iWidth,iZoomRectSz.iHeight));
         }
-    TSize bitmapsize = iDecodedBitmap->SizeInPixels();
-    iConfig.SetExtent(TRect(0,0,bitmapsize.iWidth,bitmapsize.iHeight));    
+    iConfig.SetExtent(TRect(0,0,KHdTvWidth,KHdTvHeight));    
     iWindow->SetBackgroundSurface(iConfig, ETrue);   
     }

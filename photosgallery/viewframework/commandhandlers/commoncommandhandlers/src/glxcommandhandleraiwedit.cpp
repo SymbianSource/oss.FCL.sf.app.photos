@@ -26,145 +26,169 @@
 #include <glxmedia.h>
 #include <glxuiutilities.rsg>
 
+#include <glxnavigationalstate.h>
+#include <mpxcollectionpath.h>
+#include <glxcollectionpluginimageviewer.hrh>
+
 #include "glxaiwservicehandler.h"
 #include <StringLoader.h>
 #include <glxmedialist.h> 
 #include <glxtracer.h>
 #include <glxlog.h>
+#include <AiwGenericParam.h>                // for passing data between applications
+#include "AiwServiceHandler.h"                  // AIW service handler
+#include "glxmedia.h"
+
 const TInt KGlxAiwEditCommandSpace = 0x00000200;
 
 // -----------------------------------------------------------------------------
 // NewL
 // -----------------------------------------------------------------------------
 //	
-EXPORT_C CGlxCommandHandlerAiwEdit* CGlxCommandHandlerAiwEdit::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
-        TBool aCommandSingleClick)
+EXPORT_C CGlxCommandHandlerAiwEdit* CGlxCommandHandlerAiwEdit::NewL(MGlxMediaListProvider* aMediaListProvider, TBool aCommandSingleClick)
     {
-    CGlxCommandHandlerAiwEdit* self = new ( ELeave ) 
-        CGlxCommandHandlerAiwEdit(aMediaListProvider, aMenuResource);
-    CleanupStack::PushL( self );
-    self->ConstructL(aCommandSingleClick);
-    CleanupStack::Pop( self );
+    CGlxCommandHandlerAiwEdit* self = new (ELeave) CGlxCommandHandlerAiwEdit(aMediaListProvider, aCommandSingleClick);
+    CleanupStack::PushL(self);
+    self->ConstructL();
+    CleanupStack::Pop(self);
     return self;
     }
 
-// ---------------------------------------------------------------------------
-// Symbian 2nd phase constructor can leave.
-// ---------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// ~CGlxCommandHandlerAiwEdit
+// -----------------------------------------------------------------------------
 //
-void CGlxCommandHandlerAiwEdit::ConstructL(TBool aCommandSingleClick)
+EXPORT_C CGlxCommandHandlerAiwEdit::~CGlxCommandHandlerAiwEdit()
     {
-    TRACER("CGlxCommandHandlerAiwEdit::ConstructL");
-    CGlxCommandHandlerAiwBase::ConstructL();
-    iCommandSingleClick = aCommandSingleClick;
+    delete iServiceHandler;
     }
 
 // -----------------------------------------------------------------------------
-// CGlxCommandHandlerAiwEdit::DoGetRequiredAttributesL
+// ConstructL
 // -----------------------------------------------------------------------------
-//	
-void CGlxCommandHandlerAiwEdit::DoGetRequiredAttributesL
-									(RArray<TMPXAttribute>& aAttributes, TBool aFilterUsingSelection) const
-	{
-	if (!aFilterUsingSelection || SelectionLength() <= MaxSelectedItems())
-		{
-	    // Add MIME type and fileaname attributes
-	    aAttributes.AppendL(KMPXMediaGeneralMimeType);
-		aAttributes.AppendL(KMPXMediaGeneralUri);		
-		}
-	}
-
-// -----------------------------------------------------------------------------
-// Constructor
-// -----------------------------------------------------------------------------
-//	
-CGlxCommandHandlerAiwEdit::CGlxCommandHandlerAiwEdit(
-        MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource)
-:   CGlxCommandHandlerAiwBase(aMediaListProvider, aMenuResource)
+//
+void CGlxCommandHandlerAiwEdit::ConstructL()
     {
-    }
+    TRAP_IGNORE(
+            {
+            iServiceHandler = CAiwServiceHandler::NewL();
+            iServiceHandler->AttachL( R_GLX_AIW_EDIT_INTEREST );
+            iEditSupported = ETrue;
+            }  );
     
-// -----------------------------------------------------------------------------
-// CommandId
-// -----------------------------------------------------------------------------
-//	
-TInt CGlxCommandHandlerAiwEdit::CommandId() const
-    {
-    if (iCommandSingleClick)
+    if(iCommandSingleClick)
         {
-        return EGlxCmdAiwSingleClickEdit;
+        TCommandInfo info(EGlxCmdAiwSingleClickEdit);
+        AddCommandL(info);
         }
-    return EGlxCmdAiwEdit;
-    }
-    
-// -----------------------------------------------------------------------------
-// AiwCommandId
-// -----------------------------------------------------------------------------
-//	
-TInt CGlxCommandHandlerAiwEdit::AiwCommandId() const
-    {
-    return KAiwCmdEdit;
-    }
-    
-// -----------------------------------------------------------------------------
-// AiwInterestResource
-// -----------------------------------------------------------------------------
-//	
-TInt CGlxCommandHandlerAiwEdit::AiwInterestResource() const
-    {
-    if (iCommandSingleClick)
+    else
         {
-        return R_GLX_AIW_SINGLE_CLICK_EDIT_INTEREST;
-        }    
-    return R_GLX_AIW_EDIT_INTEREST;
+        TCommandInfo info(EGlxCmdAiwEdit);
+        AddCommandL(info);
+        }
     }
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerAiwEdit
+// -----------------------------------------------------------------------------
+//
+CGlxCommandHandlerAiwEdit::CGlxCommandHandlerAiwEdit( MGlxMediaListProvider* aMediaListProvider, TBool aCommandSingleClick )
+                                :CGlxMediaListCommandHandler(aMediaListProvider),
+                                 iCommandSingleClick(aCommandSingleClick)
+    {
+    // Do Nothing
+    }
+
+// -----------------------------------------------------------------------------
+// DoActivateL
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerAiwEdit::DoActivateL(TInt /*aViewId*/)
+    {
+    // DO Nothing
+    }
+
+// -----------------------------------------------------------------------------
+// DynInitMenuPaneL
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerAiwEdit::DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane)
+    {
+    MGlxMediaList& mediaList = MediaList();
+    TInt pos;
+    
+    if (aMenuPane && iCommandSingleClick && aMenuPane->MenuItemExists(EGlxCmdAiwSingleClickEdit, pos)
+            && (mediaList.SelectionCount() > 1))
+        {
+        aMenuPane->SetItemDimmed(EGlxCmdAiwSingleClickEdit, ETrue);
+        }
+    else if (aMenuPane && aMenuPane->MenuItemExists(EGlxCmdAiwEdit, pos) 
+            && (mediaList.SelectionCount() != 1) && !IsInFullScreenViewingModeL())
+        {
+        aMenuPane->SetItemDimmed(EGlxCmdAiwEdit, ETrue);
+        }
+
+    }
+
+// -----------------------------------------------------------------------------
+// DoExecuteL
+// -----------------------------------------------------------------------------
+//
+TBool CGlxCommandHandlerAiwEdit::DoExecuteL( TInt aCommandId , MGlxMediaList& aList)
+    {
+    TBool handled = EFalse;
+    if (iEditSupported && (EGlxCmdAiwEdit == aCommandId || EGlxCmdAiwSingleClickEdit == aCommandId))
+        { 
+        CAiwGenericParamList& inputParams = iServiceHandler->InParamListL();
         
-// -----------------------------------------------------------------------------
-// AppendAiwParameterL
-// -----------------------------------------------------------------------------
-//	
-TBool CGlxCommandHandlerAiwEdit::AppendAiwParameterL(const TGlxMedia& aItem, 
-                                     CGlxAiwServiceHandler& aAiwServiceHandler)
-    {
-    return AppendDefaultAiwParameterL(  aItem, 
-                                        aAiwServiceHandler, 
-                                        ETrue,                  // Add the Uri
-                                        ETrue);                // Add the Mime Type
-		                                       
+        TGlxSelectionIterator iterator;
+        iterator.SetToFirst(&aList);
+        TInt index = iterator++;
+        const TGlxMedia& mediaItem = aList.Item(index);
+        
+        TAiwGenericParam param( EGenericParamFile, TAiwVariant(mediaItem.Uri()));
+        inputParams.AppendL( param );
+        
+        TAiwGenericParam param2( EGenericParamMIMEType, TAiwVariant(mediaItem.MimeType()));
+        inputParams.AppendL( param2 );
+
+        // Execute the KAiwCmdUpload command  EGlxCmdAiwEdit
+        iServiceHandler->ExecuteServiceCmdL(KAiwCmdEdit, inputParams, iServiceHandler->OutParamListL());       
+
+        handled = ETrue;
+        }   
+    return handled;
     }
 
 // -----------------------------------------------------------------------------
-// CommandSpace
+// IsInFullScreenViewingModeL
 // -----------------------------------------------------------------------------
-//	
-TInt CGlxCommandHandlerAiwEdit::CommandSpace() const
+//
+TBool CGlxCommandHandlerAiwEdit::IsInFullScreenViewingModeL()
     {
-    return KGlxAiwEditCommandSpace;
-    }
-	
-// -----------------------------------------------------------------------------
-// AiwDoDynInitMenuPaneL
-// -----------------------------------------------------------------------------
-//	
-void CGlxCommandHandlerAiwEdit::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/, 
-        CEikMenuPane* aMenuPane)
-    {
-    TRACER("CGlxCommandHandlerAiwEdit::AiwDoDynInitMenuPaneL()");
-    HBufC* currentTitle = StringLoader::LoadLC( R_QTN_LGAL_OPTIONS_EDIT );
-    TInt cmdId = AiwMenuCmdIdL( *currentTitle,aMenuPane ) ;
-    CleanupStack::PopAndDestroy(currentTitle);
-
-    if (KErrNotFound != cmdId)
+    TRACER("CGlxCommandHandlerAiwEdit::IsInFullScreenViewingModeL()");
+    TBool fullscreenViewingMode = EFalse;
+    CGlxNavigationalState* aNavigationalState = CGlxNavigationalState::InstanceL();
+    CMPXCollectionPath* naviState = aNavigationalState->StateLC();
+    
+    if ( naviState->Levels() >= 1)
         {
-        if (iCommandSingleClick && (MediaList().SelectionCount() > 1))
+        if (aNavigationalState->ViewingMode() == NGlxNavigationalState::EBrowse) 
             {
-            aMenuPane->SetItemDimmed(cmdId,ETrue);    
-            }
-        else if ( MediaList().SelectionCount() != 1) 
+            // For image viewer collection, goto view mode
+            if (naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
+                {
+                //it means we are in img viewer
+                fullscreenViewingMode = ETrue;
+                }
+            } 
+        else 
             {
-            // Enable ONLY when a single item marked
-            aMenuPane->SetItemDimmed(cmdId,ETrue);    
-            }    
+            //it means we are in Fullscreen
+            fullscreenViewingMode = ETrue;
+            }                
         }
+    CleanupStack::PopAndDestroy( naviState );
+    aNavigationalState->Close();
+    return fullscreenViewingMode;
     }

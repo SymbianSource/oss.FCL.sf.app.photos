@@ -112,8 +112,6 @@ CGlxIVwrAppUi::~CGlxIVwrAppUi()
         iViewUtility->Close();
         }
 
-    delete iActivationParam;
-
     if ( iUiUtility )
         {
         iUiUtility->Close();
@@ -161,31 +159,19 @@ void CGlxIVwrAppUi::HandleCommandL(TInt aCommand)
 // ProcessCommandParametersL
 // ---------------------------------------------------------------------------
 //
-TBool CGlxIVwrAppUi::ProcessCommandParametersL(TApaCommand aCommand,
-        TFileName& aDocumentName, const TDesC8& aTail)
+TBool CGlxIVwrAppUi::ProcessCommandParametersL(TApaCommand /*aCommand*/,
+        TFileName& /*aDocumentName*/, const TDesC8& /*aTail*/)
     {
     TRACER("TBool CGlxIVwrAppUi::ProcessCommandParametersL(TApaCommand /*aCommand*/,TFileName& /*aDocumentName*/, const TDesC8& aTail)");
 
-    TRAPD(err, HandleActivationMessageL(aCommand, aDocumentName, aTail));
-    if ( KErrNone != err )
+    // Bring the application to foreground, if not already
+    if (0 != iEikonEnv->RootWin().OrdinalPosition())
         {
-        // Open collection for main view
-        iStartupViewUid = TUid::Null();
-        // Open navigational state at root level
-        CMPXCollectionPath* newState = CMPXCollectionPath::NewL();
-        CleanupStack::PushL( newState );
-        iNavigationalState->NavigateToL( *newState );
-        CleanupStack::PopAndDestroy( newState );
-        }
-    if(0 == aTail.CompareC(KNullDesC8))
-        {
-        return ETrue;
-        }
-    else
-        {
-        return EFalse;
+        iEikonEnv->RootWin().SetOrdinalPosition(0);
         }
 
+	//To call OpenFileL in document class it must retun ETrue
+    return ETrue;
     }
 
 // ---------------------------------------------------------------------------
@@ -218,15 +204,11 @@ void CGlxIVwrAppUi::HandleNavigationalStateChangedL()
 
     CleanupStack::PopAndDestroy( naviState );
 
-    HBufC* activationParam = iActivationParam;
-    iActivationParam = NULL; // release ownership
-    CleanupStack::PushL( activationParam );
-
     if ( TUid::Null() != iStartupViewUid )
         {
         GLX_LOG_INFO("CGlxAppUi::HandleNavigationalStateChanged: Activating startup view");
         // Activate startup view
-        iViewUtility->ActivateViewL( iStartupViewUid, activationParam );
+        iViewUtility->ActivateViewL( iStartupViewUid, NULL );
         iStartupViewUid = TUid::Null();
         }
     else
@@ -240,12 +222,10 @@ void CGlxIVwrAppUi::HandleNavigationalStateChangedL()
 
         GLX_LOG_INFO1( "CGlxIVwrAppUi::HandleNavigationalStateChanged: Uid count %d", scoringIds.Count());
         // let view utility to select the best view based on scoring ids
-        iViewUtility->ActivateViewL( scoringIds, activationParam );
+        iViewUtility->ActivateViewL( scoringIds, NULL );
 
         CleanupStack::PopAndDestroy( &scoringIds );
         }
-
-    CleanupStack::PopAndDestroy( activationParam );
     }
 
 // ---------------------------------------------------------------------------
@@ -365,42 +345,17 @@ switch ( aNaviState.Levels() )
 }
 
 // ---------------------------------------------------------------------------
-// HandleActivationMessageL
+// HandleOpenFileL
 // ---------------------------------------------------------------------------
 //
-void CGlxIVwrAppUi::HandleActivationMessageL(const TApaCommand& aCommand, 
-        const TFileName& aDocumentName, const TDesC8& aData)
+void CGlxIVwrAppUi::HandleOpenFileL()
     {
-    TRACER("void CGlxIVwrAppUi::HandleActivationMessageL(const TApaCommand& aCommand, const TFileName& aDocumentName, const TDesC8& aData)");
-
-    delete iActivationParam;
-    iActivationParam = NULL;
-
-    if ( 0 == aData.CompareC(KNullDesC8) )
-        {
-        CMPXCollectionPath* path = CMPXCollectionPath::NewL();
-        CleanupStack::PushL(path);
-        path->AppendL( KGlxCollectionPluginImageViewerImplementationUid );
-        iNavigationalState->NavigateToL( *path );
-        CleanupStack::PopAndDestroy( path );
-        }
-
-    // Introduced to fix bug EMJN-78GH6N. Rowland Cook 10/12/2007
-    if (0 != iEikonEnv->RootWin().OrdinalPosition())
-        {
-        iEikonEnv->RootWin().SetOrdinalPosition(0);
-        }
-    }
-
-// ---------------------------------------------------------------------------
-// SetActivationParamL
-// ---------------------------------------------------------------------------
-//
-void CGlxIVwrAppUi::SetActivationParamL(const TDesC8& aParam)
-    {
-    TRACER("void CGlxIVwrAppUi::SetActivationParamL(const TDesC8& aParam)");
-    iActivationParam = HBufC::NewL(aParam.Length());
-    iActivationParam->Des().Copy(aParam);
+    TRACER("void CGlxIVwrAppUi::HandleOpenFileL()");
+    CMPXCollectionPath* path = CMPXCollectionPath::NewL();
+    CleanupStack::PushL(path);
+    path->AppendL( KGlxCollectionPluginImageViewerImplementationUid );
+    iNavigationalState->NavigateToL( *path );
+    CleanupStack::PopAndDestroy( path );    
     }
 
 // ---------------------------------------------------------------------------
