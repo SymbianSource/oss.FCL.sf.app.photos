@@ -11,4 +11,6 @@ EXPORTS
 	?IsHDMIConnected@CGlxTv@@QBEHXZ @ 10 NONAME ; int CGlxTv::IsHDMIConnected(void) const
 	?ActivateZoom@CGlxHdmiController@@QAEXXZ @ 11 NONAME ; void CGlxHdmiController::ActivateZoom(void)
 	?DeactivateZoom@CGlxHdmiController@@QAEXXZ @ 12 NONAME ; void CGlxHdmiController::DeactivateZoom(void)
+	?ShiftToPostingMode@CGlxHdmiController@@QAEXXZ @ 13 NONAME ; void CGlxHdmiController::ShiftToPostingMode(void)
+	?ShiftToCloningMode@CGlxHdmiController@@QAEXXZ @ 14 NONAME ; void CGlxHdmiController::ShiftToCloningMode(void)
 

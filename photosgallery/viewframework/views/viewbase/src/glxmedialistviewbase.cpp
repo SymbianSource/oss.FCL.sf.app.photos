@@ -21,6 +21,7 @@
 #include "glxmedialistviewbase.h"
 
 #include <mpxcollectionutility.h>
+#include <glxcollectionpluginimageviewer.hrh>
 #include <glxcommandhandler.h>
 #include <glxassert.h>
 #include <glxgallery.hrh>
@@ -164,7 +165,16 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
         }
     __ASSERT_ALWAYS(iMediaList, Panic(EGlxPanicNullMediaList));
 
-    if(iFixedTitle)
+    
+    CMPXCollectionPath* navigationalState = iCollectionUtility->Collection().PathL();
+    CleanupStack::PushL( navigationalState );
+    if (navigationalState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
+        {
+        // As image viewer is direct fullscreen view, 
+        // it will not have title. 
+        SetTitleL(KBlankTitle);
+        }
+    else if(iFixedTitle)
         {
         // If there is a fixed title, set it
         SetTitleL(*iFixedTitle);
@@ -179,6 +189,7 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
         iTitleFetcher = CGlxTitleFetcher::NewL(*this, path);
         CleanupStack::PopAndDestroy(path);
         }
+    CleanupStack::PopAndDestroy( navigationalState );
    
     //Allow the MskController to observe medialist everytime a view with a valid
     //medialist becomes active
@@ -198,15 +209,14 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
         CleanupStack::PopAndDestroy(navigationalState);
         }
     
+    DoMLViewActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
     //Allow the toolbarController to observe medialist everytime a view with a valid
     //medialist becomes active
-    if( Toolbar() && iToolbarControl )
-        {
-        iToolbarControl->AddToObserverL(*iMediaList, Toolbar());
-        iToolbarControl->SetStatusOnViewActivationL(iMediaList);
-        }    
-  
-    DoMLViewActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
+    if( GetToolBar() && iToolbarControl )
+       {
+       iToolbarControl->AddToObserverL(*iMediaList, GetToolBar());
+       iToolbarControl->SetStatusOnViewActivationL(iMediaList);
+       }   
     }
 
 // -----------------------------------------------------------------------------
@@ -215,6 +225,15 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
 //	
 EXPORT_C void CGlxMediaListViewBase::DoViewDeactivate()
     {
+    TRACER ("CGlxMediaListViewBase::DoViewDeactivate()");
+    //Need to be done before the view deactivation
+    //as the grid toolbar will be deleted in grid deactivation.
+    
+    if (GetToolBar() && iToolbarControl && iMediaList)
+         {
+         //Remove Toolbarcontroller from medialist observer
+         iToolbarControl->RemoveFromObserver(*iMediaList);
+         }
     DoMLViewDeactivate();
 
     if( iMediaList )
@@ -224,12 +243,6 @@ EXPORT_C void CGlxMediaListViewBase::DoViewDeactivate()
             //Remove Mskcontroller from medialist observer
             iCbaControl->RemoveFromObserver(*iMediaList);
             }
-        if (Toolbar() && iToolbarControl)
-            {
-            //Remove Toolbarcontroller from medialist observer
-            iToolbarControl->RemoveFromObserver(*iMediaList);
-            }
-
         // Only close the medialist if navigating backwards
         if (iUiUtility->ViewNavigationDirection() == EGlxNavigationBackwards)
             {

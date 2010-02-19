@@ -91,6 +91,10 @@ const TInt KDriveLetterLength = 1;
 _LIT(KColonBackslash, ":\\");
 _LIT(KFileNameFormatString, "(%+02u)");
 
+// Items to be deleted from File server at a time before calling scheduler wait
+const TInt KDeletedItemCount = 50;
+const TInt KDeleteOperationInterval = 200000;
+
 // ----------------------------------------------------------------------------
 // Destructor
 // ----------------------------------------------------------------------------
@@ -103,6 +107,12 @@ CGlxDataSourceTaskMdeCommand::~CGlxDataSourceTaskMdeCommand()
     delete iTitle;
     delete iObjectToRename;
     delete iStringCache;
+    if(iTimer && iTimer->IsActive())
+		{
+		iTimer->Cancel();
+		}
+	delete iTimer;
+    delete iSchedulerWait;    
     }
 
 
@@ -131,7 +141,10 @@ void CGlxDataSourceTaskMdeCommand::ConstructL()
     DataSource()->CancelFetchThumbnail();
 #else    
     DataSource()->ThumbnailCreator().CancelRequest( TGlxMediaId(0) );
-#endif
+#endif    
+    
+    iTimer = CPeriodic::NewL(CActive::EPriorityStandard);
+    iSchedulerWait = new (ELeave) CActiveSchedulerWait();
 	}
 
 /// @todo minor: Rowland Cook 12/06/2007 Add method decription.
@@ -992,6 +1005,7 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
 															(CMdEQuery& aQuery)
 	{
     TRACER("CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL()");
+    TInt deleteItemCounter = 0;
     ContentAccess::CManager *manager = ContentAccess::CManager::NewL();
     CleanupStack::PushL(manager);
     TInt queryCount = aQuery.Count();
@@ -1010,7 +1024,10 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
     User::LeaveIfError( fs.Connect() );
     
     TInt lastErr = KErrNone;
-    for(TInt queryPos = queryCount - 1; queryPos >= 0; queryPos--)
+    
+    // If Delete operation is cancelled before completion, 
+    // iCancelled because ETrue, break out of for loop.
+    for(TInt queryPos = queryCount - 1; (queryPos >= 0 && !iCancelled); queryPos--)
         {
         CMdEObject& object = static_cast<CMdEObject&>(aQuery.ResultItem(queryPos));
         //Removes the Read Only attributes of the file 
@@ -1020,7 +1037,22 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
         	{
         	lastErr = err;
         	}    
-        objectsForRemoval.AppendL(object.Id());
+        else
+            {    
+            // On successful deletion, delete the same from database
+            objectsForRemoval.AppendL(object.Id());
+            }
+			 
+        // After every 50 items are deleted, break from the for loop 
+        // and process other pending requests if any
+        if(deleteItemCounter == KDeletedItemCount)
+			{	
+			iTimer->Start( KDeleteOperationInterval, KDeleteOperationInterval,
+							TCallBack( &SchedulerStopCallback, (TAny *)this ) );	
+			iSchedulerWait->Start();  
+			deleteItemCounter = 0;
+			}     
+        deleteItemCounter++;     
         }
     // Calling Close() on file server session 
     CleanupStack::PopAndDestroy( &fs );
@@ -1212,3 +1244,39 @@ TInt CGlxDataSourceTaskMdeCommand::SearchStringL(TInt aResourceId)
     return result;    
         	
 	}
+
+// ----------------------------------------------------------------------------
+//  CGlxDataSourceTaskMdeCommand::SchedulerStopCallback
+// ----------------------------------------------------------------------------
+//
+TInt CGlxDataSourceTaskMdeCommand::SchedulerStopCallback(TAny* aPtr)
+    {
+    TRACER("CGlxDataSourceTaskMdeCommand::SchedulerStopCallback");
+    
+    CGlxDataSourceTaskMdeCommand* self = (CGlxDataSourceTaskMdeCommand*) aPtr;
+    if ( self )
+        {
+        self->SchedulerStopComplete();
+        }
+
+    return KErrNone;
+    }
+
+// -----------------------------------------------------------------------------
+// SchedulerStopComplete
+// -----------------------------------------------------------------------------
+//
+void CGlxDataSourceTaskMdeCommand::SchedulerStopComplete()
+    {
+    TRACER("CGlxDataSourceTaskMdeCommand::SchedulerStopComplete");  
+    
+    if(iTimer && iTimer->IsActive())
+    	{
+    	iTimer->Cancel();
+    	}
+    
+    if(iSchedulerWait)
+		{		
+		iSchedulerWait->AsyncStop();    
+		}  
+    }

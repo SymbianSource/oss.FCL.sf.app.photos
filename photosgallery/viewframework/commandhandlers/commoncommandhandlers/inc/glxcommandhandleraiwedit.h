@@ -28,6 +28,7 @@ class CAiwGenericParamList;
 class CGlxMedia;
 class MGlxMediaListProvider;
 class CAiwServiceHandler;
+class CGlxImageViewerManager;
 
 /**
  *  CGlxCommandHandlerAiwEdit
@@ -90,6 +91,9 @@ private: // Data Members
     TBool iEditSupported;
     
     TBool iCommandSingleClick;
+    
+    // Not own
+    CGlxImageViewerManager* iImageViewerInstance;
     };
 
 #endif // C_GLXCOMMANDHANDLERAIWEDIT_H

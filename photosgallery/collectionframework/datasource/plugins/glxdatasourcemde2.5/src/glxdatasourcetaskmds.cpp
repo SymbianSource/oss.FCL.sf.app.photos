@@ -119,8 +119,8 @@ void CGlxDataSourceTaskMde::ConstructL()
 void CGlxDataSourceTaskMde::CancelRequest()
     {
     TRACER("CGlxDataSourceTaskMde::CancelRequest()");
-    DestroyQueries();
     iCancelled = ETrue;
+    DestroyQueries();    
     }
 
 // ----------------------------------------------------------------------------
@@ -165,7 +165,7 @@ void CGlxDataSourceTaskMde::HandleQueryCompleted(CMdEQuery& aQuery, TInt aError)
         TRAP(err, HandleQueryCompletedL(aQuery));
         }
 
-    if (err != KErrNone)
+    if (err != KErrNone && !iCancelled)
         {
         HandleRequestComplete(err);
         }
@@ -443,7 +443,10 @@ void CGlxDataSourceTaskMde::SetSortOrderL(CMdEQuery& aQuery, CMdEObjectDef& aObj
             }
          case EGlxFilterSortOrderItemCount:
             {            
-            //Order rule is not necessary for item count query
+            //Order rule is needed for tags popularity            
+            TMdEOrderRule orderRule(EOrderRuleTypeUsageCount, aFilterProperties.iSortDirection ==
+            EGlxFilterSortDirectionAscending);
+            aQuery.AppendOrderRuleL(orderRule);            
             break;
             }
         case EGlxFilterSortOrderCaptureDate:
@@ -672,7 +675,20 @@ void CGlxDataSourceTaskMde::HandleQueryCompletedL(CMdEQuery& aQuery)
     {
     TRACER("CGlxDataSourceTaskMde::HandleQueryCompletedL()");
     DoHandleQueryCompletedL(aQuery);
-    RemoveQuery();
+    
+    // Both the function calls should be executed if any
+    // request is not cancelled before completion.
+    // All the pending Queries are already destroyed in CancelRequest.
+    // Hence we do not have to call RemoveQuery here. That will lead to
+    // User 130 crash. 
+    // DoNextQuery tries to get iQueries.Count(). Since iQueries is destroyed
+    // in CancelRequest 
+    if (iCancelled)
+    	{ 
+    	GLX_LOG_INFO("***Query already Removed. Hence Return***");
+    	return;  	
+    	}  
+    RemoveQuery();  
     DoNextQueryL();
     }
 

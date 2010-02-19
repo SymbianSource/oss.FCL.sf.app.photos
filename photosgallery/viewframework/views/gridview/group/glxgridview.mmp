@@ -36,7 +36,7 @@ CAPABILITY      CAP_GENERAL_DLL
 SOURCEPATH      ../src
 SOURCE          glxgridviewimp.cpp
 SOURCE          glxgridview.cpp 
-SOURCE 		glxgridviewmlobserver.cpp
+SOURCE          glxgridviewmlobserver.cpp
 SOURCE          glxgridviewcontainer.cpp
 
 USERINCLUDE     ../inc
@@ -57,25 +57,25 @@ SYSTEMINCLUDE   ../../../dataprovider/inc
 APP_LAYER_SYSTEMINCLUDE
 
 
-LIBRARY         avkon.lib						// CAknView
-LIBRARY         cone.lib						// MCoeView
-LIBRARY         commonengine.lib				// StringLoader
-LIBRARY         eikcoctl.lib					// CEikMenuBar
-LIBRARY         eikcore.lib 					// CEikMenuBar
-LIBRARY         euser.lib						// RAllocator
-LIBRARY         glxmedialists.lib				// CGlxMedialist
-LIBRARY         glxuiutilities.lib				// UiUtilities
-LIBRARY         glxviewbase.lib					// MedilaistViewBsse
-LIBRARY         glxcommonui.lib 				// for NGlxZoomStatePublisher::PublishStateL
-LIBRARY         mpxcommon.lib					// Mpx Attributes
-LIBRARY         flogger.lib						// For Logging Tracer
-LIBRARY         glxdrmutility.lib				// For Drm Utility
+LIBRARY         avkon.lib					// CAknView
+LIBRARY         cone.lib					// MCoeView
+LIBRARY         commonengine.lib			// StringLoader
+LIBRARY         eikcoctl.lib				// CEikMenuBar
+LIBRARY         eikcore.lib					// CEikMenuBar
+LIBRARY         euser.lib					// RAllocator
+LIBRARY         glxmedialists.lib			// CGlxMedialist
+LIBRARY         glxuiutilities.lib			// UiUtilities
+LIBRARY         glxviewbase.lib				// MedilaistViewBsse
+LIBRARY         glxcommonui.lib				// for NGlxZoomStatePublisher::PublishStateL
+LIBRARY         mpxcommon.lib				// Mpx Attributes
+LIBRARY         flogger.lib					// For Logging Tracer
+LIBRARY         glxdrmutility.lib			// For Drm Utility
 LIBRARY         ganes.lib
 LIBRARY         fbscli.lib 
 LIBRARY         aknicon.lib
 LIBRARY         egul.lib alfclient.lib
 LIBRARY         aknskins.lib
-LIBRARY		featmgr.lib					// FeatureManager
+LIBRARY         featmgr.lib					// FeatureManager
  
 // End of File
 

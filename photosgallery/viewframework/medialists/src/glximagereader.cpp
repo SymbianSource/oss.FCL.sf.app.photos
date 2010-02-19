@@ -108,14 +108,14 @@ void CGlxImageReader::ConstructL()
     TInt errInImage = KErrNone;
     if (iImgViewerMgr->IsPrivate())
         {
-        if ( &(iImgViewerMgr->ImageFileHandle()) != NULL )
+        if ( &(iImgViewerMgr->ImageFileHandle()) )
             {
             TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(iImgViewerMgr->ImageFileHandle(), ContentAccess::EPeek));
             }
         }
     else
         {
-        if ( iImgViewerMgr->ImageUri() != NULL )
+        if ( iImgViewerMgr->ImageUri() )
             {
             TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(CCoeEnv::Static()->FsSession(), iImgViewerMgr->ImageUri()->Des()));
             }
@@ -176,14 +176,14 @@ TInt CGlxImageReader::GetDRMRightsL(TInt aAttribute)
     CContent* content = NULL;
     if(iImgViewerMgr->IsPrivate())
         {
-        if ( &(iImgViewerMgr->ImageFileHandle()) != NULL )
+        if ( &(iImgViewerMgr->ImageFileHandle()) )
             {
             content = CContent::NewLC(iImgViewerMgr->ImageFileHandle());
             }
         }
     else
         {
-        if ( iImgViewerMgr->ImageUri() != NULL )
+        if ( iImgViewerMgr->ImageUri() )
             {
             content = CContent::NewLC(iImgViewerMgr->ImageUri()->Des());
             }

@@ -122,6 +122,8 @@ private:// Data
     
     //Create control
     CGlxGridViewContainer* iGlxGridViewContainer;
+    //toolbar - created dynamically.
+    CAknToolbar* iToolbar;
     };
 
 #endif  // C_GLXGRIDLVIEWIMP_H

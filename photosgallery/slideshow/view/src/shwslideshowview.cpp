@@ -334,7 +334,7 @@ void CShwSlideshowView::ConstructL()
     iGestureControlGroup = &iEnv->NewControlGroupL( KShwGestureControlGroupId );
 	
 	// construct the gesture control group
-	iShwGestureControl = CShwGestureControl::NewL(*iEnv,*iDisplay,*this);
+	iShwGestureControl = CShwGestureControl::NewL(*iEnv,*iDisplay);
 	iGestureControlGroup->AppendL( iShwGestureControl );
 	
 	GestureHelper::CGestureControl* gestureControl = GestureHelper::CGestureControl::NewLC( 
@@ -418,6 +418,7 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
 	    AppUi()->PopupToolbar()->SetToolbarVisibility( EFalse );
 		AppUi()->PopupToolbar()->MakeVisible(EFalse);
 		}	
+	iHdmiActive = EFalse;
     // reset failure flag
     iEngineStartFailed = EFalse;
 
@@ -462,6 +463,10 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
     
     InitializeShwFurnitureL();
     iUiUtility->Display()->SetVisibleArea(TRect(TPoint(0,0),AlfUtil::ScreenSize()));
+	// We will require to act on events ONLY when the view is active.
+	// So listen to them only when the view is active.
+    iShwGestureControl->AddObserver(this);
+
     }
 
 // -----------------------------------------------------------------------------
@@ -551,6 +556,7 @@ void CShwSlideshowView::DoViewDeactivate()
         //set to NULL to prevent double delete
         iFilteredList = NULL;
         }
+    iShwGestureControl->RemoveObserver(this);
    iDisplay->Roster().Hide( *iGestureControlGroup );
     
     if(iTicker)
@@ -719,6 +725,8 @@ void CShwSlideshowView::EngineStartedL()
         iWaitDialog->ProcessFinishedL();
         }
     iShwState = EShwPlay;
+    SetImage();
+	iHdmiActive = ETrue;
     ReplaceCommandSetL(R_SHW_SOFTKEYS_END_PAUSE,R_SHW_SOFTKEYS_END_PAUSE);
     ShowShwFurnitureL();
     }
@@ -1019,8 +1027,6 @@ void CShwSlideshowView::SetListFocusL()
             }
         }
     iFilteredList->SetFocusL( NGlxListDefs::EAbsolute, focusIndex );
-    SetImage();
-    iHdmiActive = ETrue;
 //    iContextUtility->PublishPhotoContextL(item.Uri());
     }
 
@@ -1051,7 +1057,7 @@ void CShwSlideshowView::HandleTickL()
 //
 void CShwSlideshowView::HandleTickCancelled()
 	{
-	
+    TRACER("CShwSlideshowView::HandleTickCancelled()");
 	}
 	
 // -----------------------------------------------------------------------------
@@ -1063,6 +1069,15 @@ void CShwSlideshowView::HandleShwGestureEventL(MShwGestureObserver::TShwGestureE
 	{
 	TRACER("CShwSlideshowView::HandleShwGestureEventL");
 	GLX_LOG_INFO( "CShwSlideshowView::HandleShwGestureEventL" );
+	
+	// If there is no Engine, the vehicle is handicapped and there is no way to know 
+	// whether it is possible for it to PROPERLY respond to events.
+	// So it is safer to not do so. 
+	if (NULL == iEngine)
+	    {
+        return ;
+	    }
+	
 	iTicker->CancelTicking();
 	switch(aType)
 		{

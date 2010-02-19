@@ -24,7 +24,7 @@
 #include "glxmedialistiterator.h"    // Interface for going through items in the list in a  non-sequential order
 #include "mglxmedialistobserver.h"   // Observes for changes in media list
 #include <memory>                    
-
+#include <bitmaptransforms.h>
 
 class GlxThumbnailVariantType;
 class CGlxThumbnailContext;          // Fetch context to retrieve thumbnails
@@ -78,6 +78,13 @@ private:
 	 * Two phase construction
 	 */
 	void ConstructL();
+	
+	/**
+     * Scale the source bitmap to list size
+     * aSrcBitmap - Source bitmap
+     * aDestBitmap - Scaled destination bitmap
+     */
+      void ScaleBitmapToListSizeL(CFbsBitmap* aSrcBitmap, CFbsBitmap* aDestBitmap);
 
 public:	
       void HandleItemChangedL(const CMPXCollectionPath& aPath,
@@ -151,7 +158,28 @@ private:
     TBool iBackwardNavigation;
     
     CMPXFilter* iPreviewFilter;
-};
     
+    CBitmapScaler* iBitmapScaler;
+};
+
+ // ----------------------------------------------------------------------------
+ // CWaitScheduler - Active object to scale the bitmap to the desired size.
+ // ----------------------------------------------------------------------------
+ class CGlxWaitScheduler : public CActive
+     {
+ public:
+     static CGlxWaitScheduler* NewL();  
+     void WaitForRequest();
+
+ private:
+     CGlxWaitScheduler();
+     void ConstructL();
+     virtual ~CGlxWaitScheduler();  
+     void RunL();
+     void DoCancel();
+
+ private:
+     CActiveSchedulerWait iScheduler;  
+     };
 
 #endif //_GLXPREVIEWTHUMBNAILBINDING_H_

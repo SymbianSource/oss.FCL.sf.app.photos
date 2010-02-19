@@ -81,7 +81,7 @@ TBool CGlxCommandHandlerSave::ExecuteL(TInt aCommandId)
     if(aCommandId == EGlxCmdSave)
     	{
         RFile64& imageHandle = iImageViewerInstance->ImageFileHandle();
-    	if ( &imageHandle != NULL )
+    	if ( &imageHandle )
     	    {
             if ( imageHandle.SubSessionHandle() != KNullHandle )
                 {

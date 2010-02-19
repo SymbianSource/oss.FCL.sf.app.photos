@@ -51,7 +51,6 @@ RESOURCE AVKON_VIEW r_grid_view
 	{
 	menubar = r_grid_menubar;
 	cba = r_grid_softkeys;  
-	toolbar = r_glx_grid_view_toolbar;
 	}
 
 // Captured Grid View
@@ -59,7 +58,6 @@ RESOURCE AVKON_VIEW r_glx_captured_grid_view
     {
     menubar = r_grid_menubar;
     cba = r_grid_softkeys;
-    toolbar = r_glx_grid_view_toolbar;
     }
 
 // Months Grid View
@@ -67,7 +65,6 @@ RESOURCE AVKON_VIEW r_glx_months_grid_view
     {
     menubar = r_grid_menubar;
     cba = r_grid_softkeys;
-    toolbar = r_glx_grid_view_toolbar;
     }
 
 // Albums Grid View
@@ -75,7 +72,6 @@ RESOURCE AVKON_VIEW r_glx_album_grid_view
     {
     menubar = r_glx_album_grid_menubar;
     cba = r_grid_softkeys;
-    toolbar = r_glx_grid_view_toolbar;
     }
 
 // Tag Grid View
@@ -83,7 +79,6 @@ RESOURCE AVKON_VIEW r_taggrid_view
     {
     menubar = r_taggrid_menubar;
     cba = r_grid_softkeys;
-    toolbar = r_glx_grid_view_toolbar;
     }
 
 

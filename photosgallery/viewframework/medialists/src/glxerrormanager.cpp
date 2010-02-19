@@ -191,10 +191,11 @@ TBool GlxErrorManager::IsTemporaryError(TInt aErrorCode)
     ///       all errors are temporary
     switch ( aErrorCode )
         {
-        case KErrArgument: // fallthrough
-        case KErrNotSupported: // fallthrough
-        case KErrNoMemory:
-		case KErrCorrupt:
+        case KErrArgument:      // fallthrough
+        case KErrNotSupported:  // fallthrough
+        case KErrNoMemory:      // fallthrough
+        case KErrCorrupt:       // fallthrough
+        case KErrDiskFull:      
         // add other permanent error codes here
             return EFalse;
             

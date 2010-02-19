@@ -24,23 +24,22 @@
 
 #include <glxlog.h>
 #include <glxtracer.h>
+#include <glxpanic.h>
 #include "shwslideshowengine.h"
 #include "shwgesturecontrol.h"
 
 using namespace GestureHelper;
 
 
-
 // -----------------------------------------------------------------------------
 // NewL.
 // -----------------------------------------------------------------------------
 //
-CShwGestureControl* CShwGestureControl::NewL( CAlfEnv& aEnv,CAlfDisplay& aDisplay,
-										MShwGestureObserver& aObserver)
+CShwGestureControl* CShwGestureControl::NewL( CAlfEnv& aEnv,CAlfDisplay& aDisplay)
 	{
 	TRACER("CShwGestureControl::NewL");
 	GLX_LOG_INFO( "CShwGestureControl::NewL" );
-	CShwGestureControl* self = new(ELeave)CShwGestureControl(aObserver);
+	CShwGestureControl* self = new(ELeave)CShwGestureControl();
 	CleanupStack::PushL( self );
 	self->ConstructL( aEnv,aDisplay);
 	CleanupStack::Pop( self );
@@ -51,7 +50,7 @@ CShwGestureControl* CShwGestureControl::NewL( CAlfEnv& aEnv,CAlfDisplay& aDispla
 // ConstructL.
 // -----------------------------------------------------------------------------
 //
-void CShwGestureControl::ConstructL( CAlfEnv& aEnv,CAlfDisplay& aDisplay )
+void CShwGestureControl::ConstructL( CAlfEnv& aEnv,CAlfDisplay& aDisplay)
 	{
 	TRACER("CShwGestureControl::ConstructL");
 	GLX_LOG_INFO( "CShwGestureControl::ConstructL" );
@@ -64,20 +63,57 @@ void CShwGestureControl::ConstructL( CAlfEnv& aEnv,CAlfDisplay& aDisplay )
 // CShwGestureControl.
 // -----------------------------------------------------------------------------
 //
-CShwGestureControl::CShwGestureControl( MShwGestureObserver& aObserver):
-					iObserver(aObserver)
+CShwGestureControl::CShwGestureControl( )
 	{
+	TRACER("CShwGestureControl::CShwGestureControl");
 	//no implementation
 	}
 
 // -----------------------------------------------------------------------------
 // ~CShwGestureControl.
 // -----------------------------------------------------------------------------
-//	
+//  
 CShwGestureControl::~CShwGestureControl()
-	{
-	//no implementation
-	}
+    {
+	TRACER("CShwGestureControl::~CShwGestureControl");
+    //no implementation
+    }
+
+// -----------------------------------------------------------------------------
+// AddObserver
+// -----------------------------------------------------------------------------
+//
+void CShwGestureControl::AddObserver(MShwGestureObserver* aObserver) 
+    {
+    TRACER("CShwGestureControl::AddObserver");
+    GLX_LOG_INFO("CShwGestureControl::AddObserver");
+    __ASSERT_DEBUG( NULL != aObserver , Panic(EGlxPanicNullPointer)); 
+    
+    // dont want to observe the same thing again and again.
+    if (iObservers.Find(aObserver) == KErrNotFound)
+        {
+        iObservers.Append(aObserver);
+        GLX_LOG_INFO1("CShwGestureControl::AddObserver  Observer Added "
+                "observer count now [%d]", iObservers.Count());
+        }
+    }
+
+// -----------------------------------------------------------------------------
+// RemoveObserver
+// -----------------------------------------------------------------------------
+//
+void CShwGestureControl::RemoveObserver(MShwGestureObserver* aObserver)
+    {
+    TRACER("CShwGestureControl::RemoveObserver");
+    GLX_LOG_INFO("CShwGestureControl::RemoveObserver");
+    TInt observerPosition = iObservers.Find(aObserver);
+    if (observerPosition != KErrNotFound)
+        {
+        iObservers.Remove(observerPosition);
+        GLX_LOG_INFO1("CShwGestureControl::AddObserver  One Observer removed "
+                "observer count now [%d]", iObservers.Count());
+        }
+    }
 
 // -----------------------------------------------------------------------------
 // HandleGestureL.
@@ -87,52 +123,46 @@ void CShwGestureControl::HandleGestureL( const GestureHelper::MGestureEvent& aEv
 	{
 	TRACER("CShwGestureControl::HandleGestureL");
 	GLX_LOG_INFO1( "CShwGestureControl::HandleGestureL(%d)", aEvent.Code( MGestureEvent::EAxisBoth ));
-	// we are interested in only 
-	// swipe left(EGestureSwipeLeft) 
-	// swipe right(EGestureSwipeRight)
-	// and tap events
-	
+
+	// No one is listening? Do not resolve the events for the listeners! 
+	if (iObservers.Count() > 0)
+	    {
+        MShwGestureObserver::TShwGestureEventType aType  = MShwGestureObserver::ENoEvent;
 		switch ( aEvent.Code( MGestureEvent::EAxisBoth ) )
 		    {
-		    	
 	    	case EGestureSwipeLeft:
 	    		{
-	    		//call back the view
-				iObserver.HandleShwGestureEventL(MShwGestureObserver::ESwipeLeft);
-	    		break;
-	    		}
-	    	case EGestureHoldLeft:
-	    		{
-				//skip for now
+	    		aType  = MShwGestureObserver::ESwipeLeft ;
 	    		break;
 	    		}
 	    	case EGestureSwipeRight:  
 	    		{
-	    		//callback
-				iObserver.HandleShwGestureEventL(MShwGestureObserver::ESwipeRight);
-	    		break;
-	    		}
-		    case EGestureHoldRight:
-	    		{
-				//skip for now
+	    		aType  = MShwGestureObserver::ESwipeRight;
 	    		break;
 	    		}
 		    case EGestureTap:
 		    	{
-	    		iObserver.HandleShwGestureEventL(MShwGestureObserver::ETapEvent);
+		    	aType  = MShwGestureObserver::ETapEvent;
 		    	break;
 		    	}
-	    	//fall through
-		    case EGestureSwipeUp:
-	  	    case EGestureHoldUp:
-		    case EGestureSwipeDown:
-		    case EGestureHoldDown:       
 		    default: 
 		    	{
+		    	// we are interested in only 
+		    	// swipe left(EGestureSwipeLeft) 
+		    	// swipe right(EGestureSwipeRight)
+		    	// and tap events
+		    	// we wont be handling any other case yet. 
 		    	break;
 		    	}
-		        
 		    }
+        for (TInt index = 0 ; index < iObservers.Count() ; index ++)
+            {
+            if (MShwGestureObserver::ENoEvent != aType )
+                {
+                iObservers[index]->HandleShwGestureEventL(aType);
+                }
+            }
+	    }
 	}
 
 //end of file

@@ -29,11 +29,65 @@
 
 #include <glxuistd.h>                    // Fetch context priority def'ns
 
+#include <ganes/HgDoubleGraphicList.h>
+
+
 const TInt KInitialThumbnailsTimeDelay(100000);
 const TInt KWaitCount(5);
 const TInt KThumbnailStartTimeDelay(250000);
 const TInt KThumbnailIntervalTimeDelay(50000);
 const TInt KPreviewThumbnailFetchCount(1);
+
+// ----------------------------------------------------------------------------
+// CWaitScheduler::NewL()
+// ---------------------------------------------------------------------------- 
+CGlxWaitScheduler* CGlxWaitScheduler::NewL()
+    {
+    TRACER("CGlxWaitScheduler::NewL()");    
+    CGlxWaitScheduler* self = new( ELeave ) CGlxWaitScheduler();
+    CleanupStack::PushL( self );
+    self->ConstructL( );
+    CleanupStack::Pop( self );
+    return self;
+    }
+
+CGlxWaitScheduler::CGlxWaitScheduler()
+: CActive( EPriorityStandard )
+    {
+    TRACER("CGlxWaitScheduler::CGlxWaitScheduler()");    
+    CActiveScheduler::Add( this );
+    }
+
+void CGlxWaitScheduler::ConstructL()
+    {
+    TRACER("CGlxWaitScheduler::ConstructL()");
+    // Do nothing
+    }
+
+CGlxWaitScheduler::~CGlxWaitScheduler()
+    {
+    TRACER("CGlxWaitScheduler::~CGlxWaitScheduler()");     
+    Cancel();
+    }
+
+void CGlxWaitScheduler::WaitForRequest()
+    {
+    TRACER("CGlxWaitScheduler::WaitForRequest()");     
+    SetActive();
+    iScheduler.Start();
+    }
+
+void CGlxWaitScheduler::RunL()
+    {
+    TRACER("CGlxWaitScheduler::RunL()");     
+    iScheduler.AsyncStop();
+    }
+
+void CGlxWaitScheduler::DoCancel()
+    {
+    TRACER("CGlxWaitScheduler::DoCancel()");   
+    //Do nothing
+    }
 
 // ----------------------------------------------------------------------------
 // NewL
@@ -94,6 +148,7 @@ void CGlxPreviewThumbnailBinding::ConstructL()
     iThumbnailContext->SetDefaultSpec(iGridIconSize.iWidth,
                                                 iGridIconSize.iHeight);
     iThumbnailContext->AddAttributeL(tnAttr);
+    iBitmapScaler = CBitmapScaler::NewL();
     }
 
 // ----------------------------------------------------------------------------
@@ -121,6 +176,12 @@ CGlxPreviewThumbnailBinding::~CGlxPreviewThumbnailBinding()
 	delete iTimer;
 	iTimer = NULL;
 	iPreviewItemCount.Close();
+	
+	if(iBitmapScaler)
+	    {
+        delete iBitmapScaler;
+	    iBitmapScaler = NULL;
+	    }
 	}
 
 // ----------------------------------------------------------------------------
@@ -147,7 +208,8 @@ void CGlxPreviewThumbnailBinding::TimerTickedL()
             if (value)
                 {
                 CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
-                bitmap->Duplicate( value->iBitmap->Handle());
+				bitmap->Duplicate( value->iBitmap->Handle());
+                //ScaleBitmapToListSizeL(value->iBitmap, bitmap);
                 iObserver.PreviewTNReadyL(bitmap, NULL,iProgressIndex);
                 }
     	    }
@@ -179,6 +241,7 @@ void CGlxPreviewThumbnailBinding::TimerTickedL()
 			{
 			CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
 			bitmap->Duplicate( value->iBitmap->Handle());
+		    //ScaleBitmapToListSizeL(value->iBitmap, bitmap);
 			iObserver.PreviewTNReadyL(bitmap, NULL,iProgressIndex);
 			}
 		else
@@ -425,3 +488,24 @@ void CGlxPreviewThumbnailBinding::HandlePopulatedL( MGlxMediaList* /*aList*/ )
     StartTimer(iPopulateListTNs);
     }
 
+// ----------------------------------------------------------------------------
+// ScaleBitmapToListSizeL
+// ----------------------------------------------------------------------------
+//
+void CGlxPreviewThumbnailBinding::ScaleBitmapToListSizeL(
+                             CFbsBitmap* aSrcBitmap, CFbsBitmap* aDestBitmap)
+    {      
+    TRACER("CGlxPreviewThumbnailBinding::ScaleBitmapToListSizeL()");      
+
+    // Create the bitmap with the list preferred size
+    aDestBitmap->Create(CHgDoubleGraphicList::PreferredImageSize(), EColor16MU);
+
+    CGlxWaitScheduler* waitScheduler = CGlxWaitScheduler::NewL();
+    CleanupStack::PushL( waitScheduler );
+
+    iBitmapScaler->Scale(&waitScheduler->iStatus, *aSrcBitmap, 
+            *aDestBitmap, ETrue);
+    waitScheduler->WaitForRequest();
+
+    CleanupStack::PopAndDestroy( waitScheduler );
+    }

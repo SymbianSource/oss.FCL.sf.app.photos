@@ -16,8 +16,6 @@
 */
 
 
-
-
 // INCLUDE FILES
 #include "glxcloudviewcontrol.h" //class header
 //AlfT headers
@@ -33,6 +31,8 @@
 #include <alf/alfdisplay.h> // For CAlfDisplay
 #include <alf/ialfscrollbarmodel.h> // For alfScrollbar model
 #include <aknlayoutscalable_uiaccel.cdl.h>
+#include <alf/alfcontrolgroup.h>
+#include <alf/alfutil.h>
 #include <aknphysics.h> // For Kinetic Scrolling
 #include <glxuiutility.h>
 #include <glxgeneraluiutilities.h>
@@ -49,6 +49,7 @@
 #include "mglxcloudviewmskobserver.h" // For Msk Observer
 #include "mglxenterkeyeventobserver.h" // For enterkey observer
 #include "mglxcloudviewlayoutobserver.h"
+#include "glxtagscontextmenucontrol.h"
 
 //Constants
 const TInt KPrimaryFontSize = 21;
@@ -68,6 +69,7 @@ const TInt KTagScreenHeight = 460;
 const TReal KBoundaryMargin = 0.1; //10% = 10/100 = 0.1 
 const TInt KFastCloudMovement = 100; //Transition time to move cloud view
 const TInt KSlowCloudMovement = 1000; //Transition time to move cloud view
+const TInt KLongPressTimer = 1500000; //1.5 seconds
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
@@ -76,11 +78,13 @@ const TInt KSlowCloudMovement = 1000; //Transition time to move cloud view
 CGlxCloudViewControl *CGlxCloudViewControl::NewL(CAlfDisplay& aDisplay,
         CAlfEnv &aEnv, MGlxMediaList& aMediaList, const TDesC& aEmptyText,
         MGlxCloudViewMskObserver& aObserver,MGlxEnterKeyEventObserver& aObserverEnterKeyEvent
-        ,CAlfAnchorLayout *aAnchorLayout,MGlxCloudViewLayoutObserver& aLayoutObserver)
+        ,CAlfAnchorLayout *aAnchorLayout,
+        MGlxCloudViewLayoutObserver& aLayoutObserver
+        ,MGlxItemMenuObserver& aItemMenuObserver)
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::NewL");
     CGlxCloudViewControl *self = CGlxCloudViewControl::NewLC (aDisplay, aEnv,
-            aMediaList, aEmptyText,aObserver,aObserverEnterKeyEvent,aAnchorLayout,aLayoutObserver);
+            aMediaList, aEmptyText,aObserver,aObserverEnterKeyEvent,aAnchorLayout,aLayoutObserver,aItemMenuObserver);
     CleanupStack::Pop (self);
     return self;
     }
@@ -92,13 +96,14 @@ CGlxCloudViewControl *CGlxCloudViewControl::NewL(CAlfDisplay& aDisplay,
 CGlxCloudViewControl *CGlxCloudViewControl::NewLC(CAlfDisplay& aDisplay,
         CAlfEnv &aEnv, MGlxMediaList& aMediaList, const TDesC& aEmptyText,
         MGlxCloudViewMskObserver& aObserver,MGlxEnterKeyEventObserver& aObserverEnterKeyEvent
-        ,CAlfAnchorLayout *aAnchorLayout,MGlxCloudViewLayoutObserver& aLayoutObserver)
+        ,CAlfAnchorLayout *aAnchorLayout,MGlxCloudViewLayoutObserver& aLayoutObserver
+        ,MGlxItemMenuObserver& aItemMenuObserver)
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::NewLC");
     CGlxCloudViewControl *self = new(ELeave)CGlxCloudViewControl(aEnv,aMediaList,aObserver
             ,aObserverEnterKeyEvent,aLayoutObserver);
     CleanupStack::PushL (self);
-    self->ConstructL (aEmptyText,aDisplay,aAnchorLayout);
+    self->ConstructL (aEmptyText,aDisplay,aAnchorLayout,aItemMenuObserver);
     return self;
     }
 
@@ -126,7 +131,7 @@ CGlxCloudViewControl::CGlxCloudViewControl(CAlfEnv &aEnv, MGlxMediaList& aMediaL
 // ---------------------------------------------------------------------------
 //
 void CGlxCloudViewControl::ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisplay
-        ,CAlfAnchorLayout *aAnchorLayout)
+        ,CAlfAnchorLayout *aAnchorLayout,MGlxItemMenuObserver& aItemMenuObserver)
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::ConstructL");
     iUiUtility = CGlxUiUtility::UtilityL ();
@@ -137,6 +142,16 @@ void CGlxCloudViewControl::ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisp
 
     iEmptyText = aEmptyText.AllocL();
 
+    iTimer = CGlxBubbleTimer::NewL (this);
+    
+    CAlfControlGroup* ctrlGroup = iUiUtility->Env()->FindControlGroup(0);
+    //Creating Grid control for floating menu bar 
+    iTagsContextMenuControl = CGlxTagsContextMenuControl::NewL(aItemMenuObserver);
+    if(ctrlGroup)
+        {
+        ctrlGroup->AppendL(iTagsContextMenuControl);
+        }
+    
     TRect rect;
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
     iScreenHeight = rect.Height ();
@@ -240,6 +255,12 @@ CGlxCloudViewControl::~CGlxCloudViewControl()
         iUiUtility->Close ();
         }	
     delete iEmptyText;
+
+    if ( iTimer)
+        {
+        iTimer->Cancel ();//cancels any outstanding requests
+        delete iTimer;
+        }
     delete iPhysics;
     }
 
@@ -1426,6 +1447,9 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
                 EAlfPointerEventReportDrag + EAlfPointerEventReportLongTap
                         + EAlfPointerEventReportUnhandled, *this);
         Display()->Roster().DisableLongTapEventsWhenDragging(*this);
+        
+        //If the grid is already shown , disable it
+        iTagsContextMenuControl->ShowItemMenu(EFalse);
 
         if(tappedvisual)
             {
@@ -1435,13 +1459,14 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
                 //if the tapped visual is same as the visual in the layout then focus that visual
                 if(layoutvisual == tappedvisual)
                     {
-                    TInt focus = iMediaList.FocusIndex();
-                    if (index != focus)
-                        {
-                        iTouchFeedback->InstantFeedback(ETouchFeedbackBasic);
-                        iMediaList.SetFocusL(NGlxListDefs::EAbsolute, index);
-                        SetFocusColor();
-                        }
+                    iTouchFeedback->InstantFeedback(ETouchFeedbackBasic);
+                    iMediaList.SetFocusL (NGlxListDefs::EAbsolute, index);
+
+                    //Start the timer to interpret longpress events
+                    iTimerComplete = EFalse;
+                    iTimer->Cancel ();//cancels any outstanding requests
+                    iTimer->SetDelay (KLongPressTimer);
+                    
                     consumed = ETrue;
                     break;
                     }
@@ -1451,6 +1476,7 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
     else if (aEvent.PointerEvent().iType == TPointerEvent::EDrag)
         {
         GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::HandlePointerEventL(EDrag) event");
+        
         iTouchFeedback->InstantFeedback(ETouchFeedbackBasic);
 
         consumed = HandleDragL(aEvent.PointerEvent());
@@ -1459,6 +1485,12 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
         {
         Display()->Roster().SetPointerEventObservers(0, *this);
         consumed = ETrue;
+        
+        //If the long press timer is completed , and if upevent is received.. ignore it
+        if(iTimerComplete)
+            {
+            consumed =  ETrue;
+            }
 
         //Check if dragging actually happened using iViewDragged 
         if (iDragging && iViewDragged)
@@ -1467,11 +1499,14 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
             TPoint drag = iStart - aEvent.PointerEvent().iPosition;
             iPhysics->StartPhysics(drag, iStartTime);
             iPhysicsStarted = ETrue;
+            
+            iTimer->Cancel ();//cancels any outstanding requests
             }
         //If dragging not happened consider it as Tapped event
-        else if (tappedvisual && !iViewDragged)
+        //When it recognises the long press event ,  and if up event is received..Ignore it 
+        else if (tappedvisual && !iViewDragged && !iTimerComplete)
             {
-            for (TInt index = 0; index < iLayout->Count(); index++)
+           for (TInt index = 0; index < iLayout->Count(); index++)
                 {
                 CAlfVisual* layoutvisual = &(iLayout->Visual(index));
                 //if the tapped visual is same as the visual in the layout then focus that visual
@@ -1485,6 +1520,7 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
                         iMediaList.SetFocusL(NGlxListDefs::EAbsolute, index);
                         SetFocusColor();
                         iFocusRowIndex = RowNumber (iMediaList.FocusIndex ());
+                        
                         if( iFocusRowIndex > focusrowindex)
                             {
                             GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::HandleDragL,b4 movedown");
@@ -1681,7 +1717,7 @@ AlfEventStatus CGlxCloudViewControl::offerEvent( CAlfWidgetControl& aControl, co
     AlfEventStatus status = EEventNotHandled;  
     if(aEvent.IsCustomEvent() && accept(aControl, aEvent))
         {
-        if ((iScrollBarWidget!=NULL))
+        if ( iScrollBarWidget )
             {    		
             if (aEvent.IsCustomEvent())
                 {
@@ -1938,4 +1974,40 @@ TBool CGlxCloudViewControl::IsLandscape()
         return EFalse;
         }
     }
+// ---------------------------------------------------------------------------
+// TimerComplete()
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewControl::TimerComplete()
+    {
+    iTimerComplete = ETrue;
+    iTagsContextMenuControl->ShowItemMenu(EFalse);
+
+    CAlfVisual& visual = iLayout->Visual( iMediaList.FocusIndex() );
+    TRect focussedItemRect = visual.DisplayRect();
+    TPoint midpoint;
+    midpoint.iX=focussedItemRect.iTl.iX +
+            ((focussedItemRect.iBr.iX - focussedItemRect.iTl.iX )/2);
+    midpoint.iY=focussedItemRect.iTl.iY+
+                    ((focussedItemRect.iBr.iY - focussedItemRect.iTl.iY )/2); 
+    
+    TRect rect;
+    AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EMainPane, rect);
+    
+    if(!iPhysicsStarted)//only if physics hasnt started
+        {
+        iTagsContextMenuControl->SetViewableRect(rect);
+        iTagsContextMenuControl->ShowItemMenu(ETrue);
+        iTagsContextMenuControl->SetDisplay(midpoint);
+        }
+   }
+// ---------------------------------------------------------------------------
+// ShowContextItemMenu()
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewControl::ShowContextItemMenu(TBool aShow)
+    {
+    iTagsContextMenuControl->ShowItemMenu(aShow);
+    }
+
 //End of file

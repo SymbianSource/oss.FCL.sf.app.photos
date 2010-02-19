@@ -278,7 +278,7 @@ EXPORT_C void CGlxViewBase::DoActivateL(const TVwsViewId& aPrevViewId, TUid aCus
     customMessagePtr.Copy( aCustomMessage );
 
 	// show the view specific toolbar
-    CAknToolbar* toolbar = Toolbar();
+    CAknToolbar* toolbar = GetToolBar();
 
     // Get the pointer to the application toolbar 
     // (when there isn't a view specific toolbar) to set it visible 
@@ -326,7 +326,7 @@ EXPORT_C void CGlxViewBase::DoDeactivate()
 	{
 	TRACER( "CGlxViewBase::DoDeactivate" );
 	// hide the view specific toolbar
-    CAknToolbar* toolbar = Toolbar();
+    CAknToolbar* toolbar = GetToolBar();
 
     // Get the pointer to the application toolbar 
     // (when there isn't a view specific toolbar) to hide it properly 
@@ -466,7 +466,28 @@ EXPORT_C void CGlxViewBase::SetToolbarStateL()
     TRACER( "CGlxViewBase::SetToolbarStateL" );
     // Derived MediaListViewBase has the implementation.
     }
-
+// -----------------------------------------------------------------------------
+// SetGridToolBar
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxViewBase::SetGridToolBar(CAknToolbar* aToolbar)
+    {
+    TRACER("CGlxViewBase::SetGridToolBar()");
+    iToolbar = aToolbar;
+    }
+// -----------------------------------------------------------------------------
+// GetToolBar
+// -----------------------------------------------------------------------------
+//
+EXPORT_C CAknToolbar* CGlxViewBase::GetToolBar()
+    {
+    TRACER("CGlxViewBase::GetToolBar()");
+    if(iToolbar)
+        {
+        return iToolbar;
+        }
+    return Toolbar();     
+    }
 // -----------------------------------------------------------------------------
 // InitAnimationL
 // -----------------------------------------------------------------------------
@@ -514,7 +535,7 @@ EXPORT_C void CGlxViewBase::AnimationComplete(MGlxAnimation* /*aAnimation*/) // 
 EXPORT_C void CGlxViewBase::OfferToolbarEventL( TInt aCommand )
     {
     TRACER( "CGlxViewBase::OfferToolbarEventL" );
-    CAknToolbar* toolbar = Toolbar();
+    CAknToolbar* toolbar = GetToolBar();
     if(toolbar)
         {
         // Deactivate the toolbar. Don't accept the toolbar input when the command
@@ -539,9 +560,9 @@ EXPORT_C void CGlxViewBase::SetToolbarObserver(MAknToolbarObserver* aObserver)
     {
     TRACER( "CGlxViewBase::SetToolbarObserver" );
     //Register the view to recieve toolbar events. ViewBase handles the events
-    if ( Toolbar() )
+    if ( GetToolBar() )
         {
-        Toolbar()->SetToolbarObserver( aObserver );
+        GetToolBar()->SetToolbarObserver( aObserver );
         }
      }
 

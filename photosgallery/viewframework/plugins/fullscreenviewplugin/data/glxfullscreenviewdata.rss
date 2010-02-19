@@ -295,8 +295,7 @@ RESOURCE MENU_PANE r_glx_imageviewer_fullscreen_menu
                 MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
                             /* txt comes from ShareOnline 4.3 */},
                 MENU_ITEM { command = EGlxCmdAiwEdit; 
-                            txt = qtn_lgal_options_edit; 
-                            cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
+                            txt = qtn_lgal_options_edit; },
                 MENU_ITEM { command = EGlxCmdDetails;
                             txt = qtn_lgal_options_details; },  
                 MENU_ITEM { command = EGlxCmdAiwAssign; 

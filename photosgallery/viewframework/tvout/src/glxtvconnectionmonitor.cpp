@@ -177,9 +177,20 @@ void CGlxTvConnectionMonitor::IssueRequest()
 void CGlxTvConnectionMonitor::IssueNotificationL()
     {
     GLX_LOG_INFO("CGlxTvConnectionMonitor::IssueNotificationL");
+    TBool previousTvState = iTvOutConnectionState;
+    TBool previousHDMIState = iHDMIConnectionState;
+    GLX_LOG_INFO2("previousTvState = %d , previousHDMIState = %d",
+            previousTvState,previousHDMIState);
     iTvOutConnectionState = ( iCurrentAccMode.iAccessoryMode == EAccModeTVOut);
     iHDMIConnectionState = ( iCurrentAccMode.iAccessoryMode == EAccModeHDMI);
-    iConnectionObserver.HandleTvConnectionStatusChangedL();
+    // Call Statuschnage only if actually TvState or HDMIState has changed.
+    if ( previousTvState!= iTvOutConnectionState ||
+            previousHDMIState != iHDMIConnectionState)
+        {
+        GLX_LOG_INFO("CGlxTvConnectionMonitor::IssueNotificationL -"
+                " TvConnectionStatusChanged");
+        iConnectionObserver.HandleTvConnectionStatusChangedL();
+        }
     }
 
 

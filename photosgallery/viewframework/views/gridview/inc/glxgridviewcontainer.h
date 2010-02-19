@@ -59,7 +59,7 @@ public:
 	 * @since 3.0
 	 * @return Pointer to newly created object.
 	 */
-	static CGlxGridViewContainer *NewL(MGlxMediaList *aMediaList,CGlxUiUtility* aUiUtility,MGlxGridEventObserver& aObserver );
+	static CGlxGridViewContainer *NewL(MGlxMediaList *aMediaList,CGlxUiUtility* aUiUtility,MGlxGridEventObserver& aObserver,CAknToolbar* aToolbar );
 
 	/**
 	 * Two-phased constructor.
@@ -67,7 +67,7 @@ public:
 	 * @since 3.0
 	 * @return Pointer to newly created object.
 	 */
-	static CGlxGridViewContainer *NewLC(MGlxMediaList *aMediaList,CGlxUiUtility* aUiUtility,MGlxGridEventObserver& aObserver);
+	static CGlxGridViewContainer *NewLC(MGlxMediaList *aMediaList,CGlxUiUtility* aUiUtility,MGlxGridEventObserver& aObserver,CAknToolbar* aToolbar);
 
 	//destructor
 	~CGlxGridViewContainer();
@@ -97,7 +97,7 @@ private:
 	/**
 	 * C++ default constructor.
 	 */
-	CGlxGridViewContainer(MGlxMediaList *aMediaList,CGlxUiUtility* aUiUtility,MGlxGridEventObserver& aObserver);
+	CGlxGridViewContainer(MGlxMediaList *aMediaList,CGlxUiUtility* aUiUtility,MGlxGridEventObserver& aObserver,CAknToolbar* aToolbar);
 	/**
 	 * By default Symbian 2nd phase constructor is private.
 	 */
@@ -142,6 +142,11 @@ private:
 	 *         EFalse if relevant thumbnail not available 
 	 */ 
 	TBool HasRelevantThumbnail(TInt aIndex);
+	/**
+     * Calculate and return the client rect for HGgrid
+     * Required as the tool bar is dynamically created.
+     */
+	TRect GetHgGridRect();
 
 private:
 	//medialist
@@ -200,6 +205,8 @@ private:
 
 	//observer
 	MGlxGridEventObserver& 	iGlxGridViewObserver;
+	//toolbar - created dynamically.
+    CAknToolbar* iToolbar;
 	};
 
 #endif // CGLXGRIDVIEWCONTROL_H

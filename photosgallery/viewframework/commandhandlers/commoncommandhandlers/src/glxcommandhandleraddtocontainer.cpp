@@ -314,6 +314,11 @@ HBufC* CGlxCommandHandlerAddToContainer::CompletionTextL() const
         }
     }
 
+
+TBool CGlxCommandHandlerAddToContainer::OkToExit() const
+        {
+        return ETrue;
+        }
 // -----------------------------------------------------------------------------
 // CGlxCommandHandlerAddToContainer::DoHandleCommandCompleteL
 // -----------------------------------------------------------------------------

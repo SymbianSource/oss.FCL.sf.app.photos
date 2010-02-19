@@ -145,42 +145,42 @@ void CGlxMetadataContainer::ConstructL( const TRect& /*aRect*/ )
 CGlxMetadataContainer::~CGlxMetadataContainer()
 	{
 	TRACER("CGlxMetadataContainer::~CGlxMetadataContainer");
-	 if( iItemMediaList ) 
-    {
-    iItemMediaList->RemoveContext(iMainListAttributecontext);
-    iItemMediaList->RemoveMediaListObserver(this);
-    iItemMediaList->Close();
-    iItemMediaList = NULL;  
-    } 
+	if( iItemMediaList ) 
+		{
+		iItemMediaList->RemoveContext(iMainListAttributecontext);
+		iItemMediaList->RemoveMediaListObserver(this);
+		iItemMediaList->Close();
+		iItemMediaList = NULL;  
+		} 
     if ( iTagMediaList ) 
-    {
-    iTagMediaList->RemoveContext(iTagContext);
-    iTagMediaList->RemoveMediaListObserver(this); 
-    iTagMediaList->Close();
-    iTagMediaList = NULL;
-    }
+		{
+		iTagMediaList->RemoveContext(iTagContext);
+		iTagMediaList->RemoveMediaListObserver(this); 
+		iTagMediaList->Close();
+		iTagMediaList = NULL;
+		}
     if ( iAlbumMediaList ) 
-    {
-    iAlbumMediaList->RemoveContext(iAlbumContext);
-    iAlbumMediaList->RemoveMediaListObserver(this); 
-    iAlbumMediaList->Close();
-    iAlbumMediaList = NULL;
-    }
+		{
+		iAlbumMediaList->RemoveContext(iAlbumContext);
+		iAlbumMediaList->RemoveMediaListObserver(this); 
+		iAlbumMediaList->Close();
+		iAlbumMediaList = NULL;
+		}
     if( iTagContext )
-    {
+		{
         delete iTagContext;
         iTagContext = NULL;
-    }    
+		}    
     if( iAlbumContext )
-    {
+		{
         delete iAlbumContext;
         iAlbumContext = NULL;
-    }
+		}
     if( iMainListAttributecontext )
-       {
-       delete iMainListAttributecontext;
-       iMainListAttributecontext = NULL;
-       }       
+        {
+        delete iMainListAttributecontext;
+        iMainListAttributecontext = NULL;
+        }       
     if( IsVisible() )
 	    {
 	    MakeVisible(EFalse);
@@ -314,9 +314,9 @@ TBool CGlxMetadataContainer::IsLocationItem()
         const TGlxMedia& item = iItemMediaList->Item(0);
         TCoordinate coordinate;
         if(item.GetCoordinate(coordinate))
-                    {
-                    return EFalse;
-                    }
+			{
+			return EFalse;
+			}
         return ETrue;        
         }
     //return ETrue to dim the item
@@ -359,42 +359,56 @@ void CGlxMetadataContainer::HandleListboxChangesL()
             break;
             }
         case ETagsItem:
-        {
-        //Set the focus of the item	
-        iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);
-        //Launch add to container commandhandler via dialog observer.
-        iDialogObesrver.AddTagL();
-        break;         
-        }
+			{
+			//Set the focus of the item	
+			iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);
+			//Launch add to container commandhandler via dialog observer.
+			iDialogObesrver.AddTagL();
+			break;         
+			}
         case EAlbumsItem:
-        {
-        //Set the focus of the item	
-        iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);
-        //Launch add to container commandhandler via dialog observer.
-        iDialogObesrver.AddAlbumL();
-        break;          
-        }
+			{
+			//Set the focus of the item	
+			iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);
+			//Launch add to container commandhandler via dialog observer.
+			iDialogObesrver.AddAlbumL();
+			break;          
+			}
+		case ELocationItem:
+			{
+			// Get the Media Item
+			const TGlxMedia& media = iItemMediaList->Item(0);    
+			// Test to see if the Coordinate is Present
+			TCoordinate coordinate;
+			if( !media.GetCoordinate(coordinate) )
+				{
+				HBufC *noLocationBuf = StringLoader::LoadLC(R_GLX_METADATA_NOTE_INFO_NO_LOCATION);
+				GlxGeneralUiUtilities::ShowInfoNoteL(*noLocationBuf,ETrue);
+				CleanupStack::PopAndDestroy(noLocationBuf);
+				}
+			break;
+			}
         case EDurationItem:
-        {
-        //This is conditionis useful when the license item is selected for a image file
-        if(iVideo)
-            {
-            break;
-            }
-        }
+			{
+			//This is condition is useful when the license item is selected for a image file
+			if(iVideo)
+				{
+				break;
+				}
+			}
         case ElicenseItem:
-        {
-        //Create DRM utility
-        CGlxDRMUtility* drmUtility = CGlxDRMUtility::InstanceL();
-        CleanupClosePushL(*drmUtility);
-        drmUtility->ShowDRMDetailsPaneL(iItemMediaList->Item(0).Uri());
-        CleanupStack::PopAndDestroy(drmUtility);
-        }  
-        break;
+			{
+			//Create DRM utility
+			CGlxDRMUtility* drmUtility = CGlxDRMUtility::InstanceL();
+			CleanupClosePushL(*drmUtility);
+			drmUtility->ShowDRMDetailsPaneL(iItemMediaList->Item(0).Uri());
+			CleanupStack::PopAndDestroy(drmUtility);
+			}  
+			break;
         default:
-        {
-        break;    
-        }
+			{
+			break;    
+			}
         }
     }
 //-----------------------------------------------------------------------------
@@ -617,25 +631,25 @@ void CGlxMetadataContainer::RemoveLocationL()
                 CleanupStack::PushL( exifWriter );
                 if(err == KErrNone)
                     {
-                //Removes the specified IFD structure and all its tags from the Exif data
-                exifWriter->DeleteIfd  ( EIfdGps  );
+					//Removes the specified IFD structure and all its tags from the Exif data
+					exifWriter->DeleteIfd  ( EIfdGps  );
                 
-                HBufC8* modifiedExif = exifWriter->WriteDataL( imageData->Des() );  //Modified Image Data
-                CleanupStack::PushL( modifiedExif );
+					HBufC8* modifiedExif = exifWriter->WriteDataL( imageData->Des() );  //Modified Image Data
+					CleanupStack::PushL( modifiedExif );
                 
-                const TUint32 fileSize = modifiedExif->Des().Length();  //Size of Modified File
-                TInt oldSize;
-                rFile.Size( oldSize );
-                // set position to begin of file & write the Modified data (Without Location Information)
-                TInt pos = 0;
-                User::LeaveIfError( rFile.Seek( ESeekStart, pos ) );
-                User::LeaveIfError( rFile.Write( modifiedExif->Des(), fileSize ) );
+					const TUint32 fileSize = modifiedExif->Des().Length();  //Size of Modified File
+					TInt oldSize;
+					rFile.Size( oldSize );
+					// set position to begin of file & write the Modified data (Without Location Information)
+					TInt pos = 0;
+					User::LeaveIfError( rFile.Seek( ESeekStart, pos ) );
+					User::LeaveIfError( rFile.Write( modifiedExif->Des(), fileSize ) );
 
-                TTime lastModified;
-                lastModified.UniversalTime();   
-                User::LeaveIfError( rFile.SetModified( lastModified ) );    //Change the Modified Time
+					TTime lastModified;
+					lastModified.UniversalTime();   
+					User::LeaveIfError( rFile.SetModified( lastModified ) );    //Change the Modified Time
 
-                CleanupStack::PopAndDestroy( modifiedExif);
+					CleanupStack::PopAndDestroy( modifiedExif);
                     }
                 CleanupStack::PopAndDestroy( exifWriter);
                 CleanupStack::PopAndDestroy( imageData );
@@ -675,24 +689,24 @@ void CGlxMetadataContainer::EditItemL(TInt aIndex, TBool /*aCalledFromMenu*/)
 // ----------------------------------------------------------------------------
 //
 void CGlxMetadataContainer::SetAttributesL(TMPXAttribute attribute)
-{
+	{
     TRACER("CGlxMetadataContainer::SetAttributesL");    
     
     //create the tags and albums medialist once the item medialist is populated
     //Tags and albums medialist can be created only with media ID.
     if(!iTagMediaList)
-    {
-    CreateTagsMediaListL();
-    }		
+		{
+		CreateTagsMediaListL();
+		}		
     if(!iAlbumMediaList)
-    {
-    CreateAlbumsMediaListL();	
-    }
+		{
+		CreateAlbumsMediaListL();	
+		}
     if(!iSetVisible)
-    {
-    iSetVisible = ETrue;
-    SetDurationLIicenseItemVisibilityL();
-    }
+		{
+		iSetVisible = ETrue;
+		SetDurationLIicenseItemVisibilityL();
+		}
     TGlxMedia item = iItemMediaList->Item(0);
     //Create the string convertor instance 
     //String convertor class with provide the specific format for date,location and duration and size.
@@ -714,46 +728,46 @@ void CGlxMetadataContainer::SetAttributesL(TMPXAttribute attribute)
         }
     //get the settings item based on the attribute and set the text.
     if ( string )
-    {
-    iTextSetter.Copy(KGlxTextSetter);
-    iTextSetter.Append(*string);
-    if(attribute == KMPXMediaGeneralSize)
-    {
-    EditItemL(ESizeItem,EFalse);
-    }
-    else if(attribute == KMPXMediaGeneralDuration)
-    {
-    EditItemL(EDurationItem,EFalse);
-    }
-    else if(attribute == KMPXMediaGeneralTitle)
-    {
-    EditItemL(ENameItem,EFalse);
-    }
-    else if(attribute == KMPXMediaGeneralDate)
-    {  
-    EditItemL(EDateAndTimeItem,EFalse);
-    }
-    else if(attribute == KMPXMediaGeneralComment)
-    {
-    EditItemL(EDescriptionItem,EFalse);
-    }
-    else if(attribute == KGlxMediaGeneralLocation)
-    {
-    EditItemL(ELocationItem,EFalse);
-    }
-    else if(attribute == KGlxMediaGeneralDimensions)
-    {
-    EditItemL(EResolutionItem,EFalse);
-    }    
-    else
-    {
+		{
+		iTextSetter.Copy(KGlxTextSetter);
+		iTextSetter.Append(*string);
+		if(attribute == KMPXMediaGeneralSize)
+			{
+			EditItemL(ESizeItem,EFalse);
+			}
+		else if(attribute == KMPXMediaGeneralDuration)
+			{
+			EditItemL(EDurationItem,EFalse);
+			}
+		else if(attribute == KMPXMediaGeneralTitle)
+			{
+			EditItemL(ENameItem,EFalse);
+			}
+		else if(attribute == KMPXMediaGeneralDate)
+			{  
+			EditItemL(EDateAndTimeItem,EFalse);
+			}
+		else if(attribute == KMPXMediaGeneralComment)
+			{
+			EditItemL(EDescriptionItem,EFalse);
+			}
+		else if(attribute == KGlxMediaGeneralLocation)
+			{
+			EditItemL(ELocationItem,EFalse);
+			}
+		else if(attribute == KGlxMediaGeneralDimensions)
+			{
+			EditItemL(EResolutionItem,EFalse);
+			}    
+		else
+			{
     
-    } 
-    delete string;
-    string = NULL;
-    }
+			} 
+		delete string;
+		string = NULL;
+		}
     CleanupStack::PopAndDestroy(stringConverter );
-}
+	}
 
 // ----------------------------------------------------------------------------
 // CGlxMetadataContainer::SetNameDescriptionL
@@ -845,15 +859,15 @@ void CGlxMetadataContainer::UpdateTagsL()
      iTagSetter.Copy(KGlxTextSetter);
      //Loop to appened all the tags to the iTagSetter.
      for( TInt index = 0 ; index < iTagMediaList->Count() ; index++ )
-                 {
-                 if(iTagSetter.Length())
-                    {
-                     iTagSetter.Append(KGlxComma);
-                    }
-                 const TGlxMedia&  item = iTagMediaList->Item( index );
-                 const TDesC& title = item.Title();
-                 iTagSetter.Append(title);
-                 }    
+		{
+		if(iTagSetter.Length())
+			{
+			iTagSetter.Append(KGlxComma);
+			}
+		const TGlxMedia&  item = iTagMediaList->Item( index );
+		const TDesC& title = item.Title();
+		iTagSetter.Append(title);
+		}    
      EditItemL(ETagsItem,EFalse);
      }
 // ----------------------------------------------------------------------------
@@ -863,22 +877,22 @@ void CGlxMetadataContainer::UpdateTagsL()
 void CGlxMetadataContainer::UpdateAlbumsL()
     {
     //Get the tag setting item handle to set the text
-     CAknSettingItem* settingsitem = 
-                         (*SettingItemArray())[EAlbumsItem];     
-     //Set the tag setter to empty string before filling in the data.
-     iAlbumSetter.Copy(KGlxTextSetter);
-     //Loop to appened all the tags to the iAlbumSetter.
-     for( TInt index = 0 ; index < iAlbumMediaList->Count() ; index++ )
-     {
-         if(iAlbumSetter.Length())
-         {
-         iAlbumSetter.Append(KGlxComma);
-         }
-         const TGlxMedia&  item = iAlbumMediaList->Item( index );
-         const TDesC& title = item.Title();
-         iAlbumSetter.Append(title);
-     }
-     EditItemL(EAlbumsItem,EFalse);
+    CAknSettingItem* settingsitem = 
+                        (*SettingItemArray())[EAlbumsItem];     
+    //Set the tag setter to empty string before filling in the data.
+    iAlbumSetter.Copy(KGlxTextSetter);
+    //Loop to appened all the tags to the iAlbumSetter.
+    for( TInt index = 0 ; index < iAlbumMediaList->Count() ; index++ )
+		{
+        if(iAlbumSetter.Length())
+			{
+			iAlbumSetter.Append(KGlxComma);
+			}
+		const TGlxMedia&  item = iAlbumMediaList->Item( index );
+		const TDesC& title = item.Title();
+		iAlbumSetter.Append(title);
+		}
+	EditItemL(EAlbumsItem,EFalse);
     }
 // ----------------------------------------------------------------------------
 // CGlxMetadataContainer::SetDurationLIicenseItemVisibilityL()
@@ -907,14 +921,14 @@ void CGlxMetadataContainer::SetDurationLIicenseItemVisibilityL()
         }    
      if( media && media->IsSupported(KMPXMediaDrmProtected))
         {
-         if(item.IsDrmProtected())
-             {
-             hiddenItem = (*SettingItemArray())[ElicenseItem];
-             //Set the License item visible
-             hiddenItem->SetHidden(EFalse);             
-             //Required to refresh the listbox when any items visiblity is changed
-             this->HandleChangeInItemArrayOrVisibilityL();
-             }
+		if(item.IsDrmProtected())
+			{
+			hiddenItem = (*SettingItemArray())[ElicenseItem];
+			//Set the License item visible
+			hiddenItem->SetHidden(EFalse);             
+			//Required to refresh the listbox when any items visiblity is changed
+			this->HandleChangeInItemArrayOrVisibilityL();
+			}
         }
     }   
 //Medialist callbacks.    
@@ -929,12 +943,12 @@ void CGlxMetadataContainer::HandleAttributesAvailableL( TInt /*aItemIndex*/,
     //generic medialist for the item for all the attributes required other than tags and albums.
     if(aList == iItemMediaList)
         {
-         // Loop untill it checks for all the avialable attributes
-         for (TInt i = aAttributes.Count() - 1; i >= 0 ; i--)
-             {
-             //set attributes to the items in the container
-             SetAttributesL(aAttributes[i]);                   
-             }
+		// Loop untill it checks for all the avialable attributes
+		for (TInt i = aAttributes.Count() - 1; i >= 0 ; i--)
+			{
+			//set attributes to the items in the container
+			SetAttributesL(aAttributes[i]);                   
+			}
         }
     //updation of tags and albums list based on the medialist callback.
     if(aList == iTagMediaList ||  aList == iAlbumMediaList)
@@ -947,13 +961,13 @@ void CGlxMetadataContainer::HandleAttributesAvailableL( TInt /*aItemIndex*/,
                 if( titleAtrribute == aAttributes[i] )
                     {
                     if(aList == iTagMediaList)
-                            {     
-                            UpdateTagsL();
-                            }
-                        else if(aList == iAlbumMediaList)
-                            {
-                            UpdateAlbumsL();
-                            }          
+						{     
+						UpdateTagsL();
+						}
+					else if(aList == iAlbumMediaList)
+						{
+						UpdateAlbumsL();
+						}          
                     }           
                 }
           
@@ -972,88 +986,88 @@ void CGlxMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndI
     TRACER("CGlxMetadataContainer::HandleItemAddedL()");
     
     if(!iTagMediaList)
-    {
+		{
         CreateTagsMediaListL();
-    }       
+		}       
     if(!iAlbumMediaList)
-    {
+		{
         CreateAlbumsMediaListL();   
-    }
+		}
     if(!iMarquee)
-    {
+		{
         EnableMarqueingL();
-    }
+		}
     SetDurationLIicenseItemVisibilityL();
     if(aList == iTagMediaList)
-           {     
-           UpdateTagsL();
-           }
-       else if(aList == iAlbumMediaList)
-           {
-           UpdateAlbumsL();
-           }
+		{     
+		UpdateTagsL();
+		}
+	else if(aList == iAlbumMediaList)
+		{
+		UpdateAlbumsL();
+		}
     if(aList == iItemMediaList)
         {
         if(iItemMediaList->Count())
-           {
-           TGlxMedia item = iItemMediaList->Item(0);
-           CGlxUStringConverter* stringConverter = CGlxUStringConverter::NewL();
-           CleanupStack::PushL(stringConverter );
-           for(TInt index = 0; index <= 9; index++)
-               {
-                  HBufC* string = NULL;               
+			{
+			TGlxMedia item = iItemMediaList->Item(0);
+			CGlxUStringConverter* stringConverter = CGlxUStringConverter::NewL();
+			CleanupStack::PushL(stringConverter );
+			for(TInt index = 0; index <= 9; index++)
+				{
+				HBufC* string = NULL;               
   
-                  if(index == ESizeItem)
-                  {
-                  stringConverter->AsStringL(item,
-                                             KMPXMediaGeneralSize,0, string );              
-                  }
-                  else if(index == EDurationItem)
-                  {
-                  stringConverter->AsStringL(item, 
-                                             KMPXMediaGeneralDuration,0, string );
-                  }
-                  else if(index == ENameItem)
-                  {
-                  stringConverter->AsStringL(item,
-                                             KMPXMediaGeneralTitle,0, string );
-                  }
-                  else if(index == EDateAndTimeItem)
-                  {  
-                  stringConverter->AsStringL( item, 
-                                              KMPXMediaGeneralDate,
-                                              R_QTN_DATE_USUAL_WITH_ZERO,string );
-                  }
-                  else if(index == EDescriptionItem)
-                  {
-                  stringConverter->AsStringL(item,
-                                             KMPXMediaGeneralComment,0, string ); 
-                  }
-                  else if(index == ELocationItem)
-                  {
-                  stringConverter->AsStringL(item,
-                                             KGlxMediaGeneralLocation,0, string );
-                  }
-                  else if(index == EResolutionItem)
-                  {
-                  stringConverter->AsStringL(item,
-                                             KGlxMediaGeneralDimensions,0, string );
-                  }    
-                  else
-                  {
-                  //no implementation
-                  } 
-                  if(string)
-                      {
-                      iTextSetter.Copy(KGlxTextSetter);
-                      iTextSetter.Append(*string);
-                     }
-                  EditItemL(index,EFalse);                 
-                  delete string;
-                  string = NULL;
-               }
-           CleanupStack::PopAndDestroy(stringConverter );
-           }   
+				if(index == ESizeItem)
+					{
+					stringConverter->AsStringL(item,
+							KMPXMediaGeneralSize,0, string );              
+					}
+				else if(index == EDurationItem)
+					{
+					stringConverter->AsStringL(item, 
+							KMPXMediaGeneralDuration,0, string );
+					}
+				else if(index == ENameItem)
+					{
+					stringConverter->AsStringL(item,
+							KMPXMediaGeneralTitle,0, string );
+					}
+				else if(index == EDateAndTimeItem)
+					{  
+					stringConverter->AsStringL( item, 
+							KMPXMediaGeneralDate,
+							R_QTN_DATE_USUAL_WITH_ZERO,string );
+					}
+				else if(index == EDescriptionItem)
+					{
+					stringConverter->AsStringL(item,
+							KMPXMediaGeneralComment,0, string ); 
+					}
+				else if(index == ELocationItem)
+					{
+					stringConverter->AsStringL(item,
+							KGlxMediaGeneralLocation,0, string );
+					}
+				else if(index == EResolutionItem)
+					{
+					stringConverter->AsStringL(item,
+							KGlxMediaGeneralDimensions,0, string );
+					}    
+				else
+					{
+					//no implementation
+					} 
+				if(string)
+					{
+					iTextSetter.Copy(KGlxTextSetter);
+					iTextSetter.Append(*string);
+					}
+				EditItemL(index,EFalse);                 
+				delete string;
+				string = NULL;
+				}
+			CleanupStack::PopAndDestroy(stringConverter );
+			}   
         }
     }
 // ----------------------------------------------------------------------------
@@ -1068,6 +1082,18 @@ void CGlxMetadataContainer::EnableMarqueingL()
     ListBox()->ItemDrawer()->ColumnData()->SetMarqueeParams (KMarqueeLoopCount,
             KMarqueeScrollAmount, KMarqueeScrollDelay, KMarqueeScrollInterval);
     ListBox()->ItemDrawer()->ColumnData()->EnableMarqueeL(ETrue);
+
+	//Fetch the current item index
+    TInt index = ListBox()->CurrentItemIndex();
+
+	//Reset the disable marquee flag, so that marquee effect can continue (this is normally reset by 
+	//base class of glxmetaDatadialog::HandlePointerEventL()
+    ListBox()->ItemDrawer()->ClearFlags(CListItemDrawer::EDisableMarquee);
+	
+	//This is the function which actually starts marquee effect. It is anyway being called from base
+	//implementation of OfferKeyEventL(), but for pointer event, we have to call
+	//this function
+    ListBox()->DrawItem(index);
     }    
 // ----------------------------------------------------------------------------
 // HandleCommandCompleteL
@@ -1110,17 +1136,17 @@ void CGlxMetadataContainer::HandleCommandCompleteL(TAny* aSessionId,
     //To update the location information once the delete operation is successful.
     if(aList == iItemMediaList && iLocationinfo 
             && static_cast<TAny*>( this ) == aSessionId)
-      {
-      TGlxMedia media = iItemMediaList->Item(0) ;
-      media.DeleteLocationAttribute();
-      iLocationinfo = EFalse;      
-            if ( aError == KErrNone )
-                {
-                 iTextSetter.Copy(KGlxTextSetter);
-                 EditItemL(ELocationItem,EFalse);
-                }
-       }
-     }
+		{
+		TGlxMedia media = iItemMediaList->Item(0) ;
+		media.DeleteLocationAttribute();
+		iLocationinfo = EFalse;      
+		if ( aError == KErrNone )
+			{
+			iTextSetter.Copy(KGlxTextSetter);
+			EditItemL(ELocationItem,EFalse);
+			}
+		}
+	}
           
 // ----------------------------------------------------------------------------
 // HandleItemRemoved
@@ -1154,7 +1180,7 @@ void CGlxMetadataContainer::HandleItemSelectedL(TInt /*aIndex*/,
 // HandleMessageL
 // ----------------------------------------------------------------------------
 //    
- void CGlxMetadataContainer::HandleMessageL( const CMPXMessage& /*aMessage*/, 
+void CGlxMetadataContainer::HandleMessageL( const CMPXMessage& /*aMessage*/, 
     MGlxMediaList* /*aList*/ )
     {
     TRACER("CGlxMetadataContainer::HandleMessageL()");
@@ -1243,9 +1269,9 @@ void CGlxMetadataContainer::ChangeMskL()
         }
         
 	if ( uiUtility )
-	        {
-	        uiUtility->Close();
-	        }	
+		{
+		uiUtility->Close();
+		}	
 	}
 	
 // ---------------------------------------------------------------------------
@@ -1279,10 +1305,10 @@ void CGlxMetadataContainer::RefreshMediaListL()
 	    iItemMediaList->Close();
 	    iItemMediaList = NULL;
 	    if( iMainListAttributecontext )
-	       {
-	       delete iMainListAttributecontext;
-	       iMainListAttributecontext = NULL;
-	       }
+			{
+			delete iMainListAttributecontext;
+			iMainListAttributecontext = NULL;
+			}
 	    CreateMediaListForSelectedItemL(ETrue);
 	    }
 	}

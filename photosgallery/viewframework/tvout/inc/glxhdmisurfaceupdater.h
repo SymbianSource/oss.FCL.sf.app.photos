@@ -72,6 +72,17 @@ public:
      * Zoom in our out depending on parameter 
      */
     void Zoom(TBool aZoom);
+	
+	/*
+	ShiftToCloningMOde
+	*/
+	void ShiftToCloningMode();
+	
+	/*
+	ShiftToPostingMode
+	*/
+	void ShiftToPostingMode();
+
 private:
     /*
      * Ctor 
@@ -161,6 +172,7 @@ private:
     TPoint iLeftCornerForZoom;
     CPeriodic* iTimer;
     TBool iZoom;
+	TBool iBitmapReady;
 #ifdef _DEBUG
     TTime iStartTime;
     TTime iStopTime;

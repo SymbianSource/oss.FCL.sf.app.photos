@@ -16,8 +16,6 @@
 */
 
 
-
-
 #ifndef SHWGESTURECONTROL_H
 #define SHWGESTURECONTROL_H
 
@@ -60,8 +58,7 @@ public:
 	 * @param aEnv, handle to CAlfEnv 
 	 * @param aDisplay, handle to CAlfDisplay
 	 */ 
-	 static CShwGestureControl* NewL(CAlfEnv& aEnv,CAlfDisplay& aDisplay,
-	 							MShwGestureObserver& aObserver); 
+	 static CShwGestureControl* NewL(CAlfEnv& aEnv,CAlfDisplay& aDisplay); 
          
 	/**
 	 * HandleGestureL
@@ -71,10 +68,24 @@ public:
     void HandleGestureL( const GestureHelper::MGestureEvent& aEvent );
     
 	/**
-	 * ~~CShwGestureControl
+	 * ~CShwGestureControl
 	 * standard C++ destructor 
 	 */ 
     ~CShwGestureControl();
+    
+    /**
+     * AddObserver
+     * Add an Observer 
+     * @param aObserver, Observer to be added. 
+     */ 
+    void AddObserver(MShwGestureObserver* aObserver); 
+
+    /**
+     * RemoveObserver
+     * Remove an Observer  
+     * @param aEngine, handle to the slide show engine
+     */ 
+    void RemoveObserver(MShwGestureObserver* aObserver);
     
 private:
 
@@ -82,7 +93,7 @@ private:
 	 * CShwGestureControl
 	 * C++ constructor
 	 */
-	CShwGestureControl(MShwGestureObserver& aObserver);
+	CShwGestureControl();
 	
 	/**
 	 * ConstructL
@@ -92,8 +103,10 @@ private:
 	
 private:
 
-	/* does not own **/
-	MShwGestureObserver& iObserver;
+    /** Array of observers (does not own ) */
+	// As per present design of the SS view, there is need only for one observer, 
+	// but this is more generic. Also this doesnt seem like a perfomance critical path 
+    RPointerArray<MShwGestureObserver> iObservers;
 	};
 
 

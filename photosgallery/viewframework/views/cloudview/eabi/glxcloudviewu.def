@@ -22,4 +22,6 @@ EXPORTS
 	_ZTV14CGlxInfoBubble @ 21 NONAME ; #<VT>#
 	_ZTV20CGlxCloudViewControl @ 22 NONAME ; #<VT>#
 	_ZTV23CGlxContainerInfoBubble @ 23 NONAME ; #<VT>#
+	_ZTI26CGlxTagsContextMenuControl @ 24 NONAME
+	_ZTV26CGlxTagsContextMenuControl @ 25 NONAME
 

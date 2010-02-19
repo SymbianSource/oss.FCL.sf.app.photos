@@ -291,7 +291,7 @@ void CGlxDataSourceMde::ConstructL()
 
 #ifdef USE_S60_TNM
     iTnEngine = CThumbnailManager::NewL( *this);
-    iTnEngine->SetDisplayModeL( EColor64K );
+    iTnEngine->SetDisplayModeL( EColor16MU );
 
     iTnRequestInProgress = EFalse;
 #else
@@ -1121,7 +1121,7 @@ void CGlxDataSourceMde::ThumbnailPreviewReady(MThumbnailData& aThumbnail,
     TRACER("CGlxDataSourceMde::ThumbnailPreviewReady()");
     
     TInt error = KErrNotSupported;
-    if (aThumbnail.Bitmap() != NULL)
+    if ( aThumbnail.Bitmap() )
          {
          GLX_DEBUG1("CGlxDataSourceMde::ThumbnailPreviewReady preview aval");
          error = KErrNone;

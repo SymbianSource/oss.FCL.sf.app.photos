@@ -50,7 +50,7 @@ public:
      * @param3 - frame count
      */
     IMPORT_C void SetImageL(const TDesC& aImageFile,TSize aImageDimensions, 
-            TInt aFrameCount, TBool aStore = ETrue);
+            TInt aFrameCount = 1, TBool aStore = ETrue);
 
     /*
      * To Determine it is a video and not image 
@@ -65,6 +65,17 @@ public:
      * Deactivating zoom in posting mode 
      */
     IMPORT_C void DeactivateZoom();
+    
+    /*
+     * ShiftToCloningMode
+     */
+    IMPORT_C void ShiftToCloningMode();
+    
+    /*
+     * ShiftToPostingMode
+     */
+    IMPORT_C void ShiftToPostingMode();
+
 private:// From MGlxTvObserver
     virtual void HandleTvStatusChangedL ( TTvChangeType aChangeType );
 
@@ -118,8 +129,6 @@ private:
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;
-    TBool iIsHDMIconnected;
-    TBool iIsHDMIdisConnected;
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

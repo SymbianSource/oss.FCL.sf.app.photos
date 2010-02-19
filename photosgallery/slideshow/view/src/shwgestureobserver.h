@@ -31,7 +31,9 @@ public:
 	
 	enum TShwGestureEventType
 		{
-		ETapEvent = 1,
+        ENoEvent = 0, 	// This should not be Propogated to observers. 
+						// Reserved for those events we will not handle now. 
+        ETapEvent,
 		ESwipeLeft,
 		ESwipeRight,
 		EHoldEvent

@@ -38,6 +38,7 @@ SOURCE 			glxcontainerinfobubble.cpp
 SOURCE			glxcloudviewcontrol.cpp
 SOURCE			glxinfobubble.cpp
 SOURCE			glxbubbletimer.cpp
+SOURCE 			glxtagscontextmenucontrol.cpp
 
 APP_LAYER_SYSTEMINCLUDE
 
@@ -50,6 +51,7 @@ SYSTEMINCLUDE     ../../../medialists/inc
 SYSTEMINCLUDE     ../../../../inc
 SYSTEMINCLUDE	    ../../../../common/inc      
 SYSTEMINCLUDE     ../../../../commonui/inc
+SYSTEMINCLUDE      ../../../commandhandlers/inc
 
 USERINCLUDE       ../inc
 
@@ -77,6 +79,9 @@ LIBRARY         glxcommon.lib                   // for CResourceUtilities
 LIBRARY         cdlengine.lib
 LIBRARY      	aknlayout2scalable.lib
 LIBRARY      	aknphysics.lib
-
+LIBRARY         fbscli.lib 
+LIBRARY			gdi.lib 
+LIBRARY		    charconv.lib         // For UtfConverter
+LIBRARY         commonengine.lib
 
 // End of File

@@ -60,7 +60,6 @@ void CGlxHdmiDecoderAO::RunL()
     {
     TRACER("CGlxHdmiDecoderAO::RunL()");
     iHdmiSurfaceUpdater->HandleRunL();
-    CActiveScheduler::Stop();    
     }
 
 // -----------------------------------------------------------------------------
@@ -82,7 +81,6 @@ void CGlxHdmiDecoderAO::ConvertImageL(CFbsBitmap& aBitmap, TInt aFrameNum,
     iDecoder = aDecoder;
     iDecoder->Convert(&iStatus,aBitmap, aFrameNum); 
     SetActive();
-    CActiveScheduler::Start();
     }
     
 

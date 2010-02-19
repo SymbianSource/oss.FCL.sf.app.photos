@@ -114,7 +114,6 @@ void CGlxZoomControl::ConstructL()
     // Hide the Zoom at the construction
     ShowZoom(EFalse);
     iZoomActive = EFalse;
-	iIsHDMIconnected = EFalse;
 	
     //To know if HDMi cable is connected.
     iGlxTvOut = CGlxTv::NewL(*this);
@@ -274,7 +273,7 @@ CGlxZoomControl::~CGlxZoomControl()
 // -----------------------------------------------------------------------------
 //
 EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode aStartMode, 
-        TInt aFocusIndex, TGlxMedia& aItem, TPoint* aZoomFocus)
+        TInt aFocusIndex, TGlxMedia& aItem, TPoint* aZoomFocus,TBool aViewingMode)
     {
     TRACER("CGlxZoomControl::ActivateL()");
 
@@ -293,9 +292,8 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
         iImageVisual->SetImage(*iImageTexture);
         
         
-        if(iGlxTvOut->IsHDMIConnected())
+        if(iGlxTvOut->IsHDMIConnected()&& !aViewingMode )
             {
-            iIsHDMIconnected = ETrue;
             StartZoomAnimation();
             }
         else
@@ -416,8 +414,7 @@ void CGlxZoomControl::ActivateFullscreen()
 EXPORT_C void CGlxZoomControl::Deactivate()
     {
     TRACER("CGlxZoomControl::Deactivate()");
-    iIsHDMIconnected = EFalse;
-
+    
     if ( iZoomActive )
         {
          if(iTimer->IsActive())
@@ -891,12 +888,15 @@ TInt CGlxZoomControl::GetInitialZoomLevel(TSize& aSize )
 void CGlxZoomControl::HandleTvStatusChangedL( TTvChangeType aChangeType )
     {
     TRACER("CGlxZoomControl::HandleTvStatusChangedL()");
-    if ( aChangeType == ETvConnectionChanged && !iIsHDMIconnected && iZoomActive)          
+    if ( aChangeType == ETvConnectionChanged )          
         {
-        if ( iGlxTvOut->IsHDMIConnected() )
+        if ( iGlxTvOut->IsHDMIConnected() && iZoomActive)
             {
-            //go to fullscreen.
-            HandleZoomOutL(KGlxZoomOutCommand);
+            //initialise all the zoom values to full-screen when hdmi is connected.
+            if(iEventHandler)
+                {
+                iEventHandler->ZoomToMinimumL();
+                }
             }
         }
     }

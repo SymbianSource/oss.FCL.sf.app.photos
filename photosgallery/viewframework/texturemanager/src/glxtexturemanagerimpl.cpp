@@ -372,7 +372,7 @@ CAlfTexture& CGlxTextureManagerImpl::CreateFlatColourTextureL( TRgb aColour )
 	CFbsBitmap* picture = new (ELeave) CFbsBitmap;
 	CleanupStack::PushL(picture);
 	User::LeaveIfError(picture->Create(TSize(KGlxFlatTextureSize,
-	                                        KGlxFlatTextureSize), EColor64K ) );
+	                                        KGlxFlatTextureSize), EColor16MU ) );
 
 	CFbsBitmapDevice* drawBufDevice = CFbsBitmapDevice::NewL(picture);
 	CleanupStack::PushL(drawBufDevice);
@@ -1005,7 +1005,7 @@ TMPXAttribute CGlxTextureManagerImpl::SelectAttributeL( TSize& aSize,
     {
     TRACER("CGlxTextureManagerImpl::SelectAttributeL");
     const CGlxMedia& media = *aMedia.Properties();
-    if ( aMedia.Properties() ==  NULL || media.Count() == 0 )
+    if ( !aMedia.Properties() || media.Count() == 0 )
         {
         GLX_LOG_INFO("SelectAttributeL - NULL CGlxMedia / No Attribs"); 
         User::Leave( KErrArgument );
@@ -1103,7 +1103,7 @@ void CGlxTextureManagerImpl::HandleBitmapDecodedL(TInt aThumbnailIndex,CFbsBitma
     TInt textureToBeUnloaded = -1;
 
     //check if the image is decoded
-    if(aBitmap != NULL)
+    if ( aBitmap )
         {
         iZoomedList[aThumbnailIndex].iBitmap = aBitmap;
 

@@ -38,4 +38,6 @@ EXPORTS
 	?DoPrepareCommandHandlerL@CGlxMediaListViewBase@@MAEXPAVCGlxCommandHandler@@@Z @ 37 NONAME ; void CGlxMediaListViewBase::DoPrepareCommandHandlerL(class CGlxCommandHandler *)
 	?FetchAttributesForCommandL@CGlxMediaListViewBase@@EAEXH@Z @ 38 NONAME ; void CGlxMediaListViewBase::FetchAttributesForCommandL(int)
 	?SetToolbarStateL@CGlxViewBase@@MAEXXZ @ 39 NONAME ; void CGlxViewBase::SetToolbarStateL(void)
+	?GetToolBar@CGlxViewBase@@QAEPAVCAknToolbar@@XZ @ 40 NONAME ; class CAknToolbar * CGlxViewBase::GetToolBar(void)
+	?SetGridToolBar@CGlxViewBase@@QAEXPAVCAknToolbar@@@Z @ 41 NONAME ; void CGlxViewBase::SetGridToolBar(class CAknToolbar *)
 

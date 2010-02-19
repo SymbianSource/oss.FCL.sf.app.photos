@@ -138,8 +138,12 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::DoExecuteL(TInt aCommandId,
             aList.CommandL(*command);
             
             // raise progress note. Note will be closed when complete message received
-            ProgressNoteL(aCommandId);
-            
+			// For EGlxCmdAddMedia we dont need to show dialog as EGlxCmdAddToAlbum or
+			// EGlxCmdAddTag will show processing dialog.
+            if (aCommandId != EGlxCmdAddMedia)
+                {
+                ProgressNoteL(aCommandId);
+                }
             CleanupStack::PopAndDestroy(command);
             }
         }
@@ -497,6 +501,7 @@ void CGlxMpxCommandCommandHandler::DismissProgressNoteL()
     // Close the progress note, if displayed
     if (iProgressDialog) 
         {
+        iProgressDialog->MakeVisible(EFalse);
     	iProgressDialog->ProcessFinishedL();
     	iProgressDialog = NULL;
     	iProgressInfo = NULL;

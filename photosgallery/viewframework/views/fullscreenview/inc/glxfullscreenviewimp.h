@@ -45,6 +45,7 @@ class CGlxCommandHandlerAiwShowMapHardKey;
 class CGlxDRMUtility;
 class CGlxHdmiController;
 class CGestureHelper;
+class TGlxMedia;
 //class CHgContextUtility;
 
 namespace Alf
@@ -257,7 +258,11 @@ private:
      * Remove the fullscreen texture.
      */
     void RemoveTexture();
-
+  	/**
+     * Consume DRM rights
+     */  
+    void ConsumeDRMRightsL( const TDesC& uri );
+    
 private:
     /** Softkey resource id's */
     TFullScreenViewResourceIds iResourceIds; 
@@ -309,7 +314,7 @@ private:
     TInt iInitialZoomRatio ;
     //Previous focused index
     TInt iOldFocusIndex;
-
+    TBool iImgViewerMode;
     };
 
 #endif

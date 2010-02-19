@@ -113,17 +113,40 @@ public:
     */
     void HandleDragEvent(const GestureHelper::MGestureEvent& aEvent );
     
+    /**
+    * Handle the Pinch events for panning
+    */
     void HandlePinchEventL(const GestureHelper::MGestureEvent& aEvent);
     
+    /**
+    * Handle the Double Tap events for panning
+    */
     void HandleDoubleTap(const GestureHelper::MGestureEvent& aEvent );
     
+    /**
+    * Handle the Single Tap events for panning
+    */
     void HandleSingleTap(const GestureHelper::MGestureEvent& aEvent );
     
+    /**
+    * Handle the Gesture Released events for panning
+    */
     void HandleGestureReleased(const GestureHelper::MGestureEvent& aEvent );
     
+    /**
+    * Remembers the previous events code. 
+    */
     void SetPreviousEventCode(const GestureHelper::TGestureCode code );
     
+    /**
+    * Handle a multitouch gesture released event.
+    */
     void HandleMultiTouchReleased();
+    
+    /**
+    * Bring back zoom state to minimum. 
+    */
+    void ZoomToMinimumL();
     
 private:
     /*
@@ -142,19 +165,9 @@ private:
     TBool HandlekeyEvents(const TAlfEvent &aEvent);
     
     /**
-    * Callback function for zoom 
-    */     
-    static TInt ZoomIntervalExpired(TAny* aPtr);
-    
-    /**
     * Callback function for pan
     */ 
     static TInt PanIntervalExpired(TAny* aPtr);
-    
-    /**
-    * Start zoom in/out continously
-    */     
-    void DoZoom();
     
     // Zoom by the next zoom increment.
     // aZoomMode is ignored if aExpectedZoomLevel has a positive value
@@ -163,11 +176,6 @@ private:
     * Start Panning continously
     */     
     void DoPan();
-    
-    /**
-    * Starts the timer for continous zooming
-    */     
-    void StartZoomTimer();
     
     /**
     * Starts the timer for continous Panning
@@ -191,13 +199,6 @@ private:
      * Timer callback for zoomout 
      */
     static TInt ZoomOutTimerL(TAny* aSelf);
-    
-    /**
-    * Handle zoom key pressed or released.
-    * @param aZoomIn    :ETrue for Zoom In key, EFalse for Zoom Out key
-    * @param aEventCode :Type of key event.
-    */
-    void HandleZoomKey(TZoomMode aZoomMode, const TEventCode aEventCode);
     
     /**
     * Handle the key events for panning
@@ -270,7 +271,7 @@ private:
     TPoint              iStartDisplayPoint;             // The variable holds the starting pointer posistion to determine the Drag Distance
     TTime               iDoubleTap;                     // This Variable is used to determine the double tap,by using the difference of the time 
                                                         // between subsequent single Tap.
-    // [todo] do we need this variable to be at a class level
+    TInt                iInitialZoomRatio;
     TInt                iZoomRatio;
     TRect               iDoubleTapRect;                 // This varaible holds the rect for the Double Tap
     TBool               iDragOngoing;                   // Is a drag event ongoing

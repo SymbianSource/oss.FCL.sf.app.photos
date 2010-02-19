@@ -236,24 +236,6 @@ void CGlxZoomPanEventHandler::NextStepAnimatedZoom()
         }
     }
 
-
-//----------------------------------------------------------------------------------
-// StartZoomTimer:Starts the Zoom timer for continous zoom
-//----------------------------------------------------------------------------------
-//
-void CGlxZoomPanEventHandler::StartZoomTimer()
-    {
-    TRACER("CGlxZoomPanEventHandler::StartZoomTimer");
-
-    if (iZoomPanTimer->IsActive())
-        {
-        iZoomPanTimer->Cancel();
-        }
-    iZoomPanTimer->Start( KTimerLengthInMicroseconds,  
-            KTimerLengthInMicroseconds, 
-            TCallBack( ZoomIntervalExpired,(TAny*)this) );
-    }
-
 //----------------------------------------------------------------------------------
 // StartPanTimer:Starts the Pan timer for continous Panning
 //----------------------------------------------------------------------------------
@@ -405,57 +387,13 @@ TBool CGlxZoomPanEventHandler::HandlekeyEvents(const TAlfEvent &aEvent)
                 HandleZoomStripeAction(EZoomOut,aEvent.Code());
                 consumed = ETrue;
                 break ;
-                }
-            case EStdKeyIncVolume :
-            case EKeyZoomIn :
-            case EStdKeyNkpAsterisk :
-                {
-                GLX_LOG_INFO1("CGlxZoomControl::HandlekeyEvents VLUP=%d", aEvent.KeyEvent().iScanCode );
-                if (iZoomActivated)
-                    {
-                    HandleZoomKey(EZoomIn, aEvent.Code());
-                    }
-                consumed = ETrue;
-                break;
-                }
-            case EStdKeyDecVolume :
-            case EKeyZoomOut :
-            case EStdKeyHash :
-                {
-                GLX_LOG_INFO1("CGlxZoomControl::HandlekeyEvents VLUP_D=%d", aEvent.KeyEvent().iScanCode );    
-                HandleZoomKey(EZoomOut, aEvent.Code());
-                consumed = ETrue;
-                break;
-                }    
+                }                
             default:
                 break;
             }
         }
 
     return consumed;
-    }
-
-// -----------------------------------------------------------------------------
-// HandleZoomKey:Starts the Timer for contionous zoom
-// -----------------------------------------------------------------------------
-//
-void CGlxZoomPanEventHandler::HandleZoomKey(TZoomMode aZoomMode ,const TEventCode aEventCode )
-    {
-    TRACER("CGlxZoomControl::HandleZoomKey ");
-    
-    if ( EEventKeyDown == aEventCode )
-        {
-        CancelUITimer();
-        iZoomEventHandler.HandleShowUi(ETrue);
-        iZoomMode = aZoomMode ;
-        StartZoomTimer();
-        }
-    else if ( EEventKeyUp == aEventCode )
-        {
-        CancelZoomPanTimer();
-        StartUITimer(KGlxScreenTimeout,KGlxScreenTimeout,TCallBack( 
-                UiTimeOut,this )) ;
-        }
     }
 
 // -----------------------------------------------------------------------------
@@ -847,18 +785,6 @@ void CGlxZoomPanEventHandler::CallZoomOutL()
     }
 
 //----------------------------------------------------------------------------------
-// ZoomTimerCallback:Callback function for the Zoom timer
-//----------------------------------------------------------------------------------
-//
-TInt CGlxZoomPanEventHandler::ZoomIntervalExpired(TAny* aPtr)
-    {
-    TRACER("CGlxZoomControl::ZoomIntervalExpired ");
-    CGlxZoomPanEventHandler* self = static_cast<CGlxZoomPanEventHandler*>(aPtr);
-    self->DoZoom();
-    return 0; // Timer has finished
-    }
-
-//----------------------------------------------------------------------------------
 // PanIntervalExpired:Callback function for the pan timer
 //----------------------------------------------------------------------------------
 //
@@ -869,16 +795,6 @@ TInt CGlxZoomPanEventHandler::PanIntervalExpired(TAny* aPtr)
     CGlxZoomPanEventHandler* self = static_cast<CGlxZoomPanEventHandler*>(aPtr);
     self->DoPan();
     return 0; // Timer has finished
-    }
-
-//----------------------------------------------------------------------------------
-// DoZoom:calls zooming function and updates the slider value 
-//----------------------------------------------------------------------------------
-//    
-void CGlxZoomPanEventHandler::DoZoom()
-    {
-    TRACER("CGlxZoomPanEventHandler::DoZoom ");
-    Zoom(0, 0, iZoomMode);
     }
 
 
@@ -913,9 +829,9 @@ void CGlxZoomPanEventHandler::OrientationChanged(const TRect& aNewScreenRect)
     {
     TRACER("CGlxZoomPanEventHandler::OrientationChanged ");
     
+    iMathsEngine.OrientationChanged(aNewScreenRect); // Needs to be called before Call to Zoom() inorder to Update the iScreenSize.
+    
     Zoom(0, 0, iZoomMode) ;
-
-    iMathsEngine.OrientationChanged(aNewScreenRect);
     }
 
 // -----------------------------------------------------------------------------
@@ -952,7 +868,7 @@ void CGlxZoomPanEventHandler::HideScreenFurniture()
 // ActivateZoom
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::ActivateZoom(TInt /*aInitialZoomRatio*/, 
+void CGlxZoomPanEventHandler::ActivateZoom(TInt aInitialZoomRatio, 
         TSize aImageSize, 
         TZoomStartMode aStartMode, 
         TInt aMinSliderRange, 
@@ -975,6 +891,8 @@ void CGlxZoomPanEventHandler::ActivateZoom(TInt /*aInitialZoomRatio*/,
     // Minimum and Maximum Zoom Ratio     
     iMinZoomRatio = iZoomRatio = aMinSliderRange;
     iMaxZoomRatio = aMaxSliderRange   ;
+    
+    iInitialZoomRatio = aInitialZoomRatio;
 
     iMathsEngine.Initialize(center,
             screenSize,
@@ -992,7 +910,12 @@ void CGlxZoomPanEventHandler::ActivateZoom(TInt /*aInitialZoomRatio*/,
         {
         case EZoomStartKey :
             {
-            StartZoomTimer();            
+            // Fix for issue EPKA-7ZX8FR: Vasco_wk03: Zoom In Key (Volume Up Key),
+            // gradually Zooms the image to full extent on a single click.
+            
+            // We are not getting keyup event which cancle the timer so not
+            // starting timer to do zoom
+            Zoom(0, 0, iZoomMode);          
             }
             break;
         case EZoomStartDoubleTap :
@@ -1048,7 +971,7 @@ void CGlxZoomPanEventHandler::DeactivateZoom()
 // Todo: Combine both these HandleEvents
 TBool CGlxZoomPanEventHandler::HandleEvent( const TAlfEvent& aEvent )
     {
-    TRACER("CGlxZoomControl::HandleEvent()");
+    TRACER("CGlxZoomPanEventHandler::HandleEvent()");
     
     TBool eventHandledState = EFalse;
     
@@ -1123,7 +1046,7 @@ TBool CGlxZoomPanEventHandler::HandleEvent( const TAlfEvent& aEvent )
 //
 TBool CGlxZoomPanEventHandler::HandleEventL(const TAlfEvent &aEvent)
     {
-    TRACER("CGlxZoomControl::HandleEventL()");
+    TRACER("CGlxZoomPanEventHandler::HandleEventL()");
     
     TBool consumed = EFalse;
 
@@ -1145,14 +1068,25 @@ TBool CGlxZoomPanEventHandler::HandleEventL(const TAlfEvent &aEvent)
 
 
 // -----------------------------------------------------------------------------
+// ZoomToMinimum
+// -----------------------------------------------------------------------------
+//
+void CGlxZoomPanEventHandler::ZoomToMinimumL()
+    {
+    TRACER("CGlxZoomPanEventHandler::ZoomToMinimumL( )");
+    
+    Zoom(iInitialZoomRatio, 0, EZoomOut);
+    CallZoomOutL();
+    }
+
+
+// -----------------------------------------------------------------------------
 // Zoom
 // -----------------------------------------------------------------------------
 //
-
-
 void CGlxZoomPanEventHandler::Zoom(TInt aExpectedZoomLevel, TInt aRelativeZoomFactor, TZoomMode aZoomMode, TPoint* aZoomFocus)
     {
-    TRACER("CGlxZoomControl::ZoomL( )");
+    TRACER("CGlxZoomPanEventHandler::ZoomL( )");
     
     TPoint          viewPortTopLeft(0,0);
     TSize           viewPortDimension(0,0);
