@@ -92,8 +92,8 @@ _LIT(KColonBackslash, ":\\");
 _LIT(KFileNameFormatString, "(%+02u)");
 
 // Items to be deleted from File server at a time before calling scheduler wait
-const TInt KDeletedItemCount = 50;
-const TInt KDeleteOperationInterval = 200000;
+const TInt KDeletedItemCount = 10;
+const TInt KDeleteOperationInterval = 1000;
 
 // ----------------------------------------------------------------------------
 // Destructor

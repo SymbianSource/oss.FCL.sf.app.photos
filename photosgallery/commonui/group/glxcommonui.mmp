@@ -49,8 +49,6 @@ SOURCE          glxresolutionutility.cpp
 SOURCE          glxzoomstatepublisher.cpp
 SOURCE          glxnavigationalstate.cpp
 
-SOURCE          glxbackservicewrapper.cpp
-
 
 LIBRARY         bafl.lib
 LIBRARY         efsrv.lib
@@ -63,16 +61,11 @@ LIBRARY         eikcore.lib
 LIBRARY         mpxcollectionutility.lib        //for MMPXCollectionUtility
 LIBRARY         mpxcommon.lib                   // CMPXCollectionPath
 LIBRARY         mpxviewutility.lib              //for MMPXViewUtility
-
-LIBRARY 		        liwservicehandler.lib //CLiwVariant
-
 LIBRARY         flogger.lib
 // if photos need to publish zooming state, include the context framework
 #ifdef GLX_PUBLISH_ZOOMING_STATE
 LIBRARY			cfclient.lib // for CCFClient
 LIBRARY			cfservices.lib // for CCFContextObject
 #endif
-
-//EXPORTUNFROZEN
 
 // End of file

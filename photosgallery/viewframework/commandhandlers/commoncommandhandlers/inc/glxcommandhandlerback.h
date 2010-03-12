@@ -31,11 +31,8 @@ class MGlxMediaListProvider;
 class MMPXCollectionUtility;
 class MMPXViewUtility;
 class CGlxNavigationalState;
-
-  
-class CGlxBackServiceWrapper;
-
 class CAknAppUi;
+
 /**
  * @class CGlxCommandHandlerBack
  *
@@ -181,10 +178,6 @@ private: // data
     // Navigational state is stored here
     CGlxNavigationalState* iNavigationalState;
    
-    CGlxBackServiceWrapper* iBSWrapper;
-    
-    //MMPXCollectionUtility* iCollectionUtility;
-
     /**
      * Check for the view activation and avoid previous view activation
      * till the view activation is called on back

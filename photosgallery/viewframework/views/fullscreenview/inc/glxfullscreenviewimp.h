@@ -262,7 +262,10 @@ private:
      * Consume DRM rights
      */  
     void ConsumeDRMRightsL( const TDesC& uri );
-    
+    /**
+     * Set the image to external display - HDMI
+     */
+    void SetImageL();
 private:
     /** Softkey resource id's */
     TFullScreenViewResourceIds iResourceIds; 

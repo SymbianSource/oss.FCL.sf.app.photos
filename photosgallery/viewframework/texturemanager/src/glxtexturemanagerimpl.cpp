@@ -372,7 +372,7 @@ CAlfTexture& CGlxTextureManagerImpl::CreateFlatColourTextureL( TRgb aColour )
 	CFbsBitmap* picture = new (ELeave) CFbsBitmap;
 	CleanupStack::PushL(picture);
 	User::LeaveIfError(picture->Create(TSize(KGlxFlatTextureSize,
-	                                        KGlxFlatTextureSize), EColor16MU ) );
+	                                        KGlxFlatTextureSize), EColor16M ) );
 
 	CFbsBitmapDevice* drawBufDevice = CFbsBitmapDevice::NewL(picture);
 	CleanupStack::PushL(drawBufDevice);

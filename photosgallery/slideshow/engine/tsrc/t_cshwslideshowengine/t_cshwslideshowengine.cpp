@@ -296,7 +296,10 @@ T_CShwSlideshowEngine::~T_CShwSlideshowEngine()
 	{
 	// remove our scheduler
 	// replace old with our new
-	iScheduler->Replace( iOldScheduler );
+    if ( iScheduler )
+        {
+        iScheduler->Replace(iOldScheduler);
+        }
 	delete iScheduler;
 	
 	delete iTimer;

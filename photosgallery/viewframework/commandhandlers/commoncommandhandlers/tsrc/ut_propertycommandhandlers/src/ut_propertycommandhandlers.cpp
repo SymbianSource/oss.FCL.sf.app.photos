@@ -324,9 +324,11 @@ void UT_propertycommandhandlers::Teardown(  )
     {
     	
 	delete iTagManagerCommand;
+    iTagManagerCommand = NULL;
 	delete iMetadataCommand;
-	
+    iMetadataCommand = NULL;	
 	delete iMediaList;
+    iMediaList = NULL;
     }
 
 void UT_propertycommandhandlers::PropertyCommandHandlerNewL(  )

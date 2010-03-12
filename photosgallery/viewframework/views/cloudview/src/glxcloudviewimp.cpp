@@ -192,19 +192,7 @@ TBool CGlxCloudViewImp::HandleViewCommandL(TInt aCommand)
 void CGlxCloudViewImp::DoMLViewActivateL(const TVwsViewId & /* aPrevViewId */,
 		TUid /* aCustomMessageId */, const TDesC8 & /* aCustomMessage */)
     {
-    TRACER("GLX_CLOUD::CGlxCloudViewImp::DoMLViewActivateL");
-    if(StatusPane())
-        {
-        StatusPane()->MakeVisible(ETrue);
-        CEikStatusPane* statusPane = iEikonEnv->AppUiFactory()->StatusPane();
-        CAknTitlePane* titlePane = ( CAknTitlePane* )statusPane->ControlL(
-                TUid::Uid( EEikStatusPaneUidTitle ));     
-            if( iTitletext )
-                {
-                // Set the required Title
-                titlePane->SetTextL( *iTitletext );
-                }
-        }
+    TRACER("GLX_CLOUD::CGlxCloudViewImp::DoMLViewActivateL");   
     ConstructCloudControlL();
     GLX_LOG_INFO("CGlxCloudViewImp::DoMLViewActivateL Cloud View Control Created" );  
     // set app state to tag-browser view

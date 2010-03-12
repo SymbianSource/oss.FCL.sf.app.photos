@@ -34,7 +34,7 @@
 #include <alf/alfdisplay.h>
 
 #include <aknnotewrappers.h>
-#include <FBS.H>
+#include <fbs.h>
 #include <StringLoader.h>
 #include "utf.h"                    // UtfConverter
 

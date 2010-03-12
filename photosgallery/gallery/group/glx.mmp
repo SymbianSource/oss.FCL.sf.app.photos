@@ -86,9 +86,6 @@ LIBRARY                 alfclient.lib // for CAlfEnv
 LIBRARY			glxmedialists.lib // to get the cache manager handle
 LIBRARY    		apgrfx.lib 
 LIBRARY                 glximageviewermanager.lib
-
-
-LIBRARY 		        liwservicehandler.lib //CLiwVariant
 LIBRARY                 glxcommon.lib
 LIBRARY                 efsrv.lib // for RFile
 
@@ -99,7 +96,6 @@ END
 START MARM
 END
 
-// DEFFILE                 ?filename
 
 START RESOURCE          glx_loc.rss
 HEADER
@@ -119,4 +115,3 @@ LIBRARY oommonitor.lib
 LIBRARY aknnotify.lib
 LIBRARY hal.lib              // HAL, HALData
 LIBRARY commonengine.lib		// for StringLoader
-// MACRO                   ?macro_name

@@ -24,7 +24,6 @@
 #include "glxmedialistiterator.h"    // Interface for going through items in the list in a  non-sequential order
 #include "mglxmedialistobserver.h"   // Observes for changes in media list
 #include <memory>                    
-#include <bitmaptransforms.h>
 
 class GlxThumbnailVariantType;
 class CGlxThumbnailContext;          // Fetch context to retrieve thumbnails
@@ -35,7 +34,7 @@ class CGlxThumbnailContext;          // Fetch context to retrieve thumbnails
 class MPreviewTNObserver 
     {
 public:
-    virtual void PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap* aMask, TInt aIndex) = 0;
+    virtual void PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap* aMask, TBool aPopulateList) = 0;
     };
     
 // CLASS DECLARATION
@@ -87,8 +86,8 @@ private:
       void ScaleBitmapToListSizeL(CFbsBitmap* aSrcBitmap, CFbsBitmap* aDestBitmap);
 
 public:	
-      void HandleItemChangedL(const CMPXCollectionPath& aPath,
-              TBool aPopulateListTNs, TBool aBackwardNavigation);
+      void HandleItemChangedL(const CMPXCollectionPath& aPath,TBool aPopulateListTNs, 
+									  TBool aIsRefreshNeeded, TBool aBackwardNavigation);
       void StartTimer(TBool aPopulateListTNs);
       void StopTimer();
       
@@ -143,6 +142,8 @@ private:
 	//flag will be true, when initially the first thumbnails for all the 
 	//items in the list are populated.
 	TBool iPopulateListTNs;
+	
+	TBool iIsRefreshNeeded;
 
     //it holds the initial number of thumbnail to be displayed
     RArray<TInt> iPreviewItemCount;
@@ -155,31 +156,7 @@ private:
     
     TInt iTrial;
         
-    TBool iBackwardNavigation;
-    
     CMPXFilter* iPreviewFilter;
-    
-    CBitmapScaler* iBitmapScaler;
 };
-
- // ----------------------------------------------------------------------------
- // CWaitScheduler - Active object to scale the bitmap to the desired size.
- // ----------------------------------------------------------------------------
- class CGlxWaitScheduler : public CActive
-     {
- public:
-     static CGlxWaitScheduler* NewL();  
-     void WaitForRequest();
-
- private:
-     CGlxWaitScheduler();
-     void ConstructL();
-     virtual ~CGlxWaitScheduler();  
-     void RunL();
-     void DoCancel();
-
- private:
-     CActiveSchedulerWait iScheduler;  
-     };
 
 #endif //_GLXPREVIEWTHUMBNAILBINDING_H_

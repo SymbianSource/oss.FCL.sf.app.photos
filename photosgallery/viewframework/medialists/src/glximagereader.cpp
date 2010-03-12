@@ -128,8 +128,9 @@ void CGlxImageReader::ConstructL()
     if ( iImageDecoder )
         {
         iFrame = new (ELeave) CFbsBitmap();
-        iFrame->Create(iImageDecoder->FrameInfo(0).iOverallSizeInPixels,
-                iImageDecoder->FrameInfo(0).iFrameDisplayMode);
+        User::LeaveIfError(iFrame->Create(
+                iImageDecoder->FrameInfo(0).iOverallSizeInPixels,
+                iImageDecoder->FrameInfo(0).iFrameDisplayMode));
         iImageDecoder->Convert(&iStatus, *iFrame, 0);
         SetActive();
         }

@@ -29,7 +29,6 @@
 //  INTERNAL INCLUDES
 #include "glxmedialistcommandhandler.h"
 
-
 //  FORWARD DECLARATIONS
 class MGlxMediaListProvider;
 class CGlxUiUtility;
@@ -202,27 +201,26 @@ private: // methods local to class
 	
 private: // data
 
-    // Not owned - Provider of media list
+    /// Not owned - Provider of media list
     MGlxMediaListProvider* iMediaListProvider;
     
-    // ID of owning view 
+    /// ID of owning view 
     TInt iViewId;
     
-    // Not owned - HUI utility 
+    /// Not owned - HUI utility 
     CGlxUiUtility* iUiUtility;
     
-    // Not owned - Attribute context
+    /// Not owned - Attribute context
     CGlxDefaultAttributeContext* iAttributeContext;
     
-    // Owned - the Send pop-up list, message creation and sending services
+    /// Owned - the Send pop-up list, message creation and sending services
     CSendUi* iSendUi;
     
-    // Array of Send Plugins uids that should not be used
+    /// Array of Send Plugins uids that should not be used
     TBool iFilterOutPlugin;
     
-    // The resource file offset
+    /// The resource file offset
 	TInt iResourceOffset;
-    
 	};
 
 #endif //__GLXCOMMANDHANDLERUPLSEND_H__

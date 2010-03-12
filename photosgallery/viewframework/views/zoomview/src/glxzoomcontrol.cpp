@@ -832,26 +832,26 @@ void CGlxZoomControl::HandleGestureL( const GestureHelper::MGestureEvent& aEvent
 	GLX_LOG_INFO1("_PHOTOS_LOG_: void CGlxZoomControl::HandleGestureL  Code : %d", code);
     
     // Todo: This switch should go into the event handler.  
-    switch (code)
-        {
-        case EGestureDrag:
-            iEventHandler->HandleDragEvent(aEvent);
-            break;
-        case EGestureTap:
-            iEventHandler->HandleSingleTap(aEvent);
-            break;
-        case EGesturePinch:
-            iEventHandler->HandlePinchEventL(aEvent);
-            break;
-        case EGestureDoubleTap:
-            iEventHandler->HandleDoubleTap(aEvent);
-            break;
-        case EGestureReleased:
-            iEventHandler->HandleGestureReleased(aEvent);
-            break;
-        default :
-            break;
-        }
+        switch (code)
+            {
+            case EGestureDrag:
+                iEventHandler->HandleDragEvent(aEvent);
+                break;
+            case EGestureTap:
+                iEventHandler->HandleSingleTap(aEvent);
+                break;
+            case EGesturePinch:
+                iEventHandler->HandlePinchEventL(aEvent);
+                break;
+            case EGestureDoubleTap:
+                iEventHandler->HandleDoubleTap(aEvent);
+                break;
+            case EGestureReleased:
+                iEventHandler->HandleGestureReleased(aEvent);
+                break;
+            default :
+                break;
+            }
     iEventHandler->SetPreviousEventCode(code);
     }
 

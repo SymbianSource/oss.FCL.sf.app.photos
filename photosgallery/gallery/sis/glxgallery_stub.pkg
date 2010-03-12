@@ -158,16 +158,7 @@
 ""-"z:\sys\bin\glxuitilities.dll"
 ""-"z:\sys\bin\glxaddtoalbumhandler.dll"
 
-; For contentharvester plugin component
-""-"z:\sys\bin\glxcontentharvesterplugin.dll"
-
-
 ""-"z:\resource\xhtml\01\0x200009EE\contents.zip"
 ""-"z:\resource\xhtml\01\0x200009EE\index.xml"
 ""-"z:\resource\xhtml\01\0x200009EE\keywords.xml"
 ""-"z:\resource\xhtml\01\0x200009EE\meta.xml"
-
-; For photossuite component
-""-"z:\resource\apps\photossuite.rsc"
-""-"z:\private\101F4CD2\import\suites\photossuite\suite.xml"
-""-"z:\private\101F4CD2\import\suites\photossuite\photos_items.xml"

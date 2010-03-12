@@ -76,4 +76,4 @@ LIBRARY         fbscli.lib
 LIBRARY         aknicon.lib
 LIBRARY         egul.lib
 LIBRARY         aknskins.lib 
-LIBRARY		bitmaptransforms.lib 
+LIBRARY         bitgdi.lib 

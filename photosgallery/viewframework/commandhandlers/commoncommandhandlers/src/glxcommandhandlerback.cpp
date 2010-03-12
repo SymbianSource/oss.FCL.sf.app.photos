@@ -42,7 +42,6 @@
 #include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionplugintags.hrh>
 #include <glxcollectionpluginimageviewer.hrh>
-#include <glxbackservicewrapper.h>
 #include <glxgallery.hrh>
 
 #include "glxmediaselectionpopup.h"
@@ -125,9 +124,7 @@ void CGlxCommandHandlerBack::ConstructL( TInt aCommandId )
     iNavigationalState =  CGlxNavigationalState::InstanceL();
     iIsViewActivated = EFalse;
   
-    iBSWrapper = CGlxBackServiceWrapper::NewL( TUid::Uid( KGlxGalleryApplicationUid ) );
     iAppUi = static_cast< CAknAppUi* >( CCoeEnv::Static()->AppUi() );
-
 	}	
 	
 // ---------------------------------------------------------------------------
@@ -139,12 +136,6 @@ EXPORT_C CGlxCommandHandlerBack::~CGlxCommandHandlerBack()
 	TRACER( "CGlxCommandHandlerBack::~CGlxCommandHandlerBack" );
 	
 	iNavigationalState->Close();
-   
-    if( iBSWrapper )
-        {	
-        delete iBSWrapper;    
-        }
-
 	}
 
 // -----------------------------------------------------------------------------
@@ -154,7 +145,6 @@ EXPORT_C CGlxCommandHandlerBack::~CGlxCommandHandlerBack()
 TBool CGlxCommandHandlerBack::ExecuteL( TInt aCommandId )
 	{
     TRACER("CGlxCommandHandlerBack::ExecuteL");
-	_LIT8( KPhotosSuiteNavigation, "SuiteNavigation" );
 	TBool consume(EFalse);
 
 	GLX_LOG_INFO1( "CGlxCommandHandlerBack::ExecuteL::Command Id (%d)",
@@ -179,7 +169,6 @@ TBool CGlxCommandHandlerBack::ExecuteL( TInt aCommandId )
                 		iNavigationalState->StartingLevel() == navigationalState->Levels()-1)
                 		&&  iNavigationalState->BackExitStatus())
                     {
-                    iBSWrapper->HandleBackCommandL( KPhotosSuiteNavigation );
                     if(iAppUi)
                         {
                         iAppUi->ProcessCommandL(EAknSoftkeyExit);    

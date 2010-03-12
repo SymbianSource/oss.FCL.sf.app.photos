@@ -43,7 +43,10 @@ CGlxCommandHandlerMoreInfoTester* CGlxCommandHandlerMoreInfoTester::NewL()
     
 CGlxCommandHandlerMoreInfoTester::~CGlxCommandHandlerMoreInfoTester()
     {
-    iMoreInfoHandler->Deactivate();
+    if ( iMoreInfoHandler )
+        {
+        iMoreInfoHandler->Deactivate();
+        }
     
     iCommandHandlerList.ResetAndDestroy();
 	iCommandHandlerList.Close();

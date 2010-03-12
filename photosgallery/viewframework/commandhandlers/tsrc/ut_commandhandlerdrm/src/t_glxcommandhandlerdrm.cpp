@@ -24,18 +24,12 @@
 //  EXTERNAL INCLUDES
 #include <EUnitMacros.h>
 #include <EUnitDecorators.h>
-
 #include "glxcommandhandlerdrm.h"
 #include "ut_glxdummymedialist.h"
-
 #include <glxcommandhandlers.hrh>
-
 #include <mpxmediadrmdefs.h>
 #include <mpxmediageneraldefs.h>
 #include <glxmediageneraldefs.h>
-
-#include "glxdummyvlm.h"
-
 #include <Ecom/ECom.h>
 
 //  INTERNAL INCLUDES
@@ -51,7 +45,10 @@ CGlxCommandHandlerDRMTester* CGlxCommandHandlerDRMTester::NewL()
     
 CGlxCommandHandlerDRMTester::~CGlxCommandHandlerDRMTester()
     {
-    iDRMHandler->Deactivate();
+    if ( iDRMHandler )
+        {
+        iDRMHandler->Deactivate();
+        }
     
     iCommandHandlerList.ResetAndDestroy();
 	iCommandHandlerList.Close();
@@ -172,6 +169,7 @@ void T_GlxCommandHandlerDRM::SetupL(  )
 void T_GlxCommandHandlerDRM::Teardown(  )
     {
     delete iDRMHandlerTester;
+    iDRMHandlerTester = NULL;
     
     REComSession::FinalClose();
     }

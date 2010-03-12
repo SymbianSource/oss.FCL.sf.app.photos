@@ -70,10 +70,6 @@ PRJ_EXPORTS
 // include the slideshow build
 #include "../slideshow/group/bld.inf"
 
-
-#include "../contentharvesterplugin/group/bld.inf"
-#include "../photossuite/group/bld.inf"
-
 //include photos memory plug-in
 #include "../memoryplugin/group/bld.inf"
 

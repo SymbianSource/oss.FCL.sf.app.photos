@@ -98,12 +98,14 @@ void t_cglxthumbnailsaver::Teardown(  )
     if(iThumbnail)
         {
         EUNIT_PRINT(_L("t_cglxthumbnailsaver::iThumbnail"));
-        delete iThumbnail;    
+        delete iThumbnail;
+        iThumbnail = NULL;
         }
    if(iThumbnailSaver)
        {
        EUNIT_PRINT(_L("t_cglxthumbnailsaver::iThumbnailSaver"));
        delete iThumbnailSaver;
+       iThumbnailSaver = NULL;
        }
    EUNIT_PRINT(_L("Exiting t_cglxthumbnailsaver::Teardown"));
     }

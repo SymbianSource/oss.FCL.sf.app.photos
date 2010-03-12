@@ -49,13 +49,23 @@
 #include <glxfullscreenviewplugin.hrh>
 #include <glxivwr.rsg>
 #include <AknGlobalNote.h>
+#include <hal.h>
+#include <hal_data.h>
+#include <oommonitorsession.h>
 #include <glxtracer.h>
-
-
-#include <glxbackservicewrapper.h>
-
 #include <glxuistd.h>
 #include <apgcli.h>
+
+//constants
+const TInt KGlxFullThumbnailCount         = 1 ;       // 1 visible thumnail
+#ifdef __MARM
+const TInt KGlxMaxMegaPixelsSupportedByCamera = 5242880 ; // 5 MB
+#else
+const TInt KGlxMaxMegaPixelsSupportedByCamera = 2097152 ; // 2 MB
+#endif
+const TInt KGlxMaxMemoryToDecodeCapturedPicture = 2 * KGlxMaxMegaPixelsSupportedByCamera ;
+const TInt KGlxMemoryForOOMFwk          = 1048576 ; // 1 MB
+const TInt KGlxThumbNailRepresentation    = 4;         // Thumbnail Representation; Could be 3 also 
 
 // -----------------------------------------------------------------------------
 // Constructor
@@ -80,8 +90,6 @@ void CGlxIVwrAppUi::ConstructL()
 
     iNavigationalState->AddObserverL( *this );
 
-    // Create Back Stepping Service wrapper
-    iBSWrapper = CGlxBackServiceWrapper::NewL( TUid::Uid( KGlxGalleryApplicationUid ) );
     iNavigationalState->SetBackExitStatus(EFalse);
 
     // Get an instance of view utility
@@ -90,6 +98,7 @@ void CGlxIVwrAppUi::ConstructL()
     iUiUtility = CGlxUiUtility::UtilityL();
     // Always start in default orientation
     iUiUtility->SetAppOrientationL(EGlxOrientationDefault);
+    ReserveMemoryL(EEntryTypeStartUp);
     // publish zoom context, no zoom keys for now
     NGlxZoomStatePublisher::PublishStateL( EFalse );
     }
@@ -115,11 +124,6 @@ CGlxIVwrAppUi::~CGlxIVwrAppUi()
     if ( iUiUtility )
         {
         iUiUtility->Close();
-        }
-
-    if( iBSWrapper )
-        {	
-        delete iBSWrapper;    
         }
     }
 
@@ -356,6 +360,103 @@ void CGlxIVwrAppUi::HandleOpenFileL()
     path->AppendL( KGlxCollectionPluginImageViewerImplementationUid );
     iNavigationalState->NavigateToL( *path );
     CleanupStack::PopAndDestroy( path );    
+    }
+
+// ---------------------------------------------------------------------------
+// OOMRequestFreeMemoryL
+// ---------------------------------------------------------------------------
+//
+TInt CGlxIVwrAppUi::OOMRequestFreeMemoryL( TInt aBytesRequested)
+    {
+    TRACER("TInt CGlxIVwrAppUi::OOMRequestFreeMemoryL( TInt aBytesRequested)");
+    GLX_LOG_INFO1("CGlxIVwrAppUi::OOMRequestFreeMemoryL() aBytesRequested=%d",
+                                                        aBytesRequested);
+
+    ROomMonitorSession oomMonitor;
+    User::LeaveIfError( oomMonitor.Connect() );
+    // No leaving code after this point, so no need to use cleanup stack
+    // for oomMonitor
+    TInt errorCode = oomMonitor.RequestFreeMemory( aBytesRequested );
+    GLX_LOG_INFO1("CGlxIVwrAppUi::OOMRequestFreeMemoryL(1) errorCode=%d",errorCode);
+    if ( errorCode != KErrNone )
+        {
+        // try one more time 
+        errorCode = oomMonitor.RequestFreeMemory( aBytesRequested );
+        GLX_LOG_INFO1("CGlxIVwrAppUi::OOMRequestFreeMemoryL(2) errorCode=%d",errorCode);
+        }
+    oomMonitor.Close();
+    return errorCode;
+    }
+
+// ---------------------------------------------------------------------------
+// ReserveMemoryL
+// ---------------------------------------------------------------------------
+//
+TInt CGlxIVwrAppUi::ReserveMemoryL(TInt aCriticalMemoryRequired)
+    {
+    TRACER("void CGlxIVwrAppUi::ReserveMemoryL(TInt aCriticalMemoryRequired)");
+
+    TInt memoryLeft = 0;
+    TInt error = KErrNone ; 
+    HAL::Get( HALData::EMemoryRAMFree, memoryLeft );
+    GLX_LOG_INFO2("CGlxIVwrAppUi::ReserveMemoryL() - aCriticalMemoryRequired=%d, memoryLeft=%d",
+                                       aCriticalMemoryRequired, memoryLeft);
+    if ( aCriticalMemoryRequired > memoryLeft )
+        {
+        // Request for critical memory required 
+        error = OOMRequestFreeMemoryL( aCriticalMemoryRequired);
+        GLX_LOG_INFO1("CGlxIVwrAppUi::ReserveMemoryL() - OOMRequestFreeMemoryL() error=%d", error);
+        }
+    return error;
+    }
+
+// ---------------------------------------------------------------------------
+// RamRequiredInBytesL
+// ---------------------------------------------------------------------------
+//
+TInt CGlxIVwrAppUi::RamRequiredInBytesL(TEntryType aType)
+    {
+    TRACER("TInt CGlxIVwrAppUi::RamRequiredInBytesL(TEntryType aType)");
+    TInt criticalRamMemory = 0 ;
+    TSize displaySize = iUiUtility->DisplaySize();
+    if(EEntryTypeStartUp == aType)
+        {
+        // This is Bare Minimum Required Memory for Photos to start 
+        // For Framework to work and to do the on-the-fly decoding 
+        // for the just captured picture = KGlxMemoryForOOMFwk + KGlxMaxMemoryToDecodeCapturedPicture
+        // For FullScreen to Work Number of Thumbnail(s) * Width * Height * Representation
+        criticalRamMemory =  KGlxMemoryForOOMFwk + KGlxMaxMemoryToDecodeCapturedPicture + 
+                                             (KGlxFullThumbnailCount *
+                                              displaySize.iWidth * displaySize.iHeight * 
+                                              KGlxThumbNailRepresentation );
+        
+        GLX_LOG_INFO1("CGlxIVwrAppUi::RamRequiredInBytesL(EEntryTypeStartUp): criticalRamMemory=%d",
+                                                                            criticalRamMemory);
+        }
+    else
+        {
+        GLX_LOG_INFO("CGlxIVwrAppUi::RamRequiredInBytesL(): Photos Already Running");
+        }
+ 
+    return criticalRamMemory;
+    }
+
+// ---------------------------------------------------------------------------
+// ReserveMemoryL
+// ---------------------------------------------------------------------------
+//
+void CGlxIVwrAppUi::ReserveMemoryL(TEntryType aType)
+    {
+    TRACER("TInt CGlxIVwrAppUi::ReserveMemoryL(TEntryType aType)");
+    
+    TInt error = ReserveMemoryL(RamRequiredInBytesL(aType));
+    GLX_LOG_INFO1("CGlxIVwrAppUi::ReserveMemoryL() error=%d", error);
+    
+    if (KErrNoMemory == error)
+        {
+        GLX_LOG_INFO("CGlxIVwrAppUi::ReserveMemoryL(): LEAVE with KErrNoMemory ");
+        User::Leave(KErrNoMemory);
+        }
     }
 
 // ---------------------------------------------------------------------------

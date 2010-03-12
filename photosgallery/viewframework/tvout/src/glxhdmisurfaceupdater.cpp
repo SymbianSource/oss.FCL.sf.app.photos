@@ -100,18 +100,20 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
 void CGlxHdmiSurfaceUpdater::ReleaseContent()
     {
     TRACER("void CGlxHdmiSurfaceUpdater::ReleaseContent()"); 
-    
-    iGlxDecoderAO->Cancel();    
-    if(iDecodedBitmap)
+    if ( iGlxDecoderAO )
+        {
+        iGlxDecoderAO->Cancel();
+        }
+    if ( iDecodedBitmap )
         {
         delete iDecodedBitmap;
         iDecodedBitmap= NULL;
         }    
-    if (iSurfBufferAO->IsActive())
+    if ( iSurfBufferAO->IsActive() )
         {
         iSurfBufferAO->Cancel();        
         }
-    if(iImageDecoder)
+    if ( iImageDecoder )
         {
         delete iImageDecoder;
         iImageDecoder = NULL;    
@@ -152,8 +154,6 @@ void CGlxHdmiSurfaceUpdater::ConstructL(TSize /*aImageDimensions*/)
 #ifdef _DEBUG
     iStartTime.HomeTime();
 #endif
-    //to refresh the HD screen for the first time.
-    iFirstTime = ETrue;
     //start decoding the image    
     iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,0,iImageDecoder);
          
@@ -172,9 +172,10 @@ void CGlxHdmiSurfaceUpdater::ConstructL(TSize /*aImageDimensions*/)
 // UpdateNewImageL 
 // -----------------------------------------------------------------------------
 void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile, 
-        TInt /*aFrameCount*/)
+        TInt /*aFrameCount*/,TSize aImageDimensions)
     {
     TRACER("CGlxHdmiSurfaceUpdater::UpdateNewImageL()");
+    iOrigImageDimensions = aImageDimensions;
 	iBitmapReady = EFalse;
     ReleaseContent();   
     CreateImageDecoderL(aImageFile);    
@@ -196,9 +197,8 @@ void CGlxHdmiSurfaceUpdater::CreateHdmiL(TBool aCreateSurface)
     
     if (aCreateSurface)
         {
-        TSize rectSz = iDecodedBitmap->SizeInPixels(); // For animation
-        GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::CreateHdmiL() Size height = %d and width = %d", rectSz.iHeight, rectSz.iWidth);
-        CreateSurfaceL(rectSz);        
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::CreateHdmiL() Create Surface");
+        CreateSurfaceL();        
         }
     
     // Active objects for double buffered draw signalling
@@ -208,16 +208,15 @@ void CGlxHdmiSurfaceUpdater::CreateHdmiL(TBool aCreateSurface)
                     CActive::EPriorityStandard-1);
         CActiveScheduler::Add(iSurfBufferAO);    
         }
-
     }
 
 // -----------------------------------------------------------------------------
 // CreateSurfaceL 
 // -----------------------------------------------------------------------------
-void CGlxHdmiSurfaceUpdater::CreateSurfaceL(TSize aSize)
+void CGlxHdmiSurfaceUpdater::CreateSurfaceL()
     {
     TRACER("CGlxHdmiSurfaceUpdater::CreateSurfaceL()");
-       
+    TSize surfaceSize = iWindow->Size();   // create surface of the screen size, i.e 1280x720
     iSurfManager = new(ELeave) RSurfaceManager();
     TInt error = iSurfManager->Open();
     if (error != KErrNone)
@@ -227,10 +226,10 @@ void CGlxHdmiSurfaceUpdater::CreateSurfaceL(TSize aSize)
         }
     RSurfaceManager::TSurfaceCreationAttributesBuf attributes;
     attributes().iPixelFormat           = EUidPixelFormatARGB_8888;// EUidPixelFormatYUV_420Planar;
-    attributes().iSize                  = aSize;
+    attributes().iSize                  = surfaceSize;
     
     attributes().iBuffers               = 1;
-    attributes().iStride                = aSize.iWidth * KMulFactorToCreateBitmap;  
+    attributes().iStride                = surfaceSize.iWidth * KMulFactorToCreateBitmap;  
     attributes().iAlignment             = KMulFactorToCreateBitmap;
     attributes().iContiguous            = EFalse;
     attributes().iMappable              = ETrue;
@@ -243,9 +242,8 @@ void CGlxHdmiSurfaceUpdater::CreateSurfaceL(TSize aSize)
         }    
     //Map the surface and stride the surface info
     MapSurfaceL();
-    //Set the background Surface
-    iWindow->SetBackgroundSurface(iSurfId);
-
+    // Set the Configuration to the surface ID when creating a surface
+    iConfig.SetSurfaceId(iSurfId);
     }
 
 // -----------------------------------------------------------------------------
@@ -274,6 +272,7 @@ void CGlxHdmiSurfaceUpdater::MapSurfaceL()
     iSurfManager->GetBufferOffset( iSurfId, 0,offset);
     iSurfBuffer = iSurfChunk->Base()+offset;
     }
+
 // -----------------------------------------------------------------------------
 // SurfBuffer0Ready 
 // -----------------------------------------------------------------------------
@@ -289,14 +288,12 @@ TInt CGlxHdmiSurfaceUpdater::SurfBuffer0Ready(TAny* /*aObject*/)
 void CGlxHdmiSurfaceUpdater::Refresh()
     {
     TRACER("CGlxHdmiSurfaceUpdater::Refresh()");
+    // copy the decoded bitmap on to the surface
     SwapBuffers();   
+    // Modify the surface position with respect to the buffer size 
+	ModifySurfacePostion();
+	// refresh the window
     iCallBack->DoGenCallback();       
-    if(iFirstTime)  
-        {
-        iFirstTime = EFalse;
-        iWindow->RemoveBackgroundSurface(ETrue);
-        iWindow->SetBackgroundSurface(iSurfId);
-        }
     }
 
 // -----------------------------------------------------------------------------
@@ -344,25 +341,37 @@ void CGlxHdmiSurfaceUpdater::SwapBuffers()
 void CGlxHdmiSurfaceUpdater::CreateBitmapL()
     {
     TRACER("CGlxHdmiSurfaceUpdater::StartImageDecodeL()");
-    TSize decodeSize;
-    decodeSize.iHeight = (iOrigImageDimensions.iHeight>KHdTvHeight? KHdTvHeight: 
-                                    iOrigImageDimensions.iHeight);
-    decodeSize.iWidth = (iOrigImageDimensions.iWidth>KHdTvWidth? KHdTvWidth:
-                                    iOrigImageDimensions.iWidth);
-    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::StartImageDecodeL() - decodeSize width = %d and height %d",
-            decodeSize.iWidth, decodeSize.iHeight );
-    
+    TSize scrnSize = iWindow->Size();
+    TSize targetBitmapSize;
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::StartImageDecodeL() - bitmapsize=%d, %d",iOrigImageDimensions.iWidth,iOrigImageDimensions.iHeight);
+    TReal32 scaleFactor = 0.0f;
+    if (scrnSize.iWidth * iOrigImageDimensions.iHeight > scrnSize.iHeight
+            * iOrigImageDimensions.iWidth)
+        {
+        scaleFactor = (TReal32) scrnSize.iHeight
+                / (TReal32) iOrigImageDimensions.iHeight;
+        }
+    else
+        {
+        scaleFactor = (TReal32) scrnSize.iWidth
+                / (TReal32) iOrigImageDimensions.iWidth;
+        }
+    GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::StartImageDecodeL() - scaleFactor=%f",scaleFactor);
+    targetBitmapSize.iHeight = iOrigImageDimensions.iHeight * scaleFactor;
+    targetBitmapSize.iWidth = iOrigImageDimensions.iWidth * scaleFactor;
+
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::StartImageDecodeL() - targetBitmapSize=%d, %d",targetBitmapSize.iWidth,targetBitmapSize.iHeight);
     //create the bitmap for the required size
-    iDecodedBitmap = new(ELeave) CFbsBitmap();
-    
-    TInt err = iDecodedBitmap->Create(decodeSize,EColor16MU );
+    iDecodedBitmap = new (ELeave) CFbsBitmap();
+
+    TInt err = iDecodedBitmap->Create(targetBitmapSize, EColor16MU);
     User::LeaveIfNull(iDecodedBitmap);
     }
 
 // -----------------------------------------------------------------------------
 // HandleRunL 
 // -----------------------------------------------------------------------------
-void CGlxHdmiSurfaceUpdater::HandleRunL()
+void CGlxHdmiSurfaceUpdater::HandleRunL(TRequestStatus& aStatus)
     {
     TRACER("CGlxHdmiSurfaceUpdater::HandleRunL()");
 
@@ -371,15 +380,24 @@ void CGlxHdmiSurfaceUpdater::HandleRunL()
     GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::HandleRunL() ConvertImageL took"
             " <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
 #endif
-	iBitmapReady = ETrue;
-    iZoomRectSz = iDecodedBitmap->SizeInPixels(); 
-    if (iSurfBufferAO->iStatus != KRequestPending && !iSurfBufferAO->IsActive())
+    if(aStatus.Int() !=KErrNone)
         {
-        Refresh();              
-        iSurfBufferAO->iStatus = KRequestPending;
-        iSurfBufferAO->SetActive();    
-        iSurfUpdateSession.NotifyWhenAvailable(iSurfBufferAO->iStatus);
-        TInt err = iSurfUpdateSession.SubmitUpdate(1, iSurfId, 0, NULL);       
+        GLX_LOG_INFO("HandleRunL - Convert failed");
+        ShiftToCloningMode();
+        }
+    else
+        {
+        iBitmapReady = ETrue;
+        iZoomRectSz = iDecodedBitmap->SizeInPixels();
+        if (iSurfBufferAO->iStatus != KRequestPending
+                && !iSurfBufferAO->IsActive())
+            {
+            Refresh();
+            iSurfBufferAO->iStatus = KRequestPending;
+            iSurfBufferAO->SetActive();
+            iSurfUpdateSession.NotifyWhenAvailable(iSurfBufferAO->iStatus);
+            TInt err = iSurfUpdateSession.SubmitUpdate(1, iSurfId, 0, NULL);
+            }
         }
 	//release imagedecoder after the conversion is over		
     if(iImageDecoder)
@@ -403,19 +421,20 @@ void CGlxHdmiSurfaceUpdater::CreateImageDecoderL(const TDesC& aImageFile)
         User::Leave(error);
         }
     }
+
 // -----------------------------------------------------------------------------
 // ActivateZoom 
 // -----------------------------------------------------------------------------
 void CGlxHdmiSurfaceUpdater::ActivateZoom()
     {
     TRACER("CGlxHdmiSurfaceUpdater::ActivateZoom()");
-    iConfig.SetSurfaceId(iSurfId);
     iZoom = ETrue;
     if(!iTimer->IsActive() && iBitmapReady)
        {
        iTimer->Start(KZoomDelay,KZoomDelay,TCallBack( TimeOut,this ));
        }
     }
+
 // -----------------------------------------------------------------------------
 // DeactivateZoom 
 // -----------------------------------------------------------------------------
@@ -429,8 +448,8 @@ void CGlxHdmiSurfaceUpdater::DeactivateZoom()
         iConfig.SetExtent(TRect(0,0,bitmapsize.iWidth,bitmapsize.iHeight));
         iWindow->SetBackgroundSurface(iConfig, ETrue);
         }
-    
     }
+
 // ---------------------------------------------------------------------------
 // TimeOut
 // ---------------------------------------------------------------------------
@@ -448,6 +467,7 @@ TInt CGlxHdmiSurfaceUpdater::TimeOut(TAny* aSelf)
         }
     return KErrNone;
     }
+
 // -----------------------------------------------------------------------------
 // Zoom 
 // -----------------------------------------------------------------------------
@@ -465,7 +485,8 @@ void CGlxHdmiSurfaceUpdater::Zoom(TBool aZoom)
         iLeftCornerForZoom.iX =iLeftCornerForZoom.iX+KSingleStepForZoom/2;
         iLeftCornerForZoom.iY =iLeftCornerForZoom.iY+KSingleStepForZoom/2;           
         GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::Zoom()--- 2,iZoomRectSz.iWidth = %d, iZoomRectSz.iHeight = %d", iZoomRectSz.iWidth,iZoomRectSz.iHeight);
-        iConfig.SetViewport(TRect(iLeftCornerForZoom.iX,iLeftCornerForZoom.iY,iZoomRectSz.iWidth,iZoomRectSz.iHeight));
+        iConfig.SetViewport(TRect(iLeftCornerForZoom.iX,iLeftCornerForZoom.iY,
+                iZoomRectSz.iWidth,iZoomRectSz.iHeight));
         }
     else
         {
@@ -479,9 +500,45 @@ void CGlxHdmiSurfaceUpdater::Zoom(TBool aZoom)
             iZoom = ETrue;
             }
         GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::Zoom()--- 4,iZoomRectSz.iWidth = %d, iZoomRectSz.iHeight = %d", iZoomRectSz.iWidth,iZoomRectSz.iHeight);
-        iConfig.SetViewport(TRect(iLeftCornerForZoom.iX,iLeftCornerForZoom.iY,iZoomRectSz.iWidth,iZoomRectSz.iHeight));
+        iConfig.SetViewport(TRect(iLeftCornerForZoom.iX,iLeftCornerForZoom.iY,
+                iZoomRectSz.iWidth,iZoomRectSz.iHeight));
         }
-    iConfig.SetExtent(TRect(0,0,KHdTvWidth,KHdTvHeight));    
+    iWindow->SetBackgroundSurface(iConfig, ETrue);   
+    }
+
+// -----------------------------------------------------------------------------
+// ModifySurfacePostion 
+// -----------------------------------------------------------------------------
+void CGlxHdmiSurfaceUpdater::ModifySurfacePostion()
+	{
+	TRACER("CGlxHdmiSurfaceUpdater::ModifySurfacePostion()");
+	TSize bitmapSize = iDecodedBitmap->SizeInPixels();
+	TPoint startPoint(0,0);
+	if (bitmapSize.iWidth <KHdTvWidth)
+	    {
+	    startPoint.iX = (KHdTvWidth - bitmapSize.iWidth)/2; 
+	    }
+	if (bitmapSize.iHeight <KHdTvHeight)
+	    {
+	    startPoint.iY = (KHdTvHeight - bitmapSize.iHeight)/2;
+	    }
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ModifySurfacePostion() - target bitmapsize=%d, %d",bitmapSize.iWidth,bitmapSize.iHeight);
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ModifySurfacePostion() - startPoint =%d, %d",startPoint.iX,startPoint.iY);
+
+    // target
+    iConfig.SetExtent(TRect(startPoint.iX,startPoint.iY,(KHdTvWidth-startPoint.iX),
+            (KHdTvHeight-startPoint.iY)));
+    // source
+    iConfig.SetViewport(TRect(TPoint(0,0),TSize(bitmapSize.iWidth,bitmapSize.iHeight)));
+#ifdef _DEBUG
+    TRect ex, vp;
+    iConfig.GetExtent(ex);
+    iConfig.GetViewport(vp);
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ModifySurfacePostion() - vp - TL=%d, %d",vp.iTl.iX,vp.iTl.iY);
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ModifySurfacePostion() - vp - BR=%d, %d",vp.iBr.iX,vp.iBr.iY);
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ModifySurfacePostion() - ex - TL=%d, %d",ex.iTl.iX,ex.iTl.iY);
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ModifySurfacePostion() - ex - BR=%d, %d",ex.iBr.iX,ex.iBr.iY);
+#endif
     iWindow->SetBackgroundSurface(iConfig, ETrue);   
     }
 
@@ -500,5 +557,14 @@ void CGlxHdmiSurfaceUpdater::ShiftToCloningMode()
 void CGlxHdmiSurfaceUpdater::ShiftToPostingMode()
 	{
 	TRACER("CGlxHdmiSurfaceUpdater::ShiftToPostingMode()");
-	iWindow->SetBackgroundSurface(iSurfId);
+#ifdef _DEBUG
+	TRect ex, vp;
+	iConfig.GetExtent(ex);
+    iConfig.GetViewport(vp);
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - vp - TL=%d, %d",vp.iTl.iX,vp.iTl.iY);
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - vp - BR=%d, %d",vp.iBr.iX,vp.iBr.iY);
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - ex - TL=%d, %d",ex.iTl.iX,ex.iTl.iY);
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - ex - BR=%d, %d",ex.iBr.iX,ex.iBr.iY);
+#endif
+    iWindow->SetBackgroundSurface(iConfig, ETrue);
 	}

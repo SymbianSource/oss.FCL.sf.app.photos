@@ -28,66 +28,16 @@
 #include <glxlog.h>
 
 #include <glxuistd.h>                    // Fetch context priority def'ns
-
+#include <mglxcache.h> 
 #include <ganes/HgDoubleGraphicList.h>
 
 
 const TInt KInitialThumbnailsTimeDelay(100000);
-const TInt KWaitCount(5);
+const TInt KWaitCount(10);
 const TInt KThumbnailStartTimeDelay(250000);
-const TInt KThumbnailIntervalTimeDelay(50000);
 const TInt KPreviewThumbnailFetchCount(1);
 
-// ----------------------------------------------------------------------------
-// CWaitScheduler::NewL()
-// ---------------------------------------------------------------------------- 
-CGlxWaitScheduler* CGlxWaitScheduler::NewL()
-    {
-    TRACER("CGlxWaitScheduler::NewL()");    
-    CGlxWaitScheduler* self = new( ELeave ) CGlxWaitScheduler();
-    CleanupStack::PushL( self );
-    self->ConstructL( );
-    CleanupStack::Pop( self );
-    return self;
-    }
 
-CGlxWaitScheduler::CGlxWaitScheduler()
-: CActive( EPriorityStandard )
-    {
-    TRACER("CGlxWaitScheduler::CGlxWaitScheduler()");    
-    CActiveScheduler::Add( this );
-    }
-
-void CGlxWaitScheduler::ConstructL()
-    {
-    TRACER("CGlxWaitScheduler::ConstructL()");
-    // Do nothing
-    }
-
-CGlxWaitScheduler::~CGlxWaitScheduler()
-    {
-    TRACER("CGlxWaitScheduler::~CGlxWaitScheduler()");     
-    Cancel();
-    }
-
-void CGlxWaitScheduler::WaitForRequest()
-    {
-    TRACER("CGlxWaitScheduler::WaitForRequest()");     
-    SetActive();
-    iScheduler.Start();
-    }
-
-void CGlxWaitScheduler::RunL()
-    {
-    TRACER("CGlxWaitScheduler::RunL()");     
-    iScheduler.AsyncStop();
-    }
-
-void CGlxWaitScheduler::DoCancel()
-    {
-    TRACER("CGlxWaitScheduler::DoCancel()");   
-    //Do nothing
-    }
 
 // ----------------------------------------------------------------------------
 // NewL
@@ -148,7 +98,6 @@ void CGlxPreviewThumbnailBinding::ConstructL()
     iThumbnailContext->SetDefaultSpec(iGridIconSize.iWidth,
                                                 iGridIconSize.iHeight);
     iThumbnailContext->AddAttributeL(tnAttr);
-    iBitmapScaler = CBitmapScaler::NewL();
     }
 
 // ----------------------------------------------------------------------------
@@ -175,13 +124,7 @@ CGlxPreviewThumbnailBinding::~CGlxPreviewThumbnailBinding()
 	    }
 	delete iTimer;
 	iTimer = NULL;
-	iPreviewItemCount.Close();
-	
-	if(iBitmapScaler)
-	    {
-        delete iBitmapScaler;
-	    iBitmapScaler = NULL;
-	    }
+	iPreviewItemCount.Close();	
 	}
 
 // ----------------------------------------------------------------------------
@@ -208,9 +151,9 @@ void CGlxPreviewThumbnailBinding::TimerTickedL()
             if (value)
                 {
                 CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
-				bitmap->Duplicate( value->iBitmap->Handle());
-                //ScaleBitmapToListSizeL(value->iBitmap, bitmap);
-                iObserver.PreviewTNReadyL(bitmap, NULL,iProgressIndex);
+                ScaleBitmapToListSizeL(value->iBitmap, bitmap);
+                GLX_LOG_INFO1("iObserver.PreviewTNReadyL() iTrial=%d", iTrial);
+                iObserver.PreviewTNReadyL(bitmap, NULL,iPopulateListTNs);
                 }
     	    }
        	}
@@ -218,7 +161,7 @@ void CGlxPreviewThumbnailBinding::TimerTickedL()
 	    {
 	    if (iTrial == KWaitCount)
 		    {		   
-		    iObserver.PreviewTNReadyL(NULL, NULL, KErrNotFound);
+		    iObserver.PreviewTNReadyL(NULL, NULL, iPopulateListTNs);
 		    iTrial=0;
 		    return;
 		    }
@@ -240,15 +183,15 @@ void CGlxPreviewThumbnailBinding::TimerTickedL()
 		if (value)
 			{
 			CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
-			bitmap->Duplicate( value->iBitmap->Handle());
-		    //ScaleBitmapToListSizeL(value->iBitmap, bitmap);
-			iObserver.PreviewTNReadyL(bitmap, NULL,iProgressIndex);
+		    ScaleBitmapToListSizeL(value->iBitmap, bitmap);
+			GLX_LOG_INFO1("iObserver.PreviewTNReadyL() iTrialCount=%d", iTrialCount);
+			iObserver.PreviewTNReadyL(bitmap, NULL,iPopulateListTNs);
 			}
 		else
 			{
 			if (iTrialCount == KWaitCount)
 				{				
-				iObserver.PreviewTNReadyL(NULL, NULL, KErrNotFound);
+				iObserver.PreviewTNReadyL(NULL, NULL, iPopulateListTNs);
 				iTrialCount=0;
 				return;
 				}
@@ -283,13 +226,13 @@ TInt CGlxPreviewThumbnailBinding::IsTimeL( TAny* aSelf )
 // ----------------------------------------------------------------------------
 //    
 void CGlxPreviewThumbnailBinding::HandleItemChangedL(const CMPXCollectionPath& aPath,
-        TBool aPopulateListTNs, TBool aBackwardNavigation)
+        TBool aPopulateListTNs, TBool  aIsRefreshNeeded, TBool aBackwardNavigation)
     {
     TRACER("CGlxPreviewThumbnailBinding::HandleItemChangedL");
     iTimerTicked = EFalse;
     iPopulateListTNs = aPopulateListTNs;
-    iBackwardNavigation = aBackwardNavigation;
     iProgressIndex = KErrNone;
+    iIsRefreshNeeded = aIsRefreshNeeded;
 
     // remove and close old medialist   
     if( iMediaList )
@@ -307,6 +250,13 @@ void CGlxPreviewThumbnailBinding::HandleItemChangedL(const CMPXCollectionPath& a
     iMediaList->AddContextL(iThumbnailContext, KGlxFetchContextPriorityNormal);
 	// adding the medialist to observ any changes or updates done
 	iMediaList->AddMediaListObserverL(this);
+
+	if(aBackwardNavigation)
+	    {
+	    //On backward navigation start the timer manually, since we do not  
+        //get the attribute callback.
+        StartTimer(iPopulateListTNs);        
+        }
     }
 
 // ----------------------------------------------------------------------------
@@ -328,16 +278,8 @@ void CGlxPreviewThumbnailBinding::StartTimer(TBool aPopulateListTNs)
         
     if (iPopulateListTNs)
         {
-        if (iBackwardNavigation)
-            {
-            iTimer->Start(KThumbnailIntervalTimeDelay, KThumbnailIntervalTimeDelay/KWaitCount,
-                    TCallBack(IsTimeL,this));
-            }
-        else
-            {
-            iTimer->Start(KThumbnailStartTimeDelay, 
+         iTimer->Start(KThumbnailStartTimeDelay, 
                     KInitialThumbnailsTimeDelay, TCallBack(IsTimeL,this));
-            }
         }
      }
 
@@ -401,6 +343,13 @@ void CGlxPreviewThumbnailBinding::HandleAttributesAvailableL( TInt aItemIndex,
         if (value)
 	        {
             iPreviewItemCount.AppendL( aItemIndex );
+            // sometimes we get HandleAttributesAvailableL callback after some delay
+            // when we do cache cleanup. 
+            if(!iPopulateListTNs)
+            	{
+            	iPopulateListTNs = ETrue;
+            	StartTimer(iPopulateListTNs);
+            	} 
             }
         }
     }
@@ -483,29 +432,54 @@ void CGlxPreviewThumbnailBinding::HandleItemModifiedL( const RArray<TInt>&
 //
 void CGlxPreviewThumbnailBinding::HandlePopulatedL( MGlxMediaList* /*aList*/ )
     {
-    TRACER("CGlxPreviewThumbnailBinding::HandlePopulatedL()");
-    //Start the timer
-    StartTimer(iPopulateListTNs);
-    }
+	TRACER("CGlxPreviewThumbnailBinding::HandlePopulatedL()");
+
+	// Do cache cleanup. If iIsRefreshNeeded is set,
+	// then clean up the item at 0th index 
+	if (iPopulateListTNs && iIsRefreshNeeded)
+		{
+		if (iMediaList && iMediaList->Count() > 0)
+			{
+			GLX_LOG_INFO("**** Cache Cleanup ****");
+			MGlxCache* cacheManager = MGlxCache::InstanceL();
+			cacheManager->ForceCleanupMedia(iMediaList->IdSpaceId(0),
+					iMediaList->Item(0).Id());
+			cacheManager->Close();
+			}
+		}
+	//Start the timer
+	StartTimer(iPopulateListTNs);
+	}
 
 // ----------------------------------------------------------------------------
 // ScaleBitmapToListSizeL
 // ----------------------------------------------------------------------------
 //
 void CGlxPreviewThumbnailBinding::ScaleBitmapToListSizeL(
-                             CFbsBitmap* aSrcBitmap, CFbsBitmap* aDestBitmap)
-    {      
-    TRACER("CGlxPreviewThumbnailBinding::ScaleBitmapToListSizeL()");      
-
-    // Create the bitmap with the list preferred size
-    aDestBitmap->Create(CHgDoubleGraphicList::PreferredImageSize(), EColor16MU);
-
-    CGlxWaitScheduler* waitScheduler = CGlxWaitScheduler::NewL();
-    CleanupStack::PushL( waitScheduler );
-
-    iBitmapScaler->Scale(&waitScheduler->iStatus, *aSrcBitmap, 
-            *aDestBitmap, ETrue);
-    waitScheduler->WaitForRequest();
-
-    CleanupStack::PopAndDestroy( waitScheduler );
+        CFbsBitmap* aSrcBitmap, CFbsBitmap* aDestBitmap)
+    {
+    TRACER("CGlxPreviewThumbnailBinding::ScaleBitmapToListSizeL()");
+    TSize destSize = CHgDoubleGraphicList::PreferredImageSize();
+    TSize srcSize = aSrcBitmap->SizeInPixels();
+    if (destSize.iHeight * srcSize.iWidth < destSize.iWidth * srcSize.iHeight)
+        {
+        // Source has taller aspect than target so reduce target width
+        destSize.iWidth = ((destSize.iHeight * srcSize.iWidth)
+                / (srcSize.iHeight));
+        }
+    else
+        {
+        // Source has wider aspect than target so reduce target height
+        destSize.iHeight = (destSize.iWidth * srcSize.iHeight)
+                / srcSize.iWidth;
+        }
+    aDestBitmap->Create(destSize, aSrcBitmap->DisplayMode());
+    CFbsBitmapDevice* bitmapDevice = CFbsBitmapDevice::NewL(aDestBitmap);
+    CleanupStack::PushL(bitmapDevice);
+    CFbsBitGc* bitmapGc = CFbsBitGc::NewL();
+    CleanupStack::PushL(bitmapGc);
+    bitmapGc->Activate(bitmapDevice);
+    bitmapGc->DrawBitmap(TRect(destSize), aSrcBitmap);
+    CleanupStack::PopAndDestroy(bitmapGc);
+    CleanupStack::PopAndDestroy(bitmapDevice);
     }

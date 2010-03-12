@@ -301,7 +301,7 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
          * returns the index of item for which texture can be removed for cleanup
          * The index will be out the iterator offsets w.r.t focssed index.
          */
-		void SetImage();
+		void SetImageL();
         TInt GetIndexToBeRemoved();
         /**
          * Remove the fullscreen texture.

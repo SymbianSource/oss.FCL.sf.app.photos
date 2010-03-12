@@ -342,6 +342,21 @@ void CGlxFetcherDialog::PostLayoutDynInitL()
     {
     TRACER("CGlxFetcherDialog::PostLayoutDynInitL");
     
+    if (!iUiUtility->IsPenSupported())
+        {
+        CEikButtonGroupContainer& cbaContainer = ButtonGroupContainer();
+        if (iMultiSelectionEnabled)
+            {
+            cbaContainer.SetCommandSetL(R_AVKON_SOFTKEYS_OK_CANCEL__MARK);
+            }
+        else
+            {
+            cbaContainer.SetCommandSetL(
+                    R_AVKON_SOFTKEYS_SELECT_CANCEL__SELECT);
+            }
+        cbaContainer.DrawNow();
+        }
+
     // Create and Display Grid widget 
     iFetcherContainer->CreateAndDisplayGridL();
     }
@@ -398,6 +413,29 @@ void CGlxFetcherDialog::HandleDoubleTapEventL(TInt aCommandId)
     Extension()->iPublicFlags.Set(CEikDialogExtension::EDelayedExit);
     ProcessCommandL(aCommandId);
     Extension()->iPublicFlags.Clear(CEikDialogExtension::EDelayedExit);
+    }
+    
+//-----------------------------------------------------------------------------
+// CGlxFetcherDialog::HandleMarkEventL
+// Callback from the container to process the mark/unmark events.
+//-----------------------------------------------------------------------------
+void CGlxFetcherDialog::HandleMarkEventL()
+    {
+    TRACER("CGlxFetcherDialog::HandleMarkEventL");
+    if ( iUiUtility->IsPenSupported() )
+        {
+        MGlxMediaList& mediaList = iFetcherContainer->MediaList();
+        CEikButtonGroupContainer& cbaContainer = ButtonGroupContainer();
+        if (mediaList.SelectionCount())
+            {
+            cbaContainer.SetCommandSetL(R_AVKON_SOFTKEYS_OK_CANCEL__MARK);
+            }
+        else
+            {
+            cbaContainer.SetCommandSetL(R_AVKON_SOFTKEYS_CANCEL);
+            }
+        cbaContainer.DrawNow();
+        }
     }
     
 //-----------------------------------------------------------------------------

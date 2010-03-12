@@ -52,13 +52,13 @@ public:
     /*
      * This is to cancel the active object from decoding 
      */
-    void HandleRunL();
+    void HandleRunL(TRequestStatus& aStatus);
 
     /*
      * This updates the new image.
      */
     void UpdateNewImageL(const TDesC& aImageFile, 
-            TInt aFrameCount);
+            TInt aFrameCount,TSize aImageDimensions);
     
     /*
      * Activate Zoom 
@@ -97,11 +97,9 @@ private:
     
     /*
      * Create a New surface with given size
-     * @param1 size 
      */
-    void CreateSurfaceL(TSize aSize);
+    void CreateSurfaceL();
     /*
-    * Create surface manager with given size
     * @param1 size 
     */
    void MapSurfaceL();
@@ -141,6 +139,11 @@ private:
     void CreateHdmiL(TBool aCreateSurface = ETrue);
 
     static TInt TimeOut(TAny* aSelf);
+	
+	/*
+	* ModifySurface positions of the surface to be displayed on screen
+	*/
+	void ModifySurfacePostion();
 private:
     RWindow* iWindow;
     const TDesC& iImagePath;
@@ -168,7 +171,6 @@ private:
     TInt                iAnimCount;                 // animation count
     RFs                 iFsSession;                 // RFs
     
-    TBool iFirstTime;
     TPoint iLeftCornerForZoom;
     CPeriodic* iTimer;
     TBool iZoom;

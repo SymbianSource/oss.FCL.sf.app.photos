@@ -161,7 +161,8 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
     	    icon.bitmapId, resFile, defaultSize ).Id() );
         }
 	else if ( (KErrNone == thumbnailError) || (KErrArgument == thumbnailError) 
-		|| (KErrDiskFull == thumbnailError) || ( drm && isValid == EGlxDrmRightsInvalid ) )
+        || (KErrDiskFull == thumbnailError) || (KErrNoMemory == thumbnailError) 
+		|| ( drm && isValid == EGlxDrmRightsInvalid ) )
 	    {
 		//Try and see if we can scale and show the grid tnm else show the default
 	    TBool isGridTnmShown = EFalse;		

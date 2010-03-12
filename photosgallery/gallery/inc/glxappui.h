@@ -34,8 +34,6 @@ class CRepository;
 class CGlxNavigationalState;
 class CAknGlobalNote;
 
-class CGlxBackServiceWrapper;
-
 /**
  *  CGlxAppUi
  *
@@ -165,12 +163,6 @@ private:
     *Invoked by the OOM framwork when photos app needs to free memory for other applications.
     */
     void StopCleanupL();
-    /**
-     * To move back to the app which started photossuite when done options->exit from
-     * within the app. 
-     * @param aMessage exit action from photossuite 
-     */
-    void LaunchMmViewL(const TDesC8& aMessage);
 	
 	/**
      * Check for updates via IAD.
@@ -206,7 +198,6 @@ private:
     /// Central repository entry for app (owned)
     CRepository* iRepository;
     
-    CGlxBackServiceWrapper* iBSWrapper;
     /**
      * IAD updater class
      */

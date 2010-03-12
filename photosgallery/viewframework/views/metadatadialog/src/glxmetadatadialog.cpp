@@ -470,20 +470,7 @@ void CGlxMetadataDialog::HandlePointerEventL(
     const TPointerEvent& aPointerEvent)
 	{
 	TRACER("CGlxMetadataDialog::HandlePointerEventL");
-
-	//This has to be called first, as base class implementation sets the flag of settings dialog with EDisableMarquee 
 	CCoeControl::HandlePointerEventL( aPointerEvent );
-    
-	//After the above call we can call our implementation to reset the marque flag and start marqueeing if needed
-	if(aPointerEvent.iType == TPointerEvent::EButton1Down
-	        || aPointerEvent.iType == TPointerEvent::EButton2Down
-	        || aPointerEvent.iType == TPointerEvent::EButton3Down
-	        || aPointerEvent.iType == TPointerEvent::EDrag)
-	    {
-		//This has to done at every above mentioned event, since the disable marquee flag is set by base implementation, 
-		//forcing us the need to reset it everytime.
-        iContainer->EnableMarqueingL();
-	    }
 	}
 
 // ---------------------------------------------------------------------------

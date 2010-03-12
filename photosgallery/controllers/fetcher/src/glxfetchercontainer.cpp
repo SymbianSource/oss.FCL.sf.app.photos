@@ -298,7 +298,7 @@ void CGlxFetcherContainer::Request(TInt aRequestStart, TInt aRequestEnd,
         THgScrollDirection /*aDirection*/)
     {
     TRACER("CGlxFetcherContainer::Request()");
-    RequestL(aRequestStart, aRequestEnd);
+    TRAP_IGNORE(RequestL( aRequestStart, aRequestEnd ));
     }
 // ---------------------------------------------------------------------------
 // RequestL
@@ -477,6 +477,7 @@ void CGlxFetcherContainer::HandleMarkingL( TInt aIndex, TBool/* aMarked*/ )
     {
     TRACER("CGlxGridViewImp::HandleMarkingL()");
     HandleMultipleMarkingL(aIndex);
+    iEventObserver.HandleMarkEventL();    
     }
 
 // ---------------------------------------------------------------------------

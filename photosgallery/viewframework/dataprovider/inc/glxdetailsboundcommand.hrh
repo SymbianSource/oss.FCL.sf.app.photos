@@ -35,24 +35,29 @@ enum TProviderMenuCommandIds
 #define EMetaControlIdSettingList   KAknCtLastControlId + 1
 #define EMetaDataDialogListBox      KAknCtLastControlId + 2 
 
-#define ENameItem               0
-#define EDescriptionItem        1
-#define EAlbumsItem             2
-#define ETagsItem               3
-#define EDateAndTimeItem        4
-#define ELocationItem           5
-#define ESizeItem               6
-#define EResolutionItem         7
-#define EDurationItem           8
-#define ElicenseItem            9
+enum TDetailsFields
+	{
+	ENameItem,
+	EDescriptionItem,
+	EAlbumsItem,
+	ETagsItem,
+	EDateAndTimeItem,
+	ELocationItem,
+	ESizeItem,
+	EResolutionItem,
+	EDurationItem,
+	ElicenseItem
+	};
 
-
-#define EImgVwrNameItem               0
-#define EImgVwrDescriptionItem        1
-#define EImgVwrDateAndTimeItem        2
-#define EImgVwrSizeItem               3
-#define EImgVwrResolutionItem         4
-#define EImgVwrlicenseItem            5
+enum TImageVwrDetailsFields
+	{
+	EImgVwrNameItem,
+	EImgVwrDescriptionItem,
+	EImgVwrDateAndTimeItem,
+	EImgVwrSizeItem,
+	EImgVwrResolutionItem,
+	EImgVwrlicenseItem	
+	};
 
 #define EShwCmdSettingsChange   0x6000
 #define EShwCmdHelp             0x6001  

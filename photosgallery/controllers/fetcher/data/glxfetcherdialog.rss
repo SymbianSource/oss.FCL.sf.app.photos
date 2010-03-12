@@ -199,8 +199,7 @@ RESOURCE DIALOG r_modal_single_dialog
   flags=EEikDialogFlagNoDrag | EEikDialogFlagFillAppClientRect |
       EEikDialogFlagCbaButtons | EEikDialogFlagWait |
           EEikDialogFlagNoBackgroundFade |EEikDialogFlagNoBorder;
-  // softkeys: left select, middle select, right cancel
-  buttons = R_AVKON_SOFTKEYS_SELECT_CANCEL__SELECT;
+  buttons = R_AVKON_SOFTKEYS_CANCEL;
   // Do not add any items
   }
 
@@ -210,8 +209,7 @@ RESOURCE DIALOG r_modal_multi_dialog
   flags=EEikDialogFlagNoDrag | EEikDialogFlagFillAppClientRect |
       EEikDialogFlagCbaButtons | EEikDialogFlagWait |
           EEikDialogFlagNoBackgroundFade |EEikDialogFlagNoBorder;
-  // softkeys: left options, middle select, right cancel
-  buttons = R_AVKON_SOFTKEYS_OK_CANCEL__MARK;
+  buttons = R_AVKON_SOFTKEYS_CANCEL;
   // Do not add any items
   }
 

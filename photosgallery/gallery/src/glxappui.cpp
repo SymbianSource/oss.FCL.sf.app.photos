@@ -19,6 +19,8 @@
  
 
 #include "glxappui.h"
+#include "glxcachemanager.h"
+#include "glxiadupdate.h"
 
 #include <avkon.hrh>
 #include <StringLoader.h>    
@@ -59,21 +61,12 @@
 #include <hal_data.h>
 #include <oommonitorsession.h>
 #include <glxtracer.h>
-#include "glxcachemanager.h"//OOM
-//OOM
 
+//OOM
 #include <oommonitorplugin.h>
 #include <oommonitorsession.h>
-
-//OOM
-
-
-#include <glxbackservicewrapper.h>
-
-
 #include <glxuistd.h>
 #include <apgcli.h>
-#include "glxiadupdate.h"
 
 //constants
 const TInt KGlxGridThumbnailPages          = 9 ;       // 4 page Down + 4 page Up + 1 Visible page = 9 page 
@@ -87,17 +80,12 @@ const TInt KGlxMaxMemoryToDecodeCapturedPicture = 2 * KGlxMaxMegaPixelsSupported
 const TInt KGlxMemoryForOOMFwk          = 1048576 ; // 1 MB
 const TInt KGlxThumbNailRepresentation    = 2;         // Thumbnail Representation; Could be 3 also 
 
-_LIT8( KPhotosSuiteNavigation, "SuiteNavigation" );
 _LIT8( KPhotosCaptured, "Captured" );
 _LIT8( KPhotosMonths, "Months" );
 _LIT8( KPhotosTags, "Tags" );
 _LIT8( KPhotosAlbums, "Albums" );
 _LIT8( KPhotosAllValue,"Allcs");
 
-_LIT8( KPhotosSuiteExitMessage, "mm://photossuite?action=exit" );
-
-// Matrix uid, needed for activating the suite view.
-const TInt KMatrixUid = 0x101F4CD2;
 const TInt KCapturedAlbumId = 2 ;
         
 /**
@@ -127,8 +115,6 @@ void CGlxAppUi::ConstructL()
     
     iNavigationalState->AddObserverL( *this );
 
-    // Create Back Stepping Service wrapper
-	iBSWrapper = CGlxBackServiceWrapper::NewL( TUid::Uid( KGlxGalleryApplicationUid ) );
 	iNavigationalState->SetBackExitStatus(EFalse);
     
     iFocusLostLowMemory = EFalse;
@@ -171,10 +157,6 @@ CGlxAppUi::~CGlxAppUi()
         iUiUtility->Close();
         }
 
-    if( iBSWrapper )
-        {	
-        delete iBSWrapper;    
-        }
     if (iPeriodic)
         {
         iPeriodic->Cancel();
@@ -199,16 +181,6 @@ void CGlxAppUi::HandleCommandL(TInt aCommand)
         {
         case EEikCmdExit:
             {
-            // Send message to Menu and exit.
-            /**
-            * In case of exit is pressed from options menu of photos grid, this flag will be 
-            * false. so it will launch matrix menu. If we don't call LaunchMmViewL, in the above 
-            * scenario, photos will exit,but photosuite will come. This is misleading to user.
-            */
-            if(!iEndKeyPressed)
-	            {
-	            LaunchMmViewL( KPhotosSuiteExitMessage );	
-	            }
             iUiUtility->SetExitingState(ETrue);
             Exit();
             }
@@ -609,10 +581,6 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
                 User::Leave(KErrNotSupported);
                 }
             iNavigationalState->SetBackExitStatus(ETrue);
-            TBuf8<15> buf;
-            buf.Append( KPhotosSuiteNavigation );
-            TRAP_IGNORE(iBSWrapper->ForwardActivationEventL( buf, ETrue ))
-
             break;
         }
     CleanupStack::PopAndDestroy(&stream);
@@ -853,42 +821,6 @@ void CGlxAppUi::DoCheckForIADUpdatesL()
     GLX_DEBUG2("CGlxAppUi::DoCheckForIADUpdatesL(-) took <%d> us", 
                     (TInt)stopTime.MicroSecondsFrom(startTime).Int64());
 #endif    
-    }
-
-// ---------------------------------------------------------------------------
-// LaunchMmViewL
-//
-// ---------------------------------------------------------------------------
-//
-void CGlxAppUi::LaunchMmViewL( const TDesC8& aMessage )
-    {
- 	TRACER("CGlxNsAppUi::LaunchMmViewL()");
-	TApaTaskList taskList( iCoeEnv->WsSession() );
-	TApaTask task = taskList.FindApp( TUid::Uid( KMatrixUid ) );
-
-	if ( task.Exists() )
-		{
-		task.SendMessage( TUid::Uid( KUidApaMessageSwitchOpenFileValue ),aMessage );
-		}
-	else
-		{ // app not yet running
-		RApaLsSession appArcSession;
-		CleanupClosePushL( appArcSession );
-		User::LeaveIfError( appArcSession.Connect() );      
-		TApaAppInfo appInfo;
-		TInt err = appArcSession.GetAppInfo( appInfo, 
-		TUid::Uid( KMatrixUid ) );
-		if( err == KErrNone )
-			{
-			CApaCommandLine* cmdLine = CApaCommandLine::NewLC();
-			cmdLine->SetExecutableNameL( appInfo.iFullName );
-			cmdLine->SetCommandL( EApaCommandRun );
-			cmdLine->SetTailEndL( aMessage );
-			appArcSession.StartApp( *cmdLine );
-			CleanupStack::PopAndDestroy( cmdLine );
-			}
-		CleanupStack::PopAndDestroy( &appArcSession ); 
-		}
     }
 
 // -----------------------------------------------------------------------------

@@ -136,6 +136,9 @@ void CGlxMetadataContainer::ConstructL( const TRect& /*aRect*/ )
 	
 	//Initializing to NULL
 	iModifiedUri = NULL;	
+	
+	//Flag to check if rename is completed successfully.
+	iRenameCompleted = EFalse;
 	}
 
 // ---------------------------------------------------------
@@ -309,18 +312,19 @@ TBool CGlxMetadataContainer::IsLicenseItem()
 TBool CGlxMetadataContainer::IsLocationItem()
     {
     //if its location item - enable the delete option
-    if(ListBox()->CurrentItemIndex()== ELocationItem)
+    if (iItemMediaList->Count() && ListBox()->CurrentItemIndex()
+            == ELocationItem)
         {
         const TGlxMedia& item = iItemMediaList->Item(0);
         TCoordinate coordinate;
-        if(item.GetCoordinate(coordinate))
-			{
-			return EFalse;
-			}
-        return ETrue;        
+        if (item.GetCoordinate(coordinate))
+            {
+            return EFalse;
+            }
+        return ETrue;
         }
     //return ETrue to dim the item
-    return ETrue;    
+    return ETrue;
     }
     
 //-----------------------------------------------------------------------------
@@ -943,12 +947,17 @@ void CGlxMetadataContainer::HandleAttributesAvailableL( TInt /*aItemIndex*/,
     //generic medialist for the item for all the attributes required other than tags and albums.
     if(aList == iItemMediaList)
         {
-		// Loop untill it checks for all the avialable attributes
-		for (TInt i = aAttributes.Count() - 1; i >= 0 ; i--)
-			{
-			//set attributes to the items in the container
-			SetAttributesL(aAttributes[i]);                   
-			}
+        // Loop untill it checks for all the avialable attributes
+        for (TInt i = aAttributes.Count() - 1; i >= 0; i--)
+            {
+            //set attributes to the items in the container
+            SetAttributesL(aAttributes[i]);
+            }
+        if (iRenameCompleted)
+            {
+            iRenameCompleted = EFalse;
+            iAvkonAppUi->ProcessCommandL(EGlxCmdRenameCompleted);
+            }
         }
     //updation of tags and albums list based on the medialist callback.
     if(aList == iTagMediaList ||  aList == iAlbumMediaList)
@@ -1013,7 +1022,7 @@ void CGlxMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndI
 			TGlxMedia item = iItemMediaList->Item(0);
 			CGlxUStringConverter* stringConverter = CGlxUStringConverter::NewL();
 			CleanupStack::PushL(stringConverter );
-			for(TInt index = 0; index <= 9; index++)
+			for(TInt index = 0; index <= ElicenseItem ; index++)
 				{
 				HBufC* string = NULL;               
   
@@ -1053,6 +1062,12 @@ void CGlxMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndI
 					stringConverter->AsStringL(item,
 							KGlxMediaGeneralDimensions,0, string );
 					}    
+				else if(index == ElicenseItem)
+					{
+					// If an item is DRM protected, License field in details
+					// should display "View Details"
+					string = StringLoader::LoadL(R_GLX_METADATA_VIEW_OPTIONS_VIEW);					
+					} 				
 				else
 					{
 					//no implementation
@@ -1061,10 +1076,10 @@ void CGlxMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndI
 					{
 					iTextSetter.Copy(KGlxTextSetter);
 					iTextSetter.Append(*string);
-					}
-				EditItemL(index,EFalse);                 
-				delete string;
-				string = NULL;
+					}	
+				CleanupStack::PushL( string );
+				EditItemL(index,EFalse);
+				CleanupStack::PopAndDestroy(string );
 				}
 			CleanupStack::PopAndDestroy(stringConverter );
 			}   
@@ -1082,18 +1097,6 @@ void CGlxMetadataContainer::EnableMarqueingL()
     ListBox()->ItemDrawer()->ColumnData()->SetMarqueeParams (KMarqueeLoopCount,
             KMarqueeScrollAmount, KMarqueeScrollDelay, KMarqueeScrollInterval);
     ListBox()->ItemDrawer()->ColumnData()->EnableMarqueeL(ETrue);
-
-	//Fetch the current item index
-    TInt index = ListBox()->CurrentItemIndex();
-
-	//Reset the disable marquee flag, so that marquee effect can continue (this is normally reset by 
-	//base class of glxmetaDatadialog::HandlePointerEventL()
-    ListBox()->ItemDrawer()->ClearFlags(CListItemDrawer::EDisableMarquee);
-	
-	//This is the function which actually starts marquee effect. It is anyway being called from base
-	//implementation of OfferKeyEventL(), but for pointer event, we have to call
-	//this function
-    ListBox()->DrawItem(index);
     }    
 // ----------------------------------------------------------------------------
 // HandleCommandCompleteL
@@ -1297,21 +1300,22 @@ TFileName CGlxMetadataContainer::ParseFileName(const TDesC& aTitleText)
 // ---------------------------------------------------------------------------
 void CGlxMetadataContainer::RefreshMediaListL()
 	{
-	TRACER("CGlxMetadataContainer::RefreshMediaList()");
-	if(iItemMediaList)
-	    {
-	    iItemMediaList->RemoveContext(iMainListAttributecontext);
-	    iItemMediaList->RemoveMediaListObserver(this);
-	    iItemMediaList->Close();
-	    iItemMediaList = NULL;
-	    if( iMainListAttributecontext )
-			{
-			delete iMainListAttributecontext;
-			iMainListAttributecontext = NULL;
-			}
-	    CreateMediaListForSelectedItemL(ETrue);
-	    }
-	}
+    TRACER("CGlxMetadataContainer::RefreshMediaList()");
+    if (iItemMediaList)
+        {
+        iItemMediaList->RemoveContext(iMainListAttributecontext);
+        iItemMediaList->RemoveMediaListObserver(this);
+        iItemMediaList->Close();
+        iItemMediaList = NULL;
+        if (iMainListAttributecontext)
+            {
+            delete iMainListAttributecontext;
+            iMainListAttributecontext = NULL;
+            }
+        CreateMediaListForSelectedItemL(ETrue);
+        }
+    iRenameCompleted = ETrue;
+    }
 
 // ---------------------------------------------------------------------------
 // Completes the active object causing a call from the active scheduler to RunL()

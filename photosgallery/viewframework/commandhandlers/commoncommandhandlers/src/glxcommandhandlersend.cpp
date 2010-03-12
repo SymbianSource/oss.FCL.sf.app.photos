@@ -21,7 +21,6 @@
 //  CLASS HEADER
 #include "glxcommandhandlersend.h"
 
-
 //  EXTERNAL INCLUDES
 #include <utf.h>							// for CnvUtfConverter
 #include <sendui.h>							// for CSendui
@@ -47,6 +46,7 @@
 #include <glxfetchcontextremover.h>         // for TGlxFetchContextRemover 
 #include <glxresourceutilities.h>           // for CGlxResourceUtilities
 #include <glxicons.mbg>
+#include <glximageviewermanager.h>          // for CGlxImageViewerManager
 
 // LOCAL FUNCTIONS AND CONSTANTS
 namespace
@@ -243,17 +243,17 @@ CMessageData* CGlxCommandHandlerSend::SelectedFilesLC()
 	// retrieve the file name and path
 	CGlxDefaultAttributeContext* attributeContext = 
 										CGlxDefaultAttributeContext::NewL();
-    CleanupStack::PushL(attributeContext);
-    attributeContext->AddAttributeL(TMPXAttribute(KMPXMediaGeneralUri));
-    mediaList.AddContextL(attributeContext, KGlxFetchContextPriorityBlocking);
+    CleanupStack::PushL( attributeContext );
+    attributeContext->AddAttributeL( TMPXAttribute( KMPXMediaGeneralUri ) );
+    mediaList.AddContextL( attributeContext, KGlxFetchContextPriorityBlocking );
     
     // TGlxContextRemover will remove the context when it goes out of scope
     // Used here to avoid a trap and still have safe cleanup   
-    TGlxFetchContextRemover contextRemover (attributeContext, mediaList);
+    TGlxFetchContextRemover contextRemover( attributeContext, mediaList );
     CleanupClosePushL( contextRemover );
     
-	User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext, 
-															mediaList, ETrue));															
+	User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext,
+            mediaList, ETrue));
 	// context off the list
     CleanupStack::PopAndDestroy( &contextRemover );														
 
@@ -263,31 +263,42 @@ CMessageData* CGlxCommandHandlerSend::SelectedFilesLC()
 	// extract the filename from selected items in the media list and add it 
 	// to the messageData to be returned
     TGlxSelectionIterator iterator;
-    iterator.SetToFirst(&mediaList);
+    iterator.SetToFirst( &mediaList );
 	TInt index = KErrNotFound;
 
-	while ((index = iterator++) != KErrNotFound)
+	while ( (index = iterator++) != KErrNotFound )
 		{
-		// does not return ownership.
-	   	const CGlxMedia* media = mediaList.Item(index).Properties();
-	   	if(media)
-	   		{
-	   		if(media->IsSupported(KMPXMediaGeneralUri) && IsValidTypeL(*media))
-	    		{
-	    		messageData->AppendAttachmentL(
-	    								media->ValueText(KMPXMediaGeneralUri));
-	   			}
-	   		}
-	   	else
-	   		{
-		    User::Leave(KErrNotReady);
-		    }	
-		}
+        // does not return ownership.
+        const CGlxMedia* media = mediaList.Item( index ).Properties();
+        if (media)
+            {
+            if ( media->IsSupported( KMPXMediaGeneralUri ) && 
+                    IsValidTypeL( *media ) )
+                {
+                CGlxImageViewerManager* viewerInst =
+                        CGlxImageViewerManager::InstanceL();
+                if ( viewerInst && viewerInst->IsPrivate() )
+                    {
+                    messageData->AppendAttachmentHandleL( 
+                            viewerInst->ImageFileHandle() );
+                    }
+                else
+                    {
+                    messageData->AppendAttachmentL( 
+                            media->ValueText( KMPXMediaGeneralUri ) );
+                    }
+                viewerInst->DeleteInstance();
+                }
+            }
+        else
+            {
+            User::Leave( KErrNotReady );
+            }
+        }
 
-	CleanupStack::PopAndDestroy(attributeContext);
+	CleanupStack::PopAndDestroy( attributeContext );
 	return messageData;
-	}// contextRemover goes out of scope and removes the context from media list
-
+	}
 
 // ----------------------------------------------------------------------------
 // IsValidTypeL

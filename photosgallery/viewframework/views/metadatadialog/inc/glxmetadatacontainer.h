@@ -213,6 +213,7 @@ private: 	//data
 		//since iUri is const type.     
     	HBufC* iModifiedUri;
 		CGlxMetadataAsyncUpdate* iAsyncRequest;
+		TBool iRenameCompleted;
     };
     
 /**

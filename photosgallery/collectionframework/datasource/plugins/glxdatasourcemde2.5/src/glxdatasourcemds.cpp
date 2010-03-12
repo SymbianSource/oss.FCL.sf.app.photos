@@ -291,8 +291,7 @@ void CGlxDataSourceMde::ConstructL()
 
 #ifdef USE_S60_TNM
     iTnEngine = CThumbnailManager::NewL( *this);
-    iTnEngine->SetDisplayModeL( EColor16MU );
-
+    iTnEngine->SetDisplayModeL( EColor16M );
     iTnRequestInProgress = EFalse;
 #else
 	iThumbnailCreator = CGlxtnThumbnailCreator::InstanceL();

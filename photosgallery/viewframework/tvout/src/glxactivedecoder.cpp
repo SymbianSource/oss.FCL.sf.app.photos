@@ -59,7 +59,14 @@ CGlxHdmiDecoderAO::~CGlxHdmiDecoderAO()
 void CGlxHdmiDecoderAO::RunL()
     {
     TRACER("CGlxHdmiDecoderAO::RunL()");
-    iHdmiSurfaceUpdater->HandleRunL();
+    if(iStatus == KErrUnderflow)
+        {
+        iDecoder->ContinueConvert(&iStatus);
+        }
+    else
+        {
+        iHdmiSurfaceUpdater->HandleRunL(iStatus);
+        }
     }
 
 // -----------------------------------------------------------------------------

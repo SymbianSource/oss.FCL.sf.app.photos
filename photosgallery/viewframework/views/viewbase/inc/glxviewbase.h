@@ -57,7 +57,7 @@ public:
     /**
      * Constructor
      */
-    IMPORT_C CGlxViewBase(TBool aSyncActivation = EFalse);
+    IMPORT_C CGlxViewBase(TBool aSyncActivation = ETrue);
 
     /**
      * Destructor.

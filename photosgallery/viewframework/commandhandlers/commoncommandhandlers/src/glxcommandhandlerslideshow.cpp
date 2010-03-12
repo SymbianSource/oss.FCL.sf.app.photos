@@ -35,6 +35,7 @@
 #include <glxmedia.h>                            // for TGlxMedia
 #include <StringLoader.h>                        // for stringloader
 #include <glxlog.h>
+#include <glxtracer.h>
 
 #include "shwslideshowviewplugin.hrh"		 // for the slideshow view's UID
 #include "shwslideshowsettingsplugin_UID.hrh"// for slideshow setting dlg UID
@@ -57,7 +58,7 @@ namespace
 EXPORT_C CGlxCommandHandlerSlideshow* CGlxCommandHandlerSlideshow::NewL(
     MGlxMediaListProvider* aMediaListProvider, TBool aStepBack, TBool aHasToolbarItem )
     {
-    GLX_LOG_INFO( "CGlxCommandHandlerSlideshow::NewL" );
+    TRACER( "CGlxCommandHandlerSlideshow::NewL" );
     CGlxCommandHandlerSlideshow* self = new ( ELeave )
     	CGlxCommandHandlerSlideshow(aMediaListProvider, aStepBack, aHasToolbarItem);
     CleanupStack::PushL( self );
@@ -84,7 +85,7 @@ CGlxCommandHandlerSlideshow::CGlxCommandHandlerSlideshow( MGlxMediaListProvider*
 //
 void CGlxCommandHandlerSlideshow::ConstructL()
     {
-    GLX_LOG_INFO( "CGlxCommandHandlerSlideshow::ConstructL" );
+    TRACER( "CGlxCommandHandlerSlideshow::ConstructL" );
     
     // Get a handle 
     iUiUtility = CGlxUiUtility::UtilityL();
@@ -152,7 +153,7 @@ void CGlxCommandHandlerSlideshow::ConstructL()
 //
 EXPORT_C CGlxCommandHandlerSlideshow::~CGlxCommandHandlerSlideshow()
     {
-    GLX_LOG_INFO( "CGlxCommandHandlerSlideshow::~CGlxCommandHandlerSlideshow" );
+    TRACER( "CGlxCommandHandlerSlideshow::~CGlxCommandHandlerSlideshow" );
     if ( iResourceOffset )
         {
         CCoeEnv::Static()->DeleteResourceFile(iResourceOffset);
@@ -173,7 +174,7 @@ EXPORT_C CGlxCommandHandlerSlideshow::~CGlxCommandHandlerSlideshow()
 //
 void CGlxCommandHandlerSlideshow::DoActivateL(TInt aViewId)
     {
-    GLX_LOG_INFO( "CGlxCommandHandlerSlideshow::DoActivateL" );    
+    TRACER( "CGlxCommandHandlerSlideshow::DoActivateL" );    
     iViewId = aViewId;
 
     // for media list item "focus changed" notification
@@ -187,7 +188,7 @@ void CGlxCommandHandlerSlideshow::DoActivateL(TInt aViewId)
 // ----------------------------------------------------------------------------
 void CGlxCommandHandlerSlideshow::Deactivate()
     {
-    GLX_LOG_INFO( "CGlxCommandHandlerSlideshow::Deactivate" );       
+    TRACER( "CGlxCommandHandlerSlideshow::Deactivate" );       
 
     MGlxMediaList& mediaList( MediaList() );
     mediaList.RemoveMediaListObserver( this );
@@ -200,6 +201,7 @@ void CGlxCommandHandlerSlideshow::Deactivate()
 TBool CGlxCommandHandlerSlideshow::IsSlideshowNotPlayableOnFocusedContainer
             (TInt aCommandId, MGlxMediaList& aList)
     {
+    TRACER("CGlxCommandHandlerSlideshow::IsSlideshowNotPlayableOnFocusedContainer");
     TBool slideshowDisabled = EFalse;
 
     // get the media item
@@ -229,7 +231,7 @@ TBool CGlxCommandHandlerSlideshow::IsSlideshowNotPlayableOnFocusedContainer
 TBool CGlxCommandHandlerSlideshow::DoExecuteL(TInt aCommandId,
 	MGlxMediaList& aList )
 	{
-    GLX_LOG_INFO( "CGlxCommandHandlerSlideshow::DoExecuteL" );
+    TRACER( "CGlxCommandHandlerSlideshow::DoExecuteL" );
 	TBool handledCommand = ETrue;
 	
 	switch (aCommandId)
@@ -239,7 +241,7 @@ TBool CGlxCommandHandlerSlideshow::DoExecuteL(TInt aCommandId,
 	        // This check has to be done again here since Slideshow can be 
 	        // activated from toolbar even when there are non-slideshow playable 
 	        // items in a container and when that container is focused.	
-	        if( IsSlideshowNotPlayableOnFocusedContainer( aCommandId, aList ) )
+	        if( aList.Count() <= 0 || IsSlideshowNotPlayableOnFocusedContainer( aCommandId, aList ) )
 	            {
 	            HBufC* popupText = NULL;
 	            	            
@@ -321,6 +323,7 @@ TBool CGlxCommandHandlerSlideshow::DoExecuteL(TInt aCommandId,
 TBool CGlxCommandHandlerSlideshow::DoIsDisabled(
     TInt /*aCommandId*/, MGlxMediaList& /*aList*/) const
     {
+    TRACER("CGlxCommandHandlerSlideshow::DoIsDisabled");
     // Disable if UPnP is active
     return ( GlxUpnpRenderer::Status() == NGlxUpnpRenderer::EActive );
     }
@@ -331,6 +334,7 @@ TBool CGlxCommandHandlerSlideshow::DoIsDisabled(
 //
 TBool CGlxCommandHandlerSlideshow::BypassFiltersForExecute() const
     {
+    TRACER("CGlxCommandHandlerSlideshow::BypassFiltersForExecute");
     // Always bypass filters to minimise the time spent by the base class
     // when it initialises the slideshow menu item.
     return ETrue;
@@ -343,7 +347,7 @@ void CGlxCommandHandlerSlideshow::HandleFocusChangedL(
                 NGlxListDefs::TFocusChangeType /*aType*/,
                 TInt /*aNewIndex*/, TInt /*aOldIndex*/, MGlxMediaList* /*aList*/ )
     {
-    GLX_FUNC("CGlxCommandHandlerSlideshow::HandleFocusChangedL");
+    TRACER("CGlxCommandHandlerSlideshow::HandleFocusChangedL");
 
     }
 
@@ -391,6 +395,7 @@ void CGlxCommandHandlerSlideshow::HandleAttributesAvailableL(
             TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes,
             MGlxMediaList* /*aList*/ )
     {
+    TRACER("CGlxCommandHandlerSlideshow::HandleAttributesAvailableL");
     if ( iShowInToolbar && MediaList().FocusIndex() == aItemIndex )
         {
         TIdentityRelation<TMPXAttribute> match( TMPXAttribute::MatchContentId );
@@ -429,7 +434,7 @@ void CGlxCommandHandlerSlideshow::HandleMessageL(
 void CGlxCommandHandlerSlideshow::ActivateViewL( NShwSlideshow::TPlayDirection
 	aPlaybackDirection )
 	{
-    GLX_LOG_INFO( "CGlxCommandHandlerSlideshow::ActivateViewL" );
+    TRACER( "CGlxCommandHandlerSlideshow::ActivateViewL" );
     
     // Determine the path from the media list
     CMPXCollectionPath* path = MediaList().PathLC();
@@ -482,6 +487,7 @@ void CGlxCommandHandlerSlideshow::ActivateViewL( NShwSlideshow::TPlayDirection
 //
 void CGlxCommandHandlerSlideshow::UpdateToolbar()
     {
+    TRACER("CGlxCommandHandlerSlideshow::UpdateToolbar");
     TBool visible = EFalse;
 
     if ( GlxUpnpRenderer::Status() != NGlxUpnpRenderer::EActive )
@@ -516,7 +522,7 @@ void CGlxCommandHandlerSlideshow::UpdateToolbar()
 //
 void CGlxCommandHandlerSlideshow::PopulateToolbarL()
 	{
-	
+    TRACER("CGlxCommandHandlerSlideshow::PopulateToolbarL");
 	iUiUtility->ScreenFurniture()->SetTooltipL( EGlxCmdSlideshowPlay, CAknButton::EPositionLeft );
 	}
 

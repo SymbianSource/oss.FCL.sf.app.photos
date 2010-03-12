@@ -85,6 +85,11 @@ const TInt KGlxSliderTickValue        =5;
  * Start Delay for the periodic timer, in microseconds
  */
 const TInt KPeriodicStartDelay = 250000; 
+/**
+ * Interval delay for the periodic timer, in microseconds
+ */
+const TInt KPeriodicIntervalDelay = 100000; 
+
 //This constant is used to calculate the index of the item for which texture has to removed.
 //6 = 5(iterator value in forward or backward direction for fullscreen) + 1(focus index);
 const TInt KFullScreenIterator = 3; 
@@ -307,6 +312,16 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
         //Fix For EPKA-7U5DT7-slideshow launched from FullScreen and connect USB in mass storage mode results in Photos crash
         navigationalState->ActivatePreviousViewL();
         }  
+	else
+		{
+		//fix for ESLM-7YYDXC: When in FullScreen View, view mode must be 'EView'
+		//While coming back from SlideShow to FullScreen view, need to set view mode.
+		if(navigationalState->ViewingMode() != NGlxNavigationalState::EView)
+		   	{
+		   	navigationalState->SetToViewMode();
+		   	}
+		}
+		
 	
     if(naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
         {
@@ -321,22 +336,9 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
     if(!iImgViewerMode && iMediaList->Count())    
         {
         iHdmiController = CGlxHdmiController::NewL();    
-        iOldFocusIndex = iMediaList->FocusIndex(); 
-        TGlxMedia item = iMediaList->Item( iMediaList->FocusIndex() );
-        GLX_LOG_INFO("CGlxHdmi - CGlxFullScreenViewImp Create HdmiController");
-        
-        //check if the content  is not video && has proper DRM rights
-        //then only call setimage in HDMI
-        if (item.Category() != EMPXVideo && iDrmUtility->CheckOpenRightsL(item.Uri(),ETrue))
-            {
-            TInt frameCount(0);
-            TSize orignalSize;
-            TBool aFramesPresent  = item.GetFrameCount(frameCount);
-            TBool adimension  = item.GetDimensions(orignalSize);
-            iHdmiController->SetImageL(item.Uri(), orignalSize, frameCount);
-            }    
+        iOldFocusIndex = iMediaList->FocusIndex();
+        SetImageL();
         }
-
     iScreenFurniture->SetActiveView(iViewUid);
 
     // create the screen furniture for touch devices
@@ -375,8 +377,8 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
 //    iContextUtility->PublishPhotoContextL(item.Uri());
     	if ( !iPeriodic->IsActive() )
 		{
-		iPeriodic->Start( KPeriodicStartDelay, KMaxTInt, TCallBack( 
-		        &PeriodicCallback, static_cast<TAny*>( this ) ) );
+        iPeriodic->Start(KPeriodicStartDelay, KPeriodicIntervalDelay,
+                TCallBack(&PeriodicCallback, static_cast<TAny*> (this)));
 		}
 	}
 	
@@ -992,7 +994,16 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 MulDoubleTapData* DoubleTapData = (MulDoubleTapData*)(aEvent.CustomEventData()); 
                 TPoint doubleTapPoint = DoubleTapData->mDoubleTapPoint;
                 SetSliderLevel();
-                TRAP_IGNORE( ActivateZoomControlL(EZoomStartDoubleTap, &doubleTapPoint)  );
+                TRAP_IGNORE( ActivateZoomControlL(EZoomStartDoubleTap, &doubleTapPoint) );
+                return EEventConsumed;
+                }
+            case ETypeItemRemoved:
+                {
+                if(iHdmiController)
+                    {
+                     SetImageL();
+                    }
+                iOldFocusIndex = iMediaList->FocusIndex();
                 return EEventConsumed;
                 }
             case ETypeHighlight:
@@ -1006,25 +1017,9 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                     {
                     RemoveTexture();
                     }
-				TGlxMedia item1 = iMediaList->Item( iMediaList->FocusIndex() );
-                TInt frameCount(0);
-                TSize orignalSize;
-                TBool aFramesPresent  = item1.GetFrameCount(frameCount);
-                TBool adimension  = item1.GetDimensions(orignalSize);
-
-                //check if the content  is not video && has proper DRM rights
-                //then only call next image in HDMI
                 if(iHdmiController)
                     {
-                    if (item1.Category() != EMPXVideo && iDrmUtility->CheckOpenRightsL(item1.Uri(),ETrue))
-                        {
-                        GLX_LOG_INFO("CGlxHdmi - FullscreenView - SetImageL");                    
-                        iHdmiController->SetImageL(item1.Uri(), orignalSize, frameCount);
-                        }
-                    else
-                        {
-                        iHdmiController->IsVideo();                    
-                        }
+                     SetImageL();
                     }
                 iOldFocusIndex = iMediaList->FocusIndex();
                 if ( NGlxNFullScreenUIState::EUiOn == GetUiSate() )
@@ -1103,6 +1098,15 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
 		    DeactivateZoomControlL();
 		    consumed = ETrue;
 		    break;
+		case EGlxCmdRenameCompleted:
+		    {
+            if (iHdmiController)
+                {
+                SetImageL();
+                }
+			consumed = ETrue;
+            break;
+            }
 //		case EGlxCmdRotateLeft:
 //			iCoverFlowWidget->RotateImage(IMulWidget::ERotateLeft,size,KGlxRotationDelay);
 //		    consumed = ETrue;
@@ -1139,15 +1143,6 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
      {
      TRACER("CGlxFullScreenViewImp::HandleResourceChangeL");
          HandleResourceChangeL ( aType);
-         switch (aType)
-             {
-        case KEikDynamicLayoutVariantSwitch:
-            {
-            //if resolution changed
-//                 iSliderWidget->control()->Display()->SetVisibleArea( ClientRect() );
-            break;
-            }
-        }       
     }   
 
 //----------------------------------------------------------------------------------
@@ -1277,13 +1272,6 @@ TInt CGlxFullScreenViewImp::PeriodicCallback(TAny* aPtr )
 inline void CGlxFullScreenViewImp::CallPeriodicCallback()
     {
     TRACER("CGlxFullScreenViewImp::CallPeriodicCallback");
-    if(iPeriodic->IsActive())
-		{
-		iPeriodic->Cancel();
-		}
-    /*
-     * function can leave
-     */
     TRAP_IGNORE(ShowDrmExpiaryNoteL());
     }
 	
@@ -1298,10 +1286,54 @@ void CGlxFullScreenViewImp::ShowDrmExpiaryNoteL()
 	if(iMediaList->Count()>0)
 		{
         const TGlxMedia& media = iMediaList->Item(iMediaList->FocusIndex());
-        if (media.IsDrmProtected())
+        TInt tnError = GlxErrorManager::HasAttributeErrorL(
+                media.Properties(), KGlxMediaIdThumbnail);
+        GLX_LOG_INFO1("CGlxFullScreenViewImp::ShowDrmExpiaryNoteL()"
+                " tnError=%d ", tnError);
+
+        TSize tnSize = iUiUtility->DisplaySize();
+        TMPXAttribute qtyTnAttrib = TMPXAttribute(KGlxMediaIdThumbnail,
+                GlxFullThumbnailAttributeId(ETrue, tnSize.iWidth,
+                        tnSize.iHeight));
+        const CGlxThumbnailAttribute* qtyTn = media.ThumbnailAttribute(
+                qtyTnAttrib);
+
+        if (qtyTn)
             {
+            if (iPeriodic->IsActive())
+                {
+                iPeriodic->Cancel();
+                }
+            }
+
+        if (tnError == KErrNone && qtyTn && media.IsDrmProtected())
+            {
+            GLX_LOG_INFO("CGlxFullScreenViewImp::ShowDrmExpiaryNoteL()"
+                    "- ConsumeDRMRightsL()");
             const TDesC& uri = media.Uri();
             ConsumeDRMRightsL(uri);
+            }
+
+        if (tnError != KErrNone)
+            {
+            if (iPeriodic->IsActive())
+                {
+                iPeriodic->Cancel();
+                }
+
+            CGlxNavigationalState* navigationalState =
+                    CGlxNavigationalState::InstanceL();
+            CleanupClosePushL(*navigationalState);
+            CMPXCollectionPath* naviState = navigationalState->StateLC();
+            if (naviState->Id() == TMPXItemId(
+                    KGlxCollectionPluginImageViewerImplementationUid))
+                {
+                GLX_LOG_INFO("CGlxFullScreenViewImp::ShowDrmExpiaryNoteL()"
+                        "- ShowErrorNoteL()");
+                GlxGeneralUiUtilities::ShowErrorNoteL(tnError);
+                }
+            CleanupStack::PopAndDestroy(naviState);
+            CleanupStack::PopAndDestroy(navigationalState);
             }
          }
 	}
@@ -1397,4 +1429,33 @@ void CGlxFullScreenViewImp::RemoveTexture()
     
     const TGlxMedia& item = iMediaList->Item(GetIndexToBeRemoved());
     iUiUtility->GlxTextureManager().RemoveTexture(item.Id(),EFalse);
+    }
+// ---------------------------------------------------------------------------
+// 
+// Set the image to external display - HDMI
+// ---------------------------------------------------------------------------
+//
+void CGlxFullScreenViewImp::SetImageL()
+    {
+    TRACER("CGlxFullScreenViewImp::SetImageL - CGlxHdmi");
+    TGlxMedia item = iMediaList->Item(iMediaList->FocusIndex());
+    TInt error = GlxErrorManager::HasAttributeErrorL(item.Properties(),
+            KGlxMediaIdThumbnail);
+    if (item.Category() != EMPXVideo && iDrmUtility->CheckOpenRightsL(
+            item.Uri(), ETrue) && (error == KErrNone))
+        {
+        TInt frameCount(0);
+        TSize orignalSize;
+        TBool aFramesPresent = item.GetFrameCount(frameCount);
+        TBool adimension = item.GetDimensions(orignalSize);
+        iHdmiController->SetImageL(item.Uri(), orignalSize, frameCount);
+        GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageL - CGlxHdmi - calling SetImage");
+        }
+    else
+        {
+        GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageL - CGlxHdmi - calling IsVideo");
+        //Set the external display to cloning mode.
+        //If the current item is a video, corruted thumbnail
+        iHdmiController->IsVideo();
+        }
     }

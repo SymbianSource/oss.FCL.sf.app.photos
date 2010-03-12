@@ -33,8 +33,6 @@ class CGlxUiUtility;
 class CGlxNavigationalState;
 class CAknGlobalNote;
 
-class CGlxBackServiceWrapper;
-
 /**
  *  CGlxIVwrAppUi
  *
@@ -76,6 +74,11 @@ private: // From CCoeAppUi
     void HandleForegroundEventL( TBool aForeground );
 
 private:
+    enum TEntryType
+        {
+        EEntryTypeStartUp = 0,
+        EEntryTypeFocusGained
+        };
     /**
      * Get view scoring ids based on current navigational state
      * (using Get in the name since the function does not return anything)
@@ -98,6 +101,32 @@ private:
     TUid ViewScoringIdForNaviStateDepth( const CMPXCollectionPath& aNaviState ) const;
 
     /**
+     * Requesting OOM to Free Some Memory, so that photos image viewer can start
+     * @return Error if Memory Cannot be freed else Error None
+     */
+    TInt OOMRequestFreeMemoryL( TInt aBytesRequested) ;
+
+    /**
+     * Finds Current Memory Availability And Decides to Send a Request for freeing the memory 
+     * @param aCriticalMemoryRequired Bare Minimum to start photos image viewer
+     * @return Error Code from OOM
+     */
+    TInt ReserveMemoryL(TInt aCriticalMemoryRequired);
+    
+    /**
+     * Finds Current Minimum Required memory to start photos image viewer
+     * @param Type of application invokation 
+     * @return Required Critical Memory
+     */
+    TInt RamRequiredInBytesL(TEntryType aType);
+    
+    /**
+     * Reserve critical memory qequired to start photos image viewer
+     * @param Type of application invokation 
+     */
+    void ReserveMemoryL(TEntryType aType);
+
+    /**
      * close photos app.
      */
     void CloseImgVwr();
@@ -113,8 +142,6 @@ private:
 
     ///Ui utility
     CGlxUiUtility* iUiUtility;
-
-    CGlxBackServiceWrapper* iBSWrapper;
     };
 
 

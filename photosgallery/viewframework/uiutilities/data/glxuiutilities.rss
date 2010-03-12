@@ -464,7 +464,7 @@ RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest
             {
             id = EGlxCmdAiwAssign;
             serviceCmd = KAiwCmdAssign;
-            contentType = "ArcsoftEditor/*";
+            contentType = "MediaEditor/*";
             serviceClass = KAiwClassMenu;
             }
         };

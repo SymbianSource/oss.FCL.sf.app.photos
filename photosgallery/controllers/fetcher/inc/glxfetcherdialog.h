@@ -130,6 +130,7 @@ NONSHARABLE_CLASS (CGlxFetcherDialog) : public CAknDialog ,
     private:// From MGlxEventObserver
     
         virtual void HandleDoubleTapEventL(TInt aCommandId);          
+        virtual void HandleMarkEventL();
 	
 	public:// to exit the fetcher dialog 
 		void CallCancelFetcherL(TInt aCommandId);

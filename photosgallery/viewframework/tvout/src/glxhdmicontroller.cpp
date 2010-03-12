@@ -26,10 +26,6 @@
 
 #include "glxhdmicontroller.h"
 
-// 720p image size
-const TInt KHdTvWidth = 1280;
-const TInt KHdTvHeight = 720;
-
 // -----------------------------------------------------------------------------
 // NewLC
 // -----------------------------------------------------------------------------
@@ -67,23 +63,12 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
     {
     TRACER("CGlxHdmiController::SetImageL()");
     if (aStore)
+        {
+        iImageSupported = ETrue;
         StoreImageInfoL(aImageFile, aImageDimensions, aFrameCount);
-		
+        }
     if (iGlxTvOut->IsHDMIConnected())
         {
-        if(aImageDimensions.iHeight<=KHdTvHeight && 
-                aImageDimensions.iWidth<= KHdTvWidth && aFrameCount > 0)
-            {
-            GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 1");
-            DestroySurfaceUpdater();
-            if (!iHdmiContainer)
-                {
-                CreateHdmiContainerL(); 
-                }
-            CreateSurfaceUpdaterL(aImageFile, aImageDimensions, aFrameCount);
-            }
-        else
-            {
             GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 2");
             // do not close the surface , use the same surface instead.
             // Call a function to pass imagefile, imagedimension, framecount
@@ -99,11 +84,10 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
                 }
             else
                 {
-                GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 3");
-                iSurfaceUpdater->UpdateNewImageL(aImageFile, aFrameCount);
-                }
-            iHdmiContainer->DrawNow();
+            GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 3");
+            iSurfaceUpdater->UpdateNewImageL(aImageFile, aFrameCount,aImageDimensions);
             }
+        iHdmiContainer->DrawNow();
         }
     }
 
@@ -113,6 +97,7 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
 EXPORT_C void CGlxHdmiController::IsVideo()
     {
     TRACER("CGlxHdmiController::IsVideo()");
+    iImageSupported = EFalse;
     if (iGlxTvOut->IsHDMIConnected())
         {
         DestroySurfaceUpdater();
@@ -263,7 +248,7 @@ void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
     TRACER("CGlxHdmiController::HandleTvStatusChangedL()");
     if ( aChangeType == ETvConnectionChanged )          
         {
-        if ( iGlxTvOut->IsHDMIConnected() )
+        if ( iGlxTvOut->IsHDMIConnected() && iImageSupported)
             {
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Connected");
             // Calling SetImageL() with appropriate parameters

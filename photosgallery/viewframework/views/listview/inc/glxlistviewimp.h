@@ -144,7 +144,7 @@ private:
 	 void DestroyListViewWidget();
 
 protected:
-    void PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap* aMask, TInt aIndex);
+    void PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap* aMask, TBool aPopulateList);
     	 
 protected:
     void Request(TInt aRequestStart, TInt aRequestEnd, THgScrollDirection aDirection);
@@ -204,6 +204,9 @@ private:    // Data
     
     TBool iPopulateListTNs;
 	
+    // Flag to check if all the items in list view need to be refreshed
+    TBool iIsRefreshNeeded;
+
     TBool iBackwardNavigation;
 
     TInt iStartIndex;

@@ -143,18 +143,6 @@
 ; Glx logging client
 "\epoc32\release\armv5\urel\glxlogging.dll"-"!:\sys\bin\glxlogging.dll"
 
-; For contentharvester plugin component
-"\epoc32\release\armv5\urel\glxcontentharvesterplugin.dll"          -"!:\sys\bin\glxcontentharvesterplugin.dll"
-"\epoc32\data\Z\resource\plugins\glxcontentharvesterplugin.rsc" 		-"!:\resource\plugins\glxcontentharvesterplugin.rsc"
-
-; For photossuite component
-
-
-"\epoc32\data\z\resource\apps\photossuite.rsc"            -"!:\resource\apps\photossuite.rsc"
-"\epoc32\include\photossuite.rsg"            		  -"!:\resource\apps\photossuite.rsg"
-"\epoc32\data\Z\private\101F4CD2\import\suites\photossuite\suite.xml"			-"!:\private\101F4CD2\import\suites\photossuite\suite.xml"
-"\epoc32\data\Z\private\101F4CD2\import\suites\photossuite\photos_items.xml"			-"!:\private\101F4CD2\import\suites\photossuite\photos_items.xml"
-
 
 "\epoc32\data\Z\resource\xhtml\01\0x200009EE\contents.zip"       -"!:\resource\xhtml\01\0x200009EE\contents.zip"
 "\epoc32\data\Z\resource\xhtml\01\0x200009EE\index.xml"         -"!:\resource\xhtml\01\0x200009EE\index.xml"

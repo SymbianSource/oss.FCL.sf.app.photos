@@ -67,6 +67,8 @@
 #include "shwviewtimer.h"
 #include "shwmediakeyshandler.h"
 #include <glxtexturemanager.h>
+#include <glxerrormanager.h>             
+#include <glxthumbnailattributeinfo.h>   
 namespace
     {
     _LIT(KShwSlideshowViewResource,"shwslideshowview.rsc");
@@ -647,7 +649,7 @@ void CShwSlideshowView::HandleFocusChangedL( NGlxListDefs::TFocusChangeType /*aT
                 {
                 RemoveTexture();
                 }
-            SetImage();
+            SetImageL();
             }    
 	    }
     }
@@ -725,7 +727,7 @@ void CShwSlideshowView::EngineStartedL()
         iWaitDialog->ProcessFinishedL();
         }
     iShwState = EShwPlay;
-    SetImage();
+    SetImageL();
 	iHdmiActive = ETrue;
     ReplaceCommandSetL(R_SHW_SOFTKEYS_END_PAUSE,R_SHW_SOFTKEYS_END_PAUSE);
     ShowShwFurnitureL();
@@ -1252,20 +1254,32 @@ void CShwSlideshowView::ProcessCommandL(TInt aCommandId)
 		}
 	CGlxViewBase::ProcessCommandL(aCommandId);
 	}
-// -----------------------------------------------------------------------------
-// SetImage.
-// To set Image to external display if HDmi connected
+// ----------------------------------------------------------------------------- 
+// Set the image to external display - HDMI
 // -----------------------------------------------------------------------------
 //
-void CShwSlideshowView::SetImage()
+void CShwSlideshowView::SetImageL()
     {
-    TRACER("CShwSlideshowView::SetImage");
-    TGlxMedia item = iFilteredList->Item( iFilteredList->FocusIndex() );
+    TRACER("CShwSlideshowView::SetImageL() - CGlxHDMI");
+    TGlxMedia item = iFilteredList->Item(iFilteredList->FocusIndex());
     TInt frameCount(0);
     TSize orignalSize;
-    TBool aFramesPresent  = item.GetFrameCount(frameCount);
-    TBool adimension  = item.GetDimensions(orignalSize);
-    iHdmiController->SetImageL(item.Uri(), orignalSize, frameCount);
+    TBool aFramesPresent = item.GetFrameCount(frameCount);
+    TBool adimension = item.GetDimensions(orignalSize);
+    TInt error = GlxErrorManager::HasAttributeErrorL(item.Properties(),
+            KGlxMediaIdThumbnail);
+    if (error == KErrNone)
+        {
+        GLX_LOG_INFO("CShwSlideshowView::SetImageL() - CGlxHDMI call SetImageL");
+        iHdmiController->SetImageL(item.Uri(), orignalSize, frameCount);
+        }
+    else
+        {
+        GLX_LOG_INFO1("CShwSlideshowView::SetImageL() - CGlxHDMI IsVideo , err=%d",error);
+        //Set the external display to cloning mode.
+        //If the current item is a video, corruted thumbnail
+        iHdmiController->IsVideo();
+        }
     }
 // ---------------------------------------------------------------------------
 // 

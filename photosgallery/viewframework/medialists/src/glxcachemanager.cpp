@@ -121,7 +121,7 @@ void CGlxCacheManager::ConstructL()
 	    
 #ifdef USE_S60_TNM
     iTnEngine = CThumbnailManager::NewL( *this);
-    iTnEngine->SetDisplayModeL( EColor16MU );
+    iTnEngine->SetDisplayModeL( EColor16M  );
 #endif
     }
         
@@ -764,7 +764,7 @@ void CGlxCacheManager::MaintainCacheL()
                             iRequestOwner = list;
                             CleanupStack::PopAndDestroy(attrSpecs); 
                             TGlxIdSpaceId spaceId = list->IdSpaceId(iRequestedItemIndexes[0]);
-                            HandleCollectionMediaL(spaceId, *iMPXMedia, KErrArgument);
+                            HandleCollectionMediaL(spaceId, *iMPXMedia, errInImage);
                             DeleteImageViewerInstance();
                             return;
                             }

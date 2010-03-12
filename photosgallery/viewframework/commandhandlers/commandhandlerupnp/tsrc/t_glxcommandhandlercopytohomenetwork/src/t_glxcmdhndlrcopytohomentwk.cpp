@@ -291,11 +291,13 @@ void t_cglxcommandhandlercopytohomenetwork::Teardown(  )
     {
     EUNIT_PRINT(_L("before teardown"));
     
-    delete iCommandHandlerCopyToHomeNetwork;                  
+    delete iCommandHandlerCopyToHomeNetwork;
+    iCommandHandlerCopyToHomeNetwork = NULL;
 
     if(iList)   
         {
-        delete iList;        
+        delete iList;
+        iList = NULL;
         }   
     EUNIT_PRINT(_L("After teardown"));        
     }

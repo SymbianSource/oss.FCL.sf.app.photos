@@ -129,6 +129,7 @@ private:
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;
+    TBool iImageSupported;
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

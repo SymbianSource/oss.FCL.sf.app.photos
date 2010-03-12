@@ -224,7 +224,7 @@ void CGlxImgVwrMetadataContainer::HandleListBoxEventL(CEikListBox*  /*aListBox*/
     GLX_LOG_INFO("CGlxImgVwrMetadataContainer::HandleListBoxEventL");         
     if ((aEventType == EEventEnterKeyPressed) || 
             (aEventType == EEventEditingStarted) ||
-            (aEventType == EEventItemDoubleClicked))
+            (aEventType == EEventItemSingleClicked))
         {
         //handle edit functionality if items when useer selects via touch
         HandleListboxChangesL();
@@ -323,7 +323,7 @@ void CGlxImgVwrMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /
             TGlxMedia item = iItemMediaList->Item(0);
             CGlxUStringConverter* stringConverter = CGlxUStringConverter::NewL();
             CleanupStack::PushL(stringConverter );
-            for(TInt index = 0; index <= 4; index++)
+            for(TInt index = 0; index <= EImgVwrlicenseItem; index++)
                 {
                 HBufC* string = NULL;               
 
@@ -353,6 +353,12 @@ void CGlxImgVwrMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /
                     stringConverter->AsStringL(item,
                             KGlxMediaGeneralDimensions,0, string );
                     }    
+                else if(index == EImgVwrlicenseItem)
+					{
+					// If an item is DRM protected, License field in details
+					// should display "View Details"
+					string = StringLoader::LoadL(R_GLX_METADATA_VIEW_OPTIONS_VIEW);
+					}                
                 else 
                     {
                     //no implementation
@@ -362,9 +368,9 @@ void CGlxImgVwrMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /
                     iTextSetter.Copy(KGlxTextSetter);
                     iTextSetter.Append(*string);
                     }
-                EditItemL(index,EFalse);                 
-                delete string;
-                string = NULL;
+                CleanupStack::PushL( string );
+                EditItemL(index,EFalse);   
+                CleanupStack::PopAndDestroy(string );           
                 }
             CleanupStack::PopAndDestroy(stringConverter );
             }   

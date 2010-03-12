@@ -248,8 +248,11 @@ CGlxMarkingCommandHandlerTester* CGlxMarkingCommandHandlerTester::NewL()
 	
 CGlxMarkingCommandHandlerTester::~CGlxMarkingCommandHandlerTester()
 	{
-	iMarker->Deactivate();
-	
+    if (iMarker)
+        {
+        iMarker->Deactivate();
+        }
+
 	iCommandHandlerList.ResetAndDestroy();
 	iCommandHandlerList.Close();
 	

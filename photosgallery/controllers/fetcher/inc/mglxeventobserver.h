@@ -34,6 +34,11 @@ public:
     virtual void HandleDoubleTapEventL(TInt aCommandId) = 0;  
 
     /**
+     * Called from container to pass Mark/Unmark events to Dialog.
+     */
+    virtual void HandleMarkEventL() = 0;  
+    
+    /**
      * Destructor. Dont allow deleting objects through this interface.
      */
     virtual ~MGlxEventObserver() {};
