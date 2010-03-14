@@ -290,6 +290,18 @@ private: // from CGlxDataSourceTask
      */	
 	
 	TInt SearchStringL(TInt aResourceId);
+	
+	/**
+	 * Timer callback to stop scheduler wait
+	 * @param aPtr Pointer to object that started the timer
+	 * @return 0 to signal that further callbacks are unnecessary, 1 otherwise
+	 */
+	static TInt SchedulerStopCallback(TAny* aPtr);
+	    
+	/**
+	 * Starts the scheduler wait timer. When complete, Scheduler is stopped
+	 */	
+	void SchedulerStopComplete();
 
 private:	
 	/**
@@ -333,6 +345,16 @@ private:
     *
     */
     CGlxStringCache* iStringCache;
+    
+    /**
+	 *  Timer that checks if scheduler wait needs to be cancelled  
+	 */
+    CPeriodic* iTimer; 
+    
+    /**
+	*  Active scheduler wait object. (Owned)
+	*/
+    CActiveSchedulerWait* iSchedulerWait;
 	};
 
 #endif //_C_GLXDATASOURCETASKMDSCOMMAND_H_

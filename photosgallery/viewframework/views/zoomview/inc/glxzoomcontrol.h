@@ -102,9 +102,11 @@ public:
     * Show the control and begin zooming in.
     * @param aIntialZoomLevel:The Initial Zoom Level shown when zoom is active from full screen view.
     * @param aTap            :if the zoom was launched by tapping or by pressing volume key.
-    */
+    * @param aViewingMode	 :if the image is opened from imgviewer or not
+	*/
     IMPORT_C void ActivateL(TInt aIntialZoomRatio,TZoomStartMode aStartMode,TInt aFocusIndex, 
-                                    TGlxMedia& aItem,  TPoint* aZoomFocus = NULL);
+                                    TGlxMedia& aItem,  TPoint* aZoomFocus = NULL
+                                    ,TBool aViewingMode = EFalse);
 
     /**
     * Hide the control and disable zooming.
@@ -252,7 +254,7 @@ private:    // Data
     CGlxTv*  iGlxTvOut;
     CPeriodic* iTimer;
     TBool iZoomIn;
-    TBool iIsHDMIconnected;
+    
     };
 
 #endif  // C_GLXZOOMCONTROL_H

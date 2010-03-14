@@ -41,6 +41,7 @@
 #include <data_caging_path_literals.hrh> // For directory paths 
 
 #include <aknlayoutscalable_uiaccel.cdl.h>
+#include <glxtagsbrowserview.rsg>               // For resources
 
 #include "glxcloudviewcontrol.h"//cloud view control
     
@@ -158,8 +159,8 @@ TUid CGlxCloudViewImp::Id()const
 TBool CGlxCloudViewImp::HandleViewCommandL(TInt aCommand)
 	{
 	TRACER("GLX_CLOUD::CGlxCloudViewImp::HandleViewCommandL");
+	
 	TBool consumed = EFalse;
-
 	switch (aCommand)
 		{
 		case EAknCmdOpen:
@@ -337,9 +338,9 @@ void CGlxCloudViewImp::ConstructCloudControlL()
 
     iAnchorlayout->SetFlag(EAlfVisualFlagLayoutUpdateNotification);
     iAnchorlayout->SetFlag(EAlfVisualFlagAutomaticLocaleMirroringEnabled);
-
+    
     iCloudControl = CGlxCloudViewControl::NewL (*iDisplay, *iUiUtility->Env (), *iMediaList,
-            *iEmptyListText, *this,*this,iAnchorlayout,*this); 
+               *iEmptyListText, *this,*this,iAnchorlayout,*this,*this); 
     
     CAlfControlGroup * ctrlGroup = iUiUtility->Env ()->FindControlGroup(0);
     if(ctrlGroup)
@@ -421,3 +422,25 @@ void CGlxCloudViewImp::SetScrollBarRect()
     iAnchorlayout->UpdateChildrenLayout(0);
     }
     
+// ---------------------------------------------------------------------------
+// HandleGridMenuListL()
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewImp::HandleGridMenuListL(TInt aCommand)
+    {
+    TRACER("GLX_CLOUD::CGlxCloudViewImp::HandleGridMenuListL");
+    ProcessCommandL(aCommand);
+    }
+
+// ----------------------------------------------------------------------------
+// ViewDynInitMenuPaneL
+// ----------------------------------------------------------------------------
+// 
+void CGlxCloudViewImp::ViewDynInitMenuPaneL(TInt aMenuId, CEikMenuPane* /*aMenuPane*/)
+    {
+    TRACER("GLX_CLOUD::CGlxCloudViewImp::ViewDynInitMenuPaneL");
+    if( aMenuId == R_TAGSBROWSER_MENU)
+        {
+        iCloudControl->ShowContextItemMenu(EFalse);
+        }
+    }

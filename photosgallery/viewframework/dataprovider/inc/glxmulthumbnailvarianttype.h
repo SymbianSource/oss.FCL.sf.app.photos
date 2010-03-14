@@ -61,8 +61,6 @@ public:
     int integer() const ;
 
 private:
-
-    void ConsumeDRMRightsL( const TGlxMedia& aMedia );
     
     TSize ThumbnailSize(const CGlxMedia* aMedia); 
     

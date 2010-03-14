@@ -19,7 +19,7 @@
 #include <StringLoader.h>
 #include <AknsBasicBackgroundControlContext.h>
 #include <caf/caferr.h>
-
+#include <eikcolib.h> 
 // Ganes Headers
 #include <gulicon.h>                                    // Gul Icons
 #include <ganes/HgItem.h>                               // HG Items
@@ -55,10 +55,10 @@ const TInt KBufferTresholdSize(3); 						// in rows
 //
 CGlxGridViewContainer* CGlxGridViewContainer::NewL(MGlxMediaList *aMediaList,
 														CGlxUiUtility* aUiUtility,
-																	MGlxGridEventObserver& aObserver)
+																	MGlxGridEventObserver& aObserver,CAknToolbar* aToolbar)
 	{
 	TRACER("CGlxGridViewContainer::NewL");
-	CGlxGridViewContainer* self = CGlxGridViewContainer::NewLC(aMediaList,aUiUtility,aObserver) ;
+	CGlxGridViewContainer* self = CGlxGridViewContainer::NewLC(aMediaList,aUiUtility,aObserver,aToolbar) ;
 	CleanupStack::Pop(self) ;
 	return self ;
 	}
@@ -69,10 +69,10 @@ CGlxGridViewContainer* CGlxGridViewContainer::NewL(MGlxMediaList *aMediaList,
 //
 CGlxGridViewContainer* CGlxGridViewContainer::NewLC(MGlxMediaList *aMediaList,
 														CGlxUiUtility* aUiUtility,
-																	MGlxGridEventObserver& aObserver)
+																	MGlxGridEventObserver& aObserver,CAknToolbar* aToolbar)
 	{
 	TRACER("CGlxGridViewContainer::NewLC");
-	CGlxGridViewContainer* self = new(ELeave) CGlxGridViewContainer(aMediaList,aUiUtility,aObserver);
+	CGlxGridViewContainer* self = new(ELeave) CGlxGridViewContainer(aMediaList,aUiUtility,aObserver,aToolbar);
 	CleanupStack::PushL(self ) ;
 	self->ConstructL() ;
 	return self ;
@@ -122,8 +122,8 @@ CGlxGridViewContainer::~CGlxGridViewContainer()
 // ---------------------------------------------------------------------------
 //
 CGlxGridViewContainer::CGlxGridViewContainer(MGlxMediaList *aMediaList,CGlxUiUtility* aUiUtility,
-																MGlxGridEventObserver& aObserver)
-					: iMediaList(aMediaList),iUiUtility(aUiUtility),iGlxGridViewObserver(aObserver)
+																MGlxGridEventObserver& aObserver,CAknToolbar* aToolbar)
+					: iMediaList(aMediaList),iUiUtility(aUiUtility),iGlxGridViewObserver(aObserver),iToolbar(aToolbar)
 		{
 		TRACER("CGlxGridViewContainer::CGlxGridViewContainer");
 		}
@@ -380,9 +380,8 @@ void CGlxGridViewContainer::CreateHgGridWidgetL()
 		CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
 				EMbmGlxiconsQgn_prop_image_notcreated);
         AknIconUtils::SetSize(bitmap, tnSize);
-		TRect rect = iEikonEnv->EikAppUi()->ClientRect();
 		// Create Hg grid object
-		iHgGrid = CHgGrid::NewL (rect,mediaCount,CGulIcon::NewL(bitmap));
+		iHgGrid = CHgGrid::NewL (GetHgGridRect(),mediaCount,CGulIcon::NewL(bitmap));
 		}
 
 	// Setting to MopParent to update background skin
@@ -404,7 +403,33 @@ void CGlxGridViewContainer::CreateHgGridWidgetL()
 	 * note: don't push hggrid to the control stack
 	 */
 	}
-
+// ---------------------------------------------------------------------------
+// GetHgGridRect
+// ---------------------------------------------------------------------------
+//
+TRect CGlxGridViewContainer::GetHgGridRect()
+    {
+    TRACER("CGlxGridViewContainer::GetHgGridRect()");
+    
+    TRect clientrect = iEikonEnv->EikAppUi()->ClientRect();
+    TRect apprect = iEikonEnv->EikAppUi()->ApplicationRect();	
+    if(apprect.Height()>apprect.Width())
+        {
+        //portrait:
+        //height : apprect height - (status pane height + toolbar height + cba height)
+        //width remains 360.
+        clientrect.SetHeight(apprect.Height() - ((clientrect.iTl.iY) + (iToolbar->Size().iHeight) + (iEikonEnv->AppUiFactory()->Cba()->Rect().Height())));
+        }
+    else
+        {
+        //Landscape:
+        //height : apprect - (status pane height + cba height)
+        //width  : apprect width - toolbarwidth.
+        clientrect.SetHeight(apprect.Height() - ((clientrect.iTl.iY) + (iEikonEnv->AppUiFactory()->Cba()->Rect().Height())));
+        clientrect.SetWidth(apprect.Width() - iToolbar->Size().iWidth);
+        }        
+    return clientrect;
+    }
 // ---------------------------------------------------------------------------
 // CreateGridL
 // ---------------------------------------------------------------------------
@@ -522,24 +547,20 @@ void CGlxGridViewContainer::SetIconsL(TInt index)
 		iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap));
 		GLX_LOG_INFO1("### CGlxGridViewContainer::SetIconsL speedTn-Index is %d",index);
 		}
-	else if ( KErrNone != tnError && KErrNotSupported != tnError && KErrCANoRights !=tnError)
+	else if ((KErrCANoRights ==tnError) || (KErrDiskFull ==tnError))
 		{
-		GLX_LOG_INFO2("CGlxGridViewContainer::SetIconsL - image_corrupted tnError(%d), i(%d)",
-				tnError, index);
-		CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
-				EMbmGlxiconsQgn_prop_image_corrupted);
-		AknIconUtils::SetSize(bitmap, setSize);
-		iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap));
-		}
-	else if (KErrCANoRights ==tnError)
-		{
-		/*fix for EABI-7RKHDG
+		/*
 		 * this is a safe code added to show default
 		 * TNM returns -17452 in case SD DRM files
 		 * this code is added as coming from other view to
 		 * gridview,it draws broken TN then the callback goes to
 		 * glxgridviewobserver and redraws a not-created TN.
 		 * with this part of code that TN swich will not be visible
+		 * 
+		 * The same thing is needs to be done for the case when there is no 
+		 * disk space for the thumbnails to be created. 
+		 * In such a case we need to show default thumbnails instead of corrupted. 
+		 * 
 		 */
 		GLX_LOG_INFO2("CGlxGridViewContainer::SetIconsL - image_defaultthumbnail tnError(%d), i(%d)",
 				tnError, index);
@@ -548,15 +569,16 @@ void CGlxGridViewContainer::SetIconsL(TInt index)
 		AknIconUtils::SetSize(bitmap, setSize);
 		iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap));
 		}
-	else if(KErrNotSupported == tnError)
-		{
-		GLX_LOG_INFO2("CGlxGridViewContainer::SetIconsL - image_defaultthumbnail tnError(%d), i(%d)",
-				tnError, index);
-		CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
-				EMbmGlxiconsQgn_prop_image_corrupted);
-		AknIconUtils::SetSize(bitmap, setSize);
-		iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap));
-		}
+   else if(KErrNone != tnError)
+        {
+        GLX_LOG_INFO2("CGlxGridViewContainer::SetIconsL - image_corrupted tnError(%d), i(%d)",
+                tnError, index);
+        CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
+                EMbmGlxiconsQgn_prop_image_corrupted);
+        AknIconUtils::SetSize(bitmap, setSize);
+        iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap));
+        }
+
 
 	if (item.IsDrmProtected())
 		{
@@ -854,7 +876,7 @@ TBool CGlxGridViewContainer::HandleViewCommandL(TInt aCommand)
 			//@ fix for ESLM-7VRGKH
 			if(iHgGrid)
 				{
-				iHgGrid->InitScreenL(iEikonEnv->EikAppUi()->ClientRect());
+				iHgGrid->InitScreenL(GetHgGridRect());
 				}
 			retVal = ETrue;
 			break;
@@ -875,14 +897,23 @@ void CGlxGridViewContainer::HandleResourceChange(TInt aId)
 	{
 	TRACER("CGlxGridViewContainer::HandleResourceChange()");
 	CCoeControl::HandleResourceChange(aId);
-	if ( iBgContext )
-		{
-		TRect apRect = iEikonEnv->EikAppUi()->ApplicationRect();
-		iBgContext->SetRect( apRect );
-		}
-	if(iHgGrid)
-		{
-		TRAP_IGNORE (iHgGrid->InitScreenL(iEikonEnv->EikAppUi()->ClientRect()); )
-		}
+    switch (aId)
+       {
+        case KEikDynamicLayoutVariantSwitch:
+            {
+            if ( iBgContext )
+                {
+                TRect apRect = iEikonEnv->EikAppUi()->ApplicationRect();
+                iBgContext->SetRect( apRect );
+                }
+            if(iHgGrid)
+                {
+                TRAP_IGNORE (iHgGrid->InitScreenL(GetHgGridRect());)
+                }
+            break;
+            }
+        default:
+        break;
+       }
 	}
 //end of file

@@ -36,7 +36,7 @@
 class MMPXCollectionUtility;
 class CGlxPreviewThumbnailBinding;
 
-class CHgList;
+class CHgDoubleGraphicListFlat;
 class CAknsBasicBackgroundControlContext;
 
 // CLASS DECLARATION
@@ -178,7 +178,7 @@ private:    // Data
 
     CAknsBasicBackgroundControlContext* iBgContext; //Own
     
-    CHgList* iList; //Own
+    CHgDoubleGraphicListFlat* iList; //Own
     
 	MGlxMediaList* iFocusedChildList;
 	

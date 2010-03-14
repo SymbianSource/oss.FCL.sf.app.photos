@@ -91,6 +91,17 @@ public:
      */
     IMPORT_C virtual TInt DoHandleCommandL(TInt aCommand);    
     
+	/**
+     * Sets the grid tool.
+	 * @param grid toolbar handle. 
+     */
+    IMPORT_C void SetGridToolBar(CAknToolbar* aToolbar);
+    
+	/**
+     * Returns the current active toolbar
+     * Needed as grid toolbar is created dynamically
+     */
+    IMPORT_C CAknToolbar* GetToolBar();
 
 protected: // From MCoeView.
 
@@ -270,6 +281,8 @@ private:
 		
 	/// Status pane for title
 	CAknTitlePane* iTitlePane;
+	//used store the grid toolbar
+	CAknToolbar* iToolbar;
     };
 
 

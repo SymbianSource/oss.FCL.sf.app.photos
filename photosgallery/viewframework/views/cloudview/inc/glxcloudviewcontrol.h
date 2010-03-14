@@ -31,6 +31,7 @@
 //use includes
 #include <mglxmedialistobserver.h> 
 #include "glxcontainerinfobubble.h"
+#include "glxbubbletimer.h" //for timer functionality
 #include "glxcloudinfo.h"
 #include <alf/alfeventhandler.h>
 
@@ -54,6 +55,8 @@ class MGlxCloudViewMskObserver;
 class MGlxEnterKeyEventObserver;
 class MGlxCloudViewLayoutObserver;
 class CAknPhysics;
+class CGlxTagsContextMenuControl ;
+class MGlxItemMenuObserver;
 
 enum TTagEventType
     {
@@ -69,6 +72,7 @@ enum TTagEventType
 class CGlxCloudViewControl : public CAlfControl,public IAlfWidgetEventHandler
                             ,public MGlxMediaListObserver
                             ,public MAknPhysicsObserver
+                            ,public MGlxTimerNotifier
 	{
 public:
 
@@ -83,7 +87,9 @@ public:
 			MGlxMediaList& aMediaList, const TDesC& aEmptyText
 			,MGlxCloudViewMskObserver& aObserver
 			,MGlxEnterKeyEventObserver& aObserverEnterKeyEvent,
-			CAlfAnchorLayout *aAnchorLayout,MGlxCloudViewLayoutObserver& aLayoutObserver);
+			CAlfAnchorLayout *aAnchorLayout,
+			MGlxCloudViewLayoutObserver& aLayoutObserver
+			,MGlxItemMenuObserver& aItemMenuObserver);
 
 	/** 	
 	 *  Perform the two phase construction
@@ -96,7 +102,8 @@ public:
 			MGlxMediaList& aMediaList, const TDesC& aEmptyText
 			,MGlxCloudViewMskObserver& aObserver
 			,MGlxEnterKeyEventObserver& aObserverEnterKeyEvent,
-			CAlfAnchorLayout *aAnchorLayout,MGlxCloudViewLayoutObserver& aLayoutObserver);
+			CAlfAnchorLayout *aAnchorLayout,MGlxCloudViewLayoutObserver& aLayoutObserver
+			,MGlxItemMenuObserver& aItemMenuObserver);
 
 	/**
 	 * Destroy the object and release all memory objects
@@ -180,6 +187,18 @@ public:
     * @param scrollbar widget
     */
     void InitializeScrollBar(IAlfScrollBarWidget* aScrollBarWidget);
+    
+    /**
+     * Hides/shows the grid layout
+     * @param aShow - Show value
+     */
+    void ShowContextItemMenu(TBool aShow);
+    
+public://MGlxTimernotifier
+    /**
+     * Virtual Function from MGlxTimernotifier
+     */
+    void TimerComplete();
     
 private:
 	/** 	
@@ -267,7 +286,8 @@ private:
  	 *  Perform the second phase of two phase construction
 	 *  @param aEmptyText - Specifies the text for the empty list
 	 */
-	void ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisplay,CAlfAnchorLayout *aAnchorLayout);
+	void ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisplay,
+	        CAlfAnchorLayout *aAnchorLayout,MGlxItemMenuObserver& aItemMenuObserver);
 	
 	/** 
 	 * Updates Row Structure 
@@ -549,7 +569,6 @@ private:
 	//  initiates bubble container 
 	CGlxContainerInfoBubble *iBubbleContainer;
 	
-
 	// Fetch context for list item attributes 
 	CGlxDefaultAttributeContext* iAttributeContext;
 	
@@ -625,6 +644,15 @@ private:
 	
 	//boolean to check if dragging really happened
 	TBool iViewDragged;
+	
+    /**variable used for providing delay */
+    CGlxBubbleTimer* iTimer;    
+
+    //Alfcontrol to draw grid layout for handling floating bar menu items
+    CGlxTagsContextMenuControl* iTagsContextMenuControl;
+    
+    /**flag for Timer completion */
+    TBool iTimerComplete;
 	};
 
 #endif // C_GLXCLOUDVIEWCONTROL_H

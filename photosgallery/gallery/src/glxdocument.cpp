@@ -73,11 +73,11 @@ CGlxDocument::CGlxDocument(CEikApplication& aApp) : CAknDocument(aApp)
 CGlxDocument::~CGlxDocument()
     {
     TRACER("CGlxDocument::~CGlxDocument()");
-    if (iViewUtility != NULL)
+    if ( iViewUtility )
         {
         iViewUtility->Close();
         }
-    if ( NULL != iImageViewerInstance)
+    if ( iImageViewerInstance )
         {
         iImageViewerInstance->DeleteInstance();
         }

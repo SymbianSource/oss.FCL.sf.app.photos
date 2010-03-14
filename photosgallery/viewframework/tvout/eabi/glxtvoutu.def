@@ -23,4 +23,6 @@ EXPORTS
 	_ZTV17CGlxHdmiDecoderAO @ 22 NONAME
 	_ZTV18CGlxHdmiController @ 23 NONAME
 	_ZTV22CGlxHdmiSurfaceUpdater @ 24 NONAME
+	_ZN18CGlxHdmiController18ShiftToCloningModeEv @ 25 NONAME
+	_ZN18CGlxHdmiController18ShiftToPostingModeEv @ 26 NONAME
 

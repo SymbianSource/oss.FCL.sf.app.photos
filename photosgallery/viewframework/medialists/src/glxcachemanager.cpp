@@ -121,7 +121,7 @@ void CGlxCacheManager::ConstructL()
 	    
 #ifdef USE_S60_TNM
     iTnEngine = CThumbnailManager::NewL( *this);
-    iTnEngine->SetDisplayModeL( EColor64K );
+    iTnEngine->SetDisplayModeL( EColor16MU );
 #endif
     }
         
@@ -589,14 +589,8 @@ void CGlxCacheManager::MaintainCacheL()
       					    }
       					
 						TGlxIdSpaceId spaceId = list->IdSpaceId(iRequestedItemIndexes[0]);	
-#ifdef MEDIA_ID_BASED_TN_FETCH_ENABLED
-	               	 	GLX_DEBUG2("CGlxCacheManager::MaintainCacheL() requesting TN attribute (Medialist) itemId %d", itemId.Value());
-						if (item.Uri().Find(KFileIdentifier) != KErrNotFound ||
-						    item.Uri().Length() && itemId.Value())
-#else
 	               	 	GLX_DEBUG1("CGlxCacheManager::MaintainCacheL() requesting TN attribute (Medialist) Uri");
 						if (item.Uri().Find(KFileIdentifier) != KErrNotFound)
-#endif
 							{
 #ifdef _DEBUG
 							iStartTime.HomeTime(); // Get home time
@@ -635,7 +629,7 @@ void CGlxCacheManager::MaintainCacheL()
                                     {
                                     CreateImageViewerInstanceL();
                                     GLX_DEBUG1("KGlxCollectionPluginImageViewerImplementationUid - Fetch (Private) TN!");
-                                    if ( &(iImageViewerInstance->ImageFileHandle()) != NULL )
+                                    if ( &(iImageViewerInstance->ImageFileHandle()) )
                                         {
                                         CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(iImageViewerInstance->ImageFileHandle());
                                         iThumbnailRequestIds.AppendL(TLoadingTN(iTnEngine->GetThumbnailL(*source), spaceId, tnSize, itemId));
@@ -653,13 +647,11 @@ void CGlxCacheManager::MaintainCacheL()
                                 }
                             else
                                 {
-#ifdef MEDIA_ID_BASED_TN_FETCH_ENABLED
-						    iThumbnailRequestIds.AppendL(TLoadingTN(iTnEngine->GetThumbnailL(itemId.Value()), spaceId, tnSize, itemId));
-#else
-						    CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(item.Uri(), 0);
-						    iThumbnailRequestIds.AppendL(TLoadingTN(iTnEngine->GetThumbnailL(*source), spaceId, tnSize, itemId));
-						    CleanupStack::PopAndDestroy(source);
-#endif
+                                CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(item.Uri(), 0);
+                                iThumbnailRequestIds.AppendL(TLoadingTN(
+                                        iTnEngine->GetThumbnailL(*source), 
+                                        spaceId, tnSize, itemId));
+                                CleanupStack::PopAndDestroy(source);
                                 }
 		                    iThumbnailId = itemId;
 							}
@@ -728,7 +720,7 @@ void CGlxCacheManager::MaintainCacheL()
                                 {
                                 // private path
                                 RFile64& imageHandle = iImageViewerInstance->ImageFileHandle();
-                                if ( &imageHandle != NULL )
+                                if ( &imageHandle )
                                     {
                                     fileName.Append(imageHandle.FullName(fileName));
                                     }
@@ -741,7 +733,7 @@ void CGlxCacheManager::MaintainCacheL()
                         else
                             {
                             // user data path
-                            if(  iImageViewerInstance->ImageUri() != NULL  )
+                            if ( iImageViewerInstance->ImageUri() )
                                 {
                                 fileName.Append(iImageViewerInstance->ImageUri()->Des());
                                 RFs fs;
@@ -1440,7 +1432,7 @@ void CGlxCacheManager::ThumbnailPreviewReady(MThumbnailData& aThumbnail,
     {
     TRACER("CGlxCacheManager::ThumbnailPreviewReady");
     TInt error = KErrNotSupported;
-    if (aThumbnail.Bitmap() != NULL)
+    if ( aThumbnail.Bitmap() )
          {
 		 GLX_DEBUG1("CGlxCacheManager::ThumbnailPreviewReady preview aval");
          error = KErrNone;
@@ -1566,10 +1558,7 @@ void CGlxCacheManager::ImageSizeReady(TInt aError, const TSize aSz)
 void CGlxCacheManager::CreateImageViewerInstanceL()
     {
     TRACER("CGlxCacheManager::CreateImageViewerInstanceL");
-    if ( iImageViewerInstance == NULL )
-        {
-        iImageViewerInstance = CGlxImageViewerManager::InstanceL();
-        }
+    iImageViewerInstance = CGlxImageViewerManager::InstanceL();    
     __ASSERT_ALWAYS(iImageViewerInstance, Panic(EGlxPanicNullPointer));
     }
 
@@ -1580,7 +1569,7 @@ void CGlxCacheManager::CreateImageViewerInstanceL()
 void CGlxCacheManager::DeleteImageViewerInstance()
     {
     TRACER("CGlxCacheManager::DeleteImageViewerInstance");
-    if ( iImageViewerInstance != NULL )
+    if ( iImageViewerInstance )
         {
         iImageViewerInstance->DeleteInstance();
         }

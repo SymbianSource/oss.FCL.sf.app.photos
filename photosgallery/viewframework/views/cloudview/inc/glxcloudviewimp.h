@@ -31,6 +31,8 @@
 #include "glxcloudview.h"  //base class
 #include "mglxcloudviewlayoutobserver.h"
 
+#include "glxtagscontextmenucontrol.h"  // MGlxItemMenuObserver
+
 // FORWARD DECLARATIONS
 class CGlxCloudViewControl;
 
@@ -50,7 +52,8 @@ class IAlfScrollBarDefaultBaseElement;
 NONSHARABLE_CLASS(CGlxCloudViewImp): public CGlxCloudView,
 									public MGlxCloudViewMskObserver,				
 									public MGlxEnterKeyEventObserver,
-									public MGlxCloudViewLayoutObserver		
+									public MGlxCloudViewLayoutObserver,
+									public MGlxItemMenuObserver
 	{
 public:
 
@@ -109,6 +112,21 @@ public:
      * Called when layout is changed
      */
 	void HandleLayoutChanged();
+public:
+	//MGlxItemMenuObserver
+	/**
+	 * To Handle menu items in Grid layout
+	 * @param aCommand command to be handled
+	 */
+	void HandleGridMenuListL(TInt aCommand);
+	
+public:
+   /**
+     * Derived classes should use this to initialize the menus if required
+     * @param aResourceId The menu resource
+     * @param aMenuPane The menu pane to edit
+     */
+    void ViewDynInitMenuPaneL(TInt aResourceId, CEikMenuPane *aMenuPane);
 
 protected:
 	// From CGlxViewBase

@@ -2333,7 +2333,7 @@ void T_CGlxGarbageCollector::CTimerTest::RunL()
 EXPORT_C CIdle* CIdle::New(TInt aPriority)
     {
     CIdle *pI=new CIdle(aPriority);
-    if (pI!=NULL)
+    if ( pI )
         CActiveScheduler::Add(pI);
     return(pI);
     }

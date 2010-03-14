@@ -71,7 +71,6 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
 		
     if (iGlxTvOut->IsHDMIConnected())
         {
-        iIsHDMIconnected = ETrue;
         if(aImageDimensions.iHeight<=KHdTvHeight && 
                 aImageDimensions.iWidth<= KHdTvWidth && aFrameCount > 0)
             {
@@ -144,6 +143,31 @@ EXPORT_C void CGlxHdmiController::DeactivateZoom()
         iSurfaceUpdater->DeactivateZoom();
         }
     }
+
+// -----------------------------------------------------------------------------
+// ShiftToCloningMode 
+// -----------------------------------------------------------------------------
+EXPORT_C void CGlxHdmiController::ShiftToCloningMode()
+    {
+    TRACER("CGlxHdmiController::ShiftToCloningMode()");
+    if (iGlxTvOut->IsHDMIConnected() && iSurfaceUpdater)
+        {
+        iSurfaceUpdater->ShiftToCloningMode();
+        }
+    }
+
+// -----------------------------------------------------------------------------
+// ShiftToPostingMode 
+// -----------------------------------------------------------------------------
+EXPORT_C void CGlxHdmiController::ShiftToPostingMode()
+    {
+    TRACER("CGlxHdmiController::ShiftToPostingMode()");
+    if (iGlxTvOut->IsHDMIConnected() && iSurfaceUpdater)
+        {
+        iSurfaceUpdater->ShiftToPostingMode();
+        }
+    }
+
 // -----------------------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------------------
@@ -161,8 +185,6 @@ void CGlxHdmiController::ConstructL()
     {
     TRACER("CGlxHdmiController::ConstructL()");
     iGlxTvOut = CGlxTv::NewL(*this);
-    iIsHDMIconnected = EFalse;
-    iIsHDMIdisConnected = EFalse;
     }
 
 // -----------------------------------------------------------------------------
@@ -239,27 +261,18 @@ void CGlxHdmiController::StoreImageInfoL(const TDesC& aImageFile,
 void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
     {
     TRACER("CGlxHdmiController::HandleTvStatusChangedL()");
-    if(iIsHDMIdisConnected)
-        {
-        iIsHDMIdisConnected = EFalse;
-        }
-    else if ( aChangeType == ETvConnectionChanged )          
+    if ( aChangeType == ETvConnectionChanged )          
         {
         if ( iGlxTvOut->IsHDMIConnected() )
             {
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Connected");
             // Calling SetImageL() with appropriate parameters
-            if(!iIsHDMIconnected)
-                {
-                SetImageL(iStoredImagePath->Des(), iImageDimensions, iFrameCount, EFalse);
-                }
+            SetImageL(iStoredImagePath->Des(), iImageDimensions, iFrameCount, EFalse);
             }
         else
             {
             // if it gets disconnected, destroy the surface 
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Not Connected");
-            iIsHDMIconnected = EFalse;
-            iIsHDMIdisConnected = ETrue;
             DestroySurfaceUpdater();
             }
         }

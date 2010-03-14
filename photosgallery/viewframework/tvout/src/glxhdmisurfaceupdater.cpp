@@ -60,6 +60,10 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
     {
     TRACER("CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()");
     ReleaseContent();
+    if(iWindow)
+        {
+        iWindow->RemoveBackgroundSurface(ETrue);
+        }
     if(iTimer->IsActive())
         {
         iTimer->Cancel();
@@ -138,7 +142,7 @@ void CGlxHdmiSurfaceUpdater::ConstructL(TSize /*aImageDimensions*/)
         {
         User::LeaveIfError(error);
         }
-    
+    iBitmapReady = EFalse;
     // Create the active object
     iGlxDecoderAO = CGlxHdmiDecoderAO::NewL(this, iFrameCount);
     CreateImageDecoderL(iImagePath);
@@ -171,6 +175,7 @@ void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile,
         TInt /*aFrameCount*/)
     {
     TRACER("CGlxHdmiSurfaceUpdater::UpdateNewImageL()");
+	iBitmapReady = EFalse;
     ReleaseContent();   
     CreateImageDecoderL(aImageFile);    
     CreateBitmapL();
@@ -203,9 +208,7 @@ void CGlxHdmiSurfaceUpdater::CreateHdmiL(TBool aCreateSurface)
                     CActive::EPriorityStandard-1);
         CActiveScheduler::Add(iSurfBufferAO);    
         }
-    
-    //Set the background Surface
-    iWindow->SetBackgroundSurface(iSurfId);
+
     }
 
 // -----------------------------------------------------------------------------
@@ -240,6 +243,9 @@ void CGlxHdmiSurfaceUpdater::CreateSurfaceL(TSize aSize)
         }    
     //Map the surface and stride the surface info
     MapSurfaceL();
+    //Set the background Surface
+    iWindow->SetBackgroundSurface(iSurfId);
+
     }
 
 // -----------------------------------------------------------------------------
@@ -365,7 +371,7 @@ void CGlxHdmiSurfaceUpdater::HandleRunL()
     GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::HandleRunL() ConvertImageL took"
             " <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
 #endif
-
+	iBitmapReady = ETrue;
     iZoomRectSz = iDecodedBitmap->SizeInPixels(); 
     if (iSurfBufferAO->iStatus != KRequestPending && !iSurfBufferAO->IsActive())
         {
@@ -374,6 +380,12 @@ void CGlxHdmiSurfaceUpdater::HandleRunL()
         iSurfBufferAO->SetActive();    
         iSurfUpdateSession.NotifyWhenAvailable(iSurfBufferAO->iStatus);
         TInt err = iSurfUpdateSession.SubmitUpdate(1, iSurfId, 0, NULL);       
+        }
+	//release imagedecoder after the conversion is over		
+    if(iImageDecoder)
+        {
+        delete iImageDecoder;
+        iImageDecoder = NULL;    
         }
     }
 
@@ -399,7 +411,7 @@ void CGlxHdmiSurfaceUpdater::ActivateZoom()
     TRACER("CGlxHdmiSurfaceUpdater::ActivateZoom()");
     iConfig.SetSurfaceId(iSurfId);
     iZoom = ETrue;
-    if(!iTimer->IsActive())
+    if(!iTimer->IsActive() && iBitmapReady)
        {
        iTimer->Start(KZoomDelay,KZoomDelay,TCallBack( TimeOut,this ));
        }
@@ -472,3 +484,21 @@ void CGlxHdmiSurfaceUpdater::Zoom(TBool aZoom)
     iConfig.SetExtent(TRect(0,0,KHdTvWidth,KHdTvHeight));    
     iWindow->SetBackgroundSurface(iConfig, ETrue);   
     }
+
+// -----------------------------------------------------------------------------
+// ShiftToCloningMode 
+// -----------------------------------------------------------------------------
+void CGlxHdmiSurfaceUpdater::ShiftToCloningMode()
+	{
+	TRACER("CGlxHdmiSurfaceUpdater::ShiftToCloningMode()");
+	iWindow->RemoveBackgroundSurface(ETrue);
+	}
+	
+// -----------------------------------------------------------------------------
+// ShiftToPostingMode 
+// -----------------------------------------------------------------------------
+void CGlxHdmiSurfaceUpdater::ShiftToPostingMode()
+	{
+	TRACER("CGlxHdmiSurfaceUpdater::ShiftToPostingMode()");
+	iWindow->SetBackgroundSurface(iSurfId);
+	}

@@ -173,7 +173,7 @@ void CGlxCache::UpdateMediaL(const CMPXMedia& aMedia)
 	RArray<TMPXAttribute> newAttributes;
 	CleanupClosePushL(newAttributes);
 	
-	if (item != NULL)
+	if ( item )
 		{
 		GLX_DEBUG2("MGallery - CGlxCacheManager::HandleCollectionMediaL() existing item for item id %d", id.Value());
 		CopyNewAndModifiedL(*item, aMedia, newAttributes);

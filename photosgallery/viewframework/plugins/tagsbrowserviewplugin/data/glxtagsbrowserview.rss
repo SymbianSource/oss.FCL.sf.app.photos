@@ -63,17 +63,10 @@ RESOURCE MENU_PANE r_tagsbrowser_menu
 	{
 	items=
 		{
-		MENU_ITEM { command = EGlxCmdSlideshow;
-                    txt = qtn_lgal_options_slideshow; 
-                    cascade = r_tile_shw_menu;},
         MENU_ITEM { command=EGlxCmdSortByAlphabetical; 
                     txt=qtn_lgal_options_alphabetical; },
         MENU_ITEM { command=EGlxCmdSortByCount; 
                     txt=qtn_lgal_options_most_used; },
-        MENU_ITEM { command = EGlxCmdDelete;
-                    txt = qtn_lgal_options_delete;}, 
-        MENU_ITEM { command = EGlxCmdRename;
-                    txt = qtn_lgal_options_rename;}, 
         MENU_ITEM { command=EGlxStopShowing; 
                     txt=qtn_lgal_options_stop_show; }, 
 		MENU_ITEM { command=EAknCmdHelp; 
@@ -201,3 +194,22 @@ RESOURCE AVKON_TOOLBAR r_tagsbrowser_toolbar
             }
         };
     }
+
+//Rename Text
+RESOURCE TBUF r_glx_tags_rename_title
+    {
+    buf = qtn_lgal_options_rename;
+    }
+
+// Slide show text
+RESOURCE TBUF r_glx_tags_slideshow_title
+    {
+    buf = qtn_lgal_options_slideshow;
+    }
+
+// Delete text
+RESOURCE TBUF r_glx_tags_delete_title
+    {
+    buf = qtn_lgal_options_delete;
+    }
+

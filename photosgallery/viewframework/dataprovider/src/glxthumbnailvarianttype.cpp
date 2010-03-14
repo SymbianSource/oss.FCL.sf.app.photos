@@ -134,13 +134,7 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
             expired = iDrmUtility->CheckOpenRightsL(uri, (cat == EMPXImage));
             if( expired )
                 {
-                // 200 is to Consume rights only while opening DRM items 
-                // in Cover Flow Widget
-                if ( aSize.iWidth > 200 && aIsFocused)
-                    {  
-                    ConsumeDRMRightsL( aMedia );                
-                    }
-                if ( isValid )
+               if ( isValid )
                     {
                     // Fix for EABI-7RL9DD
                     // Replaced defaultSize with aSize
@@ -166,9 +160,9 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
         TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL( 
     	    icon.bitmapId, resFile, defaultSize ).Id() );
         }
-	else if ( KErrNone == thumbnailError || KErrArgument == thumbnailError || ( drm && isValid == EGlxDrmRightsInvalid ) )
-	          
-	    {    
+	else if ( (KErrNone == thumbnailError) || (KErrArgument == thumbnailError) 
+		|| (KErrDiskFull == thumbnailError) || ( drm && isValid == EGlxDrmRightsInvalid ) )
+	    {
 		//Try and see if we can scale and show the grid tnm else show the default
 	    TBool isGridTnmShown = EFalse;		
 	    if(HasRelevantThumbnail(aMedia,defaultSize))
@@ -209,52 +203,6 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
 		GLX_DEBUG2("GlxThumbnailVariantType::ConstructL() ERROR err=%d", err);
         throw std::bad_alloc();
         }
-    }
- 
-void GlxThumbnailVariantType::ConsumeDRMRightsL( const TGlxMedia& aMedia )
-    {
-    TRACER("GlxThumbnailVariantType::ConsumeDRMRightsL");
-    
-    const CGlxMedia* media = aMedia.Properties();
-    
-    if(media)
-        {
-        if(aMedia.IsDrmProtected())
-            {
-    
-            TMPXGeneralCategory cat = aMedia.Category();
-            const TDesC& uri = aMedia.Uri();
-            if( cat != EMPXNoCategory && uri.Length() > 0 )
-                {
-                    
-                // check if rights have expired
-                TBool expired = !iDrmUtility->CheckOpenRightsL(uri, (cat == EMPXImage));
-                                    
-                if(expired)
-                    {
-                    return;
-                    }
-                
-                TSize size;
-                if(EMPXImage == cat && aMedia.GetDimensions(size))          
-                    {                    
-                    // check size
-                    TSize bmpSize = ThumbnailSize(media);
-                    
-                    if(ConsumeRightsBasedOnSize(size, bmpSize))
-                        {
-                        // pass URI to DRM utility
-                        iDrmUtility->ConsumeRightsL(uri);                        
-                        }       
-                    }
-                }     
-            }
-        else
-            {
-            // not an DRM'd item no need to check again             
-            }
-        }
-    
     }
 
 // -----------------------------------------------------------------------------
@@ -326,7 +274,7 @@ TBool GlxThumbnailVariantType::ConsumeRightsBasedOnSize(
 // 
 TSize GlxThumbnailVariantType::ThumbnailSize(const CGlxMedia* aMedia)
     {
-    TRACER("CGlxCommandHandlerDrm::ThumbnailSize");
+    TRACER("GlxThumbnailVariantType::ThumbnailSize");
     TSize bmpSize(0,0);
     
     TArray<TMPXAttribute> attr = aMedia->Attributes();

@@ -118,7 +118,7 @@ void CGlxVisualListWindow::SetupObjectL( TInt aIndex, CBase& aObject )
     
     // media will be null if aMedia's Properties are not available
     // so furtur operation need to be cancle
-    if ( iMediaList->Item( aIndex ).Properties() == NULL)
+    if ( !iMediaList->Item( aIndex ).Properties() )
         {
         texture = &iUiUtility->Env()->TextureManager().BlankTexture(); 
         } 

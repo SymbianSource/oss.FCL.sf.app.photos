@@ -89,12 +89,12 @@ CGlxCommandHandlerRotate::~CGlxCommandHandlerRotate()
         }
     iFs.Close();
        
-    if(iExifData != NULL)
+    if ( iExifData )
         {
         delete iExifData;
         iExifData = NULL;
         }
-    if(iExifWriter != NULL)
+    if ( iExifWriter )
         {
         delete iExifWriter;
         iExifWriter = NULL;
@@ -452,12 +452,12 @@ void CGlxCommandHandlerRotate::DoPreserveOrientationL()
     iInitialOrientation = 9;
     iRotationAngle = 0;
     iRotationApplied = EFalse;
-    if(iExifData != NULL)
+    if ( iExifData )
         {
         delete iExifData;
         iExifData = NULL;
         }
-    if(iExifWriter != NULL)
+    if ( iExifWriter )
         {
         delete iExifWriter;
         iExifWriter = NULL;
@@ -544,12 +544,12 @@ void CGlxCommandHandlerRotate::DoCleanupRotationParametersL()
     iGlxItem = NULL;
 
     iRotationApplied = EFalse;
-    if(iExifData != NULL)
+    if ( iExifData )
         {
         delete iExifData;
         iExifData = NULL;
         }
-    if(iExifWriter != NULL)
+    if ( iExifWriter )
         {
         delete iExifWriter;
         iExifWriter = NULL;

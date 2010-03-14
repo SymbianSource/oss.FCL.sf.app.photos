@@ -24,7 +24,7 @@
 //#include <hg/hgcontextutility.h>
 #include <gulicon.h>
 
-//Gallery Headers
+//Photos Headers
 #include <glxtracer.h>                                  // For Tracer
 #include <glxlog.h>                                     // For Glx Logging
 #include <glxuiutility.h>                               // For UiUtility instance
@@ -37,11 +37,11 @@
 #include <mpxmediadrmdefs.h>                            // KMPXMediaDrmProtected
 #include <glxcollectionplugindownloads.hrh>
 #include <glxgridviewdata.rsg>                          // Gridview resource
+#include <glxgeneraluiutilities.h>
 
 // Framework
 #include <data_caging_path_literals.hrh>
 #include <StringLoader.h>
-
 #include <bldvariant.hrh>                               // For feature constants
 #include <featmgr.h>		                            // Feature Manager
 #include <caf/caferr.h>
@@ -59,7 +59,7 @@ const TInt KRecreateGridSize(5); //minimum no of items added to trigger recreate
 EXPORT_C CGlxGridViewMLObserver* CGlxGridViewMLObserver::NewL(
         MGlxMediaList& aMediaList, CHgGrid* aHgGrid)
     {
-    TRACER("CGlxGridViewMLObserver::NewLC()");
+    TRACER("CGlxGridViewMLObserver::NewL()");
     CGlxGridViewMLObserver* self = 
             new (ELeave) CGlxGridViewMLObserver(aMediaList, aHgGrid);
     CleanupStack::PushL(self);
@@ -75,7 +75,7 @@ EXPORT_C CGlxGridViewMLObserver* CGlxGridViewMLObserver::NewL(
 CGlxGridViewMLObserver::CGlxGridViewMLObserver(MGlxMediaList& aMediaList,
         CHgGrid* aHgGrid ) : iMediaList(aMediaList), iHgGrid(aHgGrid)
     {
-    TRACER("CGlxGridViewMLObserver::CGlxGridViewMLObserver");
+    TRACER("CGlxGridViewMLObserver::CGlxGridViewMLObserver()");
     }
 
 // ---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ CGlxGridViewMLObserver::CGlxGridViewMLObserver(MGlxMediaList& aMediaList,
 //  
 void CGlxGridViewMLObserver::ConstructL()
     {
-    TRACER("CGlxGridViewMLObserver::ConstructL");
+    TRACER("CGlxGridViewMLObserver::ConstructL()");
     iMediaList.AddMediaListObserverL(this);
     // For DRm Utility
     iDRMUtility = CGlxDRMUtility::InstanceL();
@@ -103,6 +103,8 @@ void CGlxGridViewMLObserver::ConstructL()
     iSpeedTnAttrib = TMPXAttribute (KGlxMediaIdThumbnail, 
         GlxFullThumbnailAttributeId( EFalse,  iGridIconSize.iWidth, 
                 iGridIconSize.iHeight ) );
+    
+    iDiskErrorIntimated = EFalse ;
     }
 
 // ---------------------------------------------------------------------------
@@ -111,7 +113,7 @@ void CGlxGridViewMLObserver::ConstructL()
 //
 CGlxGridViewMLObserver::~CGlxGridViewMLObserver()
     {
-    TRACER("CGlxGridViewMLObserver::~CGlxGridViewMLObserver");
+    TRACER("CGlxGridViewMLObserver::~CGlxGridViewMLObserver()");
     iMediaList.RemoveMediaListObserver( this );
     if (iDRMUtility)
         {
@@ -289,7 +291,7 @@ void CGlxGridViewMLObserver::HandleFocusChangedL( NGlxListDefs::
 void CGlxGridViewMLObserver::HandleItemSelectedL(TInt /*aIndex*/, 
     TBool /*aSelected*/, MGlxMediaList* /*aList*/ )
     {
-    TRACER("CGlxGridViewMLObserver::HandleItemSelectedL");
+    TRACER("CGlxGridViewMLObserver::HandleItemSelectedL()");
     }
 
 // ----------------------------------------------------------------------------
@@ -319,39 +321,45 @@ void CGlxGridViewMLObserver::HandleError( TInt /*aError*/ )
 void CGlxGridViewMLObserver::HandleErrorL()
     {
     TRACER("CGlxGridViewMLObserver::HandleErrorL()");
+
+    TInt bitmapId  = EMbmGlxiconsQgn_prop_image_notcreated;
+    TInt flags     = CHgItem::EHgItemFlagsNone ;
+    
     for ( TInt i = 0; i < iMediaList.Count(); i++ )
         {
         const TGlxMedia& item = iMediaList.Item( i );
         TInt thumbnailError = GlxErrorManager::HasAttributeErrorL(
                 item.Properties(), KGlxMediaIdThumbnail );
-
-		if( thumbnailError== KErrCANoRights)
-			{
-			/*fix for EABI-7RKHDG
-			 * this is a safe code added to show default
-			 * TNM returns -17452 in case SD DRM files
-			 */
-			TFileName resFile(KDC_APP_BITMAP_DIR);
-		    resFile.Append(KGlxIconsFilename);
-		    CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
-		    		EMbmGlxiconsQgn_prop_image_notcreated);
-            AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize());
-		    iHgGrid->ItemL(i).SetIcon(CGulIcon::NewL(bitmap),
-		                        CHgItem::EHgItemFlagsDrmRightsExpired);
-			}
-		else if (thumbnailError)
-		    {
+        
+        if (KErrNone != thumbnailError)
+            {
+            switch (thumbnailError)
+                {
+                case KErrCANoRights:;   // Err id = -17452
+                    bitmapId  = EMbmGlxiconsQgn_prop_image_notcreated;
+                    flags     = CHgItem::EHgItemFlagsDrmRightsExpired;
+                    break;
+                case KErrDiskFull:
+                    bitmapId  = EMbmGlxiconsQgn_prop_image_notcreated;
+                    flags     = CHgItem::EHgItemFlagsNone ;
+                    if (!iDiskErrorIntimated)
+                        {
+                        DisplayErrorNote(KErrDiskFull);
+                        }
+                    break;
+                default:
+                    bitmapId  = EMbmGlxiconsQgn_prop_image_corrupted;
+                    flags     = CHgItem::EHgItemFlagsNone ;
+                    break;  
+                }
+            
             TFileName resFile(KDC_APP_BITMAP_DIR);
             resFile.Append(KGlxIconsFilename);
 
-            CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
-                    EMbmGlxiconsQgn_prop_image_corrupted);
-
-           	//@ Fix for EABI-7RJA8C, Changes for HG grid for corrupted icon.
+            CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile, bitmapId);
             AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize() );
 
-            iHgGrid->ItemL(i).SetIcon(CGulIcon::NewL(bitmap),
-                    CHgItem::EHgItemFlagsNone);
+            iHgGrid->ItemL(i).SetIcon(CGulIcon::NewL(bitmap), flags);
             }
         }
     iHgGrid->RefreshScreen(iHgGrid->FirstIndexOnScreen());    
@@ -443,6 +451,7 @@ TBool CGlxGridViewMLObserver::HasRelevantThumbnail(TInt aIndex)
 void CGlxGridViewMLObserver::RefreshScreen(TInt aItemIndex,
                                       const RArray<TMPXAttribute>& aAttributes)
     {
+    TRACER("CGlxGridViewMLObserver::RefreshScreen()");
     TInt mediaCount = iMediaList.Count();
     TInt firstIndex = iHgGrid->FirstIndexOnScreen();
     firstIndex = (firstIndex<0 ? 0 : firstIndex);
@@ -511,9 +520,10 @@ void CGlxGridViewMLObserver::RefreshScreen(TInt aItemIndex,
 // UpdateItemsL
 // ----------------------------------------------------------------------------
 // 
-void CGlxGridViewMLObserver::UpdateItemsL (TInt aItemIndex, 
+void CGlxGridViewMLObserver::UpdateItemsL(TInt aItemIndex, 
                                       const RArray<TMPXAttribute>& aAttributes)
     {
+    TRACER("CGlxGridViewMLObserver::UpdateItemsL()");
     TInt mediaCount = iMediaList.Count();
     const TGlxMedia& item = iMediaList.Item( aItemIndex );
     TIdentityRelation< TMPXAttribute > match ( &TMPXAttribute::Match );
@@ -584,3 +594,16 @@ void CGlxGridViewMLObserver::UpdateItemsL (TInt aItemIndex,
     }
     
     
+// ----------------------------------------------------------------------------
+// DisplayErrorNote
+// ----------------------------------------------------------------------------
+// 
+void CGlxGridViewMLObserver::DisplayErrorNote(TInt aError)
+    {
+    TRACER("CGlxGridViewMLObserver::DisplayErrorNote()");
+    GLX_LOG_INFO1("CGlxGridViewMLObserver::DisplayErrorNote Error note "
+                "displayed corresponging to [d]", aError);
+    GlxGeneralUiUtilities::ShowErrorNoteL(aError);
+    iDiskErrorIntimated = ETrue;
+    return ;
+    }

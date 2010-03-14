@@ -302,7 +302,7 @@ void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId, TDes& 
     // put to cleanupstack as cleanupstack is emptied before stack objects
     // are deleted
     CleanupClosePushL( contextRemover );
-    	User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext, *rootList, ETrue));
+    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext, *rootList, ETrue));
     // context off the list
     CleanupStack::PopAndDestroy( &contextRemover );
     	
@@ -341,7 +341,7 @@ HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL
     // put to cleanupstack as cleanupstack is emptied before stack objects
     // are deleted
     CleanupClosePushL( contextRemover );
-    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext, aList, ETrue));
+    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext, aList, EFalse));
     // context off the list
     CleanupStack::PopAndDestroy( &contextRemover );
     CleanupStack::PopAndDestroy(attributeContext);

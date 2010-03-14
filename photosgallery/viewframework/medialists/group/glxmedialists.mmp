@@ -65,14 +65,13 @@ SYSTEMINCLUDE           ../../../common/inc
 SYSTEMINCLUDE           ../../../commonui/inc
 SYSTEMINCLUDE           ../../../inc
 SYSTEMINCLUDE           ../../drmutility/inc
-SYSTEMINCLUDE   		../../inc          // for GlxTvOut
+SYSTEMINCLUDE           ../../inc          // for GlxTvOut
 SYSTEMINCLUDE           ../../../gallery/inc
 
 APP_LAYER_SYSTEMINCLUDE
 
 // if you comment the lines below out, Photos dB will be used for thumbnail fetching
 MACRO USE_S60_TNM
-MACRO MEDIA_ID_BASED_TN_FETCH_ENABLED
 #define USE_S60_TNM
 
 LIBRARY                 avkon.lib					// CAknView

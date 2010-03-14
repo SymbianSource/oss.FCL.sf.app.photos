@@ -69,7 +69,7 @@ EXPORT_C CGlxVisualListManager* CGlxVisualListManager::ManagerL()
 	CGlxVlmTls* tls = reinterpret_cast<CGlxVlmTls*>(Dll::Tls());
 
 	// Create tls struct if does not exist
-	if (tls == NULL) 
+	if ( !tls ) 
 		{
 		// Create list manager instance
 		CGlxVisualListManager* lm = new (ELeave) CGlxVisualListManager();
@@ -101,7 +101,7 @@ EXPORT_C void CGlxVisualListManager::Close()
 	__ASSERT_DEBUG(tls != NULL, Panic(EGlxPanicLogicError));
 	__ASSERT_DEBUG(tls->iReferenceCount > 0, Panic(EGlxPanicLogicError)); // There's nothign to close
 
-    if (tls != NULL) 
+    if ( tls ) 
     	{
 		tls->iReferenceCount--;
 		
@@ -200,7 +200,7 @@ EXPORT_C void CGlxVisualListManager::ReleaseList(MGlxVisualList* aList)
 	{
 	TRACER("CGlxVisualListManager::ReleaseList");
     GLX_LOG_INFO("CGlxVisualListManager::ReleaseList");
-	if (aList == NULL) 
+	if ( !aList ) 
 		{
 		return;
 		}

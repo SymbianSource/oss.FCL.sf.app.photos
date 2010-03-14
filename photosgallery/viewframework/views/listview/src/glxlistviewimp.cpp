@@ -26,8 +26,7 @@
 #include <mpxcollectionutility.h>
 #include <mpxcollectionpath.h>
 #include <glxcollectiongeneraldefs.h>
-#include <ganes/HgDoubleGraphicList.h>
-#include <ganes/HgGrid.h>
+#include <ganes/HgDoubleGraphicListFlat.h>
 #include <ganes/HgItem.h>
 #include <data_caging_path_literals.hrh>
 #include <glxuistd.h>
@@ -48,7 +47,7 @@
 const TInt KListDataWindowSize(25);
 const TInt KNoOfPages(2);
 const TInt KBufferTresholdSize(6);
-const TInt KRecreateListSize(5);
+
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -456,7 +455,7 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
 		CFbsBitmap* defaultBitmap = AknIconUtils::CreateIconL(resFile,
 						 EMbmGlxiconsQgn_prop_image_notcreated);
 		AknIconUtils::SetSize(defaultBitmap, 
-				CHgDoubleGraphicList::PreferredImageSize());
+				CHgDoubleGraphicListFlat::PreferredImageSize());
 		
     	iList->ItemL(focusIndex).SetIcon(CGulIcon::NewL(defaultBitmap));
     	}
@@ -547,9 +546,9 @@ void CGlxListViewImp::CreateListL()
     	CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
    						 EMbmGlxiconsQgn_prop_image_notcreated);
 		AknIconUtils::SetSize(bitmap, 
-		        CHgDoubleGraphicList::PreferredImageSize());
+				CHgDoubleGraphicListFlat::PreferredImageSize());
 
-	    iList = CHgDoubleGraphicList::NewL(
+	    iList = CHgDoubleGraphicListFlat::NewL(
 	            ClientRect(), 
 	            mediaCount, 
 	            CGulIcon::NewL(bitmap) );
@@ -568,8 +567,7 @@ void CGlxListViewImp::CreateListL()
             //set the text to be shown if the list is empty.
             HBufC* emptyText = StringLoader::LoadLC(R_LIST_EMPTY_VIEW_TEXT); 
             iList->SetEmptyTextL(*emptyText);
-            CleanupStack::PopAndDestroy(emptyText);            
-            iLastFocusedIndex = iList->FirstIndexOnScreen();            
+            CleanupStack::PopAndDestroy(emptyText);
             }		
         
 		//Fix for ESLM-7SAHPT::Clear Flag to Disable QWERTY search input in list view
@@ -608,32 +606,27 @@ void CGlxListViewImp::CreateListL()
 void CGlxListViewImp::HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, 
      MGlxMediaList* aList )
     {
-    TRACER("CGlxListViewImp::HandleItemAddedL");
-    if (iList)
-        {
-        if ((aEndIndex - aStartIndex) >= KRecreateListSize)
+    TRACER("CGlxListViewImp::HandleItemAddedL");    
+    
+    if (iList && aList)
+        {            
+        iList->ResizeL(aList->Count());            
+        for (TInt i = aStartIndex; i<= aEndIndex; i++)
             {
-            iList->ResizeL(aList->Count());
-            }
-        else
+            const TGlxMedia& item = iMediaList->Item(i);                
+            iList->ItemL(i).SetTitleL(item.Title());
+            iList->ItemL(i).SetTextL(item.SubTitle());
+            }            
+        
+        if(aStartIndex == aEndIndex )
             {
-            for (TInt i = aStartIndex; i<= aEndIndex; i++)
-                {
-                const TGlxMedia& item = iMediaList->Item(i);
-                iList->InsertItem(CHgItem::NewL(CHgItem::EHgItemFlagsNone,
-                        NULL, item.Title(), item.SubTitle()), i);
-                }
-
-            if(aStartIndex == aEndIndex )
-                {
-                iLastFocusedIndex = aStartIndex;
-                iPopulateListTNs = EFalse;
-                iMediaList->SetFocusL(NGlxListDefs::EAbsolute, iLastFocusedIndex);			
-                }
-
-            iList->SetSelectedIndex(iLastFocusedIndex);	
-            iList->RefreshScreen(iLastFocusedIndex);
+            iLastFocusedIndex = aStartIndex;
+            iPopulateListTNs = EFalse;
+            iMediaList->SetFocusL(NGlxListDefs::EAbsolute, iLastFocusedIndex);			
             }
+        
+        iList->SetSelectedIndex(iLastFocusedIndex);	
+        iList->RefreshScreen(iLastFocusedIndex);
         }
     }
 

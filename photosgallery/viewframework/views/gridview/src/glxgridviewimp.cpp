@@ -106,9 +106,12 @@ void CGlxGridViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
 	ViewBaseConstructL();
 	MLViewBaseConstructL(aMediaListFactory, aTitle);   
 
-	//Register the view to recieve toolbar events. ViewBase handles the events
+	//create the tool bar dynamically
+	//to reduce the startup time of the application.
+	iToolbar = CAknToolbar::NewL(R_GLX_GRID_VIEW_TOOLBAR);
+	SetGridToolBar(iToolbar);
 	SetToolbarObserver(this);
-	ShowToolbarOnViewActivation(ETrue);
+	iToolbar->SetToolbarVisibility(ETrue);
     
 	// Get object that stores the active media list registry
 	iActiveMediaListRegistry = CGlxActiveMediaListRegistry::InstanceL();
@@ -151,9 +154,15 @@ void CGlxGridViewImp::DoMLViewActivateL(
 	// Setting the Context sensitive menu id
 	MenuBar()->SetContextMenuTitleResourceId( iResourceIds.iOkOptionsMenuId );
 	iActiveMediaListRegistry->RegisterActiveMediaList(iMediaList);
-
+	if(!iToolbar)
+        {
+        iToolbar = CAknToolbar::NewL(R_GLX_GRID_VIEW_TOOLBAR);
+        SetGridToolBar(iToolbar);
+        SetToolbarObserver(this);
+        iToolbar->SetToolbarVisibility(ETrue);
+        }
 	//Create HG Grid, medialist observer, FS thumbnailcontext
-	iGlxGridViewContainer = CGlxGridViewContainer::NewL(iMediaList,iUiUtility,*this);
+	iGlxGridViewContainer = CGlxGridViewContainer::NewL(iMediaList,iUiUtility,*this,iToolbar);
 	iEikonEnv->AppUi()->AddToStackL(*this,iGlxGridViewContainer);
 	}
 
@@ -179,7 +188,13 @@ void CGlxGridViewImp::DoMLViewDeactivate()
 		}
 	// Deregister active media list pointer
 	iActiveMediaListRegistry->DeregisterActiveMediaList(iMediaList);
-
+	if(iToolbar)
+        {
+         delete iToolbar;
+         iToolbar = NULL;
+		 //set the gridtoolbar to NULL in viewbase.
+         SetGridToolBar(iToolbar);
+        }
 	// Destroy Grid widget before going to next view
 	DestroyGridWidget();
 	}
@@ -205,7 +220,11 @@ CGlxGridViewImp::~CGlxGridViewImp()
 	{
 	TRACER("CGlxGridViewImp::~CGlxGridViewImp");
 	delete iTitletext;
-    
+	if(iToolbar)
+	    {
+        delete iToolbar;
+        iToolbar = NULL;
+	    }
 	if (iActiveMediaListRegistry)
 		{
 		iActiveMediaListRegistry->Close();
@@ -268,7 +287,7 @@ void CGlxGridViewImp::HandleLatchToolbar()
 	{
 	TRACER("CGlxGridViewImp::HandleLatchToolbarL()");
 	CAknButton* markButton = static_cast<CAknButton*>
-									(Toolbar()->ControlOrNull( EGlxCmdStartMultipleMarking ));
+									(iToolbar->ControlOrNull( EGlxCmdStartMultipleMarking ));
 
 	if(markButton)
 		{

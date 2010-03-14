@@ -99,6 +99,8 @@ protected: // From CGlxMediaListCommandHandler
 	/** See @ref CGlxMpxCommandCommandHandler::DoHandleCommandCompleteL */
 	virtual void DoHandleCommandCompleteL(TAny* aSessionId,
 	        CMPXCommand* aCommandResult, TInt aError, MGlxMediaList* aList);
+	
+	virtual TBool OkToExit() const;
 
     /** See @ref CGlxCommandHandler::DoActivateL */
     void DoActivateL(TInt aViewId);

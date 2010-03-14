@@ -28,6 +28,9 @@
 namespace
 	{
 	const TInt KMicroSecondsInASecond = 1000000;
+    
+	// @ref: Minimum slideshow transition delay
+	const TInt KMinTimeoutDelay = 2; // secs 
 	}
 
 // -----------------------------------------------------------------------------
@@ -95,6 +98,13 @@ void CShwSlideshowBackLightTimer::ConstructL()
     
     // Take the smaller of the two timeout values
     iSettingsDelay = Min( iSettingsDelay, screenSaverTimeout );
+    
+    // Set the timeout delay to minimum value as it can not be zero!
+    if (iSettingsDelay == 0)
+        {
+        iSettingsDelay = KMinTimeoutDelay;
+        }
+    
     // Convert the value to microseconds
     iSettingsDelay *= KMicroSecondsInASecond;
     // Halve the value to ensure out timer kicks beforehand
@@ -110,8 +120,7 @@ void CShwSlideshowBackLightTimer::ConstructL()
 //
 TInt CShwSlideshowBackLightTimer::Tick()
     {
-	// Timer must be reset to prevent screen saver to appear in 
-	// Aalto when the slide is closed. Should not cause any side effects.
+	// Timer must be reset to prevent screen saver to appear
 	User::ResetInactivityTime();
 	iStartTime.HomeTime();
 

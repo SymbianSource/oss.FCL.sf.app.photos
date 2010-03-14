@@ -35,6 +35,7 @@
 #include <caf/content.h>
 #include <caf/data.h>
 #include <caf/manager.h>
+#include "glxtracer.h"
 
 const TInt KGlxDRMThumbnailHeight = 120;
 const TInt KGlxDRMThumbnailWidth = 90;
@@ -64,9 +65,10 @@ struct CGlxDrmTls
 //============================================================================
 EXPORT_C CGlxDRMUtility* CGlxDRMUtility::InstanceL()
     {
+    TRACER("CGlxDRMUtility::InstanceL()");
     CGlxDrmTls* tls = reinterpret_cast<CGlxDrmTls*>(Dll::Tls());
     
-    if(tls==NULL)
+    if ( !tls )
         {
         CGlxDRMUtility* drmutil = new(ELeave)CGlxDRMUtility();
         CleanupStack::PushL(drmutil);
@@ -89,9 +91,10 @@ EXPORT_C CGlxDRMUtility* CGlxDRMUtility::InstanceL()
 //============================================================================ 
 EXPORT_C void CGlxDRMUtility::Close()
     {
+    TRACER("CGlxDRMUtility::Close()");
     CGlxDrmTls* tls = reinterpret_cast<CGlxDrmTls*>(Dll::Tls());
    
-    if (tls != NULL) 
+    if ( tls ) 
         {
         tls->iRefCount--;
         
@@ -111,6 +114,7 @@ EXPORT_C void CGlxDRMUtility::Close()
 //============================================================================ 
 CGlxDRMUtility::~CGlxDRMUtility()
     {
+    TRACER("CGlxDRMUtility::~CGlxDRMUtility()");
     delete iCManager;
     delete iDrmHelper;
     delete iLastConsumedItemUri;
@@ -122,6 +126,7 @@ CGlxDRMUtility::~CGlxDRMUtility()
 EXPORT_C TBool CGlxDRMUtility::CheckOpenRightsL( const TDesC& aUri, 
                                                 TBool aCheckViewRights )
     {
+    TRACER("CGlxDRMUtility::CheckOpenRightsL()");
     // When checking current rights for a URI, clear stored URI
     TPtr ptr = iLastConsumedItemUri->Des();
     ptr.Zero();
@@ -145,6 +150,7 @@ EXPORT_C TBool CGlxDRMUtility::CheckOpenRightsL( const TDesC& aUri,
 EXPORT_C TBool CGlxDRMUtility::CheckDisplayRightsL( const TDesC& aUri, 
                                                     TBool aCheckViewRights )
     {
+    TRACER("CGlxDRMUtility::CheckDisplayRightsL()");
     // Allow to display if rights for a URI was just consumed (i.e. same as stored URI)
     if ( iLastConsumedItemUri->Length() > 0 )
         {
@@ -163,6 +169,7 @@ EXPORT_C TBool CGlxDRMUtility::CheckDisplayRightsL( const TDesC& aUri,
 //============================================================================    
 EXPORT_C TBool CGlxDRMUtility::ConsumeRightsL(const TDesC& aUri)
     {
+    TRACER("CGlxDRMUtility::ConsumeRightsL()");
     TVirtualPathPtr path( aUri, KDefaultContentObject() );
 
     // Create a CData object to read the content
@@ -195,6 +202,7 @@ EXPORT_C TBool CGlxDRMUtility::ConsumeRightsL(const TDesC& aUri)
 //============================================================================
 EXPORT_C TBool CGlxDRMUtility::CanShowInfoOnlineL(TDesC& aUri)
     {
+    TRACER("CGlxDRMUtility::CanShowInfoOnlineL()");
     TBool canShowInfoOnline = EFalse;
 
     HBufC8* urlBuf = NULL;
@@ -211,6 +219,7 @@ EXPORT_C TBool CGlxDRMUtility::CanShowInfoOnlineL(TDesC& aUri)
 //============================================================================
 EXPORT_C void CGlxDRMUtility::ShowInfoOnlineL(TDesC& aUri)
     {
+    TRACER("CGlxDRMUtility::ShowInfoOnlineL()");
     iDrmHelper->OpenInfoUrlL(aUri);
     }
 
@@ -220,6 +229,7 @@ EXPORT_C void CGlxDRMUtility::ShowInfoOnlineL(TDesC& aUri)
 EXPORT_C TBool CGlxDRMUtility::CanSetAsAutomatedL(const TDesC& aUri, 
                                     TGlxDrmAutomatedType aType)
     {
+    TRACER("CGlxDRMUtility::CanSetAsAutomatedL()");
     TBool canSetAutomated = EFalse;
     switch(aType)
         {
@@ -241,6 +251,7 @@ EXPORT_C TBool CGlxDRMUtility::CanSetAsAutomatedL(const TDesC& aUri,
 EXPORT_C void CGlxDRMUtility::SetAsAutomatedL(const TDesC& aUri, 
                                     TGlxDrmAutomatedType aType)
     {
+    TRACER("CGlxDRMUtility::SetAsAutomatedL()");
      switch(aType)
         {
     case EGlxDrmAutomatedTypeWallpaper:
@@ -267,6 +278,7 @@ EXPORT_C void CGlxDRMUtility::SetAsAutomatedL(const TDesC& aUri,
 //============================================================================  
 EXPORT_C void CGlxDRMUtility::ShowDRMDetailsPaneL( const TDesC& aUri )
     {
+    TRACER("CGlxDRMUtility::ShowDRMDetailsPaneL()");
     TRAPD( err, iDrmHelper->LaunchDetailsViewEmbeddedL( aUri ) );
     // if no rights ask user to re-activate?
     if( err == KErrCANoRights )
@@ -283,6 +295,7 @@ EXPORT_C void CGlxDRMUtility::ShowDRMDetailsPaneL( const TDesC& aUri )
 //============================================================================  
 EXPORT_C TBool CGlxDRMUtility::IsForwardLockedL(const TDesC& aUri)
     {
+    TRACER("CGlxDRMUtility::IsForwardLockedL()");
     TBool forwardLocked = EFalse;
     TVirtualPathPtr path( aUri, KDefaultContentObject() );
 
@@ -297,6 +310,7 @@ EXPORT_C TBool CGlxDRMUtility::IsForwardLockedL(const TDesC& aUri)
 //============================================================================    
 EXPORT_C void CGlxDRMUtility::ShowRightsInfoL(const TDesC& aUri)    
     {
+    TRACER("CGlxDRMUtility::ShowRightsInfoL()");
     iDrmHelper->CheckRightsAmountL( aUri );
     }
 
@@ -305,6 +319,7 @@ EXPORT_C void CGlxDRMUtility::ShowRightsInfoL(const TDesC& aUri)
 //============================================================================
 EXPORT_C TSize CGlxDRMUtility::DRMThumbnailSize(TSize& aSize)
     {
+    TRACER("CGlxDRMUtility::DRMThumbnailSize()");
     TSize thumbnailSize(KGlxDRMThumbnailWidth, KGlxDRMThumbnailHeight);
     
     if((aSize.iWidth*aSize.iHeight)/4 < 
@@ -322,7 +337,7 @@ EXPORT_C TSize CGlxDRMUtility::DRMThumbnailSize(TSize& aSize)
  */
 CGlxDRMUtility::CGlxDRMUtility()
     {
-    
+    TRACER("CGlxDRMUtility::CGlxDRMUtility()");
     }
 
 /**
@@ -330,6 +345,7 @@ CGlxDRMUtility::CGlxDRMUtility()
  */
 void CGlxDRMUtility::ConstructL()
     {
+    TRACER("CGlxDRMUtility::ConstructL()");
     iCManager = ContentAccess::CManager::NewL();
     iDrmHelper = CDRMHelper::NewL();
     iLastConsumedItemUri = HBufC::NewL(0);
