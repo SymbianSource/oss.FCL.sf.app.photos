@@ -15,7 +15,9 @@
 *
 */
 
-
+//IMPORTANT NOTE: If anyone wants to changed priority or order of priority then please 
+//done appropriate changes in glxlistviewimp.h and glxlistviewimp.cpp. SetDefaultThumbnail()
+//function has dependancy with priority order of colleciton plugins.
 
 
 #ifndef __GLXCOLLECTIONPLUGINPRIORITY_HRH

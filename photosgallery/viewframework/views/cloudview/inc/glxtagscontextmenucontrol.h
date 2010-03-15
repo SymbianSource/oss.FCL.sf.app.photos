@@ -78,6 +78,11 @@ public:
      * @param aOpacity - Opacity value
      */
     void ShowItemMenu(TBool aOpacity);
+    /**
+     * Hides/shows the grid layout
+     * @return value of menu's visibility
+     */
+    TBool ItemMenuVisibility();
 
     /**
     * Sets the drawable screen rect 
@@ -121,9 +126,6 @@ private:
 
     //Ui Utility, not owning, only close
     CGlxUiUtility* iUiUtility;
-    
-    // Background Image Visual
-    CAlfImageVisual* iBackgroundBorderImageVisual;       
     
     //Observer to handle the menu items in grid layout
     MGlxItemMenuObserver& iItemMenuObserver;          

@@ -109,8 +109,12 @@ public:
       * @return ETrue to no error in rights consumption
       */
     IMPORT_C TBool ConsumeRightsL(const TDesC& aUri);
-    
-    
+
+    /**
+     * Fix for ESLM-82WJ59:
+     * Clears Last Consumed Uri
+     */
+    IMPORT_C void ClearLastConsumedItemUri();
 
     /**
      * Test whether a media item is OMA DRM 2.0 protected and has an associated

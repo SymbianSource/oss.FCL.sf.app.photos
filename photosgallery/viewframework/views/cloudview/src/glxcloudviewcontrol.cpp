@@ -222,6 +222,12 @@ void CGlxCloudViewControl::ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisp
 void CGlxCloudViewControl::VisualLayoutUpdated(CAlfVisual &/* aVisual*/)
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::VisualLayoutUpdated");
+	
+	//If the grid is already shown , disable it
+    if(iTagsContextMenuControl->ItemMenuVisibility())
+       {
+       iTagsContextMenuControl->ShowItemMenu(EFalse);
+       }
     TRect rect;
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
     if ((rect.Width() != (iTagScreenWidth + iScrollPaneHandle.iW + KRightmargin)) || (rect.Height() != iScreenHeight))
@@ -244,11 +250,6 @@ CGlxCloudViewControl::~CGlxCloudViewControl()
     iMediaList.RemoveContext (iAttributeContext);
     iMediaList.RemoveMediaListObserver (this);
     delete iAttributeContext;
-    /*if ( iBubbleContainer )
-		{
-		iBubbleContainer->SetHost (NULL);
-		delete iBubbleContainer;
-		}*/
 
     if ( iUiUtility )
         {
@@ -687,7 +688,6 @@ void CGlxCloudViewControl::HandleLayoutFocusChange()
         {
         //to highlight focused element 
         SetFocusColor(); 
-        //CalculateBubleMidPoint ();   
         }
     }
 
@@ -751,8 +751,6 @@ void CGlxCloudViewControl::FetchAttributeFromCacheL()
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::FetchAttributeFromCacheL");
     GLX_LOG_INFO("GLX_CLOUD ::CGlxCloudViewControl::FetchAttributeFromCache MediaList already filled" );
-    //enable msk as the medialist is populated
-    //iObserver.HandleMskChangedL (ETrue);
     iLayoutObserver.HandleLayoutChanged();
     if ( iLabels.Count ()==0)
         {
@@ -1197,7 +1195,6 @@ void CGlxCloudViewControl::DisplayEmptyCloudViewL()
 
     //disable msk
     iLayoutObserver.HandleLayoutChanged();
-    //iObserver.HandleMskChangedL (EFalse);
     iScrollEventData.mSpan = 0;
     iScrollEventData.mViewLength = 0;
     DisplayScrollBar();
@@ -1289,20 +1286,6 @@ void  CGlxCloudViewControl::SetBubleMidPoint(TPoint& aMidPoint)
 //   
 void CGlxCloudViewControl::CreateBubleContainer()
     {   
-    /* if ( !iBubbleContainer)
-        {
-        TRAPD(err1,
-            {
-            iBubbleContainer = CGlxContainerInfoBubble::NewL (&iMediaList,
-            CGlxCloudViewControl::Env (), *this);
-            });
-            ;
-        if ( err1!= KErrNone)
-            {
-            GLX_LOG_INFO1("GLX_CLOUD::CGlxCloudViewControl::LayoutVisibleArea - Error (%d)", err1);
-            }
-        iBubbleContainer->SetHost (this);
-        }*/
     }
 
 // ---------------------------------------------------------------------------
@@ -1338,7 +1321,6 @@ void CGlxCloudViewControl::MoveUpIfRequired()
     iViewPortLayout->SetViewportPos(iViewPortPosition, KSlowCloudMovement);
     iScrollEventData.mViewStartPos = iViewPortPosition.iY;
     Scroll();  
-    //CalculateBubleMidPoint ();   
     }
 
 
@@ -1376,7 +1358,6 @@ void CGlxCloudViewControl::MoveDownIfRequired()
         {
         Scroll();           
         }
-    //CalculateBubleMidPoint();   
     }     
 
 // ---------------------------------------------------------------------------
@@ -1419,9 +1400,6 @@ void CGlxCloudViewControl::CalculateBubleMidPoint()
 
     //Substract from the viewport position the viewport position    
     SetBubleMidPoint(midpoint);   
-
-    //Set the buble focus    
-    // iBubbleContainer->SetFocus (midpoint);
     } 
 
 // ---------------------------------------------------------------------------
@@ -1434,8 +1412,10 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
     CAlfVisual* tappedvisual = aEvent.Visual();	
     TBool consumed = EFalse;
     
+
     if(aEvent.PointerEvent().iType == TPointerEvent::EButton1Down)
         {	
+        iDownEventReceived = EFalse;
         //reset variables & Physics simulator 
         iPhysics->StopPhysics();
         iPhysics->ResetFriction();
@@ -1449,8 +1429,12 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
         Display()->Roster().DisableLongTapEventsWhenDragging(*this);
         
         //If the grid is already shown , disable it
-        iTagsContextMenuControl->ShowItemMenu(EFalse);
-
+        if(iTagsContextMenuControl->ItemMenuVisibility())
+           {
+           iDownEventReceived = ETrue;
+           iTagsContextMenuControl->ShowItemMenu(EFalse);
+           return ETrue;
+           }
         if(tappedvisual)
             {
             for(TInt index=0;index<iLayout->Count();index++)
@@ -1472,6 +1456,10 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
                     }
                 }
             }
+        }
+    else if(iDownEventReceived)
+        {
+        consumed = ETrue;
         }
     else if (aEvent.PointerEvent().iType == TPointerEvent::EDrag)
         {
@@ -1495,12 +1483,12 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
         //Check if dragging actually happened using iViewDragged 
         if (iDragging && iViewDragged)
             {
+			iTimer->Cancel ();//cancels any outstanding requests
+						
             iDragging = EFalse;
             TPoint drag = iStart - aEvent.PointerEvent().iPosition;
             iPhysics->StartPhysics(drag, iStartTime);
             iPhysicsStarted = ETrue;
-            
-            iTimer->Cancel ();//cancels any outstanding requests
             }
         //If dragging not happened consider it as Tapped event
         //When it recognises the long press event ,  and if up event is received..Ignore it 
@@ -1608,6 +1596,7 @@ TBool CGlxCloudViewControl::HandleDragL(const TPointerEvent& aPointerEvent)
     //emulation
     if (iPhysicsStarted && iDragging)
         {
+        iTimer->Cancel();
         TPoint drag = iStart - aPointerEvent.iPosition;
         iPhysics->StartPhysics(drag, iStartTime);
         iDragging = EFalse;
@@ -1725,7 +1714,6 @@ AlfEventStatus CGlxCloudViewControl::offerEvent( CAlfWidgetControl& aControl, co
                     {
                     case KAlfActionIdDeviceLayoutChanged:
                         {
-                        // iObserver.HandleMskChangedL(ETrue);
                         iLayoutObserver.HandleLayoutChanged();
                         TRAP_IGNORE(UpdateLayoutL());
                         }

@@ -472,13 +472,6 @@ void CShwEffectControl::HandleStartViewEventL( TShwEventStartView& aEvent )
 		    }
 		else
 		    {
-		    // Set paused effect on current visual 
-		    //if(iPausedVisuals.Count())
-		    //    {
-		    //	iSplitter.SetLayoutL( &iPausedLayout, iCurrentVisual );
-		    //	}
-			//else
-			//    {
 	            // enter the view mode for visual
 	            // ask the layout chain and set that to the current visual
 	            // set also effect fade-in
@@ -488,7 +481,6 @@ void CShwEffectControl::HandleStartViewEventL( TShwEventStartView& aEvent )
 	    				iViewDuration, 
 	    				KFirstEffectFadeInDuration ), 
 	    			iCurrentVisual );
-		      //  }
 		    }
 		// bring the focus visual to the front
 		iCurrentVisual->MoveToFront();    
@@ -677,8 +669,7 @@ void CShwEffectControl::HandleResumeEventL()
 	        {
             while (count > 0)
 		        {
-		        // unpause and remove the visuals
-    		    //iPausedVisuals[count]->Resume();
+		        //remove the visuals
 		        iPausedVisuals.Remove(--count);
 		        }
 	        }

@@ -171,8 +171,6 @@ TKeyResponse CShwSlideShowKeyHandler::OfferKeyEventL(
     // set the state 
     else if (aType == EEventKey && aKeyEvent.iScanCode == EStdKeyNo)
     	{
-  
- //       iState = CShwSlideshowView::EShwExiting;
     	iUiUtility->SetExitingState(ETrue);
     	} // end if else
 

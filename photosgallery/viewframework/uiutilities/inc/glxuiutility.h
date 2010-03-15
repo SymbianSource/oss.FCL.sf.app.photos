@@ -203,7 +203,25 @@ public:
     IMPORT_C TBool IsExitingState();
     
     IMPORT_C void SetExitingState(TBool aIsExiting);
-    
+	/**
+	* Forcibly start the Thumbnail Manager daemon process
+	* @param none
+	* @return none
+	*/
+    IMPORT_C void StartTNMDaemonL();
+
+	/**
+	* To stop the Thumbnail Manager daemon process so as to stop force generation of thumbnails
+	* @param none
+	* @return none
+	*/
+	IMPORT_C void StopTNMDaemonL();
+
+    /**
+     * Get the number of items left for Thumbnail generation
+     * @return TInt number of items left for TN generation
+     */
+    IMPORT_C TInt GetItemsLeftCountL();
     /**
      * Returns Visible items granularity based on feature 
      * layout (i.e., qHD, VGA)  

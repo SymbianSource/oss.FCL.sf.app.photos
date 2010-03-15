@@ -98,8 +98,6 @@ TSize TShwZoomAndPanLayout::MaximumSize()
 void TShwZoomAndPanLayout::ResetSizeToMinimum()
 	{
 	GLX_LOG_INFO( "TShwZoomAndPanLayout::ResetSizeToMinimum" );
-	// set initial size to minimum size
-//	iZoomedSize.Set( iMinimumSize );
 	}
 
 // -----------------------------------------------------------------------------
@@ -137,10 +135,7 @@ void TShwZoomAndPanLayout::StartZoom(
 		GLX_LOG_INFO2( 
 			"TShwZoomAndPanLayout:: Zooming out target(%.1f,%.1f)", 
 			iMinimumSize.iWidth, iMinimumSize.iHeight );
-		// zooming out so we start from maximum size
-		//iZoomedSize.Set( iMaximumSize );
-		// target is the minimum size
-	//	iZoomedSize.Set( iMinimumSize, aDuration );
+
 		// run the latter half of the curve
 		curveStart = curveLength / 2;
 		curveEnd = curveLength;
@@ -153,10 +148,6 @@ void TShwZoomAndPanLayout::StartZoom(
 		GLX_LOG_INFO2( 
 			"TShwZoomAndPanLayout:: Zooming in target(%.1f,%.1f)", 
 			iMaximumSize.iWidth, iMaximumSize.iHeight );
-		// zooming in so we start from minimum size
-//		iZoomedSize.Set( iMinimumSize );
-		// target is maximum size
-//		iZoomedSize.Set( iMaximumSize, aDuration );
 		}
 
 	// set position, if we have curve its either from start to half 
@@ -220,14 +211,10 @@ void TShwZoomAndPanLayout::DoSetLayoutValues( TGlxLayoutInfo& aInfo )
 	// ensure x is inside  maximum size and minimum size
     x_size = Min( x_size, iMaximumSize.iWidth );
     x_size = Max( x_size, iMinimumSize.iWidth );
-	// set x size, it is now inside the minimum and maximum
-	//aInfo.iSize.iX = x_size;
 
     // ensure y is inside  maximum size and minimum size
     y_size = Min( y_size, iMaximumSize.iHeight );
     y_size = Max( y_size, iMinimumSize.iHeight );
-	// set y size, it is now inside the minimum and maximum
-//	aInfo.iSize.iY = y_size;
 
 	// set position only if we have a panning curve, this enables the use of this
     // layout as only a zooming layout and then some other layout can define 
@@ -252,26 +239,6 @@ void TShwZoomAndPanLayout::DoSetLayoutValues( TGlxLayoutInfo& aInfo )
 		//         maximum.y - minimum.y
 		// and need to ensure maximum.y > minimum.y, otherwise scale becomes
 		// infinite
-		if( iMaximumSize.iHeight > iMinimumSize.iHeight )
-			{
-/*			TReal32 scale = ( aInfo.iSize.iY - iMinimumSize.iHeight ) /
-							( iMaximumSize.iHeight - iMinimumSize.iHeight );
-			// multiply the curve with scale
-			// set x position
-			aInfo.iPosition.iX = 
-				scale * iPanningCurve->MapValue( iCurvePosition.Now(), 0 );
-			// set y position
-			aInfo.iPosition.iY =
-				scale * iPanningCurve->MapValue( iCurvePosition.Now(), 1 );*/
-			}
-		else
-	        {
-	        // Panning curve defined but we either zoomed to screen size or
-	        // the image was smaller than or equal to screen size so
-	        // just set position to origo to see image centered on the screen
-		//	aInfo.iPosition.iX = 0;
-		//	aInfo.iPosition.iY = 0;
-	        }
 		}
 	}
 
@@ -281,10 +248,6 @@ void TShwZoomAndPanLayout::DoSetLayoutValues( TGlxLayoutInfo& aInfo )
 TBool TShwZoomAndPanLayout::DoChanged() const
 	{
 	TBool ret = EFalse;
-	if( iPanningCurve )
-		{
-//		ret = iPanningCurve->MappingFunctionChanged();
-		}
 	return iZoomedSize.Changed() || ret;
 	}
 
@@ -294,10 +257,6 @@ TBool TShwZoomAndPanLayout::DoChanged() const
 void TShwZoomAndPanLayout::DoClearChanged() 
 	{
 	iZoomedSize.ClearChanged();
-	if( iPanningCurve )
-		{
-//		iPanningCurve->MappingFunctionClearChanged();
-		}
 	}
 
 // -----------------------------------------------------------------------------

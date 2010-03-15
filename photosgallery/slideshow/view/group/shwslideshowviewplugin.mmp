@@ -130,4 +130,5 @@ LIBRARY         remconcoreapi.lib
 LIBRARY         remconinterfacebase.lib
 //LIBRARY 		hgcontextutility.lib 					// For Teleport
 LIBRARY			glxtvout.lib
+LIBRARY	   		harvesterclient.lib
 // End of File

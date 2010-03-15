@@ -63,6 +63,7 @@ public:
     static CGlxImageReader* NewL(MImageReadyCallBack& aNotify);
     ~CGlxImageReader();
     TInt GetDRMRightsL(TInt aAttribute);
+    TInt GetFrameCount();
 
 private:
     MImageReadyCallBack&                iNotify;

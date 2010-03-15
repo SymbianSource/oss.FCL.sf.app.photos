@@ -156,9 +156,6 @@ void CGlxCommandHandlerSend::DoActivateL(TInt aViewId)
 
     iViewId = aViewId;
 	MGlxMediaList& mediaList = MediaList();
-                  
-                     // TAP2GenericPluginParams::EGenericStdIconSend,
-   //                 TAP2GenericPluginParams::EGenericStdIconSendMask);
 
 	// need to check the category attribute for image or video
     iAttributeContext = CGlxDefaultAttributeContext::NewL();
@@ -217,11 +214,6 @@ void CGlxCommandHandlerSend::HandleFocusChangedL(
 	if ( aList && aNewIndex >= 0 )
 		{
 		const CGlxMedia* media = aList->Item(aNewIndex).Properties();  
-		if (media)
-			{// show the active palette send item
-		//    iUiUtility->ScreenFurniture().ShowActivePaletteItemL(iViewId, 
-		//				EGlxCmdSend, IsValidTypeL(*media));	
-			}
 		}	
 	}
 

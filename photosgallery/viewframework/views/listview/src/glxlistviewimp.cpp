@@ -42,6 +42,8 @@
 #include <glxsetappstate.h>
 #include <glxthumbnailattributeinfo.h>
 #include <glxcollectionpluginalbums.hrh>
+#include <glxcollectionpluginmonths.hrh>
+#include <glxcollectionplugintype.hrh>
 
 const TInt KListDataWindowSize(25);
 const TInt KNoOfPages(2);
@@ -117,6 +119,7 @@ void CGlxListViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
     SetToolbarObserver(this);
     iBackwardNavigation = EFalse;
     iIsRefreshNeeded = EFalse;
+	isTnGenerationComplete = ETrue;
     }
 
 // ---------------------------------------------------------------------------
@@ -255,6 +258,13 @@ void CGlxListViewImp::DoMLViewDeactivate()
 	delete iPreviewTNBinding;
 	iPreviewTNBinding = NULL;
 	DestroyListViewWidget();
+#ifndef __WINSCW__ 
+	if(iProgressIndicator)
+	    {
+        delete iProgressIndicator;
+        iProgressIndicator = NULL;
+	    }
+#endif
 	}
 
 // ---------------------------------------------------------------------------
@@ -416,8 +426,29 @@ void CGlxListViewImp::HandleSelectL( TInt aIndex )
 void CGlxListViewImp::HandleOpenL( TInt aIndex )
     {
     TRACER("CGlxListViewImp::HandleOpenL");
+    
+#ifndef __WINSCW__ 
+    TInt leftVariable = 0;
+    TRAPD(err,leftVariable = iUiUtility->GetItemsLeftCountL());
+    GLX_LOG_INFO1("CGlxListViewImp RProperty::Get leftVariable %d",leftVariable);
+    isTnGenerationComplete = (leftVariable)?EFalse:ETrue;
+    GLX_LOG_INFO1("CGlxListViewImp isTnGenerationComplete %d",isTnGenerationComplete);
+    if(err != KErrNone)
+        {
+        GLX_LOG_INFO1("CGlxListViewImp RProperty::Get errorcode %d",err);
+        }
+    if(!isTnGenerationComplete)
+        {
+        if(iProgressIndicator)
+            {
+            delete iProgressIndicator;
+            iProgressIndicator = NULL;
+            }
+        iProgressIndicator = CGlxProgressIndicator::NewL(*this);
+        }
+#endif
 	if( iNextViewActivationEnabled && ( aIndex >= 0 && aIndex < 
-	        iMediaList->Count()))
+	        iMediaList->Count()) && isTnGenerationComplete)
 	    {
 	    	//Delete the PreviewTNMBinding as in forward navigation
 		//we do not get the medialist callback.
@@ -455,15 +486,7 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
     else
     	{
     	//Displays default thumbnail if aBitmap is NULL 
-    	
-    	TFileName resFile(KDC_APP_BITMAP_DIR);
-		resFile.Append(KGlxIconsFilename);
-		CFbsBitmap* defaultBitmap = AknIconUtils::CreateIconL(resFile,
-						 EMbmGlxiconsQgn_prop_image_notcreated);
-		AknIconUtils::SetSize(defaultBitmap, 
-				CHgDoubleGraphicListFlat::PreferredImageSize());
-		
-    	iList->ItemL(focusIndex).SetIcon(CGulIcon::NewL(defaultBitmap));
+        SetDefaultThumbnailL(focusIndex);
     	}
     
     TInt firstIndex = iList->FirstIndexOnScreen();
@@ -550,11 +573,31 @@ void CGlxListViewImp::CreateListL()
 		{
 	    TFileName resFile(KDC_APP_BITMAP_DIR);
 		resFile.Append(KGlxIconsFilename);
-    	CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
+        
+        CFbsBitmap* bitmap;
+        CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathParent );
+        if (path->Id() == KGlxCollectionPluginAlbumsImplementationUid)
+            {           
+            bitmap = AknIconUtils::CreateIconL(resFile,
+                    EMbmGlxiconsQgn_prop_photo_album_large);
+            AknIconUtils::SetSize(bitmap, 
+                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            }
+        else if (path->Id() == KGlxCollectionPluginMonthsImplementationUid)
+            {
+            bitmap = AknIconUtils::CreateIconL(resFile,
+                    EMbmGlxiconsQgn_prop_photo_calendar_large);
+            AknIconUtils::SetSize(bitmap, 
+                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            }
+        else
+            {
+            bitmap = AknIconUtils::CreateIconL(resFile,
    						 EMbmGlxiconsQgn_prop_image_notcreated);
 		AknIconUtils::SetSize(bitmap, 
 				CHgDoubleGraphicListFlat::PreferredImageSize());
-
+            }
+		
 	    iList = CHgDoubleGraphicListFlat::NewL(
 	            ClientRect(), 
 	            mediaCount, 
@@ -580,8 +623,16 @@ void CGlxListViewImp::CreateListL()
 		//Fix for ESLM-7SAHPT::Clear Flag to Disable QWERTY search input in list view
 		iList->ClearFlags(CHgScroller::EHgScrollerSearchWithQWERTY ); 
 		
+		//While coming back to main listview
+		TGlxIdSpaceId id = iMediaList->IdSpaceId(0);
+		if((id == KGlxIdSpaceIdRoot) && (mediaCount > 0))
+		    {            
+            for (TInt i = 0; i < mediaCount; i++)
+                {
+                    SetDefaultThumbnailL(i);
+                }
+		    }
         // Set the scrollbar type for albums list
-        CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathParent );
         if (path->Id() == KGlxCollectionPluginAlbumsImplementationUid)
             {
             iList->SetScrollBarTypeL(CHgScroller::EHgScrollerLetterStripLite );
@@ -628,6 +679,7 @@ void CGlxListViewImp::HandleItemAddedL( TInt aStartIndex, TInt aEndIndex,
             const TGlxMedia& item = iMediaList->Item(i);                
             iList->ItemL(i).SetTitleL(item.Title());
             iList->ItemL(i).SetTextL(item.SubTitle());
+            SetDefaultThumbnailL(i);
             }            
         
         if(aStartIndex == aEndIndex )
@@ -817,5 +869,97 @@ void CGlxListViewImp::HandleItemModifiedL( const RArray<TInt>& /*aItemIndexes*/,
     {
     
     }
-		
+
+// ----------------------------------------------------------------------------
+// SetDefaultThumbnailL
+// ----------------------------------------------------------------------------
+// 		
+void CGlxListViewImp::SetDefaultThumbnailL(TInt aIndex)
+    {
+    TRACER("CGlxListViewImp::SetDefaultThumbnail");
+    CFbsBitmap* defaultBitmap = NULL;
+    
+    TFileName resFile(KDC_APP_BITMAP_DIR);
+    resFile.Append(KGlxIconsFilename);
+    
+    TGlxIdSpaceId id = iMediaList->IdSpaceId(0);        
+    // In main list view, default thumbnails will be set according 
+    // to the list items.
+    if(id == KGlxIdSpaceIdRoot)
+        {
+        GLX_LOG_INFO1("CGlxListViewImp::SetDefaultThumbnail - For main list view "
+                "aIndex %d",aIndex);
+        // Mapping between switch, index and order of colleciton done on 
+        // the base of TGlxCollectionPluginPriority
+        switch(aIndex)
+            {
+            case EGlxListItemAll:
+                defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                        EMbmGlxiconsQgn_prop_photo_all_large);
+                AknIconUtils::SetSize(defaultBitmap, 
+                        CHgDoubleGraphicListFlat::PreferredImageSize());            
+                break;
+            case EGlxListItemMonth:
+                defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                        EMbmGlxiconsQgn_prop_photo_calendar_large);
+                AknIconUtils::SetSize(defaultBitmap, 
+                        CHgDoubleGraphicListFlat::PreferredImageSize());
+                break;
+            case EGlxListItemAlbum:
+                defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                        EMbmGlxiconsQgn_prop_photo_album_large);
+                AknIconUtils::SetSize(defaultBitmap, 
+                        CHgDoubleGraphicListFlat::PreferredImageSize());
+                break;
+            case EGlxLIstItemTag:
+                defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                        EMbmGlxiconsQgn_prop_photo_tag_large);
+                AknIconUtils::SetSize(defaultBitmap, 
+                        CHgDoubleGraphicListFlat::PreferredImageSize());
+                break;
+            default:
+                break;                    
+            }        
+        }
+    else
+        {
+        GLX_LOG_INFO1("CGlxListViewImp::SetDefaultThumbnail - For other list view "
+                "aIndex %d",aIndex);
+        CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathParent );
+        if(path->Id(0) == KGlxCollectionPluginAlbumsImplementationUid)
+            {
+            defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                    EMbmGlxiconsQgn_prop_photo_album_large);
+            AknIconUtils::SetSize(defaultBitmap, 
+                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            }
+        else if(path->Id(0) == KGlxCollectionPluginMonthsImplementationUid)
+            {
+            defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                    EMbmGlxiconsQgn_prop_photo_calendar_large);
+            AknIconUtils::SetSize(defaultBitmap, 
+                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            }
+        else
+            {
+            defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                    EMbmGlxiconsQgn_prop_image_notcreated);
+            AknIconUtils::SetSize(defaultBitmap, 
+                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            }
+        CleanupStack::PopAndDestroy(path);
+        }
+    iList->ItemL(aIndex).SetIcon(CGulIcon::NewL(defaultBitmap));
+    }
+
+
+// ----------------------------------------------------------------------------
+// HandleDialogDismissedL
+// ----------------------------------------------------------------------------
+//	
+void CGlxListViewImp::HandleDialogDismissedL()
+    {
+    TRACER("CGlxListViewImp::HandleDialogDismissedL()");
+    isTnGenerationComplete = ETrue;
+    }
 //  End of File

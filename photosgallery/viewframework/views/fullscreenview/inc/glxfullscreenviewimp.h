@@ -26,7 +26,7 @@
 #include "glxfullscreenview.h"
 #include "glxfullscreenbindingsetfactory.h"
 #include "glxfullscreenview.hrh"
-
+#include <harvesterclient.h>
 //Gesture Helper namespace 
 namespace GestureHelper
     {
@@ -46,6 +46,7 @@ class CGlxDRMUtility;
 class CGlxHdmiController;
 class CGestureHelper;
 class TGlxMedia;
+class CGlxFullScreenBusyIcon;
 //class CHgContextUtility;
 
 namespace Alf
@@ -75,7 +76,8 @@ enum TSwipe
     
 NONSHARABLE_CLASS (CGlxFullScreenViewImp): public CGlxFullScreenView, 
                                             public IAlfWidgetEventHandler,
- 											public MGlxUiCommandHandler
+ 											public MGlxUiCommandHandler,
+											public MHarvesterEventObserver
     {
 public:    
     /**
@@ -141,6 +143,13 @@ public:
     AlfEventHandlerType eventHandlerType() ;
 
     AlfEventHandlerExecutionPhase eventExecutionPhase() ;
+
+public:
+    // from MHarvesterEventObserver
+    void HarvestingUpdated( 
+                HarvesterEventObserverType aHEObserverType, 
+                HarvesterEventState aHarvesterEventState,
+                TInt aItemsLeft );
 
 private:
     /*
@@ -265,7 +274,7 @@ private:
     /**
      * Set the image to external display - HDMI
      */
-    void SetImageL();
+    void SetItemToHDMIL();
 private:
     /** Softkey resource id's */
     TFullScreenViewResourceIds iResourceIds; 
@@ -309,6 +318,7 @@ private:
 	    
     CGlxDRMUtility* iDrmUtility;
     CPeriodic* iPeriodic;
+    CGlxFullScreenBusyIcon* iBusyIcon;
 	
     GestureHelper::CGestureHelper* iGestureHelper;
     TBool   iMultiTouchGestureOngoing   ;
@@ -318,6 +328,7 @@ private:
     //Previous focused index
     TInt iOldFocusIndex;
     TBool iImgViewerMode;
+	RHarvesterClient iHarvesterClient;
     };
 
 #endif

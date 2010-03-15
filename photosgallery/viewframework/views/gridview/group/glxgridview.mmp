@@ -76,6 +76,6 @@ LIBRARY         aknicon.lib
 LIBRARY         egul.lib alfclient.lib
 LIBRARY         aknskins.lib
 LIBRARY         featmgr.lib					// FeatureManager
- 
+LIBRARY	   	harvesterclient.lib 
 // End of File
 

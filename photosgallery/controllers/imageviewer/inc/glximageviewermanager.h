@@ -22,6 +22,7 @@
 // INCLUDES
 #include <e32std.h>
 #include <e32base.h>
+#include <caf/manager.h>
 
 // CLASS DECLARATION
 class RFile;
@@ -49,6 +50,7 @@ public:
     IMPORT_C HBufC* ImageUri();
     IMPORT_C RFile64& ImageFileHandle();
     IMPORT_C TBool IsPrivate();
+    IMPORT_C TBool IsPrivateGif();
     IMPORT_C void DeleteInstance( void );
     IMPORT_C void SetImageUriL(const TDesC& aFileName);
     IMPORT_C void SetImageFileHandleL(const RFile& aFileHandle);
@@ -86,6 +88,13 @@ private:
     /// Flag that stores if the image file is in a private folder. 
     /// ETrue means the image is private, else EFalse 
     TBool iIsPrivate;
+
+    /// Content Access Manager
+    ContentAccess::CManager* iManager;
+    
+    /// Flag that stores if the gif file is in a private folder. 
+    /// ETrue means the gif is from private path, else EFalse 
+    TBool iIsPrivateGif;
     };
 
 #endif // GLXIMAGEVIEWERMANAGER_H

@@ -63,9 +63,7 @@ class CGlxtnThumbnailDatabase;
 #endif
 class CGlxDataSourceMde ;
 
-// Use this till MDS bug is fixed. Then KMdSPSShutdown is to be used.   
 const TUid KHarvesterPSShutdown = { 0x200009F5 } ;
-//const TUid KMdSPSShutdown   = { 0x20022E94 };
 const TInt KMdSShutdown     = 0x00000002; // values 1 = shutdown, 0 = restart, normal state
 
 static _LIT_SECURITY_POLICY_PASS(KAllowAllPolicy);

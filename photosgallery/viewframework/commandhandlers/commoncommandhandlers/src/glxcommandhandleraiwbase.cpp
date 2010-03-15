@@ -381,14 +381,16 @@ TBool CGlxCommandHandlerAiwBase::AiwItemEnabledL()
     if ( mediaList.SelectionCount() == 0 )
         {
         // No items in selection list. Check if focus item is static
+        // When image opened from image viewer, metadata will not
+        // available immediately and Uri for that item will be null,
+        // so need to disable aiw commands at that time. Once metadata 
+        // been filled, aiw commands should available.
         TInt focusIndex = mediaList.FocusIndex();
-        if(focusIndex != KErrNotFound)
-            {
-            if (!mediaList.Item(focusIndex).IsStatic())
+        if((mediaList.FocusIndex()!=KErrNotFound)&&
+           (mediaList.Item(focusIndex).Uri()!=KNullDesC)&&
+           (!mediaList.Item(focusIndex).IsStatic()))
                 {
-                // Not static - so enable
                 enabled = ETrue;
-                }
             }
         }
     else if ( mediaList.SelectionCount() <= MaxSelectedItems() )

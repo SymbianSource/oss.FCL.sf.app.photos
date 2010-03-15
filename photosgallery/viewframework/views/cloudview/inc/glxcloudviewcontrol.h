@@ -566,9 +566,6 @@ private:
 	//keeps track of the end row 
 	TInt iLayoutIndex;
 
-	//  initiates bubble container 
-	CGlxContainerInfoBubble *iBubbleContainer;
-	
 	// Fetch context for list item attributes 
 	CGlxDefaultAttributeContext* iAttributeContext;
 	
@@ -653,6 +650,9 @@ private:
     
     /**flag for Timer completion */
     TBool iTimerComplete;
+
+    /**flag to identify the next down event */
+    TBool iDownEventReceived;
 	};
 
 #endif // C_GLXCLOUDVIEWCONTROL_H

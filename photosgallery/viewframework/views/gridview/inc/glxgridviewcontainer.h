@@ -34,6 +34,9 @@
 
 #include <glxthumbnailcontext.h>
 #include <glxuistd.h>
+#include <glxprogressindicator.h>
+#include <harvesterclient.h>
+
 #include "glxgridvieweventobserver.h"
 
 class CHgGrid;
@@ -50,7 +53,8 @@ class CGlxNavigationalState;
 class CGlxGridViewContainer : 	public CCoeControl,
 								public MHgScrollBufferObserver,
 								public MHgSelectionObserver,
-								public MHgMarkingObserver
+								public MHgMarkingObserver,
+								public MHarvesterEventObserver
 	{
 public:
 	/**
@@ -93,6 +97,13 @@ public: // From CCoeControl
 
 	//handle orientaion realted changes
 	void HandleResourceChange(TInt aType);
+public:
+    // from MHarvesterEventObserver
+    void HarvestingUpdated( 
+                HarvesterEventObserverType aHEObserverType, 
+                HarvesterEventState aHarvesterEventState,
+                TInt aItemsLeft );
+
 private:
 	/**
 	 * C++ default constructor.
@@ -207,6 +218,8 @@ private:
 	MGlxGridEventObserver& 	iGlxGridViewObserver;
 	//toolbar - created dynamically.
     CAknToolbar* iToolbar;
+    CGlxProgressIndicator* iProgressIndicator;
+    RHarvesterClient iHarvesterClient;
 	};
 
 #endif // CGLXGRIDVIEWCONTROL_H

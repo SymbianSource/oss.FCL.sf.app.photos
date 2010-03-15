@@ -53,14 +53,14 @@ public:
             TInt aFrameCount = 1, TBool aStore = ETrue);
 
     /*
-     * To Determine it is a video and not image 
+     * To intimate that the item is not supported.  
      */
-    IMPORT_C void IsVideo();
+    IMPORT_C void ItemNotSupported();
     
     /*
      * Activating zoom in posting mode 
      */
-    IMPORT_C void ActivateZoom();
+    IMPORT_C void ActivateZoom(TBool aAutoZoomOut);
     /*
      * Deactivating zoom in posting mode 
      */
@@ -75,6 +75,11 @@ public:
      * ShiftToPostingMode
      */
     IMPORT_C void ShiftToPostingMode();
+
+    /*
+     * Tells if HDMi is Connected.
+     */
+    IMPORT_C TBool IsHDMIConnected();
 
 private:// From MGlxTvObserver
     virtual void HandleTvStatusChangedL ( TTvChangeType aChangeType );

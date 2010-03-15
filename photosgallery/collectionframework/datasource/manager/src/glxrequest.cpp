@@ -58,7 +58,7 @@ void CGlxRequest::ConstructL(const CMPXFilter* aFilter)
 	    }
 	else
 	    {
-	    // No filter supplied, so create a default filter;
+        // No filter supplied, so create a default filter
 	    iFilter = TGlxFilterFactory::CreateAlphabeticSortFilterL();
 	    }
 	}

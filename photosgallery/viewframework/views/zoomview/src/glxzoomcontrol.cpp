@@ -58,7 +58,7 @@ const TInt KGlxMaxExifSize = 0x10000;
 const TReal KGlxOpacityTransparent = 0.0;
 //zoom delay for animation while hdmi cable,
 //is connected and zoom is initiated
-const TInt KZoomDelay = 150000; 
+const TInt KHDMIZoomDelay = 250000; 
 //Zoom level for the animation , assuming the innitial level is 1.
 const TReal KGlxZoomLevel = 1.5;
 const TInt KGlxMinSmallImageZoomLevel =100;
@@ -277,11 +277,8 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
     {
     TRACER("CGlxZoomControl::ActivateL()");
 
-    //To know if HDMi cable is connected.
     if ( !iZoomActive )
         {
-        //This Varaiable updates that we are in zoom state now.
-        iZoomActive = ETrue;
         //To Retrive the image details
         TMPXAttribute thumbNailAttribute(0,0);
 
@@ -291,10 +288,9 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
                 ScreenSize(),aItem, idspace, this ));
         iImageVisual->SetImage(*iImageTexture);
         
-        
         if(iGlxTvOut->IsHDMIConnected()&& !aViewingMode )
             {
-            StartZoomAnimation();
+            StartZoomAnimation(aStartMode);
             }
         else
             {
@@ -347,25 +343,38 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
                     }
                 }
             }
+        // Now the zoom activation process is complete.
+        // Now is when truly zoom is active. 
+        iZoomActive = ETrue;
         }
     }
 // ---------------------------------------------------------------------------
 // StartZoomAnimation
 // ---------------------------------------------------------------------------
 // 
-void CGlxZoomControl::StartZoomAnimation()
+void CGlxZoomControl::StartZoomAnimation(TZoomStartMode aStartMode)
     {
     TRACER("CGlxZoomControl::StartZoomAnimation()");
     iZoomIn = ETrue;
     //Set zoom visible but not enable the gesturehelper events    
-    iViewPort->SetOpacity(KGlxOpacityOpaque);  
+    iViewPort->SetOpacity(KGlxOpacityOpaque);    
     TAlfTimedValue timedvalue;
     //using KGlxOpacityOpaque for the value 1 , assuming the initial zoom level as 1.
     timedvalue.SetValueNow(KGlxOpacityOpaque); 
-    timedvalue.SetTarget(KGlxZoomLevel,KZoomDelay/1000);    
+    timedvalue.SetTarget(KGlxZoomLevel,KHDMIZoomDelay/1000);    
     iImageVisual->SetScale(timedvalue);
-    iTimer->Cancel();
-    iTimer->Start(KZoomDelay,KZoomDelay,TCallBack( TimeOut,this ));
+    
+    //If zoom is not done using pinch, zoom out with the rubber effect
+    //Else wait for the gesture helper event for zooming out.
+    if(aStartMode != EZoomStartPinch)
+        {
+        iTimer->Cancel();
+        iTimer->Start(KHDMIZoomDelay,KHDMIZoomDelay,TCallBack( TimeOut,this ));
+        }
+    else
+        {
+        iGestureHelper->AddObserver(this);
+        }
     }
 // ---------------------------------------------------------------------------
 // TimeOut
@@ -393,7 +402,7 @@ void CGlxZoomControl::ActivateFullscreen()
         iZoomIn = EFalse;
         TAlfTimedValue timedvalue;
         timedvalue.SetValueNow(KGlxZoomLevel);
-        timedvalue.SetTarget(KGlxOpacityOpaque,KZoomDelay/1000);
+        timedvalue.SetTarget(KGlxOpacityOpaque,KHDMIZoomDelay/1000);
         iImageVisual->SetScale(timedvalue);
         }
     else
@@ -590,6 +599,12 @@ void CGlxZoomControl::VisualLayoutUpdated(CAlfVisual& aVisual)
     {
     TRACER("CGlxZoomControl::VisualLayoutUpdated ");
     // Callback comes to this function when there is a  resolution change
+    
+    if(iGlxTvOut->IsHDMIConnected())
+        {
+        return;
+        }
+    
     TRect rect;
     rect = AlfUtil::ScreenSize();
     if ( (rect.Width() != iScreenSize.iWidth) && ( rect.Height() != iScreenSize.iHeight) && (Activated()) )
@@ -809,6 +824,22 @@ void CGlxZoomControl::HandleZoomOutL(TInt aCommandId)
 
 
 // -----------------------------------------------------------------------------
+// HandleHDMIGestureReleased
+// -----------------------------------------------------------------------------
+//
+void CGlxZoomControl::HandleHDMIGestureReleased()
+    {
+    TRACER("void CGlxZoomControl::HandlePinchReleased");
+    if ( iGlxTvOut->IsHDMIConnected() && iZoomActive)
+        {
+        //On HDMI pinch release, zoom out to fullscreen
+        GLX_LOG_INFO("_PHOTOS_LOG_: void CGlxZoomControl::HandlePinchReleased Start ZoomOut");
+        iTimer->Cancel();
+        iTimer->Start(KHDMIZoomDelay,KHDMIZoomDelay,TCallBack( TimeOut,this ));
+        }
+    }
+
+// -----------------------------------------------------------------------------
 // HandlePointerEventsL
 // -----------------------------------------------------------------------------
 //
@@ -830,21 +861,41 @@ void CGlxZoomControl::HandleGestureL( const GestureHelper::MGestureEvent& aEvent
     
     TGestureCode code = aEvent.Code(MGestureEvent::EAxisBoth); 
 	GLX_LOG_INFO1("_PHOTOS_LOG_: void CGlxZoomControl::HandleGestureL  Code : %d", code);
-    
-    // Todo: This switch should go into the event handler.  
+	
+	//In HDMI pinch mode we will handle only released gesture
+    //to zoom out the image to fullscreeen.
+	if( iGlxTvOut->IsHDMIConnected() )	    
+	    {        
+        if(code == EGestureReleased)
+            {
+            HandleHDMIGestureReleased();
+            }
+	    }
+	else
+	    {
+        // Todo: This switch should go into the event handler.  
         switch (code)
             {
             case EGestureDrag:
+            if (aEvent.Visual() == iImageVisual) 
+                {
                 iEventHandler->HandleDragEvent(aEvent);
+                }
                 break;
             case EGestureTap:
+            if (aEvent.Visual() == iImageVisual)
+                {
                 iEventHandler->HandleSingleTap(aEvent);
+                }
                 break;
             case EGesturePinch:
                 iEventHandler->HandlePinchEventL(aEvent);
                 break;
             case EGestureDoubleTap:
+            if (aEvent.Visual() == iImageVisual)
+                {
                 iEventHandler->HandleDoubleTap(aEvent);
+                }
                 break;
             case EGestureReleased:
                 iEventHandler->HandleGestureReleased(aEvent);
@@ -852,6 +903,7 @@ void CGlxZoomControl::HandleGestureL( const GestureHelper::MGestureEvent& aEvent
             default :
                 break;
             }
+	    }
     iEventHandler->SetPreviousEventCode(code);
     }
 

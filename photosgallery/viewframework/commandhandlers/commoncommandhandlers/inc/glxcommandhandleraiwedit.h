@@ -29,7 +29,7 @@ class CGlxMedia;
 class MGlxMediaListProvider;
 class CAiwServiceHandler;
 class CGlxImageViewerManager;
-
+class CFeatureDiscovery;
 /**
  *  CGlxCommandHandlerAiwEdit
  *
@@ -94,6 +94,8 @@ private: // Data Members
     
     // Not own
     CGlxImageViewerManager* iImageViewerInstance;
+    
+    CFeatureDiscovery* iFeatManager;
     };
 
 #endif // C_GLXCOMMANDHANDLERAIWEDIT_H

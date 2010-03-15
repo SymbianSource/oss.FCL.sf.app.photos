@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 * All rights reserved.
 * This component and the accompanying materials are made available
 * under the terms of "Eclipse Public License v1.0"
@@ -45,12 +45,12 @@ const TInt KGlxAiwShowMapCommandSpace = 0x00000400;
 // -----------------------------------------------------------------------------
 // NewL
 // -----------------------------------------------------------------------------
-//	
+//
 EXPORT_C CGlxCommandHandlerAiwShowMap* CGlxCommandHandlerAiwShowMap::NewL(
     MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource )
     {
     TRACER("CGlxCommandHandlerAiwShowMap::NewL");
-    CGlxCommandHandlerAiwShowMap* self = new ( ELeave ) 
+    CGlxCommandHandlerAiwShowMap* self = new ( ELeave )
         CGlxCommandHandlerAiwShowMap( aMediaListProvider, aMenuResource );
     CleanupStack::PushL( self );
     self->ConstructL();
@@ -66,11 +66,11 @@ CGlxCommandHandlerAiwShowMap::~CGlxCommandHandlerAiwShowMap()
     {
     iBufferArray.ResetAndDestroy();
     }
-    
+
 // -----------------------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------------------
-//	
+//
 CGlxCommandHandlerAiwShowMap::CGlxCommandHandlerAiwShowMap(
     MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource )
         : CGlxCommandHandlerAiwBase( aMediaListProvider, aMenuResource )
@@ -80,7 +80,7 @@ CGlxCommandHandlerAiwShowMap::CGlxCommandHandlerAiwShowMap(
 // -----------------------------------------------------------------------------
 // CGlxCommandHandlerAiwShowMap::DoGetRequiredAttributesL
 // -----------------------------------------------------------------------------
-//	
+//
 void CGlxCommandHandlerAiwShowMap::DoGetRequiredAttributesL
                     (RArray<TMPXAttribute>& aAttributes, TBool aFilterUsingSelection) const
     {
@@ -93,31 +93,32 @@ void CGlxCommandHandlerAiwShowMap::DoGetRequiredAttributesL
 // -----------------------------------------------------------------------------
 // AiwDoDynInitMenuPaneL
 // -----------------------------------------------------------------------------
-//	
-void CGlxCommandHandlerAiwShowMap::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/, 
+//
+void CGlxCommandHandlerAiwShowMap::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/,
         CEikMenuPane* aMenuPane)
     {
 	TInt num_items = aMenuPane->NumberOfItemsInPane();
-	
+
 	// Iterate through menu pane
 	TInt i = 0;
 	while (i < num_items)
 		{
 		CEikMenuPaneItem::SData& item = aMenuPane->ItemDataByIndexL(i);
-        
+
         // "Show on map" cannot be dimmed as AIW resets the flags to not dimmed
         // Have to delete the menu item in this case.
         if (EGlxCmdAiwShowMap == item.iCommandId)
             {
-            // Check visibility of the menu item
-            TBool isDisabled = IsItemWithLocationInfoSelected(MediaList());
-            
+            //Check visibility of the menu item
+            //Fix for  ESLM-7XFF9L:Must always be disabled in all cases.
+            TBool isDisabled = ETrue;
+
             // Should it be disabled
-            if ( (isDisabled) || 
-                 (MediaList().SelectionCount() != 1 && 
+            if ( (isDisabled) ||
+                 (MediaList().SelectionCount() != 1 &&
                  !IsInFullScreenViewingModeL()) )
                 {
-                // if so delete it. 
+                // if so delete it.
                 aMenuPane->DeleteMenuItem(EGlxCmdAiwShowMap);
                 }
             break;
@@ -125,50 +126,50 @@ void CGlxCommandHandlerAiwShowMap::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/,
         ++i;
 		}
     }
-    
+
 // -----------------------------------------------------------------------------
 // CommandId
 // -----------------------------------------------------------------------------
-//	
+//
 TInt CGlxCommandHandlerAiwShowMap::CommandId() const
     {
     TRACER("CGlxCommandHandlerAiwShowMap::CommandId");
     return EGlxCmdAiwShowMap;
     }
-    
+
 // -----------------------------------------------------------------------------
 // AiwCommandId
 // -----------------------------------------------------------------------------
-//	
+//
 TInt CGlxCommandHandlerAiwShowMap::AiwCommandId() const
     {
     TRACER("CGlxCommandHandlerAiwShowMap::AiwCommandId");
     return KAiwCmdMnShowMap;
     }
-    
+
 // -----------------------------------------------------------------------------
 // AiwInterestResource
 // -----------------------------------------------------------------------------
-//	
+//
 TInt CGlxCommandHandlerAiwShowMap::AiwInterestResource() const
     {
     TRACER("CGlxCommandHandlerAiwShowMap::AiwInterestResource");
     return R_GLX_AIW_SHOWMAP_INTEREST;
     }
-        
+
 // -----------------------------------------------------------------------------
 // AppendAiwParameterL
 // -----------------------------------------------------------------------------
-//	
-TBool CGlxCommandHandlerAiwShowMap::AppendAiwParameterL(const TGlxMedia& aItem, 
+//
+TBool CGlxCommandHandlerAiwShowMap::AppendAiwParameterL(const TGlxMedia& aItem,
                                      CGlxAiwServiceHandler& aAiwServiceHandler)
     {
     TRACER("CGlxCommandHandlerAiwShowMap::AppendAiwParameterL");
     TBool success = EFalse;
-    
+
     // Cleanup before execution
     iBufferArray.ResetAndDestroy();
-    
+
     TCoordinate coordinate;
     if (aItem.GetCoordinate(coordinate))
         {
@@ -181,30 +182,30 @@ TBool CGlxCommandHandlerAiwShowMap::AppendAiwParameterL(const TGlxMedia& aItem,
 
         // locality must have valid (ie not NaN) values
         landmark->SetPositionL( locality );
-        
+
         // Serialize buffer to landmark and append it to AIW parameter
-        const HBufC8* landmarkBuf = 
+        const HBufC8* landmarkBuf =
             PosLandmarkSerialization::PackL( *landmark );
         // we have ownership of landmarkBuf so add to array
         // for cleanup on our destruction
         iBufferArray.AppendL( landmarkBuf );
-       
+
          // Append location parameter to the AIW param list
-        TAiwVariant landmarkVariant( *landmarkBuf );        
+        TAiwVariant landmarkVariant( *landmarkBuf );
         TAiwGenericParam landmarkParam( EGenericParamLandmark, landmarkVariant );
         aAiwServiceHandler.AddParamL(aItem.Id(), landmarkParam );
 
         success = ETrue;
         CleanupStack::PopAndDestroy( landmark );
         }
-    
+
     return success;
     }
-    
+
 // -----------------------------------------------------------------------------
 // CommandSpace
 // -----------------------------------------------------------------------------
-//	
+//
 TInt CGlxCommandHandlerAiwShowMap::CommandSpace() const
     {
     TRACER("CGlxCommandHandlerAiwShowMap::CommandSpace");
@@ -215,19 +216,19 @@ TInt CGlxCommandHandlerAiwShowMap::CommandSpace() const
 // DoIsDisabled
 // -----------------------------------------------------------------------------
 //
-// 
+//
 TBool CGlxCommandHandlerAiwShowMap::IsItemWithLocationInfoSelected(MGlxMediaList& aList )
     {
     TRACER("CGlxCommandHandlerAiwShowMap::DoIsDisabled");
     // Disable the "Show on map" menu item if the selection (marked list,
-    // or focused item if none marked) does not contain any items 
+    // or focused item if none marked) does not contain any items
     // that have location data
     TBool isSupported = EFalse;
-    
+
     // Check through all, if any, selected items, otherwise the focused item
     TGlxSelectionIterator iterator;
     iterator.SetToFirst( &aList );
-    
+
     // Loop until a supported item is found or until there are no
     // more indexes to process
     TInt index = KErrNotFound;
@@ -235,12 +236,12 @@ TBool CGlxCommandHandlerAiwShowMap::IsItemWithLocationInfoSelected(MGlxMediaList
         {
         // get the media item
         const TGlxMedia& media = aList.Item( index );
-        
+
         // Test to see if the coordinate is present
         TCoordinate coordinate;
         isSupported = media.GetCoordinate(coordinate);
         }
-        
+
     // Don't disable the menu item if the property's supported
     return !isSupported;
     }
@@ -263,10 +264,10 @@ TBool CGlxCommandHandlerAiwShowMap::IsInFullScreenViewingModeL()
     TBool fullscreenViewingMode = EFalse;
     CGlxNavigationalState* aNavigationalState = CGlxNavigationalState::InstanceL();
     CMPXCollectionPath* naviState = aNavigationalState->StateLC();
-    
+
     if ( naviState->Levels() >= 1)
         {
-        if (aNavigationalState->ViewingMode() == NGlxNavigationalState::EBrowse) 
+        if (aNavigationalState->ViewingMode() == NGlxNavigationalState::EBrowse)
             {
             // For image viewer collection, goto view mode
             if (naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
@@ -274,12 +275,12 @@ TBool CGlxCommandHandlerAiwShowMap::IsInFullScreenViewingModeL()
                 //it means we are in img viewer
                 fullscreenViewingMode = ETrue;
                 }
-            } 
-        else 
+            }
+        else
             {
             //it means we are in Fullscreen
             fullscreenViewingMode = ETrue;
-            }                
+            }
         }
     CleanupStack::PopAndDestroy( naviState );
     aNavigationalState->Close();

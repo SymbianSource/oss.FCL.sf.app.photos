@@ -53,6 +53,7 @@ SYSTEMINCLUDE   ../../../uiutilities/inc					//glxanimationfactory
 SYSTEMINCLUDE   ../../../commandhandlers/inc
 SYSTEMINCLUDE   ../../../dataprovider/inc
 SYSTEMINCLUDE   ../../../medialists/inc						//glxmedialistiterator
+SYSTEMINCLUDE   ../../../uiutilities/inc
 
 LIBRARY         euser.lib
 LIBRARY         cone.lib

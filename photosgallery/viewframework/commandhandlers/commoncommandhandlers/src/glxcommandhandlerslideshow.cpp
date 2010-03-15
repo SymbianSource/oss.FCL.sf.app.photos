@@ -98,9 +98,7 @@ void CGlxCommandHandlerSlideshow::ConstructL()
     CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
    	iResourceOffset = CCoeEnv::Static()->AddResourceFileL( resourceFile );
 
-   // CGlxSettingsModel* model = CGlxSettingsModel::InstanceL();
-    iShowInToolbar = ETrue; //model->ShowSlideshowInToolbar();
-   // model->Close();
+    iShowInToolbar = ETrue;
 
    	// Add supported commands with filter fields
    	// Play slideshow forwards
@@ -124,10 +122,6 @@ void CGlxCommandHandlerSlideshow::ConstructL()
 	info.iCategoryRule = categoryRule;
    	AddCommandL( info );
    	
-   	// Play slideshow backwards: only the id changes
-   	//info.iCommandId = EGlxCmdSlideshowPlayBackwards;
-   	//AddCommandL( info );
-
     // new info to get the default filters
    	TCommandInfo info_show_always( EGlxCmdSlideshowSettings );
    	// Disable for empty views and views with only static items

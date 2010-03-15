@@ -149,8 +149,14 @@ TBool CGlxCommandHandlerBack::ExecuteL( TInt aCommandId )
 
 	GLX_LOG_INFO1( "CGlxCommandHandlerBack::ExecuteL::Command Id (%d)",
 	    aCommandId );
-	    
-	if ( aCommandId == EAknSoftkeyBack )
+	if(EAknSoftkeyClose == aCommandId)
+		{
+        GLX_LOG_INFO("CGlxCommandHandlerBack::ExecuteL::goto \
+	                    root in UI hierarchy");
+        iNavigationalState->NavigateToParentL();
+		consume = ETrue;
+		}   
+	else if ( aCommandId == EAknSoftkeyBack )
     	{
     	switch( iCurrentCommandId )
     		{

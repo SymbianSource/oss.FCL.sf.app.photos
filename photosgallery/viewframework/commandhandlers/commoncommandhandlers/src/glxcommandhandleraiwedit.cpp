@@ -38,8 +38,7 @@
 #include <AiwGenericParam.h>                // for passing data between applications
 #include "AiwServiceHandler.h"                  // AIW service handler
 #include "glxmedia.h"
-
-
+#include <featdiscovery.h>
 // -----------------------------------------------------------------------------
 // NewL
 // -----------------------------------------------------------------------------
@@ -61,6 +60,7 @@ EXPORT_C CGlxCommandHandlerAiwEdit* CGlxCommandHandlerAiwEdit::NewL(
 //
 EXPORT_C CGlxCommandHandlerAiwEdit::~CGlxCommandHandlerAiwEdit()
     {
+    delete iFeatManager;
     delete iServiceHandler;
 
     if (NULL != iImageViewerInstance)
@@ -94,6 +94,7 @@ void CGlxCommandHandlerAiwEdit::ConstructL()
         }
 
     iImageViewerInstance = CGlxImageViewerManager::InstanceL();
+    iFeatManager = CFeatureDiscovery::NewL();
     }
 
 // -----------------------------------------------------------------------------
@@ -132,7 +133,12 @@ void CGlxCommandHandlerAiwEdit::DynInitMenuPaneL(TInt aResourceId,
         //If stylus menu is present, hide it for multiple selection
         if (iCommandSingleClick && aMenuPane->MenuItemExists(
                 EGlxCmdAiwSingleClickEdit, pos)
-                && (mediaList.SelectionCount() > 1))
+
+                && ((mediaList.SelectionCount() > 1)
+                        || (!iFeatManager->IsFeatureSupportedL(
+                                KFeatureIdFfImageEditor)
+                                && !iFeatManager->IsFeatureSupportedL(
+                                        KFeatureIdFfVideoEditor))))
             {
             aMenuPane->SetItemDimmed(EGlxCmdAiwSingleClickEdit, ETrue);
             }
@@ -141,9 +147,13 @@ void CGlxCommandHandlerAiwEdit::DynInitMenuPaneL(TInt aResourceId,
             {
             // If the image path is private or view is in grid & 
             // selection is not equal to 1, we should hide Edit menu item 
-            if (iImageViewerInstance->IsPrivate() || 
-                    (mediaList.SelectionCount() != 1 
+            if ((iImageViewerInstance->IsPrivate()
+                    || (mediaList.SelectionCount() != 1
                             && !IsInFullScreenViewingModeL()))
+                    || (!iFeatManager->IsFeatureSupportedL(
+                            KFeatureIdFfImageEditor)
+                            && !iFeatManager->IsFeatureSupportedL(
+                                    KFeatureIdFfVideoEditor)))
                 {
                 aMenuPane->SetItemDimmed(EGlxCmdAiwEdit, ETrue);
                 }

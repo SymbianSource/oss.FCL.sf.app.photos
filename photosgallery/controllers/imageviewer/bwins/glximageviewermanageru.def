@@ -7,4 +7,5 @@ EXPORTS
 	?ImageUri@CGlxImageViewerManager@@QAEPAVHBufC16@@XZ @ 6 NONAME ; class HBufC16 * CGlxImageViewerManager::ImageUri(void)
 	?ImageFileHandle@CGlxImageViewerManager@@QAEAAVRFile64@@XZ @ 7 NONAME ; class RFile64 & CGlxImageViewerManager::ImageFileHandle(void)
 	?InstanceL@CGlxImageViewerManager@@SAPAV1@XZ @ 8 NONAME ; class CGlxImageViewerManager * CGlxImageViewerManager::InstanceL(void)
+	?IsPrivateGif@CGlxImageViewerManager@@QAEHXZ @ 9 NONAME ; int CGlxImageViewerManager::IsPrivateGif(void)
 

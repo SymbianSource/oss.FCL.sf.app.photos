@@ -29,7 +29,7 @@
 #include "mglxmedialistobserver.h"
 #include <mglxmetadatadialogobserver.h>
 #include "glxmedia.h"
-
+#include <aknphysicsobserveriface.h> //Physics - Kinetic scrolling listener
 
 // FORWARD DECLARATIONS
 class CGlxMetadataCommandHandler;class CGlxCommandHandlerAddToContainer;
@@ -44,7 +44,8 @@ class CGlxUiUtility;
 class CGlxMetadataDialog : public CAknDialog,
                            public MGlxMediaListProvider,
                            public MGlxMetadataDialogObserver,
-                           public MToolbarResetObserver
+                           public MToolbarResetObserver,
+                           public MAknPhysicsObserver
                           
     {
 public: // Constructors and destructor
@@ -92,6 +93,14 @@ public: // Functions from base classes
      */
     void HandleToolbarResetting(TBool aVisible);
     
+protected: // from MAknPhysicsObserver   
+
+    void ViewPositionChanged( const TPoint& /*aNewPosition*/, TBool /*aDrawNow*/, TUint /*aFlags*/ );
+      
+    void PhysicEmulationEnded();
+      
+    TPoint ViewPosition() const;
+      
 protected:  // Functions from base classes
 
     /**
@@ -206,7 +215,22 @@ private: //data
 		HBufC* iPreviousTitle;    
 		const TDesC& iUri;
 		CGlxCommandHandlerAddToContainer*  iAddToTag;
-		CGlxCommandHandlerAddToContainer*  iAddToAlbum;    
+		CGlxCommandHandlerAddToContainer*  iAddToAlbum;
+		/*
+		 * Store previous pointer event point
+		 */ 
+		TPoint iPrev;
+		
+		/*
+		 * Check if the dragging got beyond kinetic drag threshold & screen 
+		 * movement will start, if set to true 
+		 */
+		TBool iViewDragged;
+		
+		/*
+		 * Store the value of kinetic drag threshold
+		 */
+		TInt iKineticDragThreshold;
     };
 
 #endif  // GLXMETADATADIALOG_H

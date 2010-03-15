@@ -195,10 +195,7 @@ AlfEventStatus CGlxMulModelProviderBase::offerEvent( Alf::CAlfWidgetControl&
 				{
 				if ( !iWithinFocusChangeCall )
 					{
-					// iWithinFocusChangeCall = ETrue;
 					HandleFocusChanged( FocusIndex(), iPreviousFocusIndex );
-					//iPreviousFocusIndex = FocusIndex();
-					//iWithinFocusChangeCall = EFalse;
 					}
 				response = EEventHandled;
 				}
@@ -452,7 +449,14 @@ TInt CGlxMulModelProviderBase::FocusIndex() const
         // Check if Model count is zero in FS view, activate back grid view.
         if (iModel->Count() ==0)
             {
-            TRAP_IGNORE( iNavigationalState->ActivatePreviousViewL() );    
+            // if Count is Zero, set the navigation state to 
+            // EGlxNavigationBackwards before going back to grid view
+            CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
+            CleanupClosePushL( *uiUtility );
+            uiUtility->SetViewNavigationDirection(EGlxNavigationBackwards);
+            CleanupStack::PopAndDestroy( uiUtility );
+            
+            TRAP_IGNORE( iNavigationalState->ActivatePreviousViewL() );            
             }
         }
     else

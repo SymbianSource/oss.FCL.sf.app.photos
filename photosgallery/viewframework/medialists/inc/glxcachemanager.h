@@ -74,7 +74,7 @@ public:
      * @param aMedia The media object 
      * @param aError Error
      */
-	void HandleCollectionMediaL(const TGlxIdSpaceId& aIdSpaceId, const CMPXMedia& aMedia, TInt aError);
+	void HandleCollectionMediaL(const TGlxIdSpaceId& aIdSpaceId, const CMPXMedia& aMedia, TInt aError, TBool aRequestNextAttr = ETrue);
 
 	/**
 	 * Informs that focus in the window of the list has changed. The lists 

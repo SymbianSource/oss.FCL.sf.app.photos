@@ -209,7 +209,6 @@ void CGlxCommandHandlerRotate::HandleFocusChangedL(
             TInt /*aOldIndex*/, MGlxMediaList* /*aList*/)
     {
     TRACER("CGlxCommandHandlerRotate::HandleFocusChangedL");
-    //Not required as we are doing this after each rotation DoPreserveOrientationL();
     DoCleanupRotationParametersL();
     
     iMediaList = NULL;
@@ -462,9 +461,6 @@ void CGlxCommandHandlerRotate::DoPreserveOrientationL()
         delete iExifWriter;
         iExifWriter = NULL;
         } 
-    //This will be called when there would be a change in Media list focus.
-    //So removing the call from here
-    //DoCleanupRotationParameters();
     }
 // ---------------------------------------------------------------------------
 // DoInitializeRotationParameters
@@ -532,14 +528,10 @@ void CGlxCommandHandlerRotate::DoCleanupRotationParametersL()
     command->SetTObjectValueL<TAny*>(KMPXCommandGeneralSessionId, static_cast<TAny*>(this));
     
     //Nitz To Do Initialize cleanup command Just for the respective Media Items
-  //TGlxMediaId itemId= iGlxItem->Id();
-  //  command->SetTObjectValueL<TMPXItemId>(KMPXMediaGeneralId,itemId.Value()); 
     iMediaList->CommandL(*command);
     CleanupStack::PopAndDestroy(command);
     iMediaList->RemoveMediaListObserver(this);
     iAddedObserver=EFalse;
-    //CGlxTextureManager& tm = iUiUtility->GlxTextureManager();
-    //tm.UpdateThumbnailTexture(*iGlxItem);
     iMediaList = NULL;
     iGlxItem = NULL;
 

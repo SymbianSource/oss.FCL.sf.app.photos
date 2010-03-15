@@ -52,6 +52,15 @@
 #include <glxsingletonstore.h>
 #include <glxtexturemanager.h>
 #include <glxtracer.h>
+
+#include <e32property.h>
+
+//Publish-Subscribe from Thumbnail manager
+const TUid KTAGDPSNotification = { 0x2001FD51 }; //PS category 
+const TInt KForceBackgroundGeneration = 0x00000010; //PS Key 
+const TInt KItemsleft = 0x00000008; //PS key value
+
+
 //Hg 
 //#include <hg/hgcontextutility.h>
 
@@ -715,5 +724,54 @@ EXPORT_C TInt CGlxUiUtility::VisibleItemsInPageGranularityL()
     return ret;
     }
 
+// -----------------------------------------------------------------------------
+// StartTNMDaemonL
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxUiUtility::StartTNMDaemonL()
+    {
+    TRACER("CGlxUiUtility::StartTNMDaemonL");
+    TInt err = RProperty::Set(KTAGDPSNotification, KForceBackgroundGeneration, ETrue);
+    if(err != KErrNone)
+        {
+        GLX_LOG_INFO1("GetItemsLeftCountL: RProperty::Set errorcode %d",err);
+        //need to check what to do in fail cases
+        User::Leave(err);
+        }
+    }
+	
+// -----------------------------------------------------------------------------
+// StopTNMDaemonL
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxUiUtility::StopTNMDaemonL()
+    {
+    TRACER("CGlxUiUtility:: StopTNMDaemonL ");
+    TInt err = RProperty::Set(KTAGDPSNotification, KForceBackgroundGeneration, EFalse);
+    GLX_LOG_INFO1("CGlxUiUtility::StopTNMDaemonL err = %d",err);
+    if(err != KErrNone)
+        {
+        GLX_LOG_INFO1("StopTNMDaemonL: RProperty::Set errorcode %d",err);
+        //need to check what to do in fail cases
+        User::Leave(err);
+        }
+    }
 
+// -----------------------------------------------------------------------------
+// GetItemsLeftCountL
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TInt CGlxUiUtility::GetItemsLeftCountL()
+    {
+    TRACER("CGlxUiUtility::GetItemsLeftCountL");
+    TInt leftVariable = 0;
+    TInt err = RProperty::Get(KTAGDPSNotification, KItemsleft, leftVariable);
+    GLX_LOG_INFO1("GetItemsLeftCountL: GetItemsLeftCountL %d",leftVariable);
+    if(err != KErrNone)
+        {
+        GLX_LOG_INFO1("GetItemsLeftCountL: RProperty::Get errorcode %d",err);
+        User::Leave(err);
+        }
+    return leftVariable;	
+    }
 // End of file

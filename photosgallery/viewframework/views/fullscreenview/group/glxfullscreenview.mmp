@@ -37,6 +37,7 @@ SOURCEPATH      ../src
 SOURCE          glxfullscreenview.cpp
 SOURCE          glxfullscreenviewimp.cpp
 SOURCE          glxfullscreenbindingsetfactory.cpp 
+SOURCE		glxfullscreenbusyicon.cpp
 //SOURCE          glxsinglelinemetapanecontrol.cpp 
 //SOURCE          glxslmpfavmlobserver.cpp 
 
@@ -97,6 +98,6 @@ LIBRARY         gesturehelper.lib
 LIBRARY         glxcommon.lib							// for filter facotory
 LIBRARY         glxcommonui.lib
 LIBRARY 	glxtvout.lib
-
+LIBRARY	   	harvesterclient.lib
 // EOF 
 

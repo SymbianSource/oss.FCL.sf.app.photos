@@ -320,7 +320,7 @@ TBool CGlxCacheManager::Match(const CMPXCollectionPath& aPath1,
 // HandleCollectionMediaL
 // -----------------------------------------------------------------------------
 //
-void CGlxCacheManager::HandleCollectionMediaL(const TGlxIdSpaceId& aIdSpaceId, const CMPXMedia& aMedia, TInt aError)
+void CGlxCacheManager::HandleCollectionMediaL(const TGlxIdSpaceId& aIdSpaceId, const CMPXMedia& aMedia, TInt aError, TBool aRequestNextAttr)
     {
     TRACER("CGlxCacheManager::HandleCollectionMediaL");
     
@@ -362,8 +362,10 @@ void CGlxCacheManager::HandleCollectionMediaL(const TGlxIdSpaceId& aIdSpaceId, c
 
         CleanupStack::PopAndDestroy( &users );
         }
-    
-    MaintainCacheL();
+    if ( aRequestNextAttr )
+        {
+        MaintainCacheL();
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -647,6 +649,8 @@ void CGlxCacheManager::MaintainCacheL()
                                 }
                             else
                                 {
+                                GLX_DEBUG1("GENERAL NON IV CASE - Fetch TN");
+                                GLX_DEBUG2("itemId = [%d] ", itemId.Value());
                                 CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(item.Uri(), 0);
                                 iThumbnailRequestIds.AppendL(TLoadingTN(
                                         iTnEngine->GetThumbnailL(*source), 
@@ -722,7 +726,17 @@ void CGlxCacheManager::MaintainCacheL()
                                 RFile64& imageHandle = iImageViewerInstance->ImageFileHandle();
                                 if ( &imageHandle )
                                     {
-                                    fileName.Append(imageHandle.FullName(fileName));
+                                    if (iImageViewerInstance->IsPrivateGif())
+                                        {
+                                        __ASSERT_DEBUG(iImageViewerInstance->ImageUri(), Panic(EGlxPanicNullPointer));
+                                        fileName.Append(
+                                                iImageViewerInstance->ImageUri()->Des());
+                                        }
+                                    else
+                                        {
+                                        fileName.Append(imageHandle.FullName(
+                                                fileName));
+                                        }
                                     }
                                 else
                                     {
@@ -932,6 +946,11 @@ void CGlxCacheManager::MaintainCacheL()
                             else if ( iRequestedAttrs[i] == KGlxMediaGeneralFramecount )
                                 {
                                 TInt fcount = 1;
+                                if(errInImage == KErrNone)
+                                    {
+                                    fcount = iReader->GetFrameCount();
+                                    }
+                                GLX_DEBUG2("Imageviewer Collection framecount(%d)", fcount);
                                 iMPXMedia->SetTObjectValueL(KGlxMediaGeneralFramecount, fcount);
                                 }
                             else if ( iRequestedAttrs[i] == KMPXMediaGeneralComment )
@@ -1499,17 +1518,12 @@ void CGlxCacheManager::ThumbnailReadyL(TInt aError, MThumbnailData& aThumbnail,
         iMPXMedia->SetNoNewLCObjectL(
                TMPXAttribute(KGlxMediaIdThumbnail, attributeId), tnAttribute);
         CleanupStack::PopAndDestroy(tnAttribute);
-
-        HandleCollectionMediaL(iThumbnailRequestIds[reqIndex].iSpaceId,
-                                                    *iMPXMedia, aError);
-        }
-    else
-        {
-        HandleCollectionMediaL(iThumbnailRequestIds[reqIndex].iSpaceId, 
-													*iMPXMedia, aError);
+        
         }
     
-    if (aQuality)
+     HandleCollectionMediaL(iThumbnailRequestIds[reqIndex].iSpaceId,
+                                                        *iMPXMedia, aError, aQuality);
+     if (aQuality)
         {
         FindLoadingById(aId, ETrue);
         }   

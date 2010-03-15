@@ -1,16 +1,17 @@
 EXPORTS
-	?ScreenSizeL@CGlxTv@@QBE?AVTSize@@XZ @ 1 NONAME ; class TSize CGlxTv::ScreenSizeL(void) const
-	??1CGlxTv@@UAE@XZ @ 2 NONAME ; CGlxTv::~CGlxTv(void)
-	??1CGlxHdmiController@@UAE@XZ @ 3 NONAME ; CGlxHdmiController::~CGlxHdmiController(void)
-	?SetImageL@CGlxHdmiController@@QAEXABVTDesC16@@VTSize@@HH@Z @ 4 NONAME ; void CGlxHdmiController::SetImageL(class TDesC16 const &, class TSize, int, int)
-	?IsWidescreen@CGlxTv@@QBEHXZ @ 5 NONAME ; int CGlxTv::IsWidescreen(void) const
-	?NewL@CGlxTv@@SAPAV1@AAVMGlxTvObserver@@@Z @ 6 NONAME ; class CGlxTv * CGlxTv::NewL(class MGlxTvObserver &)
-	?IsConnected@CGlxTv@@QBEHXZ @ 7 NONAME ; int CGlxTv::IsConnected(void) const
-	?IsVideo@CGlxHdmiController@@QAEXXZ @ 8 NONAME ; void CGlxHdmiController::IsVideo(void)
-	?NewL@CGlxHdmiController@@SAPAV1@ABVTDesC16@@@Z @ 9 NONAME ; class CGlxHdmiController * CGlxHdmiController::NewL(class TDesC16 const &)
-	?IsHDMIConnected@CGlxTv@@QBEHXZ @ 10 NONAME ; int CGlxTv::IsHDMIConnected(void) const
-	?ActivateZoom@CGlxHdmiController@@QAEXXZ @ 11 NONAME ; void CGlxHdmiController::ActivateZoom(void)
-	?DeactivateZoom@CGlxHdmiController@@QAEXXZ @ 12 NONAME ; void CGlxHdmiController::DeactivateZoom(void)
-	?ShiftToPostingMode@CGlxHdmiController@@QAEXXZ @ 13 NONAME ; void CGlxHdmiController::ShiftToPostingMode(void)
-	?ShiftToCloningMode@CGlxHdmiController@@QAEXXZ @ 14 NONAME ; void CGlxHdmiController::ShiftToCloningMode(void)
+	?ActivateZoom@CGlxHdmiController@@QAEXH@Z @ 1 NONAME ; void CGlxHdmiController::ActivateZoom(int)
+	?ScreenSizeL@CGlxTv@@QBE?AVTSize@@XZ @ 2 NONAME ; class TSize CGlxTv::ScreenSizeL(void) const
+	??1CGlxTv@@UAE@XZ @ 3 NONAME ; CGlxTv::~CGlxTv(void)
+	??1CGlxHdmiController@@UAE@XZ @ 4 NONAME ; CGlxHdmiController::~CGlxHdmiController(void)
+	?SetImageL@CGlxHdmiController@@QAEXABVTDesC16@@VTSize@@HH@Z @ 5 NONAME ; void CGlxHdmiController::SetImageL(class TDesC16 const &, class TSize, int, int)
+	?IsWidescreen@CGlxTv@@QBEHXZ @ 6 NONAME ; int CGlxTv::IsWidescreen(void) const
+	?IsHDMIConnected@CGlxHdmiController@@QAEHXZ @ 7 NONAME ; int CGlxHdmiController::IsHDMIConnected(void)
+	?ShiftToPostingMode@CGlxHdmiController@@QAEXXZ @ 8 NONAME ; void CGlxHdmiController::ShiftToPostingMode(void)
+	?ShiftToCloningMode@CGlxHdmiController@@QAEXXZ @ 9 NONAME ; void CGlxHdmiController::ShiftToCloningMode(void)
+	?IsConnected@CGlxTv@@QBEHXZ @ 10 NONAME ; int CGlxTv::IsConnected(void) const
+	?ItemNotSupported@CGlxHdmiController@@QAEXXZ @ 11 NONAME ; void CGlxHdmiController::ItemNotSupported(void)
+	?NewL@CGlxTv@@SAPAV1@AAVMGlxTvObserver@@@Z @ 12 NONAME ; class CGlxTv * CGlxTv::NewL(class MGlxTvObserver &)
+	?NewL@CGlxHdmiController@@SAPAV1@ABVTDesC16@@@Z @ 13 NONAME ; class CGlxHdmiController * CGlxHdmiController::NewL(class TDesC16 const &)
+	?IsHDMIConnected@CGlxTv@@QBEHXZ @ 14 NONAME ; int CGlxTv::IsHDMIConnected(void) const
+	?DeactivateZoom@CGlxHdmiController@@QAEXXZ @ 15 NONAME ; void CGlxHdmiController::DeactivateZoom(void)
 

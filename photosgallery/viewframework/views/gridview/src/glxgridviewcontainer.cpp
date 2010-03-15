@@ -85,6 +85,7 @@ CGlxGridViewContainer* CGlxGridViewContainer::NewLC(MGlxMediaList *aMediaList,
 CGlxGridViewContainer::~CGlxGridViewContainer()
 	{
 	TRACER("CGlxGridViewContainer::~CGlxGridViewContainer");
+	iHarvesterClient.Close();
 	if(iBgContext)
 		{
 		delete iBgContext;	
@@ -160,6 +161,11 @@ void CGlxGridViewContainer::ConstructL()
 	// For DRM Utility
 	iDRMUtility = CGlxDRMUtility::InstanceL();
 
+	//Fix for ESLM-82WJ59: Clear the last uri for which DRM Rights were consumed
+	//since the GridView::Activate() and FullScreen::DeActivate() can be called in any order,
+	//this call is being made to be on safer side
+	iDRMUtility->ClearLastConsumedItemUri();
+
 	// background Skin Context for the skin support
 	TRect apRect = iEikonEnv->EikAppUi()->ApplicationRect();
 	iBgContext = CAknsBasicBackgroundControlContext::NewL(
@@ -173,6 +179,13 @@ void CGlxGridViewContainer::ConstructL()
 			GlxFullThumbnailAttributeId( EFalse,  iGridIconSize.iWidth,
 					iGridIconSize.iHeight ) );
 	CreateGridL();
+
+   TInt err = iHarvesterClient.Connect();
+   GLX_LOG_INFO1("iHarvesterClient.Connect() err = %d",err);
+   if(err == KErrNone)
+		{
+        iHarvesterClient.AddHarvesterEventObserver(*this, EHEObserverTypeMMC, 1000);
+		}
 	}
 
 // ---------------------------------------------------------------------------
@@ -916,4 +929,24 @@ void CGlxGridViewContainer::HandleResourceChange(TInt aId)
         break;
        }
 	}
+
+// ---------------------------------------------------------------------------
+// HarvestingUpdated
+// 
+// ---------------------------------------------------------------------------
+//
+void CGlxGridViewContainer::HarvestingUpdated( 
+                HarvesterEventObserverType HarvestingUpdated, 
+                HarvesterEventState aHarvesterEventState,
+                TInt aItemsLeft )
+    {
+    TRACER("CGlxGridViewContainer::HarvestingUpdated()");
+    GLX_LOG_INFO1("HarvestingUpdated = %d",HarvestingUpdated);
+    GLX_LOG_INFO1("aHarvesterEventState = %d",aHarvesterEventState);
+    GLX_LOG_INFO1("aItemsLeft = %d",aItemsLeft);
+    if(HarvestingUpdated == EHEObserverTypeMMC)
+        {
+        iGlxGridViewObserver.HandleGridEventsL(EAknSoftkeyClose);
+        }
+    }
 //end of file

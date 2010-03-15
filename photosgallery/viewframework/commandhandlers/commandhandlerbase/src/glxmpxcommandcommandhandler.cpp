@@ -470,7 +470,6 @@ EXPORT_C HBufC* CGlxMpxCommandCommandHandler::CompletionTextL() const
 void CGlxMpxCommandCommandHandler::ProgressNoteL(TInt aCommandId)
 	{
     TRACER("CGlxMpxCommandCommandHandler::ProgressNoteL(TInt aCommandId)");
-	//MGlxMediaList& mediaList = MediaList();
 
     // get progress note 
     HBufC* progressText = ProgressTextL(aCommandId);

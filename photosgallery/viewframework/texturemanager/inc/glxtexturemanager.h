@@ -180,7 +180,7 @@ public:
     * @param aMedia The media item
     * @param aAttribute Which attribute
     * @param aIdSpaceId The Id of the Id space in which the media Id is defined
-    * @param aTextureId The created texture's id, required when the texture is removed.
+    * @param aObserver Observer for the texture.
     * @return Created texture
     */
     IMPORT_C CAlfTexture& CreateZoomedTextureL(const TGlxMedia& aMedia,
@@ -198,10 +198,12 @@ public:
     * Create an animated texture from a GIF file
     * @param aFilename The filename of the GIF file
     * @param aSize The size of the GIF file
+	* @param aMedia The media item
+	* @param aIdSpaceId The Id of the Id space in which the media Id is defined
     * @return Created texture: ownership transfered
     */
     IMPORT_C CAlfTexture& CreateAnimatedGifTextureL( const TDesC& aFilename, 
-        const TSize& aSize );
+       const TSize& aSize, const TGlxMedia& aMedia, TGlxIdSpaceId aIdSpaceId );
     
     /**
      * Creates a flat color texture and returns the reference to it

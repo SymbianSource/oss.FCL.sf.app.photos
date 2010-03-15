@@ -73,4 +73,10 @@ EXPORTS
 	_ZTV32CGlxWaitDialogAttributeRetriever @ 72 NONAME
 	_ZTV33CGlxSynchronousAttributeRetriever @ 73 NONAME
 	_ZThn4_N13CGlxUiUtility22HandleTvStatusChangedLE13TTvChangeType @ 74 NONAME
+	_ZN13CGlxUiUtility15StartTNMDaemonLEv @ 75 NONAME
+	_ZN13CGlxUiUtility18GetItemsLeftCountLEv @ 76 NONAME
+	_ZN21CGlxProgressIndicator4NewLER23MDialogDismisedObserver @ 77 NONAME
+	_ZTI21CGlxProgressIndicator @ 78 NONAME
+	_ZTV21CGlxProgressIndicator @ 79 NONAME
+	_ZN13CGlxUiUtility14StopTNMDaemonLEv @ 80 NONAME
 

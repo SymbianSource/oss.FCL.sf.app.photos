@@ -108,6 +108,7 @@ CGlxImgVwrMetadataContainer::CGlxImgVwrMetadataContainer(const TDesC& aUri)
 //  
 void CGlxImgVwrMetadataContainer::ConstructL( const TRect& /*aRect*/ )
     {   
+    TRACER("CGlxMetadataContainer::ConstructLL()");
     //Creating the RBuf texts for all the items except tags & albums
     //which would be updated as whne the item is edited
     iTextSetter.CreateL(KMaxFileName);
@@ -145,6 +146,7 @@ CGlxImgVwrMetadataContainer::~CGlxImgVwrMetadataContainer()
 //-----------------------------------------------------------------------------
 MGlxMediaList& CGlxImgVwrMetadataContainer::MediaList()
     {
+    TRACER("CGlxMetadataContainer::HandleAttributesAvailableL()");
     //returns the active medialist.
     return *iItemMediaList;    
     }
@@ -159,7 +161,6 @@ CAknSettingItem* CGlxImgVwrMetadataContainer::CreateSettingItemL(TInt aResourceI
     iTextSetter.Copy(KGlxTextSetter);  
 
     //Creating a empty Settings list box which will  be populated with metadata in handleattributeavailable
-
     switch(aResourceId)
         {
         case EImgVwrNameItem:
@@ -204,6 +205,7 @@ CAknSettingItem* CGlxImgVwrMetadataContainer::CreateSettingItemL(TInt aResourceI
 //-----------------------------------------------------------------------------
 TBool CGlxImgVwrMetadataContainer::IsItemModifiable()
     {
+    TRACER("CGlxMetadataContainer::IsItemModifiable()");
     //Only items like name , description, tag and albums are modifiable
     //The check is for the items from ENameItem(0) tille ETagsItem(4)
     if(ListBox()->CurrentItemIndex()<=ETagsItem)
@@ -221,50 +223,26 @@ TBool CGlxImgVwrMetadataContainer::IsItemModifiable()
 void CGlxImgVwrMetadataContainer::HandleListBoxEventL(CEikListBox*  /*aListBox*/,
         TListBoxEvent aEventType)
     {
+    TRACER("CGlxMetadataContainer::HandleListBoxEventL()");
     GLX_LOG_INFO("CGlxImgVwrMetadataContainer::HandleListBoxEventL");         
-    if ((aEventType == EEventEnterKeyPressed) || 
-            (aEventType == EEventEditingStarted) ||
-            (aEventType == EEventItemSingleClicked))
+    if (aEventType == EEventItemSingleClicked)
         {
-        //handle edit functionality if items when useer selects via touch
-        HandleListboxChangesL();
-        }
-    }
-//-----------------------------------------------------------------------------
-// CGlxImgVwrMetadataContainer::HandleListboxChangesL
-//-----------------------------------------------------------------------------
-void CGlxImgVwrMetadataContainer::HandleListboxChangesL()
-    {
-
-    TInt index = ListBox()->CurrentItemIndex();
-
-    switch(index)
-        {
-        case EImgVwrNameItem:        
-        case EImgVwrDescriptionItem:
+        if(iItemMediaList->Count() == 0)
             {
-            SetNameDescriptionL(index);
-            break;
-            }          
-
-        case EImgVwrlicenseItem:
+            GLX_LOG_INFO("CGlxImgVwrMetadataContainer:: NO Items");         
+            return;
+            }
+        TInt index = ListBox()->CurrentItemIndex() ;
+        if(EImgVwrlicenseItem == index)
             {
-            
-            //Create DRM utility
+            GLX_LOG_INFO("CGlxImgVwrMetadataContainer::Licence item");         
             CGlxDRMUtility* drmUtility = CGlxDRMUtility::InstanceL();
             CleanupClosePushL(*drmUtility);
-            drmUtility->ShowDRMDetailsPaneL(iItemMediaList->Item(0).Uri()/*iUri*/);
+            drmUtility->ShowDRMDetailsPaneL(iItemMediaList->Item(0).Uri());
             CleanupStack::PopAndDestroy(drmUtility);
-            }  
-            break;
-        default:
-            {
-            break;    
             }
         }
-
     }
-
 
 // ----------------------------------------------------------------------------
 // CGlxImgVwrMetadataContainer::ViewDynInitMenuPaneL
@@ -272,6 +250,7 @@ void CGlxImgVwrMetadataContainer::HandleListboxChangesL()
 // 
 void CGlxImgVwrMetadataContainer::ViewDynInitMenuPaneL(TInt aMenuId, CEikMenuPane* aMenuPane)
     {
+    TRACER("CGlxMetadataContainer::ViewDynInitMenuPaneL()");
     if( aMenuId == R_METADATA_MENU )
             {
             //Set dim the options based on the utem selected
@@ -288,7 +267,6 @@ void CGlxImgVwrMetadataContainer::ViewDynInitMenuPaneL(TInt aMenuId, CEikMenuPan
 void CGlxImgVwrMetadataContainer::HandleAttributesAvailableL( TInt /*aItemIndex*/, 
         const RArray<TMPXAttribute>& aAttributes, MGlxMediaList* aList )
     {
-
     TRACER("CGlxMetadataContainer::HandleAttributesAvailableL()");
     //generic medialist for the item for all the attributes required other than tags and albums.
     TInt x = aAttributes.Count();
@@ -311,6 +289,7 @@ void CGlxImgVwrMetadataContainer::HandleAttributesAvailableL( TInt /*aItemIndex*
 void CGlxImgVwrMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndIndex*/, 
         MGlxMediaList* aList )
     {
+    TRACER("CGlxMetadataContainer::HandleItemAddedL()");
     if(!iMarquee)
         {
             EnableMarqueingL();
@@ -497,7 +476,6 @@ void CGlxImgVwrMetadataContainer::ChangeMskL()
         {
         case EImgVwrNameItem:        
         case EImgVwrDescriptionItem:
-
             {
             uiUtility->ScreenFurniture()->ModifySoftkeyIdL(CEikButtonGroupContainer::EMiddleSoftkeyPosition,
                     EAknSoftkeyEdit,R_GLX_METADATA_MSK_EDIT);
@@ -529,7 +507,7 @@ void CGlxImgVwrMetadataContainer::ChangeMskL()
 //-----------------------------------------------------------------------------
 void CGlxImgVwrMetadataContainer::CreateMediaListForSelectedItemL()
     {
-    TRACER("CGlxMetadataContainer::CreateMediaListL");
+    TRACER("CGlxMetadataContainer::CreateMediaListForSelectedItemL");
 
     //create the collection path for the medialist to be created
     CMPXCollectionPath* path = CMPXCollectionPath::NewL();
@@ -722,6 +700,7 @@ void CGlxImgVwrMetadataContainer::SetNameDescriptionL(TInt aItem)
 // 
 void CGlxImgVwrMetadataContainer::SetDurationLIicenseItemVisibilityL()
     {
+    TRACER("CGlxMetadataContainer::SetDurationLIicenseItemVisibilityL()");
     //get the media item.
     const TGlxMedia& item = iItemMediaList->Item(0);
     const CGlxMedia* media = item.Properties();
@@ -747,6 +726,7 @@ void CGlxImgVwrMetadataContainer::SetDurationLIicenseItemVisibilityL()
 //-----------------------------------------------------------------------------
 TBool CGlxImgVwrMetadataContainer::IsLicenseItem()
     {
+    TRACER("CGlxMetadataContainer::IsLicenseItem()");
     //Checks the item for DRMProtection.
     if((ListBox()->CurrentItemIndex()== EImgVwrlicenseItem))
         {

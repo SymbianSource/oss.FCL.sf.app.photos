@@ -19,9 +19,17 @@
 #include "glximageviewermanager.h"
 #include <glxsingletonstore.h>
 #include <glxtracer.h>
+#include <glxlog.h>
 
 #include <f32file.h>
+#include <caf/manager.h>
+#include <driveinfo.h>
+#include <coeutils.h>
 
+_LIT( KPrivateFolder, "\\Private\\" );
+_LIT( KGifFileExt, ".gif" );
+_LIT( KTempFilePath, "?:\\data\\images\\200104E7.gif" );
+    
 EXPORT_C CGlxImageViewerManager* CGlxImageViewerManager::InstanceL()
     {
     TRACER("CGlxImageViewerManager::InstanceL()");
@@ -50,6 +58,12 @@ EXPORT_C TBool CGlxImageViewerManager::IsPrivate()
     {
     TRACER("CGlxImageViewerManager::IsPrivate()");    
     return iIsPrivate;
+    }
+
+EXPORT_C TBool CGlxImageViewerManager::IsPrivateGif()
+    {
+    TRACER("CGlxImageViewerManager::IsPrivateGif()");    
+    return iIsPrivateGif;
     }
 
 CGlxImageViewerManager::CGlxImageViewerManager()
@@ -121,6 +135,18 @@ EXPORT_C void CGlxImageViewerManager::Reset()
     delete iFile;
     iFile = NULL;
 
+    if (iIsPrivateGif)
+        {
+        iManager->DeleteFile(iImageUri->Des());
+        iIsPrivateGif = EFalse;
+        }
+
+    if ( iManager )
+        {
+        delete iManager;
+        iManager = NULL;
+        }
+    
     if ( iImageUri )
         {
         delete iImageUri;
@@ -136,18 +162,34 @@ EXPORT_C void CGlxImageViewerManager::Reset()
 EXPORT_C void CGlxImageViewerManager::SetImageFileHandleL(const RFile& aFileHandle)
     {
     TRACER("void CGlxImageViewerManager::SetImageFileHandleL()");
-    _LIT( KPrivateFolder, "\\Private\\" );    // Platsec private folder  
     TFileName filePath;
-    User::LeaveIfError( aFileHandle.FullName( filePath ) );
-    SetImageUriL( filePath );
-    TParsePtrC parse( filePath );
-    if( parse.PathPresent() &&
-        parse.Path().Length() > KPrivateFolder().Length() &&
-        parse.Path().Left( KPrivateFolder().Length() ).CompareF( KPrivateFolder ) == 0 )
+    User::LeaveIfError(aFileHandle.FullName(filePath));
+    TParsePtrC parse(filePath);
+    if (parse.PathPresent() && parse.Path().Length()
+            > KPrivateFolder().Length() && parse.Path().Left(
+            KPrivateFolder().Length()).CompareF(KPrivateFolder) == 0)
         {
         // File is in private folder; duplicate file handle
         iFile = new (ELeave) RFile64;
-        User::LeaveIfError( iFile->Duplicate( aFileHandle ) );
+        User::LeaveIfError(iFile->Duplicate(aFileHandle));
         iIsPrivate = ETrue;
+        if (parse.Ext().Compare(KGifFileExt) == 0)
+            {
+            // Gif file from private path, hence make a local copy.
+            TFileName ramFilePath(KTempFilePath);
+            TChar drive;
+            User::LeaveIfError(DriveInfo::GetDefaultDrive(
+                    DriveInfo::EDefaultRam, drive));
+            ramFilePath[0] = drive;
+            ConeUtils::EnsurePathExistsL(ramFilePath);
+            if (!iManager)
+                {
+                iManager = ContentAccess::CManager::NewL();    
+                }
+            iManager->CopyFile(*iFile, ramFilePath);
+            filePath.Copy(ramFilePath);
+            iIsPrivateGif = ETrue;
+            }
         }
+    SetImageUriL( filePath );
     }

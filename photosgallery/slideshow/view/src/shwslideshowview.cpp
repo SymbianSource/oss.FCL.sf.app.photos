@@ -124,7 +124,7 @@ CShwSlideshowView::~CShwSlideshowView()
     {
     TRACER("CShwSlideshowView::~CShwSlideshowView");
   	GLX_LOG_INFO( "CShwSlideshowView::~CShwSlideshowView()" );
-    
+  	iHarvesterClient.Close();
     // delete media list population call back
     delete iPopulateListCallBack;
     
@@ -314,6 +314,12 @@ void CShwSlideshowView::ConstructL()
 	// Glx view base construction
     ViewBaseConstructL();
     
+	TInt err = iHarvesterClient.Connect();
+	GLX_LOG_INFO1("iHarvesterClient.Connect() err = %d",err);
+	if(err == KErrNone)
+		{
+        iHarvesterClient.AddHarvesterEventObserver(*this, EHEObserverTypeMMC, 1000);
+		}
     // Create async engine starter with standard priority
 	iAsyncCallBack = new( ELeave ) CAsyncCallBack( CActive::EPriorityStandard );
 
@@ -355,10 +361,6 @@ void CShwSlideshowView::ConstructL()
         TShwCallBack< CShwSlideshowView, PopulateListL >( this ) );
     iMSKPressed = EFalse;
     iLSKPressed = EFalse;
-    
-    //Get the HgContextUtility instance
-//    iContextUtility = iUiUtility->ContextUtility();
-    
     }
    
 // ---------------------------------------------------------------------------
@@ -424,7 +426,10 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
     // reset failure flag
     iEngineStartFailed = EFalse;
 
-    iHdmiController = CGlxHdmiController::NewL();
+	if(!iHdmiController)
+		{
+	    iHdmiController = CGlxHdmiController::NewL();
+		}
     // Engine related construction
     // Instantiate the slideshow engine, with this class as its observer
     __ASSERT_DEBUG( !iEngine, Panic( EGlxPanicAlreadyInitialised ) );
@@ -649,7 +654,7 @@ void CShwSlideshowView::HandleFocusChangedL( NGlxListDefs::TFocusChangeType /*aT
                 {
                 RemoveTexture();
                 }
-            SetImageL();
+            SetItemToHDMIL();
             }    
 	    }
     }
@@ -727,7 +732,7 @@ void CShwSlideshowView::EngineStartedL()
         iWaitDialog->ProcessFinishedL();
         }
     iShwState = EShwPlay;
-    SetImageL();
+    SetItemToHDMIL();
 	iHdmiActive = ETrue;
     ReplaceCommandSetL(R_SHW_SOFTKEYS_END_PAUSE,R_SHW_SOFTKEYS_END_PAUSE);
     ShowShwFurnitureL();
@@ -940,13 +945,9 @@ void CShwSlideshowView::SetupScreenFurnitureL()
     // Create the soft keys
     // Left (bottom in landscape orientation)
     HBufC* softKeyTextLeft = StringLoader::LoadLC( R_SHW_SOFTKEY_LEFT );
-    // SetSoftKeyL takes ownership of softKeyText
-    //SetSoftkeyL( EGlxLeftSoftkey,  EShwSlideshowCmdContinue, softKeyTextLeft );
     CleanupStack::Pop( softKeyTextLeft );
     // Right (top in landscape orientation)
     HBufC* softKeyTextRight = StringLoader::LoadLC( R_SHW_SOFTKEY_RIGHT );
-    // SetSoftKeyL takes ownership of softKeyText
-    //SetSoftkeyL( EGlxRightSoftkey,  EAknSoftkeyBack, softKeyTextRight );
     CleanupStack::Pop( softKeyTextRight );
     
     }
@@ -1029,7 +1030,6 @@ void CShwSlideshowView::SetListFocusL()
             }
         }
     iFilteredList->SetFocusL( NGlxListDefs::EAbsolute, focusIndex );
-//    iContextUtility->PublishPhotoContextL(item.Uri());
     }
 
 
@@ -1258,27 +1258,49 @@ void CShwSlideshowView::ProcessCommandL(TInt aCommandId)
 // Set the image to external display - HDMI
 // -----------------------------------------------------------------------------
 //
-void CShwSlideshowView::SetImageL()
+void CShwSlideshowView::SetItemToHDMIL()
     {
-    TRACER("CShwSlideshowView::SetImageL() - CGlxHDMI");
-    TGlxMedia item = iFilteredList->Item(iFilteredList->FocusIndex());
-    TInt frameCount(0);
-    TSize orignalSize;
-    TBool aFramesPresent = item.GetFrameCount(frameCount);
-    TBool adimension = item.GetDimensions(orignalSize);
-    TInt error = GlxErrorManager::HasAttributeErrorL(item.Properties(),
-            KGlxMediaIdThumbnail);
-    if (error == KErrNone)
+    TRACER("CShwSlideshowView::SetImageToHDMIL() ");
+
+    TInt focusIndex = iFilteredList->FocusIndex();
+
+    // If we dont know what item we are focussing on 
+    // or if our filtered list is empty
+    // or if HDMI is not connected 
+    // or if there is no HDMI Controller at all 
+    // then dont SetImageToHDMI :)  
+    if( ( KErrNotFound == focusIndex)
+            || (0 == iFilteredList->Count())
+            || (NULL == iHdmiController)
+            || (!iHdmiController->IsHDMIConnected())) 
         {
-        GLX_LOG_INFO("CShwSlideshowView::SetImageL() - CGlxHDMI call SetImageL");
+        GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - Cant Set Image To HDMI");
+        return;
+        }
+    
+    TGlxMedia item = iFilteredList->Item(focusIndex);
+    TInt error = GlxErrorManager::HasAttributeErrorL(item.Properties(),
+        KGlxMediaIdThumbnail);
+    
+    // Item will be supported by HDMI ONLY if
+    // it is not a video
+    // and it has no attribute error 
+    if ( (item.Category() != EMPXVideo) 
+            && (error == KErrNone) )
+        {
+        GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Setting the Image");
+        TInt frameCount(0);
+        TSize orignalSize;
+        item.GetFrameCount(frameCount);
+        item.GetDimensions(orignalSize);
         iHdmiController->SetImageL(item.Uri(), orignalSize, frameCount);
         }
     else
         {
-        GLX_LOG_INFO1("CShwSlideshowView::SetImageL() - CGlxHDMI IsVideo , err=%d",error);
-        //Set the external display to cloning mode.
-        //If the current item is a video, corruted thumbnail
-        iHdmiController->IsVideo();
+        GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - Unsupported Item");
+        //Set the external display to cloning mode if
+        //the current item is something we wont support (e.g. video, corrupted item);
+        iHdmiController->ItemNotSupported();
         }
     }
 // ---------------------------------------------------------------------------
@@ -1321,4 +1343,21 @@ void CShwSlideshowView::RemoveTexture()
     TRACER("CShwSlideshowView::RemoveTexture");
     const TGlxMedia& item = iFilteredList->Item(GetIndexToBeRemoved());
     iUiUtility->GlxTextureManager().RemoveTexture(item.Id(),EFalse);
+    }
+
+// ---------------------------------------------------------------------------
+// HarvestingUpdated
+// 
+// ---------------------------------------------------------------------------
+//
+void CShwSlideshowView::HarvestingUpdated( 
+                HarvesterEventObserverType HarvestingUpdated, 
+                HarvesterEventState aHarvesterEventState,
+                TInt aItemsLeft )
+    {
+    TRACER("CShwSlideshowView::HarvestingUpdated()");
+    if(HarvestingUpdated == EHEObserverTypeMMC)
+        {
+        ProcessCommandL(EAknSoftkeyClose);
+        }
     }

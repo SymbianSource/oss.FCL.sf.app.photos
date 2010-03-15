@@ -63,7 +63,7 @@ public:
     /*
      * Activate Zoom 
      */
-    void ActivateZoom();
+    void ActivateZoom(TBool aAutoZoomOut);
     /*
     * Deactivate Zoom 
     */
@@ -175,6 +175,8 @@ private:
     CPeriodic* iTimer;
     TBool iZoom;
 	TBool iBitmapReady;
+	TBool iAutoZoomOut;
+	TBool iSurfSessionConnected;
 #ifdef _DEBUG
     TTime iStartTime;
     TTime iStopTime;

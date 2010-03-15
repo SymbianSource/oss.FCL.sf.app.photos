@@ -116,6 +116,7 @@ LIBRARY         eikcore.lib
 LIBRARY         estor.lib 	// for RBufWriteStream
 LIBRARY         euser.lib
 LIBRARY         fbscli.lib
+LIBRARY         featdiscovery.lib 
 LIBRARY         glxcommandhandlerbase.lib
 LIBRARY         glxupnpcommandhandler.lib   // for CGlxUpnpRenderer
 LIBRARY         glxcommon.lib                   // for CResourceUtilities

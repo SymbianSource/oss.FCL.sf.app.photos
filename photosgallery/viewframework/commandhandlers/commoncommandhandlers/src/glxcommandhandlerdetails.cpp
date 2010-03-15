@@ -115,7 +115,6 @@ void CGlxCommandHandlerDetails::ConstructL()
 		   			   	
    	TCommandInfo infoSubMenu(EGlxCmdDetailsOption);
     infoSubMenu.iViewingState = TCommandInfo::EViewingStateBrowse;
-   	//AddCommandL(infoSubMenu);
    	
    	// register for the reset view command so that we can 
    	// dismiss the dialog if it is being shown when we are activated

@@ -299,8 +299,6 @@ TSize CShwZoomAndPanEffect::PrepareViewL(
 	        iImpl->iCurve = curve;
 	        } );
 		}
-	// set the curve for the layout, its ok to set NULL
-//	iImpl->iZoomAndPanLayout.SetPanningCurve( iImpl->iCurve );
 
     // return the calculated thumbnail size
     return thumbnailSize;

@@ -16,9 +16,6 @@
 */
 
 
-
-
-
 #ifndef C_SHWSLIDESHOWVIEW_H
 #define C_SHWSLIDESHOWVIEW_H
 
@@ -28,6 +25,7 @@
 #include <AknProgressDialog.h>
 #include <gestureobserver.h>
 #include <gesturehelper.h>
+#include <harvesterclient.h>
 #include "shwengineobserver.h"
 #include "shwmusicobserver.h"
 #include "shwconstants.h"
@@ -53,12 +51,10 @@ class CShwSlideShowKeyHandler;
 class CShwTelephoneHandler;
 class CMPXCollectionPath;
 class CEikButtonGroupContainer;
-// CLASS DECLARATION
 class CShwGestureControl;
 class CShwTicker;
 class CShwMediaKeyUtility;
 class CGestureControl;
-//class CHgContextUtility;
 class CGlxHdmiController;
 /**
  *  Slideshow view.
@@ -71,7 +67,8 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
                                        public MShwMusicObserver,
                                        public MProgressDialogCallback,
                                        public MShwTickObserver,
-                                       public MShwGestureObserver
+                                       public MShwGestureObserver,
+									   public MHarvesterEventObserver
     {
     public:
 
@@ -148,7 +145,13 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
     	 * @ref CGlxViewBase::DoViewDeactivate
     	 */	
         void DoViewDeactivate();
-   
+   public:
+    // from MHarvesterEventObserver
+    void HarvestingUpdated( 
+                HarvesterEventObserverType aHEObserverType, 
+                HarvesterEventState aHarvesterEventState,
+                TInt aItemsLeft );
+
     private: // from MGlxMediaListObserver
 
     	/// @ref MGlxMediaListObserver::HandleItemAddedL
@@ -264,9 +267,9 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
     	/**
     	 * @ref MShwTickObserver::HandleTickL
     	 */
-    	 
         void HandleTickL();
-    	/**
+
+        /**
     	 * @ref MShwTickObserver::HandleTickCancelled
     	 */
         void HandleTickCancelled();
@@ -280,33 +283,44 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
 		 * Initializes the screen furniture for the slide show view
 		 */
         void InitializeShwFurnitureL();
-    	/**
+
+        /**
     	 * Initializes the soft keys
     	 */
 		void InitializeCbaL();
-    	/**
+
+		/**
     	 * Hides the screen furniture
     	 */
 		void HideShwFurniture();
-    	/**
+
+		/**
     	 * Makes the screen furniture visible
     	 */
 		void ShowShwFurnitureL();
-    	/**
+
+		/**
     	 * Replaces an existing command set with a new one
     	 *@
     	 */
 		void ReplaceCommandSetL(TInt aNewComandId, TInt aOldCommandSet );
+
 		/**
          * returns the index of item for which texture can be removed for cleanup
          * The index will be out the iterator offsets w.r.t focssed index.
          */
-		void SetImageL();
         TInt GetIndexToBeRemoved();
+
         /**
          * Remove the fullscreen texture.
          */
         void RemoveTexture();
+        
+        /**
+         * Set the current Item to HDMI.
+         */
+        void SetItemToHDMIL();
+
 	public:
 	//to keep in track which of the command set is active/on top
 		enum TShwState
@@ -331,8 +345,6 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
         CShwSlideshowEngine* iEngine; // owned
        
         CAlfControlGroup* iVolumeControlGroup; // owned
-
-       // CGlxUiUtility* iUiUtility; // owned
 
         CAknWaitDialog*	iWaitDialog; // owned
 
@@ -396,9 +408,9 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
 	CAlfControlGroup* iGestureControlGroup;
 	CShwTicker* iTicker;
 	CShwMediaKeyUtility* iMediaKeyHandler;
-//    CHgContextUtility* iContextUtility;
 	CGlxHdmiController* iHdmiController;
 	TBool iHdmiActive;
+	RHarvesterClient iHarvesterClient;
     };
 
 #endif  // C_SHWSLIDESHOWVIEW_H

@@ -48,7 +48,7 @@ SOURCE          glxsetappstate.cpp
 SOURCE          glxtextentrypopup.cpp
 SOURCE          mglxactivemedialistresolver.cpp
 SOURCE          glxskinchangemonitor.cpp
-
+SOURCE 		glxprogressindicator.cpp
 // System includes from epoc32/include
 APP_LAYER_SYSTEMINCLUDE
 

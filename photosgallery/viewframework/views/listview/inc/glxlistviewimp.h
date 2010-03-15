@@ -32,12 +32,27 @@
 #include <ganes/HgScrollBufferObserverIface.h>
 #include <ganes/HgSelectionObserverIface.h>
 
+#include <glxprogressindicator.h>
+#include <harvesterclient.h>
+
 // FORWARD DECLARATIONS
 class MMPXCollectionUtility;
 class CGlxPreviewThumbnailBinding;
 
 class CHgDoubleGraphicListFlat;
 class CAknsBasicBackgroundControlContext;
+
+
+//NOT: This enum is based on TGlxCollectionPluginPriority. If any
+//change happen regarding priority order in that, need to change 
+//in this enum also.
+enum
+    {
+    EGlxListItemAll = 0,
+    EGlxListItemMonth,
+    EGlxListItemAlbum,
+    EGlxLIstItemTag    
+    };
 
 // CLASS DECLARATION
 
@@ -57,7 +72,8 @@ NONSHARABLE_CLASS( CGlxListViewImp ) : public CGlxListView,
 									   public MGlxMediaListObserver,
 								       public MHgScrollBufferObserver,
 									   public MHgSelectionObserver,
-									   public MPreviewTNObserver
+									   public MPreviewTNObserver,
+									   public MDialogDismisedObserver
     {
 public:
     /**
@@ -157,6 +173,7 @@ protected:
     
 private:
     void CreateListL();
+    void SetDefaultThumbnailL(TInt aIndex);
 	 
 public: // from MGlxMediaListObserver
     void HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
@@ -173,6 +190,7 @@ public: // from MGlxMediaListObserver
     void HandleMediaL( TInt aListIndex, MGlxMediaList* aList );
     void HandleItemModifiedL( const RArray<TInt>& aItemIndexes, MGlxMediaList* aList );
     void HandlePopulatedL( MGlxMediaList* aList );
+    void HandleDialogDismissedL(); // from MDialogDismisedObserver
 	 
 private:    // Data
 
@@ -217,6 +235,10 @@ private:    // Data
     // save title text 
     HBufC* iTitletext;
 
+    CGlxProgressIndicator* iProgressIndicator;
+
+	//Check for TN generation
+    TBool isTnGenerationComplete;
     };
 
 #endif  // C_GLXLISTVIEWIMP_H

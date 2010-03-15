@@ -141,14 +141,16 @@ public:
      */
     inline void NavigateToParentL()
         {
+        TRACER("CGlxNavigationalStateImp::NavigateToParentL()");
         if ( ViewingMode()== NGlxNavigationalState::EView )
             {
+            GLX_LOG_INFO("CGlxNavigationalStateImp::NavigateToParentL() -1");
             iViewingMode = NGlxNavigationalState::EBrowse;
-            //Collection().BackL(); // added by gopakumar
             NotifyObserversOfStateChange();
             }
         else 
             {
+            GLX_LOG_INFO("CGlxNavigationalStateImp::NavigateToParentL() -2");
             Collection().BackL();
             }
         }
@@ -295,8 +297,6 @@ private:
     MMPXCollectionUtility* iCollectionUtility;
     MMPXViewUtility*        iViewUtility; 
     NGlxNavigationalState::TViewingMode  iViewingMode; 
-    // commented off by gopakumar as this is not used anymore
-   // TVwsViewId   iViewId;
     /// List of observers
     RPointerArray< MGlxNavigationalStateObserver > iObservers;
     

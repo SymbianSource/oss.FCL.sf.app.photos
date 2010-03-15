@@ -103,6 +103,12 @@ void CGlxCloudViewImp::ConstructL(MGlxMediaListFactory *aMediaListFactory,
 
 	{
 	TRACER("GLX_CLOUD::CGlxCloudViewImp::ConstructL");
+	TInt err = iHarvesterClient.Connect();
+    GLX_LOG_INFO1("iHarvesterClient.Connect() err = %d",err);
+    if(err == KErrNone)
+        {
+        iHarvesterClient.AddHarvesterEventObserver(*this, EHEObserverTypeMMC, 1000);
+        }
 	TFileName resourceFile(KDC_APP_RESOURCE_DIR);
 	resourceFile.Append (aFileName);
 	CGlxResourceUtilities::GetResourceFilenameL (resourceFile);
@@ -132,13 +138,13 @@ void CGlxCloudViewImp::ConstructL(MGlxMediaListFactory *aMediaListFactory,
 CGlxCloudViewImp::~CGlxCloudViewImp()
     {
     TRACER("GLX_CLOUD::CGlxCloudViewImp::~CGlxCloudViewImp");
+    iHarvesterClient.Close();
     CleanupVisuals ();
     delete iEmptyListText;
     if ( iResourceOffset )
         {
         CCoeEnv::Static()->DeleteResourceFile (iResourceOffset);
-        }
-    delete iTitletext;
+        }    
     }
 
 // ---------------------------------------------------------------------------
@@ -192,7 +198,11 @@ TBool CGlxCloudViewImp::HandleViewCommandL(TInt aCommand)
 void CGlxCloudViewImp::DoMLViewActivateL(const TVwsViewId & /* aPrevViewId */,
 		TUid /* aCustomMessageId */, const TDesC8 & /* aCustomMessage */)
     {
-    TRACER("GLX_CLOUD::CGlxCloudViewImp::DoMLViewActivateL");   
+    TRACER("GLX_CLOUD::CGlxCloudViewImp::DoMLViewActivateL");
+    if(StatusPane())
+        {
+        StatusPane()->MakeVisible(ETrue);
+        }
     ConstructCloudControlL();
     GLX_LOG_INFO("CGlxCloudViewImp::DoMLViewActivateL Cloud View Control Created" );  
     // set app state to tag-browser view
@@ -207,18 +217,6 @@ void CGlxCloudViewImp::DoMLViewActivateL(const TVwsViewId & /* aPrevViewId */,
 void CGlxCloudViewImp::DoMLViewDeactivate()
 	{
 	TRACER("GLX_CLOUD::CGlxCloudViewImp::DoMLViewDeactivate");
-	if(StatusPane())
-        {
-        if(iTitletext)
-           {
-           delete iTitletext;
-           iTitletext = NULL;
-           }
-        CEikStatusPane* statusPane = iEikonEnv->AppUiFactory()->StatusPane();
-        TRAP_IGNORE(CAknTitlePane* titlePane = ( CAknTitlePane* )statusPane->ControlL(
-                TUid::Uid( EEikStatusPaneUidTitle ));        
-        iTitletext = titlePane->Text()->AllocL());
-        }
 	//Hide softkeys and toolbar upon view de-activation.
 	iViewWidget->enableControlPane(EFalse);
 	if ( EGlxNavigationForwards == iUiUtility->ViewNavigationDirection() )
@@ -430,5 +428,21 @@ void CGlxCloudViewImp::ViewDynInitMenuPaneL(TInt aMenuId, CEikMenuPane* /*aMenuP
     if( aMenuId == R_TAGSBROWSER_MENU)
         {
         iCloudControl->ShowContextItemMenu(EFalse);
+        }
+    }
+// ---------------------------------------------------------------------------
+// HarvestingUpdated
+// 
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewImp::HarvestingUpdated( 
+                HarvesterEventObserverType HarvestingUpdated, 
+                HarvesterEventState /*aHarvesterEventState*/,
+                TInt /*aItemsLeft*/ )
+    {
+    TRACER("CGlxCloudViewImp::HarvestingUpdated()");
+    if(HarvestingUpdated == EHEObserverTypeMMC)
+        {
+        ProcessCommandL(EAknSoftkeyClose);
         }
     }

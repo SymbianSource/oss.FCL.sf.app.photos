@@ -32,6 +32,7 @@
 #include <mpxcollectionpath.h>
 #include <glxcollectionpluginimageviewer.hrh>
 #include "glxaiwservicehandler.h"
+#include <featdiscovery.h>
 
 const TInt KGlxAiwAssignCommandSpace = 0x00000100;
 
@@ -60,6 +61,19 @@ CGlxCommandHandlerAiwAssign::CGlxCommandHandlerAiwAssign(
 :   CGlxCommandHandlerAiwBase(aMediaListProvider, aMenuResource)
     {
     TRACER("CGlxCommandHandlerAiwAssign::CGlxCommandHandlerAiwAssign");
+    }
+
+CGlxCommandHandlerAiwAssign::~CGlxCommandHandlerAiwAssign()
+    {
+    delete iFeatManager;
+    }
+
+void CGlxCommandHandlerAiwAssign::ConstructL()
+    {
+    //Calling base class implementation
+    CGlxCommandHandlerAiwBase::ConstructL();
+    
+    iFeatManager = CFeatureDiscovery::NewL();
     }
 
 // -----------------------------------------------------------------------------
@@ -105,7 +119,13 @@ TInt CGlxCommandHandlerAiwAssign::AiwCommandId() const
 //	
 TInt CGlxCommandHandlerAiwAssign::AiwInterestResource() const
     {
-    return R_GLX_AIW_ASSIGN_TO_CONTACT_INTEREST;
+    int resource = R_GLX_AIW_ASSIGN_TO_CONTACT_INTEREST;
+    if(iFeatManager->IsFeatureSupportedL(KFeatureIdFfImageEditor) || iFeatManager->IsFeatureSupportedL(KFeatureIdFfVideoEditor))
+        {
+        resource = R_GLX_AIW_ASSIGN_TO_CONTACT_INTEREST_MEDIAEDITOR;
+        }
+
+    return resource;
     }
         
 // -----------------------------------------------------------------------------

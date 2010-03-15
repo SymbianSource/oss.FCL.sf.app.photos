@@ -390,7 +390,8 @@ void CGlxVisualObject::TryAnimateL(const TGlxMedia& aItem)
             {
             // create the animated texture from the URI
     		CAlfTexture& animTexture =
-    		   iUiUtility->GlxTextureManager().CreateAnimatedGifTextureL( uri, mediaItemSize );
+    		   iUiUtility->GlxTextureManager().CreateAnimatedGifTextureL( uri, mediaItemSize,
+    		           aItem, aItem.IdSpaceId());
             StartAnimation( animTexture );
     		}
         SetAnimateWhenAttributesAvailable(EFalse);

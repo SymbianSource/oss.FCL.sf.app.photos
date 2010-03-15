@@ -81,7 +81,9 @@ CGlxTextureManagerImpl::~CGlxTextureManagerImpl()
     iIconList.Close();
 
     iThumbnailList.Close();
-
+    
+    iAnimatedTnmList.Close();
+    
     // delete zoom textures
     count = iZoomedList.Count();
     GLX_LOG_INFO1("CGlxTextureManagerImpl iZoomedList.Count=%d",count);
@@ -476,6 +478,19 @@ void CGlxTextureManagerImpl::RemoveTexture( const CAlfTexture& aTexture )
             // iIconLIst should deleted only once in destructor as
             // they are using in full applicaiton
         }
+    
+    index = iAnimatedTnmList.Find( aTexture, &TGlxThumbnailIcon::MatchTexture );
+    GLX_LOG_INFO1("CGlxTextureManagerImpl RemoveTexture iAnimatedTnmList index=%d",index);
+    if ( index != KErrNotFound )
+        {
+        if(iAnimatedTnmList[index].iTexture)
+            {
+            GLX_LOG_INFO("RemoveTexture iAnimatedTnmList Stop animation");
+            (iAnimatedTnmList[index].iTexture)->StopAnimation();
+            }
+        iAnimatedTnmList.Remove( index );        
+        iAlfTextureManager.UnloadTexture( aTexture.Id() );
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -513,7 +528,7 @@ void CGlxTextureManagerImpl::RemoveZoomList()
 void CGlxTextureManagerImpl::RemoveTexture(const TGlxMediaId& aMediaId,TBool aAllTexture )
     {
     TRACER("CGlxTextureManagerImpl::RemoveTexture 2");
-    //Bug fix for PKAA-7NRBYZ - added bAllTexture param
+    //Bug fix for PKAA-7NRBYZ - added aAllTexture param
     // Find the texture in the iThumbnailList
     TInt i = iThumbnailList.Count();
     while(i > 0)
@@ -529,6 +544,25 @@ void CGlxTextureManagerImpl::RemoveTexture(const TGlxMediaId& aMediaId,TBool aAl
                 break;
             }
         }
+    
+    i = iAnimatedTnmList.Count();
+    
+    while(i > 0)
+        {
+        --i;
+        if (iAnimatedTnmList[i].iMediaId == aMediaId)
+            {
+            GLX_LOG_INFO("RemoveTexture 2 iAnimatedTnmList MediaID found");
+            TInt aTexture = iAnimatedTnmList[i].iTextureId;
+            if(iAnimatedTnmList[i].iTexture)
+                {
+                GLX_LOG_INFO("RemoveTexture2 iAnimatedTnmList Stop animation");
+                (iAnimatedTnmList[i].iTexture)->StopAnimation();
+                }
+            iAnimatedTnmList.Remove(i);
+            iAlfTextureManager.UnloadTexture(aTexture );        
+            }
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -540,8 +574,8 @@ void CGlxTextureManagerImpl::FlushTextures()
     TRACER("CGlxTextureManagerImpl::FlushTextures");
 
     TInt textureID ;
-    TInt i = iThumbnailList.Count();
     
+    TInt i = iThumbnailList.Count();    
     while(i > 0)
         {
         --i;
@@ -566,6 +600,20 @@ void CGlxTextureManagerImpl::FlushTextures()
         textureID = iZoomedList[i].iTextureId;
         iAlfTextureManager.UnloadTexture(textureID );
         iZoomedList[i].iTexture = NULL;
+        }
+    
+    i = iAnimatedTnmList.Count();
+    while(i > 0)
+        {
+        --i;
+        textureID = iAnimatedTnmList[i].iTextureId;  
+        if(iAnimatedTnmList[i].iTexture)
+            {
+            GLX_LOG_INFO("FlushTextures iAnimatedTnmList Stop animation");
+            (iAnimatedTnmList[i].iTexture)->StopAnimation();
+            }
+        iAlfTextureManager.UnloadTexture(textureID);
+        iAnimatedTnmList[i].iTexture = NULL;
         }
     }
 
@@ -776,11 +824,45 @@ CAlfTexture& CGlxTextureManagerImpl::CreateZoomedTextureL(
 // -----------------------------------------------------------------------------
 //  
 CAlfTexture& CGlxTextureManagerImpl::CreateAnimatedGifTextureL(
-    const TDesC& aFilename, const TSize& aSize)
+    const TDesC& aFilename, const TSize& aSize,const TGlxMedia& aMedia,
+    TGlxIdSpaceId aIdSpaceId)
     { 
     TRACER("CGlxTextureManagerImpl::CreateAnimatedGifTextureL");
-    return iAlfTextureManager.LoadTextureL(aFilename,aSize, 
-        EAlfTextureFlagDefault,NextTextureId() );
+    TInt thumbnailIndex = KErrNotFound;    
+    
+    // If the current thumbnail matches what is required then return the current texture otherwise
+    // create a new one.
+    if (!GetAnimatedGifThumbnailIndex( aSize, aMedia, aIdSpaceId,thumbnailIndex))
+        {
+        GLX_LOG_INFO("CreateAnimatedGifTextureL Texture already present");
+        // only texture is missing. 
+        if ((NULL == iAnimatedTnmList[thumbnailIndex].iTexture)) 
+            {            
+            CAlfTexture& newTexture = iAlfTextureManager.LoadTextureL(aFilename,aSize, 
+                    EAlfTextureFlagDefault,iAnimatedTnmList[thumbnailIndex].iTextureId );   
+            iAnimatedTnmList[thumbnailIndex].iTexture = &newTexture ;
+            }
+        return *iAnimatedTnmList[thumbnailIndex].iTexture;
+        }
+    
+    TGlxThumbnailIcon thumbData;    
+    thumbData.iTextureId = NextTextureId();
+    thumbData.iTexture = NULL;    
+    thumbData.iMediaId = aMedia.Id();
+    thumbData.iIdSpaceId = aIdSpaceId;
+    
+    iAnimatedTnmList.ReserveL( iAnimatedTnmList.Count() + 1 );
+
+    iAnimatedTnmList.Append(thumbData);
+    
+    CAlfTexture& newTexture = iAlfTextureManager.LoadTextureL(aFilename,aSize, 
+            EAlfTextureFlagDefault,thumbData.iTextureId );    
+    
+    TInt index = iAnimatedTnmList.Count()-1;
+    iAnimatedTnmList[index].iTexture = &newTexture;
+    iAnimatedTnmList[index].iRequiredSize = aSize;
+    
+    return newTexture;
     }
 
     
@@ -1026,7 +1108,10 @@ TMPXAttribute CGlxTextureManagerImpl::SelectAttributeL( TSize& aSize,
         // check if rights have expired
         TBool checkViewRights = (cat==EMPXImage);
 
-        drmInvalid = !iDrmUtility->CheckDisplayRightsL(uri, checkViewRights);
+        //Fix for ESLM-82WJ59: Since uri can be either focused or unfocused item
+        //better call CheckOpenRightsL which doesn't modify lastconsumedUri.
+        drmInvalid = !iDrmUtility->CheckOpenRightsL(uri, checkViewRights);
+
         CGlxMedia* properties = const_cast<CGlxMedia*>(aMedia.Properties());
         if( !drmInvalid )
             {
@@ -1093,7 +1178,11 @@ TInt CGlxTextureManagerImpl::NextTextureId()
     return ++iNextTextureId;
     }
 
-    
+
+// -----------------------------------------------------------------------------
+// HandleBitmapDecodedL
+// -----------------------------------------------------------------------------
+//
 void CGlxTextureManagerImpl::HandleBitmapDecodedL(TInt aThumbnailIndex,CFbsBitmap* aBitmap)
     {
     TRACER("CGlxTextureManagerImpl::HandleBitmapDecodedL");
@@ -1221,4 +1310,35 @@ void CGlxTextureManagerImpl::ScaleGridTnmToFsL(TSize aSrcSize, TSize aDestSize,
     CleanupStack::PopAndDestroy(bitmapDevice);
     GLX_LOG_INFO2("===== Actual Image Size %d x %d",aSrcSize.iWidth,aSrcSize.iHeight);
     GLX_LOG_INFO2("===== Scaled Image Size %d x %d",destinationSize.iWidth,destinationSize.iHeight);
+    }
+
+
+// -----------------------------------------------------------------------------
+// GetAnimatedGifThumbnailIndex
+// -----------------------------------------------------------------------------
+//
+TBool CGlxTextureManagerImpl::GetAnimatedGifThumbnailIndex( TSize aSize,
+        const TGlxMedia& aMedia, const TGlxIdSpaceId& aIdSpaceId,
+        TInt& aThumbnailIndex)
+    {
+    TRACER("CGlxTextureManagerImpl::GetAnimatedGifThumbnailIndex");    
+    aThumbnailIndex = KErrNotFound;
+    
+    TInt i = iAnimatedTnmList.Count();
+
+    while(i > 0 && aThumbnailIndex == KErrNotFound)
+        {
+        --i;
+        if ((iAnimatedTnmList[i].iMediaId == aMedia.Id()) && 
+            (iAnimatedTnmList[i].iIdSpaceId == aIdSpaceId) &&            
+            (iAnimatedTnmList[i].iRequiredSize == aSize))
+            {
+            aThumbnailIndex = i;
+            GLX_LOG_INFO( "GetAnimatedGifThumbnailIndex textureid present" );
+            // We have found that the best match already exists
+            // No need to do anything
+            return EFalse;        
+            }
+        }
+    return ETrue;
     }

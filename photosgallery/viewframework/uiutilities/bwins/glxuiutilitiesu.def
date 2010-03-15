@@ -56,4 +56,8 @@ EXPORTS
 	?SetFocusL@CGlxScreenFurniture@@QAEXH@Z @ 55 NONAME ; void CGlxScreenFurniture::SetFocusL(int)
 	?GetGridIconSize@CGlxUiUtility@@QAE?AVTSize@@XZ @ 56 NONAME ; class TSize CGlxUiUtility::GetGridIconSize(void)
 	?InstanceL@MGlxActiveMediaListResolver@@SAPAV1@PAVMGlxActiveMediaListChangeObserver@@@Z @ 57 NONAME ; class MGlxActiveMediaListResolver * MGlxActiveMediaListResolver::InstanceL(class MGlxActiveMediaListChangeObserver *)
+	?GetItemsLeftCountL@CGlxUiUtility@@QAEHXZ @ 58 NONAME ; int CGlxUiUtility::GetItemsLeftCountL(void)
+	?StartTNMDaemonL@CGlxUiUtility@@QAEXXZ @ 59 NONAME ; void CGlxUiUtility::StartTNMDaemonL(void)
+	?NewL@CGlxProgressIndicator@@SAPAV1@AAVMDialogDismisedObserver@@@Z @ 60 NONAME ; class CGlxProgressIndicator * CGlxProgressIndicator::NewL(class MDialogDismisedObserver &)
+	?StopTNMDaemonL@CGlxUiUtility@@QAEXXZ @ 61 NONAME ; void CGlxUiUtility::StopTNMDaemonL(void)
 

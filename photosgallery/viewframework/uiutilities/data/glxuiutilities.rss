@@ -32,10 +32,6 @@
 #include "glxutilities.hrh"
 #include <glxcommandhandlers.hrh>
 
-#if defined(FF_IMAGE_EDITOR) || defined(FF_VIDEO_EDITOR)
-#include <bldnokia.hrh> //for Editor feature flags
-#endif
-
 NAME GLXR    // 4 letter ID
 
 //  RESOURCE DEFINITIONS
@@ -455,8 +451,8 @@ RESOURCE DIALOG r_glx_wait_note_blocking
 // AIW interest structure for assign
 //
 // -----------------------------------------------------------------------------
-#if defined(FF_IMAGE_EDITOR) || defined(FF_VIDEO_EDITOR)
-RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest
+
+RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest_mediaeditor
     {
     items=
         {
@@ -469,7 +465,7 @@ RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest
             }
         };
     }
-#else
+
 RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest
     {
     items=
@@ -484,7 +480,7 @@ RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest
             }
         };
     }
-#endif
+
 
 // -----------------------------------------------------------------------------
 //
@@ -835,4 +831,28 @@ RESOURCE TBUF r_glx_completion_rem_from_favourites
     {
     //buf = qtn_lgal_note_remove_from_favourites;
     buf = "#Removed from Favourites";
+    }
+
+//resource for waiting dialog
+RESOURCE TBUF r_glx_main_list_view_processing_dialog
+    { 
+    buf = qtn_lgal_note_wait_processing; 
+    }
+RESOURCE DIALOG r_progress_note
+    {
+    flags = EAknProgressNoteFlags;
+    buttons = R_AVKON_SOFTKEYS_CANCEL;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtNote;
+            id = EAknCtNote;
+            control = AVKON_NOTE
+                {
+                layout = EProgressLayout;
+                singular_label =qtn_lgal_note_wait_processing;
+                };
+            }
+        };
     }

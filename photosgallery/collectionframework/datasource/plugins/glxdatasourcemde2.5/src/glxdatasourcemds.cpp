@@ -724,7 +724,6 @@ TInt CGlxDataSourceMde::ProcessItemUpdate(TAny* aPtr)
 void CGlxDataSourceMde::ProcessItemUpdateL()
     {
     TRACER("CGlxDataSourceMde::ProcessItemUpdateL()");
-    //__ASSERT_DEBUG(iUpdateData.Count(), Panic(EGlxPanicIllegalState));
 	if ( !iUpdateData.Count() || iPauseUpdate )
         {
         return;

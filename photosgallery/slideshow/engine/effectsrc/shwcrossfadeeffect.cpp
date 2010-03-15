@@ -188,8 +188,6 @@ void CShwCrossFadeEffect::InitializeL(
 	GLX_LOG_INFO( "CShwCrossFadeEffect::InitializeL" );
 	// set the screen size
 	iImpl->iScreenSize = aScreenSize;
-	// set the layout full screen (slideshow is always run on landscape)
-//	iImpl->iSizeLayout.SetValue( aScreenSize.iWidth, aScreenSize.iHeight, 0 );
 	}
 
 // -----------------------------------------------------------------------------
@@ -219,9 +217,6 @@ MGlxLayout* CShwCrossFadeEffect::EnterViewL(
 	TAlfTimedValue tranition(1.0,aFadeInDuration);
 	tranition.SetStyle(EAlfTimedValueStyleLinear);
 	aVisual->SetOpacity(tranition);
-	// set value, 0% -> 100%
-	//iImpl->iOpacityLayout.Set( KMinOpacity );
-	//iImpl->iOpacityLayout.Set( KMaxOpacity, aFadeInDuration );
 	return &iImpl->iOpacityLayout;
 	}
 
@@ -243,9 +238,6 @@ MGlxLayout* CShwCrossFadeEffect::EnterTransitionL(
 	TRACER("CShwCrossFadeEffect::EnterTransitionL");
 	GLX_LOG_INFO1( "CShwCrossFadeEffect::EnterTransitionL( %d )", aDuration );
 
-	// set value, drop from 100% to 0%
-	//iImpl->iOpacityLayout.Set( KMaxOpacity );
-    //iImpl->iOpacityLayout.Set( KMinOpacity, aDuration );
 	TAlfTimedValue tranition(0.0,aDuration);
 	tranition.SetStyle(EAlfTimedValueStyleLinear);
 	aVisual->SetOpacity(tranition);

@@ -66,7 +66,6 @@
 _LIT(KPropertyDefNameLastModifiedDate, "LastModifiedDate");
 _LIT(KPropertyDefNameDRM, "DRM");
 _LIT(KPropertyDefNameItemType, "ItemType");
-//_LIT(KPropertyDefNameLastModifiedDate, "LastModifiedDate");
 _LIT(KPropertyDefNameSize, "Size");
 _LIT(KUnsupportedItemType,  "video/x-pn-realvideo");
 _LIT(KUnsupportedItemType1, "video/x-pn-multirate-realvideo");

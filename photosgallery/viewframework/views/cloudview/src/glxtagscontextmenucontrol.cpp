@@ -29,14 +29,10 @@
 #include <alf/alfutil.h>
 #include <alf/alftexture.h>
 #include <alf/alfevent.h>
-#include <alf/ialfwidgetfactory.h>
-#include <alf/ialfviewwidget.h>
 #include <alf/alfdisplay.h>
+#include <alf/alfframebrush.h>
 
-#include <aknnotewrappers.h>
-#include <fbs.h>
 #include <StringLoader.h>
-#include "utf.h"                    // UtfConverter
 
 // Photos Headers
 #include "glxtagscontextmenucontrol.h"
@@ -72,6 +68,10 @@ const TInt KTimerDelay = 6000000;
 const TInt KGridHeight = KReqHeightPerMenuItem * KNumofMenuItems;
 //Text size for menu items
 const TInt KTextSizeInPixels = 20;
+//X shrink factor for stylus menu border to be drawn/visible
+const TInt KShrinkXCoord = 5;
+//Y shrink factor for stylus menu border to be drawn/visible
+const TInt KShrinkYCoord = 5;
 
 //For Tagging the visuals
 _LIT8(KTagSlideshow, "SS");
@@ -130,20 +130,19 @@ void CGlxTagsContextMenuControl::ConstructL()
     iMainVisual->SetSize(TSize(KReqWidth, KGridHeight));
     iMainVisual->SetPos(TAlfRealPoint(KDummyPoint));
     
-    CFbsBitmap* bitmap = AknsUtils::GetCachedBitmap(
-            AknsUtils::SkinInstance(), KAknsIIDQsnFrPopupCenter);
-    CleanupStack::PushL(bitmap);
+    iMainVisual->EnableBrushesL(ETrue);
     
-    CAlfTexture& backgroundAvkonTexture = 
-		iUiUtility->GlxTextureManager().CreateColorAvkonIconTextureL( 
-				KAknsIIDQsnFrPopupCenter, bitmap->Handle(), KRgbTransparent) ;
-    
-    CleanupStack::Pop(bitmap);
-    
-    // BackGround Border Image Visual
-    iBackgroundBorderImageVisual = CAlfImageVisual::AddNewL(*this,iMainVisual);
-    iBackgroundBorderImageVisual->SetImage(TAlfImage(backgroundAvkonTexture));
+    TRect outerRect(TRect(TPoint(KDummyPoint),TSize(KReqWidth, KGridHeight)));
+    TRect innerRect(outerRect);
+    innerRect.Shrink(KShrinkXCoord,KShrinkYCoord);
 
+    CAlfFrameBrush* frameBrush = CAlfFrameBrush::NewLC(*(iUiUtility->Env()),
+                                        KAknsIIDQsnFrPopupSub );
+    frameBrush->SetFrameRectsL(innerRect, outerRect);
+   
+    iMainVisual->Brushes()->AppendL(frameBrush,EAlfHasOwnership);
+    CleanupStack::Pop(frameBrush);
+    
     // Create a new 3x1 grid layout visual.
     iGrid = CAlfGridLayout::AddNewL(*this, KNoOfColumns, KNumofMenuItems , 
 			iMainVisual);//columns, rows
@@ -212,7 +211,7 @@ void CGlxTagsContextMenuControl::CreateMenuListL(TInt aFontId)
     TRgb color;
     //Gets the color of the text specific to skin 
     AknsUtils::GetCachedColor(AknsUtils::SkinInstance(),
-            color, KAknsIIDQsnTextColors, EAknsCIQsnTextColorsCG6 );
+            color, KAknsIIDQsnTextColors, EAknsCIQsnTextColorsCG20 );
     
     //Loading the strings from rss
     HBufC* renameTitle = StringLoader::LoadLC( R_GLX_TAGS_RENAME_TITLE );
@@ -303,6 +302,16 @@ void CGlxTagsContextMenuControl::ShowItemMenu (TBool aShow)
         iItemMenuVisibility = EFalse;
         }
     }
+
+// --------------------------------------------------------------------------- 
+// ItemMenuVisibility()
+// --------------------------------------------------------------------------- 
+//
+TBool CGlxTagsContextMenuControl::ItemMenuVisibility()
+    {
+    return iItemMenuVisibility;
+    }
+
 // --------------------------------------------------------------------------- 
 // OfferEventL()
 // --------------------------------------------------------------------------- 

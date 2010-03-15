@@ -71,6 +71,7 @@ SYSTEMINCLUDE		../../../../collectionframework/plugins/glxcollectionpluginall/in
 SYSTEMINCLUDE		../../../../common/inc     // for CGlxResourceUtilities
 SYSTEMINCLUDE		../../../../commonui/inc
 
+LIBRARY      	aknphysics.lib
 LIBRARY			euser.lib
 LIBRARY			avkon.lib						//for Avkon conrols
 LIBRARY			eikcoctl.lib					//for eik controls

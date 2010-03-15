@@ -230,11 +230,12 @@ EXPORT_C CAlfTexture* CGlxTextureManager::CreateZoomedTextureL()
 // -----------------------------------------------------------------------------
 //  
 EXPORT_C CAlfTexture& CGlxTextureManager::CreateAnimatedGifTextureL(
-        const TDesC& aFilename,const TSize& aSize )
+        const TDesC& aFilename,const TSize& aSize,
+        const TGlxMedia& aMedia, TGlxIdSpaceId aIdSpaceId)
     {
     TRACER("CGlxTextureManager::CreateAnimatedGifTextureL");
     GLX_LOG_INFO( "CGlxTextureManager::CreateAnimatedGifTextureL" );
-    return iImpl->CreateAnimatedGifTextureL( aFilename, aSize );
+    return iImpl->CreateAnimatedGifTextureL( aFilename, aSize, aMedia, aIdSpaceId);
     }    		    
 
 // -----------------------------------------------------------------------------

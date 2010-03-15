@@ -959,27 +959,19 @@ void CGlxMetadataContainer::HandleAttributesAvailableL( TInt /*aItemIndex*/,
             iAvkonAppUi->ProcessCommandL(EGlxCmdRenameCompleted);
             }
         }
-    //updation of tags and albums list based on the medialist callback.
-    if(aList == iTagMediaList ||  aList == iAlbumMediaList)
+    
+    TMPXAttribute titleAttrib(KMPXMediaGeneralTitle);
+    TIdentityRelation< TMPXAttribute > match ( &TMPXAttribute::Match );
+
+    if (KErrNotFound != aAttributes.Find(titleAttrib, match))
         {
-        for (TInt i = aAttributes.Count() - 1; i >= 0 ; i--)
+        if (aList == iTagMediaList)
             {
-            TMPXAttribute titleAtrribute (KMPXMediaGeneralTitle);
-            for (TInt i = aAttributes.Count() - 1; i >= 0 ; i--)
-                { 
-                if( titleAtrribute == aAttributes[i] )
-                    {
-                    if(aList == iTagMediaList)
-						{     
-						UpdateTagsL();
-						}
-					else if(aList == iAlbumMediaList)
-						{
-						UpdateAlbumsL();
-						}          
-                    }           
-                }
-          
+            UpdateTagsL();
+            }
+        else if (aList == iAlbumMediaList)
+            {
+            UpdateAlbumsL();
             }
         }
     
@@ -1097,6 +1089,18 @@ void CGlxMetadataContainer::EnableMarqueingL()
     ListBox()->ItemDrawer()->ColumnData()->SetMarqueeParams (KMarqueeLoopCount,
             KMarqueeScrollAmount, KMarqueeScrollDelay, KMarqueeScrollInterval);
     ListBox()->ItemDrawer()->ColumnData()->EnableMarqueeL(ETrue);
+    
+    //Fetch the current item index
+    TInt index = ListBox()->CurrentItemIndex();
+
+    //Reset the disable marquee flag, so that marquee effect can continue (this is normally reset by 
+    //base class of glxmetaDatadialog::HandlePointerEventL()
+    ListBox()->ItemDrawer()->ClearFlags(CListItemDrawer::EDisableMarquee);
+    
+    //This is the function which actually starts marquee effect. It is anyway being called from base
+    //implementation of OfferKeyEventL(), but for pointer event, we have to call
+    //this function
+    ListBox()->DrawItem(index);
     }    
 // ----------------------------------------------------------------------------
 // HandleCommandCompleteL

@@ -27,7 +27,7 @@ class CGlxAttributeContext;
 class CAiwGenericParamList;
 class CGlxMedia;
 class MGlxMediaListProvider;
-
+class CFeatureDiscovery;
 
 /**
  *  CGlxCommandHandlerAiwAssign
@@ -53,6 +53,8 @@ public:
 	IMPORT_C static CGlxCommandHandlerAiwAssign* NewL(
 	    MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource);
 	
+	~CGlxCommandHandlerAiwAssign();
+	
 protected: // From CGlxMediaListCommandHandler
 	/**
 	 * See @ref CGlxMediaListCommandHandler::DoGetRequiredAttributesL
@@ -75,6 +77,12 @@ private:
      */
     CGlxCommandHandlerAiwAssign(MGlxMediaListProvider* aMediaListProvider, 
         TInt aMenuResource);
+    
+    void ConstructL();
+
+private: // Data Members
+    
+    CFeatureDiscovery* iFeatManager;
     };
 
 #endif // C_GLXCOMMANDHANDLERAIWASSIGN_H

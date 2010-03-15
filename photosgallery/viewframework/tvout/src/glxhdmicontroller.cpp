@@ -94,7 +94,7 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
 // -----------------------------------------------------------------------------
 // IsVideo 
 // -----------------------------------------------------------------------------
-EXPORT_C void CGlxHdmiController::IsVideo()
+EXPORT_C void CGlxHdmiController::ItemNotSupported()
     {
     TRACER("CGlxHdmiController::IsVideo()");
     iImageSupported = EFalse;
@@ -108,12 +108,12 @@ EXPORT_C void CGlxHdmiController::IsVideo()
 // -----------------------------------------------------------------------------
 // ActivateZoom 
 // -----------------------------------------------------------------------------
-EXPORT_C void CGlxHdmiController::ActivateZoom()
+EXPORT_C void CGlxHdmiController::ActivateZoom(TBool aAutoZoomOut)
     {
     TRACER("CGlxHdmiController::ActivateZoom()");
     if (iGlxTvOut->IsHDMIConnected())
         {
-        iSurfaceUpdater->ActivateZoom();
+        iSurfaceUpdater->ActivateZoom(aAutoZoomOut);
         }
     }
 
@@ -261,5 +261,14 @@ void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
             DestroySurfaceUpdater();
             }
         }
+    }
+
+// -----------------------------------------------------------------------------
+// HandleTvStatusChangedL 
+// -----------------------------------------------------------------------------
+EXPORT_C TBool CGlxHdmiController::IsHDMIConnected()
+    {
+    TRACER("CGlxHdmiController::IsHDMIConnected()");
+    return iGlxTvOut->IsHDMIConnected(); 
     }
 

@@ -94,9 +94,6 @@ void TShwCrossFadeLayout::DoSetLayoutValues( TGlxLayoutInfo& aInfo )
 	// ensure value is inside maximum and minimum opacity
     opacity = Min( opacity, KMaxOpacity );
     opacity = Max( opacity, KMinOpacity );
-
-	// set value to the info
-	//aInfo.iOpacity = opacity;
 	}
 
 // -----------------------------------------------------------------------------

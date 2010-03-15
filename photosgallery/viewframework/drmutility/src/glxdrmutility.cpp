@@ -122,16 +122,25 @@ CGlxDRMUtility::~CGlxDRMUtility()
     
 //============================================================================
 // CheckOpenRightsL
-//============================================================================ 
-EXPORT_C TBool CGlxDRMUtility::CheckOpenRightsL( const TDesC& aUri, 
+// Fix for ESLM-82WJ59:always call 'CheckOpenRightsL' only for checking DRM
+// rights validity for item.
+//============================================================================
+EXPORT_C TBool CGlxDRMUtility::CheckOpenRightsL( const TDesC& aUri,
                                                 TBool aCheckViewRights )
     {
     TRACER("CGlxDRMUtility::CheckOpenRightsL()");
-    // When checking current rights for a URI, clear stored URI
-    TPtr ptr = iLastConsumedItemUri->Des();
-    ptr.Zero();
-    iLastConsumedItemUri = iLastConsumedItemUri->ReAllocL( 0 );
+    // When checking current rights for a URI
 
+    // Fix for ESLM-82WJ59: Allow to Open if rights for a URI was just consumed (i.e. same as stored URI)
+	if ( iLastConsumedItemUri->Length() > 0 )
+		{
+		if ( aUri.CompareF( *iLastConsumedItemUri ) == 0 )
+			{
+			return ETrue;
+			}
+		}
+
+	// Fix for ESLM-82WJ59: Else for uri of non-focused uri, just check validity rights
     TBool rightsValid = EFalse;
     TVirtualPathPtr path( aUri, KDefaultContentObject() );
 
@@ -146,11 +155,13 @@ EXPORT_C TBool CGlxDRMUtility::CheckOpenRightsL( const TDesC& aUri,
 
 //============================================================================
 // CheckDisplayRightsL
-//============================================================================ 
-EXPORT_C TBool CGlxDRMUtility::CheckDisplayRightsL( const TDesC& aUri, 
+// Fix for ESLM-82WJ59:always call 'CheckDisplayRightsL' only for focused item.
+//============================================================================
+EXPORT_C TBool CGlxDRMUtility::CheckDisplayRightsL( const TDesC& aUri,
                                                     TBool aCheckViewRights )
     {
     TRACER("CGlxDRMUtility::CheckDisplayRightsL()");
+
     // Allow to display if rights for a URI was just consumed (i.e. same as stored URI)
     if ( iLastConsumedItemUri->Length() > 0 )
         {
@@ -160,7 +171,10 @@ EXPORT_C TBool CGlxDRMUtility::CheckDisplayRightsL( const TDesC& aUri,
             }
         }
 
-    // Otherwise, check current rights for the URI
+    //Fix for ESLM-82WJ59: Clear the stored uri since focus has changed
+    ClearLastConsumedItemUri();
+
+    // Otherwise, check current rights for the URI of newly focused item
     return CheckOpenRightsL( aUri, aCheckViewRights );
     }
 
@@ -176,17 +190,16 @@ EXPORT_C TBool CGlxDRMUtility::ConsumeRightsL(const TDesC& aUri)
     // Tell the agent we are planning to display the content
     CData* data = CData::NewLC(path, ContentAccess::EView, EContentShareReadOnly);
 
-    // When consuming rights for a URI, clear stored URI
-    TPtr oldPtr = iLastConsumedItemUri->Des();
-    oldPtr.Zero();
-    iLastConsumedItemUri = iLastConsumedItemUri->ReAllocL( aUri.Length() );
+    //Fix for ESLM-82WJ59: When consuming rights for a URI, clear stored URI
+    ClearLastConsumedItemUri();
 
     // Execute the intent, tell the agent that we plan to display the content
     // It is at this point that any stateful rights will be decremented
     TInt err = data->ExecuteIntent(ContentAccess::EView);
     if ( err == KErrNone )
         {
-        // Update stored URI
+        //Fix for ESLM-82WJ59: Update stored URI
+        iLastConsumedItemUri = iLastConsumedItemUri->ReAllocL( aUri.Length() );
         TPtr newPtr = iLastConsumedItemUri->Des();
         newPtr.Copy( aUri );
         }
@@ -195,6 +208,18 @@ EXPORT_C TBool CGlxDRMUtility::ConsumeRightsL(const TDesC& aUri)
 
     return (err == KErrNone);
     }
+
+//============================================================================
+//Fix for ESLM-82WJ59:
+//Clears Last Consumed Uri
+//============================================================================
+EXPORT_C void CGlxDRMUtility::ClearLastConsumedItemUri()
+	{
+	//clears the stored uri
+	TPtr aPtr = iLastConsumedItemUri->Des();
+	aPtr.Zero();
+	iLastConsumedItemUri = iLastConsumedItemUri->ReAllocL( 0 );
+	}
 
 //============================================================================
 // Test whether a media item is OMA DRM 2.0 protected and has an associated

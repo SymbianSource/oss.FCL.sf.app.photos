@@ -70,8 +70,6 @@
 _LIT(KPropertyDefNameCreationDate, "CreationDate");
 _LIT(KPropertyDefNameLastModifiedDate, "LastModifiedDate");
 _LIT(KPropertyDefNameTitle, "Title");
-//Code commented cout below, so commenting the below line to remove BAD warning
-//_LIT(KPropertyDefNameDRM, "DRM");
 _LIT(KPropertyDefNameFrameCount, "FrameCount");
 _LIT(KPropertyDefNameOrigin, "Origin");
 
@@ -363,7 +361,6 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
         
     if( aFilterProperties.iExcludeAnimation )
         {
-        //__ASSERT_DEBUG((EGlxFilterImage == aFilterProperties.iItemType), Panic(EGlxPanicIllegalArgument));
         // Exclude any image with a frame count > 1
         const TInt excludeAllImagesAboveOrEqualToThisFrameCount = 2;
         CMdEPropertyDef& frameCountProperty = DataSource()->ImageDef().GetPropertyDefL(
@@ -376,9 +373,6 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
         {
         __ASSERT_DEBUG((EGlxFilterImage == aFilterProperties.iItemType), Panic(
                 EGlxPanicIllegalArgument));
-        // Exclude any image which is DRM protected
-        //CMdEPropertyDef& drmProperty = DataSource()->ImageDef().GetPropertyDefL(KPropertyDefNameDRM);
-        //aLogicCondition.AddPropertyConditionL(drmProperty, EFalse);
         }
         
     if( aFilterProperties.iPath )          // If this is set. Then we need to filter on the Ids it supplies

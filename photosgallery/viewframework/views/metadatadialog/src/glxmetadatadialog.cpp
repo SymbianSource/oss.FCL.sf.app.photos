@@ -27,6 +27,7 @@
 #include <StringLoader.h>
 #include <akntoolbar.h>
 #include <glxcommandhandleraddtocontainer.h>         // For CGlxCommandHandlerAddToContainer
+#include <aknphysics.h> // For Kinetic Scrolling
 
 //User includes
 #include <glxmetadatadialog.rsg>
@@ -117,6 +118,12 @@ void CGlxMetadataDialog::ConstructL()
 	// Instantiate the command handler
 	iMetadataCmdHandler = CGlxMetadataCommandHandler::NewL(this);
 	
+	//steps to find kinetic scroll threshold value
+	CAknPhysics* physics = CAknPhysics::NewL(*this, NULL);
+	CleanupStack::PushL(physics);
+	iKineticDragThreshold = physics->DragThreshold();
+	CleanupStack::PopAndDestroy(physics);
+	physics = NULL;
 	} 
 
 // -----------------------------------------------------------------------------
@@ -469,8 +476,49 @@ void CGlxMetadataDialog::Draw( const TRect& /*aRect*/ ) const
 void CGlxMetadataDialog::HandlePointerEventL(
     const TPointerEvent& aPointerEvent)
 	{
-	TRACER("CGlxMetadataDialog::HandlePointerEventL");
-	CCoeControl::HandlePointerEventL( aPointerEvent );
+
+    TRACER("CGlxMetadataDialog::HandlePointerEventL");
+
+    //This has to be called first, as base class implementation sets the flag 
+    // of settings dialog with EDisableMarquee 
+    CCoeControl::HandlePointerEventL( aPointerEvent );
+    
+    //After the above call we can call our implementation to reset the marque 
+    // flag and start marqueeing if needed
+    if(aPointerEvent.iType == TPointerEvent::EButton1Down
+            || aPointerEvent.iType == TPointerEvent::EButton2Down
+            || aPointerEvent.iType == TPointerEvent::EButton3Down
+            || aPointerEvent.iType == TPointerEvent::EDrag)
+        {
+            if(aPointerEvent.iType != TPointerEvent::EDrag)
+            {
+                iViewDragged = EFalse;
+            }
+            
+            if(aPointerEvent.iType == TPointerEvent::EDrag)
+            {
+                TInt delta = iPrev.iY - aPointerEvent.iPosition.iY;
+                //Check for physics threshold, if not more than threshold, we can
+                //still continue marqueeing
+                TInt deltaAbs = delta < 0 ? -delta : delta;
+                if(!iViewDragged && deltaAbs >= iKineticDragThreshold)
+                    iViewDragged = ETrue;
+            }
+            
+            //This has to done at every above mentioned event, since the  
+            //disable marquee flag is set by base implementation, forcing 
+            //us the need to reset it everytime.
+            if(!iViewDragged)
+            {
+                iContainer->EnableMarqueingL();
+            }
+        }
+    
+    //record positions unless it is drag event
+    if(aPointerEvent.iType != TPointerEvent::EDrag)
+        {
+        iPrev = aPointerEvent.iPosition;
+        }
 	}
 
 // ---------------------------------------------------------------------------
@@ -579,5 +627,21 @@ void CGlxMetadataDialog::HandleToolbarResetting(TBool aVisible)
         toolbar->SetToolbarVisibility(aVisible);
         toolbar->MakeVisible( aVisible );
         }
+    }
+
+void CGlxMetadataDialog::ViewPositionChanged( const TPoint& /*aNewPosition*/, TBool /*aDrawNow*/, TUint /*aFlags*/ )
+    {
+    //Dummy implementation
+    }
+   
+void CGlxMetadataDialog::PhysicEmulationEnded()
+    {
+    //Dummy implementation
+    }
+   
+TPoint CGlxMetadataDialog::ViewPosition() const
+    {
+    //Dummy implementation
+    return TPoint(0,0);
     }
 // End of File

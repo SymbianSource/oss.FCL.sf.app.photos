@@ -127,26 +127,8 @@ void CGlxDataSourceTaskMdeAttributeMde::ExecuteRequestL()
     	}
     else
     	{
-        
-     /*  __ASSERT_DEBUG(dynamic_cast<CGlxGetRequest*>(iRequest), Panic(EGlxPanicLogicError));
-        CGlxGetRequest* request = static_cast<CGlxGetRequest*>(iRequest);   
-        
-    	QueueImageVideoObjectQueriesL(request->MediaIds(), iFilterProperties);
-    	QueueAlbumObjectQueryL(request->MediaIds());
-        QueueTagObjectQueryL(request->MediaIds());
-        QueueMonthObjectQueryL(request->MediaIds());
-        
-	    if (LocationAttributeRequested())
-	        {
-	        QueueLocaitonQueryL();
-	        }
-	    
-    	*/
-    	
         __ASSERT_DEBUG(dynamic_cast<CGlxGetRequest*>(iRequest), Panic(EGlxPanicLogicError));
         CGlxGetRequest* request = static_cast<CGlxGetRequest*>(iRequest);   
-// Not used anywhere, commenting out this line to avoid BAD warning
-//        const RArray<TItemId>& mediaIds = reinterpret_cast<const RArray<TItemId>&>(request->MediaIds());
         
         switch(iFilterProperties.iItemType)
             {
@@ -400,11 +382,6 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
 					filterProperties.iOrigin = EGlxFilterOriginAll;
                     break;
                     }
-              /*  case KGlxCollectionPluginDownloadsImplementationUid:
-                    {
-                    filterProperties.iOrigin = EGlxFilterOriginDownload;
-                    break;
-                    }*/
                 default:
                     {
                     // default gallery query returns all objects as per filter

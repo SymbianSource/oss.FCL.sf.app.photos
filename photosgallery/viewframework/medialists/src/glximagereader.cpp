@@ -28,6 +28,7 @@
 
 #include "glximagereader.h"
 
+const TInt KDefaultFrameCount = 1;
 
 // ---------------------------------------------------------
 // CGlxImageReader::NewL
@@ -136,7 +137,6 @@ void CGlxImageReader::ConstructL()
         }
     }
 
-
 // ---------------------------------------------------------
 // CGlxImageReader::DoCancel
 // ---------------------------------------------------------
@@ -164,6 +164,7 @@ void CGlxImageReader::RunL()
     GLX_DEBUG2("CGlxImageReader::RunL() reqStatus=%d", reqStatus);   
     iNotify.ImageSizeReady(reqStatus, size);
     }
+
 // ---------------------------------------------------------
 // CGlxImageReader::GetDRMRightsL
 // ---------------------------------------------------------
@@ -208,4 +209,19 @@ TInt CGlxImageReader::GetDRMRightsL(TInt aAttribute)
 			}
 	    }
     return value;
+    }
+
+// ---------------------------------------------------------
+// CGlxImageReader::GetFrameCount
+// ---------------------------------------------------------
+//
+TInt CGlxImageReader::GetFrameCount()
+    {
+    TRACER("CGlxImageReader::GetFrameCount");
+    TInt frameCount = KDefaultFrameCount;
+    if (iImageDecoder)
+        {
+        frameCount = iImageDecoder->FrameCount();
+        }
+    return frameCount;
     }

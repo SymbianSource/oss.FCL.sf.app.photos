@@ -136,7 +136,7 @@ public:
     * @param aMedia The media item
     * @param aAttribute Which attribute
     * @param aIdSpaceId The Id of the Id space in which the media Id is defined
-    * @param aTextureId The created texture's id, required when the texture is removed.
+    * @param aObserver Observer for the texture.
     * @return Created texture
     */
     CAlfTexture& CreateZoomedTextureL(const TGlxMedia& aMedia,
@@ -154,10 +154,12 @@ public:
     * Create an animated texture from a GIF file
     * @param aFilename The filename of the GIF file
     * @param aSize The size of the GIF file
+	* @param aMedia The media item
+	* @param aIdSpaceId The Id of the Id space in which the media Id is defined	
     * @return Created texture: ownership transfered
     */
-    CAlfTexture& CreateAnimatedGifTextureL(const TDesC& aFilename,
-        const TSize& aSize);
+    CAlfTexture& CreateAnimatedGifTextureL(const TDesC& aFilename, const TSize& aSize,
+                                           const TGlxMedia& aMedia, TGlxIdSpaceId aIdSpaceId);
 
     /**
      * Removes the texture if it was created by CreateThumbnailTextureL or
@@ -370,6 +372,19 @@ private:
     void ScaleGridTnmToFsL(TSize aSrcSize, TSize aDestSize, 
             CFbsBitmap *aScaledBitmap, const CGlxThumbnailAttribute* thumb);
 
+
+    /**
+    * GetAnimatedGifThumbnailIndex
+    * @param aSize The size of the requested texture
+    * @param aMedia The TGlxMedia item.
+    * @param aIdSpaceId The Id of the Id space in which the media Id is defined	
+    * @param aThumbnailIndex on return will contain the Index of the thumbnail in the iAnimatedTnmList
+    *        or KErrNotFound
+    * @return ETrue if Thumbnail is available, EFalse if it needs to be created
+    */
+    TBool CGlxTextureManagerImpl::GetAnimatedGifThumbnailIndex( TSize aSize,
+            const TGlxMedia& aMedia, const TGlxIdSpaceId& aIdSpaceId,
+            TInt& aThumbnailIndex);
 private:
     // Alf Texture manager (not owned) 
     CAlfTextureManager& iAlfTextureManager;
@@ -386,6 +401,9 @@ private:
     // List containing data for textures generated from zoomed thumbnail. 
     RArray<TGlxThumbnailIcon> iZoomedList;
 
+    // List containing data for textures generated from Animated thumbnail. 
+    RArray<TGlxThumbnailIcon> iAnimatedTnmList;
+        
     // List of .mif filenames of files containing icons. 
     CDesCArrayFlat* iMifFilenames;
     

@@ -639,7 +639,6 @@ void CGlxDataSourceTaskMdeCommand::FileOperationL(const TArray<TGlxMediaId>& aSo
     	// Append the file name
     	destinationFileName.Append(fileNameWithoutRoot);
     	
-/// @todo minor: Rowland Cook 12/06/2007 majic number.
     	if (destinationFileName.CompareF(sourceFileName) != 0)
     		{
     		// If source and destination are not identical, perform the copy.	
@@ -770,8 +769,6 @@ void CGlxDataSourceTaskMdeCommand::SendProgressMessageL(TInt aCurrentStep, TInt 
 TInt CGlxDataSourceTaskMdeCommand::ContainerObjectDef(CMdEObjectDef*& aContainerObjectDef)
 {
     TRACER("CGlxDataSourceTaskMdeCommand::ContainerObjectDef()");
-    //__ASSERT_DEBUG( (iCollectionUid == TUid::Uid(KGlxTagCollectionPluginImplementationUid) 
-    //|| iCollectionUid == TUid::Uid(KGlxCollectionPluginAlbumsImplementationUid)), Panic(EGlxPanicInvalidCollectionUid));
     TInt err = KErrNone;
 	if (iCollectionUid == TUid::Uid(KGlxTagCollectionPluginImplementationUid))
         {

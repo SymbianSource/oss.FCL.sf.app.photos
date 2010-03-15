@@ -122,7 +122,8 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
         {
         GLX_DEBUG1("GlxThumbnailVariantType::CreateAnimatedGifTextureL");
         TRAP( err, mTextureId = iUiUtility->GlxTextureManager().
-            CreateAnimatedGifTextureL( uri, aSize ).Id() );
+            CreateAnimatedGifTextureL( uri, aSize, aMedia, 
+                                       aMedia.IdSpaceId() ).Id() );
         }
     //URI length could be zero for Media Id based Thumbnail fetch
     else if ( fsTnmAvailable ) 
@@ -131,21 +132,34 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
 	    TMPXGeneralCategory cat = aMedia.Category();
 	    if(drm)
             {
-            expired = iDrmUtility->CheckOpenRightsL(uri, (cat == EMPXImage));
+
+            //Fix for ESLM-82WJ59: call 'CheckDisplayRightsL' only for focused item
+            if(aIsFocused)
+            	{
+            	expired = !iDrmUtility->CheckDisplayRightsL(uri, (cat == EMPXImage));
+            	}
+            else
+            	{
+            	//Fix for ESLM-82WJ59: for validity check of non-focused item
+            	expired = !iDrmUtility->CheckOpenRightsL(uri, (cat == EMPXImage));
+            	}
+
+            //Fix for ESLM-82WJ59: mush easier to understand.
             if( expired )
                 {
-               if ( isValid )
-                    {
-                    // Fix for EABI-7RL9DD
-                    // Replaced defaultSize with aSize
-                    TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL(
-                                                    aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
-                    }
+                TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL(
+                                                                    EMbmGlxiconsQgn_prop_image_notcreated, resFile, defaultSize ).Id() );
                 }
             else
                 {
-                TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL( 
-                                                    EMbmGlxiconsQgn_prop_image_notcreated, resFile, defaultSize ).Id() );
+                if ( isValid == EGlxDrmRightsValid)
+					{
+					// Fix for EABI-7RL9DD
+					// Replaced defaultSize with aSize
+					TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL(
+													aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
+					}
+
                 }
             } 
 		else
@@ -175,7 +189,7 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
 				//Have to relook at this.
                 if(origSize.iWidth > defaultSize.iWidth && origSize.iHeight > defaultSize.iHeight)
                       {
-					  GLX_DEBUG1("GlxThumbnailVariantType::CreateIconTextureL::ScaledTnm");
+					  GLX_DEBUG1("GlxThumbnailVariantType::CreateThumbnailTextureL::ScaledTnm");
                       TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL( 
                                 aMedia, aMedia.IdSpaceId(), aSize, this, ETrue ).Id() );
 					  if(err == KErrNone)
@@ -218,7 +232,6 @@ TBool GlxThumbnailVariantType::ConsumeRightsBasedOnSize(
     TBool drmRightsChecked = EFalse;
     // minimum size (111 x 83)
     TInt minSize = KGlxThumbnailDrmWidth * KGlxThumbnailDrmHeight;
-    //TInt minSize =  111*83 ;
     // size of actual image
     TInt imgSize = aImageSize.iWidth * aImageSize.iHeight;
     
@@ -326,7 +339,6 @@ GlxThumbnailVariantType::~GlxThumbnailVariantType()
     
     if ( iUiUtility)
 		{
-//		iUiUtility->GlxTextureManager().RemoveTexture( mTextureId );
 		iUiUtility->Close ();
 		}
     }
@@ -453,7 +465,6 @@ GlxIconVariantType::~GlxIconVariantType()
     TRACER("GlxIconVariantType::~GlxIconVariantType");
 	if ( iUiUtility)
 		{
-//		iUiUtility->GlxTextureManager().RemoveTexture( mTextureId );
 		iUiUtility->Close ();
 		}
     }

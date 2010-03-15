@@ -80,8 +80,8 @@ LIBRARY         cdlengine.lib
 LIBRARY      	aknlayout2scalable.lib
 LIBRARY      	aknphysics.lib
 LIBRARY         fbscli.lib 
-LIBRARY			gdi.lib 
-LIBRARY		    charconv.lib         // For UtfConverter
+LIBRARY		gdi.lib 
+LIBRARY		charconv.lib         // For UtfConverter
 LIBRARY         commonengine.lib
-
+LIBRARY	   	harvesterclient.lib
 // End of File

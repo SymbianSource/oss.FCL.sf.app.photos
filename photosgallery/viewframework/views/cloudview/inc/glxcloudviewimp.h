@@ -24,7 +24,7 @@
 // INCLUDES
 #include <AknLayout2Def.h>
 #include <alf/alfanchorlayout.h>
-
+#include <harvesterclient.h>
 #include "mglxcloudviewmskobserver.h"
 #include "mglxenterkeyeventobserver.h"
 
@@ -53,7 +53,8 @@ NONSHARABLE_CLASS(CGlxCloudViewImp): public CGlxCloudView,
 									public MGlxCloudViewMskObserver,				
 									public MGlxEnterKeyEventObserver,
 									public MGlxCloudViewLayoutObserver,
-									public MGlxItemMenuObserver
+									public MGlxItemMenuObserver,
+                                    public MHarvesterEventObserver
 	{
 public:
 
@@ -127,6 +128,17 @@ public:
      * @param aMenuPane The menu pane to edit
      */
     void ViewDynInitMenuPaneL(TInt aResourceId, CEikMenuPane *aMenuPane);
+public:
+    /**
+     * HarvestingUpdated
+     * @param aHEObserverType 
+     * @param aHarvesterEventState 
+     * @param aItemsLeft
+     */
+    void HarvestingUpdated( 
+                HarvesterEventObserverType aHEObserverType, 
+                HarvesterEventState aHarvesterEventState,
+                TInt aItemsLeft );
 
 protected:
 	// From CGlxViewBase
@@ -241,10 +253,8 @@ private:
 	
 	//anchor layout from the view widget
 	CAlfAnchorLayout* iAnchorlayout;
-	
-	//   save title text 
-    HBufC* iTitletext;
-	
+
+    RHarvesterClient iHarvesterClient;
 	};
 }
 #endif // C_GLXTESTTILEVIEWIMP_H

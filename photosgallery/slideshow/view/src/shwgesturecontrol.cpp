@@ -54,7 +54,6 @@ void CShwGestureControl::ConstructL( CAlfEnv& aEnv,CAlfDisplay& aDisplay)
 	{
 	TRACER("CShwGestureControl::ConstructL");
 	GLX_LOG_INFO( "CShwGestureControl::ConstructL" );
-	//CGestureControl::ConstructL(*this,aEnv,aDisplay,KShwgestureEventControlGroup);
 	CAlfControl::ConstructL(aEnv);    
     BindDisplay(aDisplay);
 	}

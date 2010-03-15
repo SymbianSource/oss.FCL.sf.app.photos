@@ -167,9 +167,6 @@ EXPORT_C void CGlxMediaListCommandHandler::DynInitMenuPaneL(TInt aResourceId,
 	        {
     		TInt num_items = aMenuPane->NumberOfItemsInPane();
     		TBool atLeastOneEnabledSupportedItem = EFalse;
-    		
-    		//CGlxUiUtility* uiUtility  = CGlxUiUtility::UtilityL();
-            //CleanupClosePushL(*uiUtility);
             
     		// Iterate through menu pane
     		for ( TInt i = 0; i < num_items; i++)
@@ -192,8 +189,6 @@ EXPORT_C void CGlxMediaListCommandHandler::DynInitMenuPaneL(TInt aResourceId,
     				atLeastOneEnabledSupportedItem = atLeastOneEnabledSupportedItem || (!isDisabled);
         	        }
     			}
-    			
-    	   // CleanupStack::PopAndDestroy(uiUtility);
     			
     	    if ( atLeastOneEnabledSupportedItem )
     	        {
@@ -385,7 +380,6 @@ EXPORT_C MGlxMediaList& CGlxMediaListCommandHandler::MediaList()
 EXPORT_C const MGlxMediaList& CGlxMediaListCommandHandler::MediaList() const
 	{
 	return const_cast<CGlxMediaListCommandHandler*>(this)->MediaList();
-	//return iMediaListProvider->MediaList();
 	}
 
 // -----------------------------------------------------------------------------

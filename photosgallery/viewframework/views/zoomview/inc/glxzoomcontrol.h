@@ -165,14 +165,15 @@ private: // From MGlxZoomEventHandlers
 
     void HandleShowUi(TBool aShow= EFalse) ;
 
-    void HandleZoomOutL(TInt aCommandId);
+    void HandleZoomOutL(TInt aCommandId);    
+    
 private:
         /*
         * Call back function for the CPeriodic
         */
        static TInt TimeOut(TAny* aSelf);
        void ActivateFullscreen();
-       void StartZoomAnimation();
+       void StartZoomAnimation(TZoomStartMode aStartMode);
 
 private:
     /**
@@ -223,7 +224,12 @@ private:
     TBool HandlePointerEventsL(const TAlfEvent &aEvent);
     
     TInt GetInitialZoomLevel(TSize& aSize );
-
+    
+    /*
+    * Does the zoom out on pinch released event
+    */
+    void HandleHDMIGestureReleased();
+    
 private:    // Data
     CAlfEnv* iEnv;                                      // AlfEnv
     MGlxMediaList& iMediaList;                          // Medialist (not owned)
