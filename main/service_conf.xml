@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<service>
+  <name>com.nokia.services.media</name>
+  <filepath>No path</filepath>
+  <description>Image Fetcher</description>
+  <interface>
+     <name>Image</name>
+     <version>1.0</version>
+     <description>Interface which may do something</description>
+     <customproperty key="txt_aiw_action_text">Fetch</customproperty>
+   </interface>
+</service>

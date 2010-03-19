@@ -1,0 +1,22 @@
+HbGridViewItem::icon:portrait{
+	left:0un;
+	top:0un;
+	right:0un;
+	bottom:0un;
+    fixed-width:120px;
+    fixed-height:120px;
+}
+
+HbGridViewItem::icon:landscape{
+	left:0un;
+	top:0un;
+	right:0un;
+	bottom:0un;
+    fixed-width:128px;
+    fixed-height:128px;
+}
+
+HbGridViewItem::multiselection-toucharea{
+    fixed-width: 120px;
+    fixed-height: 120px;
+}

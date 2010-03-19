@@ -1,0 +1,34 @@
+EXPORTS
+	_ZN15GlxStateManager10setupItemsEv @ 1 NONAME
+	_ZN15GlxStateManager11changeStateEii @ 2 NONAME
+	_ZN15GlxStateManager11createModelEi13NavigationDir @ 3 NONAME
+	_ZN15GlxStateManager11createStateEi @ 4 NONAME
+	_ZN15GlxStateManager11qt_metacallEN11QMetaObject4CallEiPPv @ 5 NONAME
+	_ZN15GlxStateManager11qt_metacastEPKc @ 6 NONAME
+	_ZN15GlxStateManager12eventHandlerERi @ 7 NONAME
+	_ZN15GlxStateManager13previousStateEv @ 8 NONAME
+	_ZN15GlxStateManager14executeCommandEi @ 9 NONAME
+	_ZN15GlxStateManager15actionTriggeredEi @ 10 NONAME
+	_ZN15GlxStateManager15cleanupExternalEv @ 11 NONAME
+	_ZN15GlxStateManager15createGridModelEi13NavigationDir @ 12 NONAME
+	_ZN15GlxStateManager15exitApplicationEv @ 13 NONAME
+	_ZN15GlxStateManager15exitMarkingModeEv @ 14 NONAME
+	_ZN15GlxStateManager15externalCommandEi @ 15 NONAME
+	_ZN15GlxStateManager16enterMarkingModeEv @ 16 NONAME
+	_ZN15GlxStateManager16setupItemsSignalEv @ 17 NONAME
+	_ZN15GlxStateManager16staticMetaObjectE @ 18 NONAME DATA 16
+	_ZN15GlxStateManager17launchApplicationEv @ 19 NONAME
+	_ZN15GlxStateManager18launchFromExternalEv @ 20 NONAME
+	_ZN15GlxStateManager18removeCurrentModelEv @ 21 NONAME
+	_ZN15GlxStateManager19getStaticMetaObjectEv @ 22 NONAME
+	_ZN15GlxStateManager6goBackEii @ 23 NONAME
+	_ZN15GlxStateManager9nextStateEii @ 24 NONAME
+	_ZN15GlxStateManagerC1Ev @ 25 NONAME
+	_ZN15GlxStateManagerC2Ev @ 26 NONAME
+	_ZN15GlxStateManagerD0Ev @ 27 NONAME
+	_ZN15GlxStateManagerD1Ev @ 28 NONAME
+	_ZN15GlxStateManagerD2Ev @ 29 NONAME
+	_ZNK15GlxStateManager10metaObjectEv @ 30 NONAME
+	_ZTI15GlxStateManager @ 31 NONAME
+	_ZTV15GlxStateManager @ 32 NONAME
+

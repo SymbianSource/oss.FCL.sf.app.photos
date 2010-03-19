@@ -1,0 +1,58 @@
+EXPORTS
+	_ZN23GlxCommandHandlerDeleteC1Ev @ 1 NONAME
+	_ZN23GlxCommandHandlerDeleteC2Ev @ 2 NONAME
+	_ZN23GlxCommandHandlerDeleteD0Ev @ 3 NONAME
+	_ZN23GlxCommandHandlerDeleteD1Ev @ 4 NONAME
+	_ZN23GlxCommandHandlerDeleteD2Ev @ 5 NONAME
+	_ZN25GlxCommandHandlerNewMedia11qt_metacallEN11QMetaObject4CallEiPPv @ 6 NONAME
+	_ZN25GlxCommandHandlerNewMedia11qt_metacastEPKc @ 7 NONAME
+	_ZN25GlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 8 NONAME
+	_ZN25GlxCommandHandlerNewMedia16staticMetaObjectE @ 9 NONAME DATA 16
+	_ZN25GlxCommandHandlerNewMedia19getStaticMetaObjectEv @ 10 NONAME
+	_ZN25GlxCommandHandlerNewMedia24DoHandleCommandCompleteLEPvP9CMPXMediaiP13MGlxMediaList @ 11 NONAME
+	_ZN25GlxCommandHandlerNewMedia9ExecuteLDER11TGlxMediaId @ 12 NONAME
+	_ZN25GlxCommandHandlerNewMediaC1Ev @ 13 NONAME
+	_ZN25GlxCommandHandlerNewMediaC2Ev @ 14 NONAME
+	_ZN25GlxCommandHandlerNewMediaD0Ev @ 15 NONAME
+	_ZN25GlxCommandHandlerNewMediaD1Ev @ 16 NONAME
+	_ZN25GlxCommandHandlerNewMediaD2Ev @ 17 NONAME
+	_ZN31GlxCommandHandlerAddToContainer11qt_metacallEN11QMetaObject4CallEiPPv @ 18 NONAME
+	_ZN31GlxCommandHandlerAddToContainer11qt_metacastEPKc @ 19 NONAME
+	_ZN31GlxCommandHandlerAddToContainer14createNewMediaEv @ 20 NONAME
+	_ZN31GlxCommandHandlerAddToContainer15iSelectionCountE @ 21 NONAME DATA 4
+	_ZN31GlxCommandHandlerAddToContainer16staticMetaObjectE @ 22 NONAME DATA 16
+	_ZN31GlxCommandHandlerAddToContainer19getStaticMetaObjectEv @ 23 NONAME
+	_ZN31GlxCommandHandlerAddToContainerC1Ev @ 24 NONAME
+	_ZN31GlxCommandHandlerAddToContainerC2Ev @ 25 NONAME
+	_ZN31GlxCommandHandlerAddToContainerD0Ev @ 26 NONAME
+	_ZN31GlxCommandHandlerAddToContainerD1Ev @ 27 NONAME
+	_ZN31GlxCommandHandlerAddToContainerD2Ev @ 28 NONAME
+	_ZNK23GlxCommandHandlerDelete14CreateCommandLEiR13MGlxMediaListRi @ 29 NONAME
+	_ZNK25GlxCommandHandlerNewMedia10metaObjectEv @ 30 NONAME
+	_ZNK25GlxCommandHandlerNewMedia14CreateCommandLEiR13MGlxMediaListRi @ 31 NONAME
+	_ZNK31GlxCommandHandlerAddToContainer10metaObjectEv @ 32 NONAME
+	_ZNK31GlxCommandHandlerAddToContainer14CreateCommandLEiR13MGlxMediaListRi @ 33 NONAME
+	_ZNK31GlxCommandHandlerAddToContainer16GetSelectionListEP13GlxAlbumModelPb @ 34 NONAME
+	_ZTI23GlxCommandHandlerDelete @ 35 NONAME
+	_ZTI25GlxCommandHandlerNewMedia @ 36 NONAME
+	_ZTI31GlxCommandHandlerAddToContainer @ 37 NONAME
+	_ZTV23GlxCommandHandlerDelete @ 38 NONAME
+	_ZTV25GlxCommandHandlerNewMedia @ 39 NONAME
+	_ZTV31GlxCommandHandlerAddToContainer @ 40 NONAME
+	_ZThn8_N25GlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 41 NONAME
+	_ZN23GlxCommandHandlerRotate12RotateImageLE4TBufILi256EE @ 42 NONAME
+	_ZN23GlxCommandHandlerRotate17DestroyExifWriterEv @ 43 NONAME
+	_ZN23GlxCommandHandlerRotate17DoExecuteCommandLEiR13MGlxMediaListRi @ 44 NONAME
+	_ZN23GlxCommandHandlerRotate20SetImageOrientationLEt @ 45 NONAME
+	_ZN23GlxCommandHandlerRotate21InitializeExifWriterLE4TBufILi256EE @ 46 NONAME
+	_ZN23GlxCommandHandlerRotate21ReadImageOrientationLEv @ 47 NONAME
+	_ZN23GlxCommandHandlerRotate26CalculateFinalOrientationLEt @ 48 NONAME
+	_ZN23GlxCommandHandlerRotateC1Ev @ 49 NONAME
+	_ZN23GlxCommandHandlerRotateC2Ev @ 50 NONAME
+	_ZN23GlxCommandHandlerRotateD0Ev @ 51 NONAME
+	_ZN23GlxCommandHandlerRotateD1Ev @ 52 NONAME
+	_ZN23GlxCommandHandlerRotateD2Ev @ 53 NONAME
+	_ZNK23GlxCommandHandlerRotate14CreateCommandLEiR13MGlxMediaListRi @ 54 NONAME
+	_ZTI23GlxCommandHandlerRotate @ 55 NONAME
+	_ZTV23GlxCommandHandlerRotate @ 56 NONAME
+

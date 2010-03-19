@@ -1,0 +1,52 @@
+/*
+* Copyright (c) 2007 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:   Delete thumbnails task unit tests.
+*
+*/
+
+
+
+#include "../../../../../group/glxbuildcommon.mmh"
+
+TARGET          ut_cglxtndeletethumbnailstask.dll
+TARGETTYPE      dll
+UID             0x1000af5a 0x01700000
+
+CAPABILITY              ALL -TCB
+
+SOURCEPATH              ../ut_cglxtndeletethumbnailstask
+SOURCE                  ut_cglxtndeletethumbnailstaskdllmain.cpp
+SOURCE                  ut_cglxtndeletethumbnailstask.cpp
+ 
+// Sources needed by the test
+SOURCEPATH              ../../src
+SOURCE                  glxtndeletethumbnailstask.cpp
+SOURCE                  glxtntask.cpp
+
+USERINCLUDE             ../inc
+USERINCLUDE             ../ut_cglxtndeletethumbnailstask
+// System includes from the source tree
+SYSTEMINCLUDE           ../../../../../inc
+SYSTEMINCLUDE           ../../inc
+// System includes from epoc32/include
+APP_LAYER_SYSTEMINCLUDE
+
+SYSTEMINCLUDE           /epoc32/include/Digia/EUnit
+
+LIBRARY                 efsrv.lib
+LIBRARY                 EUnit.lib
+LIBRARY                 EUnitUtil.lib
+LIBRARY                 euser.lib
+
+// End of file

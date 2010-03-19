@@ -1,5 +1,0 @@
-EXPORTS
-	?NewL@CGlxGridView@@SAPAV1@PAVMGlxMediaListFactory@@ABVTGridViewResourceIds@@HABVTDesC16@@@Z @ 1 NONAME ; class CGlxGridView * CGlxGridView::NewL(class MGlxMediaListFactory *, class TGridViewResourceIds const &, int, class TDesC16 const &)
-	?NewL@CGlxGridViewMLObserver@@SAPAV1@AAVMGlxMediaList@@PAVCHgGrid@@@Z @ 2 NONAME ; class CGlxGridViewMLObserver * CGlxGridViewMLObserver::NewL(class MGlxMediaList &, class CHgGrid *)
-	?NewLC@CGlxGridView@@SAPAV1@PAVMGlxMediaListFactory@@ABVTGridViewResourceIds@@HABVTDesC16@@@Z @ 3 NONAME ; class CGlxGridView * CGlxGridView::NewLC(class MGlxMediaListFactory *, class TGridViewResourceIds const &, int, class TDesC16 const &)
-

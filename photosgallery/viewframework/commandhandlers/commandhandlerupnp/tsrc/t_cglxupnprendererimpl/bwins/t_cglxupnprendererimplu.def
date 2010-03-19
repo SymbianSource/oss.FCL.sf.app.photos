@@ -1,6 +1,0 @@
-EXPORTS
-	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 1 NONAME ; class MEUnitTest * CreateTestSuiteL(void)
-	?StopShowingL@GlxUpnpRenderer@@SAXXZ @ 2 NONAME ; void GlxUpnpRenderer::StopShowingL(void)
-	?Status@GlxUpnpRenderer@@SA?AW4TStatus@NGlxUpnpRenderer@@XZ @ 3 NONAME ; enum NGlxUpnpRenderer::TStatus GlxUpnpRenderer::Status(void)
-
-

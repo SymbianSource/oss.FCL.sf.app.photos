@@ -1,0 +1,237 @@
+;
+; Copyright (c) 2008 - 2009 Nokia Corporation and/or its subsidiary(-ies).
+; All rights reserved.
+; This component and the accompanying materials are made available
+; under the terms of "Eclipse Public License v1.0"
+; which accompanies this distribution, and is available
+; at the URL "http://www.eclipse.org/legal/epl-v10.html".
+;
+; Initial Contributors:
+; Nokia Corporation - initial contribution.
+;
+; Contributors:
+;
+; Description:   Package file for project Gallery
+;
+
+; -------- general --------
+
+; Languages
+&EN
+
+; Package header
+#{"mgallery"},(0x200009EE),1,0,0,TYPE=SA
+
+;Localised Vendor name
+%{"Nokia"}
+
+;Unique Vendor name
+:"Nokia"
+
+; Dependency for S60 3.0
+[0x101F7961],0,0,0,{"Series60v3.0"}
+
+; -------- files --------
+
+; NOTE: This installation package does not include huitoolkit.dll,
+; so you have to install it separately!
+
+;; ui files
+
+"..\data\abstract5.jpg"-"c:\abstract5.jpg"
+"..\data\Battle.jpg"-"c:\Battle.jpg"
+"..\data\text_element_left_cap.png"-"c:\text_element_left_cap.png"
+"..\data\text_element_mid.png"-"c:\text_element_mid.png"
+"..\data\text_element_right_cap.png"-"c:\text_element_right_cap.png"
+"..\data\qgn_prop_image_notcreated.png"-"c:\qgn_prop_image_notcreated.png"
+"..\data\Image1.jpg"-"c:\Image1.jpg"
+"..\data\Image2.jpg"-"c:\Image2.jpg"
+"..\data\Image3.jpg"-"c:\Image3.jpg"
+"..\data\Image4.jpg"-"c:\Image4.jpg"
+"..\data\Image5.jpg"-"c:\Image5.jpg"
+"..\data\Image6.jpg"-"c:\Image6.jpg"
+"..\data\Image7.jpg"-"c:\Image7.jpg"
+"..\data\Image8.jpg"-"c:\Image8.jpg"
+"..\data\Image9.jpg"-"c:\Image9.jpg"
+"..\data\Image10.jpg"-"c:\Image10.jpg"
+"..\data\Image11.jpg"-"c:\Image11.jpg"
+"..\data\Image12.jpg"-"c:\Image12.jpg"
+"..\data\Image13.jpg"-"c:\Image13.jpg"
+"..\data\Image14.jpg"-"c:\Image14.jpg"
+"..\data\Image15.jpg"-"c:\Image15.jpg"
+"..\data\Image16.jpg"-"c:\Image16.jpg"
+"..\data\Image17.jpg"-"c:\Image17.jpg"
+"..\data\Image18.jpg"-"c:\Image18.jpg"
+"..\data\Image19.jpg"-"c:\Image19.jpg"
+"..\data\Image20.jpg"-"c:\Image20.jpg"
+"..\data\Image21.jpg"-"c:\Image21.jpg"
+"..\data\Image22.jpg"-"c:\Image22.jpg"
+"..\data\newitem1.jpg"-"c:\newitem1.jpg"
+"..\data\newitem2.jpg"-"c:\newitem2.jpg"
+"..\data\newitem3.jpg"-"c:\newitem3.jpg"
+"..\data\newitem4.jpg"-"c:\newitem4.jpg"
+"..\data\newitem5.jpg"-"c:\newitem5.jpg"
+"..\data\newitem6.jpg"-"c:\newitem6.jpg"
+"..\data\newitem7.jpg"-"c:\newitem7.jpg"
+"..\data\newitem8.jpg"-"c:\newitem8.jpg"
+"..\data\newitem9.jpg"-"c:\newitem9.jpg"
+"..\data\newitem10.jpg"-"c:\newitem10.jpg"
+"..\data\newitem11.jpg"-"c:\newitem11.jpg"
+"..\data\newitem12.jpg"-"c:\newitem12.jpg"
+"..\data\newitem13.jpg"-"c:\newitem13.jpg"
+"..\data\newitem14.jpg"-"c:\newitem14.jpg"
+
+"\epoc32\release\armv5\udeb\glx.exe"-"!:\sys\bin\glx.exe"
+"\epoc32\data\z\private\10003a3f\import\apps\glx_reg.rsc"-"!:\private\10003a3f\import\apps\glx_reg.rsc"		
+"\epoc32\data\z\resource\apps\glx_loc.Rsc"-"!:\resource\apps\glx_loc.Rsc"
+"\epoc32\data\z\resource\apps\glx.Rsc"-"!:\resource\apps\glx.Rsc"
+
+;"\epoc32\release\armv5\udeb\proto.exe"-"!:\sys\bin\proto.exe"
+;"\epoc32\data\z\private\10003a3f\import\apps\proto_reg.rsc"-"!:\private\10003a3f\import\apps\proto_reg.rsc"
+;"\epoc32\data\z\resource\apps\proto.Rsc"-"!:\resource\apps\proto.Rsc"
+
+;"\epoc32\release\armv5\udeb\albumpopuptest.exe"-"!:\sys\bin\albumpopuptest.exe"
+;"\epoc32\data\z\private\10003a3f\import\apps\albumpopuptest_reg.rsc"-"!:\private\10003a3f\import\apps\albumpopuptest_reg.rsc"
+;"\epoc32\data\z\resource\apps\albumpopuptest.Rsc"-"!:\resource\apps\albumpopuptest.Rsc"
+
+;"..\..\viewframework\uiutilities\data\icon4.png"                -"!:\private\200009EE\icon4.png"
+;"..\..\viewframework\uiutilities\data\listbox_bar.png"          -"!:\private\200009EE\listbox_bar.png"
+;"..\..\viewframework\uiutilities\data\listbox_thumb.png"        -"!:\private\200009EE\listbox_thumb.png"
+;"..\..\viewframework\uiutilities\data\selector.png"             -"!:\private\200009EE\selector.png"
+;"..\..\viewframework\uiutilities\data\capped_element.png"       -"!:\private\200009EE\capped_element.png"
+
+"\epoc32\data\z\resource\apps\glxicons.mbm"                      -"!:\resource\apps\glxicons.mbm"
+"\epoc32\data\z\resource\apps\glxicons.mif"                      -"!:\resource\apps\glxicons.mif"
+"\epoc32\data\z\resource\apps\glx_aif.mif"                      -"!:\resource\apps\glx_aif.mif"
+
+
+;; language-dependent resource files
+
+;; engines
+
+
+"\epoc32\data\Z\resource\plugins\glxlistviewplugin.rsc"               -"!:\resource\plugins\glxlistviewplugin.rsc"
+;"\epoc32\release\armv5\udeb\glxunifiedmetadataview.dll"                      -"!:\sys\bin\glxunifiedmetadataview.dll"
+"\epoc32\data\Z\resource\apps\glxmetadatadialog.rsc"           -"!:\resource\apps\glxmetadatadialog.rsc"
+"\epoc32\release\armv5\udeb\glxmetadatadialog.dll"                      -"!:\sys\bin\glxmetadatadialog.dll"
+"\epoc32\data\Z\resource\apps\glxmetadatadialog.rsc"           -"!:\resource\apps\glxmetadatadialog.rsc"
+"\epoc32\release\armv5\udeb\glxcloudview.dll"                      -"!:\sys\bin\glxcloudview.dll"
+"\epoc32\release\armv5\udeb\glxtagsbrowserviewplugin.dll"                      -"!:\sys\bin\glxtagsbrowserviewplugin.dll"
+"\epoc32\data\Z\resource\plugins\glxtagsbrowserviewplugin.rsc"               -"!:\resource\plugins\glxtagsbrowserviewplugin.rsc"
+"\epoc32\data\Z\resource\apps\glxtagsbrowserview.RSC"													 -"!:\resource\apps\glxtagsbrowserview.RSC"
+"\epoc32\release\armv5\udeb\glxupnpcommandhandler.dll"                      -"!:\sys\bin\glxupnpcommandhandler.dll"
+"\epoc32\release\armv5\udeb\glxcollectionplugintags.dll"                      -"!:\sys\bin\glxcollectionplugintags.dll"
+"\epoc32\data\Z\resource\plugins\glxcollectionplugintags.rsc"               -"!:\resource\plugins\glxcollectionplugintags.rsc"
+"\epoc32\data\Z\resource\plugins\glxplugintags.rsc"  					 -"!:\resource\plugins\glxplugintags.rsc"
+"\epoc32\release\armv5\udeb\glxtexturemanager.dll"                      -"!:\sys\bin\glxtexturemanager.dll"
+"\epoc32\release\armv5\udeb\glxfetcher.dll"                      -"!:\sys\bin\glxfetcher.dll"
+"\epoc32\data\Z\resource\plugins\glxfetcher.rsc"               -"!:\resource\plugins\glxfetcher.rsc"
+"\epoc32\data\Z\resource\apps\glxfetcherview.rsc"               -"!:\resource\apps\glxfetcherview.rsc"
+"\epoc32\release\armv5\udeb\glxcollectionmanager.dll"            -"!:\sys\bin\glxcollectionmanager.dll"
+"\epoc32\release\armv5\udeb\glxactivedataplugin.dll"              -"!:\sys\bin\glxactivedataplugin.dll"
+"\epoc32\data\Z\resource\plugins\glxactivedataplugin.rsc"               -"!:\resource\plugins\glxactivedataplugin.rsc"
+"\epoc32\release\armv5\udeb\glxviewbase.dll"            -"!:\sys\bin\glxviewbase.dll"
+"\epoc32\data\z\resource\apps\glxviewbase.rsc"            -"!:\resource\apps\glxviewbase.rsc"
+;"\epoc32\release\armv5\udeb\glxtesttileview.dll"            -"!:\sys\bin\glxtesttileview.dll"
+;"\epoc32\data\z\resource\apps\glxtesttileview.rsc"                  -"!:\resource\apps\glxtesttileview.rsc"
+;"\epoc32\release\armv5\udeb\glxtesttileviewplugin.dll"            -"!:\sys\bin\glxtesttileviewplugin.dll"
+;"\epoc32\data\Z\resource\plugins\glxtesttileviewplugin.rsc"  -"!:\resource\plugins\glxtesttileviewplugin.rsc"
+;"\epoc32\release\armv5\udeb\glxtestremovehandler.dll"            -"!:\sys\bin\glxtestremovehandler.dll"
+;"\epoc32\release\armv5\udeb\glxaddtoalbumhandler.dll"            -"!:\sys\bin\glxaddtoalbumhandler.dll"
+"\epoc32\release\armv5\udeb\glxcommandhandlerbase.dll"            -"!:\sys\bin\glxcommandhandlerbase.dll"
+"\epoc32\release\armv5\udeb\glxcommoncommandhandlers.dll"            -"!:\sys\bin\glxcommoncommandhandlers.dll"
+"\epoc32\data\Z\resource\apps\glxcommoncommandhandlers.rsc"													 -"!:\resource\apps\glxcommoncommandhandlers.rsc"
+"\epoc32\release\armv5\udeb\glxcommandhandlermarking.dll"            -"!:\sys\bin\glxcommandhandlermarking.dll"
+"\epoc32\release\armv5\udeb\glxcommandhandlerdrm.dll"                -"!:\sys\bin\glxcommandhandlerdrm.dll"
+"\epoc32\release\armv5\udeb\glxcommandhandlermoreinfo.dll"            -"!:\sys\bin\glxcommandhandlermoreinfo.dll"
+"\epoc32\data\z\resource\apps\glxcommandhandlermarking.rsc"            -"!:\resource\apps\glxcommandhandlermarking.rsc"
+"\epoc32\release\armv5\udeb\glxcommon.dll"                     -"!:\sys\bin\glxcommon.dll"
+"\epoc32\release\armv5\udeb\glxcommonui.dll"                     -"!:\sys\bin\glxcommonui.dll"
+;"\epoc32\data\z\resource\apps\glxaddtoalbumhandler.rsc"                  -"!:\resource\apps\glxaddtoalbumhandler.rsc"
+"\epoc32\release\armv5\udeb\shwslideshowengine.dll"            -"!:\sys\bin\shwslideshowengine.dll"
+"\epoc32\data\Z\resource\apps\shwslideshowengine.rsc"           -"!:\resource\apps\shwslideshowengine.rsc"
+"\epoc32\release\armv5\udeb\shwslideshowviewplugin.dll"         -"!:\sys\bin\shwslideshowviewplugin.dll"
+"\epoc32\data\Z\resource\plugins\shwslideshowviewplugin.rsc"    -"!:\resource\plugins\shwslideshowviewplugin.rsc"
+"\epoc32\data\Z\resource\apps\shwslideshowview.rsc"           -"!:\resource\apps\shwslideshowview.rsc"
+"\epoc32\release\armv5\udeb\shwsettingsplugin.dll"            -"!:\sys\bin\shwsettingsplugin.dll"
+"\epoc32\data\Z\resource\plugins\shwsettingsplugin.rsc"		-"!:\resource\plugins\shwsettingsplugin.rsc"
+"\epoc32\data\Z\resource\apps\shwsettingsdialog.rsc"		-"!:\resource\apps\shwsettingsdialog.rsc"
+"\epoc32\release\armv5\udeb\glxthumbnailcreator.dll"            -"!:\sys\bin\glxthumbnailcreator.dll"
+"\epoc32\release\armv5\udeb\glxdatasourcemanager.dll"           -"!:\sys\bin\glxdatasourcemanager.dll"
+"\epoc32\release\armv5\udeb\glxdatasourcemde.dll"               -"!:\sys\bin\glxdatasourcemde.dll"
+"\epoc32\data\Z\resource\plugins\glxdatasourcemde.rsc"               -"!:\resource\plugins\glxdatasourcemde.rsc"
+;"\epoc32\release\armv5\udeb\glxdatasourcetest.dll"              -"!:\sys\bin\glxdatasourcetest.dll"
+;"\epoc32\data\Z\resource\plugins\glxdatasourcetest.rsc"               -"!:\resource\plugins\glxdatasourcetest.rsc"
+"\epoc32\release\armv5\udeb\glxcollectionpluginalbums.dll"       -"!:\sys\bin\glxcollectionpluginalbums.dll"
+"\epoc32\data\Z\resource\plugins\glxcollectionpluginalbums.rsc"  -"!:\resource\plugins\glxcollectionpluginalbums.rsc"
+"\epoc32\data\Z\resource\plugins\glxpluginalbums.rsc"  					 -"!:\resource\plugins\glxpluginalbums.rsc"
+;"\epoc32\release\armv5\udeb\glxalbumcollectionplugin.dll"       -"!:\sys\bin\glxalbumcollectionplugin.dll"
+;"\epoc32\release\armv5\udeb\glxtestcollectionplugin.dll"       -"!:\sys\bin\glxtestcollectionplugin.dll"
+;"\epoc32\data\Z\resource\plugins\glxtestcollectionplugin.rsc"  -"!:\resource\plugins\glxtestcollectionplugin.rsc"
+;"\epoc32\data\Z\resource\plugins\glxalbumcollectionplugin.rsc"  -"!:\resource\plugins\glxalbumcollectionplugin.rsc"
+"\epoc32\release\armv5\udeb\glxcollectionpluginall.dll"         -"!:\sys\bin\glxcollectionpluginall.dll"
+"\epoc32\data\Z\resource\plugins\glxcollectionpluginall.rsc"    -"!:\resource\plugins\glxcollectionpluginall.rsc"
+"\epoc32\data\Z\resource\plugins\glxpluginall.rsc"  					 -"!:\resource\plugins\glxpluginall.rsc"
+"\epoc32\release\armv5\udeb\glxcollectionplugincamera.dll"         -"!:\sys\bin\glxcollectionplugincamera.dll"
+"\epoc32\data\Z\resource\plugins\glxcollectionplugincamera.rsc"    -"!:\resource\plugins\glxcollectionplugincamera.rsc"
+"\epoc32\data\Z\resource\plugins\glxplugincamera.rsc"  					 -"!:\resource\plugins\glxplugincamera.rsc"
+"\epoc32\release\armv5\udeb\glxcollectionplugindownloads.dll"         -"!:\sys\bin\glxcollectionplugindownloads.dll"
+"\epoc32\data\Z\resource\plugins\glxcollectionplugindownloads.rsc"    -"!:\resource\plugins\glxcollectionplugindownloads.rsc"
+"\epoc32\data\Z\resource\plugins\glxplugindownloads.rsc"  					 -"!:\resource\plugins\glxplugindownloads.rsc"
+"\epoc32\release\armv5\udeb\glxcollectionpluginmonths.dll"         -"!:\sys\bin\glxcollectionpluginmonths.dll"
+"\epoc32\data\Z\resource\plugins\glxcollectionpluginmonths.rsc"    -"!:\resource\plugins\glxcollectionpluginmonths.rsc"
+"\epoc32\data\Z\resource\plugins\glxpluginmonths.rsc"  					 -"!:\resource\plugins\glxpluginmonths.rsc"
+"\epoc32\release\armv5\udeb\glxzoomview.dll"         -"!:\sys\bin\glxzoomview.dll"
+
+"\epoc32\release\armv5\udeb\glxthumbnailcomposerplugin.dll"     -"!:\sys\bin\glxthumbnailcomposerplugin.dll"
+"\epoc32\data\Z\resource\plugins\glxthumbnailcomposerplugin.rsc" -"!:\resource\plugins\glxthumbnailcomposerplugin.rsc"
+
+"\epoc32\release\armv5\udeb\glxlayouts.dll"                     -"!:\sys\bin\glxlayouts.dll"
+"\epoc32\release\armv5\udeb\glxmedialists.dll"            -"!:\sys\bin\glxmedialists.dll"
+"\epoc32\release\armv5\udeb\glxvisuallistmanager.dll"           -"!:\sys\bin\glxvisuallistmanager.dll"
+"\epoc32\release\armv5\udeb\glxuiutilities.dll"                 -"!:\sys\bin\glxuiutilities.dll"
+"\epoc32\data\z\resource\apps\glxuiutilities.rsc"               -"!:\resource\apps\glxuiutilities.rsc"
+"\epoc32\release\armv5\udeb\glxdrmutility.dll"                 -"!:\sys\bin\glxdrmutility.dll"
+
+"\epoc32\release\armv5\udeb\glxtileview.dll"                    -"!:\sys\bin\glxtileview.dll"
+"\epoc32\data\z\resource\apps\glxtileviewdata.rsc"              -"!:\resource\apps\glxtileviewdata.rsc"
+"\epoc32\data\z\resource\apps\glxdownloadtext.rsc"              -"!:\resource\apps\glxdownloadtext.rsc"
+"\epoc32\release\armv5\udeb\glxtileviewpluginbase.dll"          -"!:\sys\bin\glxtileviewpluginbase.dll"
+"\epoc32\release\armv5\udeb\glxtileviewplugin.dll"              -"!:\sys\bin\glxtileviewplugin.dll"
+"\epoc32\data\Z\resource\plugins\glxtileviewplugin.rsc"         -"!:\resource\plugins\glxtileviewplugin.rsc"
+
+"\epoc32\release\armv5\udeb\glxfullscreenview.dll"              -"!:\sys\bin\glxfullscreenview.dll"
+"\epoc32\release\armv5\udeb\glxfullscreenviewpluginbase.dll"    -"!:\sys\bin\glxfullscreenviewpluginbase.dll"
+"\epoc32\release\armv5\udeb\glxfullscreenviewplugin.dll"        -"!:\sys\bin\glxfullscreenviewplugin.dll"
+"\epoc32\data\z\resource\apps\glxfullscreenviewdata.rsc"        -"!:\resource\apps\glxfullscreenviewdata.rsc"
+"\epoc32\data\Z\resource\plugins\glxfullscreenviewplugin.rsc"   -"!:\resource\plugins\glxfullscreenviewplugin.rsc"
+
+"\epoc32\release\armv5\udeb\glxlistview.dll"                    -"!:\sys\bin\glxlistview.dll"
+"\epoc32\data\z\resource\apps\glxlistviewplugin.rsc"            -"!:\resource\apps\glxlistviewplugin.rsc"
+"\epoc32\release\armv5\udeb\glxlistviewpluginbase.dll"          -"!:\sys\bin\glxlistviewpluginbase.dll"
+"\epoc32\release\armv5\udeb\glxlistviewplugin.dll"              -"!:\sys\bin\glxlistviewplugin.dll"
+"\epoc32\data\Z\resource\plugins\glxlistviewplugin.rsc"         -"!:\resource\plugins\glxlistviewplugin.rsc"
+
+"\epoc32\data\z\private\10202be9\200071d3.txt"           -"!:\system\data\10202BE9\200071d3.txt"
+
+;Files for the VIA Player component
+"\epoc32\release\armv5\udeb\glxvideoplaybackviewplugin.dll"     -"!:\sys\bin\glxvideoplaybackviewplugin.dll"
+"\epoc32\data\Z\resource\plugins\glxvideoplaybackviewplugin.rsc"-"!:\resource\plugins\glxvideoplaybackviewplugin.rsc"
+;"\epoc32\release\armv5\udeb\ViaPlayerCore.dll"                  -"!:\sys\bin\ViaPlayerCore.dll"
+;"\epoc32\release\armv5\udeb\ViaPlayerDefaultView.dll"           -"!:\sys\bin\ViaPlayerDefaultView.dll"
+;"\epoc32\data\z\resource\apps\ViaPlayerDefaultView.Rsc"         -"!:\resource\apps\ViaPlayerDefaultView.Rsc"
+;"\epoc32\release\armv5\udeb\ViaPlayerUtilities.dll"             -"!:\sys\bin\ViaPlayerUtilities.dll"
+;"\epoc32\data\z\resource\apps\ViaPlayerUtilities.Rsc"           -"!:\resource\apps\ViaPlayerUtilities.Rsc"
+;"\epoc32\data\z\resource\apps\ViaPlayerUtilities.mif"		        -"!:\resource\apps\ViaPlayerUtilities.mif"
+;"\epoc32\release\armv5\udeb\ViaPlayerControllerBase.dll"        -"!:\sys\bin\ViaPlayerControllerBase.dll"
+;"\epoc32\data\z\resource\apps\ViaPlayer.mif"                    -"!:\resource\apps\ViaPlayer.mif"
+;"\epoc32\release\armv5\udeb\ViaDlProgressController.dll"        -"!:\sys\bin\ViaDlProgressController.dll"
+;"\epoc32\data\z\resource\plugins\ViaDlProgressController.Rsc"   -"!:\resource\plugins\ViaDlProgressController.Rsc"
+
+; Glx logging client
+"\epoc32\release\armv5\udeb\glxlogging.dll"-"!:\sys\bin\glxlogging.dll"
+; Glx logging app
+"\epoc32\release\armv5\udeb\glxloggingapp.exe"-"!:\sys\bin\glxloggingapp.exe"
+"\epoc32\data\z\private\10003a3f\apps\glxloggingapp_reg.rsc"-"!:\private\10003a3f\import\apps\glxloggingapp_reg.rsc"		
+"\epoc32\data\z\resource\apps\glxloggingapp_loc.rsc"-"!:\resource\apps\glxloggingapp_loc.rsc"
+"\epoc32\data\z\resource\apps\glxloggingapp.rsc"-"!:\resource\apps\glxloggingapp.rsc"

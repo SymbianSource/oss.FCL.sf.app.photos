@@ -1,0 +1,14 @@
+<layers>
+	<visual>
+	    <param name="rotation_angle" type="anim">
+	        <duration>0.5</duration>
+		    <keyframe at="0.0">0</keyframe>	
+	            <keyframe at="1.0">90</keyframe>
+	     </param>
+   	    
+	    <param name="rotation_origin_x" ref="visual.width">0.5</param>
+	    <param name="rotation_origin_y" ref="visual.height">0.5</param>
+	    <param name="rotation_axis_z">1</param>
+    	    
+	</visual>
+</layers>

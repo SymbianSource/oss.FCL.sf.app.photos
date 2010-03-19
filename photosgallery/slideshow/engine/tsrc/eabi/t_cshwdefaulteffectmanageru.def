@@ -1,5 +1,0 @@
-EXPORTS
-	_Z16CreateTestSuiteLv @ 1 NONAME
-	_ZTI16T_MShwTestEffect @ 2 NONAME ; #<TI>#
-	_ZTV16T_MShwTestEffect @ 3 NONAME ; #<VT>#
-

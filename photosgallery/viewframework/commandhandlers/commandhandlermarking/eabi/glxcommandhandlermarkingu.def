@@ -1,8 +1,0 @@
-EXPORTS
-	_ZN25CGlxCommandHandlerMarking4NewLEP21MGlxMediaListProvideri @ 1 NONAME
-	_ZN25CGlxCommandHandlerMarkingD0Ev @ 2 NONAME
-	_ZN25CGlxCommandHandlerMarkingD1Ev @ 3 NONAME
-	_ZN25CGlxCommandHandlerMarkingD2Ev @ 4 NONAME
-	_ZTI21CGlxMarkedIconManager @ 5 NONAME ; #<TI>#
-	_ZTV21CGlxMarkedIconManager @ 6 NONAME ; #<VT>#
-

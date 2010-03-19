@@ -1,7 +1,0 @@
-EXPORTS
-	??0CGlxGridViewPluginBase@@QAE@XZ @ 1 NONAME ; CGlxGridViewPluginBase::CGlxGridViewPluginBase(void)
-	??1CGlxGridViewPluginBase@@UAE@XZ @ 2 NONAME ; CGlxGridViewPluginBase::~CGlxGridViewPluginBase(void)
-	?AddCommandHandlersL@CGlxGridViewPluginBase@@MAEXXZ @ 3 NONAME ; void CGlxGridViewPluginBase::AddCommandHandlersL(void)
-	?ConstructViewLC@CGlxGridViewPluginBase@@MAEPAVCAknView@@XZ @ 4 NONAME ; class CAknView * CGlxGridViewPluginBase::ConstructViewLC(void)
-	?GetResourceFilenameL@CGlxGridViewPluginBase@@MAEXAAV?$TBuf@$0BAA@@@@Z @ 5 NONAME ; void CGlxGridViewPluginBase::GetResourceFilenameL(class TBuf<256> &)
-

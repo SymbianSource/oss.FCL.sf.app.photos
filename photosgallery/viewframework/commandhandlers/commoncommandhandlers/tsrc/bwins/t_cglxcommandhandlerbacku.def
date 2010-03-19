@@ -1,8 +1,0 @@
-EXPORTS
-	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 1 NONAME ; class MEUnitTest * __cdecl CreateTestSuiteL(void)
-	??1CGlxCommandHandlerBack@@UAE@XZ @ 2 NONAME ; CGlxCommandHandlerBack::~CGlxCommandHandlerBack(void)
-	?NewBackCommandHandlerL@CGlxCommandHandlerBack@@SAPAV1@XZ @ 3 NONAME ; class CGlxCommandHandlerBack * CGlxCommandHandlerBack::NewBackCommandHandlerL(void)
-	?NewContainerPreviousViewCommandHandlerL@CGlxCommandHandlerBack@@SAPAV1@PAVMGlxMediaListProvider@@H@Z @ 4 NONAME ; class CGlxCommandHandlerBack * CGlxCommandHandlerBack::NewContainerPreviousViewCommandHandlerL(class MGlxMediaListProvider *, int)
-	?NewPreviousViewCommandHandlerL@CGlxCommandHandlerBack@@SAPAV1@PAVMGlxMediaListProvider@@@Z @ 5 NONAME ; class CGlxCommandHandlerBack * CGlxCommandHandlerBack::NewPreviousViewCommandHandlerL(class MGlxMediaListProvider *)
-	?NewPreviousNaviViewCommandHandlerL@CGlxCommandHandlerBack@@SAPAV1@PAVMGlxMediaListProvider@@@Z @ 6 NONAME ; class CGlxCommandHandlerBack * CGlxCommandHandlerBack::NewPreviousNaviViewCommandHandlerL(class MGlxMediaListProvider *)
-
