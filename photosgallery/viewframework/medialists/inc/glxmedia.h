@@ -244,7 +244,7 @@ public:
      * @param aAttribute The attribute to obtain
      * @return A pointer to the thumbnail attribute or NULL if unsuccessful. 
      */
-    IMPORT_C const CGlxThumbnailAttribute* TGlxMedia::ThumbnailAttribute(
+    IMPORT_C const CGlxThumbnailAttribute* ThumbnailAttribute(
                                              TMPXAttribute& aAttribute) const;
     
     /**

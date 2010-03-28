@@ -28,8 +28,8 @@
 NONSHARABLE_CLASS( TGlxMulFullScreenBindingSetFactory ) : public TGlxMulBindingSetFactory
     {
 public:
-    IMPORT_C TGlxMulFullScreenBindingSetFactory::TGlxMulFullScreenBindingSetFactory();
-    IMPORT_C TGlxMulFullScreenBindingSetFactory::~TGlxMulFullScreenBindingSetFactory();
+    IMPORT_C TGlxMulFullScreenBindingSetFactory();
+    IMPORT_C ~TGlxMulFullScreenBindingSetFactory();
 private:
     void AddBindingsL() const;
     };

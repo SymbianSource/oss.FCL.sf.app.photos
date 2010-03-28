@@ -125,7 +125,7 @@ private:
 	 * @param aMedia media item which has the updated data
 	 * @param aIsFocused 
 	 */
-    std::auto_ptr<Alf::MulVisualItem> CGlxMulModelProviderBase::CreateItemT( const CGlxBinding& aBinding, 
+    std::auto_ptr<Alf::MulVisualItem> CreateItemT( const CGlxBinding& aBinding, 
         const TGlxMedia& aMedia, TBool aIsFocused );
     /**
      * IsFocused
