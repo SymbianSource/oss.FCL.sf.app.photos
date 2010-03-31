@@ -149,7 +149,7 @@ EXPORT_C CGlxCommandHandlerMarking* CGlxCommandHandlerMarking::NewL(
 //
 EXPORT_C CGlxCommandHandlerMarking::~CGlxCommandHandlerMarking()
     {
-    /// if (but do test this assumption!)
+    /// if (but do test this assumption)
     if (iResourceOffset)
         {
         CCoeEnv::Static()->DeleteResourceFile(iResourceOffset);
@@ -436,12 +436,6 @@ TKeyResponse CGlxCommandHandlerMarking::OfferKeyEventL(const TKeyEvent&
             if( aKeyEvent.iScanCode==EStdKeyDevice3 )
                 {         
                 TInt focIdx = mediaList.FocusIndex();
-                
-                /// is already in DoExecuteL:
-                /// Call ExecuteL with EAknCmdMark or EAknCmdUnmark to avoid duplication.
-                /// Replace with following code with 
-                /// (void) ExecuteL( mlist.IsSelected( mlist.FocusIndex() ) ? 
-                ///     EAknCmdUnmark : EAknCmdMark );
                 if( focIdx != KErrNotFound )
                     {
                     if ( mediaList.IsSelected( focIdx ) )
@@ -515,7 +509,7 @@ void CGlxCommandHandlerMarking::HandleMediaL(TInt /*aListIndex*/,
 void CGlxCommandHandlerMarking::HandleItemRemovedL(TInt /*aStartIndex*/, 
                                     TInt /*aEndIndex*/, MGlxMediaList* /*aList*/)
     {
-    //UpdateMiddleSoftkeyStatus();
+    //Do nothing
     }
 
 // ---------------------------------------------------------------------------

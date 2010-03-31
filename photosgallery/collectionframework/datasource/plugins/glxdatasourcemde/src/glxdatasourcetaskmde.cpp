@@ -240,7 +240,9 @@ void CGlxDataSourceTaskMde::AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProper
 //  CGlxDataSourceTaskMde::SetQueryConditionsL
 // ----------------------------------------------------------------------------
 //    
-void CGlxDataSourceTaskMde::SetQueryConditionsL(CMdEQuery& aQuery, const TGlxFilterProperties& aFilterProperties, const TGlxMediaId aContainerId, CMdEObjectDef& aObjectDef)
+void CGlxDataSourceTaskMde::SetQueryConditionsL(CMdEQuery& aQuery,
+        const TGlxFilterProperties& aFilterProperties,
+        const TGlxMediaId aContainerId, CMdEObjectDef& aObjectDef)
     {
     GLX_LOG_ENTRY_EXIT("void CGlxDataSourceTaskMde::SetQueryConditionsL()");
     CMdELogicCondition& rootCondition = aQuery.Conditions();
@@ -341,7 +343,6 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
         
     if( aFilterProperties.iExcludeAnimation )
         {
-        //__ASSERT_DEBUG((EGlxFilterImage == aFilterProperties.iItemType), Panic(EGlxPanicIllegalArgument));
         // Exclude any image with a frame count > 1
         const TInt excludeAllImagesAboveOrEqualToThisFrameCount = 2;
         CMdEPropertyDef* frameCountProperty = DataSource()->ImageDef().GetPropertyDefL(KPropertyDefNameFrameCount);

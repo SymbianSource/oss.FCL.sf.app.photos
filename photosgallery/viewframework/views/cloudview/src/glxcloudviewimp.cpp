@@ -44,6 +44,11 @@
 #include <glxtagsbrowserview.rsg>               // For resources
 
 #include "glxcloudviewcontrol.h"//cloud view control
+
+// For transition effects
+#include <AknTransEffect.h>                             
+#include <GfxTransEffect/GfxTransEffect.h>
+#include "glxgfxtranseffect.h"  // For transition effects
     
 const TInt KViewId = 0x200071B7;
 
@@ -103,12 +108,7 @@ void CGlxCloudViewImp::ConstructL(MGlxMediaListFactory *aMediaListFactory,
 
 	{
 	TRACER("GLX_CLOUD::CGlxCloudViewImp::ConstructL");
-	TInt err = iHarvesterClient.Connect();
-    GLX_LOG_INFO1("iHarvesterClient.Connect() err = %d",err);
-    if(err == KErrNone)
-        {
-        iHarvesterClient.AddHarvesterEventObserver(*this, EHEObserverTypeMMC, 1000);
-        }
+	
 	TFileName resourceFile(KDC_APP_RESOURCE_DIR);
 	resourceFile.Append (aFileName);
 	CGlxResourceUtilities::GetResourceFilenameL (resourceFile);
@@ -128,7 +128,6 @@ void CGlxCloudViewImp::ConstructL(MGlxMediaListFactory *aMediaListFactory,
         {
         toolbar->DisableToolbarL(ETrue);  
         }
-//	SetSoftkeysFromResourceIdL (iSoftkeyMskDisabledId); //initially load empty msk
 	}
 
 // ---------------------------------------------------------------------------
@@ -138,7 +137,10 @@ void CGlxCloudViewImp::ConstructL(MGlxMediaListFactory *aMediaListFactory,
 CGlxCloudViewImp::~CGlxCloudViewImp()
     {
     TRACER("GLX_CLOUD::CGlxCloudViewImp::~CGlxCloudViewImp");
-    iHarvesterClient.Close();
+    
+    delete iMMCNotifier;
+    iMMCNotifier = NULL;
+        
     CleanupVisuals ();
     delete iEmptyListText;
     if ( iResourceOffset )
@@ -199,12 +201,25 @@ void CGlxCloudViewImp::DoMLViewActivateL(const TVwsViewId & /* aPrevViewId */,
 		TUid /* aCustomMessageId */, const TDesC8 & /* aCustomMessage */)
     {
     TRACER("GLX_CLOUD::CGlxCloudViewImp::DoMLViewActivateL");
+        
+    TUint transitionID = (iUiUtility->ViewNavigationDirection()==
+          EGlxNavigationForwards)?KActivateTransitionId:KDeActivateTransitionId; 
+    
+    GfxTransEffect::BeginFullScreen( transitionID, TRect(),
+            AknTransEffect::EParameterType, 
+            AknTransEffect::GfxTransParam( KPhotosUid,
+            AknTransEffect::TParameter::EEnableEffects) );   
+
+    
     if(StatusPane())
         {
         StatusPane()->MakeVisible(ETrue);
         }
     ConstructCloudControlL();
     GLX_LOG_INFO("CGlxCloudViewImp::DoMLViewActivateL Cloud View Control Created" );  
+    
+    GfxTransEffect::EndFullScreen();
+	
     // set app state to tag-browser view
     GlxSetAppState::SetState (EGlxInTagBrowserView);
     }
@@ -235,7 +250,6 @@ void CGlxCloudViewImp::HandleMskChangedL(TBool aMskEnabled)
     TRACER("GLX_CLOUD ::CGlxCloudViewImp::HandleMskChangedL");
     GLX_LOG_INFO1("GLX_CLOUD ::GLX_CLOUD ::CGlxCloudViewImp::HandleMskChangedL MSk State  %d ",
         aMskEnabled);
-    //iViewWidget->setRect( ClientRect() );
 	 }
 
 // ---------------------------------------------------------------------------
@@ -277,14 +291,10 @@ void CGlxCloudViewImp::CleanupVisuals()
         }
     if( iUiUtility )
         {
-
 		IAlfWidgetFactory& widgetFactory = AlfWidgetEnvExtension::widgetFactory(*(iUiUtility->Env ())); 
         widgetFactory.destroyWidget(iViewWidget);
-    
         }
     iViewWidget = NULL; 
-    // delete iCloudControl;
-    //  iCloudControl = NULL;  
     iScrollbarDefaultBaseElement = NULL;
     }
 
@@ -358,6 +368,8 @@ void CGlxCloudViewImp::ConstructCloudControlL()
     
      //acquire the focus so as to get events to your control instead of widgets
     iCloudControl->AcquireFocus();
+    
+    iMMCNotifier = CGlxMMCNotifier::NewL(*this);
     }
 // ---------------------------------------------------------------------------
 // SetScrollBarRect()
@@ -430,19 +442,39 @@ void CGlxCloudViewImp::ViewDynInitMenuPaneL(TInt aMenuId, CEikMenuPane* /*aMenuP
         iCloudControl->ShowContextItemMenu(EFalse);
         }
     }
+
 // ---------------------------------------------------------------------------
-// HarvestingUpdated
+// HandleMMCInsertionL
 // 
 // ---------------------------------------------------------------------------
-//
-void CGlxCloudViewImp::HarvestingUpdated( 
-                HarvesterEventObserverType HarvestingUpdated, 
-                HarvesterEventState /*aHarvesterEventState*/,
-                TInt /*aItemsLeft*/ )
+void CGlxCloudViewImp::HandleMMCInsertionL()
     {
-    TRACER("CGlxCloudViewImp::HarvestingUpdated()");
-    if(HarvestingUpdated == EHEObserverTypeMMC)
+    TRACER("CGlxCloudViewImp::HandleMMCInsertionL()");
+    iMMCState = ETrue;
+    ProcessCommandL(EAknSoftkeyClose);
+    }
+
+// ---------------------------------------------------------------------------
+// HandleMMCRemovalL
+// 
+// ---------------------------------------------------------------------------
+void CGlxCloudViewImp::HandleMMCRemovalL()
+    {
+    TRACER("CGlxCloudViewImp::HandleMMCRemovalL()");
+    ProcessCommandL(EAknSoftkeyExit);
+    }
+
+// ---------------------------------------------------------------------------
+// Foreground event handling function.
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewImp::HandleForegroundEventL(TBool aForeground)
+    {
+    TRACER("CGlxCloudViewImp::HandleForegroundEventL");
+    CAknView::HandleForegroundEventL(aForeground);
+    if(iMMCState)
         {
+        iMMCState = EFalse;
         ProcessCommandL(EAknSoftkeyClose);
         }
     }

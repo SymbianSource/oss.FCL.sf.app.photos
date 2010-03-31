@@ -116,7 +116,6 @@ CFbsBitmap* CGlxtnImageUtility::DecodeImageL(TRequestStatus& aStatus,
     //Get Exif Metadata and the orientation tag from the file first
     TUint16 orientation = GetOrientationL(aFileName);
     TInt isExtDecoderUsed = 0;
-    ///iDecoder = GlxtnImageDecoderFactory::NewL( iFs, aFileName );
     iDecoder = GlxtnImageDecoderFactory::NewL( iFs, aFileName, isExtDecoderUsed );
     iOriginalSize = iDecoder->FrameInfo().iOverallSizeInPixels;
     //Get the orientation and set rotation on the decoder 
@@ -218,17 +217,6 @@ const TSize& CGlxtnImageUtility::OriginalSize() const
 // OPTION ARMCC --asm --interleave
 // Modify optimization for ARM insturcion set and for maximum speed
 // OPTION_REPLACE ARMCC --arm -Otime
-/*    aSource->LockHeap();
-    TUint16* sourceAddress = (TUint16*)aSource->DataAddress();
-	aSource->UnlockHeap();
-    aTarget->LockHeap();
-    TUint16* targetAddress = (TUint16*)aTarget->DataAddress();
-	aTarget->UnlockHeap();
-    ScaleColor64K(sourceAddress, aSource->DataStride(), 
-        sourceSize.iWidth, sourceSize.iHeight, 0, 0,  sourceSize.iWidth, sourceSize.iHeight,
-        targetAddress, aTarget->DataStride(), 
-        targetSize.iWidth, targetSize.iHeight);
-*/
 
 void CGlxtnImageUtility::FilterImageL(TRequestStatus* aStatus, CFbsBitmap* aSource, CFbsBitmap*& aFilteredSource, CFbsBitmap* aTarget)
     {
@@ -299,20 +287,12 @@ void CGlxtnImageUtility::ScaleImage64kL(TRequestStatus* aStatus, CFbsBitmap* aSo
     TUint16* targetAddress = (TUint16*)aTarget->DataAddress();
 	aTarget->UnlockHeap();
     ScaleColor64K(sourceAddress, sourceImage->DataStride(), 
-        sourceImage->SizeInPixels().iWidth, sourceImage->SizeInPixels().iHeight, 0, 0,  sourceImage->SizeInPixels().iWidth, sourceImage->SizeInPixels().iHeight,
-        targetAddress, aTarget->DataStride(), 
-        targetSize.iWidth, targetSize.iHeight);
+        sourceImage->SizeInPixels().iWidth,
+            sourceImage->SizeInPixels().iHeight, 0, 0,
+            sourceImage->SizeInPixels().iWidth,
+            sourceImage->SizeInPixels().iHeight, targetAddress,
+            aTarget->DataStride(), targetSize.iWidth, targetSize.iHeight);
     
-/*    if ( !iBitGc )
-        {
-        iBitGc = CFbsBitGc::NewL();
-        }
-    CFbsBitmapDevice *bitmapDevice = CFbsBitmapDevice::NewL(aTarget);
-    CleanupStack::PushL(bitmapDevice);
-    iBitGc->Activate(bitmapDevice);
-    iBitGc->DrawBitmap(targetRect, sourceImage, sourceRect); 
-    CleanupStack::PopAndDestroy(bitmapDevice);
-*/
     *aStatus = KRequestPending;
     User::RequestComplete(aStatus, KErrNone);
     }
@@ -409,11 +389,11 @@ void CGlxtnImageUtility::FilterL( CFbsBitmap* aSource, CFbsBitmap*& aFilteredSou
 
 #define mask32gbr655 0x07e0f81f
 
-// Keep below three defs in sync with each other!
+// Keep below three defs in sync with each other
 #define KFIRLen    2
 #define KFIRCen	   (KFIRLen / 2)
 #define incFIRIndex( i ) i = (i + 1) & (KFIRLen - 1)
-// Keep above three defs in sync with each other!
+// Keep above three defs in sync with each other
 
 void CGlxtnImageUtility::FIRFiltering(
 		TUint16* aDst, TUint aDstStridep, TUint aDstCols, TUint aDstRows )
@@ -429,10 +409,8 @@ void CGlxtnImageUtility::FIRFiltering(
     p = aDst;
     for ( row = aDstRows - 1; row >= 0; row-- )
         {
-        // read for cache
-	    //for ( col = aDstCols - 1; col >= 0; col-- ) TInt temp = p[ col ];
         // Fill in the FIR first.
-        // TODO: Fill in with extrapolated values at edges!
+        // TODO: Fill in with extrapolated values at edges
         FIRsum = ((KFIRLen / 2)<<21) | ((KFIRLen / 2)<<11) | (KFIRLen / 2); // for correct rounding
         i = 0;
         TUint32 mask1 = mask32gbr655;
@@ -492,11 +470,11 @@ void CGlxtnImageUtility::FIRFiltering(
         }
     }
 //
-// Keep below three defs in sync with each other!
+// NOTE: Keep below three defs in sync with each other
 #define KFIRLen4    4
 #define KFIRCen4	   (KFIRLen4 / 2)
 #define incFIRIndex4( i ) i = (i + 1) & (KFIRLen4 - 1)
-// Keep above three defs in sync with each other!
+// NOTE: Keep above three defs in sync with each other
 
 void CGlxtnImageUtility::FIRFiltering4(
 		TUint16* aDst, TUint aDstStridep, TUint aDstCols, TUint aDstRows )
@@ -512,10 +490,8 @@ void CGlxtnImageUtility::FIRFiltering4(
     p = aDst;
     for ( row = aDstRows - 1; row >= 0; row-- )
         {
-        // read for cache
-	    //for ( col = aDstCols - 1; col >= 0; col-- ) TInt temp = p[ col ];
         // Fill in the FIR first.
-        // TODO: Fill in with extrapolated values at edges!
+        // TODO: Fill in with extrapolated values at edges
         FIRsum = ((KFIRLen4 / 2)<<21) | ((KFIRLen4 / 2)<<11) | (KFIRLen4 / 2); // for correct rounding
         i = 0;
         TUint32 mask1 = mask32gbr655;
@@ -575,11 +551,11 @@ void CGlxtnImageUtility::FIRFiltering4(
         }
     }
 
-// Keep below three defs in sync with each other!
+// Keep below three defs in sync with each other
 #define KFIRLen8    8
 #define KFIRCen8	   (KFIRLen8 / 2)
 #define incFIRIndex8( i ) i = (i + 1) & (KFIRLen8 - 1)
-// Keep above three defs in sync with each other!
+// Keep above three defs in sync with each other
 
 void CGlxtnImageUtility::FIRFiltering8(
 		TUint16* aDst, TUint aDstStridep, TUint aDstCols, TUint aDstRows )
@@ -595,10 +571,8 @@ void CGlxtnImageUtility::FIRFiltering8(
     p = aDst;
     for ( row = aDstRows - 1; row >= 0; row-- )
         {
-        // read for cache
-	    //for ( col = aDstCols - 1; col >= 0; col-- ) TInt temp = p[ col ];
         // Fill in the FIR first.
-        // TODO: Fill in with extrapolated values at edges!
+        // TODO: Fill in with extrapolated values at edges
         FIRsum = ((KFIRLen8 / 2)<<21) | ((KFIRLen8 / 2)<<11) | (KFIRLen8 / 2); // for correct rounding
         i = 0;
         TUint32 mask1 = mask32gbr655;

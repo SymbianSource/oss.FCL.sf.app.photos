@@ -892,45 +892,6 @@ void CGlxTextureManagerImpl::HandleResolutionChangedL()
     }
 
 // -----------------------------------------------------------------------------
-// DoHandleResolutionChangedL
-// -----------------------------------------------------------------------------
-//
-//To-do
-/*void CGlxTextureManagerImpl::DoHandleResolutionChangedL(TInt aIconIndex)
-    {
-    TGlxIcon& icon = iIconList[aIconIndex];
-    CAlfTexture* texture = icon.iTexture;
-    // Clear previous content
-    //texture->SetSegmentCountL(0);
-    
-    // Get new bitmaps
-    CFbsBitmap* bitmap = NULL;
-    CFbsBitmap* mask = NULL;
-    ProvideBitmapL(icon.iTextureId, bitmap, mask);
-    // Upload to texture
-    if(bitmap)
-        {
-        CleanupStack::PushL(bitmap);
-        texture->SetSize(bitmap->SizeInPixels());
-        if(mask)
-            {
-            CleanupStack::PushL(mask);
-            texture->UploadL( *bitmap, mask,
-                        EAlfTextureUploadFlagDefault );
-            CleanupStack::PopAndDestroy(mask);
-            }
-        else
-            {
-            texture->UploadL( *bitmap, NULL,
-                        EAlfTextureUploadFlagDefault );
-            
-            }
-        CleanupStack::PopAndDestroy(bitmap);    
-        }
-    }*/
-
-
-// -----------------------------------------------------------------------------
 // ProvideBitmapL
 // -----------------------------------------------------------------------------
 //
@@ -1108,9 +1069,9 @@ TMPXAttribute CGlxTextureManagerImpl::SelectAttributeL( TSize& aSize,
         // check if rights have expired
         TBool checkViewRights = (cat==EMPXImage);
 
-        //Fix for ESLM-82WJ59: Since uri can be either focused or unfocused item
-        //better call CheckOpenRightsL which doesn't modify lastconsumedUri.
-        drmInvalid = !iDrmUtility->CheckOpenRightsL(uri, checkViewRights);
+        //Since uri can be either focused or unfocused item
+        //better call ItemRightsValidityCheckL which doesn't modify lastconsumedUri.
+        drmInvalid = !iDrmUtility->ItemRightsValidityCheckL(uri, checkViewRights);
 
         CGlxMedia* properties = const_cast<CGlxMedia*>(aMedia.Properties());
         if( !drmInvalid )

@@ -122,10 +122,9 @@ void CShwTimerControl::NotifyL( MShwEvent* aEvent )
 		// resume the timer
 		iTimer->Resume();
 		}
-	// was it next or previous image?
 	else if ( dynamic_cast< TShwEventNextImage* >( aEvent ) || 
 			  dynamic_cast< TShwEventPreviousImage* >( aEvent ) )
-	    {
+	    { // it was next or previous image
 	    GLX_LOG_INFO( "CShwTimerControl::NotifyL - TShwEventNext/PreviousImage" );
         // cancel the timer as we have moved to another image
         iTimer->Cancel();

@@ -44,10 +44,16 @@
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionplugintype.hrh>
+#include <glxnavigationalstate.h>
+
+#include <AknTransEffect.h>  // For transition effects
+#include <GfxTransEffect/GfxTransEffect.h>  // For transition effects
+#include "glxgfxtranseffect.h"  // For transition effects
 
 const TInt KListDataWindowSize(25);
 const TInt KNoOfPages(2);
 const TInt KBufferTresholdSize(6);
+const TInt KGlxCollectionRootLevel = 1;
 
 
 // ======== MEMBER FUNCTIONS ========
@@ -56,12 +62,12 @@ const TInt KBufferTresholdSize(6);
 // C++ default constructor can NOT contain any code that might leave.
 // ---------------------------------------------------------------------------
 //
-CGlxListViewImp::CGlxListViewImp(TInt aViewUid, const TListViewResourceIds& aResourceIds):        
-        iViewUid(aViewUid),
-        iResourceIds(aResourceIds)  
+CGlxListViewImp::CGlxListViewImp(TInt aViewUid,
+        const TListViewResourceIds& aResourceIds) :
+    iViewUid(aViewUid), iResourceIds(aResourceIds), iIsRefreshNeeded(EFalse),
+    iBackwardNavigation(EFalse), isTnGenerationComplete(ETrue)
     {
     }
-
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
@@ -109,6 +115,11 @@ void CGlxListViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
     BaseConstructL(iResourceIds.iViewId);
     ViewBaseConstructL();
     MLViewBaseConstructL(aMediaListFactory, aTitle);
+    
+    // Create navigational state 
+    iNavigationalState = CGlxNavigationalState::InstanceL();
+    iNavigationalState->AddObserverL( *this );
+ 
     CAknToolbar* toolbar = Toolbar();
     if(toolbar)
         {
@@ -117,9 +128,7 @@ void CGlxListViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
     
     //Register the view to recieve toolbar events. ViewBase handles the events    
     SetToolbarObserver(this);
-    iBackwardNavigation = EFalse;
-    iIsRefreshNeeded = EFalse;
-	isTnGenerationComplete = ETrue;
+	iMMCNotifier = CGlxMMCNotifier::NewL(*this);
     }
 
 // ---------------------------------------------------------------------------
@@ -129,6 +138,15 @@ void CGlxListViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
 CGlxListViewImp::~CGlxListViewImp()
     {    
     TRACER("CGlxListViewImp::~CGlxListViewImp");
+    delete iMMCNotifier;
+    iMMCNotifier = NULL;
+    
+    if ( iNavigationalState )
+        {
+        iNavigationalState->RemoveObserver(*this);
+        iNavigationalState->Close();
+        }
+    
     delete iTitletext;  
     }
 
@@ -162,6 +180,16 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
         TUid /* aCustomMessageId */, const TDesC8& /* aCustomMessage */)
     {
     TRACER("CGlxListViewImp::DoMLViewActivateL");  
+    
+    TUint transitionID = (iUiUtility->ViewNavigationDirection()==
+          EGlxNavigationForwards)?KActivateTransitionId:KDeActivateTransitionId;
+
+    GfxTransEffect::BeginFullScreen( transitionID, TRect(),
+                                   AknTransEffect::EParameterType, 
+                         AknTransEffect::GfxTransParam( KPhotosUid, 
+                                 AknTransEffect::TParameter::EEnableEffects) );   
+    GfxTransEffect::EndFullScreen();
+    
     iNextViewActivationEnabled = ETrue;
     if(StatusPane())
         {
@@ -213,16 +241,18 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
 
     iPreviewTNBinding = CGlxPreviewThumbnailBinding::NewL(*this);
     CreateListL();
-    if (iPreviewTNBinding)
+    if (iPreviewTNBinding && iBackwardNavigation && iMediaList->FocusIndex()
+            == 0)
         {
-        iPopulateListTNs  = ETrue;
-        CMPXCollectionPath* path = iMediaList->PathLC( 
-                NGlxListDefs::EPathFocusOrSelection );
-        iPreviewTNBinding->HandleItemChangedL(*path, 
-                iPopulateListTNs, iIsRefreshNeeded, iBackwardNavigation);
-        CleanupStack::PopAndDestroy( path );        
+        GLX_LOG_INFO("CGlxListViewImp::DoMLViewActivateL() - HandleItemChangedL()");        
+        iPopulateListTNs = ETrue;
+        CMPXCollectionPath* path = iMediaList->PathLC(
+                NGlxListDefs::EPathFocusOrSelection);
+        iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs,
+                iIsRefreshNeeded, iBackwardNavigation);
+        CleanupStack::PopAndDestroy(path);
         }
-
+    iProgressIndicator = CGlxProgressIndicator::NewL(*this);
     }
 
 // ---------------------------------------------------------------------------
@@ -445,10 +475,17 @@ void CGlxListViewImp::HandleOpenL( TInt aIndex )
             iProgressIndicator = NULL;
             }
         iProgressIndicator = CGlxProgressIndicator::NewL(*this);
+        if(iSchedulerWait)
+            {
+            delete iSchedulerWait;
+            iSchedulerWait = NULL;
+            }
+        iSchedulerWait = new (ELeave) CActiveSchedulerWait();
+        iSchedulerWait->Start();
         }
 #endif
 	if( iNextViewActivationEnabled && ( aIndex >= 0 && aIndex < 
-	        iMediaList->Count()) && isTnGenerationComplete)
+	        iMediaList->Count()) && isTnGenerationComplete )
 	    {
 	    	//Delete the PreviewTNMBinding as in forward navigation
 		//we do not get the medialist callback.
@@ -469,24 +506,50 @@ void CGlxListViewImp::HandleOpenL( TInt aIndex )
     }
 
 void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap* 
-        /*aMask*/, TBool aPopulateList)
+        /*aMask*/)
     {
     TRACER("CGlxListViewImp::PreviewTNReadyL");
 
+    if (!iPopulateListTNs)
+        {
+        GLX_LOG_INFO("CGlxListViewImp::PreviewTNReadyL()- Ignore!");
+        return;
+        }
     iPreviewTNBinding->StopTimer();
 
 	TInt focusIndex = iMediaList->FocusIndex();
     TInt mediaCount = iMediaList->Count();
-    iPopulateListTNs = aPopulateList;
+    GLX_LOG_INFO1("CGlxListViewImp::PreviewTNReadyL() focusIndex(%d)",
+            focusIndex);      
     
+    TGlxIdSpaceId id = iMediaList->IdSpaceId(0);        
     if (aBitmap)
-	    {	
-	    iList->ItemL(focusIndex).SetIcon(CGulIcon::NewL(aBitmap));
-	    }
+	    {
+        iList->ItemL(focusIndex).SetIcon(CGulIcon::NewL(aBitmap));
+        if (id == KGlxIdSpaceIdRoot && focusIndex == EGlxListItemAll)
+            {
+            CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
+            bitmap->Duplicate(aBitmap->Handle());
+            iList->ItemL(EGlxListItemMonth).SetIcon(CGulIcon::NewL(bitmap));
+            }
+        else if (iBackwardNavigation && id == KGlxIdSpaceIdRoot && focusIndex
+                == EGlxListItemMonth)
+            {
+            CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
+            bitmap->Duplicate(aBitmap->Handle());
+            iList->ItemL(EGlxListItemAll).SetIcon(CGulIcon::NewL(bitmap));
+            }
+        }
     else
     	{
+	    // In main list view, default thumbnails will be set according 
+	    // to the list items.
     	//Displays default thumbnail if aBitmap is NULL 
         SetDefaultThumbnailL(focusIndex);
+        if(id == KGlxIdSpaceIdRoot && focusIndex == EGlxListItemAll)
+            {
+            SetDefaultThumbnailL(EGlxListItemMonth);
+            }
     	}
     
     TInt firstIndex = iList->FirstIndexOnScreen();
@@ -497,12 +560,9 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
 		lastOnScreen = mediaCount;	    	
 	    }
     
-    if (!iPopulateListTNs || focusIndex == lastOnScreen)
-        {
-        GLX_DEBUG2("CGlxListViewImp::PreviewTNReadyL()"
-               " RefreshScreen - focusIndex(%d)", focusIndex);        
-		iList->RefreshScreen(focusIndex);
-	    } 
+    GLX_DEBUG2("CGlxListViewImp::PreviewTNReadyL()"
+            " RefreshScreen - focusIndex(%d)", focusIndex);
+    iList->RefreshScreen(focusIndex);
 	
 	if (iPopulateListTNs)
 		{
@@ -514,10 +574,15 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
 		TInt count = iMediaList->Count();
 		if(count)
 		    {
-            TInt focus = (focusIndex+1)%count;
+            TInt focus = (focusIndex + 1) % count;
+            if (!iBackwardNavigation && id == KGlxIdSpaceIdRoot && focus
+                    == EGlxListItemMonth)
+                {
+                focus += 1;
+                }
             if (focus != iStartIndex)
                 {
-                iMediaList->SetFocusL(NGlxListDefs::EAbsolute, focus);			
+                iMediaList->SetFocusL(NGlxListDefs::EAbsolute, focus);
                 }
             else
                 {
@@ -547,6 +612,7 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
                     {                        
                     CMPXCollectionPath* path = iMediaList->PathLC( 
                             NGlxListDefs::EPathFocusOrSelection );
+                    GLX_LOG_INFO("CGlxListViewImp::PreviewTNReadyL() - HandleItemChangedL()");                    
                     iPreviewTNBinding->HandleItemChangedL(*path, 
                             iPopulateListTNs, iIsRefreshNeeded, iBackwardNavigation);
                     CleanupStack::PopAndDestroy( path );
@@ -564,7 +630,6 @@ void CGlxListViewImp::CreateListL()
     {
     TRACER("CGlxListViewImp::CreateListL");
     
-	iPopulateListTNs = ETrue;
 	iStartIndex = KErrNotFound;
 	TInt mediaCount = iMediaList->Count();
     GLX_DEBUG2("CGlxListViewImp::CreateListL() mediaCount=%d", mediaCount);
@@ -629,7 +694,7 @@ void CGlxListViewImp::CreateListL()
 		    {            
             for (TInt i = 0; i < mediaCount; i++)
                 {
-                    SetDefaultThumbnailL(i);
+                SetDefaultThumbnailL(i);
                 }
 		    }
         // Set the scrollbar type for albums list
@@ -723,7 +788,7 @@ void CGlxListViewImp::HandleItemRemovedL( TInt aStartIndex, TInt aEndIndex,
 // ----------------------------------------------------------------------------
 //	
 void CGlxListViewImp::HandleAttributesAvailableL( TInt aItemIndex, 
-	const RArray<TMPXAttribute>& aAttributes, MGlxMediaList* /*aList*/ )
+	const RArray<TMPXAttribute>& aAttributes, MGlxMediaList* aList)
 	{
 	TRACER("CGlxListViewImp::HandleAttributesAvailableL");
 
@@ -751,17 +816,18 @@ void CGlxListViewImp::HandleAttributesAvailableL( TInt aItemIndex,
 				== EGlxNavigationBackwards)
 			{
 			iIsRefreshNeeded = ETrue;
-			iPopulateListTNs = EFalse;
 			}
 
 		// Set iPopulateListTNs to ETrue and refresh all the items in
 		// list view if subtitle is updated
-		if (iPreviewTNBinding && !iPopulateListTNs)
-			{
+		if (iPreviewTNBinding && ((!iPopulateListTNs && aItemIndex
+                == aList->Count() - 1) || (iIsRefreshNeeded)))
+            {
 			iPopulateListTNs = ETrue;
 			iStartIndex = KErrNotFound;
 			CMPXCollectionPath* path = iMediaList->PathLC(
 					NGlxListDefs::EPathFocusOrSelection);
+            GLX_LOG_INFO("CGlxListViewImp::HandleAttributesAvailableL() - HandleItemChangedL()");		
 			iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs,
 					iIsRefreshNeeded, iBackwardNavigation);
 			CleanupStack::PopAndDestroy(path);
@@ -779,14 +845,21 @@ void CGlxListViewImp::HandleFocusChangedL( NGlxListDefs::
 	{
 	TRACER( "CGlxListViewImp::HandleFocusChangedL");
 	 
-	if (iPreviewTNBinding)
+	if (iPreviewTNBinding && iPopulateListTNs)
 		{
-		CMPXCollectionPath* path = iMediaList->PathLC( 
-		        NGlxListDefs::EPathFocusOrSelection );
-        iPreviewTNBinding->HandleItemChangedL(*path, 
-                iPopulateListTNs, iIsRefreshNeeded, iBackwardNavigation);
-		CleanupStack::PopAndDestroy( path );		
-		}
+        CMPXCollectionPath* path = iMediaList->PathLC(
+                NGlxListDefs::EPathFocusOrSelection);
+        if (!iBackwardNavigation && path->Levels() == KGlxCollectionRootLevel
+                && path->Id(0) == KGlxCollectionPluginMonthsImplementationUid)
+            {
+            CleanupStack::PopAndDestroy(path);
+            return;
+            }
+        GLX_LOG_INFO("CGlxListViewImp::HandleFocusChangedL() - HandleItemChangedL()");        
+        iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs,
+                iIsRefreshNeeded, iBackwardNavigation);
+        CleanupStack::PopAndDestroy(path);
+        }
 	}
 
 // ----------------------------------------------------------------------------
@@ -961,5 +1034,64 @@ void CGlxListViewImp::HandleDialogDismissedL()
     {
     TRACER("CGlxListViewImp::HandleDialogDismissedL()");
     isTnGenerationComplete = ETrue;
+    if(iSchedulerWait)
+        {
+        iSchedulerWait->AsyncStop();    
+        delete iSchedulerWait;
+        iSchedulerWait = NULL;
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// HandleMMCInsertionL
+// 
+// ---------------------------------------------------------------------------
+void CGlxListViewImp::HandleMMCInsertionL()
+    {
+    TRACER("CGlxListViewImp::HandleMMCInsertionL()");
+    iMMCState = ETrue;
+    NavigateToMainListL();
+    
+    }
+
+// ---------------------------------------------------------------------------
+// HandleMMCRemovalL
+// 
+// ---------------------------------------------------------------------------
+void CGlxListViewImp::HandleMMCRemovalL()
+    {
+    TRACER("CGlxListViewImp::HandleMMCRemovalL()");
+    ProcessCommandL(EAknSoftkeyExit);
+    }
+
+// ---------------------------------------------------------------------------
+// HandleForegroundEventL
+// 
+// ---------------------------------------------------------------------------
+void CGlxListViewImp::HandleForegroundEventL(TBool aForeground)
+    {
+    TRACER("CGlxListViewImp::HandleForegroundEventL()");
+    CAknView::HandleForegroundEventL(aForeground);
+    if(iMMCState)
+        {
+        iMMCState = EFalse;
+        NavigateToMainListL();
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// NavigateToMainListL
+// 
+// ---------------------------------------------------------------------------
+void CGlxListViewImp::NavigateToMainListL()
+    {
+    TRACER("CGlxListViewImp::NavigateToMainListL()");
+    CMPXCollectionPath* naviState = iNavigationalState->StateLC();
+    GLX_LOG_INFO1("From listview level = %d",naviState->Levels());
+//    if ( naviState->Levels() >= 1)
+        {
+        ProcessCommandL(EAknSoftkeyClose);
+        }
+    CleanupStack::PopAndDestroy(naviState);
     }
 //  End of File

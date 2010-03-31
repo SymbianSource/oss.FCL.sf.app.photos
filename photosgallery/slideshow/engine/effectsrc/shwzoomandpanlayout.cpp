@@ -201,7 +201,7 @@ void TShwZoomAndPanLayout::Resume()
 // -----------------------------------------------------------------------------
 // DoSetLayoutValues
 // -----------------------------------------------------------------------------
-void TShwZoomAndPanLayout::DoSetLayoutValues( TGlxLayoutInfo& aInfo )
+void TShwZoomAndPanLayout::DoSetLayoutValues( TGlxLayoutInfo& /*aInfo*/ )
 	{
 	// calculate new x size, current value from zoomedsize
 	TReal32 x_size = iZoomedSize.iWidth.Now();

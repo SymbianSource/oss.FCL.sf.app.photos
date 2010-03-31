@@ -90,12 +90,6 @@ class CGlxListTestBase : public CEUnitTestSuiteClass, public MGlxMediaPool,
          *                 and 'f' indicates "no, is not linked"
          */
         TBool IsLinkedToMedia( const TDesC8& aAnswers ) const;
-        /** 
-         * Creates a media object in pool, and offers to list.
-         * @param aAnswers See IsLinkedToMedia
-         * @param aShouldAccept ETrue if list should accept the offer
-         */
-        //TBool TryOfferMedia( TChar aId, const TDesC8& aAnswers, TBool aShouldAccept );
         
         /** 
          * Tries to remove reference of list from media

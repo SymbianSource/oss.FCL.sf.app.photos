@@ -242,7 +242,7 @@ CGlxMarkingCommandHandlerTester* CGlxMarkingCommandHandlerTester::NewL()
 	CGlxMarkingCommandHandlerTester* me = new(ELeave)CGlxMarkingCommandHandlerTester();
 	CleanupStack::PushL(me);
 	me->ConstructL();
-	CleanupStack::Pop();
+	CleanupStack::Pop( me );
 	return me;
 	}
 	
@@ -306,8 +306,7 @@ void CGlxMarkingCommandHandlerTester::HandleFocusChangedL(NGlxListDefs::TFocusCh
 ut__commandhandlermarking* ut__commandhandlermarking::NewL()
     {
     ut__commandhandlermarking* self = ut__commandhandlermarking::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -315,9 +314,7 @@ ut__commandhandlermarking* ut__commandhandlermarking::NewLC()
     {
     ut__commandhandlermarking* self = new( ELeave ) ut__commandhandlermarking();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 

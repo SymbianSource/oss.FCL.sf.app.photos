@@ -80,14 +80,6 @@ const TInt KGlxMaxMemoryToDecodeCapturedPicture = 2 * KGlxMaxMegaPixelsSupported
 const TInt KGlxMemoryForOOMFwk          = 1048576 ; // 1 MB
 const TInt KGlxThumbNailRepresentation    = 2;         // Thumbnail Representation; Could be 3 also 
 
-_LIT8( KPhotosCaptured, "Captured" );
-_LIT8( KPhotosMonths, "Months" );
-_LIT8( KPhotosTags, "Tags" );
-_LIT8( KPhotosAlbums, "Albums" );
-_LIT8( KPhotosAllValue,"Allcs");
-
-const TInt KCapturedAlbumId = 2 ;
-        
 /**
  * Start Delay for the periodic timer, in microseconds
  */
@@ -221,27 +213,10 @@ MCoeMessageObserver::TMessageResponse CGlxAppUi::HandleMessageL(
 		{
         case KGlxActivationCmdShowLastModified:
         case KGlxActivationCameraAlbum:
+        case KGlxActivationCmdShowAll:
             HandleActivationMessageL(aMessageParameters);
             break;
          
-        case KGlxActivationPhotosMenu:
-        case KGlxActivationCameraView:
-        case KGlxActivationMonthsView:
-        case KGlxActivationAlbumsView:
-        case KGlxActivationTagsView:
-        case KGlxActivationAllView:
-        	{
-            TApaTaskList taskList( iCoeEnv->WsSession() );
-        	TApaTask task = taskList.FindApp( TUid::Uid( KGlxGalleryApplicationUid ) );
-        	TApaTask taskForeGround = taskList.FindByPos(0); // get fopreground app
-	        if ( task.Exists() && task.ThreadId() != taskForeGround.ThreadId() )
-		        {
-                // No matter which collection is selected,
-                // Photos is running in background, bring to foreground
-                iEikonEnv->RootWin().SetOrdinalPosition(0);
-		        }
-        	}
-            break;
         default:
             //To prevent Continues Activation of the Same View; Same is Triggered in ProcessCommandParametersL
             HandleActivationMessageL(aMessageParameters);           
@@ -480,7 +455,7 @@ void CGlxAppUi::HandleActivationMessageL(const TApaCommand& aCommand,
         HandleActivationMessageL( aData );
         }
 
-    // Introduced to fix bug EMJN-78GH6N. Rowland Cook 10/12/2007
+    // Introduced to fix bug EMJN-78GH6N. 
     if (0 != iEikonEnv->RootWin().OrdinalPosition())
         {
         iEikonEnv->RootWin().SetOrdinalPosition(0);
@@ -520,75 +495,28 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
     switch ( msgUid.iUid )
         {
         case KGlxActivationCmdShowLastModified:
-            // Go to camera album full screen view
-            GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: show last modified");
-            // Send the command to reset the view
-            ProcessCommandL(EGlxCmdResetView);
-            // Not using KGlxCollectionPluginCameraImplementationUid
-            iNavigationalState->SetBackExitStatus(ETrue);
-            path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);            
-            path->AppendL(KCapturedAlbumId);
-            SetActivationParamL(KGlxActivationFullScreen);
-            break;
-
         case KGlxActivationCameraAlbum:
-            // Go to camera album tile view
-            GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: camera album");
-            iNavigationalState->SetBackExitStatus(ETrue);
-            path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
-            path->AppendL(KCapturedAlbumId);
-            break;
-
-        case KGlxActivationPhotosMenu:
-            // Open the main view
-            GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: photos menu");
-            break;
-            
-        case KGlxActivationAllView:
-            GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: Show all photos");
+        case KGlxActivationCmdShowAll:
+            {
+            // Go to All grid view
+            GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: All Grid View");
             // Send the command to reset the view
             ProcessCommandL(EGlxCmdResetView);
-            path->AppendL(KGlxCollectionPluginAllImplementationUid);            
-        	break;            
+            iNavigationalState->SetBackExitStatus(ETrue);
+            path->AppendL(KGlxCollectionPluginAllImplementationUid);
+            }
+            break;
 
         default:
             GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: unknown command");
-
-
-            if(0 == aData.CompareC(KPhotosCaptured))
-                {
-                path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
-				path->AppendL(KCapturedAlbumId);
-                }
-            else if(0 == aData.CompareC(KPhotosAllValue))
-                {
-                path->AppendL(KGlxCollectionPluginAllImplementationUid);
-                }
-            else if(0 == aData.CompareC(KPhotosMonths))
-                {
-                path->AppendL(KGlxCollectionPluginMonthsImplementationUid);
-                }
-            else if(0 == aData.CompareC(KPhotosAlbums))
-                {
-                path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
-                }
-            else if(0 == aData.CompareC(KPhotosTags))
-                {
-                path->AppendL(KGlxTagCollectionPluginImplementationUid);
-                }
-            else
-                {
-                User::Leave(KErrNotSupported);
-                }
-            iNavigationalState->SetBackExitStatus(ETrue);
-            break;
+            User::Leave(KErrNotSupported);
         }
     CleanupStack::PopAndDestroy(&stream);
     iNavigationalState->SetStartingLevel(path->Levels());
     iNavigationalState->NavigateToL( *path );
     CleanupStack::PopAndDestroy(path);
     
-    // Introduced to fix bug EMJN-78GH6N. Rowland Cook 10/12/2007
+    // Introduced to fix bug EMJN-78GH6N. 
     if (0 != iEikonEnv->RootWin().OrdinalPosition())
         {
         iEikonEnv->RootWin().SetOrdinalPosition(0);

@@ -35,8 +35,7 @@
 t_cglxthumbnailsaver* t_cglxthumbnailsaver::NewL()
     {
     t_cglxthumbnailsaver* self = t_cglxthumbnailsaver::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -44,9 +43,7 @@ t_cglxthumbnailsaver* t_cglxthumbnailsaver::NewLC()
     {
     t_cglxthumbnailsaver* self = new( ELeave ) t_cglxthumbnailsaver();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 
@@ -79,7 +76,6 @@ void t_cglxthumbnailsaver::SetupL(  )
             EUNIT_PRINT(_L("t_cglxthumbnailsaver::GetSession"));
             User::LeaveIfError(RFbsSession::Connect());
             EUNIT_PRINT(_L("t_cglxthumbnailsaver::FbsSession:: Connected"));
-      //      iData->iFbsCreated = ETrue;
             }
     iThumbnail = NULL;
     iThumbnailSaver = NULL;
@@ -153,7 +149,6 @@ void t_cglxthumbnailsaver::T_CreateVideoIconL_Cancel(  )
 void t_cglxthumbnailsaver::T_CreateDefaultVideoIconL()
     {      
     EUNIT_PRINT(_L("Entering t_cglxthumbnailsaver::T_CreateDefaultVideoIconL"));
-    //iThumbnailSaver->CreateDefaultVideoIconL();
     }
     
 //From MGlxThumbnailSaveComplete    

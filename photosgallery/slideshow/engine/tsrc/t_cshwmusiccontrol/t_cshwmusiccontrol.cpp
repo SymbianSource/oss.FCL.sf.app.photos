@@ -36,8 +36,7 @@ namespace
 T_CShwMusicControl* T_CShwMusicControl::NewL()
     {
     T_CShwMusicControl* self = T_CShwMusicControl::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -45,9 +44,7 @@ T_CShwMusicControl* T_CShwMusicControl::NewLC()
     {
     T_CShwMusicControl* self = new( ELeave ) T_CShwMusicControl;
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 
@@ -80,7 +77,7 @@ void T_CShwMusicControl::ConstructL()
 void T_CShwMusicControl::SendEventL(MShwEvent* aEvent)
 	{
 	iEvent = aEvent->CloneLC();
-	CleanupStack::Pop();
+	CleanupStack::Pop( iEvent );
 	}
 
 TBool gMusicOnCalled = EFalse;

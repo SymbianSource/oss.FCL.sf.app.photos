@@ -345,6 +345,7 @@ void CGlxDataSourceMde::HandleSessionOpened( CMdESession& aSession, TInt aError 
 void CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt aError )    
     {
     TRACER("CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt aError)")
+    delete iSession;
     iSession = NULL;
     
     GLX_DEBUG2("void CGlxDataSourceMde::HandleSessionError() Session Error = %d", aError);
@@ -521,8 +522,18 @@ void CGlxDataSourceMde::AddMdEObserversL()
 	iSession->AddRelationObserverL(*this);
 	iSession->AddRelationPresentObserverL(*this);
 	
-	iSession->AddObjectObserverL(*this);
-	iSession->AddObjectPresentObserverL(*this);
+	//when setting observing conditions,
+	//add filters for all images, videos, Albums & Tags
+	CMdELogicCondition* addCondition = CMdELogicCondition::NewLC( ELogicConditionOperatorOr );
+	addCondition->AddObjectConditionL( *iImageDef );
+	addCondition->AddObjectConditionL( *iVideoDef );
+	addCondition->AddObjectConditionL( *iAlbumDef );
+	addCondition->AddObjectConditionL( *iTagDef );
+	
+	iSession->AddObjectObserverL(*this, addCondition );
+	iSession->AddObjectPresentObserverL(*this );
+		
+	CleanupStack::PopAndDestroy( addCondition ); 
     }
 
 // ---------------------------------------------------------------------------

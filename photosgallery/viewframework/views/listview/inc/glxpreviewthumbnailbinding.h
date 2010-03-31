@@ -34,7 +34,7 @@ class CGlxThumbnailContext;          // Fetch context to retrieve thumbnails
 class MPreviewTNObserver 
     {
 public:
-    virtual void PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap* aMask, TBool aPopulateList) = 0;
+    virtual void PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap* aMask) = 0;
     };
     
 // CLASS DECLARATION
@@ -88,7 +88,7 @@ private:
 public:	
       void HandleItemChangedL(const CMPXCollectionPath& aPath,TBool aPopulateListTNs, 
 									  TBool aIsRefreshNeeded, TBool aBackwardNavigation);
-      void StartTimer(TBool aPopulateListTNs);
+      void StartTimer();
       void StopTimer();
       
       // From MGlxMediaListObserver
@@ -132,10 +132,7 @@ private:
 	
 	// for thumbnail context
 	TGlxSequentialIterator iThumbnailIterator;
-	
-	// Preview thumbnail index
-	TInt iProgressIndex;
-	
+		
 	// flag that says whether timer has expired
 	TBool iTimerTicked;
 	
@@ -144,17 +141,12 @@ private:
 	TBool iPopulateListTNs;
 	
 	TBool iIsRefreshNeeded;
-
-    //it holds the initial number of thumbnail to be displayed
-    RArray<TInt> iPreviewItemCount;
     
     TSize iGridIconSize;
     
     // Holds the numbers of trials count,after which PreviewTNReady callback
     // has to be called
     TInt iTrialCount;
-    
-    TInt iTrial;
         
     CMPXFilter* iPreviewFilter;
 };

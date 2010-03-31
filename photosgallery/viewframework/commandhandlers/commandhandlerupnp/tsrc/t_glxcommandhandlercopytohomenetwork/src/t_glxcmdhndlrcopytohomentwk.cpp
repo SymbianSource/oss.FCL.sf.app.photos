@@ -229,7 +229,7 @@ public:
 t_cglxcommandhandlercopytohomenetwork* t_cglxcommandhandlercopytohomenetwork::NewL()
     {
     t_cglxcommandhandlercopytohomenetwork* self = t_cglxcommandhandlercopytohomenetwork::NewLC();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -280,8 +280,6 @@ void t_cglxcommandhandlercopytohomenetwork::SetupL(  )
     iList = NULL;
     iCommandHandlerCopyToHomeNetwork = NULL;
     //create the medialist
-   // MediaList();       
-  //  iCommandHandlerCopyToHomeNetwork = CGlxCommandHandlerCopyToHomeNetwork :: NewL(*this);
     iList = new (ELeave) _CGlxTestMediaList;
     iCommandHandlerCopyToHomeNetwork = new (ELeave) CGlxCommandHandlerCopyToHomeNetwork(*this); 
     }

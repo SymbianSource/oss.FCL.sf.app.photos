@@ -485,10 +485,11 @@ TInt CGlxDataSourceTaskMde::MaxQueryResultsCount(const TGlxFilterProperties&
     {
     TRACER("CGlxDataSourceTaskMde::MaxQueryResultsCount()");
     TInt ret = KMdEQueryDefaultMaxCount;
-    if (aFilterProperties.iLastCaptureDate)
+    if (aFilterProperties.iLastCaptureDate || aFilterProperties.iMaxCount == 1)
         {
         ret = 1;
         }
+    GLX_DEBUG2("CGlxDataSourceTaskMde::MaxQueryResultsCount ret=%d", ret);   
     return ret;
     }
 

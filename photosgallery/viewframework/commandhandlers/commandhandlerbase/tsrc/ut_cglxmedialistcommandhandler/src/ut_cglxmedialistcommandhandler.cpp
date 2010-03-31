@@ -244,8 +244,7 @@ public:
 UT_CGlxMediaListCommandHandler* UT_CGlxMediaListCommandHandler::NewL()
     {
     UT_CGlxMediaListCommandHandler* self = UT_CGlxMediaListCommandHandler::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -253,9 +252,7 @@ UT_CGlxMediaListCommandHandler* UT_CGlxMediaListCommandHandler::NewLC()
     {
     UT_CGlxMediaListCommandHandler* self = new( ELeave ) UT_CGlxMediaListCommandHandler();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 
@@ -322,10 +319,10 @@ struct CTestHandler : public CGlxMediaListCommandHandler, public MGlxMediaListPr
     };
 
 // -----------------------------------------------------------------------------
-// Test: static TInt SelectionLength(MGlxMediaList& aMediaList);
+// Test: UT_CGlxMediaListCommandHandler::Test_SelectionLengthL()
 // -----------------------------------------------------------------------------
 //
-void UT_CGlxMediaListCommandHandler::Test_SelectionLengthL(  )
+void UT_CGlxMediaListCommandHandler::Test_SelectionLengthL()
     { 
 #if 1 // This unit test needs to be re-wirtten after changes to SelectionLength() method.
     iML = new (ELeave) _CGlxTestMediaList;

@@ -95,8 +95,7 @@ void CGlxCommandHandlerMoreInfoTester::ConstructL()
 t_glxcommandhandlermoreinfo* t_glxcommandhandlermoreinfo::NewL()
     {
     t_glxcommandhandlermoreinfo* self = t_glxcommandhandlermoreinfo::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -104,9 +103,7 @@ t_glxcommandhandlermoreinfo* t_glxcommandhandlermoreinfo::NewLC()
     {
     t_glxcommandhandlermoreinfo* self = new( ELeave ) t_glxcommandhandlermoreinfo();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 

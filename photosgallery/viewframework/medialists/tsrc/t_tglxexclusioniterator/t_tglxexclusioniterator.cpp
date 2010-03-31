@@ -32,8 +32,7 @@
 t_tglxexclusioniterator* t_tglxexclusioniterator::NewL()
     {
     t_tglxexclusioniterator* self = t_tglxexclusioniterator::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 

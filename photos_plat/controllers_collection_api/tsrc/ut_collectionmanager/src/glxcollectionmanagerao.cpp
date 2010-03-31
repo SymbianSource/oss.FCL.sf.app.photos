@@ -68,7 +68,7 @@ CGlxCollectionManagerAO* CGlxCollectionManagerAO::NewL(MObserver& aObserver)
     CGlxCollectionManagerAO* self = new (ELeave) CGlxCollectionManagerAO(aObserver);
     CleanupStack::PushL( self );
     self->ConstructL();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -113,10 +113,6 @@ void CGlxCollectionManagerAO::DoCancel()
 
 void CGlxCollectionManagerAO::RunL()
     {
-    /*
-            if (iStatus.Int() != KErrNone)
-                User::LeaveIfError(iStatus.Int());
-     */
     iObserver.RequestComplete(iStatus.Int());
     }
 
@@ -177,14 +173,11 @@ void CGlxCollectionManagerAO::AddToCollectionTestL()
         iCollectionManager = CGlxCollectionManager::NewL();
         }
     TInt err = KErrNone;
-    //TRAP(err,iCollectionManager->AddToCollectionL((*fixflat)[0].iData, iCollection, iStatus));
     TRAP(err,iCollectionManager->AddToCollectionL(KPath, 1, iStatus));
 
     if( !IsActive() )
         SetActive();
 }
-
-
 
 /*
  * CTest_Active::TestCollectionInfoL()

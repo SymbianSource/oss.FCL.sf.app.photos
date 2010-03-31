@@ -36,8 +36,7 @@ t_cglxcommandhandlerback* t_cglxcommandhandlerback::NewL()
     {
     EUNIT_PRINT(_L("t_cglxcommandhandlerback::NewL()"));
     t_cglxcommandhandlerback* self = t_cglxcommandhandlerback::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -46,9 +45,7 @@ t_cglxcommandhandlerback* t_cglxcommandhandlerback::NewLC()
     EUNIT_PRINT(_L("ut_cglxcommandhandlerback::NewLC()"));
     t_cglxcommandhandlerback* self = new( ELeave ) t_cglxcommandhandlerback();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 
@@ -83,10 +80,8 @@ void t_cglxcommandhandlerback::CreateMediaListL()
   iMediaList = MGlxMediaList::InstanceL(*path);
 	if(iMediaList)
     	{
-    	
     	// Attribute to be used
     	TMPXAttribute attrTitle(KMPXMediaGeneralTitle);
-    	//TMPXAttribute attrCount(KMPXMediaGeneralCount);
     	
     	// add a static items
 	    TGlxMediaId testId(12345);
@@ -105,7 +100,7 @@ void t_cglxcommandhandlerback::CreateMediaListL()
     	CleanupStack::Pop(newMedia2);
     	}
     
-    CleanupStack::PopAndDestroy(); // path
+    CleanupStack::PopAndDestroy( path );
     }
     
 MGlxMediaList& t_cglxcommandhandlerback::MediaList()
@@ -138,15 +133,12 @@ void t_cglxcommandhandlerback::SetupPreviousViewChWithMlL(  )
 void t_cglxcommandhandlerback::SetupPreviousNaviViewChWithoutMlL(  )
     {
     EUNIT_PRINT(_L("t_cglxcommandhandlerback::SetupPreviousNaviViewChWithoutMlL(  )"));
-   // iCommand = CGlxCommandHandlerBack::NewPreviousNaviViewCommandHandlerL();
     }
     
 void t_cglxcommandhandlerback::SetupPreviousNaviViewChWithMlL(  )
     {
     EUNIT_PRINT(_L("t_cglxcommandhandlerback::SetupPreviousNaviViewChWithMlL(  )"));
     CreateMediaListL();
-    
-  //  iCommand = CGlxCommandHandlerBack::NewPreviousNaviViewCommandHandlerL(this);
     }
 
 void t_cglxcommandhandlerback::SetupContainerPreviousViewChWithoutViewId(  )

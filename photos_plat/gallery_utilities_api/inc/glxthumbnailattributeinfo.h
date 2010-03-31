@@ -78,7 +78,7 @@ public:
     inline void InternalizeL(RReadStream& aStream);
 
 public:
-    /** Pointer to bitmap (not filled in by server side!) */
+    /** Pointer to bitmap (not filled in by server side) */
     CFbsBitmap* iBitmap;
     /** Cropping rect within original image dimensions */
     TRect iCroppingRect;

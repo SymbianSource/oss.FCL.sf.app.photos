@@ -207,7 +207,6 @@ CGlxSingleTagBinding::CGlxSingleTagBinding()
 CGlxSingleTagBinding::~CGlxSingleTagBinding()
     {
     TRACER("CGlxSingleTagBinding::~CGlxSingleTagBinding");
-    //delete iMulTag;
     }
 
 // ----------------------------------------------------------------------------
@@ -217,7 +216,6 @@ CGlxSingleTagBinding::~CGlxSingleTagBinding()
 void CGlxSingleTagBinding::BaseConstructL( const Alf::mulvisualitem::TVisualAttribute& aMulTag /*const char* const aMulTag*/ )
     {
     TRACER("CGlxSingleTagBinding::BaseConstructL");
-    //iMulTag = new ( ELeave ) UString( aMulTag );
     iMulTag = aMulTag ;
     }
 
@@ -329,7 +327,6 @@ void CGlxStringBinding::ConstructL( const Alf::mulvisualitem::TVisualAttribute& 
 	{
 	TRACER("CGlxStringBinding::ConstructL");
 	BaseConstructL( aMulTag );
-    //iString = new ( ELeave ) UString( aString );
 	}
 	
 // ----------------------------------------------------------------------------

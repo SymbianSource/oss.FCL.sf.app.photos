@@ -37,8 +37,7 @@
 t_cglxupnprendererimpl* t_cglxupnprendererimpl::NewL()
     {
     t_cglxupnprendererimpl* self = t_cglxupnprendererimpl::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -46,9 +45,7 @@ t_cglxupnprendererimpl* t_cglxupnprendererimpl::NewLC()
     {
     t_cglxupnprendererimpl* self = new( ELeave ) t_cglxupnprendererimpl();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 

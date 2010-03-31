@@ -24,51 +24,29 @@
 class CFbsBitmap;
 
 /**
- *  Image Size observer.
- *
- *  Callback interface for getting size information of a given image.
- */
-class MImageReadyCallBack
-    {
-public:
-    /**
-     * Getting image size information is complete.
-     *
-     * @param aError         Error code.
-     * @param aSz            Size of the image.
-     */    
-    virtual void ImageSizeReady(TInt aError, const TSize aSz) = 0;
-    };
-
-/**
  *  CGlxImageReader
  *
  *  Image Attributes Reader
  *
  *  @lib glxmedialists.lib
  */
-class CGlxImageReader : public CActive
+class CGlxImageReader : public CBase
     {
 private:
-    static CGlxImageReader* NewLC(MImageReadyCallBack& aNotify);
-    CGlxImageReader(MImageReadyCallBack& aNotify);
+    static CGlxImageReader* NewLC();
+    CGlxImageReader();
     void ConstructL();
     void GetFileTypeL(TDataType aMimeType);
 
-protected:
-    void DoCancel();
-    void RunL();
-
 public:
-    static CGlxImageReader* NewL(MImageReadyCallBack& aNotify);
+    static CGlxImageReader* NewL();
     ~CGlxImageReader();
     TInt GetDRMRightsL(TInt aAttribute);
     TInt GetFrameCount();
+    TSize GetDimensions();
 
 private:
-    MImageReadyCallBack&                iNotify;
     CImageDecoder*                      iImageDecoder;
-    CFbsBitmap*                         iFrame;
     CGlxImageViewerManager*             iImgViewerMgr;
     };
 

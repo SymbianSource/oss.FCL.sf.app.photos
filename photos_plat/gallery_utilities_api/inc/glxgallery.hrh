@@ -30,41 +30,16 @@
  * via CApaCommandLine::SetTailEndL, if Gallery not running
  */
 
-/// Show album list view
-#define KGlxActivationCmdShowAlbumList      0x200071AB        // message id for album
-
 /// Show Camera album full screen, focus last modified item
+// @deprecated Use KGlxActivationCmdShowAll
 #define KGlxActivationCmdShowLastModified   0x200071A9        // message id for last modified
 
-/// Run slide show
-#define KGlxActivationCmdRunSlideshow       0x200071AA        // message id for slideshow
-
 //  show last item (latest captured) in Camera album tile view
+// @deprecated Use KGlxActivationCmdShowAll
 #define KGlxActivationCameraAlbum           0x2000A7B8        // message id  for cameraalbum @CR 403-2372, 403-2371 Active Space   
 
-//  show Gallery and opens Main view 
-#define KGlxActivationPhotosMenu            0x2000A7B9        // message id  for photos menu @CR 403-2372, 403-2371 Active Space  
-/// Slideshow-specific additional parameters
-#define KGlxSlideShowForward 1             
-#define KGlxSlideShowBackward 2
-
-//Open Captured Grid View from Matrix Menu
-#define KGlxActivationCameraView          0x2000a767      // message id  for photos Captured View from Matrix Menu
-
-//Open Months List View from Matrix Menu
-#define KGlxActivationMonthsView          0x2000a769      // message id  for photos Months View from Matrix Menu
-
-//Open Albums List View from Matrix Menu
-#define KGlxActivationAlbumsView          0x20007197      // message id  for photos Albums View from Matrix Menu
-
-//Open Tags browser View from Matrix Menu
-#define KGlxActivationTagsView          0x200071AE      // message id  for photos Tags View from Matrix Menu
-
-//Open Downloads Grid View from Matrix Menu
-#define KGlxActivationDownloadView          0x2000a76b      // message id  for photos Download View from Matrix Menu
-
-//Open All Grid View from Matrix Menu
-#define KGlxActivationAllView          0x2000A7C1         // message id  for photos All View from Matrix Menu
+/// Show all images in grid view
+#define KGlxActivationCmdShowAll   0x2000A7C1        // message id for all images
 
 #endif // __GLXGALLERY_HRH__
  

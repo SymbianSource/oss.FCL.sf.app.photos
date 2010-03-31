@@ -170,8 +170,6 @@ void CGlxCollectionPluginTags::HandleCpiAttributeResponseL(CMPXMedia* aResponse,
                 HandleCpiAttributeResponseL((*mediaArray)[index], aCpiAttributes, 
                 						aMediaIds[index]);
                 }
-
-			 /// @todo - Can we reset a value. Does it overwrite the original or does it leak? Must test
             aResponse->SetCObjectValueL(KMPXMediaArrayContents, mediaArray);        
             CleanupStack::PopAndDestroy(mediaArray);
             }

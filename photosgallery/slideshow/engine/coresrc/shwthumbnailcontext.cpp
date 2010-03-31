@@ -62,7 +62,7 @@ void CShwThumbnailContext::ConstructL()
     GLX_LOG_INFO("CShwThumbnailContext::ConstructL");
     // Create the high quality / slower context
     iHighQualityContext = CGlxThumbnailContext::NewL( this );
-    // Call both setdefault and add?
+    // Call both setdefault and add
     iHighQualityContext->SetDefaultSpec( iSize.iWidth, iSize.iHeight );
     iHighQualityContext->AddSpecForItemL( iSize.iWidth, iSize.iHeight,
         iCurrentIndex );

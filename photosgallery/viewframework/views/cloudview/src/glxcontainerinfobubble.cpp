@@ -358,7 +358,6 @@ void CGlxContainerInfoBubble::TimerComplete()
 void CGlxContainerInfoBubble::SetFocus(TPoint aPos)
 	{
 	TRACER("GLX_CLOUD::CGlxContainerInfoBubble::SetFocus");
-	//iFocusindex = iMediaList->FocusIndex (); //get the medialist focus index
 	DisappearBubble ();
 	
 	if ( iTexture )

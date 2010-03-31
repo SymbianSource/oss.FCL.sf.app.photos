@@ -154,20 +154,10 @@ EXPORT_C void CGlxScreenFurniture::ViewDeactivated( TInt aViewId)
 // SetVisibility
 // -----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxScreenFurniture::SetToolbarVisibility( TBool aVisible )
+EXPORT_C void CGlxScreenFurniture::SetToolbarVisibility( TBool /*aVisible*/ )
     {
     TRACER("CGlxScreenFurniture::SetToolbarVisibility()");
-    
-    if( aVisible )
-        {                      
-      // @TODO: Abhijit : Uncomment the following lines after the Avkon fix in week 02 MCL  
-      //  iToolbar->SetFocus( ETrue, EDrawNow );        
-      //  iToolbar->SetToolbarVisibility( aVisible, ETrue );        
-        }
-    else
-        {        
-      //  iToolbar->SetToolbarVisibility( aVisible, EFalse );        
-        }
+    // Do Nothing
     }
 
 // -----------------------------------------------------------------------------

@@ -373,7 +373,6 @@ TInt CGlxCommandHandlerRotate::DoCalculateOrientationL(TInt aInitialOrientation)
         return finalOrientation;
         }
     
-    //Nitz subst code
     TInt rotOffset = iRotationAngle/90;
     TInt isOrientationOdd = aInitialOrientation % 2;
     TInt initStateIndex = 0;
@@ -429,9 +428,6 @@ void CGlxCommandHandlerRotate::DoPreserveOrientationL()
         HBufC8* ModifiedexifData=NULL;
         //need only first KGlxMaxExifSize bytes of data as exif cannot bypass this size 
         TRAPD(err,ModifiedexifData = iExifWriter->WriteDataL(iExifData->Des()));  
-        //Nitz To-do Write only first KGlxMaxExifSize bytes to the file
-        //It currently fails in cases of JPEG files without Exif so removing it. 
-        //TPtrC8 exifPtr =  ModifiedexifData->Mid(0,KGlxMaxExifSize);
         if(err == KErrNone)
             {
             iFileHandle.Write(0,ModifiedexifData->Des());
@@ -527,7 +523,7 @@ void CGlxCommandHandlerRotate::DoCleanupRotationParametersL()
     CMPXCommand* command = TGlxCommandFactory::ThumbnailCleanupCommandLC();
     command->SetTObjectValueL<TAny*>(KMPXCommandGeneralSessionId, static_cast<TAny*>(this));
     
-    //Nitz To Do Initialize cleanup command Just for the respective Media Items
+    //To Do Initialize cleanup command Just for the respective Media Items
     iMediaList->CommandL(*command);
     CleanupStack::PopAndDestroy(command);
     iMediaList->RemoveMediaListObserver(this);

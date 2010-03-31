@@ -218,7 +218,7 @@ public:
 t_cglxcommandhandlershowviaupnp* t_cglxcommandhandlershowviaupnp::NewL()
     {
     t_cglxcommandhandlershowviaupnp* self = t_cglxcommandhandlershowviaupnp::NewLC();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -279,7 +279,6 @@ void t_cglxcommandhandlershowviaupnp::SetupL(  )
 void t_cglxcommandhandlershowviaupnp::SetupL1(  )
     { 
     //create the medialist
-  //  MediaList();  
     iList = new (ELeave) _CGlxTestMediaList;
     EUNIT_PRINT(_L("SetupL1 :: created Medialist"));
     iCommandShowUpnp = CGlxCommandHandlerShowViaUpnp :: NewL(this, EFalse);

@@ -110,6 +110,9 @@ CGlxDataSourceTaskMdeAttributeMde::~CGlxDataSourceTaskMdeAttributeMde()
 void CGlxDataSourceTaskMdeAttributeMde::ExecuteRequestL()
     {
     TRACER("CGlxDataSourceTaskMdeAttribute::ExecuteRequestL()")    
+#ifdef _DEBUG
+    iStartTime.HomeTime(); 
+#endif
  
     CGlxGetRequest* request = static_cast<CGlxGetRequest*>(iRequest);
         
@@ -189,6 +192,11 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleQueryCompletedL(CMdEQuery& /*aQu
             Panic(EGlxPanicLogicError);
         break;
         }  
+#ifdef _DEBUG
+    iStopTime.HomeTime(); 
+    GLX_DEBUG2("CGlxDataSourceTaskMdeAttributeMde:DoHandleQueryCompletedL() took %d us",
+                     (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif  
     }
 
 // ----------------------------------------------------------------------------
@@ -399,11 +407,13 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
             }
         else if ( request->Attributes()[i] == KGlxMediaCollectionInternalStartDate )
             {
+            GLX_DEBUG1("CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL - KGlxMediaCollectionInternalStartDate");
             TGlxMediaId container = TGlxMediaId(KGlxCollectionRootId);
             TGlxFilterProperties filterProperties = iFilterProperties;
             filterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
             filterProperties.iSortDirection = EGlxFilterSortDirectionAscending;
             filterProperties.iOrigin = EGlxFilterOriginAll;
+            filterProperties.iMaxCount = 1 ;             
 
             QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, 
                     EQueryResultModeItem, container, 
@@ -411,7 +421,17 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
             }
         else if ( request->Attributes()[i] == KGlxMediaCollectionInternalEndDate )
             {
-            // not necessary to be requested, returned when StartDate requested
+            GLX_DEBUG1("CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL - KGlxMediaCollectionInternalEndDate");
+            TGlxMediaId container = TGlxMediaId(KGlxCollectionRootId);
+            TGlxFilterProperties filterProperties = iFilterProperties;
+            filterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
+            filterProperties.iSortDirection = EGlxFilterSortDirectionDescending;
+            filterProperties.iOrigin = EGlxFilterOriginAll;
+            filterProperties.iMaxCount = 1 ;             
+
+            QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, 
+                    EQueryResultModeItem, container, 
+                    KGlxMediaCollectionInternalEndDate, aEntry, filterProperties);
             }
         else if ( request->Attributes()[i] == KGlxMediaGeneralSlideshowableContent )
             {
@@ -960,7 +980,7 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry,
             TInt xDimIndex = aItem->Property(xDimProperty, xDim);
             if( KErrNotFound == xDimIndex )
                 {
-                //User::Leave(KErrCorrupt);
+                //Do nothing
                 }
             else
                 {
@@ -973,7 +993,7 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry,
             TInt yDimIndex = aItem->Property(yDimProperty, yDim);
             if( KErrNotFound == yDimIndex )
                 {
-                //User::Leave(KErrCorrupt);
+                //Do nothing
                 }
             else
                 {
@@ -1146,7 +1166,8 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleAttributeQueryCompletedL()
     if( query->ResultMode() == EQueryResultModeItem )
         {
         __ASSERT_DEBUG(( iQueryAttributes[0].iAttribute == 
-        KGlxMediaCollectionInternalStartDate ), Panic(EGlxPanicIllegalState));
+        KGlxMediaCollectionInternalStartDate || iQueryAttributes[0].iAttribute == 
+        KGlxMediaCollectionInternalEndDate), Panic(EGlxPanicIllegalState));
     	CMdEPropertyDef& creationDateDef = DataSource()->ObjectDef().GetPropertyDefL(
     	        KPropertyDefNameCreationDate);
         if (creationDateDef.PropertyType() != EPropertyTime)
@@ -1155,29 +1176,45 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleAttributeQueryCompletedL()
         	}
         TTime startMonth(0);	
         TTime endMonth(0);	
+        GLX_DEBUG2("CGlxDataSourceTaskMdeAttributeMde::DoHandleAttributeQueryCompletedL iQueries[0]->Count()=%d", iQueries[0]->Count());    
+        TInt timeIndex(0) ;
         if(iQueries[0]->Count() )
             {
-            CMdEProperty* startTime;
-            CMdEObject& startObject = (CMdEObject&)query->ResultItem(0);
-            TInt timeIndex = startObject.Property(creationDateDef, startTime);
-            if( KErrNotFound == timeIndex )
-                {
-                User::Leave(KErrCorrupt);
-                }
-            startMonth = static_cast<CMdETimeProperty*>(startTime)->Value();
-            CMdEProperty* endTime;
-            CMdEObject& endObject = (CMdEObject&)query->ResultItem(query->Count()-1);
-            timeIndex = endObject.Property(creationDateDef, endTime);
-            if( KErrNotFound == timeIndex )
-                {
-                User::Leave(KErrCorrupt);
-                }
-            endMonth = static_cast<CMdETimeProperty*>(endTime)->Value();
+            GLX_DEBUG2("CGlxDataSourceTaskMdeAttributeMde::DoHandleAttributeQueryCompletedL query->Count()=%d", query->Count());    
+            if(iQueryAttributes[0].iAttribute == KGlxMediaCollectionInternalStartDate)
+            	{
+                CMdEProperty* startTime;
+                CMdEObject& startObject = (CMdEObject&)query->ResultItem(0);
+                TInt timeIndex = startObject.Property(creationDateDef, startTime);
+                if( KErrNotFound == timeIndex )
+                    {
+                    User::Leave(KErrCorrupt);
+                    }
+                startMonth = static_cast<CMdETimeProperty*>(startTime)->Value();
+                iQueryAttributes[0].iMedia->SetTObjectValueL(
+                        KGlxMediaCollectionInternalStartDate, startMonth);
+            	}
+            else if(iQueryAttributes[0].iAttribute == KGlxMediaCollectionInternalEndDate)
+            	{
+                CMdEProperty* endTime;
+                CMdEObject& endObject = (CMdEObject&)query->ResultItem(0);
+                timeIndex = endObject.Property(creationDateDef, endTime);
+                if( KErrNotFound == timeIndex )
+                    {
+                    User::Leave(KErrCorrupt);
+                    }
+                endMonth = static_cast<CMdETimeProperty*>(endTime)->Value();
+                iQueryAttributes[0].iMedia->SetTObjectValueL(
+                        KGlxMediaCollectionInternalEndDate, endMonth);
+            	}
             }
-        iQueryAttributes[0].iMedia->SetTObjectValueL(
-                KGlxMediaCollectionInternalStartDate, startMonth);
-        iQueryAttributes[0].iMedia->SetTObjectValueL(
-                KGlxMediaCollectionInternalEndDate, endMonth);
+        else
+            {
+            iQueryAttributes[0].iMedia->SetTObjectValueL(
+                    KGlxMediaCollectionInternalStartDate, startMonth);
+            iQueryAttributes[0].iMedia->SetTObjectValueL(
+                    KGlxMediaCollectionInternalEndDate, endMonth);
+            }
         }
     else if( EQueryResultModeCount == query->ResultMode() )
         {

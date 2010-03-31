@@ -24,11 +24,7 @@
 #include <StifTestModule.h>
 #include <TestclassAssert.h>
 
-// CONSTANTS
-//const ?type ?constant_var = ?constant;
-
 // MACROS
-//#define ?macro ?macro_def
 #define TEST_CLASS_VERSION_MAJOR 0
 #define TEST_CLASS_VERSION_MINOR 0
 #define TEST_CLASS_VERSION_BUILD 0
@@ -39,19 +35,8 @@ _LIT( Kui_metaDataDialogLogPath, "\\logs\\testframework\\ui_metaDataDialog\\" );
 _LIT( Kui_metaDataDialogLogFile, "ui_metaDataDialog.txt" ); 
 _LIT( Kui_metaDataDialogLogFileWithTitle, "ui_metaDataDialog_[%S].txt" );
 
-// FUNCTION PROTOTYPES
-//?type ?function_name(?arg_list);
-
 // FORWARD DECLARATIONS
-//class ?FORWARD_CLASSNAME;
 class Cui_metaDataDialog;
-
-// DATA TYPES
-//enum ?declaration
-//typedef ?declaration
-//extern ?data_type;
-
-// CLASS DECLARATION
 
 /**
 *  Cui_metaDataDialog test class for STIF Test Framework TestScripter.
@@ -74,16 +59,6 @@ NONSHARABLE_CLASS(Cui_metaDataDialog) : public CScriptBase
         */
         virtual ~Cui_metaDataDialog();
 
-    public: // New functions
-
-        /**
-        * ?member_description.
-        * @since ?Series60_version
-        * @param ?arg1 ?description
-        * @return ?description
-        */
-        //?type ?member_function( ?type ?arg1 );
-
     public: // Functions from base classes
 
         /**
@@ -93,23 +68,6 @@ NONSHARABLE_CLASS(Cui_metaDataDialog) : public CScriptBase
         * @return Symbian OS error code
         */
         virtual TInt RunMethodL( CStifItemParser& aItem );
-
-    protected:  // New functions
-
-        /**
-        * ?member_description.
-        * @since ?Series60_version
-        * @param ?arg1 ?description
-        * @return ?description
-        */
-        //?type ?member_function( ?type ?arg1 );
-
-    protected:  // Functions from base classes
-
-        /**
-        * From ?base_class ?member_description
-        */
-        //?type ?member_function();
 
     private:
 
@@ -123,10 +81,6 @@ NONSHARABLE_CLASS(Cui_metaDataDialog) : public CScriptBase
         */
         void ConstructL();
 
-        // Prohibit copy constructor if not deriving from CBase.
-        // ?classname( const ?classname& );
-        // Prohibit assigment operator if not deriving from CBase.
-        // ?classname& operator=( const ?classname& );
 
         /**
         * Frees all resources allocated from test methods.
@@ -150,33 +104,6 @@ NONSHARABLE_CLASS(Cui_metaDataDialog) : public CScriptBase
          * Method used to log version of test class
          */
         void SendTestClassVersion();
-
-        //ADD NEW METHOD DEC HERE
-        //[TestMethods] - Do not remove
-
-    public:     // Data
-        // ?one_line_short_description_of_data
-        //?data_declaration;
-
-    protected:  // Data
-        // ?one_line_short_description_of_data
-        //?data_declaration;
-
-    private:    // Data
-        
-        // ?one_line_short_description_of_data
-        //?data_declaration;
-
-        // Reserved pointer for future extension
-        //TAny* iReserved;
-
-    public:     // Friend classes
-        //?friend_class_declaration;
-    protected:  // Friend classes
-        //?friend_class_declaration;
-    private:    // Friend classes
-        //?friend_class_declaration;
-
     };
 
 #endif      // UI_METADATADIALOG_H

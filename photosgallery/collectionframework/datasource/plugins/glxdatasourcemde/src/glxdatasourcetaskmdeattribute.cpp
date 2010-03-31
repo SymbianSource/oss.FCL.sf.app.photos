@@ -308,7 +308,10 @@ void CGlxDataSourceTaskMdeAttribute::AddCollectionAttributesL(CMPXMedia* aEntry)
 	                 container = DataSource()->CameraAlbumId();
 	                 objectDef = &DataSource()->AlbumDef();
 	                 filterProperties.iItemType = EGlxFilterImage;
-	                 QueueObjectQueryL(*objectDef, isContent, EAttributeQuery, EQueryResultModeCount, container, request->Attributes()[i], aEntry,  filterProperties);
+	                 QueueObjectQueryL(*objectDef, isContent, EAttributeQuery,
+	                         EQueryResultModeCount, container, 
+	                         request->Attributes()[i], aEntry, 
+	                         filterProperties);
 	                 break;                    	
 	        		}
 	        	default:
@@ -334,7 +337,10 @@ void CGlxDataSourceTaskMdeAttribute::AddCollectionAttributesL(CMPXMedia* aEntry)
 	                 container = DataSource()->CameraAlbumId();
 	                 objectDef = &DataSource()->AlbumDef();
 	                 filterProperties.iItemType = EGlxFilterVideo;
-	                 QueueObjectQueryL(*objectDef, isContent, EAttributeQuery, EQueryResultModeCount, container, request->Attributes()[i], aEntry,  filterProperties);
+	                 QueueObjectQueryL(*objectDef, isContent, EAttributeQuery,
+	                         EQueryResultModeCount, container, 
+	                         request->Attributes()[i], aEntry,  
+	                         filterProperties);
 	                 break;                    	
 	        		}
 	        	default:
@@ -399,7 +405,11 @@ void CGlxDataSourceTaskMdeAttribute::AddCollectionAttributesL(CMPXMedia* aEntry)
             filterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
             filterProperties.iSortDirection = EGlxFilterSortDirectionAscending;
 
-            QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeObjectWithoutFreetexts, DataSource()->CameraAlbumId(), KGlxMediaCollectionInternalStartDate, aEntry, filterProperties);
+            QueueObjectQueryL(DataSource()->AlbumDef(), ETrue,
+                    EAttributeQuery, EQueryResultModeObjectWithoutFreetexts,
+                    DataSource()->CameraAlbumId(),
+                    KGlxMediaCollectionInternalStartDate, aEntry,
+                    filterProperties);
             }
         else if ( request->Attributes()[i] == KGlxMediaCollectionInternalEndDate )
             {
@@ -593,7 +603,11 @@ void CGlxDataSourceTaskMdeAttribute::AddContainerAttributesL(CMPXMedia* aEntry, 
                     {
                     TGlxFilterProperties filterProperties = iFilterProperties;
                     AddMonthFilterL(aContainer, filterProperties);
-                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeCount, DataSource()->CameraAlbumId(), request->Attributes()[i], aEntry, filterProperties);
+                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue,
+                            EAttributeQuery, EQueryResultModeCount,
+                            DataSource()->CameraAlbumId(),
+                            request->Attributes()[i], aEntry,
+                            filterProperties);
                     break;
                     }
                 }
@@ -642,7 +656,11 @@ void CGlxDataSourceTaskMdeAttribute::AddContainerAttributesL(CMPXMedia* aEntry, 
                     TGlxFilterProperties filterProperties = iFilterProperties;
                     AddMonthFilterL(aContainer, filterProperties);
                     filterProperties.iItemType = EGlxFilterImage;
-                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeCount, DataSource()->CameraAlbumId(), request->Attributes()[i], aEntry, filterProperties);
+                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue,
+                            EAttributeQuery, EQueryResultModeCount,
+                            DataSource()->CameraAlbumId(),
+                            request->Attributes()[i], aEntry,
+                            filterProperties);
                     break;
                     }
 	        	default:
@@ -663,7 +681,11 @@ void CGlxDataSourceTaskMdeAttribute::AddContainerAttributesL(CMPXMedia* aEntry, 
                     TGlxFilterProperties filterProperties = iFilterProperties;
                     AddMonthFilterL(aContainer, filterProperties);
                     filterProperties.iItemType = EGlxFilterVideo;
-                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeCount, DataSource()->CameraAlbumId(), request->Attributes()[i], aEntry, filterProperties);
+                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue,
+                            EAttributeQuery, EQueryResultModeCount,
+                            DataSource()->CameraAlbumId(),
+                            request->Attributes()[i], aEntry,
+                            filterProperties);
                     break;
                     }
 	        	default:
@@ -710,13 +732,21 @@ void CGlxDataSourceTaskMdeAttribute::AddContainerAttributesL(CMPXMedia* aEntry, 
                 case CGlxDataSource::EContainerTypeAlbum:
                 case CGlxDataSource::EContainerTypeTag:
                     {
-                    QueueObjectQueryL(aContainer->Def(), ETrue, EAttributeQuery, EQueryResultModeCount, TGlxMediaId(aContainer->Id()), request->Attributes()[i], aEntry, filterProperties);
+                    QueueObjectQueryL(aContainer->Def(), ETrue,
+                            EAttributeQuery, EQueryResultModeCount,
+                            TGlxMediaId(aContainer->Id()),
+                            request->Attributes()[i], aEntry,
+                            filterProperties);
                     break;
                     }
                 case CGlxDataSource::EContainerTypeMonth:
                     {
                     AddMonthFilterL(aContainer, filterProperties);
-                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeCount, DataSource()->CameraAlbumId(), request->Attributes()[i], aEntry, filterProperties);
+                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue,
+                            EAttributeQuery, EQueryResultModeCount,
+                            DataSource()->CameraAlbumId(),
+                            request->Attributes()[i], aEntry,
+                            filterProperties);
                     break;
                     }
                 }
@@ -876,7 +906,7 @@ void CGlxDataSourceTaskMdeAttribute::AddItemAttributesL(CMPXMedia* aEntry, CMdEO
             TInt xDimIndex = aItem->Property(*xDimProperty, xDim);
             if( KErrNotFound == xDimIndex )
                 {
-                //User::Leave(KErrCorrupt);
+                //Do nothing
                 }
             else
                 {
@@ -888,7 +918,7 @@ void CGlxDataSourceTaskMdeAttribute::AddItemAttributesL(CMPXMedia* aEntry, CMdEO
             TInt yDimIndex = aItem->Property(*yDimProperty, yDim);
             if( KErrNotFound == yDimIndex )
                 {
-                //User::Leave(KErrCorrupt);
+                //Do nothing
                 }
             else
                 {

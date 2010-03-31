@@ -86,9 +86,7 @@ EXPORT_C TGlxMulFSMPTitleBindingSetFactory::~TGlxMulFSMPTitleBindingSetFactory()
  */
 void TGlxMulFSMPTitleBindingSetFactory::AddBindingsL() const
     {
-	//AddIconBindingL( Alf::mulvisualitem::KMulIcon1 /*CGlxMulStaticIconProvider::NewL(resource ID)*/  );//@todo the resource file from which this to be read
 	AddMpxAttributeBindingL( Alf::mulvisualitem::KMulTitle1 , KMPXMediaGeneralTitle );
-	//AddIconBindingL( Alf::mulvisualitem::KMulIcon1, CGlxMulStaticIconProvider::NewL(EMbmGlxiconsQgn_lgal_icon_tag_list));
 	AddTemplateBindingL(Alf::mulwidget::KTemplate5);
     }
 
@@ -114,7 +112,6 @@ EXPORT_C TGlxMulFSMPDateBindingSetFactory::~TGlxMulFSMPDateBindingSetFactory()
  */
 void TGlxMulFSMPDateBindingSetFactory::AddBindingsL() const
     {
-	//AddThumbnailBindingL( Alf::mulvisualitem::KMulIcon1 );
 	AddMpxAttributeBindingL( Alf::mulvisualitem::KMulDetail , KMPXMediaGeneralDate,
 	    R_QTN_DATE_USUAL_WITH_ZERO );
 	AddTemplateBindingL(Alf::mulwidget::KTemplate3);
@@ -199,8 +196,6 @@ EXPORT_C TGlxMulFSMPAlbumBindingSetFactory::~TGlxMulFSMPAlbumBindingSetFactory()
  */
 void TGlxMulFSMPAlbumBindingSetFactory::AddBindingsL() const
     {
-//	 AddIconBindingL( Alf::mulvisualitem::KMulIcon1 /*CGlxMulStaticIconProvider::NewL(resource ID)//qgn_lgal_fullscr_meta_album
-	//AddMpxAttributeBindingL( Alf::mulvisualitem::KMulDetail , KMPXMediaGeneralTitle );
 	AddTemplateBindingL(Alf::mulwidget::KTemplate4);
 	}
 	
@@ -227,7 +222,6 @@ EXPORT_C TGlxMulFSMPLocationBindingSetFactory::~TGlxMulFSMPLocationBindingSetFac
  */
 void TGlxMulFSMPLocationBindingSetFactory::AddBindingsL() const
     {
-//	AddIconBindingL( Alf::mulvisualitem::KMulIcon1, KGlxMediaGeneralLocation );//qgn_lgal_metapane_location
 	AddIconBindingL( Alf::mulvisualitem::KMulIcon1, 
 	        CGlxMulLocationIconProvider::NewL(), KDefaultIconSize );
 	AddMpxAttributeBindingL( Alf::mulvisualitem::KMulDetail , KGlxMediaGeneralLocation );//@todo
@@ -259,8 +253,6 @@ EXPORT_C TGlxMulFSMPTagsBindingSetFactory::~TGlxMulFSMPTagsBindingSetFactory()
  */
 void TGlxMulFSMPTagsBindingSetFactory::AddBindingsL() const
     {
-//	AddIconBindingL( Alf::mulvisualitem::KMulIcon1 /*CGlxMulStaticIconProvider::NewL(resource ID)//QTN_LGAL_FULLSCR_METAPANE_TAGS //@todo
-	//AddMpxAttributeBindingL( Alf::mulvisualitem::KMulDetail , KMPXMediaGeneralTitle );//@todo
 	AddTemplateBindingL(Alf::mulwidget::KTemplate4);
 	}
 

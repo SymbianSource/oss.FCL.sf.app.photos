@@ -17,12 +17,13 @@
 
 //  CLASS HEADER
 #include "glxcommandhandlerupload.h"
+#include "glxuploadcenrepwatcher.h"
+#include <mglxmedialist.h>
 
 //  EXTERNAL INCLUDES
 #include <AiwGenericParam.h>                // for passing data between applications
 #include <aknbutton.h>                      // for getting the button state
 #include <akntoolbar.h>                     // for accessing currently active toolbar
-#include <centralrepository.h>              // for checking the ShareOnline version
 #include <data_caging_path_literals.hrh> 	// for directory and file names
 #include <utf.h>							// for CnvUtfConverter
 
@@ -36,21 +37,33 @@
 #include <glxuiutilities.rsg>               // for Share AIW interest resource
 #include <mglxmedialist.h>                  // for accessing the media items
 
+#include <glxnavigationalstate.h>
+#include <glxcollectionpluginimageviewer.hrh>
+
+#include <thumbnaildata.h>
+#include <gulicon.h>
+
 // CONSTANTS AND DEFINITIONS
 namespace
     {
-    // ShareOnline application UID
-    const TUid KShareOnlineUid = { 0x2000BB53 };
+    // ShareOnline application UID    
+    const TUid KShareOnlineUid = { 0x2002CC1F };
     // Shareonline Application version
-    const TUint32 KShareApplicationVersion = 0x01010020;
+    const TUint32 KShareApplicationVersion = 0x1010020;
     // Buffer to maintain the ShareOnline version number in use
     const TInt KPhotosShareOnlineVersionBufLen = 12;
     // Minimum version required for OneClickUpload to work
-    const TVersion KShareOnlineMinimumVersion( 4, 3, 0 );
+    const TVersion KShareOnlineMinimumVersion( 5, 0, 0 );
     // OneClickUpload command
     const TUid KOpenModeOneClick = { 2 };
     // Command to request for the tooltip
     const TUid KCmdGetOneClickToolTip = { 15 };    
+    // OneClickUpload default image icon
+    const TUint32 KUploadImageServiceIconFileName = 0x00000002;
+    // OneClickUpload default video icon
+    const TUint32 KUploadVideoServiceIconFileName = 0x00000003;
+    // OneClickUpload default video and image icon
+    const TUint32 KUploadImageAndVideoServiceIconFileName = 0x00000004; 
     }
 
 // ----------------------------------------------------------------------------
@@ -100,7 +113,20 @@ void CGlxCommandHandlerUpload::ConstructL()
 	        iUploadSupported = ETrue;
 	        } );
 	
+	iSelectedImageCount = 0;
+	iSelectedVideoCount = 0;
+	iCurrentCenRepMonitor = EMonitorNone;
+	iTnmRequestID = KErrNotFound;
 	
+    //Check for fullscreen here since we dont get the activate call in FS.
+    if(IsFullScreenViewL())
+        {
+        //Giving the viewid as zero, since its not used anywhere.
+        iToolbar = iAvkonAppUi->CurrentFixedToolbar();        
+        ActivateL(0);
+        UpdateFSUploadIconL();
+        }
+    
 	// Add the upload command
    	TCommandInfo info(EGlxCmdUpload);
    	AddCommandL(info);	
@@ -112,12 +138,14 @@ void CGlxCommandHandlerUpload::ConstructL()
 EXPORT_C CGlxCommandHandlerUpload::~CGlxCommandHandlerUpload()
 	{
 	TRACER("CGlxCommandHandlerUpload::~CGlxCommandHandlerUpload");
+	delete iTnEngine;
 	
 	if (iUiUtility)
         {
         iUiUtility->Close();
         }
 	delete iServiceHandler;
+	delete iUploadCenRepWatcher;	
 	}
 	
 // InitializeAIWForShareOnlineL
@@ -130,7 +158,7 @@ void CGlxCommandHandlerUpload::InitializeOneClickUploadL()
     iServiceHandler = CAiwServiceHandler::NewL();
 
     // Attach the AIW Resource defined in uiutilities.rss
-    iServiceHandler->AttachL( R_AIW_SHARE_BASE_INTEREST );
+    iServiceHandler->AttachL( R_GLX_AIW_SHARE_BASE_INTEREST );
     }
 
 // Check Share Online version
@@ -211,6 +239,7 @@ TBool CGlxCommandHandlerUpload::DoExecuteL(TInt aCommandId,
 	    { 
 
 	    CAiwGenericParamList& inputParams = iServiceHandler->InParamListL();
+	    inputParams.Reset();
 	    
 	    TAiwVariant variant( KOpenModeOneClick ); //For one click photo upload
 	    TAiwGenericParam param( EGenericParamModeActivation, variant );
@@ -234,8 +263,18 @@ TBool CGlxCommandHandlerUpload::DoExecuteL(TInt aCommandId,
 void CGlxCommandHandlerUpload::DoActivateL(TInt aViewId)
 	{
 	TRACER("CGlxCommandHandlerUpload::DoActivateL");
-    iViewId = aViewId;   
+    iViewId = aViewId;  
+
+    // get media list from provider and add observer
+
+    MediaList().AddMediaListObserverL( this );
     
+    //Get the grid toolbar here as it wont be created yet in
+    //constructor
+    if(!IsFullScreenViewL())
+        {    
+        iToolbar = iUiUtility->GetGridToolBar();        
+        }
 	}
 	
 // ----------------------------------------------------------------------------
@@ -244,7 +283,14 @@ void CGlxCommandHandlerUpload::DoActivateL(TInt aViewId)
 void CGlxCommandHandlerUpload::Deactivate()
     {
     TRACER("CGlxCommandHandlerUpload::Deactivate");
-    
+	
+	//Remove the Medialist observer
+    MediaList().RemoveMediaListObserver( this );
+
+	//Reset the tracking variables here    
+    iSelectedImageCount = 0;
+    iSelectedVideoCount = 0;
+    iCurrentCenRepMonitor = EMonitorNone;
     }	
 
 // ----------------------------------------------------------------------------
@@ -319,7 +365,15 @@ void CGlxCommandHandlerUpload::AppendSelectedFilesL(CAiwGenericParamList& aInput
 void CGlxCommandHandlerUpload::PopulateToolbarL()
 	{
 	TRACER( "CGlxCommandHandlerUpload::PopulateToolbarL" );
-		   
+    
+	//When the Upload is not supported or if we are in grid view
+	//and none of the item is selected Dim the Upload icon
+	if(!iUploadSupported || (!IsFullScreenViewL() && 
+                                   (MediaList().SelectionCount()== 0)))
+        {        
+        DisableUploadToolbarItem(ETrue);
+        }
+    
 	if( iUploadSupported )
 	    {
 	    SetToolTipL();
@@ -335,6 +389,7 @@ void CGlxCommandHandlerUpload::GetToolTipL( HBufC*& aToolTipText )
     TRACER("CGlxCommandHandlerUpload::GetToolTipL");
     
     CAiwGenericParamList& inputParams = iServiceHandler->InParamListL();
+    inputParams.Reset();
     
     // Insert Command parameter that tells provider that tooltip is required        
     TAiwVariant variant(KCmdGetOneClickToolTip);
@@ -343,6 +398,8 @@ void CGlxCommandHandlerUpload::GetToolTipL( HBufC*& aToolTipText )
     
     //Get a reference to output parameter list
     CAiwGenericParamList& outputParams = iServiceHandler->OutParamListL();
+    outputParams.Reset();
+    
     iServiceHandler->ExecuteServiceCmdL(KAiwCmdUpload, inputParams, outputParams);
     
     //Tooltip is returned as a parameter in output list
@@ -366,14 +423,13 @@ void CGlxCommandHandlerUpload::SetToolTipL()
     {
     TRACER("CGlxCommandHandlerUpload::SetToolTipL");
 
-    CAknToolbar* toolbar = iAvkonAppUi->CurrentFixedToolbar();
-    if (!toolbar)
+    if (!iToolbar)
         {
         return;
         }
 
     CAknButton* uploadButton =
-            static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdUpload));
+            static_cast<CAknButton*> (iToolbar->ControlOrNull(EGlxCmdUpload));
 
     if (uploadButton && iUploadSupported)
         {
@@ -409,5 +465,406 @@ void CGlxCommandHandlerUpload::SetToolTipL()
         } // if(uploadButton && iUploadSupported)
     }
 
+
+// ----------------------------------------------------------------------------
+// HandleItemAddedL
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::HandleItemAddedL(TInt /*aStartIndex*/, TInt /*aEndIndex*/, 
+                                        MGlxMediaList* /*aList*/)
+    {
+    
+    }
+	
+	
+// ----------------------------------------------------------------------------
+// HandleMediaL
+// ----------------------------------------------------------------------------
+//	
+void CGlxCommandHandlerUpload::HandleMediaL(TInt /*aListIndex*/, MGlxMediaList* /*aList*/)
+    {
+    
+    }
+
+
+// ----------------------------------------------------------------------------
+// HandleItemRemovedL
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::HandleItemRemovedL(TInt /*aStartIndex*/, TInt /*aEndIndex*/, 
+                                    MGlxMediaList* /*aList*/)
+    {
+    
+    }
+	
+	
+// ----------------------------------------------------------------------------
+// HandleItemModifiedL
+// ----------------------------------------------------------------------------
+//	
+void CGlxCommandHandlerUpload::HandleItemModifiedL(const RArray<TInt>& /*aItemIndexes*/, 
+                                    MGlxMediaList* /*aList*/)
+    {
+    
+    }
+	
+	
+// ----------------------------------------------------------------------------
+// HandleAttributesAvailableL
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::HandleAttributesAvailableL(TInt /*aItemIndex*/,     
+    const RArray<TMPXAttribute>& /*aAttributes*/, MGlxMediaList* /*aList*/)
+    {
+	TRACER("CGlxCommandHandlerUpload::HandleAttributesAvailableL");
+    }
+	
+	
+// ----------------------------------------------------------------------------
+// HandleFocusChangedL
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::HandleFocusChangedL(NGlxListDefs::TFocusChangeType /*aType*/, 
+                    TInt /*aNewIndex*/, TInt /*aOldIndex*/, MGlxMediaList* /*aList*/)
+    {
+	TRACER("CGlxCommandHandlerUpload::HandleFocusChangedL");
+    //In Fullscreen change the icons based on current focused icon
+    if(iUploadSupported && IsFullScreenViewL())
+        {
+        UpdateFSUploadIconL();
+        }
+    }
+
+
+// ----------------------------------------------------------------------------
+// HandleItemSelectedL
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::HandleItemSelectedL(TInt aIndex, TBool aSelected, MGlxMediaList* aList)
+    {
+	TRACER("CGlxCommandHandlerUpload::HandleItemSelectedL");
+	//In grid if an item is selected update the toolbar icon based on
+	//the mime types of items
+    if(iUploadSupported && !IsFullScreenViewL())
+        {        
+        if(aList->SelectionCount() >= 1 )
+            {        
+            TFileName uploadIconFileName;
+            UpdateSelectionCount(aIndex, aSelected, aList);
+            GetIconNameL(uploadIconFileName);
+            if(uploadIconFileName.Length())
+                {
+                DecodeIconL(uploadIconFileName);
+                }
+            DisableUploadToolbarItem(EFalse);
+            }
+        else
+            {
+            iSelectedImageCount = 0;
+            iSelectedVideoCount = 0;
+            iCurrentCenRepMonitor = EMonitorNone;
+            delete iUploadCenRepWatcher;
+            iUploadCenRepWatcher = NULL;
+            DisableUploadToolbarItem(ETrue);
+            }        
+        }    
+    }
+
+
+// ----------------------------------------------------------------------------
+// HandleMessageL
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::HandleMessageL(const CMPXMessage& /*aMessage*/, MGlxMediaList* /*aList*/)
+    {
+    
+    }
+
+
+// ----------------------------------------------------------------------------
+// HandlePopulatedL
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::HandlePopulatedL(MGlxMediaList* aList)
+    {
+    if(aList && aList->Count() > 0)
+        {
+        if(!iUploadSupported || !IsFullScreenViewL())
+            {
+            DisableUploadToolbarItem(ETrue);
+            }
+        }
+    }
+
+//----------------------------------------------------------------------------
+// Check for current view mode .Grid/fullscreen/imgviewer
+//----------------------------------------------------------------------------
+//
+TBool CGlxCommandHandlerUpload::IsFullScreenViewL()
+    {
+	TRACER("CGlxCommandHandlerUpload::IsFullScreenViewL");
+    TBool fullscreenViewingMode = EFalse;
+             
+     CGlxNavigationalState* navigationalState = CGlxNavigationalState::InstanceL();
+	 CleanupClosePushL( *navigationalState );
+     CMPXCollectionPath* naviState = navigationalState->StateLC();
+     
+     if ( naviState->Levels() >= 1)
+         {
+         if (navigationalState->ViewingMode() == NGlxNavigationalState::EBrowse) 
+             {
+             // For image viewer collection, goto view mode
+             if (naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
+                 {
+                 // current view mode is img vwr
+                 fullscreenViewingMode = ETrue;
+                 }
+             else
+                 {
+                 //current view mode is Grid 
+                 fullscreenViewingMode = EFalse;
+                 }
+             } 
+         else 
+             {
+             //current view mode is Fullscreen
+             fullscreenViewingMode = ETrue;
+             }                
+         }
+     CleanupStack::PopAndDestroy( naviState );
+     CleanupStack::PopAndDestroy( navigationalState );
+     return fullscreenViewingMode;
+    }
+
+// ----------------------------------------------------------------------------
+// DisableUploadToolbarItem
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::DisableUploadToolbarItem(TBool aDimmed)
+    {        
+	TRACER("CGlxCommandHandlerUpload::DisableUploadToolbarItem");
+    
+    if(iToolbar)
+        {
+        iToolbar->SetItemDimmed(EGlxCmdUpload, aDimmed, ETrue);
+        //DrawNow must be called since SetDimmed does not redraw the toolbar
+        iToolbar->DrawNow();
+        }
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerUpload::ThumbnailPreviewReady()
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::ThumbnailPreviewReady(MThumbnailData& /*aThumbnail*/,
+        TThumbnailRequestId /*aId*/)
+    {
+    TRACER("CGlxCommandHandlerUpload::ThumbnailPreviewReady");
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerUpload::ThumbnailReady()
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::ThumbnailReady(TInt aError,
+        MThumbnailData& aThumbnail, TThumbnailRequestId /*aId*/)
+    {
+    TRACER("CGlxCommandHandlerUpload::ThumbnailReady");
+    
+    if(aError == KErrNone)
+        {
+        TRAP_IGNORE(SetDecodedUploadIconL(aThumbnail));        
+        }
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerUpload::SetDecodedUploadIconL()
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::SetDecodedUploadIconL(MThumbnailData& aThumbnail)
+    {
+    CAknButton* uploadButton =
+            static_cast<CAknButton*> (iToolbar->ControlOrNull(EGlxCmdUpload));
+
+	if(uploadButton)
+		{
+	    CAknButtonState* currentState = uploadButton->State();    
+	    CFbsBitmap* normalBmp = aThumbnail.DetachBitmap();    
+	    CFbsBitmap* pressedBmp = new (ELeave) CFbsBitmap;
+	    pressedBmp->Duplicate(normalBmp->Handle());
+	    //Ownership of the icon is transferred here    
+	    currentState->SetIcon(CGulIcon::NewL(normalBmp));
+	    currentState->SetPressedIcon(CGulIcon::NewL(pressedBmp));
+	    iToolbar->DrawNow();
+	  	}
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerUpload::UpdateSelectionCount()
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::UpdateSelectionCount(TInt aIndex, TBool aSelected, MGlxMediaList* aList)
+    {
+    TRACER("CGlxCommandHandlerUpload::UpdateSelectionCount");
+    if(!aList)
+        {
+        return;
+        }    
+    
+    TGlxMedia media = aList->Item(aIndex);
+    
+    switch(media.Category())
+        {
+        case EMPXImage:
+            aSelected?iSelectedImageCount++:iSelectedImageCount--;            
+            break;
+        case EMPXVideo:
+            aSelected?iSelectedVideoCount++:iSelectedVideoCount--;
+            break;
+        default:
+            break;
+        }       
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerUpload::GetIconNameL()
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::GetIconNameL(TDes& aUplaodIconNmae)
+    {
+    TRACER("CGlxCommandHandlerUpload::GetIconNameL");
+    TUint32 serviceIconId = KErrNone;
+    
+    if(iSelectedImageCount && iSelectedVideoCount)
+        {
+        if(iCurrentCenRepMonitor != EImageVideoMonitor)
+            {
+            serviceIconId = KUploadImageAndVideoServiceIconFileName;
+            iCurrentCenRepMonitor = EImageVideoMonitor;
+            }
+        }
+    else if(iSelectedImageCount)
+        {
+        if(iCurrentCenRepMonitor != EImageMonitor)
+            {
+            serviceIconId = KUploadImageServiceIconFileName;
+            iCurrentCenRepMonitor = EImageMonitor;
+            }    
+        }
+    else if(iSelectedVideoCount)
+        {
+        if(iCurrentCenRepMonitor != EVideoMonitor)
+            {
+            serviceIconId = KUploadVideoServiceIconFileName;
+            iCurrentCenRepMonitor = EVideoMonitor;
+            }
+        }
+    
+    if(serviceIconId != KErrNone)
+        {
+        delete iUploadCenRepWatcher;
+        iUploadCenRepWatcher = NULL;
+        
+        iUploadCenRepWatcher = CGlxUploadCenRepWatcher::NewL(*this, KShareOnlineUid,
+                                                                serviceIconId );
+        iUploadCenRepWatcher->KeyValueL(aUplaodIconNmae);        
+        }
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerUpload::DecodeIconL()
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::DecodeIconL(const TDes& aUplaodIconNmae)
+    {
+    TRACER("CGlxCommandHandlerUpload::DecodeIconL");
+    
+    if(!iTnEngine)
+        {
+        iTnEngine = CThumbnailManager::NewL( *this);
+        iTnEngine->SetDisplayModeL( EColor16M );
+        }
+    
+    if(iTnmRequestID != KErrNotFound)
+        {
+        //Cancel any outstanding request
+        iTnEngine->CancelRequest(iTnmRequestID);
+        }
+                
+    iTnEngine->SetFlagsL(CThumbnailManager::EDefaultFlags);
+
+    CAknButton* uploadButton =
+                           static_cast<CAknButton*> (iToolbar->ControlOrNull(EGlxCmdUpload));
+    if(uploadButton)
+    	{
+	    CAknButtonState* currentState = uploadButton->State();
+	    const CGulIcon *icon = currentState->Icon();    
+	    iTnEngine->SetThumbnailSizeL(icon->Bitmap()->SizeInPixels());
+	    iTnEngine->SetQualityPreferenceL(CThumbnailManager::EOptimizeForQuality);
+	    CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(aUplaodIconNmae, 0);
+	    iTnmRequestID = iTnEngine->GetThumbnailL(*source);
+	    CleanupStack::PopAndDestroy(source);
+	    }
+    }
+
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerUpload::UpdateFSUploadIconL()
+// -----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::UpdateFSUploadIconL()
+    {
+    if(!iUploadSupported)
+        {
+        return;
+        }
+    
+    // get the media list reference
+    MGlxMediaList& mediaList = MediaList();
+    if(mediaList.Count() )
+        {
+        TGlxMedia media = mediaList.Item(mediaList.FocusIndex());
+        iSelectedImageCount = 0;
+        iSelectedVideoCount = 0;
+        if(media.Category() == EMPXImage)
+            {
+            iSelectedImageCount++;
+            }
+        else if(media.Category() == EMPXVideo)
+            {
+            iSelectedVideoCount++;
+            }
+        
+        if(iSelectedImageCount || iSelectedVideoCount)
+            {
+            TFileName uploadIconFileName;
+            GetIconNameL(uploadIconFileName);
+
+            if(uploadIconFileName.Length())
+                {
+                DecodeIconL(uploadIconFileName);
+                }
+            }
+        }
+    }
+
+//-----------------------------------------------------------------------------
+// From class MGlxUploadIconObserver.
+// Called when upload icon changes
+//-----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerUpload::HandleUploadIconChangedL( )
+    {
+    TRACER("CGlxCommandHandlerUpload::HandleUploadIconChangedL");
+    if(iUploadSupported && iUploadCenRepWatcher)
+        {
+        TFileName uploadIconFileName;
+        iUploadCenRepWatcher->KeyValueL(uploadIconFileName);
+        if(uploadIconFileName.Length())
+            {
+            DecodeIconL(uploadIconFileName);
+            }
+        }
+    }
 // End of file
 

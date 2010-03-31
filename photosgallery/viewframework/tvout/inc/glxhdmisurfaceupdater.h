@@ -42,12 +42,13 @@ public:
      * 
      */
     static CGlxHdmiSurfaceUpdater* NewL(RWindow* aWindow, const TDesC& aImageFile, 
-            TSize aImageDimensions, TInt aFrameCount, MGlxGenCallback* aCallBack);
+                                         MGlxGenCallback* aCallBack);
     
     /*
      * destructor
      */
     ~CGlxHdmiSurfaceUpdater();
+    
 public:
     /*
      * This is to cancel the active object from decoding 
@@ -57,8 +58,7 @@ public:
     /*
      * This updates the new image.
      */
-    void UpdateNewImageL(const TDesC& aImageFile, 
-            TInt aFrameCount,TSize aImageDimensions);
+    void UpdateNewImageL(const TDesC& aImageFile);
     
     /*
      * Activate Zoom 
@@ -88,12 +88,12 @@ private:
      * Ctor 
      */
     CGlxHdmiSurfaceUpdater(RWindow* aWindow, const TDesC& aImageFile,
-            TSize aOrigImageDimensions, TInt aFrameCount, MGlxGenCallback* aCallBack);
+                            MGlxGenCallback* aCallBack);
     
     /*
      * ConstructL()
      */
-    void ConstructL(TSize aImageDimensions);   
+    void ConstructL();   
     
     /*
      * Create a New surface with given size
@@ -147,8 +147,6 @@ private:
 private:
     RWindow* iWindow;
     const TDesC& iImagePath;
-    TSize iOrigImageDimensions;
-    TInt iFrameCount;
     MGlxGenCallback* iCallBack;
 
     // GCE Surface
@@ -168,7 +166,6 @@ private:
     //ICL
     CGlxHdmiDecoderAO*  iGlxDecoderAO;              // Internal Image decoder AO              
     CImageDecoder*      iImageDecoder;              // Image Decoder
-    TInt                iAnimCount;                 // animation count
     RFs                 iFsSession;                 // RFs
     
     TPoint iLeftCornerForZoom;

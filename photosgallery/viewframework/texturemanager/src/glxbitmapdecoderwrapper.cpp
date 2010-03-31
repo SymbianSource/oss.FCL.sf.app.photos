@@ -101,7 +101,7 @@ void CGlxBitmapDecoderWrapper::DoDecodeImageL(const TDesC & aSourceFileName,TInt
     {
     TRACER("CGlxBitmapDecoderWrapper:: DoDecodeImageL ");
     iThumbnailIndex = aIndex;
-    //Variable used to get the decoder type used;
+    //Variable used to get the decoder type used
     TBool isExtDecoderUsed = ETrue;
     
 #ifdef _DEBUG

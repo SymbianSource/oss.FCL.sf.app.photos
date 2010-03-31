@@ -20,55 +20,6 @@
 #include "ut_collectioninfo.h"
 #include <SettingServerClient.h>
 
-// EXTERNAL DATA STRUCTURES
-//extern  ?external_data;
-
-// EXTERNAL FUNCTION PROTOTYPES  
-//extern ?external_function( ?arg_type,?arg_type );
-
-// CONSTANTS
-//const ?type ?constant_var = ?constant;
-
-// MACROS
-//#define ?macro ?macro_def
-
-// LOCAL CONSTANTS AND MACROS
-//const ?type ?constant_var = ?constant;
-//#define ?macro_name ?macro_def
-
-// MODULE DATA STRUCTURES
-//enum ?declaration
-//typedef ?declaration
-
-// LOCAL FUNCTION PROTOTYPES
-//?type ?function_name( ?arg_type, ?arg_type );
-
-// FORWARD DECLARATIONS
-//class ?FORWARD_CLASSNAME;
-
-// ============================= LOCAL FUNCTIONS ===============================
-
-// -----------------------------------------------------------------------------
-// ?function_name ?description.
-// ?description
-// Returns: ?value_1: ?description
-//          ?value_n: ?description_line1
-//                    ?description_line2
-// -----------------------------------------------------------------------------
-//
-/*
-?type ?function_name(
-    ?arg_type arg,  // ?description
-    ?arg_type arg)  // ?description
-    {
-
-    ?code  // ?comment
-
-    // ?comment
-    ?code
-    }
-*/
-
 // ============================ MEMBER FUNCTIONS ===============================
 
 // -----------------------------------------------------------------------------
@@ -143,7 +94,7 @@ Cut_collectioninfo* Cut_collectioninfo::NewL(
 
     CleanupStack::PushL( self );
     self->ConstructL();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
 
     return self;
 
@@ -194,6 +145,5 @@ EXPORT_C CScriptBase* LibEntryL(
     return ( CScriptBase* ) Cut_collectioninfo::NewL( aTestModuleIf );
 
     }
-
 
 //  End of File

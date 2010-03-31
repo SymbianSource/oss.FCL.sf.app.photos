@@ -39,8 +39,7 @@ const TInt KTestMediaIdGeneral = 1;
 T_CGlxFetchErrorArray* T_CGlxFetchErrorArray::NewL()
     {
     T_CGlxFetchErrorArray* self = T_CGlxFetchErrorArray::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -48,9 +47,7 @@ T_CGlxFetchErrorArray* T_CGlxFetchErrorArray::NewLC()
     {
     T_CGlxFetchErrorArray* self = new( ELeave ) T_CGlxFetchErrorArray();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 

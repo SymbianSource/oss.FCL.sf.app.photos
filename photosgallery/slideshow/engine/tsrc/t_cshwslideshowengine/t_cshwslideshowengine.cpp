@@ -276,8 +276,7 @@ void ShwHuiUtility::ShowVisualListL(
 T_CShwSlideshowEngine* T_CShwSlideshowEngine::NewL()
 	{
 	T_CShwSlideshowEngine* self = T_CShwSlideshowEngine::NewLC();
-	CleanupStack::Pop();
-
+	CleanupStack::Pop( self );
 	return self;
 	}
 
@@ -443,7 +442,7 @@ void T_CShwSlideshowEngine::NotifyL( MShwEvent* aEvent )
 	{
 	// got event so add a copy of it to the list 
 	TInt error = iEvents.Append( aEvent->CloneLC() );
-	CleanupStack::Pop();
+	CleanupStack::Pop(); // aEvent->CloneLC()
 	// check that append succeeded
 	if( error != KErrNone )
 		{

@@ -1018,6 +1018,11 @@
 //
 #define qtn_lgal_options_sort    "Sort by"
 
+// d:Pop-up displayed when a large amount of images/videos are inserted into the device. 
+// l:popup_note_wait_window
+// r:11.0
+#define qtn_lgal_refreshing_media_note "Refreshing your media"
+
 //-----------------------------------------------------------------------------
 // single line metapane strings
 //-----------------------------------------------------------------------------

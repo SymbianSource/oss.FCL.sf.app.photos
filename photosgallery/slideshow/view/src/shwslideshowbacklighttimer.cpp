@@ -84,14 +84,14 @@ void CShwSlideshowBackLightTimer::ConstructL()
 	GLX_LOG_ENTRY_EXIT("CShwSlideshowBackLightTimer::ConstructL");
 	
     CRepository* lightsRepo = CRepository::NewLC( KCRUidPeripheralSettings );
-    // What's the timeout value (in seconds ) for the display light?
+    // Get display light's timeout value (in seconds ) 
     lightsRepo->Get( KSettingsDisplayLightsTimeout, iSettingsDelay );
     GLX_LOG_INFO1("CShwSlideshowBackLightTimer, lights timeout = %d",
         iSettingsDelay );
     CleanupStack::PopAndDestroy( lightsRepo );
     
     CRepository* scrSaverRepo = CRepository::NewLC( KCRUidPersonalizationSettings );
-    // What's the screen saver's timeout value (in seconds)?
+    // Get screen saver's timeout value (in seconds)
     TInt screenSaverTimeout = 0;
     scrSaverRepo->Get( KSettingsScreenSaverPeriod, screenSaverTimeout );
     GLX_LOG_INFO1("CShwSlideshowBackLightTimer, scr saver timeout = %d",
@@ -101,7 +101,7 @@ void CShwSlideshowBackLightTimer::ConstructL()
     // Take the smaller of the two timeout values
     iSettingsDelay = Min( iSettingsDelay, screenSaverTimeout );
     
-    // Set the timeout delay to minimum value as it can not be zero!
+    // Set the timeout delay to minimum value as it can not be zero
     if (iSettingsDelay == 0)
         {
         iSettingsDelay = KMinTimeoutDelay;

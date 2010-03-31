@@ -49,10 +49,8 @@
 #include <glxthumbnailutility.h>
 #include <alf/alftransformation.h>
 #include "mglxvisualobjectstatusobserver.h"
-#include "mglxvisualobjectlayoutrefreshobserver.h"
 
 const TInt KGlxOpacityFadeDuration = 400;
-
 const TInt KGlxForegroundAnchorOrdinal = 2;
 
 // -----------------------------------------------------------------------------
@@ -107,7 +105,6 @@ CGlxVisualObject::~CGlxVisualObject()
         {
         iUiUtility->Close();
         }
-    iObservers.Close();
     }
 
 // -----------------------------------------------------------------------------
@@ -137,7 +134,6 @@ void CGlxVisualObject::ConstructL( MGlxVisualObjectParameterFactory& aFactory)
     // create the child image visual
     iImageVisual = 
         CAlfImageVisual::AddNewL( aFactory.VisualOwner(), iMainVisual );
-    //iImageVisual->SetScaleMode( aFactory.ThumbnailScaleMode() );
 	iImageVisual->SetScaleMode(CAlfImageVisual::EScaleNormal);
     // Turn on clipping only if cover-mode has been chosen
     iImageVisual->SetClipping(ETrue);
@@ -286,7 +282,7 @@ void CGlxVisualObject::RefreshLayout( TSize /*aScreenSize*/ )
 //
 void CGlxVisualObject::HandleAttributesAvailableL(
     const TGlxIdSpaceId& aIdSpaceId, const TGlxMedia& aItem,
-    const RArray<TMPXAttribute>& aAttributes)
+    const RArray<TMPXAttribute>& /*aAttributes*/)
     {
     TRACER("CGlxVisualObject::HandleAttributesAvailableL");
     TBool animate = ( EHasDefaultIcon == Status() );
@@ -500,8 +496,8 @@ void CGlxVisualObject::RemoveZoomTile(TInt aIndex)
 // ---------------------------------------------------------------------------
 //
 TInt CGlxVisualObject::AddZoomTileL(
-                    const TGlxMedia& aItem, const TMPXAttribute& aAttribute,
-                    TGlxIdSpaceId aIdSpaceId, const TRect& aCroppingRect )
+                    const TGlxMedia& /*aItem*/, const TMPXAttribute& aAttribute,
+                    TGlxIdSpaceId /*aIdSpaceId*/, const TRect& aCroppingRect )
     {
     TRACER("CGlxVisualObject::AddZoomTileL");
     // Reserve space for new tile
@@ -1041,24 +1037,4 @@ TBool CGlxVisualObject::TGlxIconAnchors::Match(
     TRACER("CGlxVisualObject::Match");
     return ( aIcon1.iTexture == aIcon2.iTexture );
     }
-    
-void CGlxVisualObject::AddObserver( MGlxVisualObjectLayoutRefreshObserver* aObserver ) 
-    {
-    TRACER("CGlxVisualObject::AddObserver");
-    	__ASSERT_DEBUG(iObservers.Find(aObserver) == KErrNotFound, 
-	                    Panic(EGlxPanicIllegalArgument)); // Already exists
-	iObservers.Append(aObserver);
-    }
-    
-void CGlxVisualObject::RemoveObserver( MGlxVisualObjectLayoutRefreshObserver* aObserver )
-    {
-    TRACER("CGlxVisualObject::RemoveObserver");
-    TInt i = iObservers.Find(aObserver);
-    if (i != KErrNotFound)
-        {
-        iObservers.Remove(i);
-        }
-    }
-    
- 
- 
+

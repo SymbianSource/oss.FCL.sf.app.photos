@@ -52,7 +52,7 @@ void CGlxDRMUtility::Close()
     delete this;
     }
     
-TBool CGlxDRMUtility::CheckOpenRightsL(const TDesC&, TBool)
+TBool CGlxDRMUtility::ItemRightsValidityCheckL(const TDesC&, TBool)
     {
     return ETrue;
     }
@@ -82,8 +82,7 @@ CGlxDRMUtility::~CGlxDRMUtility()
 UT_CGlxMediaList* UT_CGlxMediaList::NewL()
     {
     UT_CGlxMediaList* self = UT_CGlxMediaList::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -136,7 +135,7 @@ void UT_CGlxMediaList::SetupL(  )
     path->AppendL(KFavouritesAlbumId);
 
     iCGlxMediaList = CGlxMediaList::InstanceL(*path, NULL);
-    CleanupStack::PopAndDestroy(); // path
+    CleanupStack::PopAndDestroy( path );
 
     iCGlxMediaList->AddMediaListObserverL(this);
 
@@ -698,7 +697,7 @@ void UT_CGlxMediaList::UT_CGlxMediaList_CommandLL(  )
     EUNIT_ASSERT(titleAvailable && (*title == KTitle()));
 
     delete title;
-    CleanupStack::PopAndDestroy(); // addContainerCommand
+    CleanupStack::PopAndDestroy( addContainerCommand ); 
     }
 
 void UT_CGlxMediaList::UT_CGlxMediaList_CancelCommandL(  )
@@ -783,7 +782,7 @@ void UT_CGlxMediaList::UT_CGlxMediaList_HandleCollectionMessageL_1L(  )
         iCGlxMediaList->HandleCollectionMessageL(*message);
         }
 
-    CleanupStack::PopAndDestroy(); // message
+    CleanupStack::PopAndDestroy( message ); // message
 
     // Check correct notification was observed
     const TInt messageCount = mediaListObserver->MessageCount();
@@ -840,7 +839,7 @@ void UT_CGlxMediaList::UT_CGlxMediaList_HandleCollectionMessageL_1L(  )
 
     iCGlxMediaList->RemoveMediaListObserver(mediaListObserver);
 
-    CleanupStack::PopAndDestroy(); // mediaListObserver
+    CleanupStack::PopAndDestroy( mediaListObserver ); 
     }
 
 void UT_CGlxMediaList::SetupFocusTestL()
@@ -912,7 +911,7 @@ void UT_CGlxMediaList::MoveFocusAbsoluteGreaterThanCurrentFocusL()
 
     iCGlxMediaList->RemoveMediaListObserver(mediaListObserver);
 
-    CleanupStack::PopAndDestroy(); // mediaListObserver
+    CleanupStack::PopAndDestroy( mediaListObserver ); 
     }
 
 void UT_CGlxMediaList::MoveFocusAbsoluteLessThanCurrentFocusL()
@@ -950,7 +949,7 @@ void UT_CGlxMediaList::MoveFocusAbsoluteLessThanCurrentFocusL()
 
     iCGlxMediaList->RemoveMediaListObserver(mediaListObserver);
 
-    CleanupStack::PopAndDestroy(); // mediaListObserver
+    CleanupStack::PopAndDestroy( mediaListObserver ); 
     }
 
 void UT_CGlxMediaList::MoveFocusRelativeForwardL()
@@ -988,7 +987,7 @@ void UT_CGlxMediaList::MoveFocusRelativeForwardL()
 
     iCGlxMediaList->RemoveMediaListObserver(mediaListObserver);
 
-    CleanupStack::PopAndDestroy(); // mediaListObserver
+    CleanupStack::PopAndDestroy( mediaListObserver ); 
     }
 
 void UT_CGlxMediaList::MoveFocusRelativeBackwardL()
@@ -1026,7 +1025,7 @@ void UT_CGlxMediaList::MoveFocusRelativeBackwardL()
 
     iCGlxMediaList->RemoveMediaListObserver(mediaListObserver);
 
-    CleanupStack::PopAndDestroy(); // mediaListObserver
+    CleanupStack::PopAndDestroy( mediaListObserver ); 
     }
 
 void UT_CGlxMediaList::MoveFocusRelativeForwardGreaterThanListCountL()
@@ -1065,7 +1064,7 @@ void UT_CGlxMediaList::MoveFocusRelativeForwardGreaterThanListCountL()
 
     iCGlxMediaList->RemoveMediaListObserver(mediaListObserver);
 
-    CleanupStack::PopAndDestroy(); // mediaListObserver
+    CleanupStack::PopAndDestroy( mediaListObserver ); 
     }
 
 void UT_CGlxMediaList::MoveFocusRelativeBackwardLessThanZeroL()
@@ -1104,7 +1103,7 @@ void UT_CGlxMediaList::MoveFocusRelativeBackwardLessThanZeroL()
 
     iCGlxMediaList->RemoveMediaListObserver(mediaListObserver);
 
-    CleanupStack::PopAndDestroy(); // mediaListObserver
+    CleanupStack::PopAndDestroy( mediaListObserver ); 
     }
 
 void UT_CGlxMediaList::ReceiveMessageItemChangedItemModifiedL()
@@ -1127,7 +1126,6 @@ void UT_CGlxMediaList::ReceiveMessageItemChangedItemModifiedL()
     // Send item modified notification for item not in list
     EUNIT_PRINT(_L("Send item modified notification for item not in list"));
     TMPXCollectionMessage message1(TMPXCollectionMessage::EItemChanged, EMcItemModified, KFavouritesAlbumId);
-//    iCGlxMediaList->HandleCollectionMessageL(message1);
 
     // Check no notification was observed
     TInt messageCount = mediaListObserver->MessageCount();
@@ -1138,7 +1136,6 @@ void UT_CGlxMediaList::ReceiveMessageItemChangedItemModifiedL()
     // Send item modified notification for item in list
     EUNIT_PRINT(_L("Send item modified notification for item in list"));
     TMPXCollectionMessage message2(TMPXCollectionMessage::EItemChanged, EMcItemModified, KFavouritesAlbumFirstItemId);
-//    iCGlxMediaList->HandleCollectionMessageL(message2);
 
     // Check correct notification was observed
     messageCount = mediaListObserver->MessageCount();
@@ -1177,7 +1174,7 @@ UT_CGlxMediaList::CGlxMediaListObserverTest* UT_CGlxMediaList::CGlxMediaListObse
     CGlxMediaListObserverTest* self = new (ELeave) CGlxMediaListObserverTest();
     CleanupStack::PushL(self);
     self->ConstructL();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 

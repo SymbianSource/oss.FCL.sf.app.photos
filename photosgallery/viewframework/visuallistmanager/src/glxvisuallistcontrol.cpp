@@ -122,8 +122,6 @@ void CGlxVisualListControl::ConstructL( CAlfEnv& aEnv,
     // create the visual list window
     iVisualWindow = CGlxVisualListWindow::NewL(this,&iMediaList, iUiUtility, iScaleMode);
     
-    //@todo below method not found    
-    //iVisualWindow->SetOwnsObjects( ETrue );   
 	iControlGroupId = reinterpret_cast<int>((void*)this);   // @todo: Temp, have better logic for control group ids
 	iControlGroup = &Env().NewControlGroupL(iControlGroupId);
 	iControlGroup->AppendL(this);
@@ -416,8 +414,7 @@ void CGlxVisualListControl::RangeOffsets(TInt& aFrontOffset, TInt& aRearOffsets)
 //
 void CGlxVisualListControl::AddLayoutL(MGlxLayout* /*aLayout*/)
 	{
-	// add the layout to the blender
-	//iLayoutBlender.AddLayoutL( aLayout );
+	// No implementation
 	}
 	
 // -----------------------------------------------------------------------------
@@ -426,8 +423,7 @@ void CGlxVisualListControl::AddLayoutL(MGlxLayout* /*aLayout*/)
 //
 void CGlxVisualListControl::RemoveLayout(const MGlxLayout* /*aLayout*/)
 	{
-	// remove layout
-	//iLayoutBlender.RemoveLayout( aLayout );
+	// No implementation
 	}
 
 // BringVisualsToFront
@@ -562,7 +558,6 @@ void CGlxVisualListControl::HandleFocusChangedL(
             {
             indexesMoved += ItemCount();
             }
-        //speed = indexesMoved / elapsed;		
         }
 
 	TInt count = iObservers.Count();
@@ -666,7 +661,6 @@ void CGlxVisualListControl::HandleVisualAddedL(CAlfVisual* aVisual, TInt aIndex)
 	{
 	TRACER("CGlxVisualListControl::HandleVisualAddedL");
 	GLX_LOG_INFO("CGlxVisualListControl::HandleVisualAddedL");
-	//iVisualWindow->ObjectByIndex(aIndex)->AddObserver(this);
 	TInt count = iObservers.Count();
 	for (TInt i = 0; i < count; i++)
 		{
@@ -685,7 +679,6 @@ void CGlxVisualListControl::EnableAnimationL(TBool aAnimate, TInt aIndex)
     CGlxVisualObject* visualObject = iVisualWindow->ObjectByIndex( aIndex );
     if ( visualObject )
         {
-        //iVisualWindow->ObjectByIndex(aIndex)->RemoveObserver(this);
         if( aAnimate )
             {
             visualObject->TryAnimateL( iMediaList.Item( aIndex ) );
@@ -787,16 +780,5 @@ void CGlxVisualListControl::SetIconVisibility( TInt aListIndex,
         {
         visItem->SetIconVisibility( aTexture, aVisible );
         }
-    }
-
-// -----------------------------------------------------------------------------
-// VisualObjectLayoutRefreshed
-// -----------------------------------------------------------------------------
-//
-void CGlxVisualListControl::VisualObjectLayoutRefreshed(TInt aListIndex ,TSize /*aScreensize*/)
-    {
-    TRACER("CGlxVisualListControl::VisualObjectLayoutRefreshed");
-    GLX_LOG_INFO("CGlxVisualListControl::VisualObjectLayoutRefreshed");
-     iLayoutObserver->UpdateLayout( * ( Visual ( aListIndex ) ) );
     }
 

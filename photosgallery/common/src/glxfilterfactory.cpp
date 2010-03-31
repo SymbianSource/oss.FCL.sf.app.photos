@@ -154,6 +154,21 @@ EXPORT_C CMPXFilter* TGlxFilterFactory::CreatePreviewFilterL()
     return CreateCombinedFilterL(filterProperties);
     }
 
+// ---------------------------------------------------------------------------
+// Creates a preview TN filter object with one thumbnail
+// ---------------------------------------------------------------------------
+//   
+EXPORT_C CMPXFilter* TGlxFilterFactory::CreatePreviewTNFilterL()
+    {
+    TGlxFilterProperties filterProperties;
+    // Exclude empty containers
+    filterProperties.iMinCount = 1;
+    // If sorting on date, override sort direction to descending
+    filterProperties.iSortDirection = EGlxFilterSortDirectionOverrideToDescendingIfDate;
+    // Request only one item
+    filterProperties.iMaxCount = 1;
+    return CreateCombinedFilterL(filterProperties);
+    }
 
 // ---------------------------------------------------------------------------
 // Creates a preview filter object for container items (album, tags)
@@ -280,7 +295,11 @@ EXPORT_C CMPXFilter* TGlxFilterFactory::CreateCombinedFilterL(  const TGlxFilter
         if( !aOverrideOriginal || ( EGlxFilterSortDirectionNotUsed == aFilterProperties.iSortDirection ) )
         	{
         	sortDirection = aOriginalFilter->ValueTObjectL<TGlxFilterSortDirection>(KGlxFilterGeneralSortDirection);
-        	TBool descendIfDate = ( EGlxFilterSortDirectionOverrideToDescendingIfDate == sortDirection ) && ( ( EGlxFilterSortOrderCaptureDate == sortFilter ) || ( EGlxFilterSortOrderModifiedDate == sortFilter ) );
+        	TBool descendIfDate =
+        	   (EGlxFilterSortDirectionOverrideToDescendingIfDate == sortDirection) &&
+        	   ( (EGlxFilterSortOrderCaptureDate == sortFilter) ||
+        	     (EGlxFilterSortOrderModifiedDate == sortFilter)
+        	   );
         	if( EGlxFilterSortDirectionReverse == sortDirection )
         		{
         		if( EGlxFilterSortDirectionDescending == aFilterProperties.iSortDirection )
@@ -356,6 +375,18 @@ EXPORT_C CMPXFilter* TGlxFilterFactory::CreateCombinedFilterL(  const TGlxFilter
         filter->SetTObjectValueL<TInt>(KGlxFilterGeneralMinCount, minCount);
         }
    
+    TInt maxCount = aFilterProperties.iMaxCount;    
+    if( aOriginalFilter->IsSupported(KGlxFilterGeneralMaxCount) )
+        {
+        if( !aOverrideOriginal || ( 0 == aFilterProperties.iMaxCount ) )
+            {
+            maxCount = aOriginalFilter->ValueTObjectL<TInt>(KGlxFilterGeneralMaxCount);
+            }
+        }
+    if( !(maxCount == 0) )
+        {
+        filter->SetTObjectValueL<TInt>(KGlxFilterGeneralMaxCount, maxCount);
+        }
     
     TGlxMediaId itemId = aFilterProperties.iContainsItem;    
 	if( aOriginalFilter->IsSupported(KGlxFilterGeneralItemId) )
@@ -514,6 +545,10 @@ EXPORT_C TGlxFilterProperties TGlxFilterFactory::ExtractAttributes(CMPXFilter* a
     if (aFilter->IsSupported(KGlxFilterGeneralMinCount))
         {
         filterProperties.iMinCount = aFilter->ValueTObjectL<TInt>(KGlxFilterGeneralMinCount);
+        }
+    if (aFilter->IsSupported(KGlxFilterGeneralMaxCount))
+        {
+        filterProperties.iMaxCount = aFilter->ValueTObjectL<TInt>(KGlxFilterGeneralMaxCount);
         }
     if (aFilter->IsSupported(KGlxFilterGeneralItemId))
         {

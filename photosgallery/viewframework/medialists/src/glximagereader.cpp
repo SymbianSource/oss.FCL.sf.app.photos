@@ -34,11 +34,11 @@ const TInt KDefaultFrameCount = 1;
 // CGlxImageReader::NewL
 // ---------------------------------------------------------
 //  
-CGlxImageReader* CGlxImageReader::NewL(MImageReadyCallBack& aNotify)
+CGlxImageReader* CGlxImageReader::NewL()
     {
     TRACER("CGlxImageReader::NewL");  
     
-    CGlxImageReader* self = CGlxImageReader::NewLC( aNotify);
+    CGlxImageReader* self = CGlxImageReader::NewLC();
     CleanupStack::Pop(self);
     return self;
     }
@@ -47,11 +47,11 @@ CGlxImageReader* CGlxImageReader::NewL(MImageReadyCallBack& aNotify)
 // CGlxImageReader::NewLC
 // ---------------------------------------------------------
 //  
-CGlxImageReader* CGlxImageReader::NewLC(MImageReadyCallBack& aNotify)
+CGlxImageReader* CGlxImageReader::NewLC()
     {
     TRACER("CGlxImageReader::NewLC"); 
     
-    CGlxImageReader* self = new(ELeave) CGlxImageReader(aNotify);
+    CGlxImageReader* self = new(ELeave) CGlxImageReader();
     CleanupStack::PushL(self);
     self->ConstructL();
     return self;
@@ -61,10 +61,9 @@ CGlxImageReader* CGlxImageReader::NewLC(MImageReadyCallBack& aNotify)
 // CGlxImageReader::CGlxImageReader
 // ---------------------------------------------------------
 // 
-CGlxImageReader::CGlxImageReader(MImageReadyCallBack& aNotify)
-:CActive(0),iNotify(aNotify)
-                                {
-                                }
+CGlxImageReader::CGlxImageReader()
+    {
+    }
 
 // ---------------------------------------------------------
 // CGlxImageReader::~CGlxImageReader
@@ -75,14 +74,8 @@ CGlxImageReader::~CGlxImageReader()
     TRACER("CGlxImageReader::~");
     if(iImageDecoder)
         {
-        Cancel();
         delete iImageDecoder;
         }  
-
-    if(iFrame)
-        {
-        delete iFrame;
-        }
 
     if(iImgViewerMgr)
         {
@@ -97,8 +90,6 @@ CGlxImageReader::~CGlxImageReader()
 void CGlxImageReader::ConstructL()
     {
     TRACER("CGlxImageReader::ConstructL");
-
-    CActiveScheduler::Add(this);
 
     iImgViewerMgr = CGlxImageViewerManager::InstanceL();
     if (!iImgViewerMgr)
@@ -121,48 +112,11 @@ void CGlxImageReader::ConstructL()
             TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(CCoeEnv::Static()->FsSession(), iImgViewerMgr->ImageUri()->Des()));
             }
         }
+    
     if (errInImage != KErrNone)
         {
         User::Leave(errInImage);
         }
-
-    if ( iImageDecoder )
-        {
-        iFrame = new (ELeave) CFbsBitmap();
-        User::LeaveIfError(iFrame->Create(
-                iImageDecoder->FrameInfo(0).iOverallSizeInPixels,
-                iImageDecoder->FrameInfo(0).iFrameDisplayMode));
-        iImageDecoder->Convert(&iStatus, *iFrame, 0);
-        SetActive();
-        }
-    }
-
-// ---------------------------------------------------------
-// CGlxImageReader::DoCancel
-// ---------------------------------------------------------
-//
-void CGlxImageReader::DoCancel()
-    {
-    TRACER("CGlxImageReader::DoCancel");
-    iImageDecoder->Cancel();
-    }
-
-// ---------------------------------------------------------
-// CGlxImageReader::RunL
-// ---------------------------------------------------------
-//
-void CGlxImageReader::RunL()
-    {
-    TRACER("CGlxImageReader::RunL");
-    
-    TSize size = TSize();
-    TInt reqStatus = iStatus.Int(); 
-    if (reqStatus == KErrNone && iFrame)
-        {
-        size = iFrame->SizeInPixels();
-        }
-    GLX_DEBUG2("CGlxImageReader::RunL() reqStatus=%d", reqStatus);   
-    iNotify.ImageSizeReady(reqStatus, size);
     }
 
 // ---------------------------------------------------------
@@ -223,5 +177,23 @@ TInt CGlxImageReader::GetFrameCount()
         {
         frameCount = iImageDecoder->FrameCount();
         }
+    GLX_DEBUG2("CGlxImageReader::GetFrameCount frameCount=%d", frameCount);
     return frameCount;
+    }
+
+// ---------------------------------------------------------
+// CGlxImageReader::GetDimensions
+// ---------------------------------------------------------
+//
+TSize CGlxImageReader::GetDimensions()
+    {
+    TRACER("CGlxImageReader::GetDimensions");
+    TSize size = TSize();
+    if (iImageDecoder)
+        {
+        size = iImageDecoder->FrameInfo().iOverallSizeInPixels;
+        }
+    GLX_DEBUG3("CGlxImageReader::GetImageSize() size w(%d) h(%d)",
+            size.iWidth, size.iHeight);
+    return size;
     }

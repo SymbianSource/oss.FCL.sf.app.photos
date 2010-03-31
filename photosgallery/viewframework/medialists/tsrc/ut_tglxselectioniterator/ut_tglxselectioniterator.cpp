@@ -29,7 +29,7 @@
 T_CGlxSelectionIterator* T_CGlxSelectionIterator::NewL()
     {
     T_CGlxSelectionIterator* self = T_CGlxSelectionIterator::NewLC();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 

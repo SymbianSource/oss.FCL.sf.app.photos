@@ -198,8 +198,6 @@ EXPORT_C void CGlxGridViewPluginBase::AddCommandHandlersL()
     GLX_LOG_INFO("Adding CGlxCommandHandlerCopyToHomeNetwork");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerCopyToHomeNetwork::NewL(*iGridView));
     
-    //GLX_LOG_INFO("Adding CGlxCommandHandlerMarking");
-    //iGridView->AddCommandHandlerL( CGlxCommandHandlerMarking::NewL(iGridView/*, *iGridView, ETrue*/ ) );
     GLX_LOG_INFO("Adding CGlxCommandHandlerUpload");
     iGridView->AddCommandHandlerL(CGlxCommandHandlerUpload::NewL(iGridView, ETrue));    
     

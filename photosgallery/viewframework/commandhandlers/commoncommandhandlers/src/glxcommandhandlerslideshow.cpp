@@ -111,7 +111,7 @@ void CGlxCommandHandlerSlideshow::ConstructL()
     info.iDisallowAnimatedGIFs = ETrue;
     // Disable DRM protected content
     info.iDisallowDRM = ETrue;
-    // Note! cannot just require all to be images as user can also start 
+    // Note: cannot just require all to be images as user can also start 
     // slideshow for a whole album from list view and in that case
     // selection contains a container
 	// Disable all videos

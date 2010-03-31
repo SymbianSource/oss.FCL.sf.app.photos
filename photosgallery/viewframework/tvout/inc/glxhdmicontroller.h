@@ -36,7 +36,7 @@ public:
      * NewLC 
      * @param1 - Image file path default to NULL
      */
-    IMPORT_C static CGlxHdmiController* NewL(const TDesC& aImageFile = KNullDesC );
+    IMPORT_C static CGlxHdmiController* NewL();
 
     /*
      * Destructor
@@ -46,11 +46,8 @@ public:
     /*
      * Update Image
      * @param1 - Image file path
-     * @param2 - Image dimensions
-     * @param3 - frame count
      */
-    IMPORT_C void SetImageL(const TDesC& aImageFile,TSize aImageDimensions, 
-            TInt aFrameCount = 1, TBool aStore = ETrue);
+    IMPORT_C void SetImageL(const TDesC& aImageFile, TBool aStore = ETrue);
 
     /*
      * To intimate that the item is not supported.  
@@ -88,7 +85,7 @@ private:
     /*
      * Constructor
      */
-    CGlxHdmiController(const TDesC& aImageFile);
+    CGlxHdmiController();
     
     /*
      * ConstructL 
@@ -102,12 +99,9 @@ private:
     
     /*
      * Create surface updater and update background surface 
-     * @param1 - Image file
-     * @param2 - Image dimensions
-     * @param3 - framecount
+     * @param1 - Image file     
      */
-    void CreateSurfaceUpdaterL(const TDesC& aImageFile, TSize aImageDimensions, 
-            TInt aFrameCount);
+    void CreateSurfaceUpdaterL(const TDesC& aImageFile);
     
     /*
      * To Destroy the surface updater if present
@@ -120,21 +114,19 @@ private:
     void DestroyContainer();
 
     /*
-     * 
+     * Stores the Image File name
+     * @param1 - Image file
      */
-    void StoreImageInfoL(const TDesC& aImageFile,
-            TSize aImageDimensions, TInt aFrameCount);
+    void StoreImageInfoL(const TDesC& aImageFile);
 
 private:
-    const TDesC& iImagePath;                        // Image path
     HBufC*  iStoredImagePath;
-    TSize   iImageDimensions; 
-    TInt    iFrameCount;
-
+    
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;
-    TBool iImageSupported;
+    TBool iIsImageSupported;
+	TBool iIsPostingMode;
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

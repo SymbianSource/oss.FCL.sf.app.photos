@@ -61,7 +61,6 @@ void CGlxBindingSet::AddBindingL( CGlxBinding* aBinding )
     TRACER("CGlxBindingSet::AddBindingL");
     __ASSERT_DEBUG( aBinding, User::Invariant() ); // null binding not accepted
     iBindings.AppendL( aBinding );
-    //CleanupStack ::Pop( aBinding );
     aBinding->SetObserver( *this );
     }
 

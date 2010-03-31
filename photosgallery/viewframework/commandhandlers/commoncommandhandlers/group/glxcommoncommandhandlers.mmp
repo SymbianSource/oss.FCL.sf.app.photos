@@ -70,7 +70,8 @@ SOURCE          glxaiwservicehandler.cpp
 SOURCE          glxaiwmedia.cpp
 SOURCE          glxcommandhandlerfilterimagesorvideos.cpp
 SOURCE		glxcommandhandleropen.cpp
-SOURCE		glxcommandhandleraiwshowonmaphardkey.cpp
+SOURCE		glxcommandhandleraiwshowonmaphardkey.cpp 
+SOURCE		glxuploadcenrepwatcher.cpp
 
 USERINCLUDE     ../inc
 
@@ -145,4 +146,5 @@ LIBRARY         exiflib.lib
 LIBRARY         glxtexturemanager.lib
 LIBRARY         glximageviewermanager.lib
 LIBRARY         mpxplaybackutility.lib    // MPX playback utility
+LIBRARY         thumbnailmanager.lib
 // End of File

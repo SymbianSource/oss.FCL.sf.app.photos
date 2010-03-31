@@ -60,8 +60,7 @@ TBool CGlxItemListReconstruction::ReconstructionEquals() const
 ut_CGlxItemList* ut_CGlxItemList::NewL()
     {
     ut_CGlxItemList* self = ut_CGlxItemList::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 

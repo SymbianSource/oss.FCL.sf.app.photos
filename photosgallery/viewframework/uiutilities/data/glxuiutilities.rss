@@ -615,17 +615,16 @@ RESOURCE TBUF r_glx_rename_query
 //
 // -----------------------------------------------------------------------------
 //
-RESOURCE AIW_INTEREST r_aiw_share_base_interest
+RESOURCE AIW_INTEREST r_glx_aiw_share_base_interest
     {
     items=
             {
             AIW_CRITERIA_ITEM
                 {
-                id = EGlxCmdUpload;// 1006;
+                id = EGlxCmdUpload;
                 serviceCmd = KAiwCmdUpload;
-                contentType = "*";
                 serviceClass = KAiwClassBase;
-                maxProviders    = 1;
+                contentType = "image/*";                               
                 }
             };
     }
@@ -833,15 +832,24 @@ RESOURCE TBUF r_glx_completion_rem_from_favourites
     buf = "#Removed from Favourites";
     }
 
+RESOURCE CBA r_glx_progressbar_softkey_hide
+    {
+    buttons =
+            {
+            CBA_BUTTON { txt = text_softkey_empty; },
+            CBA_BUTTON { id = EAknSoftkeyHide; txt = qtn_softkey_hide; },
+            CBA_BUTTON { txt = text_softkey_empty; }
+            };
+    }
 //resource for waiting dialog
 RESOURCE TBUF r_glx_main_list_view_processing_dialog
     { 
-    buf = qtn_lgal_note_wait_processing; 
+    buf = qtn_lgal_refreshing_media_note; 
     }
 RESOURCE DIALOG r_progress_note
     {
     flags = EAknProgressNoteFlags;
-    buttons = R_AVKON_SOFTKEYS_CANCEL;
+    buttons = r_glx_progressbar_softkey_hide;
     items =
         {
         DLG_LINE
@@ -851,7 +859,7 @@ RESOURCE DIALOG r_progress_note
             control = AVKON_NOTE
                 {
                 layout = EProgressLayout;
-                singular_label =qtn_lgal_note_wait_processing;
+                singular_label =qtn_lgal_refreshing_media_note;
                 };
             }
         };

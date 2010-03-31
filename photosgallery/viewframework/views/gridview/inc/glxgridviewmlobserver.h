@@ -103,10 +103,10 @@ private:
     void UpdateItemsL (TInt aItemIndex,const RArray<TMPXAttribute>& aAttributes);
     
     /**
-     * DisplayErrorNote - Show an error note based on input parameter
+     * DisplayErrorNoteL - Show an error note based on input parameter
      * @param aError The error based on which the error note is to be shown. 
      */
-	void DisplayErrorNote(TInt aError);
+	void DisplayErrorNoteL(TInt aError);
     
 private:
 
@@ -123,15 +123,13 @@ private:
     //No of visible items in a page/view
     TInt  iItemsPerPage;
 
-    // Has the error in disk (e.g disk error) been shown to the user?  
+    // Variable to check if the error in disk (e.g disk error) has been shown to the user.  
     // If a disk is full the user should not be intimated everytime over and over again.
     TInt  iDiskErrorIntimated;
 
     // Modified Indexes array to refresh the screen
     RArray<TInt> iModifiedIndexes;
 
-//    CHgContextUtility* iContextUtility;
-    
     //Grid Thumbnail Attribs
     TMPXAttribute iQualityTnAttrib;
     TMPXAttribute iSpeedTnAttrib;    

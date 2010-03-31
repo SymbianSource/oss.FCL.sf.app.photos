@@ -203,24 +203,6 @@ void CGlxToolbarController::HandleItemSelectedL(TInt /*aIndex*/, TBool /*aSelect
         {
         EnableLatch( EGlxCmdStartMultipleMarking, ETrue );
         }
-	/* single clk chngs
-	 * check the current view status.
-	 * need to disable upload button in toolbar for grid by default
-	 */
-	if(!IsFullScreenView())
-        {
-        if(aList->SelectionCount() >= 1 )
-            {
-            iToolbar->SetItemDimmed(EGlxCmdUpload,EFalse , ETrue);
-            }
-        else
-            {
-            iToolbar->SetItemDimmed(EGlxCmdUpload,ETrue , ETrue);
-            }    
-        }
-    
-    //DrawNow must be called since SetDimmed does not redraw the toolbar
-    iToolbar->DrawNow();    
     }
 
 //----------------------------------------------------------------------------
@@ -293,13 +275,6 @@ void CGlxToolbarController::SetStatusL(MGlxMediaList* aList)
 			iToolbar->SetItemDimmed( EGlxCmdRename, EFalse, ETrue );
 			}    
 		}    
-	/* single clk chngs
-	 * enable/disable upload button as per selection count, only in grid view
-	 */
-	if(aList->SelectionCount()== 0 && !IsFullScreenView())
-	    {
-	    iToolbar->SetItemDimmed(EGlxCmdUpload,ETrue , ETrue);
-	    }
 	
 	//DrawNow must be called since SetDimmed does not redraw the toolbar
 	iToolbar->DrawNow();
@@ -326,42 +301,5 @@ void CGlxToolbarController::EnableLatch( TInt aCommandId, TInt aLatched )
             }
         }
     }
-//----------------------------------------------------------------------------
-// Check for current view mode .Grid/fullscreen/imgviewer
-//----------------------------------------------------------------------------
-//
-TBool CGlxToolbarController::IsFullScreenView()
-    {
-    TBool fullscreenViewingMode = EFalse;
-             
-     CGlxNavigationalState* aNavigationalState = CGlxNavigationalState::InstanceL();
-     CMPXCollectionPath* naviState = aNavigationalState->StateLC();
-     
-     if ( naviState->Levels() >= 1)
-         {
-         if (aNavigationalState->ViewingMode() == NGlxNavigationalState::EBrowse) 
-             {
-             // For image viewer collection, goto view mode
-             if (naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
-                 {
-                 // current view mode is img vwr
-                 fullscreenViewingMode = ETrue;
-                 }
-             else
-                 {
-                 //current view mode is Grid 
-                 fullscreenViewingMode = EFalse;
-                 }
-             } 
-         else 
-             {
-             //current view mode is Fullscreen
-             fullscreenViewingMode = ETrue;
-             }                
-         }
-     CleanupStack::PopAndDestroy( naviState );
-     aNavigationalState->Close();
-     return fullscreenViewingMode;
-    }
-//end os file
+//end of file
 	

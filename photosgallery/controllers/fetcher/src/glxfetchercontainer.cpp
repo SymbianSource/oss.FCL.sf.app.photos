@@ -400,7 +400,7 @@ void CGlxFetcherContainer::SetIconsL(TInt aIndex)
                 TMPXGeneralCategory  cat = item.Category();                  
                 TBool checkViewRights = (cat==EMPXImage);
 
-                if(iDRMUtility->CheckOpenRightsL(uri, checkViewRights))
+                if(iDRMUtility->ItemRightsValidityCheckL(uri, checkViewRights))
                     {
                     iHgGrid->ItemL(aIndex).SetFlags(
                             CHgItem::EHgItemFlagsDrmRightsValid);

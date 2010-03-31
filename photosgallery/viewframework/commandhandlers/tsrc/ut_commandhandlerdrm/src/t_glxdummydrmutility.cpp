@@ -31,7 +31,7 @@ void CGlxDRMUtility::Close()
     delete this;
     }
     
-TBool CGlxDRMUtility::CheckOpenRightsL( const TDesC& aUri, TBool )
+TBool CGlxDRMUtility::ItemRightsValidityCheckL( const TDesC& aUri, TBool )
     {
     TBool rightsInvalid = ETrue;
     

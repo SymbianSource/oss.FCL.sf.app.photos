@@ -33,7 +33,7 @@
 t_glxupnprenderer* t_glxupnprenderer::NewL()
     {
     t_glxupnprenderer* self = t_glxupnprenderer::NewLC();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
 
     return self;
     }

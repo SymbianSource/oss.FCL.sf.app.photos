@@ -29,7 +29,7 @@
 T_CGlxFromFocusOutwardIterator* T_CGlxFromFocusOutwardIterator::NewL()
     {
     T_CGlxFromFocusOutwardIterator* self = T_CGlxFromFocusOutwardIterator::NewLC();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 

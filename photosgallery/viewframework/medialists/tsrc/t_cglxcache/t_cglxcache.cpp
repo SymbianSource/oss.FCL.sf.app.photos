@@ -53,8 +53,7 @@ const TInt KMediaId5 = 5;
 T_CGlxCache* T_CGlxCache::NewL()
     {
     T_CGlxCache* self = T_CGlxCache::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -62,9 +61,7 @@ T_CGlxCache* T_CGlxCache::NewLC()
     {
     T_CGlxCache* self = new( ELeave ) T_CGlxCache();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 
@@ -480,7 +477,6 @@ void T_CGlxCache::T_CGlxCache_Delete_SubTest5L(  )
 
 void T_CGlxCache::T_CGlxCache_ReserveUsersLL(  )
     {
-    // iCGlxCache->ReserveUsersL( <add parameters here > );
     EUNIT_ASSERT_DESC( EFalse, "Generated assert, replace with real");
     }
     
@@ -512,7 +508,7 @@ T_CGlxCache::CGlxCacheObserverTest* T_CGlxCache::CGlxCacheObserverTest::NewL()
     CGlxCacheObserverTest* self = new (ELeave) CGlxCacheObserverTest();
     CleanupStack::PushL(self);
     self->ConstructL();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -599,7 +595,7 @@ T_CGlxCache::CGlxMediaUserTest* T_CGlxCache::CGlxMediaUserTest::NewL()
     CGlxMediaUserTest* self = new (ELeave) CGlxMediaUserTest();
     CleanupStack::PushL(self);
     self->ConstructL();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 

@@ -272,7 +272,7 @@ CGlxZoomControl::~CGlxZoomControl()
 // ActivateL:Activates the Zoom Control,set the image visual ,do the initial setup
 // -----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode aStartMode, 
+EXPORT_C void CGlxZoomControl::ActivateL(TInt /*aInitialZoomRatio*/, TZoomStartMode aStartMode, 
         TInt aFocusIndex, TGlxMedia& aItem, TPoint* aZoomFocus,TBool aViewingMode)
     {
     TRACER("CGlxZoomControl::ActivateL()");

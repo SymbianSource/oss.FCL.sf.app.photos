@@ -109,9 +109,6 @@ void CGlxVisualListWindow::SetupObjectL( TInt aIndex, CBase& aObject )
     // No easy way to get rid of this trap. Would be possible to do
     // multiple objects within the same trap by modifying the CGlxListWindowBase
     // but would be surprising if this TRAP is a actually a performance problem
-
-    // create texture from thumbnail 
-    //TSize visSize = object.Visual()->Size().ValueNow().AsSize();
 	TSize visSize =iUiUtility->DisplaySize();
     
     CAlfTexture* texture = NULL; 
@@ -138,11 +135,16 @@ void CGlxVisualListWindow::SetupObjectL( TInt aIndex, CBase& aObject )
 	iMediaList->Item( aIndex ).GetDimensions(imageSize);	
     // Set scale mode to EScaleFitInside if the Image is bigger then screen
     // or to scale the grid size thumbnails if full thumbnail is not available while fast swipe
-	if ( imageSize.iWidth >= visSize.iWidth || imageSize.iHeight >= visSize.iHeight 
+	if ( (imageSize.iWidth >= visSize.iWidth || imageSize.iHeight >= visSize.iHeight)
 			||(texture->Size().iHeight < imageSize.iHeight  && texture->Size().iWidth < imageSize.iWidth ))
 		{
 		object.SetScaleMode(CAlfImageVisual::EScaleFitInside);		
 		}		
+	//this will keep the image back to its normal size if the condition is not satsified.
+	else
+		{
+		object.SetScaleMode(CAlfImageVisual::EScaleNormal);
+		}
 			    
     // show the object. do this before notifying control, to show
     // at the image if control leaves
@@ -152,7 +154,7 @@ void CGlxVisualListWindow::SetupObjectL( TInt aIndex, CBase& aObject )
     iControl->HandleVisualAddedL( object.Visual(), aIndex );
     }
 
- void CGlxVisualListWindow::CleanupObject(TInt aListIndex, CBase& aObject) 
+ void CGlxVisualListWindow::CleanupObject(TInt /*aListIndex*/, CBase& aObject) 
 	{
 	TRACER("CGlxVisualListWindow::CleanupObject");
     GLX_LOG_INFO("CGlxVisualListWindow::CleanupObject");
@@ -193,23 +195,8 @@ void CGlxVisualListWindow::CleanupObject( TInt aWindowIndex )
 // -----------------------------------------------------------------------------
 // PostObjectsAdded
 // -----------------------------------------------------------------------------	
-void CGlxVisualListWindow::PostObjectsAdded( RArray<TInt>& aAddedAtListIndexes )	
+void CGlxVisualListWindow::PostObjectsAdded( RArray<TInt>& /*aAddedAtListIndexes*/ )
     {
-    /*
-   TInt count = aAddedAtListIndexes.Count();
-    // step through array and notify our observers
-    // cant leave so need to just ignore the error
-    TRAP_IGNORE( 
-        {
-        for(TInt i = 0; i < count; i++ )
-            {
-            TInt listIdx = aAddedAtListIndexes[i];
-            //TInt idx =  ListIndexToWindowIndex( listIdx );
-            //CGlxVisualObject* item = ObjectByIndex( idx);
-    	    //iControl->HandleVisualAddedL( item->Visual(), listIdx );
-            }
-        }); 
-       */
     }
 
 // -----------------------------------------------------------------------------

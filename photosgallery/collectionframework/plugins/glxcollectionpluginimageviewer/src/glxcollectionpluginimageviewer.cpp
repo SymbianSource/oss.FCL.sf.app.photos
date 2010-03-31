@@ -92,8 +92,8 @@ void CGlxCollectionPluginImageViewer::ConstructL()
     }
 
 void CGlxCollectionPluginImageViewer::CpiAttributeAdditionalAttributes(
-        const TMPXAttribute& aCpiAttribute, 
-        RArray<TMPXAttribute>& aAttributeArray)
+        const TMPXAttribute& /*aCpiAttribute*/, 
+        RArray<TMPXAttribute>& /*aAttributeArray*/)
     {
     // Nothing to be shared apart from the ones that are commonly loaded.
     }
@@ -146,8 +146,8 @@ void CGlxCollectionPluginImageViewer::HandleCpiAttributeResponseL(
     }
 
 void CGlxCollectionPluginImageViewer::HandleCpiAttributeResponseL(
-        CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes,
-        TGlxMediaId aMediaId)
+        CMPXMedia* /*aResponse*/, TArray<TMPXAttribute> aCpiAttributes,
+        TGlxMediaId /*aMediaId*/)
     {
     const TInt attribCount = aCpiAttributes.Count();
 

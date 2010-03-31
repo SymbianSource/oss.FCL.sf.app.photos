@@ -135,7 +135,6 @@ void CGlxGarbageCollector::CancelCleanup()
     if (iPeriodic->IsActive())
         {
         iPeriodic->Cancel();
-        // Consideration of Restarting the timer is there; 
         }
     }
 

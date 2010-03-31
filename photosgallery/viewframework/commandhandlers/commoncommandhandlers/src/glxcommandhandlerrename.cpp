@@ -258,7 +258,7 @@ void CGlxCommandHandlerRename::GetTitleL( TDes& aTitle,
     // put to cleanupstack as cleanupstack is emptied before stack objects
     // are deleted
     CleanupClosePushL( contextRemover );
-	// Yuck - a leave and a return code!
+	// Yuck - a leave and a return code
 	// EFalse => don't show a progress dialog
     TInt err = GlxAttributeRetriever::RetrieveL( *context, aList, EFalse );
     // Using a distinct error value as "LeaveIfError( FuncL() );" looks bad

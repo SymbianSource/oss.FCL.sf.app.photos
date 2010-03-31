@@ -250,7 +250,7 @@ public:
     void SetToViewMode()
         {
          iViewingMode = NGlxNavigationalState::EView;
-         // inform the observers( only appui!! ) that the mode is view
+         // inform the observers( only appui ) that the mode is view
          NotifyObserversOfStateChange();
          
         }
@@ -436,7 +436,7 @@ EXPORT_C void CGlxNavigationalState::ActivatePreviousViewL()
 EXPORT_C void CGlxNavigationalState::SetToViewMode()
     {
     iImp->SetToViewMode();
-    // inform the observers( only appui!! ) that the mode is view
+    // inform the observers( only appui ) that the mode is view
     }
 
 // -----------------------------------------------------------------------------

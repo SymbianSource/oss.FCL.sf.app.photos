@@ -143,10 +143,9 @@ void CShwViewControl::NotifyL( MShwEvent* aEvent )
 		// check if we are ok to go to start transition
         CheckAndSendStartTransitionL();
 		}
-	// was it next or previous image?
 	else if ( dynamic_cast< TShwEventNextImage* >( aEvent ) || 
 			  dynamic_cast< TShwEventPreviousImage* >( aEvent ) )
-		{
+		{// it was next or previous image
 		// user did navigate, reset the state flags
 		iReadyToAdvanceReceived = EFalse;
 		iReadyToViewReceived = EFalse;
@@ -154,19 +153,17 @@ void CShwViewControl::NotifyL( MShwEvent* aEvent )
 		iUserNavigated = ETrue;
 		iUserNavigatedWhilePaused = iPaused;
 		}
-	// pause event?
 	else if ( dynamic_cast< TShwEventPause* >( aEvent ) )
-		{
+		{ // pause event
 		// we are paused
 		iPaused = ETrue;
 		iUserNavigatedWhilePaused = EFalse;
 		}
-	// resume event?
 	else if ( dynamic_cast< TShwEventResume* >( aEvent ) )
-		{
+		{ // resume event
 		// we are not paused
 		iPaused = EFalse;
-		// did user navigate?
+		// Check if user did navigate
 		if( iUserNavigatedWhilePaused )
 			{
 			// reset the flag

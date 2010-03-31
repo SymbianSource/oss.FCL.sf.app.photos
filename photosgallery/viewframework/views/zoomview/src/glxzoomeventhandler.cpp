@@ -135,7 +135,7 @@ void CGlxZoomPanEventHandler::ConstructL()
 //----------------------------------------------------------------------------------
 //
 // Todo: Combine logics of setting up animated zoom and pan.
-void CGlxZoomPanEventHandler::SetupAnimatedZoom(TZoomMode aZoomMode, TPoint* aZoomFocus)
+void CGlxZoomPanEventHandler::SetupAnimatedZoom(TZoomMode aZoomMode, TPoint* /*aZoomFocus*/)
     {
     TRACER("CGlxZoomPanEventHandler::SetupAnimatedZoom");
     
@@ -606,7 +606,7 @@ void CGlxZoomPanEventHandler::HandleDragEvent(const GestureHelper::MGestureEvent
 // HandleGestureReleased
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::HandleGestureReleased(const GestureHelper::MGestureEvent& aEvent )
+void CGlxZoomPanEventHandler::HandleGestureReleased(const GestureHelper::MGestureEvent& /*aEvent*/ )
     {
     TRACER("CGlxZoomPanEventHandler::HandleGestureReleasedEvent(const GestureHelper::MGestureEvent& )");
     
@@ -710,7 +710,7 @@ void CGlxZoomPanEventHandler::HandlePinchEventL(const GestureHelper::MGestureEve
 // HandleDoubleTap
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::HandleDoubleTap(const GestureHelper::MGestureEvent& aEvent )
+void CGlxZoomPanEventHandler::HandleDoubleTap(const GestureHelper::MGestureEvent& /*aEvent*/ )
     {
     TRACER("CGlxZoomControl::HandleDoubleTap(GestureHelper::MGestureEvent&)");
 
@@ -727,7 +727,7 @@ void CGlxZoomPanEventHandler::HandleDoubleTap(const GestureHelper::MGestureEvent
 // HandleSingleTap
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::HandleSingleTap(const GestureHelper::MGestureEvent& aEvent )
+void CGlxZoomPanEventHandler::HandleSingleTap(const GestureHelper::MGestureEvent& /*aEvent*/ )
     {
     TRACER("CGlxZoomControl::HandleSingleTap(GestureHelper::MGestureEvent&)");
 
@@ -1151,6 +1151,5 @@ TUiState CGlxZoomPanEventHandler::ZoomUiState()
 void CGlxZoomPanEventHandler::HandleMultiTouchReleased()
     {
     TRACER("CGlxZoomPanEventHandler::HandleMultiTouchReleased");
-
-//    ShowScreenFurniture(KGlxScreenTimeout);
+    //Do nothing
     }

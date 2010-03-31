@@ -714,7 +714,7 @@ void CGlxDataSourceMde::FetchThumbnailL(CGlxRequest* aRequest, MThumbnailFetchRe
 
     iTnThumbnailCbId = iTnEngine->GetThumbnailL(*source);
     iTnRequestInProgress = ETrue;
-    CleanupStack::PopAndDestroy();
+    CleanupStack::PopAndDestroy( source );
 	}
 
 TInt CGlxDataSourceMde::CancelFetchThumbnail()

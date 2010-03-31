@@ -62,8 +62,6 @@ EXPORT_C void TGlxLayoutSplitter::SetLayoutL(
 	{
 	// Call SetVisualListL first
 	__ASSERT_DEBUG( iVisualList, Panic( EGlxPanicNullVisualList ) ); 
-	// to replace EGlxPanicNullCHuiVisual
-	//__ASSERT_DEBUG( aVisual && aLayout, Panic( EGlxPanicNullCAlfVisual ) );  
 	// search if there already is a layout for this visual
 	__DEBUG_ONLY( TLayout temp;temp.iVisual = aVisual; );
 	__ASSERT_DEBUG( 
@@ -89,7 +87,7 @@ EXPORT_C void TGlxLayoutSplitter::RemoveLayout(
 		{
 		iLayouts.Remove( index );
 		}
-	// NOTE! it is ok to try to remove a layout from visual when there was none
+	// NOTE: it is ok to try to remove a layout from visual when there was none
 	}
 	
 // -----------------------------------------------------------------------------

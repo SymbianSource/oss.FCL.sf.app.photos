@@ -50,25 +50,6 @@ TBool CGlxAiwMedia::AddParamL(const TAiwGenericParam& aParam)
     {
     if (KErrNotFound == iParamArray.Find(aParam))
         {
-/*
-#ifdef __WINSCW__
-        // Big hack! replace "video/MP4V-ES" with "video/mp4"
-        // Hack to be removed when TSW error: VKAN-77D92E is released
-        TAiwGenericParam MimeType1( EGenericParamMIMEType, TAiwVariant( _L("video/MP4V-ES") ));
-        TAiwGenericParam MimeType2( EGenericParamMIMEType, TAiwVariant( _L("video/mp4") ));
-        
-        if (aParam == MimeType1)
-            {
-            iParamArray.AppendL(MimeType2);
-            }
-        else
-            {
-            iParamArray.AppendL(aParam);
-            }
-#else
-        iParamArray.AppendL(aParam);
-#endif
-*/
         iParamArray.AppendL(aParam);
         return ETrue;
         }

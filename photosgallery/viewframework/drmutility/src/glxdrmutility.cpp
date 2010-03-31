@@ -121,17 +121,17 @@ CGlxDRMUtility::~CGlxDRMUtility()
     }
     
 //============================================================================
-// CheckOpenRightsL
-// Fix for ESLM-82WJ59:always call 'CheckOpenRightsL' only for checking DRM
-// rights validity for item.
+// ItemRightsValidityCheckL
+// for checking DRM rights validity for item.
+// is called before right is consumed and for all items (focused or unfocused).
 //============================================================================
-EXPORT_C TBool CGlxDRMUtility::CheckOpenRightsL( const TDesC& aUri,
+EXPORT_C TBool CGlxDRMUtility::ItemRightsValidityCheckL( const TDesC& aUri,
                                                 TBool aCheckViewRights )
     {
-    TRACER("CGlxDRMUtility::CheckOpenRightsL()");
+    TRACER("CGlxDRMUtility::ItemRightsValidityCheckL()");
     // When checking current rights for a URI
 
-    // Fix for ESLM-82WJ59: Allow to Open if rights for a URI was just consumed (i.e. same as stored URI)
+    //Allow to Open if rights for a URI was just consumed (i.e. same as stored URI)
 	if ( iLastConsumedItemUri->Length() > 0 )
 		{
 		if ( aUri.CompareF( *iLastConsumedItemUri ) == 0 )
@@ -140,7 +140,7 @@ EXPORT_C TBool CGlxDRMUtility::CheckOpenRightsL( const TDesC& aUri,
 			}
 		}
 
-	// Fix for ESLM-82WJ59: Else for uri of non-focused uri, just check validity rights
+	//Else for uri of non-focused uri, just check validity rights
     TBool rightsValid = EFalse;
     TVirtualPathPtr path( aUri, KDefaultContentObject() );
 
@@ -154,13 +154,13 @@ EXPORT_C TBool CGlxDRMUtility::CheckOpenRightsL( const TDesC& aUri,
     }
 
 //============================================================================
-// CheckDisplayRightsL
-// Fix for ESLM-82WJ59:always call 'CheckDisplayRightsL' only for focused item.
+// DisplayItemRightsCheckL
+// is called after right is consumed and for only focused/displayed item.
 //============================================================================
-EXPORT_C TBool CGlxDRMUtility::CheckDisplayRightsL( const TDesC& aUri,
+EXPORT_C TBool CGlxDRMUtility::DisplayItemRightsCheckL( const TDesC& aUri,
                                                     TBool aCheckViewRights )
     {
-    TRACER("CGlxDRMUtility::CheckDisplayRightsL()");
+    TRACER("CGlxDRMUtility::DisplayItemRightsCheckL()");
 
     // Allow to display if rights for a URI was just consumed (i.e. same as stored URI)
     if ( iLastConsumedItemUri->Length() > 0 )
@@ -171,11 +171,11 @@ EXPORT_C TBool CGlxDRMUtility::CheckDisplayRightsL( const TDesC& aUri,
             }
         }
 
-    //Fix for ESLM-82WJ59: Clear the stored uri since focus has changed
-    ClearLastConsumedItemUri();
+    //Clear the stored uri since focus has changed
+    ClearLastConsumedItemUriL();
 
     // Otherwise, check current rights for the URI of newly focused item
-    return CheckOpenRightsL( aUri, aCheckViewRights );
+    return ItemRightsValidityCheckL( aUri, aCheckViewRights );
     }
 
 //============================================================================
@@ -190,15 +190,15 @@ EXPORT_C TBool CGlxDRMUtility::ConsumeRightsL(const TDesC& aUri)
     // Tell the agent we are planning to display the content
     CData* data = CData::NewLC(path, ContentAccess::EView, EContentShareReadOnly);
 
-    //Fix for ESLM-82WJ59: When consuming rights for a URI, clear stored URI
-    ClearLastConsumedItemUri();
+    //When consuming rights for a URI, clear stored URI
+    ClearLastConsumedItemUriL();
 
     // Execute the intent, tell the agent that we plan to display the content
     // It is at this point that any stateful rights will be decremented
     TInt err = data->ExecuteIntent(ContentAccess::EView);
     if ( err == KErrNone )
         {
-        //Fix for ESLM-82WJ59: Update stored URI
+        //Update stored URI
         iLastConsumedItemUri = iLastConsumedItemUri->ReAllocL( aUri.Length() );
         TPtr newPtr = iLastConsumedItemUri->Des();
         newPtr.Copy( aUri );
@@ -210,14 +210,13 @@ EXPORT_C TBool CGlxDRMUtility::ConsumeRightsL(const TDesC& aUri)
     }
 
 //============================================================================
-//Fix for ESLM-82WJ59:
 //Clears Last Consumed Uri
 //============================================================================
-EXPORT_C void CGlxDRMUtility::ClearLastConsumedItemUri()
+EXPORT_C void CGlxDRMUtility::ClearLastConsumedItemUriL()
 	{
 	//clears the stored uri
-	TPtr aPtr = iLastConsumedItemUri->Des();
-	aPtr.Zero();
+	TPtr ptr = iLastConsumedItemUri->Des();
+	ptr.Zero();
 	iLastConsumedItemUri = iLastConsumedItemUri->ReAllocL( 0 );
 	}
 
@@ -225,13 +224,13 @@ EXPORT_C void CGlxDRMUtility::ClearLastConsumedItemUri()
 // Test whether a media item is OMA DRM 2.0 protected and has an associated
 // info URL.
 //============================================================================
-EXPORT_C TBool CGlxDRMUtility::CanShowInfoOnlineL(TDesC& aUri)
+EXPORT_C TBool CGlxDRMUtility::CanShowInfoOnlineL(const TDesC& aUri)
     {
     TRACER("CGlxDRMUtility::CanShowInfoOnlineL()");
     TBool canShowInfoOnline = EFalse;
 
     HBufC8* urlBuf = NULL;
-    canShowInfoOnline = iDrmHelper->HasInfoUrlL(aUri, urlBuf);
+    canShowInfoOnline = iDrmHelper->HasInfoUrlL( const_cast<TDesC&>(aUri) , urlBuf);
 
     // discard buf we don't need it
     delete urlBuf;
@@ -242,10 +241,10 @@ EXPORT_C TBool CGlxDRMUtility::CanShowInfoOnlineL(TDesC& aUri)
 //============================================================================
 // Open the associated info URL for a media item in the browser.
 //============================================================================
-EXPORT_C void CGlxDRMUtility::ShowInfoOnlineL(TDesC& aUri)
+EXPORT_C void CGlxDRMUtility::ShowInfoOnlineL(const TDesC& aUri)
     {
     TRACER("CGlxDRMUtility::ShowInfoOnlineL()");
-    iDrmHelper->OpenInfoUrlL(aUri);
+    iDrmHelper->OpenInfoUrlL( const_cast<TDesC&>(aUri) );
     }
 
 //============================================================================
@@ -305,7 +304,7 @@ EXPORT_C void CGlxDRMUtility::ShowDRMDetailsPaneL( const TDesC& aUri )
     {
     TRACER("CGlxDRMUtility::ShowDRMDetailsPaneL()");
     TRAPD( err, iDrmHelper->LaunchDetailsViewEmbeddedL( aUri ) );
-    // if no rights ask user to re-activate?
+    // if no rights ask user to re-activate
     if( err == KErrCANoRights )
         {
         HBufC* buf = aUri.AllocLC();

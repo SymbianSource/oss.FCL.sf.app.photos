@@ -171,23 +171,16 @@ public:
     IMPORT_C CGlxScreenFurniture* ScreenFurniture();
 
     /**
-     * CHgContextUtility
-     * @return pointer to CHgContextUtility
-     */
-    //IMPORT_C CHgContextUtility* ContextUtility();
-    
-    /**
      * This method can be used to check whether pen support is enabled.
      * @return ETrue if pen support is enabled, otherwise EFalse.
      */
     IMPORT_C TBool IsPenSupported();
-    //Nitz Review Added
+
     /**
      * This method can be used to set the image size required for Rotation.
      * @param aRotatedImageSize the image size to be set.
      */
     IMPORT_C void SetRotatedImageSize(TSize aRotatedImageSize);
-    //Nitz Review Added end
     
     /**
      * This method can be used to Get the image size required for Rotation.
@@ -228,6 +221,17 @@ public:
      * @return TInt visible items granularity / count
      */
     IMPORT_C TInt VisibleItemsInPageGranularityL();
+    
+    /**
+     * @return The current Grid toolbar being used
+     */
+    IMPORT_C CAknToolbar* GetGridToolBar();
+
+    /**
+     * Set the current Grid toolbar being used
+     * @param aToolbar Current Toolbar
+     */
+    IMPORT_C void SetGridToolBar(CAknToolbar* aToolbar);
     
 public: // from class MGlxTvObserver
 
@@ -350,8 +354,9 @@ private:
     TBool iIsExiting;
     //Added to give the Image size to the Coverflow Widget for Rotation
     TSize iRotatedImageSize;
-    
-//    CHgContextUtility* iContextUtility;
+	
+	//current Toolbar being used
+    CAknToolbar* iToolbar;
     };
 
 

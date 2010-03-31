@@ -70,7 +70,7 @@ RESOURCE MENU_PANE r_tagsbrowser_menu
         MENU_ITEM { command=EGlxStopShowing; 
                     txt=qtn_lgal_options_stop_show; }, 
 		MENU_ITEM { command=EAknCmdHelp; 
-		            txt=qtn_clipb_litxt_help; }, 
+		            txt=qtn_options_help; },
 		MENU_ITEM { command=EAknCmdExit; 
 		            txt=qtn_options_exit; } 	
 		};

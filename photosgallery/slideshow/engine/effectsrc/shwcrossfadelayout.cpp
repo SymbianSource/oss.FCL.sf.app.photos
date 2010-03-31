@@ -84,7 +84,7 @@ void TShwCrossFadeLayout::Resume()
 // -----------------------------------------------------------------------------
 // DoSetLayoutValues
 // -----------------------------------------------------------------------------
-void TShwCrossFadeLayout::DoSetLayoutValues( TGlxLayoutInfo& aInfo )
+void TShwCrossFadeLayout::DoSetLayoutValues( TGlxLayoutInfo& /*aInfo*/ )
 	{
 	TRACER("TShwCrossFadeLayout::DoSetLayoutValues");
 	GLX_LOG_INFO("TShwCrossFadeLayout::DoSetLayoutValues");

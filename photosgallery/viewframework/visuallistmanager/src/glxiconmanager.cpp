@@ -62,11 +62,11 @@ EXPORT_C CGlxIconManager::~CGlxIconManager()
 	{
 	TRACER("CGlxIconManager::~CGlxIconManager");
 	GLX_LOG_INFO("CGlxIconManager::~CGlxIconManager");
+
 	if(iUiUtility)
 		{
         iUiUtility->Close();
         }
-                
     
     // remove brushes we've added to visuals in visual list
     TInt mcount = iMediaList.Count();
@@ -142,11 +142,7 @@ EXPORT_C void CGlxIconManager::CreateVisualFromTextureL( CAlfTexture& aTexture )
     CleanupStack::PushL(imageBrush);
     
     imageBrush->SetLayer(EAlfBrushLayerForeground);
-
-    /// @todo Remove these 2 lines when Hui fixes the image brush rendering bug
     imageBrush->SetBorders(-1,-1,-1,-1);
-   // imageBrush->SetClipToVisual(ETrue);
-    
     iImageBrushArray.AppendL(imageBrush);
     CleanupStack::Pop(imageBrush);
 	}
@@ -168,10 +164,7 @@ EXPORT_C void CGlxIconManager::CreateVisualFromTextureL(
     CleanupStack::PushL(imageBrush);
     
     imageBrush->SetLayer( EAlfBrushLayerForeground );
-
-    /// @todo Remove these 2 lines when Hui fixes the image brush rendering bug
     imageBrush->SetBorders(-1,-1,-1,-1);
-   // imageBrush->SetClipToVisual(ETrue);
     
     TAlfTimedValue opacity( aParams.iOpacity, 0 ); 
     imageBrush->SetOpacity( opacity );
@@ -208,7 +201,6 @@ EXPORT_C void CGlxIconManager::AddIconToItemL(CAlfVisual* aVisual, TInt aBrushIn
 		    aVisual->EnableBrushesL();	
 	        aVisual->Brushes()->AppendL(iImageBrushArray[aBrushIndex],
 	                                        EAlfDoesNotHaveOwnership );	
-           // aVisual->SetChanged();	                                        	
 		    }
 		}
 	}
@@ -246,7 +238,6 @@ EXPORT_C void CGlxIconManager::RemoveFromItem(CAlfVisual* aVisual,
     			if(brush==iImageBrushArray[aIconIndex])
     				{
     				brushArray->Remove(i);
-    			//	aVisual->SetChanged();
     				break;
     				}
     			}

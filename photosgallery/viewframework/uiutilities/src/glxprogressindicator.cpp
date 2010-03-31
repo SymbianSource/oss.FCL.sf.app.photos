@@ -33,6 +33,7 @@ const TInt KPeriodicStartDelay = 500000;
 EXPORT_C CGlxProgressIndicator* CGlxProgressIndicator::NewL
                     (MDialogDismisedObserver& aGlxGridViewNotifyObserver)
     {
+    TRACER("CGlxProgressIndicator::NewL()");
     CGlxProgressIndicator* self = CGlxProgressIndicator::NewLC
                                                 (aGlxGridViewNotifyObserver);
     CleanupStack::Pop(self);
@@ -46,7 +47,7 @@ EXPORT_C CGlxProgressIndicator* CGlxProgressIndicator::NewL
 CGlxProgressIndicator* CGlxProgressIndicator::NewLC
                     (MDialogDismisedObserver& aGlxGridViewNotifyObserver)
     {
-    
+    TRACER("CGlxProgressIndicator::NewLC()");
     CGlxProgressIndicator* self = new(ELeave)
                     CGlxProgressIndicator(aGlxGridViewNotifyObserver);
     CleanupStack::PushL(self);
@@ -70,6 +71,7 @@ CGlxProgressIndicator::CGlxProgressIndicator
 //
 CGlxProgressIndicator::~CGlxProgressIndicator()
     {
+    TRACER("CGlxProgressIndicator::~CGlxProgressIndicator()");
     if (iProgressbarTicker && iProgressbarTicker->IsActive())
         {
         iProgressbarTicker->Cancel();
@@ -96,6 +98,7 @@ CGlxProgressIndicator::~CGlxProgressIndicator()
 //
 void CGlxProgressIndicator::ConstructL()
     {
+    TRACER("CGlxProgressIndicator::ConstructL()");
     CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
     CleanupClosePushL(*uiUtility);
     TRAPD(err,uiUtility->StartTNMDaemonL());
@@ -200,6 +203,7 @@ void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue,TBool aShow)
     else
         {
         iProgressDialog->ProcessFinishedL();
+        iGlxGridViewNotifyObserver.HandleDialogDismissedL();
         if(iProgressDialog)
             {
             iProgressDialog = NULL;
@@ -243,15 +247,9 @@ void CGlxProgressIndicator::DialogDismissedL(TInt aButtonId)
     if(iProgressbarTicker)
         {
         iProgressbarTicker->Cancel();
-        delete iProgressbarTicker;
         iProgressbarTicker = NULL;
         }
 
-    if (aButtonId == EAknSoftkeyCancel)
-        {
-        // cancel any process in here 
-        iGlxGridViewNotifyObserver.HandleDialogDismissedL();
-        }
     if(iProgressDialog)
         {
         iProgressDialog = NULL;

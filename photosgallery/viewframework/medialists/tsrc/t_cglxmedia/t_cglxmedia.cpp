@@ -42,8 +42,7 @@ _LIT(KMediaSubTitle, "0 items");
 T_CGlxMedia* T_CGlxMedia::NewL()
     {
     T_CGlxMedia* self = T_CGlxMedia::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 

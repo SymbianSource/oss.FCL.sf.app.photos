@@ -21,10 +21,8 @@
 
 // INCLUDE FILES
 #include <Alf/AlfControlGroup.h>
-//#include <Alf/AlfDisplayCoeControl.h>
 #include <Alf/AlfDisplay.h>
 #include <Alf/AlfUtil.h>
-//#include <Alf/AlfSkin.h>
 #include <Alf/AlfEnv.h>
 #include <Alf/AlfTexture.h>
 #include <Alf/AlfTextureManager.h>
@@ -255,7 +253,7 @@ EXPORT_C CAlfTexture& CGlxTextureManager::CreateIconTextureL(
                                                    TSize /*aRequestedSize*/)
     {
    
-    CAlfTexture* texture = NULL; //CAlfTexture::NewL(iEnv,0);       
+    CAlfTexture* texture = NULL;       
     return *texture;
     }
 
@@ -270,7 +268,7 @@ EXPORT_C CAlfTexture& CreateThumbnailTextureL(
                 
     {
     // Create empty texture (not owned)
-    CAlfTexture* texture = NULL; //CAlfTexture::NewL();
+    CAlfTexture* texture = NULL;
     return *texture;
     }
 
@@ -285,7 +283,7 @@ EXPORT_C CAlfTexture& CreateZoomedTextureL(const TGlxMedia& aMedia,
                                             TInt& aTextureId )
     {
     // Create empty texture
-    CAlfTexture* texture = NULL; //CAlfTexture::NewL();
+    CAlfTexture* texture = NULL;
     return *texture;
     }
 

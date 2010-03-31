@@ -246,8 +246,6 @@ void CGlxContainerListBinding::HandleAttributesAvailableL( TInt /*aItemIndex*/,
 CGlxBinding::TResponse CGlxContainerListBinding::HandleFocusChanged( 
         TBool /*aIsGained*/ )
     {
-    //@todo - Need further implementation
-    //return aIsGained ? EUpdateRequested : ENoUpdateNeeded ;
     //need to remove once bug ESPK-7G6GJX is fixed
     return ENoUpdateNeeded ;
     }

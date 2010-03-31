@@ -108,8 +108,8 @@ EXPORT_C CGlxVisualIconManager::~CGlxVisualIconManager()
 // HandleVisualAddedL
 // ---------------------------------------------------------------------------
 //
-void CGlxVisualIconManager::HandleVisualAddedL( CAlfVisual* aVisual, 
-    TInt aIndex, MGlxVisualList* aList )
+void CGlxVisualIconManager::HandleVisualAddedL( CAlfVisual* /*aVisual*/, 
+    TInt aIndex, MGlxVisualList* /*aList*/ )
     {
     TRACER("CGlxVisualIconManager::HandleVisualAddedL");
     GLX_LOG_INFO("CGlxVisualIconManager::HandleVisualAddedL");
@@ -190,9 +190,6 @@ void CGlxVisualIconManager::ConstructL()
 	GLX_LOG_INFO("CGlxVisualIconManager::ConstructL");
 	BaseConstructL();
 	
-    //iWhiteTexture = 
-       // &( iTextureManager.CreateFlatColourTextureL( KRgbWhite ) );
-
 	// create 'default' icon
     TFileName resFile(KDC_APP_BITMAP_DIR);
     resFile.Append(KGlxIconsFilename);
@@ -283,9 +280,6 @@ void CGlxVisualIconManager::CheckThumbnailAttributesL( TInt aIndex )
                     {
                     iconTexture = iIconTextureArray[pos];
                     }
-                // add to visual
-				//@Migration info: Required?
-                //visItem->SetImage( THuiImage( *iconTexture ) );
                 }
             else
                 {
@@ -301,7 +295,6 @@ void CGlxVisualIconManager::CheckThumbnailAttributesL( TInt aIndex )
                 // add to visual
                 visItem->AddIconL( *iconTexture, NGlxIconMgrDefs::EGlxIconCentred,
                                     ETrue, EFalse, 0, 1.0, 1.0 );
-               // }
             }
         }
     }

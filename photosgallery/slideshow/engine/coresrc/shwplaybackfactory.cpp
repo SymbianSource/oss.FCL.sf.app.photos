@@ -358,7 +358,7 @@ void CShwPlaybackFactory::CShwPlaybackFactoryImpl::CreateEffectsL(
     TRACER("CShwPlaybackFactory::CShwPlaybackFactoryImpl::CreateEffectsL");
 	GLX_LOG_INFO( "CShwPlaybackFactoryImpl::CreateEffectsL" );
 	aEffects.AppendL( CShwZoomAndPanEffect::NewLC() );
-	CleanupStack::Pop();
+	CleanupStack::Pop(); // CShwZoomAndPanEffect::NewLC()
 	aEffects.AppendL( CShwCrossFadeEffect::NewLC() );
-	CleanupStack::Pop();
+	CleanupStack::Pop(); // CShwCrossFadeEffect::NewLC()
     }

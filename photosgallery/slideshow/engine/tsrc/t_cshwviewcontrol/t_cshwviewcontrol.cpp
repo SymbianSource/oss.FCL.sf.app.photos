@@ -45,8 +45,7 @@ namespace NShwEngine
 T_CShwViewControl* T_CShwViewControl::NewL()
     {
     T_CShwViewControl* self = T_CShwViewControl::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -83,7 +82,7 @@ void T_CShwViewControl::SendEventL( MShwEvent* aEvent )
 	{
 	// need to clone the event since the caller goes out of scope
 	iEvent = aEvent->CloneLC();
-	CleanupStack::Pop();
+	CleanupStack::Pop( iEvent );
 	}
 
 const TInt KTestTransitionDuration = 987;

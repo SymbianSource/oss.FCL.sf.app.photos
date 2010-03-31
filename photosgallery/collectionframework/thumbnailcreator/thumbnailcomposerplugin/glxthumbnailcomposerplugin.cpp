@@ -328,7 +328,7 @@ TBool CGlxThumbnailComposerPlugin::IsComposingComplete()
 	        iState = EStateIdle;
 	        }
 	    
-	    return ETrue ; //( iState == EStateIdle );
+	    return ETrue ;
 	}
 
 #ifdef RD_MDS_2_0

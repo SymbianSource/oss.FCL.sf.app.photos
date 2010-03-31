@@ -42,13 +42,13 @@ const TInt KSingleStepForZoom = 10;
 // NewLC
 // -----------------------------------------------------------------------------
 CGlxHdmiSurfaceUpdater* CGlxHdmiSurfaceUpdater::NewL(RWindow* aWindow, const TDesC& aImageFile, 
-        TSize aImageDimensions, TInt aFrameCount, MGlxGenCallback* aCallBack)
+                                                      MGlxGenCallback* aCallBack)
     {
     TRACER("CGlxHdmiSurfaceUpdater* CGlxHdmiSurfaceUpdater::NewL()");
     CGlxHdmiSurfaceUpdater* self = new (ELeave) CGlxHdmiSurfaceUpdater(aWindow, aImageFile,
-            aImageDimensions, aFrameCount, aCallBack);
+                                                                    aCallBack);
     CleanupStack::PushL(self);
-    self->ConstructL(aImageDimensions);
+    self->ConstructL();
     CleanupStack::Pop(self);
     return self;
     }
@@ -134,10 +134,10 @@ void CGlxHdmiSurfaceUpdater::ReleaseContent()
 // -----------------------------------------------------------------------------
 // CTor 
 // -----------------------------------------------------------------------------
-CGlxHdmiSurfaceUpdater::CGlxHdmiSurfaceUpdater(RWindow* aWindow, const TDesC& aImageFile, 
-        TSize aOrigImageDimensions, TInt aFrameCount, MGlxGenCallback* aCallBack): 
-        iWindow(aWindow), iImagePath(aImageFile), iOrigImageDimensions(aOrigImageDimensions),
-        iFrameCount(aFrameCount ),iCallBack(aCallBack)
+CGlxHdmiSurfaceUpdater::CGlxHdmiSurfaceUpdater(RWindow* aWindow, 
+                          const TDesC& aImageFile, MGlxGenCallback* aCallBack): 
+                          iWindow(aWindow), iImagePath(aImageFile), 
+                          iCallBack(aCallBack)
     {
     TRACER("CGlxHdmiSurfaceUpdater::CGlxHdmiSurfaceUpdater()");
     // Implement nothing here
@@ -146,7 +146,7 @@ CGlxHdmiSurfaceUpdater::CGlxHdmiSurfaceUpdater(RWindow* aWindow, const TDesC& aI
 // -----------------------------------------------------------------------------
 // ConstructL 
 // -----------------------------------------------------------------------------
-void CGlxHdmiSurfaceUpdater::ConstructL(TSize /*aImageDimensions*/)
+void CGlxHdmiSurfaceUpdater::ConstructL()
     {
     TRACER("CGlxHdmiSurfaceUpdater::ConstructL()");
     TInt error = iFsSession.Connect ();
@@ -155,7 +155,7 @@ void CGlxHdmiSurfaceUpdater::ConstructL(TSize /*aImageDimensions*/)
     
     iBitmapReady = EFalse;
     // Create the active object
-    iGlxDecoderAO = CGlxHdmiDecoderAO::NewL(this, iFrameCount);
+    iGlxDecoderAO = CGlxHdmiDecoderAO::NewL(this);
     CreateImageDecoderL(iImagePath);
     CreateBitmapL();
     CreateHdmiL();
@@ -168,7 +168,7 @@ void CGlxHdmiSurfaceUpdater::ConstructL(TSize /*aImageDimensions*/)
     iStartTime.HomeTime();
 #endif
     //start decoding the image    
-    iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,0,iImageDecoder);    
+    iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,iImageDecoder);    
     
     iLeftCornerForZoom.iX = 0; 
     iLeftCornerForZoom.iY = 0;
@@ -179,8 +179,7 @@ void CGlxHdmiSurfaceUpdater::ConstructL(TSize /*aImageDimensions*/)
 // -----------------------------------------------------------------------------
 // UpdateNewImageL 
 // -----------------------------------------------------------------------------
-void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile, 
-        TInt /*aFrameCount*/,TSize aImageDimensions)
+void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile)
     {
     TRACER("CGlxHdmiSurfaceUpdater::UpdateNewImageL()");
 	//Cancel the zoom timers if any
@@ -189,7 +188,7 @@ void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile,
 		GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::UpdateNewImageL() - Cancel Timer");
         iTimer->Cancel();
         }
-    iOrigImageDimensions = aImageDimensions;
+    
 	iBitmapReady = EFalse;
 	iLeftCornerForZoom.iX = 0; 
 	iLeftCornerForZoom.iY = 0;
@@ -201,7 +200,7 @@ void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile,
     iStartTime.HomeTime();
 #endif
     //start decoding the image
-    iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,0,iImageDecoder);
+    iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,iImageDecoder);
     }
 
 // -----------------------------------------------------------------------------
@@ -355,22 +354,23 @@ void CGlxHdmiSurfaceUpdater::CreateBitmapL()
     TRACER("CGlxHdmiSurfaceUpdater::StartImageDecodeL()");
     TSize scrnSize = iWindow->Size();
     TSize targetBitmapSize;
-    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::StartImageDecodeL() - bitmapsize=%d, %d",iOrigImageDimensions.iWidth,iOrigImageDimensions.iHeight);
+    TSize imageSize = iImageDecoder->FrameInfo().iOverallSizeInPixels;
+    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::StartImageDecodeL() - bitmapsize=%d, %d",imageSize.iWidth,imageSize.iHeight);
     TReal32 scaleFactor = 0.0f;
-    if (scrnSize.iWidth * iOrigImageDimensions.iHeight > scrnSize.iHeight
-            * iOrigImageDimensions.iWidth)
+    if (scrnSize.iWidth * imageSize.iHeight > scrnSize.iHeight
+            * imageSize.iWidth)
         {
         scaleFactor = (TReal32) scrnSize.iHeight
-                / (TReal32) iOrigImageDimensions.iHeight;
+                / (TReal32) imageSize.iHeight;
         }
     else
         {
         scaleFactor = (TReal32) scrnSize.iWidth
-                / (TReal32) iOrigImageDimensions.iWidth;
+                / (TReal32) imageSize.iWidth;
         }
     GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::StartImageDecodeL() - scaleFactor=%f",scaleFactor);
-    targetBitmapSize.iHeight = iOrigImageDimensions.iHeight * scaleFactor;
-    targetBitmapSize.iWidth = iOrigImageDimensions.iWidth * scaleFactor;
+    targetBitmapSize.iHeight = imageSize.iHeight * scaleFactor;
+    targetBitmapSize.iWidth = imageSize.iWidth * scaleFactor;
 
     GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::StartImageDecodeL() - targetBitmapSize=%d, %d",targetBitmapSize.iWidth,targetBitmapSize.iHeight);
     //create the bitmap for the required size

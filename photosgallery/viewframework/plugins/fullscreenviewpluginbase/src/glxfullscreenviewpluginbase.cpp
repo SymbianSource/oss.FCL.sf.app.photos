@@ -95,12 +95,7 @@ EXPORT_C CGlxFullScreenViewPluginBase::~CGlxFullScreenViewPluginBase()
 //
 TInt CGlxFullScreenViewPluginBase::PeriodicCallback(TAny* aPtr )
     {
-    //GLX_ASSERT_DEBUG( aPtr != NULL, Panic( EGlxPanicLogicError ), 
-    //    "Received null pointer for garbage collector" );
-        
-    // get "this" pointer
     static_cast< CGlxFullScreenViewPluginBase* >( aPtr )->PeriodicCallback();
-    
     return KErrNone;
     }
 
@@ -137,7 +132,6 @@ EXPORT_C CAknView* CGlxFullScreenViewPluginBase::ConstructViewLC()
     
     iFullScreenView = fullScreenView;
     
-    //AddCommandHandlersL();
     GLX_LOG_INFO("Adding CGlxCommandHandlerBack");
     iFullScreenView->AddCommandHandlerL(
                   CGlxCommandHandlerBack::NewPreviousViewCommandHandlerL());
@@ -180,10 +174,6 @@ EXPORT_C void CGlxFullScreenViewPluginBase::AddCommandHandlersL()
     GLX_LOG_INFO("Adding CGlxCommandHandlerDetails");
     iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerDetails::
                                 NewL(iFullScreenView));
-    
-//  GLX_LOG_INFO("Adding CGlxCommandHandlerRotate");                    
-//  iFullScreenView->AddCommandHandlerL(                                           
-//                  CGlxCommandHandlerRotate::NewL( iFullScreenView ) );
     
     GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer");
     iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::

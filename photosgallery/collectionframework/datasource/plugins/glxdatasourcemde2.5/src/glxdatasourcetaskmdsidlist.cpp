@@ -258,6 +258,7 @@ void CGlxDataSourceTaskMdeIdList::DoMonthListCreationL(CMdEQuery& aQuery,
     TTime lastMonth;
     TTime currentMonth;
     TInt count = aQuery.Count();
+    GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL count=%d", count);    
     for( TInt i = 0 ; i < count ; i++ )
         {
         CMdEObject& object = (CMdEObject&)aQuery.ResultItem(i);
@@ -273,9 +274,11 @@ void CGlxDataSourceTaskMdeIdList::DoMonthListCreationL(CMdEQuery& aQuery,
             {
             const TGlxMediaId monthId = DataSource()->GetMonthIdL(currentMonth);
             monthList.AppendL(monthId);
+            GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL monthId=%d", monthId.Value());    
             lastMonth = currentMonth;
             }
         }
+    GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL monthList.Count=%d", monthList.Count());    
     PostFilterL(monthList, aFilterProperties);
     CleanupStack::PopAndDestroy(&monthList);
     }

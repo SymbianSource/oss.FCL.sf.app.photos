@@ -255,7 +255,7 @@ EXPORT_C CShwSettingsModel* CShwSettingsModel::NewL()
     CShwSettingsModel* self = new(ELeave) CShwSettingsModel();
     CleanupStack::PushL(self);
     self->ConstructL();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
 	}
 

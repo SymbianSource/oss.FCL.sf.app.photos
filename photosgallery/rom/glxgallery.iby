@@ -72,7 +72,6 @@ ECOM_PLUGIN( glxcollectionpluginall.dll, glxcollectionpluginall.rsc )
 ECOM_PLUGIN( glxcollectionpluginmonths.dll, glxcollectionpluginmonths.rsc )
 
 ECOM_PLUGIN( glxcollectionpluginimageviewer.dll, glxcollectionpluginimageviewer.rsc )
-//ECOM_PLUGIN( glxthumbnailcomposerplugin.dll, glxthumbnailcomposerplugin.rsc )
 
 file=ABI_DIR\BUILD_DIR\glxlayouts.dll                           SHARED_LIB_DIR\glxlayouts.dll  
 file=ABI_DIR\BUILD_DIR\glxmedialists.dll                        SHARED_LIB_DIR\glxmedialists.dll
@@ -94,12 +93,10 @@ file=ABI_DIR\BUILD_DIR\glxlistview.dll                          SHARED_LIB_DIR\g
 file=ABI_DIR\BUILD_DIR\glxlistviewpluginbase.dll                SHARED_LIB_DIR\glxlistviewpluginbase.dll
 ECOM_PLUGIN( glxlistviewplugin.dll, glxlistviewplugin.rsc )
 
-
 file=ABI_DIR\BUILD_DIR\glxcommandhandlerbase.dll               SHARED_LIB_DIR\glxcommandhandlerbase.dll
 file=ABI_DIR\BUILD_DIR\glxzoomview.dll                          SHARED_LIB_DIR\glxzoomview.dll
 file=ABI_DIR\BUILD_DIR\glxmetadatadialog.dll                  SHARED_LIB_DIR\glxmetadatadialog.dll  
 
 data = \epoc32\data\Z\private\10202be9\200009EE.txt           	private\10202be9\200009EE.txt
-data = \epoc32\data\Z\private\10202be9\02000A09.txt           	private\10202be9\02000A09.txt
 
 #endif  // __GLXGALLERY_IBY__

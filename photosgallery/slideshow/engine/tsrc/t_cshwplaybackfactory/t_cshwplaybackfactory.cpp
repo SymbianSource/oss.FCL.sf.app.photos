@@ -178,8 +178,7 @@ TShwEffectInfo CShwZoomAndPanEffect::EffectInfo()
 T_CShwPlaybackFactory* T_CShwPlaybackFactory::NewL()
     {
     T_CShwPlaybackFactory* self = T_CShwPlaybackFactory::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 

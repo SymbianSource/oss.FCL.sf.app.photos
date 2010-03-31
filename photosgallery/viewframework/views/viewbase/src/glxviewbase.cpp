@@ -41,6 +41,8 @@
 #include <mglxanimation.h>
 #include "glxcommandhandler.h"
 
+#include <aknbutton.h>                      // for getting the button state
+
 _LIT(KGlxViewBaseResource, "glxviewbase.rsc");
 
 /// Length of time a view-switch animation should take
@@ -247,7 +249,6 @@ EXPORT_C void CGlxViewBase::SetTitleL(const TDesC& aTitleText)
 	    {
 	    iTitlePane->SetTextL(aTitleText);
 	    }
-	//StatusPane()->MakeVisible(ETrue);
 	}
 
 // -----------------------------------------------------------------------------
@@ -257,7 +258,6 @@ EXPORT_C void CGlxViewBase::SetTitleL(const TDesC& aTitleText)
 EXPORT_C void CGlxViewBase::DisableTitle()
 	{
 	TRACER( "CGlxViewBase::DisableTitle" );
-	//StatusPane()->MakeVisible(EFalse);
 	}
 
 // DoActivateL
@@ -474,6 +474,7 @@ EXPORT_C void CGlxViewBase::SetGridToolBar(CAknToolbar* aToolbar)
     {
     TRACER("CGlxViewBase::SetGridToolBar()");
     iToolbar = aToolbar;
+    iUiUtility->SetGridToolBar(aToolbar);
     }
 // -----------------------------------------------------------------------------
 // GetToolBar
@@ -538,6 +539,21 @@ EXPORT_C void CGlxViewBase::OfferToolbarEventL( TInt aCommand )
     CAknToolbar* toolbar = GetToolBar();
     if(toolbar)
         {
+		//Here after the toolbar cmd is processed it is enabled
+		//back. For share the toolbar state should be same as it was 
+		//earlier, so we take the current state and reset back after
+		//the command is processed.
+        CAknButton* uploadButton =
+            static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdUpload));
+        TBool dimmed = EFalse;
+        
+        if(uploadButton)
+            {
+            // Get current button state
+            CAknButtonState* currentState = uploadButton->State();
+            dimmed = uploadButton->IsDimmed();
+            }
+        
         // Deactivate the toolbar. Don't accept the toolbar input when the command
         // execution is already in progress.
         toolbar->SetDimmed(ETrue);
@@ -549,6 +565,11 @@ EXPORT_C void CGlxViewBase::OfferToolbarEventL( TInt aCommand )
         // Activate back the toolbar and set it's state properly
         // after command execution.
         SetToolbarStateL();
+        
+        if(dimmed || (aCommand == EGlxCmdStartMultipleMarking))
+            {
+            toolbar->SetItemDimmed(EGlxCmdUpload, ETrue, ETrue);
+            }
         }    
     }
 

@@ -78,7 +78,7 @@ const TMPXAttributeData KGlxFilterGeneralIncludeCameraAlbum = { KGlxFilterIdGene
 const TMPXAttributeData KGlxFilterGeneralMinCount = { KGlxFilterIdGeneral, EGlxFilterMinItemCount }; // TInt
 const TMPXAttributeData KGlxFilterGeneralItemId = { KGlxFilterIdGeneral, EGlxFilterContainsItem }; // TMPXItemId
 const TMPXAttributeData KGlxFilterGeneralExcludeAnimation = { KGlxFilterIdGeneral, EGlxFilterExcludeAnimation }; // TBool
-const TMPXAttributeData KGlxFilterGeneralLastCaptureDate = { KGlxFilterIdGeneral, EGlxFilterLastCaptureDate }; // TBool ?
+const TMPXAttributeData KGlxFilterGeneralLastCaptureDate = { KGlxFilterIdGeneral, EGlxFilterLastCaptureDate }; // TBool
 const TMPXAttributeData KGlxFilterGeneralThumbnailLoadability = { KGlxFilterIdGeneral, EGlxFilterThumbnailLoadability }; // TSize
 const TMPXAttributeData KGlxFilterGeneralMPXCollectionPath = { KGlxFilterIdGeneral, EGlxFilterMPXCollectionPath }; // CMPXCollectionPath
 const TMPXAttributeData KGlxFilterGeneralItemType = { KGlxFilterIdGeneral, EGlxFilterItemType }; // TGlxFilterItemType
@@ -87,6 +87,7 @@ const TMPXAttributeData KGlxFilterGeneralSortOrderPromoteSystemItems = { KGlxFil
 const TMPXAttributeData KGlxFilterGeneralOrigin = { KGlxFilterIdGeneral, EGlxFilterOrigin }; /// TGlxFilterOrigin
 const TMPXAttributeData KGlxFilterGeneralNoDRM = { KGlxFilterIdGeneral, EGlxFilterNoDRM }; /// TBool
 const TMPXAttributeData KGlxFilterGeneralNavigationalStateOnly = { KGlxFilterIdGeneral, 0x4000 }; /// TBool
+const TMPXAttributeData KGlxFilterGeneralMaxCount = { KGlxFilterIdGeneral, 0x8000 }; // TInt
 
 enum TGlxFilterSortOrder
     {

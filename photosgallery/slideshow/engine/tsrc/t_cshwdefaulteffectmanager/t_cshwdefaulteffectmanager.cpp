@@ -51,8 +51,7 @@ namespace NShwEngine
 T_CShwDefaultEffectManager* T_CShwDefaultEffectManager::NewL()
     {
     T_CShwDefaultEffectManager* self = T_CShwDefaultEffectManager::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -60,9 +59,7 @@ T_CShwDefaultEffectManager* T_CShwDefaultEffectManager::NewLC()
     {
     T_CShwDefaultEffectManager* self = new( ELeave ) T_CShwDefaultEffectManager();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 
@@ -122,10 +119,6 @@ void T_CShwDefaultEffectManager::TestAddEffectL()
     iDefaultEffectManager->AddEffectL( effect );  // takes ownership
     CleanupStack::Pop( effect );
 
-	// TRAP since we expect it to leave
-	//TRAPD( error, iDefaultEffectManager->CurrentEffect() );
-   // EUNIT_ASSERT_EQUALS_DESC( 
-   // 	NShwEngine::EIncorrectEffectIndex, error, "iEffects was not set");
 	// get effects info
    	TShwEffectInfo info = effect->EffectInfo();
 	// set effect order
@@ -140,12 +133,6 @@ void T_CShwDefaultEffectManager::TestAddEffectL()
 void T_CShwDefaultEffectManager::TestAddNullEffectL()
     {
     iDefaultEffectManager->AddEffectL( NULL );
-
-	// TRAP since we expect it to leave
-	//TRAPD( error, iDefaultEffectManager->CurrentEffect() );
-    //EUNIT_ASSERT_EQUALS_DESC( 
-    //	NShwEngine::EIncorrectEffectIndex, error, "iEffects was not set");
-
 	// create empty effect info
    	TShwEffectInfo info;
 	TInt error ;
@@ -189,122 +176,6 @@ void T_CShwDefaultEffectManager::TestNextEffectL()
     EUNIT_ASSERT( effect2 == iDefaultEffectManager->Effect( 2 ) );
     }
 
-/*
-void T_CShwDefaultEffectManager::TestProgrammedEffectL()
-    {
-    // Create two effects
-    T_MShwTestEffect* effect0 = new(ELeave) T_MShwTestEffect(0);
-    CleanupStack::PushL(effect0);
-    T_MShwTestEffect* effect1 = new(ELeave) T_MShwTestEffect(1);
-    CleanupStack::PushL(effect1);
-    
-    // Add the effects
-    iDefaultEffectManager->AddEffectL(effect0);  // takes ownership
-    iDefaultEffectManager->AddEffectL(effect1);  // takes ownership
-    
-    CleanupStack::Pop(2, effect0);
-    
-    // Specify programmed order
-    iDefaultEffectManager->SetEffectOrder(MShwEffectManager::EShwEffectOrderProgrammed);
-    
-    // Create the programmed order
-    RArray<MShwEffect*> programme;
-    CleanupClosePushL(programme);
-//    CleanupStack::PushL(&programme);
-    programme.AppendL(effect1);
-    programme.AppendL(effect0);
-    programme.AppendL(effect1);
-    
-    // Set the order
-    iDefaultEffectManager->SetProgrammedEffects(programme);
-    
-    // 
-    // Check the first effect
-    MShwEffect* inEffect = static_cast<MShwEffect*>(effect1);
-    MShwEffect* outEffect = iDefaultEffectManager->CurrentEffect();
-    EUNIT_ASSERT_EQUALS(inEffect, outEffect);
-   
-    inEffect = static_cast<MShwEffect*>(effect0); 
-    outEffect = iDefaultEffectManager->NextEffect(); 
-    EUNIT_ASSERT_EQUALS(inEffect, outEffect);
-
-    iDefaultEffectManager->ProceedToNextEffect();
-    
-    inEffect = static_cast<MShwEffect*>(effect1); 
-    outEffect = iDefaultEffectManager->NextEffect(); 
-    EUNIT_ASSERT_EQUALS(inEffect, outEffect);
-    
-    CleanupStack::PopAndDestroy(&programme);
-    }
- 
-    
-void T_CShwDefaultEffectManager::TestMultiProgrammedEffectL()
-    {
-    // Create two effects
-    T_MShwTestEffect* effect0 = new(ELeave) T_MShwTestEffect(0);
-    CleanupStack::PushL(effect0);
-    T_MShwTestEffect* effect1 = new(ELeave) T_MShwTestEffect(1);
-    CleanupStack::PushL(effect1);
-    T_MShwTestEffect* effect2 = new(ELeave) T_MShwTestEffect(2);
-    CleanupStack::PushL(effect2);
-    
-    // Add the effects
-    iDefaultEffectManager->AddEffectL(effect0);  // takes ownership
-    iDefaultEffectManager->AddEffectL(effect1);  // takes ownership
-    iDefaultEffectManager->AddEffectL(effect2);  // takes ownership
-    
-    CleanupStack::Pop(3, effect0);
-    
-    // Specify programmed order
-    iDefaultEffectManager->SetEffectOrder(MShwEffectManager::EShwEffectOrderProgrammed);
-    
-    // Create the programmed order
-    RArray<MShwEffect*> programme;
-    CleanupClosePushL(programme);
-//    CleanupStack::PushL(&programme);
-    programme.AppendL(effect2);
-    programme.AppendL(effect1);
-    programme.AppendL(effect0);
-    programme.AppendL(effect2);
-    programme.AppendL(effect1);
-    programme.AppendL(effect0); 
-       
-    // Set the order
-    iDefaultEffectManager->SetProgrammedEffects(programme);
-    
-    // 
-    // Check the effect order is retrieved as 2, 1, 0
-    MShwEffect* inEffect = static_cast<MShwEffect*>(effect2);
-    MShwEffect* outEffect = iDefaultEffectManager->CurrentEffect();
-    EUNIT_ASSERT_EQUALS(inEffect, outEffect);
-
-    inEffect = static_cast<MShwEffect*>(effect1); 
-    outEffect = iDefaultEffectManager->NextEffect(); 
-    EUNIT_ASSERT_EQUALS(inEffect, outEffect);
-    
-    iDefaultEffectManager->ProceedToNextEffect();
-       
-    inEffect = static_cast<MShwEffect*>(effect2); 
-    outEffect = iDefaultEffectManager->NextEffect(); 
-    EUNIT_ASSERT_EQUALS(inEffect, outEffect);
-    
-    iDefaultEffectManager->ProceedToNextEffect();
-       
-    inEffect = static_cast<MShwEffect*>(effect1); 
-    outEffect = iDefaultEffectManager->NextEffect(); 
-    EUNIT_ASSERT_EQUALS(inEffect, outEffect);
-    
-    iDefaultEffectManager->ProceedToNextEffect();
-       
-    inEffect = static_cast<MShwEffect*>(effect0); 
-    outEffect = iDefaultEffectManager->NextEffect(); 
-    EUNIT_ASSERT_EQUALS(inEffect, outEffect);    
-    iDefaultEffectManager->ProceedToNextEffect();
-       
-    CleanupStack::PopAndDestroy(&programme);
-    }
-*/    
-
 //  TEST TABLE
 EUNIT_BEGIN_TEST_TABLE(
     T_CShwDefaultEffectManager,
@@ -338,22 +209,6 @@ EUNIT_TEST(
     "CShwDefaultEffectManager",
     "FUNCTIONALITY",
     SetupL, TestNextEffectL, Teardown )
-    
-/*    
-EUNIT_TEST(
-    "Programmed Effect Test",
-    "CShwDefaultEffectManager",
-    "CShwDefaultEffectManager",
-    "FUNCTIONALITY",
-    SetupL, TestProgrammedEffectL, Teardown )
-    
-EUNIT_TEST(
-    "Multi Prog Test",
-    "CShwDefaultEffectManager",
-    "CShwDefaultEffectManager",
-    "FUNCTIONALITY",
-    SetupL, TestMultiProgrammedEffectL, Teardown )
-*/    
 
 EUNIT_END_TEST_TABLE
 

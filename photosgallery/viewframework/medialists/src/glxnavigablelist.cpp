@@ -689,14 +689,6 @@ inline void CGlxNavigableList::Deselect( TInt aIndex )
         // remove from array of selected items
         iSelectedItemIndices.Remove( selectionArrayIndex );
         
-        // free unused memory from selected item indexes array
-        // (this call may be a performance bottleneck if executing unmark all
-        //  in a list of many thousands of items when most of them are marked.
-        //  if it is proved to be a performance bottleneck, it may be sensible
-        //  to count how many times Deselect has been called, an only
-        //  compress every x times.)
-        //iSelectedItemIndices.Compress();
-        
         // selection has changed, notify observer
         iObserver.HandleItemSelected( aIndex, EFalse );
         }

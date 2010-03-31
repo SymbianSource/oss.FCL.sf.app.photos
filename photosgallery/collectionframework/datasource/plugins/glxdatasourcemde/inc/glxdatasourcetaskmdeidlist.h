@@ -119,11 +119,13 @@ private: // from CGlxDataSourceTaskMde
 private:
 	void DoHandleListQueryCompletedL();
 		
-    void DoMonthListCreationL(CMdEQuery& aQuery, const TGlxFilterProperties& aFilterProperties);
+    void DoMonthListCreationL(CMdEQuery& aQuery,
+            const TGlxFilterProperties& aFilterProperties);
         
-    void DoPostFilterComplete(const RArray<TGlxMediaId>& aIdArray, TInt aErrorCode);	
+    void DoPostFilterComplete(const RArray<TGlxMediaId>& aIdArray, TInt aErrorCode);
     
-    void PostFilterL(const RArray<TGlxMediaId>& aFilteredList, const TGlxFilterProperties& aFilterProperties);                                                                            
+    void PostFilterL(const RArray<TGlxMediaId>& aFilteredList,
+            const TGlxFilterProperties& aFilterProperties);
 	};
 
 #endif // GLXDATASOURCETASKMDEIDLIST_H_

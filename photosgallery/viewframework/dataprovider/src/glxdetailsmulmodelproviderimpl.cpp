@@ -240,7 +240,6 @@ void CGlxDetailsMulModelProviderImpl::HandleFocusChanged( TInt aNewFocus, TInt a
             iEntries[ aPreviousFocus ]->HandleFocusChanged( EFalse ) )
             {
             UpdateItems( aPreviousFocus, 1 );
-            //UpdateItemL( *iEntries[ aPreviousFocus ], media, aPreviousFocus );
             }
         }
     
@@ -250,7 +249,6 @@ void CGlxDetailsMulModelProviderImpl::HandleFocusChanged( TInt aNewFocus, TInt a
             iEntries[ aNewFocus ]->HandleFocusChanged( ETrue ) )
             {
             UpdateItems( aNewFocus, 1 );
-            //UpdateItemL( *iEntries[ aNewFocus ], media, aNewFocus );
             }
         }
 	}

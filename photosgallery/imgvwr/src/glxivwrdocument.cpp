@@ -115,7 +115,7 @@ void CGlxIVwrDocument::OpenFileL( CFileStore*& /*aFileStore*/, RFile& aFile )
     // Make sure that aFile is closed in leave situation
     CleanupClosePushL( aFile );
     iImageViewerInstance->SetImageFileHandleL(aFile);	
-    CleanupStack::PopAndDestroy(); // Close aFile
+    CleanupStack::PopAndDestroy( &aFile );
     
     // Open the viewer
     static_cast<CGlxIVwrAppUi*>(iAppUi)->HandleOpenFileL();

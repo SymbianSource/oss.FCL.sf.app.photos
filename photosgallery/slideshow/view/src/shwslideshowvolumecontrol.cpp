@@ -296,7 +296,7 @@ TInt CShwSlideshowVolumeControl::TimerCallback()
 // NotifyControlVisibility
 // ---------------------------------------------------------------------------
 void CShwSlideshowVolumeControl::NotifyControlVisibility( TBool aIsVisible,
-    CAlfDisplay& aDisplay )
+    CAlfDisplay& /*aDisplay*/ )
 	{	
 	TRACER("CShwSlideshowVolumeControl::NotifyControlVisibility");
     GLX_LOG_ENTRY_EXIT

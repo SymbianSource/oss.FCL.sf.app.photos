@@ -129,6 +129,12 @@ public:
     */
     IMPORT_C static CMPXFilter* CreatePreviewFilterL();
     
+    /**
+    * Creates a filter that sets filters for ONE preview thumbnail
+    *
+    * @return a filter object with array elements set for previews
+    */    
+    IMPORT_C static CMPXFilter* CreatePreviewTNFilterL();
     
     /**
     * Creates a filter that sets filters for the previews for items which have containers( albums, tags )

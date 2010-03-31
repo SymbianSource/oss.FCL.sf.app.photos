@@ -218,7 +218,6 @@ RESOURCE MENU_PANE r_metadata_menu
 	{
 	items=
 		{
-		//MENU_ITEM { command = KGlxEditBoundMenuCommandId; txt = qtn_lgal_options_edit; },
 		MENU_ITEM { command = KGlxViewBoundMenuCommandId; txt = qtn_lgal_options_view; },
         	MENU_ITEM { command = EGlxCmdAiwShowMap; txt = qtn_lgal_option_show_on_map;},
 		MENU_ITEM { command = KGlxDeleteBoundMenuCommandId; txt = qtn_lgal_options_delete;flags = EEikMenuItemSpecific; },
@@ -411,46 +410,12 @@ RESOURCE TBUF r_glx_metadata_note_info_no_location
     buf = qtn_lgal_note_no_location;
     }
 
-//==============================================================================//
-//===========================start of Imageviewer details Dialog================//
-//==============================================================================//
-
-RESOURCE EIK_APP_INFO
-    {
-    menubar = r_imgvwr_metadata_menubar;
-    cba = R_AVKON_SOFTKEYS_OPTIONS_BACK;
-    }
-    // -----------------------------------------------------------------------------
-// reource for menubar
-// -----------------------------------------------------------------------------
-//
-RESOURCE MENU_BAR r_imgvwr_metadata_menubar
-	{
-	titles=
-		{
-		MENU_TITLE { menu_pane = r_imgvwr_metadata_menu; txt = qtn_lgal_title_details; }
-		};
-	}
-	
-
-// -----------------------------------------------------------------------------
-// reource for menupane
-// -----------------------------------------------------------------------------
-//
-RESOURCE MENU_PANE r_imgvwr_metadata_menu
-	{
-	items=
-		{
-		MENU_ITEM { command = EAknCmdHelp; txt = qtn_options_help; }
-	  	};
-	}
-	
 // -----------------------------------------------------------------------------
 // Metadata Dialog 
 // -----------------------------------------------------------------------------
 RESOURCE DIALOG r_img_viewer_metadata_dialog
     {
-    buttons = R_AVKON_SOFTKEYS_OPTIONS_BACK;
+    buttons = R_AVKON_SOFTKEYS_BACK;
     flags = EEikDialogFlagNoDrag | EEikDialogFlagFillAppClientRect |
               EEikDialogFlagCbaButtons | EEikDialogFlagWait;// |EEikDialogFlagNoBackgroundFade |EEikDialogFlagNoBorder;
     items =

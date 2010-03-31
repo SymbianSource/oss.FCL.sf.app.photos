@@ -24,7 +24,6 @@
 // INCLUDES
 #include <AknLayout2Def.h>
 #include <alf/alfanchorlayout.h>
-#include <harvesterclient.h>
 #include "mglxcloudviewmskobserver.h"
 #include "mglxenterkeyeventobserver.h"
 
@@ -32,6 +31,7 @@
 #include "mglxcloudviewlayoutobserver.h"
 
 #include "glxtagscontextmenucontrol.h"  // MGlxItemMenuObserver
+#include "glxmmcnotifier.h"
 
 // FORWARD DECLARATIONS
 class CGlxCloudViewControl;
@@ -54,7 +54,7 @@ NONSHARABLE_CLASS(CGlxCloudViewImp): public CGlxCloudView,
 									public MGlxEnterKeyEventObserver,
 									public MGlxCloudViewLayoutObserver,
 									public MGlxItemMenuObserver,
-                                    public MHarvesterEventObserver
+									public MStorageNotifierObserver
 	{
 public:
 
@@ -120,6 +120,8 @@ public:
 	 * @param aCommand command to be handled
 	 */
 	void HandleGridMenuListL(TInt aCommand);
+public:    
+    void HandleForegroundEventL(TBool aForeground); 
 	
 public:
    /**
@@ -128,17 +130,6 @@ public:
      * @param aMenuPane The menu pane to edit
      */
     void ViewDynInitMenuPaneL(TInt aResourceId, CEikMenuPane *aMenuPane);
-public:
-    /**
-     * HarvestingUpdated
-     * @param aHEObserverType 
-     * @param aHarvesterEventState 
-     * @param aItemsLeft
-     */
-    void HarvestingUpdated( 
-                HarvesterEventObserverType aHEObserverType, 
-                HarvesterEventState aHarvesterEventState,
-                TInt aItemsLeft );
 
 protected:
 	// From CGlxViewBase
@@ -216,6 +207,15 @@ private:
     //set the rect for scrollbar
     void SetScrollBarRect();
 
+private:
+    /**
+     * handle mmc insertion event
+     */
+    void HandleMMCInsertionL();
+    /**
+     * handle mmc removal event
+     */
+    void HandleMMCRemovalL();
 
 private:
 	// Data
@@ -254,7 +254,10 @@ private:
 	//anchor layout from the view widget
 	CAlfAnchorLayout* iAnchorlayout;
 
-    RHarvesterClient iHarvesterClient;
+	//mmc notifier
+	CGlxMMCNotifier* iMMCNotifier;
+	
+	TBool iMMCState;
 	};
 }
 #endif // C_GLXTESTTILEVIEWIMP_H

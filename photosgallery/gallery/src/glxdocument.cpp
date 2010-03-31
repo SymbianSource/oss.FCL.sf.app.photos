@@ -110,7 +110,7 @@ void CGlxDocument::OpenFileL( CFileStore*& /*aFileStore*/, RFile& aFile )
 	// Reset old data
 	ResetDocument();    
 	iImageViewerInstance->SetImageFileHandleL(aFile);	
-	CleanupStack::PopAndDestroy(); // Close aFile
+	CleanupStack::PopAndDestroy( &aFile );
 	}
 
 // ----------------------------------------------------------------------------

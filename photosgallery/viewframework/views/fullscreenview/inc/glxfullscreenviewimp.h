@@ -26,7 +26,8 @@
 #include "glxfullscreenview.h"
 #include "glxfullscreenbindingsetfactory.h"
 #include "glxfullscreenview.hrh"
-#include <harvesterclient.h>
+#include "glxmmcnotifier.h"
+
 //Gesture Helper namespace 
 namespace GestureHelper
     {
@@ -77,7 +78,7 @@ enum TSwipe
 NONSHARABLE_CLASS (CGlxFullScreenViewImp): public CGlxFullScreenView, 
                                             public IAlfWidgetEventHandler,
  											public MGlxUiCommandHandler,
-											public MHarvesterEventObserver
+			                                public MStorageNotifierObserver
     {
 public:    
     /**
@@ -144,12 +145,6 @@ public:
 
     AlfEventHandlerExecutionPhase eventExecutionPhase() ;
 
-public:
-    // from MHarvesterEventObserver
-    void HarvestingUpdated( 
-                HarvesterEventObserverType aHEObserverType, 
-                HarvesterEventState aHarvesterEventState,
-                TInt aItemsLeft );
 
 private:
     /*
@@ -270,11 +265,24 @@ private:
   	/**
      * Consume DRM rights
      */  
-    void ConsumeDRMRightsL( const TDesC& uri );
+    void ConsumeDRMRightsL(const TGlxMedia& aMedia);
     /**
      * Set the image to external display - HDMI
      */
     void SetItemToHDMIL();
+    /**
+     * handle MMC insertion
+     */
+    void HandleMMCInsertionL();
+    /**
+     * handle MMC removal
+     */
+    void HandleMMCRemovalL();
+    
+    /**
+     * navigate to main list
+     */
+    void NavigateToMainListL();
 private:
     /** Softkey resource id's */
     TFullScreenViewResourceIds iResourceIds; 
@@ -312,8 +320,6 @@ private:
 	CGlxCommandHandlerAiwShowMapHardKey* iShowOnMapHardKeyhandler;
     
     CGlxScreenFurniture* iScreenFurniture;
-    //CGlxSingleLineMetaPane* iSingleLineMetaPane;
-//    CHgContextUtility* iContextUtility;
     CGlxHdmiController* iHdmiController;
 	    
     CGlxDRMUtility* iDrmUtility;
@@ -328,7 +334,8 @@ private:
     //Previous focused index
     TInt iOldFocusIndex;
     TBool iImgViewerMode;
-	RHarvesterClient iHarvesterClient;
+	CGlxMMCNotifier* iMMCNotifier;
+	TBool iMMCState;
     };
 
 #endif

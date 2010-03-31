@@ -122,7 +122,7 @@ void CGlxCommandHandlerAiwEdit::DoActivateL(TInt /*aViewId*/)
 // DynInitMenuPaneL
 // -----------------------------------------------------------------------------
 //
-void CGlxCommandHandlerAiwEdit::DynInitMenuPaneL(TInt aResourceId,
+void CGlxCommandHandlerAiwEdit::DynInitMenuPaneL(TInt /*aResourceId*/,
         CEikMenuPane* aMenuPane)
     {
     MGlxMediaList& mediaList = MediaList();
@@ -134,7 +134,7 @@ void CGlxCommandHandlerAiwEdit::DynInitMenuPaneL(TInt aResourceId,
         if (iCommandSingleClick && aMenuPane->MenuItemExists(
                 EGlxCmdAiwSingleClickEdit, pos)
 
-                && ((mediaList.SelectionCount() > 1)
+                && (((!mediaList.Count()) || (mediaList.SelectionCount() > 1))
                         || (!iFeatManager->IsFeatureSupportedL(
                                 KFeatureIdFfImageEditor)
                                 && !iFeatManager->IsFeatureSupportedL(

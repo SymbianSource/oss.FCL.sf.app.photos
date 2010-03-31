@@ -156,6 +156,9 @@ CGlxDataSourceTaskMdeThumbnail::~CGlxDataSourceTaskMdeThumbnail()
 void CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL()
     {
     TRACER("CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL()") 
+#ifdef _DEBUG
+    iStartTime.HomeTime(); 
+#endif
     CGlxThumbnailRequest* request = static_cast<CGlxThumbnailRequest*>(iRequest);
     
     TGlxThumbnailRequest tnReq;
@@ -243,6 +246,11 @@ void CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL(const TGlxMed
     __ASSERT_DEBUG(dynamic_cast<CGlxThumbnailRequest*>(iRequest), Panic(EGlxPanicLogicError));
     CGlxThumbnailRequest* req = static_cast<CGlxThumbnailRequest*>(iRequest);
     GLX_DEBUG2("*** CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL() Id=%d ***", req->ItemId().Value());
+#ifdef _DEBUG
+    iStopTime.HomeTime(); 
+    GLX_DEBUG2("CGlxDataSourceTaskMdeThumbnail:HandleThumbnailFetchCompleteL() took %d us",
+                     (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif    
     delete iResponse;
     iResponse = NULL;
     iResponse = CMPXMedia::NewL();

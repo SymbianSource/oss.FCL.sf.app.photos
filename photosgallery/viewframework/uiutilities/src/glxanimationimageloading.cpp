@@ -77,8 +77,6 @@ void CGlxAnimationImageLoading::ConstructL()
     
     iImageBrush->SetLayer(EAlfBrushLayerForeground);
     iImageBrush->SetBorders(1,1,1,1);
-    /// @todo check is this is correct? Rowland 30/10/07 SetClipToVisual is no longer defined
-    //iImageBrush->SetClipToVisual(ETrue);
     iImageBrush->SetScaleMode(CAlfImageVisual::EScaleFit);
     }
 

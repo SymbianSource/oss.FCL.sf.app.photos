@@ -79,4 +79,9 @@ EXPORTS
 	_ZTI21CGlxProgressIndicator @ 78 NONAME
 	_ZTV21CGlxProgressIndicator @ 79 NONAME
 	_ZN13CGlxUiUtility14StopTNMDaemonLEv @ 80 NONAME
+	_ZN15CGlxMMCNotifier4NewLER24MStorageNotifierObserver @ 81 NONAME
+	_ZTI15CGlxMMCNotifier @ 82 NONAME
+	_ZTV15CGlxMMCNotifier @ 83 NONAME
+	_ZN13CGlxUiUtility14GetGridToolBarEv @ 84 NONAME
+	_ZN13CGlxUiUtility14SetGridToolBarEP11CAknToolbar @ 85 NONAME
 

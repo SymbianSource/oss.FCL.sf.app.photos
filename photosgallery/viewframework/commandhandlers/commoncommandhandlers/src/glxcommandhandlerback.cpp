@@ -151,9 +151,12 @@ TBool CGlxCommandHandlerBack::ExecuteL( TInt aCommandId )
 	    aCommandId );
 	if(EAknSoftkeyClose == aCommandId)
 		{
-        GLX_LOG_INFO("CGlxCommandHandlerBack::ExecuteL::goto \
+        GLX_LOG_INFO("CGlxCommandHandlerBack::ExecuteL::go to \
 	                    root in UI hierarchy");
-        iNavigationalState->NavigateToParentL();
+        CMPXCollectionPath* newState = CMPXCollectionPath::NewL();
+        CleanupStack::PushL( newState );
+        iNavigationalState->NavigateToL( *newState );
+        CleanupStack::PopAndDestroy( newState );
 		consume = ETrue;
 		}   
 	else if ( aCommandId == EAknSoftkeyBack )

@@ -83,5 +83,5 @@ LIBRARY         fbscli.lib
 LIBRARY		gdi.lib 
 LIBRARY		charconv.lib         // For UtfConverter
 LIBRARY         commonengine.lib
-LIBRARY	   	harvesterclient.lib
+LIBRARY 	gfxtrans.lib
 // End of File

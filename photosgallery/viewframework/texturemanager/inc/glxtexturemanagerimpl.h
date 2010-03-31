@@ -359,8 +359,6 @@ private:
     */
     TInt NextTextureId();
 
-   // void DoHandleResolutionChangedL(TInt aIconIndex);
-
     /**
     * Scales the grid Thumbnail bitmap to the fullscreen keeping the aspect 
     * ratio.

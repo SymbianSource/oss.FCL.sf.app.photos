@@ -523,14 +523,9 @@ TBool CGlxLocationBoundCommand::OfferCommandL( TInt aCommandId , MGlxMediaList& 
 	TRACER("CGlxLocationBoundCommand::OfferCommandL");
 	iMedialist = &aMedialist;
 	TBool consumed = EFalse;
-	//iAppUi = static_cast< CAknAppUi* >( CCoeEnv::Static()->AppUi() );
 	if ( aCommandId == KGlxEditBoundMenuCommandId )
 		{
 		iOnNaviKeySelect = ETrue;
-		//iAppUi->ProcessCommandL( EGlxCmdOptions );
-		//iOnNaviKeySelect = EFalse;
-		
-		/** Error Id ESWG-7LSE3W **/
 		//get the media item
 		const TGlxMedia& media = iMedialist->Item( 0 );
 		// Test to see if the coordinate is present
@@ -545,7 +540,6 @@ TBool CGlxLocationBoundCommand::OfferCommandL( TInt aCommandId , MGlxMediaList& 
 			}
 		else
 			{
-			/** Error Id EMPY-7MKDHP **/
 			/** Show menu pane options **/
 			if(iDialogObserver)
 				{

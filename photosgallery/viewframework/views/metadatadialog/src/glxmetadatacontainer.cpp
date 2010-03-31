@@ -217,7 +217,7 @@ CAknSettingItem* CGlxMetadataContainer::CreateSettingItemL(TInt aResourceId)
     {
     TRACER("CGlxMetadataContainer::CreateSettingItemL");      
     CAknSettingItem* settingItem = NULL; // No need to push onto cleanup stack
-    iTextSetter.Copy(KGlxTextSetter);  
+	iTextSetter.Zero();
     
     //Creating a empty Settings list box which will  be populated with metadata in handleattributeavailable
     
@@ -733,7 +733,7 @@ void CGlxMetadataContainer::SetAttributesL(TMPXAttribute attribute)
     //get the settings item based on the attribute and set the text.
     if ( string )
 		{
-		iTextSetter.Copy(KGlxTextSetter);
+        iTextSetter.Zero();
 		iTextSetter.Append(*string);
 		if(attribute == KMPXMediaGeneralSize)
 			{
@@ -821,6 +821,7 @@ void CGlxMetadataContainer::SetNameDescriptionL(TInt aItem)
 			else
 				{
 				//Modify the MDS and setting list only if the entry is different from previous Item value
+                iTextSetter.Zero();
 				iTextSetter.Copy(*textBuf);
 				EditItemL(aItem,EFalse);
 				iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);//set focus to first item
@@ -1017,6 +1018,7 @@ void CGlxMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndI
 			for(TInt index = 0; index <= ElicenseItem ; index++)
 				{
 				HBufC* string = NULL;               
+                iTextSetter.Zero();             
   
 				if(index == ESizeItem)
 					{
@@ -1127,7 +1129,7 @@ void CGlxMetadataContainer::HandleCommandCompleteL(TAny* aSessionId,
 				iModifiedUri = NULL;	
 				}			
 			iModifiedUri = fileName.AllocL();			
-			iTextSetter.Copy(KGlxTextSetter);
+			iTextSetter.Zero();
 			TInt error = manager->RenameFile(media.Uri(), iModifiedUri->Des());
 			if(error == KErrNone)
 				{
@@ -1149,7 +1151,7 @@ void CGlxMetadataContainer::HandleCommandCompleteL(TAny* aSessionId,
 		iLocationinfo = EFalse;      
 		if ( aError == KErrNone )
 			{
-			iTextSetter.Copy(KGlxTextSetter);
+            iTextSetter.Zero();
 			EditItemL(ELocationItem,EFalse);
 			}
 		}

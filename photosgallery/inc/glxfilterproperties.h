@@ -44,6 +44,7 @@ public:
 				iContainsItem(0),
 				iExcludeAnimation(EFalse),
 				iLastCaptureDate(EFalse),
+				iMaxCount(KMaxTUint),
 				iThumbnailLoadability(0,0),
 				iPath(NULL),
 				iItemType(EGlxFilterVideoAndImages),
@@ -63,6 +64,7 @@ public:
 	TGlxMediaId iContainsItem;
 	TBool iExcludeAnimation;
 	TBool iLastCaptureDate;
+	TInt iMaxCount;
 	TSize iThumbnailLoadability;
 	CMPXCollectionPath* iPath; 
 	TGlxFilterItemType iItemType;

@@ -242,7 +242,6 @@ void CGlxDataSourceTaskMdeCommand::AddToContainerL(const TDesC& aSourceUri,
 // Copy files to another drive.
 // ----------------------------------------------------------------------------
 //
-/// @todo minor: Rowland Cook 12/06/2007 Has this method been tested? If so remove comments
 void CGlxDataSourceTaskMdeCommand::CopyL(const RArray<TGlxMediaId>& aSourceIds, const TDesC& aDrive)
     {
     GLX_LOG_ENTRY_EXIT("void CGlxDataSourceTaskMdeCommand::CopyL()");
@@ -253,7 +252,6 @@ void CGlxDataSourceTaskMdeCommand::CopyL(const RArray<TGlxMediaId>& aSourceIds, 
 // Move files to another drive.
 // ----------------------------------------------------------------------------
 //
-/// @todo minor: Rowland Cook 12/06/2007 Has this method been tested? If so remove comments
 void CGlxDataSourceTaskMdeCommand::MoveL(const RArray<TGlxMediaId>& aSourceIds, const TDesC& aDrive)
     {
     GLX_LOG_ENTRY_EXIT("void CGlxDataSourceTaskMdeCommand::MoveL()");
@@ -335,7 +333,6 @@ void CGlxDataSourceTaskMdeCommand::DeleteL(const RArray<TGlxMediaId>& aItemIds)
 //
 // ----------------------------------------------------------------------------
 //
-/// @todo minor: Rowland Cook 12/06/2007 Has this method been tested? If so remove comments
 void CGlxDataSourceTaskMdeCommand::RenameL(const TGlxMediaId& aSourceItemId, const TDesC& aTitle)
     {
     GLX_LOG_ENTRY_EXIT("void CGlxDataSourceTaskMdeCommand::RenameL()");
@@ -728,7 +725,7 @@ void CGlxDataSourceTaskMdeCommand::SendProgressMessageL(TInt aCurrentStep, TInt 
 TInt CGlxDataSourceTaskMdeCommand::ContainerObjectDef(CMdEObjectDef*& aContainerObjectDef)
 {
     GLX_LOG_ENTRY_EXIT("TInt CGlxDataSourceTaskMdeCommand::ContainerObjectDef(CMdEObjectDef*& aContainerObjectDef)");
-    //__ASSERT_DEBUG( (iCollectionUid == TUid::Uid(KGlxTagCollectionPluginImplementationUid) || iCollectionUid == TUid::Uid(KGlxCollectionPluginAlbumsImplementationUid)), Panic(EGlxPanicInvalidCollectionUid));
+
     TInt err = KErrNone;
 	if (iCollectionUid == TUid::Uid(KGlxTagCollectionPluginImplementationUid))
         {

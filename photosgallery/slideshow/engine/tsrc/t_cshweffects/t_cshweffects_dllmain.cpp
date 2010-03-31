@@ -32,14 +32,14 @@ MShwEffect* CreateCrossfadeL()
 	{
 	// create the normal zoom and pan
 	MShwEffect* eff = CShwCrossFadeEffect::NewLC();
-	CleanupStack::Pop();
+	CleanupStack::Pop( eff );
 	return eff;
 	}
 
 MShwEffect* CreateZoomAndPanL()
 	{
 	MShwEffect* eff = CShwZoomAndPanEffect::NewLC();
-	CleanupStack::Pop();
+	CleanupStack::Pop( eff );
 	return eff;
 	}
 

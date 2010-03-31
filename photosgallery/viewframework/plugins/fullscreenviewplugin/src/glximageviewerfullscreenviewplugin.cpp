@@ -44,7 +44,7 @@
 #include <mpxcollectionutility.h>
 #include <mpxmediageneraldefs.h>
 #include <StringLoader.h>
-
+#include <photos.hlp.hrh>
 #include <glxfullscreenviewdata.rsg>
 #include <glxicons.mbg> // icons 
 
@@ -121,7 +121,7 @@ void CGlxImageViewerScreenViewPlugin::AddCommandHandlersL()
     CGlxFullScreenViewPluginBase::AddCommandHandlersL();
 
     TGlxHelpContext helpInfo;
-    helpInfo.iBrowseContext = LGAL_HLP_DOWNLOADS_FULLSCREEN;
+    helpInfo.iBrowseContext = LGAL_HLP_IMAGE_VIEWER;
     
     iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
     }

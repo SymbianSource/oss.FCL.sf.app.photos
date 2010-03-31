@@ -106,12 +106,6 @@ private:
 	CGlxCommandHandlerBack(MGlxMediaListProvider* aMediaListProvider,
 							TInt aPrevViewId );
      
-    // This API to be removed after testing with migration is over 
-	/**
-	 * check if deletion of container need to be checked
-	 */ 
-	// TBool CheckContainerDeletion() const;
-	
 public: // From MGlxCommandHandler
 
 	/**

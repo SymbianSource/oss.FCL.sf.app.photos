@@ -99,7 +99,10 @@ public:
      * @param aAttributes attributes to request for the items
      * @param aDetailedSpecs attribute specifications
      */
-    void AttributeRequestL(RArray<TInt>& aItemIndexes, RArray<TGlxMediaId>& aItemIds, RArray<TMPXAttribute>& aAttributes, CMPXAttributeSpecs*& aDetailedSpecs) const;
+    void AttributeRequestL(RArray<TInt>& aItemIndexes,
+            RArray<TGlxMediaId>& aItemIds,
+            RArray<TMPXAttribute>& aAttributes,
+            CMPXAttributeSpecs*& aDetailedSpecs) const;
 
     /**
      * Ordering function for attributes

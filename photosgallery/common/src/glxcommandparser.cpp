@@ -61,10 +61,6 @@ EXPORT_C void TGlxCommandParser::ParseL(MGlxCommandParserCallback& aCommandHandl
                 {
                 ArrayValueL(KMPXMediaGeneralContainerId, targetIdArray, aCommand);  
                 }
-
-/// @todo minor: Rowland Cook 12/06/2007 Could this be restrctured to be more efficient?
-//                                       IE - Test for invalid combiations before retrieving the data. 
-            
             if(hasTitle)
                 {
                 if(hasUri || hasSourceIds || hasDrive || hasTargetIds)

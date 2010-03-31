@@ -520,7 +520,7 @@ void CShwThumbnailLoader::CShwThumbnailLoaderImpl::HandleAttributesAvailableL(
 	CShwThumbnailContext* context = FindContext( aItemIndex );
 	if( context )
 		{
-		// was there an error?
+		// Check if there was an error
 		TInt requestCount = context->RequestCountL( &iMedialist );
 		if ( requestCount == KErrNone )
 			{
@@ -641,7 +641,7 @@ inline TInt CShwThumbnailLoader::CShwThumbnailLoaderImpl::Find( TInt aIndex )
 	// browse through all indexes ( count-1 -> 0 )
 	while ( index-- > 0 )
 		{
-		// does the index belong to the array?
+		// Check if the index belongs to the array
 		CShwThumbnailContext* context = iHighQualityContexts[ index ];
 		if ( context->Index() == aIndex )
 			{
@@ -735,7 +735,7 @@ inline void CShwThumbnailLoader::CShwThumbnailLoaderImpl::
     {
     TRACER("CShwThumbnailLoader::CShwThumbnailLoaderImpl::RemoveHighQualityContext");
     GLX_LOG_INFO1( "CShwThumbnailLoaderImpl::RemoveHighQualityContext %d", aIndex );
-	// Is there a context for this index?
+	// check if there is a context for this index
 	TInt arrayIndex = Find( aIndex );
 	if( KErrNotFound != arrayIndex )
 		{

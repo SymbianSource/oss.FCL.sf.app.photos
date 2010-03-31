@@ -123,23 +123,11 @@ void CGlxUiUtility::ConstructL()
     TRACER("CGlxUiUtility::ConstructL()");
     iSettingsModel = CGlxSettingsModel::InstanceL();
     
-
-	// Always start in default orientation
-    //SetAppOrientationL(EGlxOrientationDefault);
-
-	iOrientation = EGlxOrientationDefault;
-    // in emulator use bitgdi as open GL does not support changing orientation
-
-    // Ferhan (28/06/07) : commenting out usage of opengl because causing drawing problems when using
-    // the preview list (gldrawelements method in opengl seems to hang)
-   // iEnv = CHuiEnv::Static();
-   	//@ Fix for error id EABI-7RJA8C
+	iOrientation = EGlxOrientationDefault; // Always start in default orientation
     iEnv = CAlfEnv::Static();
     if (!iEnv)
        {
        iEnv = CAlfEnv::NewL();
-       // change to this on hw that supports opengl
-       // iEnv = CHuiEnv::NewL( EHuiRendererGles10 );
        }
     else
        {
@@ -163,9 +151,6 @@ void CGlxUiUtility::ConstructL()
             
      iEnv->AddActionObserverL (this);
      
-    // Use the Avkon skin background as the display background.    
-    //iAlfDisplay->SetClearBackgroundL(CAlfDisplay::EClearWithSkinBackground);
-    
     // create the resoltuion manager - needs to be informed when screen size 
     // changes
     iGlxResolutionManager = CGlxResolutionManager::NewL();
@@ -177,9 +162,6 @@ void CGlxUiUtility::ConstructL()
     HandleTvStatusChangedL( ETvConnectionChanged );
     
     iScreenFurniture = CGlxScreenFurniture::NewL(*this);
-    
-//    iContextUtility = CHgContextUtility::NewL();
-//    iContextUtility->RePublishWhenFgL( ETrue );
 	}
 
 // -----------------------------------------------------------------------------
@@ -191,12 +173,6 @@ CGlxUiUtility::~CGlxUiUtility()
     TRACER("CGlxUiUtility::~CGlxUiUtility()");
     GLX_LOG_INFO("~CGlxUiUtility");
     delete iScreenFurniture;
-/*    if (iContextUtility)
-        {
-        delete iContextUtility;
-        iContextUtility = NULL;
-        }
-*/
     // Destroy TV Out related objects
     delete iGlxTvOut;
     delete iGlxResolutionManager;
@@ -325,7 +301,6 @@ EXPORT_C void CGlxUiUtility::SetViewNavigationDirection(TGlxNavigationDirection 
 EXPORT_C TSize CGlxUiUtility::DisplaySize() const
     {
     TRACER("CGlxUiUtility::DisplaySize()");
-    //return Env()->PrimaryDisplay().Size();
     const TRect& rect = Env()->PrimaryDisplay().VisibleArea();
 	return rect.Size();
     }
@@ -450,6 +425,31 @@ EXPORT_C TSize CGlxUiUtility::GetGridIconSize()
 	 TRACER("CGlxUiUtility::GetGridIconSize()");
     return iGridIconSize;
     }    
+
+// -----------------------------------------------------------------------------
+// SetGridToolBar
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxUiUtility::SetGridToolBar(CAknToolbar* aToolbar)
+    {
+    TRACER("CGlxUiUtility::SetGridToolBar()");
+    iToolbar = aToolbar;
+    }
+
+// -----------------------------------------------------------------------------
+// GetGridToolBar
+// -----------------------------------------------------------------------------
+//
+EXPORT_C CAknToolbar* CGlxUiUtility::GetGridToolBar()
+    {
+    TRACER("CGlxUiUtility::GetGridToolBar()");
+    if(iToolbar)
+        {
+        return iToolbar;
+        }
+    return NULL;     
+    }
+
 // -----------------------------------------------------------------------------
 // HandleTvStatusChangedL
 // -----------------------------------------------------------------------------
@@ -544,9 +544,9 @@ void CGlxUiUtility::DestroyTvOutDisplay()
         {
         delete iTvDisplay;
         iTvDisplay = NULL; 
-        // Remove Primary Window Refresh observer
-        //Display()->iRefreshObservers.Remove( *this );  
+
         iEnv->PauseRefresh();
+
         // Disable Primary Window Visibility events
         CCoeControl* contl = (CCoeControl*)iEnv->PrimaryDisplay().ObjectProvider();
         contl->DrawableWindow()->DisableVisibilityChangeEvents();
@@ -576,27 +576,6 @@ void CGlxUiUtility::CreateTvOutDisplayL()
                           / phoneDisplaySz.iHeight, tvOutDisplaySz.iHeight );
     const TRect tvOutDisplayBuffer( tvOutDisplaySz );
  
-	// Commenting out Creation of second display as it goes into posting surface, 
-	// Right now, only cloning is going to be the funcationality and posting would be done
-	// only for specific views (FS , Zoom and Slideshow)
-//    if (!iTvDisplay)
-//	    {
-//        iTvDisplay = &iEnv->NewDisplayL( tvOutDisplayBuffer, 
-//                 CAlfEnv::ENewDisplayAsCoeControl, 
-//                 iGlxTvOut->IsWidescreen() ? CAlfDisplay::EDisplayTvOutWide :
-//                 CAlfDisplay::EDisplayTvOut );
-//        
-//        if (iTvDisplay)                                 
-//            {
-//            // Use the Avkon skin background as the display background.
-//            iTvDisplay->SetClearBackgroundL( 
-//                                        CAlfDisplay::EClearWithSkinBackground );
-//            //Todo
-//            // Primary Window Refresh observer
-//            iEnv->SetRefreshMode(EAlfRefreshModeAutomatic);
-//            }
-//	    }
-			
 	// Set the TV screen size    
     iGlxResolutionManager->SetScreenSizeL( tvOutDisplaySz );   
 	}

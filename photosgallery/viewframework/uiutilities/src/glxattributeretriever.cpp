@@ -304,7 +304,7 @@ EXPORT_C TInt GlxAttributeRetriever::RetrieveL(const MGlxFetchContext& aContext,
      * or a CGlxSynchronousAttributeRetriever and the object 'retriever' is of
      * class MGlxBlockingAttributeRetriever
      */
-    CleanupStack::PopAndDestroy(); 
+    CleanupStack::PopAndDestroy(); // retriever 
     return err;
     }
 
@@ -489,7 +489,7 @@ void CGlxAttributeRetriever::HandleMessageL(const CMPXMessage& /* aMessage */,
 //
 void CGlxAttributeRetriever::HandleError(TInt /* aError */)
     {
-    // An error has been reported. But is it ours?
+    // An error has been reported. But need to check if it is ours
     // If the request is not complete then the error is not ours
     iRequestCount = 0;
     TRAP_IGNORE(NotifyObserverIfCompleteL());

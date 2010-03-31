@@ -44,7 +44,6 @@ void CGlxMulIconProvider::ConstructL()
     TRACER("CGlxMulIconProvider::ConstructL");
     iResFileName.Copy(KDC_APP_BITMAP_DIR);
     iResFileName.Append(KGlxIconsFilename);
-    //iResFileName.Copy(resFile);
     }
 
 // ----------------------------------------------------------------------------
@@ -272,7 +271,7 @@ TInt CGlxMulDRMIconProvider::IconIdL(const TGlxMedia& aMedia/**/ ) const
                 TMPXGeneralCategory  cat = aMedia.Category();                  
                 TBool checkViewRights = (cat==EMPXImage);
                 
-                if(iDRMUtility->CheckOpenRightsL(uri, checkViewRights))
+                if(iDRMUtility->ItemRightsValidityCheckL(uri, checkViewRights))
                         {
                         return EMbmGlxiconsQgn_prop_drm_rights_valid_super;        
                         }

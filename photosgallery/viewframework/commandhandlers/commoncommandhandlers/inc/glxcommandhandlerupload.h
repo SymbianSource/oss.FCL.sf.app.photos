@@ -21,6 +21,9 @@
 
 //  EXTERNAL INCLUDES
 #include "AiwServiceHandler.h"                  // AIW service handler
+#include <centralrepository.h>              // for checking the ShareOnline version
+#include <thumbnailmanager.h>
+#include <thumbnailmanagerobserver.h>
 
 //  INTERNAL INCLUDES
 #include "glxmedialistcommandhandler.h"         // for MediaListCommandHandler
@@ -29,6 +32,17 @@
 //  FORWARD DECLARATIONS
 class MGlxMediaListProvider;
 class CGlxDefaultAttributeContext;
+class CGlxUploadCenRepWatcher;
+
+// For upload icon change notification
+class MGlxUploadIconObserver
+    {
+public:
+    /**
+     * Handle upload icon changes
+     */
+    virtual void HandleUploadIconChangedL( ) = 0;
+    };
 
 /**
  * Command handler that launches Upload AIW ShareOnline
@@ -38,7 +52,8 @@ class CGlxDefaultAttributeContext;
  
 // CLASS DECLARATION
 
-NONSHARABLE_CLASS (CGlxCommandHandlerUpload) : public CGlxMediaListCommandHandler
+NONSHARABLE_CLASS (CGlxCommandHandlerUpload) : public CGlxMediaListCommandHandler,
+public MGlxMediaListObserver, public MThumbnailManagerObserver, public MGlxUploadIconObserver
 	{
 public:  // Constructors and destructor
 	/**
@@ -59,6 +74,31 @@ public:  // Constructors and destructor
      * To set the Help Text for Upload button on toolbar
      */
     void SetToolTipL();
+
+
+public: // From MGlxMediaListObserver
+    void HandleItemAddedL(TInt aStartIndex, TInt aEndIndex, 
+                                            MGlxMediaList* aList);
+    
+    void HandleMediaL(TInt aListIndex, MGlxMediaList* aList);
+    
+    void HandleItemRemovedL(TInt aStartIndex, TInt aEndIndex, 
+                                        MGlxMediaList* aList);
+    void HandleItemModifiedL(const RArray<TInt>& aItemIndexes, 
+                                        MGlxMediaList* aList);
+    void HandleAttributesAvailableL(TInt aItemIndex,     
+        const RArray<TMPXAttribute>& aAttributes, MGlxMediaList* aList);
+    void HandleFocusChangedL(NGlxListDefs::TFocusChangeType aType, 
+                        TInt aNewIndex, TInt aOldIndex, MGlxMediaList* aList);
+    void HandleItemSelectedL(TInt aIndex, TBool aSelected, MGlxMediaList* aList);
+    void HandleMessageL(const CMPXMessage& aMessage, MGlxMediaList* aList);
+    void HandlePopulatedL(MGlxMediaList* aList);
+    
+public: // from MGlxUploadIconObserver
+    /**
+     * @ref MGlxUploadIconObserver::HandleUploadIconChangedL
+     */
+    void HandleUploadIconChangedL( );    
     
 protected:
 	//@ref From CGlxCommandHandler
@@ -104,6 +144,13 @@ private: // From CGlxMediaListCommandHandler
 	* Called when the owning view is deactivated
 	*/
 	void Deactivate();	
+	
+private: // From MThumbnailManagerObserver
+
+    void ThumbnailPreviewReady( MThumbnailData& aThumbnail,
+        TThumbnailRequestId aId );
+    void ThumbnailReady( TInt aError, MThumbnailData& aThumbnail,
+        TThumbnailRequestId aId );	
 
 private:
 	/**
@@ -127,8 +174,48 @@ private:
 	 */
 	void InitializeOneClickUploadL();
 	
+	/**
+	 * To check whether its is fullscreen view
+	 */
+	TBool IsFullScreenViewL();
+
+	/**
+	 * Disable/Enable the upload toolbar item
+	 */	
+	void DisableUploadToolbarItem(TBool aDimmed);
+
+	/**
+	 * Updates the selection count based on the mimetypes
+	 */		
+	void UpdateSelectionCount(TInt aIndex, TBool aSelected, MGlxMediaList* aList);
+
+	/**
+	 * Gets the Icon path and fileName from the cenrep
+	 */	
+	void GetIconNameL(TDes& aUplaodIconName);
+
+	/**
+	 * Decodes the Icon using the TNM Manager
+	 */	
+	void DecodeIconL(const TDes& aUplaodIconNmae);
+
+
+	/**
+	 * Updates the Toolbar upload icon based on the current selection
+	 */	
+	void UpdateFSUploadIconL();
+    
+	
+	/**
+     * Sets the decoded upload icon to the toolbar item
+     */	
+	void SetDecodedUploadIconL(MThumbnailData& aThumbnail);
+	
 private: // data
 
+    //Cenrep watcher for monitoring the icon changes
+    CGlxUploadCenRepWatcher* iUploadCenRepWatcher;
+    
     // ID of owning view 
     TInt iViewId;
     
@@ -142,7 +229,29 @@ private: // data
     CGlxUiUtility* iUiUtility;
 
     // Owned - AIW Service Handler
-    CAiwServiceHandler* iServiceHandler;	
+    CAiwServiceHandler* iServiceHandler;
+    
+    CThumbnailManager* iTnEngine; // Own
+    
+    //Keep the count of no. of images/videos selected
+    TInt iSelectedImageCount;
+    TInt iSelectedVideoCount;
+    
+	//keep track of current icon used
+    enum TCenRepMonitors
+        {
+            EMonitorNone,
+            EImageMonitor,
+            EVideoMonitor,
+            EImageVideoMonitor
+        };
+    
+    TCenRepMonitors iCurrentCenRepMonitor;
+    
+	//Toolbar instance of current view
+    CAknToolbar* iToolbar;
+    
+    TThumbnailRequestId iTnmRequestID;
 	};
 
 #endif //__GLXCOMMANDHANDLERUPLOAD_H__

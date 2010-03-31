@@ -163,7 +163,7 @@ void CShwTimer::Resume()
 			{
             GLX_LOG_INFO1( "CShwTimer::Resume timeleft %d", iTimeLeft.Int() );
 			// start again, first for time left and after that with interval
-			// NOTE! cant use Start as it takes time as milliseconds in a TInt
+			// NOTE: cant use Start as it takes time as milliseconds in a TInt
 			// Get the current time
 			iTimeTimerExpires.HomeTime();
 			// Add the delay to determine the expiry time

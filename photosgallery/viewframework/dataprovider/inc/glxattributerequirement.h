@@ -87,7 +87,6 @@ private:
 	
     TGlxFromFocusOutwardIterator iFromFocusOutwardIterator;
     TGlxFromManualIndexBlockyIterator iBlockyIterator;
-    //RArray<CGlxAttributeContext*> iArributeContext;
     RPointerArray<CGlxDefaultAttributeContext> iArributeContext;
     RPointerArray<CGlxThumbnailContext> iThumbnailContext;
     

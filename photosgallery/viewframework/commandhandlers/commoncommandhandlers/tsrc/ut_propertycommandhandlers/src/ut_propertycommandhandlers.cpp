@@ -43,9 +43,6 @@ inline void CGlxMedia::SetTObjectValueL(const TMPXAttribute& aAttribute, T aValu
         {
         // Replace the existing value
         TValue& value = iValues[i];
-		// COMMENTED OUT SINCE NOT EXPORTED 
-		//Delete(value);
-        
         value.iValue = ptr; // Takes ownership
         value.iType = EMPXTypeTObject;
         }
@@ -265,8 +262,7 @@ MGlxMediaList& UT_propertycommandhandlers::MediaList()
 UT_propertycommandhandlers* UT_propertycommandhandlers::NewL()
     {
     UT_propertycommandhandlers* self = UT_propertycommandhandlers::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -274,9 +270,7 @@ UT_propertycommandhandlers* UT_propertycommandhandlers::NewLC()
     {
     UT_propertycommandhandlers* self = new( ELeave ) UT_propertycommandhandlers();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
   
@@ -305,9 +299,6 @@ void UT_propertycommandhandlers::ConstructL()
 
 void UT_propertycommandhandlers::SetupL(  )
     {
-    //MMPXCollectionUtility* collectionUtility = MMPXCollectionUtility::NewL(NULL, KMcModeDefault);
-    //CMPXCollectionPath* path ;//= collectionUtility->Collection().PathL();
-		//iML = MGlxMediaList::InstanceL(*path,NULL);
 	iMediaList = new (ELeave) _CGlxTestMediaList;
 	iMediaList->AppendL(0, ETrue);
 	iMediaList->AppendL(1, ETrue);

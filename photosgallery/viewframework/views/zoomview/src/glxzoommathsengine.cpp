@@ -47,7 +47,7 @@ const TInt KGlxZoomPanInc                   =   10      ; // Min number of pixel
 void TGlxZoomAndPanMathsEngine::Initialize(TPoint& aCenter, 
         TSize& aScreenSize, 
         TSize& aImageSize,
-        TSize& aOriginalZoomedDimensions,
+        TSize& /*aOriginalZoomedDimensions*/,
         TUint8 aInitialZoomRatio)
     {
     TRACER("void TGlxZoomAndPanMathsEngine::Initialize()");
@@ -233,8 +233,8 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
     imageDimension.iWidth =  (imageDimension.iWidth  * newZoomRatio)/100;
     imageDimension.iHeight = (imageDimension.iHeight * newZoomRatio)/100;
     
-    // Is image size bigger than screen size AND image is panned to such an extent that 
-    // the an edge of the image comes within the screen rectange? If so go ahead,   
+    // Check if image size is bigger than screen size AND image is panned to such an extent that 
+    // the an edge of the image comes within the screen rectange. If so go ahead,   
     // for everything else there is mastercard. I mean the else condition below. 
     // [TODO] The master card however needs more simplification. 
     if(
@@ -392,7 +392,7 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
 // UpdatePanFactor: Calculates the Pan Factor based on time the key was pressed
 //-------------------------------------------------------------------------------------
 //
-void TGlxZoomAndPanMathsEngine::UpdatePanFactor(TTime& aPanTime)
+void TGlxZoomAndPanMathsEngine::UpdatePanFactor(TTime& /*aPanTime*/)
     {
     TRACER("void TGlxZoomAndPanMathsEngine::UpdatePanFactor()");
     

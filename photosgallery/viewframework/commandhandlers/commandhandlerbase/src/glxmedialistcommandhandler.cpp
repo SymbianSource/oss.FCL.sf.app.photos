@@ -177,12 +177,6 @@ EXPORT_C void CGlxMediaListCommandHandler::DynInitMenuPaneL(TInt aResourceId,
         	    if ( IsSupported( item.iCommandId ) )
         	        {
         	        TBool isDisabled = IsDisabledL(item.iCommandId, MediaList());
-        	        
-        	        if( !isDisabled && 
-        	            iCurrentViewingState == TCommandInfo::EViewingStateView )
-        	            {
-                        //isDisabled = sf.IsActivePaletteItemVisible( item.iCommandId );
-        	            }
         	        // Check visibility of the menu item
     				aMenuPane->SetItemDimmed( item.iCommandId, isDisabled);
     				

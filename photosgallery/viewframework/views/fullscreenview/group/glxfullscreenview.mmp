@@ -98,6 +98,7 @@ LIBRARY         gesturehelper.lib
 LIBRARY         glxcommon.lib							// for filter facotory
 LIBRARY         glxcommonui.lib
 LIBRARY 	glxtvout.lib
-LIBRARY	   	harvesterclient.lib
+LIBRARY 	gfxtrans.lib
+LIBRARY		akntransitionutils.lib
 // EOF 
 

@@ -83,23 +83,25 @@ public:
 
     /**
      * Check whether DRM rights are valid for specified item
-     *
+     * is called before right is consumed and for all items (focused or unfocused).
+     * 
      * @param aUri URI of the media item.
      * @param aCheckViewRights, check view rights if true, play if false
      * @return ETrue if valid rights exist for the media item.
      */
-    IMPORT_C TBool CheckOpenRightsL(const TDesC& aUri, TBool aCheckViewRights);
+    IMPORT_C TBool ItemRightsValidityCheckL(const TDesC& aUri, TBool aCheckViewRights);
 
     /**
      * Check whether DRM rights are valid for specified item
      * If the rights were just consumed, then allow to display
      * Otherwise, obtain current rights
-     *
+     * is called after right is consumed and for only focused/displayed item.
+     * 
      * @param aUri URI of the media item.
      * @param aCheckViewRights, check view rights if true, play if false
      * @return ETrue if valid rights exist for the media item.
      */
-    IMPORT_C TBool CheckDisplayRightsL(const TDesC& aUri, TBool aCheckViewRights);
+    IMPORT_C TBool DisplayItemRightsCheckL(const TDesC& aUri, TBool aCheckViewRights);
     
     /**
       * Consume rights for specified item
@@ -111,10 +113,9 @@ public:
     IMPORT_C TBool ConsumeRightsL(const TDesC& aUri);
 
     /**
-     * Fix for ESLM-82WJ59:
      * Clears Last Consumed Uri
      */
-    IMPORT_C void ClearLastConsumedItemUri();
+    IMPORT_C void ClearLastConsumedItemUriL();
 
     /**
      * Test whether a media item is OMA DRM 2.0 protected and has an associated
@@ -122,13 +123,13 @@ public:
      * @param aUri URI of the media item.
      * @return ETrue if it does.
      */
-    IMPORT_C TBool CanShowInfoOnlineL(TDesC& aUri);
+    IMPORT_C TBool CanShowInfoOnlineL(const TDesC& aUri);
 
     /**
      * Open the associated info URL for a media item in the browser.
      * @param aUri URI of the media item.
      */
-    IMPORT_C void ShowInfoOnlineL(TDesC& aUri);
+    IMPORT_C void ShowInfoOnlineL(const TDesC& aUri);
 
     /**
      * Test whether a media item can be set as automated content.     *

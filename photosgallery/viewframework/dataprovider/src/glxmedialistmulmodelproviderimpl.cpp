@@ -199,9 +199,6 @@ void CGlxMediaListMulModelProviderImpl::HandleItemRemovedL( TInt aStartIndex,
         TInt aEndIndex, MGlxMediaList* /*aList*/ )
     {
     TRACER("CGlxMediaListMulModelProviderImpl::HandleItemRemovedL");
-    // hack of making the flag iIsReleventAttribute to Etrue will be removed 
-    // once the bug ESPK-7G6GJX
-    //iIsReleventAttribute = ETrue;
     RemoveItems( aStartIndex, aEndIndex - aStartIndex + 1 );
     }
 

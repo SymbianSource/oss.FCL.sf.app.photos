@@ -111,8 +111,7 @@ TInt CGlxNavigableListReconstruction::FindInOriginalSelection( TInt aSelectionIn
 ut_CGlxNavigableList* ut_CGlxNavigableList::NewL()
     {
     ut_CGlxNavigableList* self = ut_CGlxNavigableList::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 

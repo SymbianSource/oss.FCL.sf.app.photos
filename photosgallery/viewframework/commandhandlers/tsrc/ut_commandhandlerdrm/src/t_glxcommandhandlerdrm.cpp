@@ -121,8 +121,7 @@ void CGlxCommandHandlerDRMTester::ConstructL()
 T_GlxCommandHandlerDRM* T_GlxCommandHandlerDRM::NewL()
     {
     T_GlxCommandHandlerDRM* self = T_GlxCommandHandlerDRM::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -130,9 +129,7 @@ T_GlxCommandHandlerDRM* T_GlxCommandHandlerDRM::NewLC()
     {
     T_GlxCommandHandlerDRM* self = new( ELeave ) T_GlxCommandHandlerDRM();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 

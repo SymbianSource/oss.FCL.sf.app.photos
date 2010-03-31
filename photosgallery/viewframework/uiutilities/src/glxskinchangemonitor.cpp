@@ -40,7 +40,6 @@ CGlxSkinChangeMonitor* CGlxSkinChangeMonitor::NewL()
 //-----------------------------------------------------------------------------
 CGlxSkinChangeMonitor::~CGlxSkinChangeMonitor()
     {
-    //ResetAndDestroy()???
     iSkinChangeObservers.Close();
     }
 

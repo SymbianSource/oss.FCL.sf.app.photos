@@ -20,23 +20,21 @@
 #include <glxthumbnailcontext.h>
 #include <glxfilterfactory.h>                         // For TGlxFilterFactory
 #include <glxthumbnailattributeinfo.h>
-#include "glxpreviewthumbnailbinding.h"
-#include "glxgeneraluiutilities.h"
 #include <glxuiutility.h>                               // For UiUtility instance
-
+#include <glxcollectionpluginmonths.hrh>
 #include <glxtracer.h>
 #include <glxlog.h>
-
+#include <glxerrormanager.h>             // For CGlxErrormanager
 #include <glxuistd.h>                    // Fetch context priority def'ns
 #include <mglxcache.h> 
 #include <ganes/HgDoubleGraphicList.h>
 
+#include "glxpreviewthumbnailbinding.h"
+#include "glxgeneraluiutilities.h"
 
-const TInt KInitialThumbnailsTimeDelay(100000);
-const TInt KWaitCount(10);
-const TInt KThumbnailStartTimeDelay(250000);
+const TInt KThumbnailsTimeTimeDelay(50000);
+const TInt KWaitCount(30);
 const TInt KPreviewThumbnailFetchCount(1);
-
 
 
 // ----------------------------------------------------------------------------
@@ -85,11 +83,12 @@ void CGlxPreviewThumbnailBinding::ConstructL()
     TRACER("CGlxPreviewThumbnailBinding::ConstructL");
     iTimer = CPeriodic::NewL( CActive::EPriorityStandard );
     CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
+    CleanupClosePushL(*uiUtility);
     iGridIconSize = uiUtility->GetGridIconSize();
-    uiUtility->Close() ;
+    CleanupStack::PopAndDestroy(uiUtility);
     
     // Filter that filters out any GIF, corrupted images     
-    iPreviewFilter = TGlxFilterFactory::CreatePreviewFilterL();    
+    iPreviewFilter = TGlxFilterFactory::CreatePreviewTNFilterL();
     iThumbnailIterator.SetRange(KPreviewThumbnailFetchCount);
     iThumbnailContext = new (ELeave) CGlxAttributeContext(&iThumbnailIterator); 
     TMPXAttribute tnAttr( KGlxMediaIdThumbnail,
@@ -123,8 +122,7 @@ CGlxPreviewThumbnailBinding::~CGlxPreviewThumbnailBinding()
 	    iTimer->Cancel();
 	    }
 	delete iTimer;
-	iTimer = NULL;
-	iPreviewItemCount.Close();	
+	iTimer = NULL;	
 	}
 
 // ----------------------------------------------------------------------------
@@ -135,70 +133,55 @@ CGlxPreviewThumbnailBinding::~CGlxPreviewThumbnailBinding()
 void CGlxPreviewThumbnailBinding::TimerTickedL()
     {
     TRACER("CGlxPreviewThumbnailBinding::TimerTickedL");
-    
-    if(iMediaList && iMediaList->Count() && iPreviewItemCount.Count() )
-       	{
-    	TInt thumbnailIndex = iPreviewItemCount[iProgressIndex];
-    	if(thumbnailIndex < iMediaList->Count())
-    	    {
-            const TGlxMedia& item = iMediaList->Item(thumbnailIndex);
-            TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail, 
-                GlxFullThumbnailAttributeId( ETrue,  iGridIconSize.iWidth,
-                        iGridIconSize.iHeight ) );
-            
+
+    if (!iMediaList)
+        {
+        GLX_LOG_INFO("TimerTickedL() iMediaList == NULL!");
+        return;
+        }
+
+    if (iMediaList->IsPopulated())
+        {
+        if (iMediaList->Count())
+            {
+            const TGlxMedia& item = iMediaList->Item(0);
+            TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail,
+                    GlxFullThumbnailAttributeId(ETrue, iGridIconSize.iWidth,
+                            iGridIconSize.iHeight));
+
             const CGlxThumbnailAttribute* value = item.ThumbnailAttribute(
-                    thumbnailAttribute );
+                    thumbnailAttribute);
             if (value)
                 {
                 CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
                 ScaleBitmapToListSizeL(value->iBitmap, bitmap);
-                GLX_LOG_INFO1("iObserver.PreviewTNReadyL() iTrial=%d", iTrial);
-                iObserver.PreviewTNReadyL(bitmap, NULL,iPopulateListTNs);
+                GLX_LOG_INFO1("iObserver.PreviewTNReadyL() iTrialCount=%d", iTrialCount);
+                iObserver.PreviewTNReadyL(bitmap, NULL);
                 }
-    	    }
-       	}
-    else if (iPopulateListTNs && iMediaList && iMediaList->Count() == 0)
-	    {
-	    if (iTrial == KWaitCount)
-		    {		   
-		    iObserver.PreviewTNReadyL(NULL, NULL, iPopulateListTNs);
-		    iTrial=0;
-		    return;
-		    }
-	    iTrial++;
-	    }
-    else if(iMediaList && iMediaList->Count() )
-    	{
-		if(iProgressIndex > iMediaList->Count()-1 )
-			{
-			iProgressIndex = 0;
-			}
-		const TGlxMedia& item = iMediaList->Item(iProgressIndex);
-		TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail, 
-			GlxFullThumbnailAttributeId( ETrue,  iGridIconSize.iWidth, 
-			        iGridIconSize.iHeight ) );
-		
-		const CGlxThumbnailAttribute* value = item.ThumbnailAttribute( 
-		        thumbnailAttribute );
-		if (value)
-			{
-			CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
-		    ScaleBitmapToListSizeL(value->iBitmap, bitmap);
-			GLX_LOG_INFO1("iObserver.PreviewTNReadyL() iTrialCount=%d", iTrialCount);
-			iObserver.PreviewTNReadyL(bitmap, NULL,iPopulateListTNs);
-			}
-		else
-			{
-			if (iTrialCount == KWaitCount)
-				{				
-				iObserver.PreviewTNReadyL(NULL, NULL, iPopulateListTNs);
-				iTrialCount=0;
-				return;
-				}
-			iTrialCount++;
-			}
-    	}   
+            else
+                {
+                TInt tnError = GlxErrorManager::HasAttributeErrorL(
+                        item.Properties(), KGlxMediaIdThumbnail);
+                if (tnError != KErrNone || iTrialCount == KWaitCount)
+                    {
+                    GLX_LOG_INFO1("TimerTickedL() tnError(%d) / Max Trialcount reached", tnError);
+                    iObserver.PreviewTNReadyL(NULL, NULL);
+                    iTrialCount = 0;
+                    return;
+                    }
+                iTrialCount++;
+                }
+            }
+        else
+            {
+            // Media count is zero, 
+            // Notify immedialtely to jump to the next item in the list 
+            GLX_LOG_INFO("TimerTickedL() iMediaList->Count() = 0");
+            iObserver.PreviewTNReadyL(NULL, NULL);
+            }
+        }
     }
+
 // ----------------------------------------------------------------------------
 // IsTimeL callback function invoked when timer expires
 // ----------------------------------------------------------------------------
@@ -229,16 +212,16 @@ void CGlxPreviewThumbnailBinding::HandleItemChangedL(const CMPXCollectionPath& a
         TBool aPopulateListTNs, TBool  aIsRefreshNeeded, TBool aBackwardNavigation)
     {
     TRACER("CGlxPreviewThumbnailBinding::HandleItemChangedL");
+    GLX_LOG_INFO("CGlxPreviewThumbnailBinding::HandleItemChangedL()");
+    
     iTimerTicked = EFalse;
     iPopulateListTNs = aPopulateListTNs;
-    iProgressIndex = KErrNone;
     iIsRefreshNeeded = aIsRefreshNeeded;
 
     // remove and close old medialist   
     if( iMediaList )
 	    {
-	    // Reset the trial and the trialCount to 0 while deleting the medialist 
-	    iTrial = 0;
+	    // Reset the trialCount to 0 while deleting the medialist 
 	    iTrialCount = 0;
 	    iMediaList->RemoveMediaListObserver( this );
         iMediaList->RemoveContext(iThumbnailContext);
@@ -255,7 +238,7 @@ void CGlxPreviewThumbnailBinding::HandleItemChangedL(const CMPXCollectionPath& a
 	    {
 	    //On backward navigation start the timer manually, since we do not  
         //get the attribute callback.
-        StartTimer(iPopulateListTNs);        
+        StartTimer();        
         }
     }
 
@@ -265,11 +248,9 @@ void CGlxPreviewThumbnailBinding::HandleItemChangedL(const CMPXCollectionPath& a
 // are populated.
 // ----------------------------------------------------------------------------
 //    
-void CGlxPreviewThumbnailBinding::StartTimer(TBool aPopulateListTNs)
+void CGlxPreviewThumbnailBinding::StartTimer()
     {
     TRACER("CGlxPreviewThumbnailBinding::StartTimer");
-    
-    iPopulateListTNs = aPopulateListTNs;
     
     if (iTimer)
         {
@@ -278,8 +259,8 @@ void CGlxPreviewThumbnailBinding::StartTimer(TBool aPopulateListTNs)
         
     if (iPopulateListTNs)
         {
-         iTimer->Start(KThumbnailStartTimeDelay, 
-                    KInitialThumbnailsTimeDelay, TCallBack(IsTimeL,this));
+        iTimer->Start(KThumbnailsTimeTimeDelay, KThumbnailsTimeTimeDelay,
+                TCallBack(IsTimeL, this));
         }
      }
 
@@ -342,13 +323,13 @@ void CGlxPreviewThumbnailBinding::HandleAttributesAvailableL( TInt aItemIndex,
                 thumbnailAttribute );
         if (value)
 	        {
-            iPreviewItemCount.AppendL( aItemIndex );
+	        GLX_LOG_INFO("CGlxPreviewThumbnailBinding::HandleAttributesAvailableL()");
             // sometimes we get HandleAttributesAvailableL callback after some delay
             // when we do cache cleanup. 
             if(!iPopulateListTNs)
             	{
             	iPopulateListTNs = ETrue;
-            	StartTimer(iPopulateListTNs);
+            	StartTimer();
             	} 
             }
         }
@@ -433,6 +414,7 @@ void CGlxPreviewThumbnailBinding::HandleItemModifiedL( const RArray<TInt>&
 void CGlxPreviewThumbnailBinding::HandlePopulatedL( MGlxMediaList* /*aList*/ )
     {
 	TRACER("CGlxPreviewThumbnailBinding::HandlePopulatedL()");
+    GLX_LOG_INFO("CGlxPreviewThumbnailBinding::HandlePopulatedL()");
 
 	// Do cache cleanup. If iIsRefreshNeeded is set,
 	// then clean up the item at 0th index 
@@ -448,7 +430,7 @@ void CGlxPreviewThumbnailBinding::HandlePopulatedL( MGlxMediaList* /*aList*/ )
 			}
 		}
 	//Start the timer
-	StartTimer(iPopulateListTNs);
+	StartTimer();
 	}
 
 // ----------------------------------------------------------------------------

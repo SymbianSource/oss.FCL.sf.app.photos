@@ -445,9 +445,8 @@ EXPORT_C void CGlxListWindow::RemoveObjects( TInt aFirstRemovedIndex, TInt aLast
 	    // Focus should stay on the same item if possible. If not, it should
 	    // go to the first previous item still existing. If none, it should go to 
 	    // first (=first next) item.
-        
-        // @todo: Do not maintain focus index in this class!!! This is broken
-	    
+
+        // @todo: Do not maintain focus index in this class, This is broken
 	    // Update focus if the removal point was before	the focus
 	    if (aFirstRemovedIndex <= newFocusIndex) 
 	    	{
@@ -658,7 +657,7 @@ CGlxListWindow::TRange CGlxListWindow::Range( const TChange& aChange ) const
     TRACER("CGlxListWindow::Range");
     
     TRange range;
-    range.iLength = iRearOffset - iFrontOffset + 1; // Add 1 for focus;
+    range.iLength = iRearOffset - iFrontOffset + 1; // Add 1 for focus
 
 	// Start index is always zero if the whole list fits into the window
 	if ( range.iLength >= aChange.iNewTotalSize ) 

@@ -26,9 +26,9 @@
 // INCLUDES
 #include "glxlistview.h"
 #include "glxpreviewthumbnailbinding.h"
-
+#include "glxmmcnotifier.h"
 #include <glxmedialistiterator.h>        // Interface for going through items in
-
+#include <mglxnavigationalstateobserver.h>
 #include <ganes/HgScrollBufferObserverIface.h>
 #include <ganes/HgSelectionObserverIface.h>
 
@@ -41,7 +41,7 @@ class CGlxPreviewThumbnailBinding;
 
 class CHgDoubleGraphicListFlat;
 class CAknsBasicBackgroundControlContext;
-
+class CGlxNavigationalState;
 
 //NOT: This enum is based on TGlxCollectionPluginPriority. If any
 //change happen regarding priority order in that, need to change 
@@ -73,7 +73,9 @@ NONSHARABLE_CLASS( CGlxListViewImp ) : public CGlxListView,
 								       public MHgScrollBufferObserver,
 									   public MHgSelectionObserver,
 									   public MPreviewTNObserver,
-									   public MDialogDismisedObserver
+									   public MDialogDismisedObserver,
+                                       public MStorageNotifierObserver,
+                                       public MGlxNavigationalStateObserver
     {
 public:
     /**
@@ -160,7 +162,7 @@ private:
 	 void DestroyListViewWidget();
 
 protected:
-    void PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap* aMask, TBool aPopulateList);
+    void PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap* aMask);
     	 
 protected:
     void Request(TInt aRequestStart, TInt aRequestEnd, THgScrollDirection aDirection);
@@ -174,7 +176,11 @@ protected:
 private:
     void CreateListL();
     void SetDefaultThumbnailL(TInt aIndex);
-	 
+    void NavigateToMainListL();
+    void HandleMMCInsertionL();
+    void HandleMMCRemovalL();
+    void HandleNavigationalStateChangedL(){};
+ 
 public: // from MGlxMediaListObserver
     void HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
     void HandleItemRemovedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
@@ -191,7 +197,7 @@ public: // from MGlxMediaListObserver
     void HandleItemModifiedL( const RArray<TInt>& aItemIndexes, MGlxMediaList* aList );
     void HandlePopulatedL( MGlxMediaList* aList );
     void HandleDialogDismissedL(); // from MDialogDismisedObserver
-	 
+    void HandleForegroundEventL(TBool aForeground); 
 private:    // Data
 
     CAknsBasicBackgroundControlContext* iBgContext; //Own
@@ -239,6 +245,14 @@ private:    // Data
 
 	//Check for TN generation
     TBool isTnGenerationComplete;
+	
+    CActiveSchedulerWait* iSchedulerWait;
+    
+    CGlxMMCNotifier* iMMCNotifier;
+
+    CGlxNavigationalState* iNavigationalState;
+	
+    TBool iMMCState;
     };
 
 #endif  // C_GLXLISTVIEWIMP_H

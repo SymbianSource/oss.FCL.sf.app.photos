@@ -189,15 +189,15 @@ void CShwEffectControl::NotifyL( MShwEvent* aEvent )
     // is it start view
     TShwEventStartView* viewEvent = 
         dynamic_cast<TShwEventStartView*>( aEvent );
-    // start transition?
+    // is it start transition
     TShwEventStartTransition* transEvent = 
         dynamic_cast<TShwEventStartTransition*>( aEvent );
-    // was it a pause or resume event?
+    // was it a pause or resume event
     TShwEventPause* pauseEvent = 
         dynamic_cast<TShwEventPause*>( aEvent );
     TShwEventResume* resumeEvent = 
         dynamic_cast<TShwEventResume*>( aEvent );
-    // or a navigation event?
+    // or was it a navigation event
     TShwEventNextImage* nextImageEvent = 
         dynamic_cast< TShwEventNextImage* >( aEvent );
     TShwEventPreviousImage* previousImageEvent =
@@ -464,7 +464,7 @@ void CShwEffectControl::HandleStartViewEventL( TShwEventStartView& aEvent )
         MShwEffect* currentEffect = iEffectManager.CurrentEffect();
         // remove the old layout
         iSplitter.RemoveLayout( iCurrentVisual );
-        // was this thumbnail succesfully loaded?
+        // check if this thumbnail was succesfully loaded
 		if ( iFailedThumbnailIndex == currentIndex )
 		    {
         	// set the temporary layout for default icon
@@ -545,7 +545,7 @@ void CShwEffectControl::HandleStartTransitionEventL(
 
     // remove old layout
     iSplitter.RemoveLayout( nextVisual );
-    // was the next thumbnail succesfully loaded?
+    // Check if the next thumbnail was succesfully loaded
 	if ( iFailedThumbnailIndex == nextIndex )
 	    {
 		TAlfTimedValue opacity(KMaxOpacity,0);
@@ -649,9 +649,8 @@ void CShwEffectControl::HandleResumeEventL()
         }
     CleanupStack::PopAndDestroy( &effects );
 
-    // did user navigate while paused?
     if( iUserNavigated )
-        {
+        { // user navigated while paused
         // resume and cancel the transition timer for its next use
         // if user navigates while pause 
         // we never continue from transition so we need

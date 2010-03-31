@@ -35,8 +35,6 @@
 #include <alf/alfutil.h>
 #include <alf/alfroster.h>
 
-//Hg 
-//#include <hg/hgcontextutility.h>
 #include <glxhdmicontroller.h>
 #include <glxresourceutilities.h>               // for CGlxResourceUtilities
 #include <glxresolutionutility.h>               // for CGlxResolutionUtility
@@ -80,7 +78,7 @@ namespace
     const TInt KShwGestureControlGroupId = 2;
     const TInt KGestureControlGroupId = 44;
     //This constant is used to calculate the index of the item for which texture has to removed.
-    //6 = 5(iterator value in forward or backward direction for fullscreen) + 1(focus index);
+    //6 = 5(iterator value in forward or backward direction for fullscreen) + 1(focus index)
     const TInt KSlideShowIterator = 2; 
     //Constant which says maximum number of fullscreen textures that we have have at a time.
     //11 = (5(5 fullscreen texture backwards)+1(fucus index texture)+5(5 fullscreen texture forwards))
@@ -124,8 +122,11 @@ CShwSlideshowView::~CShwSlideshowView()
     {
     TRACER("CShwSlideshowView::~CShwSlideshowView");
   	GLX_LOG_INFO( "CShwSlideshowView::~CShwSlideshowView()" );
-  	iHarvesterClient.Close();
-    // delete media list population call back
+  	
+  	delete iMMCNotifier;
+  	iMMCNotifier = NULL;
+  	
+  	// delete media list population call back
     delete iPopulateListCallBack;
     
     // delete engine async starter
@@ -314,12 +315,8 @@ void CShwSlideshowView::ConstructL()
 	// Glx view base construction
     ViewBaseConstructL();
     
-	TInt err = iHarvesterClient.Connect();
-	GLX_LOG_INFO1("iHarvesterClient.Connect() err = %d",err);
-	if(err == KErrNone)
-		{
-        iHarvesterClient.AddHarvesterEventObserver(*this, EHEObserverTypeMMC, 1000);
-		}
+    iMMCNotifier = CGlxMMCNotifier::NewL(*this);
+    
     // Create async engine starter with standard priority
 	iAsyncCallBack = new( ELeave ) CAsyncCallBack( CActive::EPriorityStandard );
 
@@ -336,7 +333,7 @@ void CShwSlideshowView::ConstructL()
         	  KShwDefaultDelayMicroSeconds );
     // Create a control group for the volume control
     iVolumeControlGroup = &iEnv->NewControlGroupL( KVolumeControlGroupId );
-    // doc says the following takes ownership, but reality is different!
+    // doc says the following takes ownership, but reality is different
 	iVolumeControlGroup->AppendL( iVolumeControl );
 	
     iGestureControlGroup = &iEnv->NewControlGroupL( KShwGestureControlGroupId );
@@ -348,7 +345,7 @@ void CShwSlideshowView::ConstructL()
 	GestureHelper::CGestureControl* gestureControl = GestureHelper::CGestureControl::NewLC( 
             *iShwGestureControl, *iEnv, *iDisplay, KGestureControlGroupId );
     iGestureControl = gestureControl;
-    CleanupStack::Pop( gestureControl ); // doc says the following takes ownership, but reality is different!
+    CleanupStack::Pop( gestureControl ); // doc says the following takes ownership, but reality is different
 	iGestureControlGroup->AppendL( iGestureControl );
 
 	// Need a mechanism to distinguish when we receive the MusicVolume 
@@ -384,11 +381,18 @@ void CShwSlideshowView::HandleForegroundEventL(TBool aForeground)
     {
     TRACER("CShwSlideshowView::HandleForegroundEventL");
   	GLX_LOG_INFO( "CShwSlideshowView::HandleForegroundEventL()" );
-
+	iIsForegrnd = aForeground;
     if( aForeground )
         {
         // we gained the foreground
-        iPauseHandler->SwitchToForegroundL();
+        if(iMMCState && iPrevNotInBackground)
+            {
+            ProcessCommandL(EAknSoftkeyClose);
+            }
+        else
+            {
+            iPauseHandler->SwitchToForegroundL();
+            }
         }
     else
         {
@@ -535,8 +539,8 @@ void CShwSlideshowView::DoViewDeactivate()
     iBackLightTimer->Cancel();
 
 
-    //Stop the slideshow!
-    //NOTE! this needs to be done before the list is closed as the 
+    //Stop the slideshow
+    //NOTE: this needs to be done before the list is closed as the 
     //destructor removes the engine as medialist observer and also
     //removes the contexts from the list
     delete iEngine;
@@ -1020,7 +1024,7 @@ void CShwSlideshowView::SetListFocusL()
         // nothing selected, so determine which item has focus in the original list
         focusIndex = iMediaList->FocusIndex();
         const TGlxMedia& mediaItem = iMediaList->Item( focusIndex );
-        // is this item in the filtered list?
+        // Check if this item is in the filtered list
         TGlxIdSpaceId spaceId = iMediaList->IdSpaceId( focusIndex );
         focusIndex = iFilteredList->Index( spaceId, mediaItem.Id() );
         if ( focusIndex == KErrNotFound )
@@ -1271,8 +1275,7 @@ void CShwSlideshowView::SetItemToHDMIL()
     // then dont SetImageToHDMI :)  
     if( ( KErrNotFound == focusIndex)
             || (0 == iFilteredList->Count())
-            || (NULL == iHdmiController)
-            || (!iHdmiController->IsHDMIConnected())) 
+            || (NULL == iHdmiController)) 
         {
         GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - Cant Set Image To HDMI");
         return;
@@ -1289,17 +1292,13 @@ void CShwSlideshowView::SetItemToHDMIL()
             && (error == KErrNone) )
         {
         GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Setting the Image");
-        TInt frameCount(0);
-        TSize orignalSize;
-        item.GetFrameCount(frameCount);
-        item.GetDimensions(orignalSize);
-        iHdmiController->SetImageL(item.Uri(), orignalSize, frameCount);
+        iHdmiController->SetImageL(item.Uri());
         }
     else
         {
         GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - Unsupported Item");
         //Set the external display to cloning mode if
-        //the current item is something we wont support (e.g. video, corrupted item);
+        //the current item is something we wont support (e.g. video, corrupted item)
         iHdmiController->ItemNotSupported();
         }
     }
@@ -1346,18 +1345,30 @@ void CShwSlideshowView::RemoveTexture()
     }
 
 // ---------------------------------------------------------------------------
-// HarvestingUpdated
 // 
+// HandleMMCInsertionL
 // ---------------------------------------------------------------------------
 //
-void CShwSlideshowView::HarvestingUpdated( 
-                HarvesterEventObserverType HarvestingUpdated, 
-                HarvesterEventState aHarvesterEventState,
-                TInt aItemsLeft )
+void CShwSlideshowView::HandleMMCInsertionL()
     {
-    TRACER("CShwSlideshowView::HarvestingUpdated()");
-    if(HarvestingUpdated == EHEObserverTypeMMC)
+    TRACER("CShwSlideshowView::HandleMMCInsertionL()");
+    iMMCState = ETrue;
+    iPrevNotInBackground = iIsForegrnd;
+    if(iIsForegrnd)
         {
         ProcessCommandL(EAknSoftkeyClose);
         }
     }
+
+// ---------------------------------------------------------------------------
+// 
+// HandleMMCRemovalL
+// ---------------------------------------------------------------------------
+//
+void CShwSlideshowView::HandleMMCRemovalL()
+    {
+    TRACER("CShwSlideshowView::HandleMMCRemovalL()");
+    ProcessCommandL(EAknSoftkeyExit);
+    }
+
+

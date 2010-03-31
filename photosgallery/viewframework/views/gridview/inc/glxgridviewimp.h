@@ -124,6 +124,7 @@ private:// Data
     CGlxGridViewContainer* iGlxGridViewContainer;
     //toolbar - created dynamically.
     CAknToolbar* iToolbar;
+    TBool iMMCState;
     };
 
 #endif  // C_GLXGRIDLVIEWIMP_H

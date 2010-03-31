@@ -38,8 +38,7 @@
 t_CGlxAiwServiceHandler* t_CGlxAiwServiceHandler::NewL()
     {
     t_CGlxAiwServiceHandler* self = t_CGlxAiwServiceHandler::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -47,9 +46,7 @@ t_CGlxAiwServiceHandler* t_CGlxAiwServiceHandler::NewLC()
     {
     t_CGlxAiwServiceHandler* self = new( ELeave ) t_CGlxAiwServiceHandler();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 

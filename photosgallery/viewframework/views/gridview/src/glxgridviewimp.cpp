@@ -39,6 +39,11 @@
 #include "glxgridviewmlobserver.h"                      // medialist observer for Hg Grid                
 #include "glxgridviewcontainer.h"
 
+// For transition effects
+#include <AknTransEffect.h>                             
+#include <GfxTransEffect/GfxTransEffect.h>
+#include "glxgfxtranseffect.h"  // For transition effects
+
 const TInt KGlxToolbarButtonUnLatched = 0;              // Toolbar mark button's unlatched state defined in the rss file
 
 // ======== MEMBER FUNCTIONS ========
@@ -129,6 +134,15 @@ void CGlxGridViewImp::DoMLViewActivateL(
 	{
 	TRACER("CGlxGridViewImp::DoMLViewActivateL()");
 
+    TUint transitionID = (iUiUtility->ViewNavigationDirection()==
+          EGlxNavigationForwards)?KActivateTransitionId:KFSDeActivateTransitionId; 
+    
+	GfxTransEffect::BeginFullScreen( transitionID, TRect(),
+                                AknTransEffect::EParameterType, 
+                                AknTransEffect::GfxTransParam( KPhotosUid,
+                                AknTransEffect::TParameter::EEnableEffects) );	
+	GfxTransEffect::EndFullScreen();
+	
 	if(StatusPane())
 		{
 		StatusPane()->MakeVisible(ETrue);
@@ -261,6 +275,11 @@ TBool CGlxGridViewImp::HandleViewCommandL(TInt aCommand)
 void CGlxGridViewImp::HandleForegroundEventL(TBool aForeground)
 	{
     TRACER("CGlxGridViewImp::HandleForegroundEventL()");
+	if(iMMCState)
+	    {
+        iMMCState = EFalse;
+        ProcessCommandL(EAknSoftkeyClose);
+	    }
 	CAknView::HandleForegroundEventL(aForeground);
 	}
 
@@ -274,6 +293,10 @@ void CGlxGridViewImp::HandleGridEventsL(TInt aCmd)
 	{
 	TRACER("CGlxGridViewImp::HandleGridEventsL()");
 	//do processcmd related event handling
+	if(EAknSoftkeyClose == aCmd)
+	    {
+        iMMCState = ETrue;
+	    }
 	ProcessCommandL(aCmd);
 	}
 

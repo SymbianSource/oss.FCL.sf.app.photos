@@ -48,7 +48,7 @@ void CGlxDRMUtility::Close()
     delete this;
     }
     
-TBool CGlxDRMUtility::CheckOpenRightsL(const TDesC&, TBool)
+TBool CGlxDRMUtility::ItemRightsValidityCheckL(const TDesC&, TBool)
     {
     return ETrue;
     }
@@ -79,8 +79,7 @@ CGlxDRMUtility::~CGlxDRMUtility()
 ut_glxerrormanager* ut_glxerrormanager::NewL()
     {
     ut_glxerrormanager* self = ut_glxerrormanager::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -88,7 +87,6 @@ ut_glxerrormanager* ut_glxerrormanager::NewLC()
     {
     ut_glxerrormanager* self = new( ELeave ) ut_glxerrormanager();
     CleanupStack::PushL( self );
-
     self->ConstructL();
 
     return self;

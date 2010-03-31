@@ -25,14 +25,13 @@
 #include <AknProgressDialog.h>
 #include <gestureobserver.h>
 #include <gesturehelper.h>
-#include <harvesterclient.h>
 #include "shwengineobserver.h"
 #include "shwmusicobserver.h"
 #include "shwconstants.h"
 #include "shwtickobserver.h"
 #include "shwgestureobserver.h"
 #include "gesturecontrol.h"
-
+#include "glxmmcnotifier.h"
 // FORWARD DECLARATIONS
 class CAlfEnv;
 class CAlfDisplay;
@@ -68,7 +67,7 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
                                        public MProgressDialogCallback,
                                        public MShwTickObserver,
                                        public MShwGestureObserver,
-									   public MHarvesterEventObserver
+                                       public MStorageNotifierObserver
     {
     public:
 
@@ -145,12 +144,6 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
     	 * @ref CGlxViewBase::DoViewDeactivate
     	 */	
         void DoViewDeactivate();
-   public:
-    // from MHarvesterEventObserver
-    void HarvestingUpdated( 
-                HarvesterEventObserverType aHEObserverType, 
-                HarvesterEventState aHarvesterEventState,
-                TInt aItemsLeft );
 
     private: // from MGlxMediaListObserver
 
@@ -320,7 +313,14 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
          * Set the current Item to HDMI.
          */
         void SetItemToHDMIL();
-
+        /**
+         * HandleMMCInsertionL.
+         */
+        void HandleMMCInsertionL();
+        /**
+         * HandleMMCRemovalL.
+         */
+        void HandleMMCRemovalL();
 	public:
 	//to keep in track which of the command set is active/on top
 		enum TShwState
@@ -410,7 +410,12 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
 	CShwMediaKeyUtility* iMediaKeyHandler;
 	CGlxHdmiController* iHdmiController;
 	TBool iHdmiActive;
-	RHarvesterClient iHarvesterClient;
+	CGlxMMCNotifier* iMMCNotifier;
+	TBool iMMCState;
+	TBool iIsForegrnd;
+	//to check if slideshow is paused in BG 
+	//and after that we are bringing to foreground
+	TBool iPrevNotInBackground;
     };
 
 #endif  // C_SHWSLIDESHOWVIEW_H

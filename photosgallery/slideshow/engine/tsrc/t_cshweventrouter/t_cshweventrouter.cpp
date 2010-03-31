@@ -65,7 +65,7 @@ class T_TestEvent : public MShwEvent
 T_CShwEventRouter* T_CShwEventRouter::NewL()
 	{
 	T_CShwEventRouter* self = T_CShwEventRouter::NewLC();
-	CleanupStack::Pop();
+	CleanupStack::Pop( self );
 	
 	return self;
 	}
@@ -195,9 +195,6 @@ void T_CShwEventRouter::TestNestedEventsL()
 
 void T_CShwEventRouter::TestNestedEventsAndMultipleObserversL()
 	{
-//	EUNIT_GET_ALLOC_DECORATOR_FAILCOUNT_D( failurecount );
-//	EUNIT_PRINT( _L("Memory alloc %d"), failurecount );
-
 	// we want the notify to add 2 events during the notify calls so 3 events overall
 	iSendNewEventCount = 2;
 	// add us as observer twice
@@ -207,13 +204,13 @@ void T_CShwEventRouter::TestNestedEventsAndMultipleObserversL()
 	observers.AppendL( this );
 	// add the array of observers
 	iRouter->AddObserversL( observers.Array() );
-	CleanupStack::PopAndDestroy();
+	CleanupStack::PopAndDestroy( observers );
 	// add us as publisher
 	RPointerArray<MShwEventPublisher> publisher;
 	CleanupClosePushL( publisher );
 	publisher.AppendL( this );
 	iRouter->AddProducers( publisher.Array() );
-	CleanupStack::PopAndDestroy();
+	CleanupStack::PopAndDestroy( publisher );
 
 	T_TestEvent testEvent;
 	// set the event object pointer so that the notify can verify the event object

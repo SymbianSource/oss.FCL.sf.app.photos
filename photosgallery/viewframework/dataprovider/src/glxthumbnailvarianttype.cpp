@@ -32,6 +32,7 @@
 #include <glxtracer.h>
 #include <glxdrmutility.h>
 #include <mglxmedialist.h>
+#include <caf/caferr.h>
 _LIT(KGlxIconsFilename, "glxicons.mif");
 
 
@@ -130,21 +131,22 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
 	    {
 	    GLX_DEBUG1("GlxThumbnailVariantType::CreateThumbnailTextureL");
 	    TMPXGeneralCategory cat = aMedia.Category();
+	    //Check if media is DRM rights protected
 	    if(drm)
             {
 
-            //Fix for ESLM-82WJ59: call 'CheckDisplayRightsL' only for focused item
+            //call 'DisplayItemRightsCheckL' only for focused item
             if(aIsFocused)
             	{
-            	expired = !iDrmUtility->CheckDisplayRightsL(uri, (cat == EMPXImage));
+            	expired = !iDrmUtility->DisplayItemRightsCheckL(uri, (cat == EMPXImage));
             	}
             else
             	{
-            	//Fix for ESLM-82WJ59: for validity check of non-focused item
-            	expired = !iDrmUtility->CheckOpenRightsL(uri, (cat == EMPXImage));
+            	//call 'ItemRightsValidityCheckL' for validity check of non-focused item
+            	expired = !iDrmUtility->ItemRightsValidityCheckL(uri, (cat == EMPXImage));
             	}
 
-            //Fix for ESLM-82WJ59: mush easier to understand.
+            //Check If DRM rights have expired.
             if( expired )
                 {
                 TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL(
@@ -176,7 +178,8 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
         }
 	else if ( (KErrNone == thumbnailError) || (KErrArgument == thumbnailError) 
         || (KErrDiskFull == thumbnailError) || (KErrNoMemory == thumbnailError) 
-		|| ( drm && isValid == EGlxDrmRightsInvalid ) )
+		|| ( drm && isValid == EGlxDrmRightsInvalid ) 
+		|| thumbnailError == KErrCANoRights )
 	    {
 		//Try and see if we can scale and show the grid tnm else show the default
 	    TBool isGridTnmShown = EFalse;		

@@ -21,7 +21,6 @@
 // Ganes Headers
 #include <ganes/HgItem.h>
 #include <ganes/HgGrid.h>                               //Hg Grid Widget
-//#include <hg/hgcontextutility.h>
 #include <gulicon.h>
 
 //Photos Headers
@@ -91,8 +90,6 @@ void CGlxGridViewMLObserver::ConstructL()
 
     CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
     iGridIconSize = uiUtility->GetGridIconSize();
-    //Get the HgContextUtility instance
-//    iContextUtility = uiUtility->ContextUtility();
     iItemsPerPage = uiUtility->VisibleItemsInPageGranularityL();
     uiUtility->Close() ;
     
@@ -209,17 +206,14 @@ void CGlxGridViewMLObserver::HandleAttributesAvailableL( TInt aItemIndex,
         return;
         }
 
-    TInt mediaCount = iMediaList.Count();
-    const TGlxMedia& item = iMediaList.Item( aItemIndex );
     TIdentityRelation< TMPXAttribute > match ( &TMPXAttribute::Match );
-    
     if (KErrNotFound != aAttributes.Find( iQualityTnAttrib, match ) ||
         KErrNotFound != aAttributes.Find( iSpeedTnAttrib, match ))
         {
+        const TGlxMedia& item = iMediaList.Item( aItemIndex );
         TFileName resFile(KDC_APP_BITMAP_DIR);
         resFile.Append(KGlxIconsFilename);
         TSize setSize = CHgGrid::PreferredImageSize();
-        TIconInfo icon;
 
         const CGlxThumbnailAttribute* qualityTn = item.ThumbnailAttribute(
                                                           iQualityTnAttrib );
@@ -229,12 +223,13 @@ void CGlxGridViewMLObserver::HandleAttributesAvailableL( TInt aItemIndex,
 
         TInt tnError = GlxErrorManager::HasAttributeErrorL(
                           item.Properties(), KGlxMediaIdThumbnail );
+        GLX_DEBUG4("GlxGridMLObs::HandleAttributesAvailableL() tnError(%d)"
+                "qualityTn(%x) and speedTn(%x)", qualityTn, speedTn, tnError);
 
         if (qualityTn)
             {
             CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
-            bitmap->Duplicate( qualityTn->iBitmap->Handle());
-            AknIconUtils::SetSize(bitmap, setSize);
+            bitmap->Duplicate(qualityTn->iBitmap->Handle());
             iHgGrid->ItemL(aItemIndex).SetIcon(CGulIcon::NewL(bitmap));
             GLX_LOG_INFO1("### CGlxGridViewMLObserver::HandleAttributesAvailableL"
                     " qualityTn-Index is %d",aItemIndex);
@@ -242,8 +237,7 @@ void CGlxGridViewMLObserver::HandleAttributesAvailableL( TInt aItemIndex,
         else if (speedTn)
             {
             CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
-            bitmap->Duplicate( speedTn->iBitmap->Handle());
-            AknIconUtils::SetSize(bitmap, setSize);
+            bitmap->Duplicate(speedTn->iBitmap->Handle());
             iHgGrid->ItemL(aItemIndex).SetIcon(CGulIcon::NewL(bitmap));
             GLX_LOG_INFO1("### CGlxGridViewMLObserver::HandleAttributesAvailableL"
                     " speedTn-Index is %d",aItemIndex);
@@ -344,7 +338,7 @@ void CGlxGridViewMLObserver::HandleErrorL()
                     flags     = CHgItem::EHgItemFlagsNone ;
                     if (!iDiskErrorIntimated)
                         {
-                        DisplayErrorNote(KErrDiskFull);
+                        DisplayErrorNoteL(KErrDiskFull);
                         }
                     break;
                 default:
@@ -498,6 +492,7 @@ void CGlxGridViewMLObserver::RefreshScreen(TInt aItemIndex,
                 }
             }
         }
+    
     if (iModifiedIndexes.Count() > 0)        
         {
         for(TInt index = 0;index<iModifiedIndexes.Count();index++)
@@ -544,7 +539,7 @@ void CGlxGridViewMLObserver::UpdateItemsL(TInt aItemIndex,
                     TMPXGeneralCategory  cat = item.Category();                  
                     TBool checkViewRights = (cat==EMPXImage);
                     
-                    if(iDRMUtility->CheckOpenRightsL(uri, checkViewRights))
+                    if(iDRMUtility->ItemRightsValidityCheckL(uri, checkViewRights))
                         {
                         iHgGrid->ItemL(aItemIndex).SetFlags(
                                 CHgItem::EHgItemFlagsDrmRightsValid);
@@ -560,7 +555,7 @@ void CGlxGridViewMLObserver::UpdateItemsL(TInt aItemIndex,
                     TMPXGeneralCategory  cat = item.Category();                  
                     TBool checkViewRights = (cat==EMPXImage);
                     
-                    if(iDRMUtility->CheckOpenRightsL(uri, checkViewRights))
+                    if(iDRMUtility->ItemRightsValidityCheckL(uri, checkViewRights))
                         {
                         iHgGrid->ItemL(aItemIndex).SetFlags(
                                 CHgItem::EHgItemFlagsDrmRightsValid);
@@ -593,17 +588,16 @@ void CGlxGridViewMLObserver::UpdateItemsL(TInt aItemIndex,
         }    
     }
     
-    
 // ----------------------------------------------------------------------------
-// DisplayErrorNote
+// DisplayErrorNoteL
 // ----------------------------------------------------------------------------
 // 
-void CGlxGridViewMLObserver::DisplayErrorNote(TInt aError)
+void CGlxGridViewMLObserver::DisplayErrorNoteL(TInt aError)
     {
-    TRACER("CGlxGridViewMLObserver::DisplayErrorNote()");
-    GLX_LOG_INFO1("CGlxGridViewMLObserver::DisplayErrorNote Error note "
-                "displayed corresponging to [d]", aError);
+    TRACER("CGlxGridViewMLObserver::DisplayErrorNoteL()");
+    GLX_LOG_INFO1("CGlxGridViewMLObserver::DisplayErrorNoteL() "
+            " aError(%d)", aError);
     GlxGeneralUiUtilities::ShowErrorNoteL(aError);
     iDiskErrorIntimated = ETrue;
-    return ;
+    return;
     }

@@ -159,17 +159,6 @@ public:
     virtual void RemoveContext(const MGlxFetchContext* aContext) = 0;
 
     /**
-     * Sets the specified contexts as highest priority contexts. Other 
-     * contexts will retain their relative priority order, but will have 
-     * less priority than the specified contexts.
-     *
-     * @param aContextIds Ids of the contexts to be set as highest priority.
-     *		  Id at index 0 in the array is set to be the highest priority,
-     *		  Id at index 1, the second highest, etc.
-     */
-//	virtual void SetContextAsHighestPriority(RArray<TGlxMediaListContextId> aContextIds) = 0;
-	
-    /**
      * @returns the MPX collection utility that is bound to this list
      */
     virtual MMPXCollection& Collection() const = 0;

@@ -121,6 +121,7 @@ void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
 		TInt attrCount = aAttributeArray.Count();
 		TBool found = EFalse;
 		TBool startfound = EFalse;
+		TBool endfound = EFalse;
 		
 #ifdef GLX_SUB_TITLE_REL8		
 
@@ -180,6 +181,10 @@ void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
 	            {
 	            startfound = ETrue;
 	            }
+	        else if(aAttributeArray[index] == KGlxMediaCollectionInternalEndDate )
+	        	{
+	        	endfound = ETrue;
+	        	}
 	        }
 	        
 	    if (!found)
@@ -189,6 +194,10 @@ void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
 	    if (!startfound)
 	        {
 	        aAttributeArray.Append(KGlxMediaCollectionInternalStartDate);
+	        }
+	    if(!endfound)
+	    	{
+	    	aAttributeArray.Append(KGlxMediaCollectionInternalEndDate);
 	        }
 #endif	        
 	    // end date will be returned when start date is requested.			
@@ -231,6 +240,7 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
             CleanupStack::PushL(mediaArray);
 
             const TInt arrayCount = mediaArray->Count();
+            GLX_DEBUG2("CGlxCollectionPluginMonths::HandleCpiAttributeResponseL arrayCount=%d", arrayCount);    
             
             // Sanity check
             if (arrayCount != mediaIdCount)
@@ -262,6 +272,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
     TRACER("CGlxCollectionPluginMonths::HandleCpiAttributeResponseL");
     
 	TInt count = aCpiAttributes.Count();
+    GLX_DEBUG2("CGlxCollectionPluginMonths::HandleCpiAttributeResponseL count=%d", count);    
+	
 	TLanguage lang;
     lang = User::Language();
 	
@@ -666,8 +678,10 @@ TGlxFilterProperties CGlxCollectionPluginMonths::DefaultFilter(TInt aLevel)
     return filterProperties;
     }
     
-
-
+// ----------------------------------------------------------------------------
+// GetMonthNameAsStringLC
+// ----------------------------------------------------------------------------
+//  
 HBufC* CGlxCollectionPluginMonths::GetMonthNameAsStringLC(
         const TMonth& aMonth, const TMonthStringType& aStrType)
     {

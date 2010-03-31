@@ -25,7 +25,6 @@
 #include <glxtracer.h>
 #include <mul/mulvisualitem.h>              // Client need to use this class to add data in data model 
 
-//const char* const KCommandTagName = "cmd";
 const int KCommandTagName = 200;
 
 // ----------------------------------------------------------------------------

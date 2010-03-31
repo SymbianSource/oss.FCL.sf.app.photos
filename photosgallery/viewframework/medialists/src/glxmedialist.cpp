@@ -680,9 +680,6 @@ void CGlxMediaList::RemoveMediaListObserver(MGlxMediaListObserver* aObserver)
 
     TInt index = iItemListObservers.Find(aObserver);
 
-    // Make sure the observer is in the array
-    // LOG THIS! __ASSERT_DEBUG(index != -1, Panic(EGlxPanicIllegalArgument)); // No such observer
-
     if (index != KErrNotFound) 
         {
         iItemListObservers.Remove(index);	
@@ -1738,8 +1735,12 @@ inline void CGlxMediaList::PathPopulateSelectionL(CMPXCollectionPath& aPath) con
 inline void CGlxMediaList::UpdateMedia()
     {
     TRACER("CGlxMediaList::UpdateMedia");
-    
+#ifdef _DEBUG
+    TTime startTime;
+    startTime.HomeTime();
+#endif
     TInt count = iItemList->Count();
+    GLX_DEBUG2("CGlxMediaList::UpdateMedia() count=%d", count);    
     for (TInt i = 0; i < count; ++i)
         {
         TGlxMedia& item = iItemList->Item( i );
@@ -1751,6 +1752,12 @@ inline void CGlxMediaList::UpdateMedia()
             UpdateMediaInvalidateAttributesChangedByCounts(item);
             }
         }
+#ifdef _DEBUG
+    TTime stopTime;
+    stopTime.HomeTime();
+    GLX_DEBUG2("=>CGlxMediaList::UpdateMedia() took <%d> us", 
+                    (TInt)stopTime.MicroSecondsFrom(startTime).Int64());
+#endif    
     }
 
 // -----------------------------------------------------------------------------

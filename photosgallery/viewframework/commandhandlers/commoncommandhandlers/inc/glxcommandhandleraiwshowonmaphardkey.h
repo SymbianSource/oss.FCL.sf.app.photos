@@ -80,29 +80,6 @@ private: // From CGlxMediaListCommandHandler
     * Called when the owning view is deactivated
     */
     void Deactivate();  
-// Below methods are commented as they hold implemenatation of dofferent commandhandler
-//  To check map service providers
-//  To navigate to the location
-//public: // New methods          
-    
-    /**
-     * It will return total map service providers.
-     * @since S60 v9.1
-     * @ret total number of map service providers
-     */
-//    TInt MapServiceProvidersL();
-    
-    /**
-     * It will show location on map
-     * @since S60 v9.1
-     */
-//   IMPORT_C void ShowOnMapL( const TCoordinate& aCoordinate );
-    
-    /**
-     * It will navigate to location
-     * @since S60 v9.1
-     */
-//    void NavigateToPlaceL( const TCoordinate& aCoordinate );
 
 private:
     /**

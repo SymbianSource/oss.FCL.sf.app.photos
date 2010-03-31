@@ -273,7 +273,6 @@ void CGlxDataSourceTaskMdeCommand::AddToContainerL(const TDesC& aSourceUri,
 // Copy files to another drive.
 // ----------------------------------------------------------------------------
 //
-/// @todo minor: Rowland Cook 12/06/2007 Has this method been tested? If so remove comments
 void CGlxDataSourceTaskMdeCommand::CopyL(const RArray<TGlxMediaId>& aSourceIds, 
         const TDesC& aDrive)
     {
@@ -285,7 +284,6 @@ void CGlxDataSourceTaskMdeCommand::CopyL(const RArray<TGlxMediaId>& aSourceIds,
 // Move files to another drive.
 // ----------------------------------------------------------------------------
 //
-/// @todo minor: Rowland Cook 12/06/2007 Has this method been tested? If so remove comments
 void CGlxDataSourceTaskMdeCommand::MoveL(const RArray<TGlxMediaId>& aSourceIds, 
         const TDesC& aDrive)
     {
@@ -373,7 +371,6 @@ void CGlxDataSourceTaskMdeCommand::DeleteL(const RArray<TGlxMediaId>& aItemIds)
 //
 // ----------------------------------------------------------------------------
 //
-/// @todo minor: Rowland Cook 12/06/2007 Has this method been tested? If so remove comments
 void CGlxDataSourceTaskMdeCommand::RenameL(const TGlxMediaId& aSourceItemId, 
         const TDesC& aTitle)
     {
@@ -691,16 +688,7 @@ void CGlxDataSourceTaskMdeCommand::FileOperationL(const TArray<TGlxMediaId>& aSo
 TItemId CGlxDataSourceTaskMdeCommand::ContainerItemId(const TGlxMediaId& aMediaId)
     {
     TRACER("TMdEItemId CGlxDataSourceTaskMdeCommand::ContainerItemId()");    
-    TItemId containerId = aMediaId.Value();
-    if (aMediaId == KGlxCollectionRootId)
-        {
-        // Check the collection plugin uid
-        if (iCollectionUid == TUid::Uid(KGlxCollectionPluginCameraImplementationUid))
-            {
-          //  containerId = DataSource()->CameraAlbumId().Value();
-            }  
-        }
-    return containerId;
+    return aMediaId.Value();
     }
 
 // ----------------------------------------------------------------------------

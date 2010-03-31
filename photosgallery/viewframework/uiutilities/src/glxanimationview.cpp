@@ -139,7 +139,6 @@ void CGlxAnimationView::StartTimedAnimationL( TInt aTime )
     // Find out the screen size
     CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
     CleanupClosePushL( *uiUtility );
-    //TSize dispSize = uiUtility->ScreenFurniture().CentralScreenRect().Size();// tobe implemented by sf
     CleanupStack::PopAndDestroy( uiUtility );
 
     // Animate each of the control groups
@@ -155,10 +154,7 @@ void CGlxAnimationView::StartTimedAnimationL( TInt aTime )
         // Set up control group transformations
         iControlGroups[cg]->EnableTransformationL();
         CAlfTransformation& trans = iControlGroups[cg]->Transformation();
-
-        //trans.Translate(dispSize.iWidth/2, dispSize.iHeight/2);//tobe implemented by sf
         trans.Scale( scale, scale );
-       // trans.Translate(-dispSize.iWidth/2, -dispSize.iHeight/2);//tobe implemented by sf
         
         // Set opacity of all toplevel visuals in all controls in this group
         TInt controlCount = iControlGroups[cg]->Count();

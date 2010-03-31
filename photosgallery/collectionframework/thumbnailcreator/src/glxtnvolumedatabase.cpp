@@ -484,7 +484,7 @@ void CGlxtnVolumeDatabase::CleanupRowL()
     iTable.GetL();
     TPtrC filename = iTable.ColDes(KGlxColItemUri);
    
-     // does file exist?
+    // check if file exists
     TTime time(0);
     TInt err = iFs.Modified(filename, time);
     GLX_LOG_INFO1("void CGlxtnVolumeDatabase::CleanupRowL() New Time = %Ld",time.Int64());
@@ -520,7 +520,7 @@ void CGlxtnVolumeDatabase::CleanupRowL()
 	        iTable.PutL();
 	        }
 			
-	        // Now delete from Thumbnails
+        // Now delete from Thumbnails
         HBufC* sql = HBufC::NewLC(KGlxDeleteThumbnails().Length() + 
 	                                     KGlxTIntMaxDigits);
         sql->Des().Format( KGlxDeleteThumbnails, thumbId );

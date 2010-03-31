@@ -136,7 +136,7 @@ void CGlxCommandHandlerAiwPrintPreview::PreDynInitMenuPaneL(TInt aResourceId)
 // AiwDoDynInitMenuPaneL
 // -----------------------------------------------------------------------------
 //  
-void CGlxCommandHandlerAiwPrintPreview::AiwDoDynInitMenuPaneL(TInt aResourceId, 
+void CGlxCommandHandlerAiwPrintPreview::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/, 
         CEikMenuPane* aMenuPane)
     {
     TBool fullscreenViewingMode = EFalse;

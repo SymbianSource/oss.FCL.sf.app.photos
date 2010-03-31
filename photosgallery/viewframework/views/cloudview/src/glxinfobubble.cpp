@@ -123,22 +123,15 @@ EXPORT_C void CGlxInfoBubble::BaseConstructL(CAlfControl &aOwnerControl, CAlfEnv
 		(iTypefaceSecondaryStyleId);
 	styleSecondary->SetTextSizeInPixels (14, 0);
 	stylePrimary->SetTextSizeInPixels (21, 0);
-
 	iBubbleTextTitle->SetTextStyle (iTypefacePrimaryStyleId);
 	
 	TAlfTimedValue opacity;
     opacity.SetTarget(1, 500);
     iBubbleTextTitle->SetOpacity(opacity);
-    
-//	iBubbleTextTitle->iOpacity.Set (1);
 	iBubbleTextTitle->SetColor (KRgbBlack);
-
 	iBubbleTextSubTitle->SetTextStyle (iTypefaceSecondaryStyleId);
-	
     opacity.SetTarget(1, 500);
     iBubbleTextSubTitle->SetOpacity(opacity);
-    
-//	iBubbleTextSubTitle->iOpacity.Set (1);
 	iBubbleTextSubTitle->SetColor (KRgbBlack);
 
 	}
@@ -390,8 +383,6 @@ EXPORT_C void CGlxInfoBubble::DisplayBubbleL(TPoint aPos, CAlfTexture& aTexture,
 	//assign the params
 	//setting the texts value and image brush boundary
 	iBubbleTextTitle->SetTextL(aTitle);
-	//to-check
-	//iBubbleTextTitle->SetChanged();
 	iBubbleTextSubTitle->SetTextL(aSubTitle);
 	_LIT(KNullDesc,"");
 	iTempTitleText->SetTextL(KNullDesc());
@@ -399,8 +390,6 @@ EXPORT_C void CGlxInfoBubble::DisplayBubbleL(TPoint aPos, CAlfTexture& aTexture,
 	
 	//loading the texture for thumbanil image		
     UpdateTextureL(aTexture);
-    //to-check
-	//iInfoDeck->Changed();
 	TRect rect;
 	AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EMainPane, rect);
 	iScreenWidth = rect.Width();
@@ -446,7 +435,6 @@ EXPORT_C void CGlxInfoBubble::DisplayBubbleL(TPoint aPos, CAlfTexture& aTexture,
 		DrawBubbleFourthQuadL(aPos);
 		}
 //to-check
-//	iInfoBubble->SetChanged();
 	
 	//all texture loaded
 	//now find the width of bubblle and create layout based on these visuals.
@@ -488,34 +476,18 @@ EXPORT_C void CGlxInfoBubble::DisplayBubbleL(TPoint aPos, CAlfTexture& aTexture,
 	TAlfTimedValue opacity;
     opacity.SetTarget(0.9, 500);
     iInfoBubble->SetOpacity(opacity);
-        
-	//iInfoBubble->iOpacity.Set(0.9, 1000);
 	iInfoDeck->SetPos(iBubbleRectDrawPoint);
 	CreateItemContainerLayoutL();
 
 	//Setting properies for Layouts
 	iInfoDeck->MoveToFront();
-	
-//	TAlfTimedValue opacity;
     opacity.SetTarget(0, 500);
     iInfoDeck->SetOpacity(opacity);
-    
-//	iInfoDeck->iOpacity.Set(0);
-	
 	opacity.SetTarget(1.0, 800);
 	iInfoDeck->SetOpacity(opacity);
-	//iInfoDeck->iOpacity.Set(1.0,800);
-	
 	opacity.SetTarget(1.0, 500);
 	iInfoBubble->SetOpacity(opacity);
-	//iInfoBubble->iOpacity.Set(1.0);
-	
 	iInfoBubbleContainer->MoveToFront();
-	//to-check
-   //	iInfoDeck->SetChanged();
-
-	/// @todo would need to reposition the tail as well somehow!!!
-
 	}
 
 void CGlxInfoBubble::DrawBubbleFirstQuadL(TPoint aReferencepos)

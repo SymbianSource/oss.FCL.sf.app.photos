@@ -282,7 +282,6 @@ TInt CGlxPreviewThumbnailBinding::MediaIndexBySlotIndex(TInt aProgressIndex,
 //
 void CGlxPreviewThumbnailBinding::TimerTicked()
     {
-    //iTimerTicked = ETrue;
     TRACER("CGlxPreviewThumbnailBinding::TimerTicked");
     iCurrentOrientationLandscape = GlxGeneralUiUtilities::IsLandscape();
     
@@ -296,12 +295,10 @@ void CGlxPreviewThumbnailBinding::TimerTicked()
                 iTimerTicked = ETrue;
                 iProgressIndex++;
                 Update();
-                //iTimerTicked = EFalse;
                 }
             else
                 {
                 iProgressIndex = KErrNotFound;
-                //iStartedShowingThumbnails = EFalse;
                 }
             }     
          
@@ -504,7 +501,6 @@ void CGlxPreviewThumbnailBinding::HandleAttributesAvailableL( TInt aItemIndex,
 void CGlxPreviewThumbnailBinding::HandleFocusChangedL( NGlxListDefs::
     TFocusChangeType /*aType*/, TInt /*aNewIndex*/, TInt /*aOldIndex*/, MGlxMediaList* /*aList*/ )
     {
-   // HandleFocusChanged(ETrue);
    	TRACER("CGlxPreviewThumbnailBinding::HandleFocusChangedL");
     }
 

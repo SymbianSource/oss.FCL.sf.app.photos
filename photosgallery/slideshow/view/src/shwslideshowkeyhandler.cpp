@@ -148,9 +148,9 @@ TKeyResponse CShwSlideShowKeyHandler::OfferKeyEventL(
                 // match the view id to the active view (e.g. the tile view)
                 //@todo-check
                 //iScreenFurniture.DisableSystemSkinL( iViewId.iUid,
-                //    CGlxScreenFurniture::EGlxSfItemLeftSoftkey, EFalse );
+                //    CGlxScreenFurniture::EGlxSfItemLeftSoftkey, EFalse )
                 //iScreenFurniture.DisableSystemSkinL( iViewId.iUid,
-                //    CGlxScreenFurniture::EGlxSfItemRightSoftkey, EFalse );
+                //    CGlxScreenFurniture::EGlxSfItemRightSoftkey, EFalse )
                 // Note that in practice it doesn't matter whether we return
                 // EKeyWasConsumed or EKeyWasNotConsumed as the result is
                 // the same (we still get back to the last view). This is due to

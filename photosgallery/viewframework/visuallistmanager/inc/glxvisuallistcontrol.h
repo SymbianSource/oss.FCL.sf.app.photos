@@ -35,12 +35,9 @@
 #include "mglxmedialistobserver.h"
 #include "mglxmedialist.h"
 #include "glxlistwindow.h"
-#include "glxblendlayout.h"
-#include "mglxvisualobjectlayoutrefreshobserver.h"
 #include "mglxvisuallist.h"
 
 class CGlxVisualListWindow;
-//class MGlxLayout;
 class MGlxVisualListObserver;
 class CAlfBorderBrush;
 class CGlxUiUtility;
@@ -56,7 +53,7 @@ class CAlfAnchorLayout;
  * @author Aki Vanhatalo
  */
 class CGlxVisualListControl : public CAlfControl, public MGlxVisualList, 
-		public MGlxMediaListObserver//, public MGlxVisualObjectLayoutRefreshObserver
+		public MGlxMediaListObserver
     {
     friend class CGlxVisualListWindow;    
 public:
@@ -136,12 +133,7 @@ public:
     	void HandleItemSelectedL(TInt aIndex, TBool aSelected, MGlxMediaList* aList);
     	void HandleMessageL(const CMPXMessage& aMessage, MGlxMediaList* aList);
 
-// From MHuiDisplayRefreshObserver
-//	void NotifyDisplayRefreshStarted( CHuiDisplay &aDisplay );
 
-    //From 
-    
-     void VisualObjectLayoutRefreshed(TInt aListIndex ,TSize aScreenSize );
     /**
      * @return The thumbnail scale mode of list
      */
@@ -191,10 +183,11 @@ private:
         void VisualLayoutUpdated( CAlfVisual& aVisual );
 	
 private:
-        /** The media list (not owned) */
-        MGlxMediaList& iMediaList;
-        /** The alf env (not owned) */
-        CAlfEnv& iEnv;
+    /** The media list (not owned) */
+    MGlxMediaList& iMediaList;
+    /** The alf env (not owned) */
+    CAlfEnv& iEnv;
+    
     /**
      * Structure to hold information about a view context.
      */
@@ -222,16 +215,13 @@ private:
     TInt iControlGroupId;
 
     /** Parent layout for the visuals (owned by HUI) */
-        CAlfAnchorLayout* iParentLayout;
+    CAlfAnchorLayout* iParentLayout;
     
     /** Current Size of the Parent Layout */
     TSize iCurrentLayoutSize;
-   // TGlxBlendLayout iLayoutBlender;
+
     /** Ref: UI utility */
     CGlxUiUtility*  iUiUtility;	
-
-    /** Blender of multiple MGlxLayouts */
-    //MGlxLayout* iLayout;
 
     /** Array of view contexts (owned) */
     RArray<TContext> iContexts;

@@ -372,7 +372,7 @@ void CGlxDrmIconManager::CheckDRMRightsL(CAlfVisual* /*aVisual*/,
                     
                 TBool checkViewRights = (cat==EMPXImage);
                 
-                if(iDRMUtility->CheckOpenRightsL(uri, checkViewRights))
+                if(iDRMUtility->ItemRightsValidityCheckL(uri, checkViewRights))
                     {
                     GLX_LOG_INFO("CGlxDrmIconManager::CheckDRMRightsL valid rights");
                     if(aForceIcon ||!ShouldHaveIcon(id, iconType))

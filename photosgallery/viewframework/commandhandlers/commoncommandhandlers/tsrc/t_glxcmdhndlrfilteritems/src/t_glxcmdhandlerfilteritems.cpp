@@ -40,8 +40,7 @@
 T_CGlxCommandHandlerFilterImagesOrVideos* T_CGlxCommandHandlerFilterImagesOrVideos::NewL()
     {
     T_CGlxCommandHandlerFilterImagesOrVideos* self = T_CGlxCommandHandlerFilterImagesOrVideos::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -49,9 +48,7 @@ T_CGlxCommandHandlerFilterImagesOrVideos* T_CGlxCommandHandlerFilterImagesOrVide
     {
     T_CGlxCommandHandlerFilterImagesOrVideos* self = new( ELeave ) T_CGlxCommandHandlerFilterImagesOrVideos();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 

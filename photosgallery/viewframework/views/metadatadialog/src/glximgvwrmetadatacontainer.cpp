@@ -63,7 +63,6 @@ const TInt KMarqueeLoopCount         = 3;
 const TInt KMarqueeScrollAmount      = 20;
 const TInt KMarqueeScrollDelay       = 1000000;
 const TInt KMarqueeScrollInterval    = 200000;
-_LIT( KGlxTextSetter, "");
 
 // ============================ MEMBER FUNCTIONS ===============================
 
@@ -158,7 +157,7 @@ CAknSettingItem* CGlxImgVwrMetadataContainer::CreateSettingItemL(TInt aResourceI
     {
     TRACER("CGlxImgVwrMetadataContainer::CreateSettingItemL");      
     CAknSettingItem* settingItem = NULL; // No need to push onto cleanup stack
-    iTextSetter.Copy(KGlxTextSetter);  
+    iTextSetter.Zero();  
 
     //Creating a empty Settings list box which will  be populated with metadata in handleattributeavailable
     switch(aResourceId)
@@ -305,6 +304,7 @@ void CGlxImgVwrMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /
             for(TInt index = 0; index <= EImgVwrlicenseItem; index++)
                 {
                 HBufC* string = NULL;               
+				iTextSetter.Zero();
 
                 if(index == EImgVwrSizeItem)
                     {
@@ -344,7 +344,7 @@ void CGlxImgVwrMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /
                     } 
                 if(string)
                     {
-                    iTextSetter.Copy(KGlxTextSetter);
+                    iTextSetter.Zero();
                     iTextSetter.Append(*string);
                     }
                 CleanupStack::PushL( string );
@@ -374,8 +374,8 @@ void CGlxImgVwrMetadataContainer::EnableMarqueingL()
 // HandleCommandCompleteL
 // ----------------------------------------------------------------------------
 // 
-void CGlxImgVwrMetadataContainer::HandleCommandCompleteL(TAny* aSessionId, 
-        CMPXCommand* /*aCommandResult*/, TInt aError, MGlxMediaList* aList)
+void CGlxImgVwrMetadataContainer::HandleCommandCompleteL(TAny* /*aSessionId*/, 
+        CMPXCommand* /*aCommandResult*/, TInt /*aError*/, MGlxMediaList* /*aList*/)
     {
     TRACER("CGlxImgVwrMetadataContainer::HandleCommandCompleteL()");
     }
@@ -574,7 +574,7 @@ void CGlxImgVwrMetadataContainer::SetAttributesL(TMPXAttribute attribute)
     //get the settings item based on the attribute and set the text.
     if ( string )
         {
-        iTextSetter.Copy(KGlxTextSetter);
+        iTextSetter.Zero();
         iTextSetter.Append(*string);
         if(attribute == KMPXMediaGeneralSize)
             {
@@ -665,6 +665,7 @@ void CGlxImgVwrMetadataContainer::SetNameDescriptionL(TInt aItem)
       if(0 != (titleText.Compare(*textBuf)))
       {
         //Modify the MDS and setting list only if the entry is different from previous Item value
+        iTextSetter.Zero();
         iTextSetter.Copy(*textBuf);
         EditItemL(aItem,EFalse);
         if( iItemMediaList->Count() > 0 )

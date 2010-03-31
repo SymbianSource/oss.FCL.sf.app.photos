@@ -78,7 +78,7 @@ CShwEventRouter::~CShwEventRouter()
 	// close the event array itself, this frees the memory
 	iEvents.Close();
 	// close the observer array itself, this frees the memory
-	// NOTE! we did not have ownership of the observers
+	// NOTE: we did not have ownership of the observers
 	iObservers.Close();
 	}
 

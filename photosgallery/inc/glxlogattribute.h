@@ -250,6 +250,10 @@ void LogAttribute(const TDesC8& aText, const TMPXAttribute& aAttribute)
 		{
 		attributeName.Append(_L8("KGlxFilterGeneralMinCount"));
 		}
+    else if (aAttribute == KGlxFilterGeneralMaxCount)
+        {
+        attributeName.Append(_L8("KGlxFilterGeneralMaxCount"));
+        }	
 	else if (aAttribute == KGlxFilterGeneralItemId)
 		{
 		attributeName.Append(_L8("KGlxFilterGeneralItemId"));

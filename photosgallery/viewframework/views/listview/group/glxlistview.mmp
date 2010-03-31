@@ -53,7 +53,6 @@ SYSTEMINCLUDE   ../../../uiutilities/inc					//glxanimationfactory
 SYSTEMINCLUDE   ../../../commandhandlers/inc
 SYSTEMINCLUDE   ../../../dataprovider/inc
 SYSTEMINCLUDE   ../../../medialists/inc						//glxmedialistiterator
-SYSTEMINCLUDE   ../../../uiutilities/inc
 
 LIBRARY         euser.lib
 LIBRARY         cone.lib
@@ -78,3 +77,4 @@ LIBRARY         aknicon.lib
 LIBRARY         egul.lib
 LIBRARY         aknskins.lib 
 LIBRARY         bitgdi.lib 
+LIBRARY 	gfxtrans.lib

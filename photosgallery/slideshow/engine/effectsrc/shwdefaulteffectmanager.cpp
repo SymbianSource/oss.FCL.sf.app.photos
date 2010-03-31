@@ -196,7 +196,7 @@ void CShwDefaultEffectManager::SetDefaultEffectL( TShwEffectInfo aInfo )
 	/// are cloned as needed
 	MShwEffect* clone = effect->CloneLC();
 	iAvailableEffects.AppendL( clone );
-	CleanupStack::Pop();
+	CleanupStack::Pop( clone );
 
     iEffects.Append( effect );
     iEffects.Append( clone );

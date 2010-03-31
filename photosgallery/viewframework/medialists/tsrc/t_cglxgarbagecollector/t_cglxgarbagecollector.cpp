@@ -60,12 +60,8 @@ const TInt KCache3Media6Id = 6;
 const TInt KCache3Media7Id = 7;
 
 _LIT(KCache1Media1Title, "Captured");
-//_LIT(KCache1Media2Title, "Albums");
-//_LIT(KCache1Media3Title, "All");
 
 _LIT(KCache1Media1SubTitle, "0 items");
-//_LIT(KCache1Media2SubTitle, "0 albums");
-//_LIT(KCache1Media3SubTitle, "7 items");
 
 _LIT(KCache2Media1Title, "Favourites");
 _LIT(KCache2Media2Title, "Print later");
@@ -74,24 +70,16 @@ _LIT(KCache2Media1SubTitle, "0 items");
 _LIT(KCache2Media2SubTitle, "0 items");
 
 _LIT(KCache3Media1Title, "Spring");
-//_LIT(KCache3Media2Title, "Summer");
 _LIT(KCache3Media3Title, "Autumn");
 _LIT(KCache3Media4Title, "Winter");
 _LIT(KCache3Media5Title, "Sun");
-//_LIT(KCache3Media6Title, "Moon");
-//_LIT(KCache3Media7Title, "Stars");
 
 const TInt KCache3Media1Size = 8;
 const TInt KCache3Media2Size = 16;
 const TInt KCache3Media3Size = 32;
-//const TInt KCache3Media4Size = 64;
-//const TInt KCache3Media5Size = 128;
-//const TInt KCache3Media6Size = 256;
-//const TInt KCache3Media7Size = 512;
 
 // This value must be the same as in the garbage collector
 const TInt KItemsScannedPerGCRound = 10;
-
 const TInt KErrorExpiryPeriod = 30;
 const TInt KTimerCallbackPeriod1 = 5;
 const TInt KTimerCallbackPeriod2 = 35;
@@ -107,8 +95,7 @@ const TInt KCache3ItemCount = 7;
 T_CGlxGarbageCollector* T_CGlxGarbageCollector::NewL()
     {
     T_CGlxGarbageCollector* self = T_CGlxGarbageCollector::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -1170,7 +1157,6 @@ void T_CGlxGarbageCollector::T_CGlxGarbageCollector_CleanupMediaL_SubTest1L(  )
     // Cleanup media1 in cache1
     EUNIT_PRINT(_L("Cleanup media1 in cache1"));
     CGlxMedia* media1Cache1 = cache1Helper.ItemPool()[0];
-	//CGlxMedia& media = cache1->Media(0);
     iCGlxGarbageCollector->CleanupMediaL(*cache1,*media1Cache1);
 
     EUNIT_PRINT(_L("Check remaining attributes for media1 in cache1"));
@@ -2247,7 +2233,7 @@ T_CGlxGarbageCollector::CGlxMediaUserTest* T_CGlxGarbageCollector::CGlxMediaUser
     CGlxMediaUserTest* self = new (ELeave) CGlxMediaUserTest(aGarbageCollector);
     CleanupStack::PushL(self);
     self->ConstructL(aAttributes);
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -2296,7 +2282,7 @@ T_CGlxGarbageCollector::CTimerTest* T_CGlxGarbageCollector::CTimerTest::NewL(
     CTimerTest* self = new (ELeave) CTimerTest(aTestGarbageCollector);
     CleanupStack::PushL(self);
     self->ConstructL();
-    CleanupStack::Pop();
+    CleanupStack::Pop( self );
     return self;
     }
 

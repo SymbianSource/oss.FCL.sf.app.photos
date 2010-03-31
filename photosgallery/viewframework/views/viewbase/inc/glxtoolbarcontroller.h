@@ -90,11 +90,7 @@ private:
      * aLatched ETrue if the command button needs to be latched. 
      */
     void EnableLatch( TInt aCommandId, TInt aLatched );
-            
-   /*
-	* check the current view
-	*/
-	TBool IsFullScreenView();       
+     
 private:    
     CAknToolbar* iToolbar;
     TBool iAttributeAvailable;

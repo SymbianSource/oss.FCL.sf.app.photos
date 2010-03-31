@@ -675,8 +675,6 @@ EXPORT_C const TDesC& CGlxMedia::ValueText(const TMPXAttribute& aAttribute) cons
         return KNullDesC;
         }
 
-   // __ASSERT_DEBUG(EMPXTypeText == iValues[i].iType,
-   //                                     Panic(EGlxPanicWrongAttributeType));
    if(EMPXTypeText == iValues[i].iType)
     {
     ptr = reinterpret_cast<HBufC*>(iValues[i].iValue);

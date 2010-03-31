@@ -112,9 +112,6 @@ void CGlxImgVwrMetadataDialog::ConstructL()
 
     iUiUtility = CGlxUiUtility::UtilityL(); 
 
-    // Call the base class' two-phased constructor
-    CAknDialog::ConstructL( R_IMGVWR_METADATA_MENUBAR );
-
     } 
 
 // -----------------------------------------------------------------------------
@@ -188,34 +185,9 @@ EXPORT_C TInt CGlxImgVwrMetadataDialog::ExecuteLD()
 //
 void CGlxImgVwrMetadataDialog::ProcessCommandL( TInt aCommandId )
     {
-
     TRACER("CGlxImgVwrMetadataDialog::ProcessCommandL");
     // hide menu bar
     iMenuBar->StopDisplayingMenuBar();
-    switch( aCommandId )
-        {
-        /// @todo need to put the proper help file.for the time being it will not do any thing.
-        /*
-        case EAknCmdHelp:
-            {
-            TCoeHelpContext helpContext;
-            helpContext.iMajor = TUid::Uid( KGlxGalleryApplicationUid );
-            helpContext.iContext.Copy( LGAL_HLP_DETAILS_VIEW );
-            const TInt KListSz = 1;
-            CArrayFix<TCoeHelpContext>* contextList =
-            new (ELeave) CArrayFixFlat<TCoeHelpContext>( KListSz );
-            CleanupStack::PushL(contextList);
-            contextList->AppendL(helpContext);
-            HlpLauncher::LaunchHelpApplicationL(
-            iEikonEnv->WsSession(), contextList );
-            CleanupStack::Pop( contextList );
-            break;
-            }*/
-        
-        default:
-            break;
-        }
-    
     }
 //-----------------------------------------------------------------------------
 // CGlxImgVwrMetadataDialog::CreateCustomControlL

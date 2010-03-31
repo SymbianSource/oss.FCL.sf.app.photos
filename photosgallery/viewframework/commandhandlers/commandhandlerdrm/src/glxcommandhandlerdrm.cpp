@@ -323,7 +323,7 @@ void CGlxCommandHandlerDrm::ConsumeDRMRightsL()
                 GLX_LOG_INFO("CGlxCommandHandlerDrm::ConsumeDRMRightsL check rights");
                 
                 // check if rights have expired
-                TBool expired = !iDrmUtility->CheckOpenRightsL(uri, (cat == EMPXImage));
+                TBool expired = !iDrmUtility->ItemRightsValidityCheckL(uri, (cat == EMPXImage));
                                     
                 if(expired)
                     {

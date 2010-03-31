@@ -76,6 +76,14 @@ NONSHARABLE_CLASS (CGlxCommandHandlerDetails)
 
 	    /** @see CGlxMediaListCommandHandler::DoIsDisabled */
 	    TBool DoIsDisabled(TInt aCommandId, MGlxMediaList& aList) const;
+	    
+	    /**
+	     * It checks whether full screen thumbnail for 
+	     * focus item is available or not
+    	 * @param aList Medialist to use
+    	 * @return ETrue if any full screen thumbnail available
+	     */
+	    TBool IsThumbnailAvailable(MGlxMediaList& aList) const;
 	
 	private: // implementation
 	

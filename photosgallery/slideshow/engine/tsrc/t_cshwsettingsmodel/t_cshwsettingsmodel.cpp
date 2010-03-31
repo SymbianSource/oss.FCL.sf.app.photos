@@ -35,8 +35,7 @@
 T_CShwSettingsModel* T_CShwSettingsModel::NewL()
     {
     T_CShwSettingsModel* self = T_CShwSettingsModel::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -44,7 +43,6 @@ T_CShwSettingsModel* T_CShwSettingsModel::NewLC()
     {
     T_CShwSettingsModel* self = new (ELeave) T_CShwSettingsModel();
     CleanupStack::PushL(self);
-
     self->ConstructL();
     return self;
     }

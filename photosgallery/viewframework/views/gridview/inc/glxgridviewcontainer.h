@@ -35,9 +35,9 @@
 #include <glxthumbnailcontext.h>
 #include <glxuistd.h>
 #include <glxprogressindicator.h>
-#include <harvesterclient.h>
 
 #include "glxgridvieweventobserver.h"
+#include "glxmmcnotifier.h"
 
 class CHgGrid;
 class CGlxUiUtility;
@@ -54,7 +54,7 @@ class CGlxGridViewContainer : 	public CCoeControl,
 								public MHgScrollBufferObserver,
 								public MHgSelectionObserver,
 								public MHgMarkingObserver,
-								public MHarvesterEventObserver
+								public MStorageNotifierObserver
 	{
 public:
 	/**
@@ -97,12 +97,6 @@ public: // From CCoeControl
 
 	//handle orientaion realted changes
 	void HandleResourceChange(TInt aType);
-public:
-    // from MHarvesterEventObserver
-    void HarvestingUpdated( 
-                HarvesterEventObserverType aHEObserverType, 
-                HarvesterEventState aHarvesterEventState,
-                TInt aItemsLeft );
 
 private:
 	/**
@@ -158,6 +152,14 @@ private:
      * Required as the tool bar is dynamically created.
      */
 	TRect GetHgGridRect();
+	/**
+	 * handle mmc insertion event
+	 */
+	void HandleMMCInsertionL();
+	/**
+	 * handle mmc removal event
+	 */
+	void HandleMMCRemovalL();
 
 private:
 	//medialist
@@ -219,7 +221,7 @@ private:
 	//toolbar - created dynamically.
     CAknToolbar* iToolbar;
     CGlxProgressIndicator* iProgressIndicator;
-    RHarvesterClient iHarvesterClient;
+    CGlxMMCNotifier* iMMCNotifier;
 	};
 
 #endif // CGLXGRIDVIEWCONTROL_H

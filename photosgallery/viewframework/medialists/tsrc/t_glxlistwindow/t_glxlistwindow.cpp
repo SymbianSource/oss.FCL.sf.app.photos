@@ -35,8 +35,7 @@
 t_CGlxListWindow* t_CGlxListWindow::NewL()
     {
     t_CGlxListWindow* self = t_CGlxListWindow::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 

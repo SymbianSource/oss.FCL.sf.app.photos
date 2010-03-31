@@ -123,7 +123,7 @@ void CShwGestureControl::HandleGestureL( const GestureHelper::MGestureEvent& aEv
 	TRACER("CShwGestureControl::HandleGestureL");
 	GLX_LOG_INFO1( "CShwGestureControl::HandleGestureL(%d)", aEvent.Code( MGestureEvent::EAxisBoth ));
 
-	// No one is listening? Do not resolve the events for the listeners! 
+	// No one is listening, Do not resolve the events for the listeners 
 	if (iObservers.Count() > 0)
 	    {
         MShwGestureObserver::TShwGestureEventType aType  = MShwGestureObserver::ENoEvent;

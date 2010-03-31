@@ -88,8 +88,7 @@ TBool CGlxStaticItemListReconstruction::ReconstructionEquals() const
 ut_CGlxStaticItemList* ut_CGlxStaticItemList::NewL()
     {
     ut_CGlxStaticItemList* self = ut_CGlxStaticItemList::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 

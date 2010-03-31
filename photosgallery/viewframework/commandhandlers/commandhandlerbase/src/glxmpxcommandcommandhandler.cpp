@@ -66,14 +66,8 @@ EXPORT_C CGlxMpxCommandCommandHandler::
 EXPORT_C CGlxMpxCommandCommandHandler::~CGlxMpxCommandCommandHandler()
 	{
     TRACER("CGlxMpxCommandCommandHandler::~CGlxMpxCommandCommandHandler");
-	// cancel command if running
-	if (iProgressComplete)
-	    {
-//    	MediaList().Cancel();
-	    }
-	    
-    delete iProgressDialog;
 
+    delete iProgressDialog;
     if ( iResourceOffset )
         {
         CCoeEnv::Static()->DeleteResourceFile(iResourceOffset);

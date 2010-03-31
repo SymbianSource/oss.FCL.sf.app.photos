@@ -99,8 +99,7 @@ TBool CGlxAnimationTimed::OfferEventL( const TAlfEvent &aEvent )
                 {
                 iObserver->AnimationComplete( this );
                 }
-            // IMPORTANT!
-            // No code after this! Client may delete the animation!
+            // IMPORTANT: No code after this, Client may delete the animation.
             }
         }
         

@@ -208,7 +208,8 @@ TBool CGlxCommandHandlerDetails::DoExecuteL( TInt aCommandId, MGlxMediaList& aLi
 					GLX_DEBUG2("GLX_Property::DoExecuteL::URI:%S:",&uri);
 
                     iUiUtility->SetViewNavigationDirection(EGlxNavigationForwards); 
-                    if (aList.Collection().UidL().iUid == KGlxCollectionPluginImageViewerImplementationUid)
+                    if (aList.Collection().UidL().iUid == 
+                            KGlxCollectionPluginImageViewerImplementationUid)
                         {
                         CGlxImgVwrMetadataDialog* dialog  = CGlxImgVwrMetadataDialog::NewL( uri);
                         dialog->ExecuteLD();
@@ -282,6 +283,7 @@ void CGlxCommandHandlerDetails::DoActivateL( TInt /*aViewId*/ )
 TBool CGlxCommandHandlerDetails::DoIsDisabled(TInt aCommandId, 
                                         MGlxMediaList& aList) const 
     {
+    TRACER("CGlxCommandHandlerDetails:DoIsDisabled");
     TBool fullscreenViewingMode = EFalse;
     CGlxNavigationalState* aNavigationalState = CGlxNavigationalState::InstanceL();
     CMPXCollectionPath* naviState = aNavigationalState->StateLC();
@@ -311,12 +313,40 @@ TBool CGlxCommandHandlerDetails::DoIsDisabled(TInt aCommandId,
     CleanupStack::PopAndDestroy( naviState );
     aNavigationalState->Close();
     
-    if(EGlxCmdDetails==aCommandId && (0 == aList.Count() || 1 != aList.SelectionCount())&& !fullscreenViewingMode )
+	// If fullscreen view is there but media item dont have yet
+	// data to be shown in detail than hide detail option
+    if(fullscreenViewingMode && !IsThumbnailAvailable(aList))
+       {
+       return ETrue;
+       }	   
+	
+    if(EGlxCmdDetails==aCommandId && (0 == aList.Count() || 1 != aList.SelectionCount())
+            && !fullscreenViewingMode )
         {   
         return ETrue;
         }
     return EFalse;
     }
 
+// -----------------------------------------------------------------------------
+// IsThumbnailAvailable
+// -----------------------------------------------------------------------------
+//
+TBool CGlxCommandHandlerDetails::IsThumbnailAvailable(MGlxMediaList& aList) const 
+    {
+    TRACER("CGlxCommandHandlerDetails::IsThumbnailAvailable");
+    if (0 == aList.Count())
+        {
+        return EFalse;
+        }
+
+    TMPXAttribute attr;
+    TSize size = iUiUtility->DisplaySize();
+    GLX_LOG_INFO2(
+            "CGlxCommandHandlerDetails::IsThumbnailAvailable() w(%d) h(%d)",
+            size.iWidth, size.iHeight);
+    return aList.Item(aList.FocusIndex()).GetClosestThumbnail(attr, size,
+            EFalse);
+    }
 	
 //End of file

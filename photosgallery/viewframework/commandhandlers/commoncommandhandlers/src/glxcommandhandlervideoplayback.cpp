@@ -214,7 +214,7 @@ void CGlxCommandHandlerVideoPlayback::ActivateViewL()
                 {
                 GLX_LOG_INFO( "CmdHandler VideoPlayback - SelectPlayerL(+)" );
                 const TUid playbackMode = { 0x200009EE };  // photos UID
-                iPlaybackUtility = MMPXPlaybackUtility::UtilityL( playbackMode );
+                iPlaybackUtility = MMPXPlaybackUtility::UtilityL(EMPXCategoryVideo, playbackMode );
                 MMPXPlayerManager& manager = iPlaybackUtility->PlayerManager();
                 manager.SelectPlayerL( KVideoHelixPlaybackPluginUid );
                 iPlaybackUtility->AddObserverL( *this ); 

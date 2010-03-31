@@ -57,7 +57,7 @@ class MGlxMediaList;
 #include "glxiconmgrdefs.h"
 
 class MGlxVisualObjectStatusObserver;
-class MGlxVisualObjectLayoutRefreshObserver;
+
 /**
  * MGlxVisualObjectParameterFactory
  * Interface for the CGlxVisualObject
@@ -255,16 +255,6 @@ class CGlxVisualObject : public CBase, public MGlxTextureObserver
         TBool SetObserver( MGlxVisualObjectStatusObserver& aObserver );
         
         
-        /**
-        * Set observer to be notified when the thumbnail texture gains or
-        * loses content.
-        * @param aObserver Observer for the thumbnail status.
-        * @return Whether the thumbnail texture currently has content.
-        */
-        void AddObserver( MGlxVisualObjectLayoutRefreshObserver* aObserver );
-        
-        void RemoveObserver( MGlxVisualObjectLayoutRefreshObserver* aObserver );
-		
 		void Reset();
 		void ResetLayout( CAlfVisual& aVisual );
 		
@@ -476,10 +466,6 @@ class CGlxVisualObject : public CBase, public MGlxTextureObserver
         
         // The id of the zoom texture from the texture manager
         TInt iZoomTextureId;
-        
-        /** Array of observers (owned) */
-        RPointerArray<MGlxVisualObjectLayoutRefreshObserver> iObservers;
-
     };
 
 #endif // C_GLXITEMVISUAL_H

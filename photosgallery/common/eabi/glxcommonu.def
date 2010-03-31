@@ -51,4 +51,5 @@ EXPORTS
 	_ZN21CGlxResourceUtilities20GetResourceFilenameLER4TBufILi256EER3RFs @ 50 NONAME
 	_ZTI13CGlxIadUpdate @ 51 NONAME
 	_ZTV13CGlxIadUpdate @ 52 NONAME
+	_ZN17TGlxFilterFactory22CreatePreviewTNFilterLEv @ 53 NONAME
 

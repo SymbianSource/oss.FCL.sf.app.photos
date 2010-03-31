@@ -77,5 +77,6 @@ LIBRARY         egul.lib alfclient.lib
 LIBRARY         aknskins.lib
 LIBRARY         featmgr.lib					// FeatureManager
 LIBRARY	   	harvesterclient.lib 
+LIBRARY 	gfxtrans.lib
 // End of File
 

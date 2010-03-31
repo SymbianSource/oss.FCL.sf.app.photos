@@ -152,7 +152,7 @@ void RGlxLogUtility::SetCurrentAddress( TUint8* aValue )
 	// assign the addres to TInt
 	TUint32 new_value = reinterpret_cast< TUint32 >( aValue );
 	// ensure we're byte aligned - ARM requires 32 bit alignment to machine word
-	// boundary!!
+	// boundary
 	TInt remainder = new_value % KBytesInAWord;
 	if ( remainder > 0 )
 	    {
@@ -191,7 +191,7 @@ void RGlxLogUtility::SetLastLoggedAddress( TUint8* aValue )
 	// assign the addres to TInt
 	TUint32 new_value = reinterpret_cast< TUint32 >( aValue );
 	// ensure we're byte aligned - ARM requires 32 bit alignment to machine word
-	// boundary!!
+	// boundary
     TInt remainder = new_value % KBytesInAWord;
 	if ( remainder > 0 )
 	    {
@@ -240,7 +240,7 @@ EXPORT_C TInt RGlxLogClient::Open( TObjectId aId )
         // no id set, so reserve this for us and use this chunk
         iLogUtility.SetId( aId );
         }
-    // check if our id was there?
+    // check if our id was there
     else if( id != aId )
         {
         // not our chunk, try second chunk in read-write mode
@@ -397,10 +397,10 @@ void RGlxLogManager::CommitToFileL( RGlxLogUtility& aUtility, RFile& aFile )
     TPtr8 logEntryPtr( 0, 0 );
     TInt logEntrySize = 0;
     
-    // what's previously been logged to the file?
+    // Holds what's previously been logged to the file
     TUint8* lastLoggedAddress = aUtility.LastLoggedAddress();
     
-    // how much more has been added to the chunk?
+    // Holds how much more has been added to the chunk
     TUint8* currentAddress = aUtility.CurrentAddress();
     
     // write each of the chunk's logged entries to the file 

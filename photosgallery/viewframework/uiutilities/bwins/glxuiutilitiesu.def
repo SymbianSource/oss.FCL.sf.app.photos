@@ -60,4 +60,7 @@ EXPORTS
 	?StartTNMDaemonL@CGlxUiUtility@@QAEXXZ @ 59 NONAME ; void CGlxUiUtility::StartTNMDaemonL(void)
 	?NewL@CGlxProgressIndicator@@SAPAV1@AAVMDialogDismisedObserver@@@Z @ 60 NONAME ; class CGlxProgressIndicator * CGlxProgressIndicator::NewL(class MDialogDismisedObserver &)
 	?StopTNMDaemonL@CGlxUiUtility@@QAEXXZ @ 61 NONAME ; void CGlxUiUtility::StopTNMDaemonL(void)
+	?NewL@CGlxMMCNotifier@@SAPAV1@AAVMStorageNotifierObserver@@@Z @ 62 NONAME ; class CGlxMMCNotifier * CGlxMMCNotifier::NewL(class MStorageNotifierObserver &)
+	?SetGridToolBar@CGlxUiUtility@@QAEXPAVCAknToolbar@@@Z @ 63 NONAME ; void CGlxUiUtility::SetGridToolBar(class CAknToolbar *)
+	?GetGridToolBar@CGlxUiUtility@@QAEPAVCAknToolbar@@XZ @ 64 NONAME ; class CAknToolbar * CGlxUiUtility::GetGridToolBar(void)
 

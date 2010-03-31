@@ -33,8 +33,7 @@
 T_CShwTimerControl* T_CShwTimerControl::NewL()
     {
     T_CShwTimerControl* self = T_CShwTimerControl::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -42,9 +41,7 @@ T_CShwTimerControl* T_CShwTimerControl::NewLC()
     {
     T_CShwTimerControl* self = new( ELeave ) T_CShwTimerControl;
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 
@@ -72,7 +69,7 @@ void T_CShwTimerControl::SendEventL( MShwEvent* aEvent )
 	{
 	// need to clone the event since the caller goes out of scope
 	iEvent = aEvent->CloneLC();
-	CleanupStack::Pop();
+	CleanupStack::Pop( iEvent );
 	
 	// stop the scheduler loop if its started
 	if( iWait.IsStarted() )

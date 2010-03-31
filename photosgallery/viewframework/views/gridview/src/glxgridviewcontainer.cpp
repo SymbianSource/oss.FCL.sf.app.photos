@@ -85,7 +85,10 @@ CGlxGridViewContainer* CGlxGridViewContainer::NewLC(MGlxMediaList *aMediaList,
 CGlxGridViewContainer::~CGlxGridViewContainer()
 	{
 	TRACER("CGlxGridViewContainer::~CGlxGridViewContainer");
-	iHarvesterClient.Close();
+	
+	delete iMMCNotifier;
+	iMMCNotifier = NULL;
+	
 	if(iBgContext)
 		{
 		delete iBgContext;	
@@ -161,10 +164,10 @@ void CGlxGridViewContainer::ConstructL()
 	// For DRM Utility
 	iDRMUtility = CGlxDRMUtility::InstanceL();
 
-	//Fix for ESLM-82WJ59: Clear the last uri for which DRM Rights were consumed
-	//since the GridView::Activate() and FullScreen::DeActivate() can be called in any order,
-	//this call is being made to be on safer side
-	iDRMUtility->ClearLastConsumedItemUri();
+    //Clear the last uri for which DRM Rights were consumed
+    //since the GridView::Activate() and FullScreen::DeActivate() 
+    //can be called in any order, this call is being made to be on safer side
+    iDRMUtility->ClearLastConsumedItemUriL();
 
 	// background Skin Context for the skin support
 	TRect apRect = iEikonEnv->EikAppUi()->ApplicationRect();
@@ -180,12 +183,7 @@ void CGlxGridViewContainer::ConstructL()
 					iGridIconSize.iHeight ) );
 	CreateGridL();
 
-   TInt err = iHarvesterClient.Connect();
-   GLX_LOG_INFO1("iHarvesterClient.Connect() err = %d",err);
-   if(err == KErrNone)
-		{
-        iHarvesterClient.AddHarvesterEventObserver(*this, EHEObserverTypeMMC, 1000);
-		}
+   iMMCNotifier = CGlxMMCNotifier::NewL(*this);
 	}
 
 // ---------------------------------------------------------------------------
@@ -495,7 +493,10 @@ void CGlxGridViewContainer::CreateGridMediaListObserverL()
 void CGlxGridViewContainer::CreateGridAfterFSDeactivatedL()
 	{
 	TRACER("CGlxGridViewContainer::CreateGridAfterFSDeactivatedL()");
-	if (iBackwardActivation)
+    TInt focusIndex = iMediaList->FocusIndex();
+    GLX_LOG_INFO1("CreateGridAfterFSDeactivatedL() focusIndex=%d", focusIndex);
+
+    if (iBackwardActivation)
 		{
 		TInt mlCount = iMediaList->Count();
 		GLX_LOG_INFO1("CreateGridAfterFSDeactivatedL() mlCount=%d", mlCount);
@@ -512,7 +513,6 @@ void CGlxGridViewContainer::CreateGridAfterFSDeactivatedL()
 			iHgGrid->DrawNow();
 			}
 
-		TInt focusIndex = iMediaList->FocusIndex();
 		TSize setSize = CHgGrid::PreferredImageSize();
 		TFileName resFile(KDC_APP_BITMAP_DIR);
 		resFile.Append(KGlxIconsFilename);
@@ -521,10 +521,13 @@ void CGlxGridViewContainer::CreateGridAfterFSDeactivatedL()
 			{
 			SetIconsL(index);
 			}
-			
-		iHgGrid->SetSelectedIndex(focusIndex);
-		iHgGrid->RefreshScreen(focusIndex);
 		}
+	
+    if (focusIndex != KErrNotFound)
+        {
+        iHgGrid->SetSelectedIndex(focusIndex);
+        iHgGrid->RefreshScreen(focusIndex);
+        }
 	iBackwardActivation = EFalse;
 	}
  
@@ -607,7 +610,7 @@ void CGlxGridViewContainer::SetIconsL(TInt index)
 				TMPXGeneralCategory  cat = item.Category();
 				TBool checkViewRights = (cat==EMPXImage);
 
-				if(iDRMUtility->CheckOpenRightsL(uri, checkViewRights))
+				if(iDRMUtility->ItemRightsValidityCheckL(uri, checkViewRights))
 					{
 					iHgGrid->ItemL(index).SetFlags(CHgItem::EHgItemFlagsDrmRightsValid);
 					}
@@ -621,7 +624,7 @@ void CGlxGridViewContainer::SetIconsL(TInt index)
 				TMPXGeneralCategory  cat = item.Category();
 				TBool checkViewRights = (cat==EMPXImage);
 
-				if(iDRMUtility->CheckOpenRightsL(uri, checkViewRights))
+				if(iDRMUtility->ItemRightsValidityCheckL(uri, checkViewRights))
 					{
 					iHgGrid->ItemL(index).SetFlags(CHgItem::EHgItemFlagsDrmRightsValid);
 					}
@@ -731,8 +734,8 @@ TBool CGlxGridViewContainer::HandleViewCommandL(TInt aCommand)
 						{
 						iIsFSVideoViewActivating = ETrue;
 						iFullscreenViewActivated = ETrue;
-						iIsFSVideoViewActivating = EFalse;
 						iGlxGridViewObserver.HandleGridEventsL(EGlxCmdPlay) ;
+						iIsFSVideoViewActivating = EFalse;
 						}
 					}
 				else
@@ -931,22 +934,22 @@ void CGlxGridViewContainer::HandleResourceChange(TInt aId)
 	}
 
 // ---------------------------------------------------------------------------
-// HarvestingUpdated
+// HandleMMCInsertionL
 // 
 // ---------------------------------------------------------------------------
-//
-void CGlxGridViewContainer::HarvestingUpdated( 
-                HarvesterEventObserverType HarvestingUpdated, 
-                HarvesterEventState aHarvesterEventState,
-                TInt aItemsLeft )
+void CGlxGridViewContainer::HandleMMCInsertionL()
     {
-    TRACER("CGlxGridViewContainer::HarvestingUpdated()");
-    GLX_LOG_INFO1("HarvestingUpdated = %d",HarvestingUpdated);
-    GLX_LOG_INFO1("aHarvesterEventState = %d",aHarvesterEventState);
-    GLX_LOG_INFO1("aItemsLeft = %d",aItemsLeft);
-    if(HarvestingUpdated == EHEObserverTypeMMC)
-        {
-        iGlxGridViewObserver.HandleGridEventsL(EAknSoftkeyClose);
-        }
+    TRACER("CGlxGridViewContainer::HandleMMCInsertionL()");
+    iGlxGridViewObserver.HandleGridEventsL(EAknSoftkeyClose);
+    }
+
+// ---------------------------------------------------------------------------
+// HandleMMCRemovalL
+// 
+// ---------------------------------------------------------------------------
+void CGlxGridViewContainer::HandleMMCRemovalL()
+    {
+    TRACER("CGlxGridViewContainer::HandleMMCRemovalL()");
+    iGlxGridViewObserver.HandleGridEventsL(EAknSoftkeyExit);
     }
 //end of file

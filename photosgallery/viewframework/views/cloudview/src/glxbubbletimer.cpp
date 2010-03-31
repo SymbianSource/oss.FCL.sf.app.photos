@@ -33,11 +33,7 @@
 CGlxBubbleTimer::~CGlxBubbleTimer()
 	{
 	TRACER("GLX_CLOUD::CGlxBubbleTimer::~CGlxBubbleTimer");
-	//if (iTimer)	
-	//	{
-	//iTimer.Cancel ();
 	iTimer.Close ();
-	//}
 	if ( iNotifier)
 		{
 		iNotifier =NULL;

@@ -136,7 +136,12 @@ void CGlxCache::MediaUpdatedL(const CMPXMedia& aMedia)
     
     if (aMedia.IsSupported(KMPXMediaArrayContents))
         {
-        CMPXMediaArray* mediaArray = aMedia.ValueCObjectL<CMPXMediaArray>(KMPXMediaArrayContents);
+#ifdef _DEBUG
+        TTime startTime;
+        startTime.HomeTime();
+#endif       
+        CMPXMediaArray* mediaArray = aMedia.ValueCObjectL<CMPXMediaArray> (
+                KMPXMediaArrayContents);
         CleanupStack::PushL(mediaArray);
 
         TInt arrayCount = mediaArray->Count();
@@ -147,6 +152,12 @@ void CGlxCache::MediaUpdatedL(const CMPXMedia& aMedia)
             }
 
         CleanupStack::PopAndDestroy(mediaArray);
+#ifdef _DEBUG
+        TTime stopTime;
+        stopTime.HomeTime();
+        GLX_DEBUG2("=>CGlxCache::MediaUpdatedL() took <%d> us",
+                (TInt)stopTime.MicroSecondsFrom(startTime).Int64());
+#endif    
         }
     else
         {
@@ -191,7 +202,7 @@ void CGlxCache::UpdateMediaL(const CMPXMedia& aMedia)
 		CopyNewAndModifiedL(*item, aMedia, newAttributes);
     	}
 		
-	// Broadcast the new attributes to all observers of the item and the cache
+	// Broadcast the new attributes to all observers of the item
 	if (newAttributes.Count() > 0)
 		{
 		TInt count = item->UserCount();
@@ -199,9 +210,6 @@ void CGlxCache::UpdateMediaL(const CMPXMedia& aMedia)
 			{
 			item->User( i ).HandleAttributesAvailableL( item->IndexInUser( i ), newAttributes );
 			}
-			
-	    // Broadcast to cache observers
-		// iCacheManager->BroadcastAttributesAvailableL(iIdSpaceId, id, newAttributes, item);
 		}
 
 	CleanupStack::PopAndDestroy(&newAttributes);

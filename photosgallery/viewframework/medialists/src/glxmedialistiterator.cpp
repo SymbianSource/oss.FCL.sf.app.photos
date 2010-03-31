@@ -30,8 +30,8 @@ const TInt KSequentialIteratorInitialValue = -1;
 // Default granularity of items to request for
 const TUint KGlxBlockyIteratorDefaultGranularity = 15;
 
-const TInt KGlxLowerMemoryLimitForCacheSize = 15000000;
-const TInt KGlxUpperMemoryLimitForCacheSize = 25000000;
+const TInt KGlxLowerMemoryLimitForCacheSize = 31500000; // 30 MB
+const TInt KGlxUpperMemoryLimitForCacheSize = 52500000; // 50 MB
 
 const TInt KMaxLowMemOffsetValue = 3;
 const TInt KMinLowMemOffsetValue = 1;

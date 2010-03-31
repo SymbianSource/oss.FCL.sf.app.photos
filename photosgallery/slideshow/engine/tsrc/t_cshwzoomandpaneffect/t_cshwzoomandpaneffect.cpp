@@ -104,8 +104,7 @@ class CTestControl : public CHuiControl
 T_CShwZoomAndPanEffect* T_CShwZoomAndPanEffect::NewL()
     {
     T_CShwZoomAndPanEffect* self = T_CShwZoomAndPanEffect::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -113,9 +112,7 @@ T_CShwZoomAndPanEffect* T_CShwZoomAndPanEffect::NewLC()
     {
     T_CShwZoomAndPanEffect* self = new( ELeave ) T_CShwZoomAndPanEffect();
     CleanupStack::PushL( self );
-
     self->ConstructL();
-
     return self;
     }
 

@@ -48,6 +48,7 @@ namespace NShwEngine
 	    User::Leave( aPanic );
 	    }
 	}
+
 // -----------------------------------------------------------------------------
 // <-- Stub for NShwEngine::Panic
 // -----------------------------------------------------------------------------
@@ -56,8 +57,7 @@ namespace NShwEngine
 T_CShwEffectControl* T_CShwEffectControl::NewL()
     {
     T_CShwEffectControl* self = T_CShwEffectControl::NewLC();
-    CleanupStack::Pop();
-
+    CleanupStack::Pop( self );
     return self;
     }
 
@@ -132,7 +132,8 @@ void T_CShwEffectControl::SendEventL( MShwEvent* aEvent )
 	{
 	// need to clone the event since the caller goes out of scope
 	TInt error = iEvents.Append( aEvent->CloneLC() );
-	CleanupStack::Pop();
+	CleanupStack::Pop(); // aEvent->CloneLC()
+	
 	// check that append succeeded
 	if( error != KErrNone )
 		{

@@ -162,6 +162,11 @@ private:
      * Attributes associated with outstanding queries
      */
     RArray< TGlxQueryAttribute > iQueryAttributes;
+    
+#ifdef _DEBUG
+    TTime iStartTime;
+    TTime iStopTime;
+#endif    
 	};
 
 

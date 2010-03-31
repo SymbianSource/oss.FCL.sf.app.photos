@@ -159,7 +159,7 @@ EXPORT_C void CGlxThumbnailContext::AddSpecForItemL(
     spec.iPossHeight = iResolutionUtility->PixelsToPoss( height );
     spec.iFocusOffset = aFocusOffset;
 
-    // Has this focus index has already been added?
+    // Checf if this focus index has already been added
     #ifdef _DEBUG
     TIdentityRelation<TAssignedFetchSpec> match (&TAssignedFetchSpec::Match);
     #endif
@@ -589,7 +589,7 @@ TBool CGlxThumbnailContext::CheckDRMStatusL( TInt aListIndex,
         const TDesC& uri = item.Uri();
         if ( uri.Length() && cat != EMPXNoCategory )
             {
-            valid = iDrmUtility->CheckOpenRightsL( uri, ( cat == EMPXImage ) );
+            valid = iDrmUtility->ItemRightsValidityCheckL( uri, ( cat == EMPXImage ) );
             CGlxMedia* properties = const_cast<CGlxMedia*>(item.Properties());
             if( valid )
                 {
