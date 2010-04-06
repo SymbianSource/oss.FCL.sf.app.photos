@@ -190,4 +190,9 @@ EXPORTS
 	_ZTV34TGlxFromFocusOutwardBlockyIterator @ 189 NONAME
 	_ZTV34TGlxFromIndexOutwardBlockyIterator @ 190 NONAME
 	_ZTV40TGlxFromManualIndexOutwardBlockyIterator @ 191 NONAME
+  _ZNK12CGlxItemList18__DbgTestInvariantEv @ 192 NONAME
+  _ZNK14CGlxListWindow18__DbgTestInvariantEv @ 193 NONAME
+  _ZNK17CGlxNavigableList18__DbgTestInvariantEv @ 194 NONAME
+  _ZNK18CGlxStaticItemList18__DbgTestInvariantEv @ 195 NONAME
+  _ZNK9CGlxMedia18__DbgTestInvariantEv @ 196 NONAME
 

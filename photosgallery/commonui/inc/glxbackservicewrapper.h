@@ -41,8 +41,8 @@ public:
      * Two-phased constructors
      * @param aUid client application UID
      */
-    static CGlxBackServiceWrapper* NewL( const TUid aUid );
-    static CGlxBackServiceWrapper* NewLC( const TUid aUid );
+    IMPORT_C static CGlxBackServiceWrapper* NewL( const TUid aUid );
+    IMPORT_C static CGlxBackServiceWrapper* NewLC( const TUid aUid );
     
     /**
     * Destructor.

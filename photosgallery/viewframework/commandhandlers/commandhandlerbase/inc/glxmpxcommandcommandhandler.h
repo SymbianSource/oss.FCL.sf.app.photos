@@ -181,7 +181,7 @@ protected: // API for deriving classes
 
 private:
     /** See @ref CGlxMediaListCommandHandler::DoExecuteL */
-	virtual TBool DoExecuteL(TInt aCommandId, MGlxMediaList& aList);
+	IMPORT_C virtual TBool DoExecuteL(TInt aCommandId, MGlxMediaList& aList);
 
 	/**
 	 * Launch a confirmation note (single or multiple depending on media list selection)

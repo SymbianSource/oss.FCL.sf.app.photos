@@ -62,13 +62,13 @@ IMPORT_C   CAknView* ConstructViewLC();
      * Override to add command handlers to the view
      *
      */
-virtual void AddCommandHandlersL();
+IMPORT_C virtual void AddCommandHandlersL();
 
     /**
      * Override to define resource file 
      *
      */
-virtual void GetResourceFilenameL(TFileName& aResFile);
+IMPORT_C virtual void GetResourceFilenameL(TFileName& aResFile);
 
 public:
 
