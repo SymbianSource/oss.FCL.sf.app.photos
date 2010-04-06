@@ -76,7 +76,7 @@ template< class T >
 void ShwCleanupResetAndDestroyPushL( T& aObject )
 	{
 	CleanupStack::PushL( 
-		TShwCleanupWrapper< T, T::ResetAndDestroy >( aObject ) );
+		TShwCleanupWrapper< T, &T::ResetAndDestroy >( aObject ) );
 	}
 
 #endif // __TSHWCLEANUPWRAPPER_H__

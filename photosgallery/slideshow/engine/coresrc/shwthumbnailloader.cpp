@@ -323,19 +323,19 @@ inline void CShwThumbnailLoader::CShwThumbnailLoaderImpl::ConstructL()
     iCompletedCallBack = new( ELeave ) CAsyncCallBack( CActive::EPriorityHigh );
     // set the callback
     iCompletedCallBack->Set( 
-        TShwCallBack< CShwThumbnailLoaderImpl, CompletedNotifyL >( this ) );
+        TShwCallBack< CShwThumbnailLoaderImpl, &CShwThumbnailLoaderImpl::CompletedNotifyL >( this ) );
 
     // create async callback to give error callbacks once scheduler runs
     iErrorCallBack = new( ELeave ) CAsyncCallBack( CActive::EPriorityHigh );
     // set the callback
     iErrorCallBack->Set( 
-        TShwCallBack< CShwThumbnailLoaderImpl, ErrorNotifyL >( this ) );
+        TShwCallBack< CShwThumbnailLoaderImpl, &CShwThumbnailLoaderImpl::ErrorNotifyL >( this ) );
         
     // create async callback to give callback once we run onto errors
     iErrorHandlerCallBack = new( ELeave ) CAsyncCallBack( CActive::EPriorityHigh );
     // set the callback
     iErrorHandlerCallBack->Set( 
-        TShwCallBack< CShwThumbnailLoaderImpl, AsyncErrorHandleL >( this ) );
+        TShwCallBack< CShwThumbnailLoaderImpl, &CShwThumbnailLoaderImpl::AsyncErrorHandleL >( this ) );
     }
 
 // -----------------------------------------------------------------------------

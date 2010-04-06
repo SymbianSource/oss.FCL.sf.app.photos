@@ -199,7 +199,7 @@ TInt CShwSlideshowView::ShowProgressDialogL()
 	iWaitDialog->RunLD();
 	// set the callback to be engine start
 	iAsyncCallBack->Set( 
-	    TShwCallBack< CShwSlideshowView, StartEngineL >( this ) );
+	    TShwCallBack< CShwSlideshowView, &CShwSlideshowView::StartEngineL >( this ) );
     // if both lists are ready
     if( iInputListReady && iPlayListReady )
         {
@@ -350,7 +350,7 @@ void CShwSlideshowView::ConstructL()
         CAsyncCallBack( CActive::EPriorityStandard );
     // set the callback for the media list population
     iPopulateListCallBack->Set(
-        TShwCallBack< CShwSlideshowView, PopulateListL >( this ) );
+        TShwCallBack< CShwSlideshowView, &CShwSlideshowView::PopulateListL >( this ) );
     iMSKPressed = EFalse;
     iLSKPressed = EFalse;
     
@@ -454,7 +454,7 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
     // Request asynch callback that will end up in ShowProgressDialogL
     // once the active scheduler runs
     iAsyncCallBack->Set( 
-        TShwCallBack< CShwSlideshowView, ShowProgressDialogL >( this ) );
+        TShwCallBack< CShwSlideshowView, &CShwSlideshowView::ShowProgressDialogL >( this ) );
     iAsyncCallBack->CallBack();
 
     iDisplay->Roster().ShowL( *iGestureControlGroup,KAlfRosterShowAtTop );

@@ -26,10 +26,10 @@
  * Helper class to construct a TCallBack from any 
  * public non static TInt (*method)() of a class
  * Usage:
- *      TShwCallBack< %ClassName%, %MethodName% >( 
+ *      TShwCallBack< %ClassName%, %&ClassName::MethodName% >( 
  *          %ClassPointer% )
  * Example:
- *      TShwCallBack< CShwEngineImpl, DoStartL >( 
+ *      TShwCallBack< CShwEngineImpl, &CShwEngineImpl::DoStartL >( 
  *          this );
  */
 template< class Object, TInt (Object::*Method)() >

@@ -105,7 +105,7 @@ void CShwTimerControl::NotifyL( MShwEvent* aEvent )
 
 		// Start the timer with the appropriate values for the event
 		iTimer->Start( interval, interval,
-			TShwCallBack< CShwTimerControl, SendTimerBeatL >( this ) );		
+			TShwCallBack< CShwTimerControl, &CShwTimerControl::SendTimerBeatL >( this ) );		
 		}
     // was it start pause
 	else if ( dynamic_cast<TShwEventPause*>( aEvent ) )

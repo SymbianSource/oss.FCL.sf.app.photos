@@ -178,7 +178,7 @@ void T_CShwTimerControl::T_PauseL()
 	timer->Start( 
 		1 * 1000000, 
 		1 * 1000000, 
-		TShwCallBack< T_CShwTimerControl, TimerCallBack >( this ) );
+		TShwCallBack< T_CShwTimerControl, &T_CShwTimerControl::TimerCallBack >( this ) );
 
 	// Need to let the scheduler loop
 	iWait.Start();
@@ -197,7 +197,7 @@ void T_CShwTimerControl::T_PauseL()
 	timer->Start( 
 		1 * 1000000, 
 		1 * 1000000, 
-		TShwCallBack< T_CShwTimerControl, TimerCallBack >( this ) );
+		TShwCallBack< T_CShwTimerControl, &T_CShwTimerControl::TimerCallBack >( this ) );
 
 	// Need to let the scheduler loop
 	iWait.Start();
@@ -218,7 +218,7 @@ void T_CShwTimerControl::T_PauseL()
 	timer->Start( 
 		1 * 1000000, 
 		1 * 1000000, 
-		TShwCallBack< T_CShwTimerControl, TimerCallBack >( this ) );
+		TShwCallBack< T_CShwTimerControl, &T_CShwTimerControl::TimerCallBack >( this ) );
 	// Need to let the scheduler loop
 	iWait.Start();
 	timer->Cancel();

@@ -598,7 +598,7 @@ void T_CShwZoomAndPanEffect::T_ZoomAndPanTestL()
 	timer->Start( 
 		1.5 * 1000000, 
 		1.5 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+		TShwCallBack< T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL >( this ) );
 	// start async wait
 	iAsyncWait.Start();
 
@@ -626,7 +626,7 @@ void T_CShwZoomAndPanEffect::T_ZoomAndPanTestL()
 	timer->Start( 
 		1.5 * 1000000, 
 		1.5 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+		TShwCallBack< T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL >( this ) );
 	// start async wait
 	iAsyncWait.Start();
 
@@ -688,7 +688,7 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	timer->Start( 
 		1.5 * 1000000, 
 		1.5 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+		TShwCallBack< T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL >( this ) );
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer
@@ -722,7 +722,7 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	timer->Start( 
 		1.5 * 1000000, 
 		1.5 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+		TShwCallBack< T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL >( this ) );
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer
@@ -761,7 +761,7 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	timer->Start( 
 		0.1 * 1000000, 
 		0.1 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+		TShwCallBack< T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL >( this ) );
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer
@@ -789,7 +789,7 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	timer->Start( 
 		1.0 * 1000000, 
 		1.0 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+		TShwCallBack< T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL >( this ) );
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer
@@ -819,7 +819,7 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	timer->Start( 
 		1.0 * 1000000, 
 		1.0 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+		TShwCallBack< T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL >( this ) );
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer

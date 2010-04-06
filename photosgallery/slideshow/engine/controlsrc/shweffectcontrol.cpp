@@ -595,7 +595,7 @@ void CShwEffectControl::HandleStartTransitionEventL(
     // need to start timer to send the transition ready
     iTransitionTimer->Start(
         duration, duration, 
-        TShwCallBack< CShwEffectControl, SendTransitionReadyL >( this ) );
+        TShwCallBack< CShwEffectControl, &CShwEffectControl::SendTransitionReadyL >( this ) );
     }
 
 // -----------------------------------------------------------------------------
