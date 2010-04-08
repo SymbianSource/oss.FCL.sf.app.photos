@@ -732,7 +732,7 @@ TInt CGlxListWindow::IndexAfterChange( TInt aIndex,
 // ---------------------------------------------------------------------------
 // Test invariant
 // ---------------------------------------------------------------------------
-void CGlxListWindow::__DbgTestInvariant() const
+EXPORT_C void CGlxListWindow::__DbgTestInvariant() const
     {
     TRACER("CGlxListWindow::__DbgTestInvariant");
     

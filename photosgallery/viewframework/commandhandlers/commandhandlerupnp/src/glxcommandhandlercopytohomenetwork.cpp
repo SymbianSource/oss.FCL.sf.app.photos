@@ -84,7 +84,7 @@ EXPORT_C CGlxCommandHandlerCopyToHomeNetwork* CGlxCommandHandlerCopyToHomeNetwor
 //-----------------------------------------------------------------------------------------
 // Destructor
 //-----------------------------------------------------------------------------------------
-CGlxCommandHandlerCopyToHomeNetwork::~CGlxCommandHandlerCopyToHomeNetwork()
+EXPORT_C CGlxCommandHandlerCopyToHomeNetwork::~CGlxCommandHandlerCopyToHomeNetwork()
     {
     }
   

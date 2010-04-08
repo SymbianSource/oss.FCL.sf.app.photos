@@ -984,7 +984,7 @@ CGlxMedia::TMediaUser::TMediaUser(MGlxMediaUser* aMediaUser, TInt aIndex) :
 // ---------------------------------------------------------------------------
 // Test invariant
 // ---------------------------------------------------------------------------
-void CGlxMedia::__DbgTestInvariant() const
+EXPORT_C void CGlxMedia::__DbgTestInvariant() const
     {
     TRACER("CGlxMedia::__DbgTestInvariant");
     

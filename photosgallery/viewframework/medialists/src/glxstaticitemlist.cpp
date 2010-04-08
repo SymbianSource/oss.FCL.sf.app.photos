@@ -720,7 +720,7 @@ void CGlxStaticItemList::HandleItemsRemoved( TInt aRemovedFromIndex, TInt aCount
 // ---------------------------------------------------------------------------
 // Test invariant
 // ---------------------------------------------------------------------------
-void CGlxStaticItemList::__DbgTestInvariant() const
+EXPORT_C void CGlxStaticItemList::__DbgTestInvariant() const
     {
     TRACER( "CGlxStaticItemList::__DbgTestInvariant");
     
