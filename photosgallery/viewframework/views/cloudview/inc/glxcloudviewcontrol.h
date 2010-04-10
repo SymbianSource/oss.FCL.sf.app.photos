@@ -227,7 +227,7 @@ private:
 	 * 
 	 */
 	void HandleKeyDownL();
-	/** 	
+
 	/** 	
 	 *  @since S60 3.2
 	 * 

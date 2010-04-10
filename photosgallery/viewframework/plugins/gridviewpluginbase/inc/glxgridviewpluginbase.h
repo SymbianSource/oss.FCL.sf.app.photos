@@ -41,8 +41,6 @@ class CGlxGridViewPluginBase  : public CMPXAknViewPlugin, public MGlxMediaListFa
 public:
 
     /**
- 
-    /**
      * Destructor.
      */
 IMPORT_C    virtual ~CGlxGridViewPluginBase();

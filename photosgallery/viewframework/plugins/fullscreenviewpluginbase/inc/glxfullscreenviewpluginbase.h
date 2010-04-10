@@ -41,8 +41,6 @@ class CGlxFullScreenViewPluginBase  : public CMPXAknViewPlugin, public MGlxMedia
 public:
 
     /**
- 
-    /**
      * Destructor.
      */
 IMPORT_C    virtual ~CGlxFullScreenViewPluginBase();

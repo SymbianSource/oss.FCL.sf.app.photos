@@ -122,7 +122,7 @@ private:
 
 	// Create Grid once again after returning from FS as No calls for handleItem added.
 	void CreateGridAfterFSDeactivatedL();
-	/**
+
 	/**
 	 * Handle Multiple marking
 	 */
