@@ -199,22 +199,22 @@ public:
 	/**
 	* Forcibly start the Thumbnail Manager daemon process
 	* @param none
-	* @return none
+	* @return TInt
 	*/
-    IMPORT_C void StartTNMDaemonL();
+    IMPORT_C TInt StartTNMDaemon();
 
 	/**
 	* To stop the Thumbnail Manager daemon process so as to stop force generation of thumbnails
 	* @param none
-	* @return none
+	* @return TInt
 	*/
-	IMPORT_C void StopTNMDaemonL();
+	IMPORT_C TInt StopTNMDaemon();
 
     /**
      * Get the number of items left for Thumbnail generation
      * @return TInt number of items left for TN generation
      */
-    IMPORT_C TInt GetItemsLeftCountL();
+    IMPORT_C TInt GetItemsLeftCount();
     /**
      * Returns Visible items granularity based on feature 
      * layout (i.e., qHD, VGA)  

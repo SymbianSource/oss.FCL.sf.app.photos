@@ -18,7 +18,7 @@
 #ifndef GLXFULLSCREENBUSYICON_H_
 #define GLXFULLSCREENBUSYICON_H_
 
-#include <alf/alfControl.h>
+#include <alf/alfcontrol.h>
 #include <mglxmedialistobserver.h>
 // Forward decleartion
 class CAlfEnv;

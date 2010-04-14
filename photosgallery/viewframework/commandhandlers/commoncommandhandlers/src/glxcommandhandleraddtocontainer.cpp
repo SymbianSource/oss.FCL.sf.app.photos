@@ -234,8 +234,6 @@ CMPXCommand* CGlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
             enableMultipleSelection = ETrue;
             enablePopup = ETrue;
             targetCollection->AppendL(KGlxTagCollectionPluginImplementationUid);
-            filter = TGlxFilterFactory::CreateIncludeEmptyContainersFilterL();
-            CleanupStack::PushL(filter);
             break;
             }
         }

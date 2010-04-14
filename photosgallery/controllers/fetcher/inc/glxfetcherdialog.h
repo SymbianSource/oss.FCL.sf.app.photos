@@ -28,6 +28,7 @@
 #include <alf/alfscreenbuffer.h>
 
 #include "mglxeventobserver.h"
+#include "glxmmcnotifier.h"
 
 // Forward Declerations
 class CGlxFetcherContainer;
@@ -39,7 +40,8 @@ class CAlfEnv;
 //  INTERNAL INCLUDES
 
 NONSHARABLE_CLASS (CGlxFetcherDialog) : public CAknDialog ,
-                                        public MGlxEventObserver
+                                        public MGlxEventObserver,
+                                        public MStorageNotifierObserver 
 	{
 	 public:  // Constructors and destructor
 		/**
@@ -134,6 +136,15 @@ NONSHARABLE_CLASS (CGlxFetcherDialog) : public CAknDialog ,
 	
 	public:// to exit the fetcher dialog 
 		void CallCancelFetcherL(TInt aCommandId);
+	    /**
+	     * handle MMC insertion
+	     */
+	    void HandleMMCInsertionL(){};
+	    /**
+	     * handle MMC removal
+	     */
+	    void HandleMMCRemovalL();
+
     
     private:
         CGlxFetcherContainer* iFetcherContainer ;              //Container Object
@@ -157,6 +168,9 @@ NONSHARABLE_CLASS (CGlxFetcherDialog) : public CAknDialog ,
         TBool iMarkStarted;
         
         TBool iFetchUri;                                        // This is to check if uri is being fetcher or not
+       
+        //mmc notifier
+        CGlxMMCNotifier* iMMCNotifier;
 	};
 
 #endif /*GLXFETCHERDIALOG_H_*/

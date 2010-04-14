@@ -121,6 +121,7 @@ void CGlxAppUi::ConstructL()
     // publish zoom context, no zoom keys for now
     NGlxZoomStatePublisher::PublishStateL( EFalse );
     iEndKeyPressed = EFalse;
+    iStateChangeRequested = EFalse;
     }
 
 // -----------------------------------------------------------------------------
@@ -241,6 +242,7 @@ TBool CGlxAppUi::ProcessCommandParametersL(TApaCommand aCommand,
         CMPXCollectionPath* newState = CMPXCollectionPath::NewL();
         CleanupStack::PushL( newState );
         iNavigationalState->NavigateToL( *newState );
+        iStateChangeRequested = ETrue;
         CleanupStack::PopAndDestroy( newState );
         }
 
@@ -272,11 +274,12 @@ void CGlxAppUi::HandleNavigationalStateChangedL()
     TApaTaskList taskList( iCoeEnv->WsSession() );
 	TApaTask task = taskList.FindApp( TUid::Uid( KGlxGalleryApplicationUid ) );
 	TApaTask taskForeGround = taskList.FindByPos(0); // get fopreground app
-	if ( task.Exists() && task.ThreadId() != taskForeGround.ThreadId() )
-		{
-		GLX_LOG_INFO("CGlxAppUi::HandleNavigationalStateChanged: Return ");
-		return;
-		}
+	if (!iStateChangeRequested && task.Exists() && task.ThreadId()
+            != taskForeGround.ThreadId())
+        {
+        GLX_LOG_INFO("* CGlxAppUi::HandleNavigationalStateChanged:Return *");
+        return;
+        }
     HBufC* activationParam = iActivationParam;
     iActivationParam = NULL; // release ownership
     CleanupStack::PushL( activationParam );
@@ -305,6 +308,7 @@ void CGlxAppUi::HandleNavigationalStateChangedL()
         }
 
     CleanupStack::PopAndDestroy( activationParam );
+    iStateChangeRequested = EFalse;
     }
 
 // ---------------------------------------------------------------------------
@@ -319,42 +323,32 @@ void CGlxAppUi::GetViewScoringIdsL( RArray<TUid>& aIds ) const
 
     // get current navigational state
     CMPXCollectionPath* naviState = iNavigationalState->StateLC();
-   
-      // no if check in needed here ,it makes the aapui aware of the list view depth
-      // to be removed.added by gopa   
-    if ( naviState->Levels() >= 1)
+    if (naviState->Levels() >= 1)
         {
-        if (iNavigationalState->ViewingMode() == NGlxNavigationalState::EBrowse) 
+        if (iNavigationalState->ViewingMode()
+                == NGlxNavigationalState::EBrowse)
             {
-            // For image viewer collection, goto view mode
-            if (naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
-                {
-                aIds.AppendL( TUid::Uid(  KGlxViewingModeView ) );
-                }
-            else
-                {
-                aIds.AppendL( TUid::Uid(  KGlxViewingModeBrowse ) );
-                }
-            } 
-        else 
+            aIds.AppendL(TUid::Uid(KGlxViewingModeBrowse));
+            }
+        else
             {
-            aIds.AppendL( TUid::Uid(  KGlxViewingModeView ) );
-            }                 
+            aIds.AppendL(TUid::Uid(KGlxViewingModeView));
+            }
         }
 
-    if( TUid::Null() != GetViewScoringIdForCollectionPlugin( *naviState ) )
+    if (TUid::Null() != GetViewScoringIdForCollectionPlugin(*naviState))
         {
         // add scoring id for collection plugin
-        aIds.AppendL( GetViewScoringIdForCollectionPlugin( *naviState ) );
+        aIds.AppendL(GetViewScoringIdForCollectionPlugin(*naviState));
         }
-    
-    if( TUid::Null() != ViewScoringIdForNaviStateDepth( *naviState ) )
+
+    if (TUid::Null() != ViewScoringIdForNaviStateDepth(*naviState))
         {
-         // add scoring id for depth in the ui hierarchy
-        aIds.AppendL( ViewScoringIdForNaviStateDepth( *naviState ) );
+        // add scoring id for depth in the ui hierarchy
+        aIds.AppendL(ViewScoringIdForNaviStateDepth(*naviState));
         }
-       
-     CleanupStack::PopAndDestroy( naviState );
+
+    CleanupStack::PopAndDestroy(naviState);
     }
 // ---------------------------------------------------------------------------
 // Handles the foreground events
@@ -428,37 +422,31 @@ TUid CGlxAppUi::ViewScoringIdForNaviStateDepth( const CMPXCollectionPath& aNaviS
 // HandleActivationMessageL
 // ---------------------------------------------------------------------------
 //
-void CGlxAppUi::HandleActivationMessageL(const TApaCommand& aCommand, 
-        const TFileName& aDocumentName, const TDesC8& aData)
+void CGlxAppUi::HandleActivationMessageL(const TApaCommand& /*aCommand*/, 
+        const TFileName& /*aDocumentName*/, const TDesC8& aData)
     {
-    TRACER("void CGlxAppUi::HandleActivationMessageL(const TApaCommand& aCommand, const TFileName& aDocumentName, const TDesC8& aData)");
-    GLX_LOG_INFO1("Glx-HandleActivationMessageL() aCommand=%d", aCommand);
-    GLX_LOG_INFO1("Glx-HandleActivationMessageL() aDocumentName length=%d",
-                                                    aDocumentName.Length());
+    TRACER("void CGlxAppUi::HandleActivationMessageL("
+            "const TApaCommand& aCommand, const TFileName& aDocumentName, "
+            "const TDesC8& aData)");
+    GLX_LOG_INFO1("Glx-HandleActivationMessageL() aData length=%d",
+            aData.Length());
 
     delete iActivationParam;
     iActivationParam = NULL;
 
-    if (aDocumentName.Length() > 0 && 0 == aData.CompareC(KNullDesC8) )
+    if (aData.Length() == 0 )
         {
-        GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL() Image Viewer!");        
-        CMPXCollectionPath* path = CMPXCollectionPath::NewL();
-        CleanupStack::PushL(path);
-        iNavigationalState->SetBackExitStatus( EFalse );
-        path->AppendL( KGlxCollectionPluginImageViewerImplementationUid );
-        iNavigationalState->NavigateToL( *path );
-        CleanupStack::PopAndDestroy( path );
+        // Open navigational state at root level
+        CMPXCollectionPath* newState = CMPXCollectionPath::NewL();
+        CleanupStack::PushL(newState);
+        iNavigationalState->NavigateToL(*newState);
+        iStateChangeRequested = ETrue;
+        CleanupStack::PopAndDestroy(newState);
         }
     else
         {
         GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL(aData)");        
         HandleActivationMessageL( aData );
-        }
-
-    // Introduced to fix bug EMJN-78GH6N. 
-    if (0 != iEikonEnv->RootWin().OrdinalPosition())
-        {
-        iEikonEnv->RootWin().SetOrdinalPosition(0);
         }
     }
 
@@ -514,6 +502,7 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
     CleanupStack::PopAndDestroy(&stream);
     iNavigationalState->SetStartingLevel(path->Levels());
     iNavigationalState->NavigateToL( *path );
+    iStateChangeRequested = ETrue;
     CleanupStack::PopAndDestroy(path);
     
     // Introduced to fix bug EMJN-78GH6N. 

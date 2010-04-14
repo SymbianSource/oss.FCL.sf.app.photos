@@ -388,11 +388,25 @@ void CGlxGridViewContainer::CreateHgGridWidgetL()
                 tnSize.iWidth, tnSize.iHeight);
 		TFileName resFile(KDC_APP_BITMAP_DIR);
 		resFile.Append(KGlxIconsFilename);
-		CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
-				EMbmGlxiconsQgn_prop_image_notcreated);
-        AknIconUtils::SetSize(bitmap, tnSize);
-		// Create Hg grid object
-		iHgGrid = CHgGrid::NewL (GetHgGridRect(),mediaCount,CGulIcon::NewL(bitmap));
+
+        CFbsBitmap* bitmap = NULL;
+        CFbsBitmap* mask = NULL;
+        AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone,
+                bitmap, mask, resFile, EMbmGlxiconsQgn_prop_image_notcreated,
+                EMbmGlxiconsQgn_prop_image_notcreated_mask);
+        __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
+        __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
+
+        AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize(),
+                EAspectRatioPreservedAndUnusedSpaceRemoved);
+        AknIconUtils::SetSize(mask, CHgGrid::PreferredImageSize(),
+                EAspectRatioPreservedAndUnusedSpaceRemoved);
+
+        // Create Hg grid object
+        iHgGrid = CHgGrid::NewL(GetHgGridRect(), mediaCount, CGulIcon::NewL(
+                bitmap, mask));
+        CleanupStack::Pop(mask); 
+        CleanupStack::Pop(bitmap); 
 		}
 
 	// Setting to MopParent to update background skin
@@ -580,21 +594,44 @@ void CGlxGridViewContainer::SetIconsL(TInt index)
 		 */
 		GLX_LOG_INFO2("CGlxGridViewContainer::SetIconsL - image_defaultthumbnail tnError(%d), i(%d)",
 				tnError, index);
-		CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
-				EMbmGlxiconsQgn_prop_image_notcreated);
-		AknIconUtils::SetSize(bitmap, setSize);
-		iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap));
+        CFbsBitmap* bitmap = NULL;
+        CFbsBitmap* mask = NULL;
+        AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone,
+                bitmap, mask, resFile, EMbmGlxiconsQgn_prop_image_notcreated,
+                EMbmGlxiconsQgn_prop_image_notcreated_mask);
+        __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
+        __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
+
+        AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize(),
+                EAspectRatioPreservedAndUnusedSpaceRemoved);
+        AknIconUtils::SetSize(mask, CHgGrid::PreferredImageSize(),
+                EAspectRatioPreservedAndUnusedSpaceRemoved);
+
+        iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap, mask));
+        CleanupStack::Pop(mask); 
+        CleanupStack::Pop(bitmap); 
 		}
    else if(KErrNone != tnError)
         {
         GLX_LOG_INFO2("CGlxGridViewContainer::SetIconsL - image_corrupted tnError(%d), i(%d)",
                 tnError, index);
-        CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
-                EMbmGlxiconsQgn_prop_image_corrupted);
-        AknIconUtils::SetSize(bitmap, setSize);
-        iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap));
-        }
+        CFbsBitmap* bitmap = NULL;
+        CFbsBitmap* mask = NULL;
+        AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone,
+                bitmap, mask, resFile, EMbmGlxiconsQgn_prop_image_corrupted,
+                EMbmGlxiconsQgn_prop_image_corrupted_mask);
+        __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
+        __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
 
+        AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize(),
+                EAspectRatioPreservedAndUnusedSpaceRemoved);
+        AknIconUtils::SetSize(mask, CHgGrid::PreferredImageSize(),
+                EAspectRatioPreservedAndUnusedSpaceRemoved);
+
+        iHgGrid->ItemL(index).SetIcon(CGulIcon::NewL(bitmap, mask));
+        CleanupStack::Pop(mask);
+        CleanupStack::Pop(bitmap);
+        }
 
 	if (item.IsDrmProtected())
 		{

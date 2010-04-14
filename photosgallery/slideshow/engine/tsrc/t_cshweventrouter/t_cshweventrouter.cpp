@@ -204,13 +204,13 @@ void T_CShwEventRouter::TestNestedEventsAndMultipleObserversL()
 	observers.AppendL( this );
 	// add the array of observers
 	iRouter->AddObserversL( observers.Array() );
-	CleanupStack::PopAndDestroy( observers );
+	CleanupStack::PopAndDestroy( &observers );
 	// add us as publisher
 	RPointerArray<MShwEventPublisher> publisher;
 	CleanupClosePushL( publisher );
 	publisher.AppendL( this );
 	iRouter->AddProducers( publisher.Array() );
-	CleanupStack::PopAndDestroy( publisher );
+	CleanupStack::PopAndDestroy( &publisher );
 
 	T_TestEvent testEvent;
 	// set the event object pointer so that the notify can verify the event object

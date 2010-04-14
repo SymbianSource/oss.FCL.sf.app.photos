@@ -199,13 +199,13 @@ void UT_CGlxAttributeContext::FetchItems_NoMediaL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop( attributes );
+    CleanupStack::Pop( &attributes );
     attributes.Close();
 
-    CleanupStack::Pop( itemIndices );
+    CleanupStack::Pop( &itemIndices );
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy( mediaList );
+    CleanupStack::PopAndDestroy( &mediaList );
     }
 
 void UT_CGlxAttributeContext::FetchOneItem_IndexZeroL()
@@ -240,13 +240,13 @@ void UT_CGlxAttributeContext::FetchOneItem_IndexZeroL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchOneItem_IndexOneL()
@@ -281,13 +281,13 @@ void UT_CGlxAttributeContext::FetchOneItem_IndexOneL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchOneItem_IndexTwoL()
@@ -322,13 +322,13 @@ void UT_CGlxAttributeContext::FetchOneItem_IndexTwoL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchOneItem_IndexThreeL()
@@ -363,13 +363,13 @@ void UT_CGlxAttributeContext::FetchOneItem_IndexThreeL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchOneItem_IndexFourL()
@@ -404,13 +404,13 @@ void UT_CGlxAttributeContext::FetchOneItem_IndexFourL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexZeroL()
@@ -445,13 +445,13 @@ void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexZeroL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexOneL()
@@ -486,13 +486,13 @@ void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexOneL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemindices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexTwoL()
@@ -527,13 +527,13 @@ void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexTwoL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexThreeL()
@@ -568,13 +568,13 @@ void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexThreeL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexFourL()
@@ -609,13 +609,13 @@ void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexFourL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexFiveL()
@@ -650,13 +650,13 @@ void UT_CGlxAttributeContext::FetchItems_GranularityLessThanRange_IndexFiveL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 void UT_CGlxAttributeContext::FetchItems_GranularityGreaterThanRangeL()
@@ -691,13 +691,13 @@ void UT_CGlxAttributeContext::FetchItems_GranularityGreaterThanRangeL()
     delete attributeSpecs;
     attributeSpecs = NULL;
 
-    CleanupStack::Pop(attributes);
+    CleanupStack::Pop(&attributes);
     attributes.Close();
 
-    CleanupStack::Pop(itemIndices);
+    CleanupStack::Pop(&itemIndices);
     itemIndices.Close();
 
-    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(&mediaList);
     }
 
 TBool UT_CGlxAttributeContext::FindAttribute(RArray<TMPXAttribute>& aAttributes, const TMPXAttribute& aAttribute)

@@ -245,10 +245,23 @@ void CGlxGridViewMLObserver::HandleAttributesAvailableL( TInt aItemIndex,
         else if ( KErrNone != tnError && KErrNotSupported != tnError &&
                             KErrArgument != tnError )
             {
-            CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile,
-                                 EMbmGlxiconsQgn_prop_image_corrupted);
-            AknIconUtils::SetSize(bitmap, setSize);
-            iHgGrid->ItemL(aItemIndex).SetIcon(CGulIcon::NewL(bitmap));
+            CFbsBitmap* bitmap = NULL;
+            CFbsBitmap* mask = NULL;
+            AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone,
+                    bitmap, mask, resFile,
+                    EMbmGlxiconsQgn_prop_image_corrupted,
+                    EMbmGlxiconsQgn_prop_image_corrupted_mask);
+            __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
+            __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
+            
+            AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize(),
+                    EAspectRatioPreservedAndUnusedSpaceRemoved);
+            AknIconUtils::SetSize(mask, CHgGrid::PreferredImageSize(),
+                    EAspectRatioPreservedAndUnusedSpaceRemoved);
+
+            iHgGrid->ItemL(aItemIndex).SetIcon(CGulIcon::NewL(bitmap, mask));
+            CleanupStack::Pop(mask);
+            CleanupStack::Pop(bitmap);
             }
         }
     
@@ -316,7 +329,8 @@ void CGlxGridViewMLObserver::HandleErrorL()
     {
     TRACER("CGlxGridViewMLObserver::HandleErrorL()");
 
-    TInt bitmapId  = EMbmGlxiconsQgn_prop_image_notcreated;
+    TInt bitmapId  = EMbmGlxiconsQgn_prop_image_corrupted;
+    TInt maskId = EMbmGlxiconsQgn_prop_image_corrupted_mask;	
     TInt flags     = CHgItem::EHgItemFlagsNone ;
     
     for ( TInt i = 0; i < iMediaList.Count(); i++ )
@@ -331,10 +345,12 @@ void CGlxGridViewMLObserver::HandleErrorL()
                 {
                 case KErrCANoRights:;   // Err id = -17452
                     bitmapId  = EMbmGlxiconsQgn_prop_image_notcreated;
+					maskId = EMbmGlxiconsQgn_prop_image_notcreated_mask;
                     flags     = CHgItem::EHgItemFlagsDrmRightsExpired;
                     break;
                 case KErrDiskFull:
                     bitmapId  = EMbmGlxiconsQgn_prop_image_notcreated;
+					maskId = EMbmGlxiconsQgn_prop_image_notcreated_mask;
                     flags     = CHgItem::EHgItemFlagsNone ;
                     if (!iDiskErrorIntimated)
                         {
@@ -343,6 +359,7 @@ void CGlxGridViewMLObserver::HandleErrorL()
                     break;
                 default:
                     bitmapId  = EMbmGlxiconsQgn_prop_image_corrupted;
+					maskId = EMbmGlxiconsQgn_prop_image_corrupted_mask;
                     flags     = CHgItem::EHgItemFlagsNone ;
                     break;  
                 }
@@ -350,14 +367,26 @@ void CGlxGridViewMLObserver::HandleErrorL()
             TFileName resFile(KDC_APP_BITMAP_DIR);
             resFile.Append(KGlxIconsFilename);
 
-            CFbsBitmap* bitmap = AknIconUtils::CreateIconL(resFile, bitmapId);
-            AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize() );
+            CFbsBitmap* bitmap = NULL;
+            CFbsBitmap* mask = NULL;
+            AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone,
+                    bitmap, mask, resFile, bitmapId, maskId);
+            __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
+            __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
 
-            iHgGrid->ItemL(i).SetIcon(CGulIcon::NewL(bitmap), flags);
+            AknIconUtils::SetSize(bitmap, CHgGrid::PreferredImageSize(),
+                    EAspectRatioPreservedAndUnusedSpaceRemoved);
+            AknIconUtils::SetSize(mask, CHgGrid::PreferredImageSize(),
+                    EAspectRatioPreservedAndUnusedSpaceRemoved);
+
+            iHgGrid->ItemL(i).SetIcon(CGulIcon::NewL(bitmap, mask), flags);
+            CleanupStack::Pop(mask); 
+            CleanupStack::Pop(bitmap); 
             }
         }
     iHgGrid->RefreshScreen(iHgGrid->FirstIndexOnScreen());    
     }
+    
 // ----------------------------------------------------------------------------
 // HandleCommandCompleteL
 // ----------------------------------------------------------------------------

@@ -340,10 +340,8 @@ TGlxFilterProperties CGlxCollectionPluginTags::DefaultFilter(TInt aLevel)
         case KGlxCollectionRootLevel:
         case KGlxCollectionTagLevel: 
             {
-            filterProperties.iMinCount = 1;
             filterProperties.iSortOrder = EGlxFilterSortOrderAlphabetical;
             filterProperties.iItemType = EGlxFilterTag;
-
             break;
             }
         case KGlxCollectionTagContentsLevel:

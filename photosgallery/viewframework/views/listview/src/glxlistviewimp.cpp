@@ -40,19 +40,21 @@
 #include <aknViewAppUi.h>
 #include <StringLoader.h>					//StringLoader		
 #include <glxsetappstate.h>
+#include <mglxcache.h>
+#include <glxerrormanager.h>             // For CGlxErrormanager
+#include <glxthumbnailcontext.h>
 #include <glxthumbnailattributeinfo.h>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionplugintype.hrh>
 #include <glxnavigationalstate.h>
 
-#include <AknTransEffect.h>  // For transition effects
-#include <GfxTransEffect/GfxTransEffect.h>  // For transition effects
+#include <akntranseffect.h>  // For transition effects
+#include <gfxtranseffect/gfxtranseffect.h>  // For transition effects
 #include "glxgfxtranseffect.h"  // For transition effects
 
-const TInt KListDataWindowSize(25);
-const TInt KNoOfPages(2);
-const TInt KBufferTresholdSize(6);
+const TInt KListDataWindowSize(16);
+const TInt KNoOfPages(4);
 const TInt KGlxCollectionRootLevel = 1;
 
 
@@ -65,7 +67,7 @@ const TInt KGlxCollectionRootLevel = 1;
 CGlxListViewImp::CGlxListViewImp(TInt aViewUid,
         const TListViewResourceIds& aResourceIds) :
     iViewUid(aViewUid), iResourceIds(aResourceIds), iIsRefreshNeeded(EFalse),
-    iBackwardNavigation(EFalse), isTnGenerationComplete(ETrue)
+    iBackwardNavigation(EFalse)
     {
     }
 
@@ -125,7 +127,10 @@ void CGlxListViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
         {
         toolbar->DisableToolbarL(ETrue);  
         }
-    
+    CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
+    CleanupClosePushL(*uiUtility);
+    iGridIconSize = uiUtility->GetGridIconSize();
+    CleanupStack::PopAndDestroy(uiUtility);     
     //Register the view to recieve toolbar events. ViewBase handles the events    
     SetToolbarObserver(this);
 	iMMCNotifier = CGlxMMCNotifier::NewL(*this);
@@ -215,21 +220,34 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
 	GlxSetAppState::SetState(EGlxInListView);
 
     // Separate contexts so that some attributes are loaded before others
-    iTitleAttributeContext = CGlxDefaultAttributeContext::NewL();
-    iTitleAttributeContext->SetRangeOffsets( KListDataWindowSize, 
-            KListDataWindowSize );
-    iTitleAttributeContext->AddAttributeL( KMPXMediaGeneralTitle );
+    iThumbnailIterator.SetRangeOffsets(KListDataWindowSize,
+            KListDataWindowSize);
+    iTitleAttributeContext = new (ELeave) CGlxAttributeContext(
+            &iThumbnailIterator);
+    iTitleAttributeContext->AddAttributeL(KMPXMediaGeneralTitle);
 
-    iSubtitleAttributeContext = CGlxDefaultAttributeContext::NewL();
-    iSubtitleAttributeContext->SetRangeOffsets( KListDataWindowSize, 
-            KListDataWindowSize );
-    iSubtitleAttributeContext->AddAttributeL( 
-            KGlxMediaCollectionPluginSpecificSubTitle );
+    iSubtitleAttributeContext = new (ELeave) CGlxAttributeContext(
+            &iThumbnailIterator);
+    iSubtitleAttributeContext->AddAttributeL(
+            KGlxMediaCollectionPluginSpecificSubTitle);
 
-    iMediaList->AddContextL( iTitleAttributeContext, KMaxTInt );
-    iMediaList->AddContextL( iSubtitleAttributeContext, KMaxTInt );
+    iMediaList->AddContextL(iTitleAttributeContext, KMaxTInt);
+    iMediaList->AddContextL(iSubtitleAttributeContext, KMaxTInt);
+    if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
+        {
+        iThumbnailContext = new (ELeave) CGlxAttributeContext(
+                &iThumbnailIterator);
+        TMPXAttribute tnAttr(KGlxMediaIdThumbnail,
+                GlxFullThumbnailAttributeId(ETrue, iGridIconSize.iWidth,
+                        iGridIconSize.iHeight));
+        iThumbnailContext->SetDefaultSpec(iGridIconSize.iWidth,
+                iGridIconSize.iHeight);
+        iThumbnailContext->AddAttributeL(tnAttr);
+        iMediaList->AddContextL(iThumbnailContext,
+                KGlxFetchContextPriorityNormal);
+        }
 
-	iMediaList->AddMediaListObserverL(this);
+    iMediaList->AddMediaListObserverL(this);
     TRect apRect = iEikonEnv->EikAppUi()->ApplicationRect();
     iBgContext = CAknsBasicBackgroundControlContext::NewL( 
             KAknsIIDQsnBgScreen,apRect,ETrue);
@@ -241,18 +259,19 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
 
     iPreviewTNBinding = CGlxPreviewThumbnailBinding::NewL(*this);
     CreateListL();
-    if (iPreviewTNBinding && iBackwardNavigation && iMediaList->FocusIndex()
-            == 0)
-        {
-        GLX_LOG_INFO("CGlxListViewImp::DoMLViewActivateL() - HandleItemChangedL()");        
-        iPopulateListTNs = ETrue;
-        CMPXCollectionPath* path = iMediaList->PathLC(
-                NGlxListDefs::EPathFocusOrSelection);
-        iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs,
-                iIsRefreshNeeded, iBackwardNavigation);
-        CleanupStack::PopAndDestroy(path);
-        }
+    if (iMediaList->IdSpaceId(0) == KGlxIdSpaceIdRoot && iPreviewTNBinding
+			&& iBackwardNavigation && iMediaList->FocusIndex() == 0)
+		{
+		GLX_LOG_INFO("CGlxListViewImp::DoMLViewActivateL() - HandleItemChangedL()");
+		iPopulateListTNs = ETrue;
+		CMPXCollectionPath* path = iMediaList->PathLC(
+				NGlxListDefs::EPathFocusOrSelection);
+		iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs,
+				iIsRefreshNeeded, iBackwardNavigation);
+		CleanupStack::PopAndDestroy(path);
+		}
     iProgressIndicator = CGlxProgressIndicator::NewL(*this);
+    iProgressIndicator->ShowProgressbarL();
     }
 
 // ---------------------------------------------------------------------------
@@ -266,10 +285,10 @@ void CGlxListViewImp::DoMLViewDeactivate()
     if(StatusPane())
        {
        if(iTitletext)
-                  {
-                  delete iTitletext;
-                  iTitletext = NULL;
-                  }
+          {
+          delete iTitletext;
+          iTitletext = NULL;
+          }
        CEikStatusPane* statusPane = iEikonEnv->AppUiFactory()->StatusPane();
        TRAP_IGNORE(CAknTitlePane* titlePane = ( CAknTitlePane* )statusPane->ControlL(
                TUid::Uid( EEikStatusPaneUidTitle ));        
@@ -283,18 +302,21 @@ void CGlxListViewImp::DoMLViewDeactivate()
     iMediaList->RemoveContext( iSubtitleAttributeContext );
    	delete iSubtitleAttributeContext;
    	iSubtitleAttributeContext = NULL;
-
+    if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
+        {
+        iMediaList->RemoveContext(iThumbnailContext);
+        delete iThumbnailContext;
+        iThumbnailContext = NULL;
+        }   
 	iMediaList->RemoveMediaListObserver( this );
 	delete iPreviewTNBinding;
 	iPreviewTNBinding = NULL;
 	DestroyListViewWidget();
-#ifndef __WINSCW__ 
 	if(iProgressIndicator)
 	    {
         delete iProgressIndicator;
         iProgressIndicator = NULL;
 	    }
-#endif
 	}
 
 // ---------------------------------------------------------------------------
@@ -421,18 +443,26 @@ void CGlxListViewImp::RequestL(TInt aRequestStart, TInt aRequestEnd)
         const TGlxMedia& item = iMediaList->Item(i);
         iList->ItemL(i).SetTitleL(item.Title());
         iList->ItemL(i).SetTextL(item.SubTitle());
+        UpdatePreviewL(i);
+        iList->RefreshScreen(i);
         }
     
     iList->RefreshScreen(visIndex);
-    
-    if ( visIndex != iLastFocusedIndex && !iPopulateListTNs)
+    if(iMediaList->IdSpaceId(0) == KGlxIdSpaceIdRoot)
         {
-        GLX_LOG_INFO1("CGlxListViewImp::RequestL - SetFocusL()"
-                " iPopulateListTNs(%d)", iPopulateListTNs);      
-        GLX_LOG_INFO1("CGlxListViewImp::RequestL - SetFocusL()"
-                " visIndex(%d)", visIndex);
-        iPopulateListTNs = ETrue;
-        iStartIndex = KErrNotFound;
+        if ( visIndex != iLastFocusedIndex && !iPopulateListTNs)
+            {
+            GLX_LOG_INFO1("CGlxListViewImp::RequestL - SetFocusL()"
+                    " iPopulateListTNs(%d)", iPopulateListTNs);      
+            GLX_LOG_INFO1("CGlxListViewImp::RequestL - SetFocusL()"
+                    " visIndex(%d)", visIndex);
+            iPopulateListTNs = ETrue;
+            iStartIndex = KErrNotFound;
+            iMediaList->SetFocusL(NGlxListDefs::EAbsolute, visIndex);
+            }
+        }
+    else
+        {
         iMediaList->SetFocusL(NGlxListDefs::EAbsolute, visIndex);
         }
     }
@@ -458,23 +488,15 @@ void CGlxListViewImp::HandleOpenL( TInt aIndex )
     TRACER("CGlxListViewImp::HandleOpenL");
     
 #ifndef __WINSCW__ 
-    TInt leftVariable = 0;
-    TRAPD(err,leftVariable = iUiUtility->GetItemsLeftCountL());
-    GLX_LOG_INFO1("CGlxListViewImp RProperty::Get leftVariable %d",leftVariable);
-    isTnGenerationComplete = (leftVariable)?EFalse:ETrue;
-    GLX_LOG_INFO1("CGlxListViewImp isTnGenerationComplete %d",isTnGenerationComplete);
-    if(err != KErrNone)
+    GLX_LOG_INFO1("CGlxListViewImp RProperty::Get leftVariable %d",(iUiUtility->GetItemsLeftCount()));
+
+    if (iUiUtility->GetItemsLeftCount())
         {
-        GLX_LOG_INFO1("CGlxListViewImp RProperty::Get errorcode %d",err);
-        }
-    if(!isTnGenerationComplete)
-        {
-        if(iProgressIndicator)
+        if(!iProgressIndicator)
             {
-            delete iProgressIndicator;
-            iProgressIndicator = NULL;
+            iProgressIndicator = CGlxProgressIndicator::NewL(*this);
             }
-        iProgressIndicator = CGlxProgressIndicator::NewL(*this);
+        iProgressIndicator->ShowProgressbarL();
         if(iSchedulerWait)
             {
             delete iSchedulerWait;
@@ -484,11 +506,11 @@ void CGlxListViewImp::HandleOpenL( TInt aIndex )
         iSchedulerWait->Start();
         }
 #endif
-	if( iNextViewActivationEnabled && ( aIndex >= 0 && aIndex < 
-	        iMediaList->Count()) && isTnGenerationComplete )
-	    {
-	    	//Delete the PreviewTNMBinding as in forward navigation
-		//we do not get the medialist callback.
+    if (iNextViewActivationEnabled && (aIndex >= 0 && aIndex
+            < iMediaList->Count()) && (iUiUtility->GetItemsLeftCount() == 0))
+        {
+        //Delete the PreviewTNMBinding as in forward navigation
+        //we do not get the medialist callback.
         delete iPreviewTNBinding;
         iPreviewTNBinding = NULL;
         
@@ -497,11 +519,10 @@ void CGlxListViewImp::HandleOpenL( TInt aIndex )
 	    iNextViewActivationEnabled = EFalse;
         iUiUtility->SetViewNavigationDirection(EGlxNavigationForwards); 
         //Navigate to the next view
-        CMPXCollectionPath* path =
-             iMediaList->PathLC( NGlxListDefs::EPathFocusOrSelection );
+        CMPXCollectionPath* path = iMediaList->PathLC(
+                NGlxListDefs::EPathFocusOrSelection);
         iCollectionUtility->Collection().OpenL(*path);
         CleanupStack::PopAndDestroy(path);  
-        
 	    }
     }
 
@@ -608,14 +629,17 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
                  * The callback is not given because the setfocus index is same as the focused index
                  * in medialist. 
                  */
-                if(count==1)
-                    {                        
-                    CMPXCollectionPath* path = iMediaList->PathLC( 
-                            NGlxListDefs::EPathFocusOrSelection );
-                    GLX_LOG_INFO("CGlxListViewImp::PreviewTNReadyL() - HandleItemChangedL()");                    
-                    iPreviewTNBinding->HandleItemChangedL(*path, 
-                            iPopulateListTNs, iIsRefreshNeeded, iBackwardNavigation);
-                    CleanupStack::PopAndDestroy( path );
+                if(count==1 )
+                    {       
+                    if(id == KGlxIdSpaceIdRoot )
+                    	{
+                        CMPXCollectionPath* path = iMediaList->PathLC( 
+                                NGlxListDefs::EPathFocusOrSelection );
+                        GLX_LOG_INFO("CGlxListViewImp::PreviewTNReadyL() - HandleItemChangedL()");                    
+                        iPreviewTNBinding->HandleItemChangedL(*path, 
+                                iPopulateListTNs, iIsRefreshNeeded, iBackwardNavigation);
+                        CleanupStack::PopAndDestroy( path );
+                    	}
                     }
                 }
 			}
@@ -639,43 +663,52 @@ void CGlxListViewImp::CreateListL()
 	    TFileName resFile(KDC_APP_BITMAP_DIR);
 		resFile.Append(KGlxIconsFilename);
         
-        CFbsBitmap* bitmap;
-        CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathParent );
+        CFbsBitmap* bitmap = NULL;
+        CFbsBitmap* mask = NULL;
+        TInt bitmapId = 0;
+        TInt maskId = 0;
+        CMPXCollectionPath* path = iMediaList->PathLC(
+                NGlxListDefs::EPathParent);
         if (path->Id() == KGlxCollectionPluginAlbumsImplementationUid)
             {           
-            bitmap = AknIconUtils::CreateIconL(resFile,
-                    EMbmGlxiconsQgn_prop_photo_album_large);
-            AknIconUtils::SetSize(bitmap, 
-                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            bitmapId = EMbmGlxiconsQgn_prop_photo_album_large;
+            maskId = EMbmGlxiconsQgn_prop_photo_album_large_mask;
             }
         else if (path->Id() == KGlxCollectionPluginMonthsImplementationUid)
             {
-            bitmap = AknIconUtils::CreateIconL(resFile,
-                    EMbmGlxiconsQgn_prop_photo_calendar_large);
-            AknIconUtils::SetSize(bitmap, 
-                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            bitmapId = EMbmGlxiconsQgn_prop_photo_calendar_large;
+            maskId = EMbmGlxiconsQgn_prop_photo_calendar_large_mask;
             }
         else
             {
-            bitmap = AknIconUtils::CreateIconL(resFile,
-   						 EMbmGlxiconsQgn_prop_image_notcreated);
-		AknIconUtils::SetSize(bitmap, 
-				CHgDoubleGraphicListFlat::PreferredImageSize());
+            bitmapId = EMbmGlxiconsQgn_prop_image_notcreated;
+            maskId = EMbmGlxiconsQgn_prop_image_notcreated_mask;
             }
-		
-	    iList = CHgDoubleGraphicListFlat::NewL(
-	            ClientRect(), 
-	            mediaCount, 
-	            CGulIcon::NewL(bitmap) );
 
+        AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone,
+                bitmap, mask, resFile, bitmapId, maskId);
+        __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
+        __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
+
+        AknIconUtils::SetSize(bitmap,
+                CHgDoubleGraphicListFlat::PreferredImageSize(),
+                EAspectRatioPreservedAndUnusedSpaceRemoved);
+        AknIconUtils::SetSize(mask,
+                CHgDoubleGraphicListFlat::PreferredImageSize(),
+                EAspectRatioPreservedAndUnusedSpaceRemoved);
+
+        iList = CHgDoubleGraphicListFlat::NewL(ClientRect(), mediaCount,
+                CGulIcon::NewL(bitmap, mask));
+        CleanupStack::Pop(mask);
+        CleanupStack::Pop(bitmap); 
 	    iList->SetMopParent(this);
 	    
 		iList->SetSelectionObserver(*this);
 		
-	    // Enable Buffer support
-		iList->EnableScrollBufferL(*this, (KNoOfPages * KBufferTresholdSize),
-	            KBufferTresholdSize);
-		
+		TInt items = iList->ItemsOnScreen();
+        // Enable Buffer support
+        iList->EnableScrollBufferL(*this, KNoOfPages * items, items);
+	
         if (iUiUtility->ViewNavigationDirection() == EGlxNavigationBackwards)
             {
             GLX_DEBUG1("CGlxListViewImp::CreateListL() - SetEmptyTextL()");			
@@ -816,23 +849,41 @@ void CGlxListViewImp::HandleAttributesAvailableL( TInt aItemIndex,
 				== EGlxNavigationBackwards)
 			{
 			iIsRefreshNeeded = ETrue;
+			if(iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
+				{
+				CleanUpL();
+				}
 			}
-
+		if(iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
+			{
+			UpdatePreviewL(aItemIndex);
+			}
 		// Set iPopulateListTNs to ETrue and refresh all the items in
 		// list view if subtitle is updated
-		if (iPreviewTNBinding && ((!iPopulateListTNs && aItemIndex
+		else if (iPreviewTNBinding && ((!iPopulateListTNs && aItemIndex
                 == aList->Count() - 1) || (iIsRefreshNeeded)))
             {
 			iPopulateListTNs = ETrue;
 			iStartIndex = KErrNotFound;
 			CMPXCollectionPath* path = iMediaList->PathLC(
 					NGlxListDefs::EPathFocusOrSelection);
-            GLX_LOG_INFO("CGlxListViewImp::HandleAttributesAvailableL() - HandleItemChangedL()");		
+			GLX_LOG_INFO("CGlxListViewImp::HandleAttributesAvailableL() - HandleItemChangedL()");		
 			iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs,
 					iIsRefreshNeeded, iBackwardNavigation);
-			CleanupStack::PopAndDestroy(path);
+			CleanupStack::PopAndDestroy(path);		            	
 			}
 		}
+    TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail,
+            GlxFullThumbnailAttributeId(ETrue, iGridIconSize.iWidth,
+                    iGridIconSize.iHeight));
+    if (KErrNotFound != aAttributes.Find(thumbnailAttribute, match))
+        {
+        if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
+            {
+            UpdatePreviewL(aItemIndex);
+            iIsRefreshNeeded = EFalse;
+            }
+        }
 	}
 	
 // ----------------------------------------------------------------------------
@@ -843,22 +894,24 @@ void CGlxListViewImp::HandleFocusChangedL( NGlxListDefs::
 	TFocusChangeType /*aType*/, TInt /*aNewIndex*/, TInt /*aOldIndex*/,
 	MGlxMediaList* /*aList*/ )
 	{
-	TRACER( "CGlxListViewImp::HandleFocusChangedL");
-	 
+	TRACER( "CGlxListViewImp::HandleFocusChangedL");	 
 	if (iPreviewTNBinding && iPopulateListTNs)
 		{
-        CMPXCollectionPath* path = iMediaList->PathLC(
-                NGlxListDefs::EPathFocusOrSelection);
-        if (!iBackwardNavigation && path->Levels() == KGlxCollectionRootLevel
-                && path->Id(0) == KGlxCollectionPluginMonthsImplementationUid)
-            {
-            CleanupStack::PopAndDestroy(path);
-            return;
-            }
-        GLX_LOG_INFO("CGlxListViewImp::HandleFocusChangedL() - HandleItemChangedL()");        
-        iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs,
-                iIsRefreshNeeded, iBackwardNavigation);
-        CleanupStack::PopAndDestroy(path);
+		if(iMediaList->IdSpaceId(0) == KGlxIdSpaceIdRoot)
+			{
+	        CMPXCollectionPath* path = iMediaList->PathLC(
+	                NGlxListDefs::EPathFocusOrSelection);
+	        if (!iBackwardNavigation && path->Levels() == KGlxCollectionRootLevel
+	                && path->Id(0) == KGlxCollectionPluginMonthsImplementationUid)
+	            {
+	            CleanupStack::PopAndDestroy(path);
+	            return;
+	            }
+	        GLX_LOG_INFO("CGlxListViewImp::HandleFocusChangedL() - HandleItemChangedL()");        
+	        iPreviewTNBinding->HandleItemChangedL(*path, iPopulateListTNs,
+	                iIsRefreshNeeded, iBackwardNavigation);	                
+	        CleanupStack::PopAndDestroy(path);			
+			}
         }
 	}
 
@@ -885,9 +938,29 @@ void CGlxListViewImp::HandleItemSelectedL(TInt /*aIndex*/,
 // HandleError
 // ----------------------------------------------------------------------------
 //
-void CGlxListViewImp::HandleError( TInt /*aError*/ ) 
+void CGlxListViewImp::HandleError( TInt aError ) 
     {
-    
+	TRACER( "CGlxListViewImp::HandleError");
+	TRAP_IGNORE( DoHandleErrorL( aError ) );
+    }
+
+// ----------------------------------------------------------------------------
+// DoHandleErrorL
+// ----------------------------------------------------------------------------
+//
+void CGlxListViewImp::DoHandleErrorL(TInt /*aError*/)
+    {
+    TRACER( "CGlxListViewImp::DoHandleErrorL");
+    for (TInt i = 0; i < iMediaList->Count(); i++)
+        {
+        const TGlxMedia& item = iMediaList->Item(i);
+        TInt tnError = GlxErrorManager::HasAttributeErrorL(item.Properties(),
+                KGlxMediaIdThumbnail);
+        if (tnError != KErrNone)
+            {
+            SetDefaultThumbnailL(i);
+            }
+        }
     }
   
 // ----------------------------------------------------------------------------
@@ -950,7 +1023,10 @@ void CGlxListViewImp::HandleItemModifiedL( const RArray<TInt>& /*aItemIndexes*/,
 void CGlxListViewImp::SetDefaultThumbnailL(TInt aIndex)
     {
     TRACER("CGlxListViewImp::SetDefaultThumbnail");
-    CFbsBitmap* defaultBitmap = NULL;
+    CFbsBitmap* bitmap = NULL;
+    CFbsBitmap* mask = NULL;
+    TInt bitmapId = 0;
+    TInt maskId = 0;
     
     TFileName resFile(KDC_APP_BITMAP_DIR);
     resFile.Append(KGlxIconsFilename);
@@ -967,28 +1043,28 @@ void CGlxListViewImp::SetDefaultThumbnailL(TInt aIndex)
         switch(aIndex)
             {
             case EGlxListItemAll:
-                defaultBitmap = AknIconUtils::CreateIconL(resFile,
-                        EMbmGlxiconsQgn_prop_photo_all_large);
-                AknIconUtils::SetSize(defaultBitmap, 
-                        CHgDoubleGraphicListFlat::PreferredImageSize());            
+                {
+                bitmapId = EMbmGlxiconsQgn_prop_photo_all_large;
+                maskId = EMbmGlxiconsQgn_prop_photo_all_large_mask;
+                }
                 break;
             case EGlxListItemMonth:
-                defaultBitmap = AknIconUtils::CreateIconL(resFile,
-                        EMbmGlxiconsQgn_prop_photo_calendar_large);
-                AknIconUtils::SetSize(defaultBitmap, 
-                        CHgDoubleGraphicListFlat::PreferredImageSize());
+                {
+                bitmapId = EMbmGlxiconsQgn_prop_photo_calendar_large;
+                maskId = EMbmGlxiconsQgn_prop_photo_calendar_large_mask;
+                }
                 break;
             case EGlxListItemAlbum:
-                defaultBitmap = AknIconUtils::CreateIconL(resFile,
-                        EMbmGlxiconsQgn_prop_photo_album_large);
-                AknIconUtils::SetSize(defaultBitmap, 
-                        CHgDoubleGraphicListFlat::PreferredImageSize());
+                {
+                bitmapId = EMbmGlxiconsQgn_prop_photo_album_large;
+                maskId = EMbmGlxiconsQgn_prop_photo_album_large_mask;
+                }
                 break;
             case EGlxLIstItemTag:
-                defaultBitmap = AknIconUtils::CreateIconL(resFile,
-                        EMbmGlxiconsQgn_prop_photo_tag_large);
-                AknIconUtils::SetSize(defaultBitmap, 
-                        CHgDoubleGraphicListFlat::PreferredImageSize());
+                {
+                bitmapId = EMbmGlxiconsQgn_prop_photo_tag_large;
+                maskId = EMbmGlxiconsQgn_prop_photo_tag_large_mask;
+                }
                 break;
             default:
                 break;                    
@@ -998,33 +1074,42 @@ void CGlxListViewImp::SetDefaultThumbnailL(TInt aIndex)
         {
         GLX_LOG_INFO1("CGlxListViewImp::SetDefaultThumbnail - For other list view "
                 "aIndex %d",aIndex);
-        CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathParent );
+        CMPXCollectionPath* path = iMediaList->PathLC(
+                NGlxListDefs::EPathParent);
         if(path->Id(0) == KGlxCollectionPluginAlbumsImplementationUid)
             {
-            defaultBitmap = AknIconUtils::CreateIconL(resFile,
-                    EMbmGlxiconsQgn_prop_photo_album_large);
-            AknIconUtils::SetSize(defaultBitmap, 
-                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            bitmapId = EMbmGlxiconsQgn_prop_photo_album_large;
+            maskId = EMbmGlxiconsQgn_prop_photo_album_large_mask;
             }
         else if(path->Id(0) == KGlxCollectionPluginMonthsImplementationUid)
             {
-            defaultBitmap = AknIconUtils::CreateIconL(resFile,
-                    EMbmGlxiconsQgn_prop_photo_calendar_large);
-            AknIconUtils::SetSize(defaultBitmap, 
-                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            bitmapId = EMbmGlxiconsQgn_prop_photo_calendar_large;
+            maskId = EMbmGlxiconsQgn_prop_photo_calendar_large_mask;
             }
         else
             {
-            defaultBitmap = AknIconUtils::CreateIconL(resFile,
-                    EMbmGlxiconsQgn_prop_image_notcreated);
-            AknIconUtils::SetSize(defaultBitmap, 
-                    CHgDoubleGraphicListFlat::PreferredImageSize());
+            bitmapId = EMbmGlxiconsQgn_prop_image_notcreated;
+            maskId = EMbmGlxiconsQgn_prop_image_notcreated_mask;
             }
         CleanupStack::PopAndDestroy(path);
         }
-    iList->ItemL(aIndex).SetIcon(CGulIcon::NewL(defaultBitmap));
-    }
 
+    AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone, bitmap,
+            mask, resFile, bitmapId, maskId);
+    __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
+    __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
+
+    AknIconUtils::SetSize(bitmap,
+            CHgDoubleGraphicListFlat::PreferredImageSize(),
+            EAspectRatioPreservedAndUnusedSpaceRemoved);
+    AknIconUtils::SetSize(mask,
+            CHgDoubleGraphicListFlat::PreferredImageSize(),
+            EAspectRatioPreservedAndUnusedSpaceRemoved);
+
+    iList->ItemL(aIndex).SetIcon(CGulIcon::NewL(bitmap, mask));
+    CleanupStack::Pop(mask);
+    CleanupStack::Pop(bitmap); 
+    }
 
 // ----------------------------------------------------------------------------
 // HandleDialogDismissedL
@@ -1033,7 +1118,6 @@ void CGlxListViewImp::SetDefaultThumbnailL(TInt aIndex)
 void CGlxListViewImp::HandleDialogDismissedL()
     {
     TRACER("CGlxListViewImp::HandleDialogDismissedL()");
-    isTnGenerationComplete = ETrue;
     if(iSchedulerWait)
         {
         iSchedulerWait->AsyncStop();    
@@ -1086,12 +1170,50 @@ void CGlxListViewImp::HandleForegroundEventL(TBool aForeground)
 void CGlxListViewImp::NavigateToMainListL()
     {
     TRACER("CGlxListViewImp::NavigateToMainListL()");
-    CMPXCollectionPath* naviState = iNavigationalState->StateLC();
-    GLX_LOG_INFO1("From listview level = %d",naviState->Levels());
-//    if ( naviState->Levels() >= 1)
-        {
-        ProcessCommandL(EAknSoftkeyClose);
-        }
-    CleanupStack::PopAndDestroy(naviState);
+    ProcessCommandL(EAknSoftkeyClose);
     }
+// ----------------------------------------------------------------------------
+// CleanUpL
+// ----------------------------------------------------------------------------
+//	
+void CGlxListViewImp::CleanUpL()
+    {
+    GLX_LOG_INFO("CGlxListViewImp::CleanUpL()");
+    MGlxCache* cacheManager = MGlxCache::InstanceL();
+    for (TInt i = 0; i < iMediaList->Count(); i++)
+        {
+        cacheManager->ForceCleanupMedia(iMediaList->IdSpaceId(0),
+                iMediaList->Item(i).Id());
+        }
+    cacheManager->Close();
+    }
+
+// ----------------------------------------------------------------------------
+// UpdatePreviewL
+// ----------------------------------------------------------------------------
+//	
+void CGlxListViewImp::UpdatePreviewL(TInt aIndex)
+    {
+    TRACER("CGlxListViewImp::UpdatePreviewL()");
+    if (aIndex >= 0 && aIndex < iMediaList->Count())
+        {
+        TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail,
+                GlxFullThumbnailAttributeId(ETrue, iGridIconSize.iWidth,
+                        iGridIconSize.iHeight));
+        GLX_LOG_INFO1("CGlxListViewImp::UpdatePreviewL(aIndex = %d)", aIndex);
+        const TGlxMedia& item = iMediaList->Item(aIndex);
+        const CGlxThumbnailAttribute* value = item.ThumbnailAttribute(
+                thumbnailAttribute);
+        if (value)
+            {
+            CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
+            CleanupStack::PushL(bitmap);
+            iPreviewTNBinding->ScaleBitmapToListSizeL(value->iBitmap, bitmap);
+            iList->ItemL(aIndex).SetIcon(CGulIcon::NewL(bitmap));
+            iList->RefreshScreen(aIndex);
+            CleanupStack::Pop(bitmap);
+            }
+        }
+    }
+
 //  End of File

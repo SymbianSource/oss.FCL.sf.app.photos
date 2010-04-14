@@ -164,27 +164,9 @@ void  CGlxFullScreenViewImp::ConstructL(
 	//Register the view to recieve toolbar events. ViewBase handles the events
 	SetToolbarObserver(this);
 	iImgViewerMode = EFalse;
-	// Presently image viewer dont have toolbar
-	// So need to remove if image viewer using full screen
-	CGlxNavigationalState* navigationalState =  CGlxNavigationalState::InstanceL();
-	CleanupClosePushL( *navigationalState );
-	CMPXCollectionPath* naviState = navigationalState->StateLC();
-	if (naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
-	    {
-	    CAknToolbar* toolbar = Toolbar();
-	    if(toolbar)
-	        {
-	        toolbar->DisableToolbarL(ETrue);
-	        }
-	    ShowToolbarOnViewActivation(EFalse);
-	    }
-	else
-	    {
-	    ShowToolbarOnViewActivation(ETrue);
-	    }
-	CleanupStack::PopAndDestroy(naviState);
-	CleanupStack::PopAndDestroy(navigationalState);
-	
+    //Disable the toolbar always while entering fullscreen
+	EnableFSToolbarL(EFalse);
+    ShowToolbarOnViewActivation(EFalse);
 	
 	//Get the ScreenFurniture instance
 	iScreenFurniture = iUiUtility->ScreenFurniture();
@@ -306,12 +288,13 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
 		const TDesC8 & /* aCustomMessage */)
 	{
     TRACER("CGlxFullScreenViewImp::DoMLViewActivateL");
+	//Disable the softkeys
+    Cba()->MakeVisible( EFalse );
+    Cba()->DrawNow();
+    
     // hide the toolbar
-    CAknToolbar* toolbar = Toolbar();
-    if(toolbar)
-        {
-        toolbar->SetToolbarVisibility(EFalse); 
-        }
+    EnableFSToolbarL(EFalse);
+    
 
     CGlxNavigationalState* navigationalState =  CGlxNavigationalState::InstanceL();
     CleanupClosePushL( *navigationalState );
@@ -356,9 +339,6 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
    	 
     // create the coverflow
     CreateCoverflowWidgetL();
-    
-    // create the screen furniture for touch devices
-    CreateScreenFurnitureL();
     
     CreateSliderWidgetL();
     
@@ -519,11 +499,11 @@ void  CGlxFullScreenViewImp::ShowUiL(TBool aStartTimer)
         iCoverFlowWidget->SetUIMode(ETrue);
         }
 
-    //show the toolbar
-    CAknToolbar* toolbar = Toolbar();
-    if(toolbar)
+    //Since the toolbar should not be present for ImageViewer.
+    if(!iImgViewerMode)
         {
-        toolbar->SetToolbarVisibility(ETrue);    
+        //show the toolbar
+        EnableFSToolbarL(ETrue);
         }
      
     // For floating toolbar in non-touch devices
@@ -565,12 +545,17 @@ void  CGlxFullScreenViewImp::HideUi(TBool aSliderStatus)
         {
         iCoverFlowWidget->SetUIMode(EFalse);
         }
-    // hide the toolbar
-    CAknToolbar* toolbar = Toolbar();
-    if(toolbar)
+    
+    //Since the toolbar should not be present for ImageViewer.
+    if(!iImgViewerMode)
         {
-        toolbar->SetToolbarVisibility(EFalse); 
-        }    
+        // hide the toolbar
+        CAknToolbar* toolbar = Toolbar();
+        if(toolbar)
+            {
+            toolbar->SetToolbarVisibility(EFalse); 
+            }
+        }
     
     // hide the softkeys
     Cba()->MakeVisible( EFalse );
@@ -578,20 +563,6 @@ void  CGlxFullScreenViewImp::HideUi(TBool aSliderStatus)
  
     // set the ui state to On
     SetUiSate(NGlxNFullScreenUIState::EUiOff);
-    }
-
-// ---------------------------------------------------------------------------
-// CreateScreenFurnitureL
-// ---------------------------------------------------------------------------
-//	
-void  CGlxFullScreenViewImp::CreateScreenFurnitureL() 
-    {
-    TRACER("CGlxFullScreenViewImp::CreateScreenFurnitureL");
-    // create the softkeys
-    CEikButtonGroupContainer* cba = CEikButtonGroupContainer::Current();
-    CleanupStack::PushL( cba );
-    cba->SetCommandSetL(R_GLX_FULLSCREEN_SOFTKEYS);
-    CleanupStack::Pop(cba);
     }
 
 // ---------------------------------------------------------------------------
@@ -771,6 +742,19 @@ void CGlxFullScreenViewImp::DeactivateZoomControlL()
 void CGlxFullScreenViewImp::DoMLViewDeactivate()
     {
     TRACER("CGlxFullScreenViewImp::DoMLViewDeactivate");
+	//Disabling the toolbar here since it would give a crash when
+	//we try to enable the toolbar in activate without exiting photos.
+    if(!iImgViewerMode)
+        {    
+        // hide the toolbar
+        TRAP_IGNORE(EnableFSToolbarL(EFalse));
+        }
+    
+    HideUi(ETrue); 
+	// In Order to hide the softkeys immediately. The above statement does not do that as soon as we need. 
+	// So we do the below trick. The SK overlap is still there but much much less noticable. 
+    CCoeEnv::Static()->WsSession().Flush(); 
+
     //Clear the last uri for which DRM Rights were consumed before going back to grid view
     //since the GridView::Activate() and FullScreen::DeActivate() can be called in any order,
     //this call is being made to be on safer side
@@ -828,12 +812,10 @@ void CGlxFullScreenViewImp::HandleForegroundEventL(TBool aForeground)
 
     if (!aForeground)
         {
-        
         if(iHdmiController)
 			{   
             iHdmiController->ShiftToCloningMode();
 			}
-        
         iUiUtility->GlxTextureManager().FlushTextures();
         }
     else
@@ -918,7 +900,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 if ( NGlxNFullScreenUIState::EUiOff == GetUiSate()&& (
                         aEvent.Code() == EEventKey ) )
                     {
-                    //the Ui timer sjould be started once the UI screen furniture is shown
+                    //the Ui timer should be started once the UI screen furniture is shown
                     ShowUiL(ETrue);
                     } 
                 return EEventHandled;              
@@ -949,10 +931,10 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
             }
         }
     if(!aEvent.IsCustomEvent())
-            {   
-            GLX_LOG_INFO("Event Not Handled");          
-            return EEventNotHandled;
-            }
+        {   
+        GLX_LOG_INFO("Event Not Handled");          
+        return EEventNotHandled;
+        }
 
     if(aEvent.IsCustomEvent())
         {
@@ -1565,3 +1547,20 @@ void CGlxFullScreenViewImp::HandleMMCRemovalL()
         }
     ProcessCommandL(EAknSoftkeyExit);
     }
+	
+// ---------------------------------------------------------------------------
+// EnableFSToolbarL
+// 
+// ---------------------------------------------------------------------------
+//
+void CGlxFullScreenViewImp::EnableFSToolbarL(TBool aEnable)
+    {
+	TRACER("CGlxFullScreenViewImp::EnableFSToolbarL()");
+    CAknToolbar* toolbar = Toolbar();
+    if(toolbar)
+        {
+        toolbar->DisableToolbarL(!aEnable);
+        toolbar->SetToolbarVisibility(aEnable); 
+        }
+    }
+	

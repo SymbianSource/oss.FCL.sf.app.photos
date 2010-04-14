@@ -63,7 +63,7 @@ const TInt KRowHeight = 72;
 const TInt KLeftMargin = 10;
 const TInt KNumMinRowSpace = 2;
 const TInt KColSpace = 20;
-const TInt KRightmargin = 20;
+const TInt KRightmargin = 10;//Aligning Right margin
 const TInt KMinTagSize = 77;
 const TInt KTagScreenHeight = 460;
 const TReal KBoundaryMargin = 0.1; //10% = 10/100 = 0.1 
@@ -156,7 +156,7 @@ void CGlxCloudViewControl::ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisp
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
     iScreenHeight = rect.Height ();
     iParentLayout = CAlfLayout::AddNewL(*this, aAnchorLayout);                    
-    iTagScreenWidth = rect.Width() - iScrollPaneHandle.iW - KRightmargin;
+    iTagScreenWidth = rect.Width() - KRightmargin;
 
     if(IsLandscape())
         {	
@@ -230,7 +230,7 @@ void CGlxCloudViewControl::VisualLayoutUpdated(CAlfVisual &/* aVisual*/)
        }
     TRect rect;
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
-    if ((rect.Width() != (iTagScreenWidth + iScrollPaneHandle.iW + KRightmargin)) || (rect.Height() != iScreenHeight))
+    if ((rect.Width() != (iTagScreenWidth + KRightmargin)) || (rect.Height() != iScreenHeight))
         {
         //set the new screen dimensions
         TRAP_IGNORE(UpdateLayoutL());
@@ -1849,10 +1849,14 @@ void CGlxCloudViewControl::DisplayScrollBar()
         if( iScrollEventData.mSpan )
             {       
             scrollbarbaselement->setThumbOpacity(1.0);  
+            //make scroll bar visible
+            scrollbarbaselement->setOpacity(1.0);
             }
         else
             {
             scrollbarbaselement->setThumbOpacity(0.0);  
+            //make scroll bar invisible
+            scrollbarbaselement->setOpacity(0.0);
             }
         }
     }
@@ -1865,11 +1869,11 @@ void CGlxCloudViewControl::UpdateLayoutL()
     {
     TRect rect;
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
-    if ((rect.Width() != (iTagScreenWidth + iScrollPaneHandle.iW + KRightmargin)) || (rect.Height() != iScreenHeight))
+    if ((rect.Width() != (iTagScreenWidth + KRightmargin)) || (rect.Height() != iScreenHeight))
         {
         //set the new screen dimensions
         iScreenHeight=rect.Height();
-       iTagScreenWidth = rect.Width()- iScrollPaneHandle.iW - KRightmargin;
+       iTagScreenWidth = rect.Width()- KRightmargin;
         if(IsLandscape())
             {   
             iTagScreenHeight = rect.Height();   
@@ -1996,6 +2000,10 @@ void CGlxCloudViewControl::TimerComplete()
 void CGlxCloudViewControl::ShowContextItemMenu(TBool aShow)
     {
     iTagsContextMenuControl->ShowItemMenu(aShow);
+    if(!aShow)
+        {
+        iViewPortLayout->UpdateChildrenLayout(0);
+        }
     }
 
 //End of file

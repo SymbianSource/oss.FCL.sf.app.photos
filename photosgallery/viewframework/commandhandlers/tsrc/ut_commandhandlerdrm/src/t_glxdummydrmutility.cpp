@@ -48,7 +48,7 @@ TBool CGlxDRMUtility::ConsumeRightsL(const TDesC&)
     return ETrue;
     }    
     
-TBool CGlxDRMUtility::CanShowInfoOnlineL(TDesC& aUri)
+TBool CGlxDRMUtility::CanShowInfoOnlineL(const TDesC& aUri)
     {
     TBool hasInfo = EFalse;
     
@@ -60,7 +60,7 @@ TBool CGlxDRMUtility::CanShowInfoOnlineL(TDesC& aUri)
     return hasInfo;
     }
     
-void CGlxDRMUtility::ShowInfoOnlineL(TDesC& /*aUri*/)
+void CGlxDRMUtility::ShowInfoOnlineL(const TDesC& /*aUri*/)
     {
     
     }

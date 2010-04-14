@@ -149,7 +149,7 @@ NONSHARABLE_CLASS( UT_CGlxAttributeContext )
     virtual void SetFocusInitialPosition(NGlxListDefs::TFocusInitialPosition /*aFocusInitialPosition*/) { };
     virtual void ResetFocus(){ };
     virtual void SetVisibleWindowIndexL( TInt /*aIndex*/) { };
-    virtual TInt VisibleWindowIndex() const { };
+    virtual TInt VisibleWindowIndex() const { return iFocusIndex;};
     virtual void CancelPreviousRequests() {};
 	private:
 		CGlxMediaListTest();

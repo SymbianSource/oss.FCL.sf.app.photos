@@ -488,9 +488,13 @@ TKeyResponse CGlxCommandHandlerMarking::OfferKeyEventL(const TKeyEvent&
 // HandleItemAddedL
 // ---------------------------------------------------------------------------
 void CGlxCommandHandlerMarking::HandleItemAddedL(TInt /*aStartIndex*/, 
-                                    TInt /*aEndIndex*/, MGlxMediaList* /*aList*/)
+                                    TInt /*aEndIndex*/, MGlxMediaList* aList)
     {
-    // No Implementation
+    if (aList->Count() > 0 && iUiUtility->GetGridToolBar())
+        {
+        iUiUtility->GetGridToolBar()->SetItemDimmed(
+                EGlxCmdStartMultipleMarking, EFalse, ETrue);
+        }
     }
     
     
@@ -507,9 +511,13 @@ void CGlxCommandHandlerMarking::HandleMediaL(TInt /*aListIndex*/,
 // HandleItemRemoved
 // ---------------------------------------------------------------------------
 void CGlxCommandHandlerMarking::HandleItemRemovedL(TInt /*aStartIndex*/, 
-                                    TInt /*aEndIndex*/, MGlxMediaList* /*aList*/)
+                                    TInt /*aEndIndex*/, MGlxMediaList* aList)
     {
-    //Do nothing
+    if (aList->Count() == 0 && iUiUtility->GetGridToolBar())
+        {
+        iUiUtility->GetGridToolBar()->SetItemDimmed(
+                EGlxCmdStartMultipleMarking, ETrue, ETrue);
+        }
     }
 
 // ---------------------------------------------------------------------------

@@ -51,8 +51,6 @@
 const TInt KMinimalGap = 5;         
 //Height of each menu item
 const TInt KReqHeightPerMenuItem = 47;
-//Minimum width for control
-const TInt KReqWidth = 113;
 //Number of menu items present in stylus menu
 const TInt KNumofMenuItems = 3;
 //Number of columns present in grid control showing menu  
@@ -72,7 +70,8 @@ const TInt KTextSizeInPixels = 20;
 const TInt KShrinkXCoord = 5;
 //Y shrink factor for stylus menu border to be drawn/visible
 const TInt KShrinkYCoord = 5;
-
+//Padding value for Minimum width for control
+const TInt KWidthPadding = 20;
 //For Tagging the visuals
 _LIT8(KTagSlideshow, "SS");
 _LIT8(KTagRename, "Ren");
@@ -86,7 +85,8 @@ CGlxTagsContextMenuControl* CGlxTagsContextMenuControl::NewL(
         MGlxItemMenuObserver& aItemMenuObserver)
     {
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::NewL");
-    CGlxTagsContextMenuControl* self = CGlxTagsContextMenuControl::NewLC( aItemMenuObserver);
+    CGlxTagsContextMenuControl* self = CGlxTagsContextMenuControl::NewLC(
+            aItemMenuObserver);
     CleanupStack::Pop(self);
     return self;
     }
@@ -98,7 +98,8 @@ CGlxTagsContextMenuControl* CGlxTagsContextMenuControl::NewLC(
         MGlxItemMenuObserver& aItemMenuObserver )
     {
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::NewLC");
-    CGlxTagsContextMenuControl* self = new (ELeave) CGlxTagsContextMenuControl( aItemMenuObserver);
+    CGlxTagsContextMenuControl* self =
+            new (ELeave) CGlxTagsContextMenuControl(aItemMenuObserver);
     CleanupStack::PushL( self );
     self->ConstructL();
     return self;
@@ -107,8 +108,9 @@ CGlxTagsContextMenuControl* CGlxTagsContextMenuControl::NewLC(
 // CGlxTagsContextMenuControl()
 // --------------------------------------------------------------------------- 
 //
-CGlxTagsContextMenuControl::CGlxTagsContextMenuControl(MGlxItemMenuObserver& aItemMenuObserver)
-    : iItemMenuObserver(aItemMenuObserver)
+CGlxTagsContextMenuControl::CGlxTagsContextMenuControl(
+        MGlxItemMenuObserver& aItemMenuObserver) :
+    iItemMenuObserver(aItemMenuObserver)
     {
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::CGlxTagsContextMenuControl");
     //Nothing more to do for now
@@ -120,35 +122,40 @@ CGlxTagsContextMenuControl::CGlxTagsContextMenuControl(MGlxItemMenuObserver& aIt
 void CGlxTagsContextMenuControl::ConstructL()
     {
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::ConstructL");
-    iUiUtility = CGlxUiUtility::UtilityL ();
-    CAlfControl::ConstructL(*(iUiUtility->Env()) );
+    CGlxUiUtility* utility = CGlxUiUtility::UtilityL();
+    CleanupClosePushL( *utility );
+    iAlfEnv = utility->Env();
+    CleanupStack::PopAndDestroy( utility );
+    CAlfControl::ConstructL(*iAlfEnv);
     
     iTimer = CGlxBubbleTimer::NewL(this);
     
     iMainVisual = CAlfAnchorLayout::AddNewL(*this);
     iMainVisual->SetFlag(EAlfVisualFlagManualLayout);
-    iMainVisual->SetSize(TSize(KReqWidth, KGridHeight));
     iMainVisual->SetPos(TAlfRealPoint(KDummyPoint));
-    
-    iMainVisual->EnableBrushesL(ETrue);
-    
-    TRect outerRect(TRect(TPoint(KDummyPoint),TSize(KReqWidth, KGridHeight)));
-    TRect innerRect(outerRect);
-    innerRect.Shrink(KShrinkXCoord,KShrinkYCoord);
-
-    CAlfFrameBrush* frameBrush = CAlfFrameBrush::NewLC(*(iUiUtility->Env()),
-                                        KAknsIIDQsnFrPopupSub );
-    frameBrush->SetFrameRectsL(innerRect, outerRect);
-   
-    iMainVisual->Brushes()->AppendL(frameBrush,EAlfHasOwnership);
-    CleanupStack::Pop(frameBrush);
-    
     // Create a new 3x1 grid layout visual.
-    iGrid = CAlfGridLayout::AddNewL(*this, KNoOfColumns, KNumofMenuItems , 
-			iMainVisual);//columns, rows
+    iGrid = CAlfGridLayout::AddNewL(*this, KNoOfColumns, KNumofMenuItems,
+            iMainVisual);//columns, rows
 
     //Finally create the menu list that will appear in screen
     CreateMenuListL(CreateFontL());
+    CalculateMaxWidth();
+    iMainVisual->SetSize(TSize(KWidthPadding + iMaxTextWidth, KGridHeight));
+    
+    iMainVisual->EnableBrushesL(ETrue);
+
+    TRect outerRect(TRect(TPoint(KDummyPoint),
+                    TSize(KWidthPadding + iMaxTextWidth, KGridHeight)));
+    TRect innerRect(outerRect);
+    innerRect.Shrink(KShrinkXCoord, KShrinkYCoord);
+
+    CAlfFrameBrush* frameBrush = CAlfFrameBrush::NewLC(*iAlfEnv,
+                                        KAknsIIDQsnFrPopupSub);
+    frameBrush->SetFrameRectsL(innerRect, outerRect);
+
+    iMainVisual->Brushes()->AppendL(frameBrush, EAlfHasOwnership);
+    CleanupStack::Pop(frameBrush);
+
 	ShowItemMenu(EFalse);
     }
 // --------------------------------------------------------------------------- 
@@ -169,12 +176,6 @@ CGlxTagsContextMenuControl::~CGlxTagsContextMenuControl()
         delete iTimer;
         iTimer = NULL;
         }
-    
-    if (iUiUtility)
-        {
-        iUiUtility->Close();
-        iUiUtility = NULL;
-        }
     }
 // --------------------------------------------------------------------------- 
 // CreateFont()
@@ -185,7 +186,7 @@ TInt CGlxTagsContextMenuControl::CreateFontL()
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::CreateFont");
     
     // Create a new style based on the required font
-    CAlfTextStyleManager& styleMan = iUiUtility->Env()->TextStyleManager();
+    CAlfTextStyleManager& styleMan = iAlfEnv->TextStyleManager();
     
     // remember its id for return later
     TInt id = styleMan.CreatePlatformTextStyleL(EAlfTextStyleNormal);
@@ -210,8 +211,8 @@ void CGlxTagsContextMenuControl::CreateMenuListL(TInt aFontId)
     
     TRgb color;
     //Gets the color of the text specific to skin 
-    AknsUtils::GetCachedColor(AknsUtils::SkinInstance(),
-            color, KAknsIIDQsnTextColors, EAknsCIQsnTextColorsCG20 );
+    AknsUtils::GetCachedColor(AknsUtils::SkinInstance(), color,
+            KAknsIIDQsnTextColors, EAknsCIQsnTextColorsCG20);
     
     //Loading the strings from rss
     HBufC* renameTitle = StringLoader::LoadLC( R_GLX_TAGS_RENAME_TITLE );
@@ -267,9 +268,9 @@ void CGlxTagsContextMenuControl::SetDisplay(const TPoint& aPoint)
     TInt rightDisplayableWidth = iViewableRect.iBr.iY - XPos;
 
     //always draw above
-    if(rightDisplayableWidth < KReqWidth)
+    if(rightDisplayableWidth < iMaxTextWidth)
         {
-        XPos = aPoint.iX - KReqWidth;
+        XPos = aPoint.iX - iMaxTextWidth;
         }
     if(upperDisplayableHeight < KGridHeight)
         {
@@ -368,4 +369,24 @@ void CGlxTagsContextMenuControl::SetViewableRect(TRect aRect)
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::SetViewableRect");
     iViewableRect.SetRect(aRect.iTl.iX, aRect.iTl.iY, 
                                 aRect.iBr.iX, aRect.iBr.iY);
+    }
+// --------------------------------------------------------------------------- 
+// CalculateMaxWidth()
+// --------------------------------------------------------------------------- 
+//
+void CGlxTagsContextMenuControl::CalculateMaxWidth()
+    {
+    TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::CalculateMaxWidth");
+
+    iMaxTextWidth
+            = (iSlideshowTextVisual->TextExtents().iWidth
+                    > iRenameTextVisual->TextExtents().iWidth
+                              ? iSlideshowTextVisual->TextExtents().iWidth
+                                 : iRenameTextVisual->TextExtents().iWidth);
+
+    iMaxTextWidth
+            = (iMaxTextWidth > iDeleteTextVisual->TextExtents().iWidth
+                              ? iMaxTextWidth
+                                 : iDeleteTextVisual->TextExtents().iWidth);
+
     }

@@ -84,6 +84,7 @@ private:    // From MGlxMediaListObserver
                 TInt aOldIndex, MGlxMediaList* aList);
     void HandleItemSelectedL(TInt aIndex, TBool aSelected, MGlxMediaList* aList);
     void HandleMessageL(const CMPXMessage& aMessage, MGlxMediaList* aList);
+    void HandlePopulatedL( MGlxMediaList* aList );
     
 private:
     /** Second phase constructor */

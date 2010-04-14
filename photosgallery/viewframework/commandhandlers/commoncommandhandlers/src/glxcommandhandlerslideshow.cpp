@@ -339,10 +339,14 @@ TBool CGlxCommandHandlerSlideshow::BypassFiltersForExecute() const
 // ----------------------------------------------------------------------------
 void CGlxCommandHandlerSlideshow::HandleFocusChangedL(
                 NGlxListDefs::TFocusChangeType /*aType*/,
-                TInt /*aNewIndex*/, TInt /*aOldIndex*/, MGlxMediaList* /*aList*/ )
+                TInt /*aNewIndex*/, TInt /*aOldIndex*/, MGlxMediaList* aList)
     {
     TRACER("CGlxCommandHandlerSlideshow::HandleFocusChangedL");
-
+    if (aList->Count() <= 0 && iUiUtility->GetGridToolBar())
+        {
+        iUiUtility->GetGridToolBar()->SetItemDimmed(
+                EGlxCmdStartMultipleMarking, ETrue, ETrue);
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -350,8 +354,13 @@ void CGlxCommandHandlerSlideshow::HandleFocusChangedL(
 // ---------------------------------------------------------------------------
 //
 void CGlxCommandHandlerSlideshow::HandleItemAddedL(TInt /*aStartIndex*/,
-            TInt /*aEndIndex*/, MGlxMediaList* /*aList*/)
+            TInt /*aEndIndex*/, MGlxMediaList* aList)
     {
+    if (aList->Count() > 0 && iUiUtility->GetGridToolBar())
+        {
+        iUiUtility->GetGridToolBar()->SetItemDimmed(EGlxCmdSlideshowPlay,
+                EFalse, ETrue);
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -368,8 +377,13 @@ void CGlxCommandHandlerSlideshow::HandleMediaL(TInt /*aListIndex*/,
 // ---------------------------------------------------------------------------
 //
 void CGlxCommandHandlerSlideshow::HandleItemRemovedL(TInt /*aStartIndex*/,
-            TInt /*aEndIndex*/, MGlxMediaList* /*aList*/)
+            TInt /*aEndIndex*/, MGlxMediaList* aList)
     {
+    if (aList->Count() <= 0 && iUiUtility->GetGridToolBar())
+        {
+        iUiUtility->GetGridToolBar()->SetItemDimmed(EGlxCmdSlideshowPlay,
+                ETrue, ETrue);
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -509,6 +523,19 @@ void CGlxCommandHandlerSlideshow::UpdateToolbar()
             EGlxCmdSlideshowPlay, visible );
     }    
     
+// ----------------------------------------------------------------------------
+// HandlePopulatedL
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerSlideshow::HandlePopulatedL( MGlxMediaList* aList )
+    {
+    TRACER("CGlxCommandHandlerSlideshow::HandlePopulatedL()");
+    if (aList->Count() == 0 && iUiUtility->GetGridToolBar())
+        {
+        iUiUtility->GetGridToolBar()->SetItemDimmed(
+                EGlxCmdSlideshowPlay, ETrue, ETrue);
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // PopulateToolbar
@@ -517,7 +544,8 @@ void CGlxCommandHandlerSlideshow::UpdateToolbar()
 void CGlxCommandHandlerSlideshow::PopulateToolbarL()
 	{
     TRACER("CGlxCommandHandlerSlideshow::PopulateToolbarL");
-	iUiUtility->ScreenFurniture()->SetTooltipL( EGlxCmdSlideshowPlay, CAknButton::EPositionLeft );
+    iUiUtility->ScreenFurniture()->SetTooltipL(EGlxCmdSlideshowPlay,
+            CAknButton::EPositionLeft);
 	}
 
 // End of File

@@ -330,22 +330,19 @@ void CGlxCacheManager::HandleCollectionMediaL(const TGlxIdSpaceId& aIdSpaceId, c
         RPointerArray< MGlxMediaUser > users;
         CleanupClosePushL( users );
         
-        // Record the error on all requested attributes
         TInt idCount = iRequestedItemIds.Count();
-        
-        for( TInt idIndex = 0; idIndex < idCount; idIndex++ )
-            {
-            CGlxMedia* item = MediaForceCreateL(aIdSpaceId, iRequestedItemIds[idIndex]);
-            GlxErrorManager::SetAttributeErrorL(item, iRequestedAttrs, aError);
-            
-            // Keep track of media lists to notify later
-            TInt userCount = item->UserCount();
-            for ( TInt userIndex = 0; userIndex < userCount; userIndex++ )
-                {
-                users.InsertInAddressOrder( &item->User( userIndex ) );
-                }
-            }
-
+        if(idCount)
+        	{       	
+			CGlxMedia* item = MediaForceCreateL(aIdSpaceId, iRequestedItemIds[0]);
+			GlxErrorManager::SetAttributeErrorL(item, iRequestedAttrs, aError);
+			
+			// Keep track of media lists to notify later
+			TInt userCount = item->UserCount();
+			for ( TInt userIndex = 0; userIndex < userCount; userIndex++ )
+				{
+				users.InsertInAddressOrder( &item->User( userIndex ) );
+				}
+        	}		
         // Notify all affected users of error
         TInt userCount = users.Count();
         for ( TInt i = 0; i < userCount; i++ )

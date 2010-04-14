@@ -118,8 +118,10 @@ void CGlxCommandHandlerUpload::ConstructL()
 	iCurrentCenRepMonitor = EMonitorNone;
 	iTnmRequestID = KErrNotFound;
 	
+	iIsFullScreenView = IsFullScreenViewL();
+	
     //Check for fullscreen here since we dont get the activate call in FS.
-    if(IsFullScreenViewL())
+    if(iIsFullScreenView)
         {
         //Giving the viewid as zero, since its not used anywhere.
         iToolbar = iAvkonAppUi->CurrentFixedToolbar();        
@@ -271,7 +273,7 @@ void CGlxCommandHandlerUpload::DoActivateL(TInt aViewId)
     
     //Get the grid toolbar here as it wont be created yet in
     //constructor
-    if(!IsFullScreenViewL())
+    if(!iIsFullScreenView)
         {    
         iToolbar = iUiUtility->GetGridToolBar();        
         }
@@ -368,7 +370,7 @@ void CGlxCommandHandlerUpload::PopulateToolbarL()
     
 	//When the Upload is not supported or if we are in grid view
 	//and none of the item is selected Dim the Upload icon
-	if(!iUploadSupported || (!IsFullScreenViewL() && 
+	if(!iUploadSupported || (!iIsFullScreenView && 
                                    (MediaList().SelectionCount()== 0)))
         {        
         DisableUploadToolbarItem(ETrue);
@@ -529,7 +531,7 @@ void CGlxCommandHandlerUpload::HandleFocusChangedL(NGlxListDefs::TFocusChangeTyp
     {
 	TRACER("CGlxCommandHandlerUpload::HandleFocusChangedL");
     //In Fullscreen change the icons based on current focused icon
-    if(iUploadSupported && IsFullScreenViewL())
+    if(iUploadSupported && iIsFullScreenView)
         {
         UpdateFSUploadIconL();
         }
@@ -545,7 +547,7 @@ void CGlxCommandHandlerUpload::HandleItemSelectedL(TInt aIndex, TBool aSelected,
 	TRACER("CGlxCommandHandlerUpload::HandleItemSelectedL");
 	//In grid if an item is selected update the toolbar icon based on
 	//the mime types of items
-    if(iUploadSupported && !IsFullScreenViewL())
+    if(iUploadSupported && !iIsFullScreenView)
         {        
         if(aList->SelectionCount() >= 1 )
             {        
@@ -556,7 +558,11 @@ void CGlxCommandHandlerUpload::HandleItemSelectedL(TInt aIndex, TBool aSelected,
                 {
                 DecodeIconL(uploadIconFileName);
                 }
-            DisableUploadToolbarItem(EFalse);
+			//Enable the toolbar only once to avoid performance prb
+	        if(aList->SelectionCount() == 1 )
+				{
+            	DisableUploadToolbarItem(EFalse);
+				}
             }
         else
             {
@@ -589,7 +595,7 @@ void CGlxCommandHandlerUpload::HandlePopulatedL(MGlxMediaList* aList)
     {
     if(aList && aList->Count() > 0)
         {
-        if(!iUploadSupported || !IsFullScreenViewL())
+        if(!iUploadSupported || !iIsFullScreenView)
             {
             DisableUploadToolbarItem(ETrue);
             }

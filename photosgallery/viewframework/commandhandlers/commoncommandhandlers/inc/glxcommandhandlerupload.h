@@ -252,6 +252,9 @@ private: // data
     CAknToolbar* iToolbar;
     
     TThumbnailRequestId iTnmRequestID;
+
+    //To check if we are in fullscreen
+    TBool iIsFullScreenView;
 	};
 
 #endif //__GLXCOMMANDHANDLERUPLOAD_H__

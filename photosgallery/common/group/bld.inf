@@ -10,6 +10,7 @@
 * Nokia Corporation - initial contribution.
 *
 * Contributors:
+* NTT DOCOMO, INC - BUG 2361
 *
 * Description:    Project definition file for project glxdatasourcemanager.
 *
@@ -31,10 +32,7 @@ PRJ_EXPORTS
 
 // flags for setting the orientation
 
-	// for device
-	../cenrep/200009EE.txt   /epoc32/data/z/private/10202be9/200009ee.txt
-	// for emulator
-	../cenrep/200009EE.txt   /epoc32/release/winscw/udeb/z/private/10202be9/200009ee.txt
+../cenrep/200009EE.txt   z:/private/10202be9/200009ee.txt
 
 // Generic configuration interface for component cenrep settings  
 ../../conf/gallery.confml                        CONFML_EXPORT_PATH(gallery.confml,customsw)

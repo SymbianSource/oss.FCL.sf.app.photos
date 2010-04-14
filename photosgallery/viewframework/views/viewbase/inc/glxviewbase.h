@@ -230,6 +230,12 @@ private:
      */
     CAknTitlePane* GetTitlePaneL();
 
+    /*
+     * Set toolbar items dimmed.
+     * @param aDimmed Flag for the toolbar items to be dimmed.
+     */
+    void SetToolbarItemsDimmed(TBool aDimmed);
+    
 protected:
 	/**
 	 * Optionally implemented by sub-classes to prepare command handlers.

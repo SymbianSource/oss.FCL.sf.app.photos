@@ -77,6 +77,7 @@ public: //From MGlxMediaListObserver
             TInt aOldIndex, MGlxMediaList* aList);
     void HandleItemSelectedL(TInt aIndex, TBool aSelected, MGlxMediaList* aList);
     void HandleMessageL(const CMPXMessage& aMessage, MGlxMediaList* aList);
+    void HandlePopulatedL( MGlxMediaList* aList );
     
 private:
     /*
@@ -90,6 +91,12 @@ private:
      * aLatched ETrue if the command button needs to be latched. 
      */
     void EnableLatch( TInt aCommandId, TInt aLatched );
+
+    /*
+     * Set toolbar items dimmed.
+     * @param aDimmed Flag for the toolbar items to be dimmed.
+     */
+    void SetToolbarItemsDimmed(TBool aDimmed);
      
 private:    
     CAknToolbar* iToolbar;

@@ -25,7 +25,7 @@
 
 //Forward Declaration
 class CAlfGridLayout;
-class CGlxUiUtility;
+class CAlfEnv;
 
 /**
  *MGlxItemMenuObserver is a class to handle the menu items in grid layout
@@ -114,6 +114,10 @@ private:
      */
     void CreateMenuListL(TInt aFontId);
     
+    /** 
+    *  Calculates the maximum text width of menu items 
+    */
+    void CalculateMaxWidth();
     /**     
      *  Perform the two phase construction
      *  @param  aEvent - key Event to handle
@@ -123,15 +127,14 @@ private:
     TBool OfferEventL(const TAlfEvent& aEvent);
 
 private:
-
-    //Ui Utility, not owning, only close
-    CGlxUiUtility* iUiUtility;
     
     //Observer to handle the menu items in grid layout
     MGlxItemMenuObserver& iItemMenuObserver;          
     
     //Grid layout, not owning
     CAlfGridLayout* iGrid;
+    /** The Alf environment*/
+    CAlfEnv* iAlfEnv;
     
     //Slideshow text, not owning
     CAlfTextVisual* iSlideshowTextVisual;     
@@ -153,6 +156,8 @@ private:
     
     //flag for stylus menu visibility
     TBool iItemMenuVisibility;                                         
+    //Maximum text width of a menu item
+    TInt iMaxTextWidth;
     };
 
 #endif /* GLXTAGSCONTEXTMENUCONTROL_H_ */

@@ -239,8 +239,9 @@ EXPORT_C void CGlxUiUtility::ShowAlfDisplayL()
 	// make it visible as well
 	CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
 
-	CCoeControl* contl = (CCoeControl*)uiUtility->Display()->ObjectProvider();
-	contl->MakeVisible (ETrue);
+    CCoeControl* contl =
+            (CCoeControl*) uiUtility->Display()->ObjectProvider();
+    contl->MakeVisible(ETrue);
 
 	uiUtility->Close();
 	// no need to do anything else, the coecontrol handles the visibility
@@ -255,13 +256,14 @@ EXPORT_C void CGlxUiUtility::HideAlfDisplayL()
 	// make it invisible as well (this might be all that is needed)
 	CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
 	
-	CCoeControl* contl = (CCoeControl*)uiUtility->Display()->ObjectProvider();
+    CCoeControl* contl =
+            (CCoeControl*) uiUtility->Display()->ObjectProvider();
 	contl->MakeVisible (EFalse);
 	
 	uiUtility->Close();
 	// no need to do anything else, the coecontrol handles the visibility
 	}
-	
+
 // -----------------------------------------------------------------------------
 // GlxTextureManager
 // -----------------------------------------------------------------------------
@@ -282,13 +284,13 @@ EXPORT_C TGlxNavigationDirection CGlxUiUtility::ViewNavigationDirection()
     TRACER("CGlxUiUtility::ViewNavigationDirection()");
     return iNavigationDirection;
     }
-    
 
 // -----------------------------------------------------------------------------
 // SetViewNavigationDirection
 // -----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxUiUtility::SetViewNavigationDirection(TGlxNavigationDirection aDirection)
+EXPORT_C void CGlxUiUtility::SetViewNavigationDirection(
+        TGlxNavigationDirection aDirection)
     {
     TRACER("CGlxUiUtility::SetViewNavigationDirection()");
     iNavigationDirection = aDirection;
@@ -458,20 +460,20 @@ EXPORT_C void CGlxUiUtility::HandleTvStatusChangedL( TTvChangeType aChangeType )
     {
     TRACER("CGlxUiUtility::HandleTvStatusChangedL()");
 
-    if ( aChangeType == ETvDisplayNotVisible )         // Visibility event
+    if (aChangeType == ETvDisplayNotVisible) // Visibility event
         {
         iEnv->Release();
         return; // don't redraw the display
         }
-    else if ( aChangeType == ETvDisplayIsVisible )     // Visibility event
+    else if (aChangeType == ETvDisplayIsVisible) // Visibility event
         {
         iEnv->RestoreL();
         }
-     else                                              // TV Connection event
+    else // TV Connection event
         {
-        GLX_ASSERT_DEBUG( (aChangeType == ETvConnectionChanged), 
-                            Panic( EGlxPanicLogicError ), 
-                            "Expected TV Connection Changed" );
+        GLX_ASSERT_DEBUG( (aChangeType == ETvConnectionChanged),
+                Panic( EGlxPanicLogicError ),
+                "Expected TV Connection Changed" );
 
         if ( iGlxTvOut->IsConnected() )
             {
@@ -523,7 +525,7 @@ void  CGlxUiUtility::HandleActionL (const TAlfActionCommand &aActionCommand)
             {
         	// The primary (phone) display has changed orientation
         	DestroyTvOutDisplay();
-                CreateTvOutDisplayL(); //@ will generate false positive in codescanner
+            CreateTvOutDisplayL(); //@ will generate false positive in codescanner
             }
         else
             {
@@ -548,7 +550,8 @@ void CGlxUiUtility::DestroyTvOutDisplay()
         iEnv->PauseRefresh();
 
         // Disable Primary Window Visibility events
-        CCoeControl* contl = (CCoeControl*)iEnv->PrimaryDisplay().ObjectProvider();
+        CCoeControl* contl =
+                (CCoeControl*) iEnv->PrimaryDisplay().ObjectProvider();
         contl->DrawableWindow()->DisableVisibilityChangeEvents();
         }
     }
@@ -584,18 +587,20 @@ void CGlxUiUtility::CreateTvOutDisplayL()
 // AddSkinChangeObserverL
 // -----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxUiUtility::AddSkinChangeObserverL(MGlxSkinChangeObserver& aObserver)
+EXPORT_C void CGlxUiUtility::AddSkinChangeObserverL(
+        MGlxSkinChangeObserver& aObserver)
     {
     TRACER("CGlxUiUtility::AddSkinChangeObserverL()");
     iGlxSkinChangeMonitor->AddSkinChangeObserverL( aObserver );
     }
-    
+
 // -----------------------------------------------------------------------------
 // RemoveSkinChangeObserver
 // -----------------------------------------------------------------------------
 //    
-EXPORT_C void CGlxUiUtility::RemoveSkinChangeObserver(MGlxSkinChangeObserver& aObserver)
-    {      
+EXPORT_C void CGlxUiUtility::RemoveSkinChangeObserver(
+        MGlxSkinChangeObserver& aObserver)
+    {
     TRACER("CGlxUiUtility::RemoveSkinChangeObserver()");
     iGlxSkinChangeMonitor->RemoveSkinChangeObserver( aObserver );
     }
@@ -634,27 +639,30 @@ EXPORT_C TBool CGlxUiUtility::IsPenSupported()
 // -----------------------------------------------------------------------------
 //	
 void CGlxUiUtility::GridIconSizeL()
-	{
-	TRACER("CGlxUiUtility::GridIconSize()");
-	// Sets up TLS, must be done before FeatureManager is used.
-	    FeatureManager::InitializeLibL();
-	    
-	  if(FeatureManager::FeatureSupported( KFeatureIdLayout640_360_Touch ) || FeatureManager::FeatureSupported( KFeatureIdLayout360_640_Touch ))
-	      {
-	      iGridIconSize = TSize(111,83);
-	      }
-	  else if(FeatureManager::FeatureSupported(KFeatureIdLayout640_480_Touch) || FeatureManager::FeatureSupported(KFeatureIdLayout480_640_Touch) || 
-	          FeatureManager::FeatureSupported(KFeatureIdLayout640_480) || FeatureManager::FeatureSupported(KFeatureIdLayout480_640))
-	      {
-	      iGridIconSize = TSize(146,110);
-	      }
-	  else
-	      {
-	      iGridIconSize = TSize(146,110);
-	      }
-	// Frees the TLS. Must be done after FeatureManager is used.
-	    FeatureManager::UnInitializeLib(); 
-	}
+    {
+    TRACER("CGlxUiUtility::GridIconSize()");
+    // Sets up TLS, must be done before FeatureManager is used.
+    FeatureManager::InitializeLibL();
+
+    if (FeatureManager::FeatureSupported(KFeatureIdLayout640_360_Touch)
+            || FeatureManager::FeatureSupported(KFeatureIdLayout360_640_Touch))
+        {
+        iGridIconSize = TSize(111, 83);
+        }
+    else if (FeatureManager::FeatureSupported(KFeatureIdLayout640_480_Touch)
+            || FeatureManager::FeatureSupported(KFeatureIdLayout480_640_Touch)
+            || FeatureManager::FeatureSupported(KFeatureIdLayout640_480)
+            || FeatureManager::FeatureSupported(KFeatureIdLayout480_640))
+        {
+        iGridIconSize = TSize(146, 110);
+        }
+    else
+        {
+        iGridIconSize = TSize(146, 110);
+        }
+    // Frees the TLS. Must be done after FeatureManager is used.
+    FeatureManager::UnInitializeLib();
+    }
 
 
  
@@ -678,7 +686,7 @@ EXPORT_C void CGlxUiUtility::SetExitingState(TBool aIsExiting)
 EXPORT_C TInt CGlxUiUtility::VisibleItemsInPageGranularityL()
     {
     TRACER("CGlxUiUtility::VisibleItemsInPageGranularityL");
-    
+
     //TBD: In MCL 9.1/Corolla env currently the feature flags 
     //KFeatureIdLayout640_480 and KFeatureIdLayout480_640 are not defined.
     //so making the default granularity as 21 instead of 15.
@@ -686,71 +694,60 @@ EXPORT_C TInt CGlxUiUtility::VisibleItemsInPageGranularityL()
     //getting the feature flag.
     TInt ret = KGlxVGAVisibleItemsGranularity;
     FeatureManager::InitializeLibL();
-    
-    if (FeatureManager::FeatureSupported( KFeatureIdLayout640_360_Touch ) || 
-        FeatureManager::FeatureSupported( KFeatureIdLayout360_640_Touch ))
-      {
-      ret = KGlxQHDVisibleItemsGranularity;
-      }
-    else if(FeatureManager::FeatureSupported(KFeatureIdLayout640_480_Touch) || 
-          FeatureManager::FeatureSupported(KFeatureIdLayout480_640_Touch) || 
-          FeatureManager::FeatureSupported(KFeatureIdLayout640_480) || 
-          FeatureManager::FeatureSupported(KFeatureIdLayout480_640))
-      {
-      ret = KGlxVGAVisibleItemsGranularity;
-      }
-    FeatureManager::UnInitializeLib(); 
+
+    if (FeatureManager::FeatureSupported(KFeatureIdLayout640_360_Touch)
+            || FeatureManager::FeatureSupported(KFeatureIdLayout360_640_Touch))
+        {
+        ret = KGlxQHDVisibleItemsGranularity;
+        }
+    else if (FeatureManager::FeatureSupported(KFeatureIdLayout640_480_Touch)
+            || FeatureManager::FeatureSupported(KFeatureIdLayout480_640_Touch)
+            || FeatureManager::FeatureSupported(KFeatureIdLayout640_480)
+            || FeatureManager::FeatureSupported(KFeatureIdLayout480_640))
+        {
+        ret = KGlxVGAVisibleItemsGranularity;
+        }
+    FeatureManager::UnInitializeLib();
     return ret;
     }
 
 // -----------------------------------------------------------------------------
-// StartTNMDaemonL
+// StartTNMDaemon
 // -----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxUiUtility::StartTNMDaemonL()
+EXPORT_C TInt CGlxUiUtility::StartTNMDaemon()
     {
-    TRACER("CGlxUiUtility::StartTNMDaemonL");
-    TInt err = RProperty::Set(KTAGDPSNotification, KForceBackgroundGeneration, ETrue);
-    if(err != KErrNone)
-        {
-        GLX_LOG_INFO1("GetItemsLeftCountL: RProperty::Set errorcode %d",err);
-        //need to check what to do in fail cases
-        User::Leave(err);
-        }
-    }
-	
-// -----------------------------------------------------------------------------
-// StopTNMDaemonL
-// -----------------------------------------------------------------------------
-//
-EXPORT_C void CGlxUiUtility::StopTNMDaemonL()
-    {
-    TRACER("CGlxUiUtility:: StopTNMDaemonL ");
-    TInt err = RProperty::Set(KTAGDPSNotification, KForceBackgroundGeneration, EFalse);
-    GLX_LOG_INFO1("CGlxUiUtility::StopTNMDaemonL err = %d",err);
-    if(err != KErrNone)
-        {
-        GLX_LOG_INFO1("StopTNMDaemonL: RProperty::Set errorcode %d",err);
-        //need to check what to do in fail cases
-        User::Leave(err);
-        }
+    TRACER("CGlxUiUtility::StartTNMDaemon");
+    return RProperty::Set(KTAGDPSNotification, KForceBackgroundGeneration,
+            ETrue);
     }
 
 // -----------------------------------------------------------------------------
-// GetItemsLeftCountL
+// StopTNMDaemon
 // -----------------------------------------------------------------------------
 //
-EXPORT_C TInt CGlxUiUtility::GetItemsLeftCountL()
+EXPORT_C TInt CGlxUiUtility::StopTNMDaemon()
     {
-    TRACER("CGlxUiUtility::GetItemsLeftCountL");
+    TRACER("CGlxUiUtility:: StopTNMDaemon");
+    return RProperty::Set(KTAGDPSNotification, KForceBackgroundGeneration,
+            EFalse);
+    }
+
+// -----------------------------------------------------------------------------
+// GetItemsLeftCount
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TInt CGlxUiUtility::GetItemsLeftCount()
+    {
+    TRACER("CGlxUiUtility::GetItemsLeftCount");
     TInt leftVariable = 0;
     TInt err = RProperty::Get(KTAGDPSNotification, KItemsleft, leftVariable);
-    GLX_LOG_INFO1("GetItemsLeftCountL: GetItemsLeftCountL %d",leftVariable);
-    if(err != KErrNone)
+    GLX_LOG_INFO1("GetItemsLeftCount: GetItemsLeftCount %d", leftVariable);
+    if (err != KErrNone)
         {
-        GLX_LOG_INFO1("GetItemsLeftCountL: RProperty::Get errorcode %d",err);
-        User::Leave(err);
+        GLX_LOG_INFO1("GetItemsLeftCount: RProperty::Get errorcode %d", err);
+        leftVariable = 0;
         }
-    return leftVariable;	
+    return leftVariable;
     }
 // End of file

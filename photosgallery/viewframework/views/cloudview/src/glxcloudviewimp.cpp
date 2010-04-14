@@ -46,8 +46,8 @@
 #include "glxcloudviewcontrol.h"//cloud view control
 
 // For transition effects
-#include <AknTransEffect.h>                             
-#include <GfxTransEffect/GfxTransEffect.h>
+#include <akntranseffect.h>                             
+#include <gfxtranseffect/gfxtranseffect.h>
 #include "glxgfxtranseffect.h"  // For transition effects
     
 const TInt KViewId = 0x200071B7;

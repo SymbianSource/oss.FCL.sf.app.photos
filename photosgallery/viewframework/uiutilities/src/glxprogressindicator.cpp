@@ -72,7 +72,7 @@ CGlxProgressIndicator::CGlxProgressIndicator
 CGlxProgressIndicator::~CGlxProgressIndicator()
     {
     TRACER("CGlxProgressIndicator::~CGlxProgressIndicator()");
-    if (iProgressbarTicker && iProgressbarTicker->IsActive())
+    if (iProgressbarTicker)
         {
         iProgressbarTicker->Cancel();
         delete iProgressbarTicker;
@@ -83,13 +83,11 @@ CGlxProgressIndicator::~CGlxProgressIndicator()
         }
 
 	// Stop force generation of thumbnails when progress dialog is dismissed
-	CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
-    CleanupClosePushL(*uiUtility);
-	if ( uiUtility )
-		{
-		uiUtility->StopTNMDaemonL();
-		}
-    CleanupStack::PopAndDestroy(uiUtility);
+    if (iUiUtility)
+        {
+        iUiUtility->StopTNMDaemon();
+        iUiUtility->Close();
+        }
     }
 
 // ---------------------------------------------------------
@@ -99,39 +97,16 @@ CGlxProgressIndicator::~CGlxProgressIndicator()
 void CGlxProgressIndicator::ConstructL()
     {
     TRACER("CGlxProgressIndicator::ConstructL()");
-    CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
-    CleanupClosePushL(*uiUtility);
-    TRAPD(err,uiUtility->StartTNMDaemonL());
+    iUiUtility->StartTNMDaemon();
 
-    if(err != KErrNone)
-        {
-        GLX_LOG_INFO1("CGlxProgressIndicator RProperty::Set errorcode %d",err);
-        //need to check what to do in fail cases
-        }
     if(!iProgressbarTicker)
         {
         iProgressbarTicker = CPeriodic::NewL(CActive::EPriorityStandard);
         }
 
-    iFinalCount = uiUtility->GetItemsLeftCountL();
+    iFinalCount = iUiUtility->GetItemsLeftCount();
     GLX_LOG_INFO1("final count in viewactivate = %d",iFinalCount);
-    
 
-    if(iFinalCount)
-        {
-        StartProgressNoteL(iFinalCount,ETrue);
-        if ( !iProgressbarTicker->IsActive())
-            {
-            iProgressbarTicker->Start( KPeriodicStartDelay, KPeriodicStartDelay, TCallBack( 
-                    &PeriodicCallbackL, static_cast<TAny*>( this ) ) );
-            }            
-         }
-    else
-        {
-        GLX_LOG_INFO("Reset the RProperty flag to EFalse");
-        uiUtility->StopTNMDaemonL();
-        }
-    CleanupStack::PopAndDestroy(uiUtility);
     }
 
 
@@ -153,16 +128,10 @@ TInt CGlxProgressIndicator::PeriodicCallbackL(TAny* aPtr )
 inline void CGlxProgressIndicator::DisplayProgressBarL()
     {
     TRACER("CGlxProgressIndicator::DisplayProgressBarL");
-    CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
-    CleanupClosePushL(*uiUtility);
-    TInt itemsLeft = uiUtility->GetItemsLeftCountL();
-    CleanupStack::PopAndDestroy(uiUtility);
+    TInt itemsLeft = iUiUtility->GetItemsLeftCount();
     GLX_LOG_INFO1("itemsLeft in DisplayProgressBarL = %d",iFinalCount);
-    if(itemsLeft)
-        {
-        UpdateProgressBar();
-        }
-    else
+    UpdateProgressBar();
+    if(!itemsLeft)
         {
         if(iProgressbarTicker->IsActive())
             {
@@ -179,12 +148,14 @@ inline void CGlxProgressIndicator::DisplayProgressBarL()
 void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue,TBool aShow)
     {
     TRACER("CGlxProgressIndicator::StartProgressNoteL()");
-    
+    TInt itemsLeft = iUiUtility->GetItemsLeftCount();
     if(aShow)
         {
         if(!iProgressDialog)
             {
-            iProgressDialog = new (ELeave)CAknProgressDialog((reinterpret_cast<CEikDialog**> (&iProgressDialog)),ETrue);
+            iProgressDialog = new (ELeave) CAknProgressDialog(
+                    (reinterpret_cast<CEikDialog**> (&iProgressDialog)),
+                    ETrue);
             }
         iProgressDialog->PrepareLC(R_PROGRESS_NOTE);
         
@@ -197,7 +168,7 @@ void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue,TBool aShow)
         iProgressDialog->SetTextL(*processingInfo);
         CleanupStack::PopAndDestroy(processingInfo );
         iProgressInfo->SetFinalValue(aFinalValue);
-        
+        iProgressInfo->SetAndDraw(iFinalCount-itemsLeft);
         iProgressDialog->RunLD();
         }
     else
@@ -229,7 +200,7 @@ void CGlxProgressIndicator::UpdateProgressBar()
          * GlxGeneralUiUtilities::FormatString(text,*processingInfo,-1,count,ETrue);
          * CleanupStack::PopAndDestroy(processingInfo); 
          */
-        iProgressInfo->SetAndDraw(CalculateDisplayBarIncrementL());
+        iProgressInfo->SetAndDraw(CalculateDisplayBarIncrement());
         }
     }
     
@@ -240,10 +211,6 @@ void CGlxProgressIndicator::UpdateProgressBar()
 void CGlxProgressIndicator::DialogDismissedL(TInt aButtonId)
     {
     TRACER("CGlxProgressIndicator::DialogDismissedL()");
-    CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
-    CleanupClosePushL(*uiUtility);
-    uiUtility->StopTNMDaemonL();
-    CleanupStack::PopAndDestroy(uiUtility);
     if(iProgressbarTicker)
         {
         iProgressbarTicker->Cancel();
@@ -254,27 +221,65 @@ void CGlxProgressIndicator::DialogDismissedL(TInt aButtonId)
         {
         iProgressDialog = NULL;
         iProgressInfo = NULL;
-        }    
+        }
     }
 
 // -----------------------------------------------------------------------------
-// CalculateDisplayBarIncrementL
+// CalculateDisplayBarIncrement
 // -----------------------------------------------------------------------------
 //  
-TInt CGlxProgressIndicator::CalculateDisplayBarIncrementL()
+TInt CGlxProgressIndicator::CalculateDisplayBarIncrement()
     {
     TRACER("CGlxProgressIndicator::CalculateDisplayBarIncrement()");
-    CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
-    CleanupClosePushL(*uiUtility);
-    TInt itemsLeft = uiUtility->GetItemsLeftCountL();
-    CleanupStack::PopAndDestroy(uiUtility);
-    GLX_LOG_INFO1("CalculateDisplayBarIncrement = %d ",(iFinalCount - itemsLeft));
-    
-    if(iFinalCount < itemsLeft)
+
+    TInt itemsLeft = iUiUtility->GetItemsLeftCount();
+
+    if (iFinalCount < itemsLeft)
         {
-        iProgressInfo->SetFinalValue( itemsLeft );
+        iProgressInfo->SetFinalValue(itemsLeft);
         iFinalCount = itemsLeft;
         }
     
+    GLX_LOG_INFO1("CalculateDisplayBarIncrement = %d ",(iFinalCount - itemsLeft));
     return (iFinalCount - itemsLeft);
+    }
+
+// -----------------------------------------------------------------------------
+// ShowProgressbar
+// -----------------------------------------------------------------------------
+//
+void EXPORT_C CGlxProgressIndicator::ShowProgressbarL()
+    {
+    TRACER("CGlxProgressIndicator::ShowProgressbarL");
+    iUiUtility->StartTNMDaemon();
+    TInt itemsLeft = iUiUtility->GetItemsLeftCount();
+
+    GLX_LOG_INFO1("ShowProgressbar itemsLeft = %d ",itemsLeft);
+    GLX_LOG_INFO1("ShowProgressbar iFinalCount = %d ",iFinalCount);
+    if (iFinalCount < itemsLeft)
+        {
+        /*
+         *if user is in List view and inserts the MMC,update the total count 
+         */
+        iFinalCount = itemsLeft;
+        }
+    if (iFinalCount)
+        {
+        StartProgressNoteL(iFinalCount, ETrue);
+        if (!iProgressbarTicker)
+            {
+            iProgressbarTicker = CPeriodic::NewL(CActive::EPriorityStandard);
+            }
+        if (!iProgressbarTicker->IsActive())
+            {
+            iProgressbarTicker->Start(KPeriodicStartDelay,
+                    KPeriodicStartDelay, TCallBack(&PeriodicCallbackL,
+                            static_cast<TAny*> (this)));
+            }
+        }
+    else
+        {
+        GLX_LOG_INFO("Reset the RProperty flag to EFalse");
+        iUiUtility->StopTNMDaemon();
+        }
     }

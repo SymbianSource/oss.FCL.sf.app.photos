@@ -174,6 +174,7 @@ private:
 	TBool iBitmapReady;
 	TBool iAutoZoomOut;
 	TBool iSurfSessionConnected;
+	TBool iShiftToCloning;
 #ifdef _DEBUG
     TTime iStartTime;
     TTime iStopTime;

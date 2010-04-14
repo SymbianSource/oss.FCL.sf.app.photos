@@ -347,6 +347,7 @@ void CGlxMetadataContainer::HandleListBoxEventL(CEikListBox*  /*aListBox*/,
 //-----------------------------------------------------------------------------
 void CGlxMetadataContainer::HandleListboxChangesL()
     {
+    TRACER("CGlxMetadataContainer::HandleListboxChangesL");
     if(iItemMediaList->Count() == 0)
     	{
     	return;
@@ -1109,14 +1110,13 @@ void CGlxMetadataContainer::EnableMarqueingL()
 // ----------------------------------------------------------------------------
 // 
 void CGlxMetadataContainer::HandleCommandCompleteL(TAny* aSessionId, 
-        CMPXCommand* /*aCommandResult*/, TInt aError, MGlxMediaList* aList)
+        CMPXCommand* aCommandResult, TInt aError, MGlxMediaList* aList)
     {
     TRACER("CGlxMetadataContainer::HandleCommandCompleteL()");
     //To rename the uri in File System
     if(aError == KErrNone)
 		{
-		TInt index = ListBox()->CurrentItemIndex();
-		if(aList == iItemMediaList && index == ENameItem)
+		if(aList == iItemMediaList && aCommandResult->IsSupported(KMPXMediaGeneralTitle))
 			{
 			iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);
 			const TGlxMedia& media = iItemMediaList->Item(0);

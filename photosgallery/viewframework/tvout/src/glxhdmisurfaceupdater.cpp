@@ -24,6 +24,7 @@
 #include <fbs.h>
 #include <glxtracer.h>
 #include <glxlog.h>
+#include <glxgeneraluiutilities.h>
 
 #include "glxactivecallback.h"
 #include "glxhdmisurfaceupdater.h"
@@ -64,7 +65,7 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
         {
         iWindow->RemoveBackgroundSurface(ETrue);
         }
-    if(iTimer->IsActive())
+	if(iTimer && iTimer->IsActive())	 	 	 // Check for a CPeriodic Instance
         {
         iTimer->Cancel();
         }
@@ -154,22 +155,25 @@ void CGlxHdmiSurfaceUpdater::ConstructL()
     User::LeaveIfError(error);
     
     iBitmapReady = EFalse;
+    iShiftToCloning = EFalse;
     // Create the active object
     iGlxDecoderAO = CGlxHdmiDecoderAO::NewL(this);
     CreateImageDecoderL(iImagePath);
     CreateBitmapL();
-    CreateHdmiL();
-    error = iSurfUpdateSession.Connect();
-    GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::ConstructL() Surface update Session Connect error = %d", error);
-    User::LeaveIfError(error);
-    iSurfSessionConnected = ETrue;
-    
+    TRAP_IGNORE(CreateHdmiL());
+    if(iSurfManager)
+    	{
+		error = iSurfUpdateSession.Connect();
+		GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::ConstructL() Surface update Session Connect error = %d", error);
+		User::LeaveIfError(error);
+		iSurfSessionConnected = ETrue;
+		
 #ifdef _DEBUG
-    iStartTime.HomeTime();
+		iStartTime.HomeTime();
 #endif
-    //start decoding the image    
-    iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,iImageDecoder);    
-    
+		//start decoding the image    
+		iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,iImageDecoder);    
+    	}
     iLeftCornerForZoom.iX = 0; 
     iLeftCornerForZoom.iY = 0;
     iTimer = CPeriodic::NewL( CActive::EPriorityStandard );
@@ -195,12 +199,22 @@ void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile)
     ReleaseContent();   
     CreateImageDecoderL(aImageFile);    
     CreateBitmapL();
-    CreateHdmiL(EFalse);
+    if(iSurfManager)
+    	{
+    	CreateHdmiL(EFalse);
+    	}
+    else
+    	{
+    	TRAP_IGNORE(CreateHdmiL(ETrue));
+    	}
 #ifdef _DEBUG
     iStartTime.HomeTime();
 #endif
-    //start decoding the image
-    iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,iImageDecoder);
+    if(iSurfManager)
+    	{
+		//start decoding the image
+		iGlxDecoderAO->ConvertImageL(*iDecodedBitmap,iImageDecoder);
+    	}
     }
 
 // -----------------------------------------------------------------------------
@@ -249,6 +263,19 @@ void CGlxHdmiSurfaceUpdater::CreateSurfaceL()
         
     error = iSurfManager->CreateSurface(attributes, iSurfId);
     GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::CreateSurfaceL, Creating surface error : %d",error);
+    if(error == KErrNoMemory)
+    	{
+    	GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::CreateSurfaceL(). iSurfManager->Close()"); 
+		iSurfManager->Close();
+		delete iSurfManager;
+		iSurfManager = NULL;
+    	if(iShiftToCloning == EFalse)
+    		{
+    		GlxGeneralUiUtilities::ShowErrorNoteL(error); // Show Low Memory Popup Once before shifting to Cloning Mode
+    		iShiftToCloning = ETrue;
+    		}
+    	ShiftToCloningMode();	 	 	 	 	 	 	  // Shift from Posting Mode to Cloning Mode
+    	}
     User::LeaveIfError(error);
         
     //Map the surface and stride the surface info
@@ -397,7 +424,7 @@ void CGlxHdmiSurfaceUpdater::HandleRunL(TRequestStatus& aStatus)
         GLX_LOG_INFO("HandleRunL - Convert failed");
         ShiftToCloningMode();
         }
-    else
+    else if(iSurfManager)
         {        
         iZoomRectSz = iDecodedBitmap->SizeInPixels();
         if (iSurfBufferAO->iStatus != KRequestPending
@@ -593,14 +620,18 @@ void CGlxHdmiSurfaceUpdater::ShiftToCloningMode()
 void CGlxHdmiSurfaceUpdater::ShiftToPostingMode()
 	{
 	TRACER("CGlxHdmiSurfaceUpdater::ShiftToPostingMode()");
+	if(iSurfManager)
+		{
 #ifdef _DEBUG
-	TRect ex, vp;
-	iConfig.GetExtent(ex);
-    iConfig.GetViewport(vp);
-    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - vp - TL=%d, %d",vp.iTl.iX,vp.iTl.iY);
-    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - vp - BR=%d, %d",vp.iBr.iX,vp.iBr.iY);
-    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - ex - TL=%d, %d",ex.iTl.iX,ex.iTl.iY);
-    GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - ex - BR=%d, %d",ex.iBr.iX,ex.iBr.iY);
+		TRect ex, vp;
+		iConfig.GetExtent(ex);
+		iConfig.GetViewport(vp);
+		GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - vp - TL=%d, %d",vp.iTl.iX,vp.iTl.iY);
+		GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - vp - BR=%d, %d",vp.iBr.iX,vp.iBr.iY);
+		GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - ex - TL=%d, %d",ex.iTl.iX,ex.iTl.iY);
+		GLX_LOG_INFO2("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() - ex - BR=%d, %d",ex.iBr.iX,ex.iBr.iY);
 #endif
-    iWindow->SetBackgroundSurface(iConfig, ETrue);
+		iWindow->SetBackgroundSurface(iConfig, ETrue);
+		iShiftToCloning = EFalse;
+		}
 	}

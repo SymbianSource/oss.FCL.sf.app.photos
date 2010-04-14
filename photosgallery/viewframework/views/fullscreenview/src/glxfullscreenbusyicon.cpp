@@ -15,7 +15,7 @@
  *
  */
 
-#include <stringloader.h>
+#include <StringLoader.h>
 #include <data_caging_path_literals.hrh>            // KDC_APP_RESOURCE_DIR
 #include <glxtracer.h>
 #include <glxlog.h>                                 // Glx logs

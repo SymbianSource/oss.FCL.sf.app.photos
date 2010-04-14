@@ -289,8 +289,7 @@ EXPORT_C void CGlxViewBase::DoActivateL(const TVwsViewId& aPrevViewId, TUid aCus
     else
         {
         // Deactivate the toolbar untill the view gets activated properly.
-        toolbar->SetDimmed(ETrue);
-        toolbar->DrawNow();            
+        SetToolbarItemsDimmed(ETrue);
         }
     toolbar->SetToolbarVisibility(ETrue);
     
@@ -539,25 +538,46 @@ EXPORT_C void CGlxViewBase::OfferToolbarEventL( TInt aCommand )
     CAknToolbar* toolbar = GetToolBar();
     if(toolbar)
         {
-		//Here after the toolbar cmd is processed it is enabled
-		//back. For share the toolbar state should be same as it was 
-		//earlier, so we take the current state and reset back after
-		//the command is processed.
+        CAknButton* slideshowButton =
+            static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdSlideshow));
+        TBool slideshowdimmed = EFalse;
+
+        //Here after the toolbar cmd is processed it is enabled
+        //back. For share the toolbar state should be same as it was 
+        //earlier, so we take the current state and reset back after
+        //the command is processed.
         CAknButton* uploadButton =
             static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdUpload));
-        TBool dimmed = EFalse;
+        TBool uploaddimmed = EFalse;
+
+        CAknButton* markButton =
+            static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdStartMultipleMarking));
+        TBool markButtondimmed = EFalse;
+
+        if(slideshowButton)
+            {
+            // Get current button state
+            CAknButtonState* currentState = slideshowButton->State();
+            slideshowdimmed = slideshowButton->IsDimmed();
+            }
+
+        if(markButton)
+            {
+            // Get current button state
+            CAknButtonState* currentState = markButton->State();
+            markButtondimmed = markButton->IsDimmed();
+            }        
         
         if(uploadButton)
             {
             // Get current button state
             CAknButtonState* currentState = uploadButton->State();
-            dimmed = uploadButton->IsDimmed();
+            uploaddimmed = uploadButton->IsDimmed();
             }
-        
+
         // Deactivate the toolbar. Don't accept the toolbar input when the command
         // execution is already in progress.
-        toolbar->SetDimmed(ETrue);
-        toolbar->DrawNow();    
+        SetToolbarItemsDimmed(ETrue); 
         
         // Execute the command recieved.
         ProcessCommandL(aCommand);
@@ -565,8 +585,18 @@ EXPORT_C void CGlxViewBase::OfferToolbarEventL( TInt aCommand )
         // Activate back the toolbar and set it's state properly
         // after command execution.
         SetToolbarStateL();
+
+        if(!markButtondimmed)
+            {
+            toolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, EFalse, ETrue);
+            }
+
+        if(!slideshowdimmed)
+            {
+            toolbar->SetItemDimmed(EGlxCmdSlideshowPlay, EFalse, ETrue);
+            }
         
-        if(dimmed || (aCommand == EGlxCmdStartMultipleMarking))
+        if(uploaddimmed || (aCommand == EGlxCmdStartMultipleMarking))
             {
             toolbar->SetItemDimmed(EGlxCmdUpload, ETrue, ETrue);
             }
@@ -675,5 +705,20 @@ void CGlxViewBase::ViewActivateL()
     InitAnimationL(EGlxViewAnimationEntry); 
     }
 
+// ----------------------------------------------------------------------------
+// SetToolbarItemsDimmed
+// ----------------------------------------------------------------------------
+//
+void CGlxViewBase::SetToolbarItemsDimmed(TBool aDimmed)
+    {
+    TRACER("CGlxViewBase::SetToolbarItemsDimmed()");
+    CAknToolbar* toolbar = GetToolBar();
+    if (toolbar)
+        {
+        toolbar->SetItemDimmed(EGlxCmdSlideshowPlay, aDimmed, ETrue);
+        toolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, aDimmed, ETrue);
+        toolbar->SetItemDimmed(EGlxCmdUpload, aDimmed, ETrue);
+        }
+    }
 
 

@@ -180,6 +180,20 @@ private:
     void HandleMMCInsertionL();
     void HandleMMCRemovalL();
     void HandleNavigationalStateChangedL(){};
+    /**
+     * Cleans Up the cache for list view
+     */    
+    void CleanUpL();
+    /**
+     * Updates the preview thumbnail 
+     * @param aIndex index to be updated
+     */        
+    void UpdatePreviewL(TInt aIndex);
+    /**
+    * Helper function used by HandleError
+    * @param aError the error code to handle.
+    */
+   void DoHandleErrorL( TInt /*aError*/ );    
  
 public: // from MGlxMediaListObserver
     void HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
@@ -208,14 +222,16 @@ private:    // Data
 	
 	CGlxPreviewThumbnailBinding* iPreviewTNBinding; //Own
 	
-	    // Fetch context for retrieving title attribute
-    CGlxDefaultAttributeContext* iTitleAttributeContext;
+	// Fetch context for retrieving title attribute
+	CGlxAttributeContext* iTitleAttributeContext;
 
     // Fetch context for retrieving subtitle
-    CGlxDefaultAttributeContext* iSubtitleAttributeContext;
+    CGlxAttributeContext* iSubtitleAttributeContext;
 	
-	// for thumbnail context
-	TGlxSequentialIterator iThumbnailIterator;
+    TGlxFromFocusOutwardIterator iThumbnailIterator;
+    
+	// Thumbnail Attrib context
+    CGlxAttributeContext* iThumbnailContext;	
 
     /** Unique ID of this Avkon view */
     TInt iViewUid;
@@ -243,9 +259,6 @@ private:    // Data
 
     CGlxProgressIndicator* iProgressIndicator;
 
-	//Check for TN generation
-    TBool isTnGenerationComplete;
-	
     CActiveSchedulerWait* iSchedulerWait;
     
     CGlxMMCNotifier* iMMCNotifier;
@@ -253,6 +266,8 @@ private:    // Data
     CGlxNavigationalState* iNavigationalState;
 	
     TBool iMMCState;
+
+    TSize iGridIconSize;
     };
 
 #endif  // C_GLXLISTVIEWIMP_H

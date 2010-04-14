@@ -40,8 +40,8 @@
 #include "glxgridviewcontainer.h"
 
 // For transition effects
-#include <AknTransEffect.h>                             
-#include <GfxTransEffect/GfxTransEffect.h>
+#include <akntranseffect.h>                             
+#include <gfxtranseffect/gfxtranseffect.h>
 #include "glxgfxtranseffect.h"  // For transition effects
 
 const TInt KGlxToolbarButtonUnLatched = 0;              // Toolbar mark button's unlatched state defined in the rss file

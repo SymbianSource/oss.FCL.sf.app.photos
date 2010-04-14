@@ -88,6 +88,11 @@ CGlxFetcherDialog* CGlxFetcherDialog::NewL(CDesCArray& aSelectedFiles,
 CGlxFetcherDialog::~CGlxFetcherDialog()
 	{
 	TRACER("CGlxFetcherDialog::~CGlxFetcherDialog");
+	if(iMMCNotifier)
+	    {
+        delete iMMCNotifier;
+        iMMCNotifier = NULL;
+	    }
 	if(iFetcherContainer)
 	    {
 	    // Restore the Toolbar as it was in the Calling application
@@ -123,6 +128,7 @@ void CGlxFetcherDialog::ConstructL()
     iUiUtility = CGlxUiUtility::UtilityL();
     iEnv = iUiUtility->Env();
     iFetchUri = EFalse;
+    iMMCNotifier = CGlxMMCNotifier::NewL(*this);
     }
     
 //-----------------------------------------------------------------------------
@@ -449,4 +455,20 @@ void CGlxFetcherDialog::CallCancelFetcherL(TInt aCommandId)
 	TRACER("CGlxFetcherDialog::CallCancelFetcherL");
 	TryExitL(aCommandId);
 	}
+
+//-----------------------------------------------------------------------------
+// CGlxFetcherDialog::HandleMMCRemovalL
+// This function will be called when MMC is removed
+// This will ensure exit of fetcher dialog.
+//-----------------------------------------------------------------------------
+void CGlxFetcherDialog::HandleMMCRemovalL()
+    {
+    TRACER("CGlxFetcherDialog::HandleMMCRemovalL");
+    /*
+     * need to delay the destruction of dialog.
+     */
+    Extension()->iPublicFlags.Set(CEikDialogExtension::EDelayedExit);
+    ProcessCommandL(EAknSoftkeyCancel);
+    Extension()->iPublicFlags.Clear(CEikDialogExtension::EDelayedExit);
+    }
 //  End of File

@@ -196,7 +196,13 @@ void CShwDefaultEffectManager::SetDefaultEffectL( TShwEffectInfo aInfo )
 	/// are cloned as needed
 	MShwEffect* clone = effect->CloneLC();
 	iAvailableEffects.AppendL( clone );
-	CleanupStack::Pop( clone );
+	
+    // This will cause a code scanner warning, but it is not possible to do 
+    // CleanupStack::Pop(clone) because the pointer pushed 
+    // onto the cleanup stack was either of class CShwZoomAndPanEffect
+    // or a CShwCrossFadeEffect and the object 'clone' is of
+    // class MShwEffect
+    CleanupStack::Pop(); //clone
 
     iEffects.Append( effect );
     iEffects.Append( clone );

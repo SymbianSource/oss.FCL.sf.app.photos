@@ -73,6 +73,7 @@ LIBRARY         surfaceupdateclient.lib 		// surface update client
 LIBRARY         surfacemanager.lib				// surface manager
 LIBRARY         imageconversion.lib				// ICL 
 LIBRARY 	efsrv.lib
+LIBRARY		glxuiutilities.lib				// for GlxGeneralUiUtilities
 // Other Dependency Libraries
 #ifdef __MARM
 LIBRARY 		GSServerEngine.lib  // FOr AspectRatio

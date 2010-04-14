@@ -10,6 +10,7 @@
 * Nokia Corporation - initial contribution.
 *
 * Contributors:
+* NTT DOCOMO, INC - BUG 2361
 *
 * Description:    Slideshow INF component
  *
@@ -41,8 +42,7 @@ PRJ_EXPORTS
  *			-rd S:/mgallery/slideshow/engine/cenrep\
  *
  */
-../cenrep/200071D3.txt   			/epoc32/data/z/private/10202be9/200071d3.txt
-../cenrep/200071D3.txt   			/epoc32/release/winscw/udeb/z/private/10202be9/200071d3.txt
+../cenrep/200071D3.txt   			z:/private/10202be9/200071d3.txt
 
 // Generic configuration interface for component cenrep settings  
 ../../../conf/slideshow.confml                        CONFML_EXPORT_PATH(slideshow.confml,customsw)

@@ -100,5 +100,6 @@ LIBRARY         glxcommonui.lib
 LIBRARY 	glxtvout.lib
 LIBRARY 	gfxtrans.lib
 LIBRARY		akntransitionutils.lib
+LIBRARY         ws32.lib                        // for RWsSession
 // EOF 
 

@@ -212,6 +212,11 @@ private:
      *Timer to check for IAD updates 30 seconds after application startup.
      */
      CPeriodic* iPeriodic ;
+     
+     /**
+      * Flag to filter any spurious EPathChanged event from MPX Collection f/w.
+      */     
+     TBool iStateChangeRequested;
 } ;
 
 

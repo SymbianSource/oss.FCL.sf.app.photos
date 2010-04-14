@@ -78,14 +78,16 @@ private:
 	 */
 	void ConstructL();
 	
+
+public:
+	
 	/**
      * Scale the source bitmap to list size
      * aSrcBitmap - Source bitmap
      * aDestBitmap - Scaled destination bitmap
      */
       void ScaleBitmapToListSizeL(CFbsBitmap* aSrcBitmap, CFbsBitmap* aDestBitmap);
-
-public:	
+	
       void HandleItemChangedL(const CMPXCollectionPath& aPath,TBool aPopulateListTNs, 
 									  TBool aIsRefreshNeeded, TBool aBackwardNavigation);
       void StartTimer();

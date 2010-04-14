@@ -19,10 +19,11 @@
 #define GLXPROGRESSINDICATOR_H_
 
 #include <e32base.h>
-#include <aknwaitdialog.h>
+#include <AknWaitDialog.h>
 
 class CAknProgressDialog;
 class CEikProgressInfo;
+class CGlxUiUtility;
 
 class MDialogDismisedObserver
     {
@@ -57,13 +58,17 @@ private:
      * calculates how much increment to be done in progress bar
      * @return increment value
      */
-    TInt CalculateDisplayBarIncrementL();
+    TInt CalculateDisplayBarIncrement();
 public:
     // Callback for periodic timer, static, 
     static TInt PeriodicCallbackL( TAny* aPtr );
     
     //nonstatic func called from periodic timer
     void DisplayProgressBarL();
+    
+    //show progress bar
+    IMPORT_C void ShowProgressbarL();
+    
 protected://MProgressDialogCallback
     void DialogDismissedL (TInt aButtonId);
     
@@ -80,6 +85,7 @@ private:
     //final count to set in progress bar
     TInt iFinalCount;
     MDialogDismisedObserver&  iGlxGridViewNotifyObserver;
+    CGlxUiUtility* iUiUtility;
 
     };
 #endif /* GLXPROGRESSINDICATOR_H_ */

@@ -220,11 +220,6 @@ private:
     NGlxNFullScreenUIState::TUiState GetUiSate();
     
     /*
-    * returns the Ui state
-    */     
-    void CreateScreenFurnitureL();
-    
-    /*
     * Call back function for the CPeriodic
     */
     static TInt TimeOut(TAny* aSelf);
@@ -283,6 +278,12 @@ private:
      * navigate to main list
      */
     void NavigateToMainListL();
+	
+    /**
+     * Disable/enable the fullscreen toolbar
+     */
+    void EnableFSToolbarL(TBool aEnable);
+
 private:
     /** Softkey resource id's */
     TFullScreenViewResourceIds iResourceIds; 

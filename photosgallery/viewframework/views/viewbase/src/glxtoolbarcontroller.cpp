@@ -23,6 +23,7 @@
 #include <akntoolbar.h>                     // For Toolbar
 #include <glxcommandhandlers.hrh>           // For Command ids
 #include <glxtracer.h>                         // For Logs
+#include <glxlog.h>                         // For Logs
 #include <mglxmedialist.h>
 
 #include <glxnavigationalstate.h>
@@ -63,8 +64,6 @@ void CGlxToolbarController::AddToObserverL (MGlxMediaList& aList, CAknToolbar* a
 
     iToolbar = aToolbar;
     iAttributeAvailable = EFalse;
-    iToolbar->SetDimmed(ETrue);
-    iToolbar->DrawNow();
     aList.AddMediaListObserverL ( this );
     }
 
@@ -116,8 +115,7 @@ void CGlxToolbarController::HandleItemRemovedL(TInt /*aStartIndex*/,
     
     if( aList->Count() <= 0 )
         {
-        iToolbar->SetDimmed(ETrue);
-        iToolbar->DrawNow();
+         SetToolbarItemsDimmed(ETrue);
         }
     }
 
@@ -153,40 +151,15 @@ void CGlxToolbarController::HandleAttributesAvailableL(TInt aItemIndex,
 // HandleFocusChangedL
 //----------------------------------------------------------------------------
 //
-void CGlxToolbarController::HandleFocusChangedL(NGlxListDefs::TFocusChangeType /*aType*/, 
-        TInt aNewIndex, TInt /*aOldIndex*/, 
-        MGlxMediaList* aList)
+void CGlxToolbarController::HandleFocusChangedL(
+        NGlxListDefs::TFocusChangeType /*aType*/, TInt /*aNewIndex*/, 
+        TInt /*aOldIndex*/, MGlxMediaList* aList)
     {  
     TRACER("CGlxToolbarController::HandleFocusChangedL");
-    
-    // If new index is not equal to -1 (i.e., if there are some items present), 
-    // then check the media item
-    if( (aNewIndex == aList->FocusIndex()) && (KErrNotFound != aNewIndex) )
+    if (aList->Count() <= 0)
         {
-        //Get the current media item from medialist
-        const TGlxMedia& mediaItem = aList->Item(aList->FocusIndex());
-        //Check whether media item is a system item, for example Favourites album
-        TBool isSystemItem = EFalse;
-        mediaItem.GetSystemItem(isSystemItem);
-        if( mediaItem.IsStatic() )
-            {
-            iToolbar->SetDimmed(ETrue);  
-            }
-        else if( iToolbar->IsDimmed() )
-            {
-            iToolbar->SetDimmed(EFalse);
-            }
-        if( isSystemItem )
-             {
-             iToolbar->SetItemDimmed( EGlxCmdRename, ETrue, ETrue );
-             }
-        else
-             {
-             iToolbar->SetItemDimmed( EGlxCmdRename, EFalse, ETrue );   
-            }
+        SetToolbarItemsDimmed(ETrue);
         }
-    //DrawNow must be called since SetDimmed does not redraw the toolbar
-    iToolbar->DrawNow();     
     }
 
 //----------------------------------------------------------------------------
@@ -232,16 +205,17 @@ CGlxToolbarController::~CGlxToolbarController()
 //
 void CGlxToolbarController::SetStatusOnViewActivationL( MGlxMediaList* aList )
      {
-     	TRACER("CGlxToolbarController::SetStatusOnViewActivationL");
-     	
-     // When going back from fullscreen to grid, when the attributes are already 
-     // available in the cache, there is no HandleAttributeAvailable callback. Hence,
-     // checking for medialist count.
-     if( !iAttributeAvailable && (aList->Count(NGlxListDefs::ECountNonStatic) > 0))
-         {
-         SetStatusL(aList);
-         }    
-     }
+    TRACER("CGlxToolbarController::SetStatusOnViewActivationL");
+    GLX_LOG_INFO1("CGlxToolbarController::SetStatusOnViewActivationL(%d)",
+            aList->Count());
+    // When going back from fullscreen to grid, when the attributes are already 
+    // available in the cache, there is no HandleAttributeAvailable callback. Hence,
+    // checking for medialist count.
+    if (!iAttributeAvailable)
+        {
+        SetStatusL(aList);
+        }
+    }
 
 //----------------------------------------------------------------------------
 //SetStatusL
@@ -249,36 +223,25 @@ void CGlxToolbarController::SetStatusOnViewActivationL( MGlxMediaList* aList )
 //
 void CGlxToolbarController::SetStatusL(MGlxMediaList* aList)
 	{
-	TRACER("CGlxToolbarController::SetStatusL");
-	if(KErrNotFound != aList->FocusIndex())
-		{
-		//Get the current media item from medialist
-		const TGlxMedia& mediaItem = aList->Item(aList->FocusIndex());      
+    TRACER("CGlxToolbarController::SetStatusL");
 
-		//Check whether media item is a system item, for example Favourites album
-		TBool isSystemItem = EFalse;    
-		mediaItem.GetSystemItem(isSystemItem);
-
-		if(!mediaItem.IsStatic() && iToolbar->IsDimmed())
-			{
-			//Activate (Undim) the toolbar if item in focus is not static
-			iToolbar->SetDimmed(EFalse);            
-			}    
-
-
-		if( isSystemItem )
-			{
-			iToolbar->SetItemDimmed( EGlxCmdRename, ETrue, ETrue );
-			}
-		else
-			{
-			iToolbar->SetItemDimmed( EGlxCmdRename, EFalse, ETrue );
-			}    
-		}    
-	
-	//DrawNow must be called since SetDimmed does not redraw the toolbar
-	iToolbar->DrawNow();
-	}
+    GLX_LOG_INFO1("CGlxToolbarController::SetStatusL(%d)", aList->Count());
+    if (aList->Count() <= 0)
+        {
+        SetToolbarItemsDimmed(ETrue);
+        }
+    else if (KErrNotFound != aList->FocusIndex())
+        {
+        CGlxNavigationalState* navigationalState =
+                CGlxNavigationalState::InstanceL();
+        CleanupClosePushL(*navigationalState);
+        if (navigationalState->ViewingMode() == NGlxNavigationalState::EView)
+            {
+            SetToolbarItemsDimmed(EFalse);
+            }
+        CleanupStack::PopAndDestroy(navigationalState);
+        }
+    }
 
 //----------------------------------------------------------------------------
 // EnableLatch
@@ -301,5 +264,52 @@ void CGlxToolbarController::EnableLatch( TInt aCommandId, TInt aLatched )
             }
         }
     }
+
+// ----------------------------------------------------------------------------
+// HandlePopulatedL
+// ----------------------------------------------------------------------------
+//
+void CGlxToolbarController::HandlePopulatedL( MGlxMediaList* aList )
+    {
+    TRACER("CGlxToolbarController::HandlePopulatedL()");
+    if (aList->Count() <= 0)
+        {
+        SetToolbarItemsDimmed(ETrue);
+        }
+    }
+
+// ----------------------------------------------------------------------------
+// SetToolbarItemsDimmed
+// ----------------------------------------------------------------------------
+//
+void CGlxToolbarController::SetToolbarItemsDimmed(TBool aDimmed)
+    {
+    TRACER("CGlxToolbarController::SetToolbarItemsDimmed()");
+    if (iToolbar)
+        {
+        iToolbar->SetItemDimmed(EGlxCmdSlideshowPlay, aDimmed, ETrue);
+        iToolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, aDimmed, ETrue);
+        
+        if (!aDimmed)
+            {
+            CAknButton* uploadButton =
+                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                            EGlxCmdUpload));
+            TBool dimmed = EFalse;
+            if (uploadButton)
+                {
+                // Get current button state
+                CAknButtonState* currentState = uploadButton->State();
+                dimmed = uploadButton->IsDimmed();
+                iToolbar->SetItemDimmed(EGlxCmdUpload, dimmed, ETrue);
+                }
+            }
+        else
+            {
+            iToolbar->SetItemDimmed(EGlxCmdUpload, aDimmed, ETrue);
+            }
+        }
+    }
+
 //end of file
 	
