@@ -131,9 +131,10 @@ private:
     TRequestStatus* iTnRequestStatus;
 
     TBool iTnRequestInProgress;
-
+#ifdef _DEBUG
 	TTime iStartTime;
-	TTime iStopTime;	
+	TTime iStopTime;
+#endif
 	};
 
 #endif // GLXDATASOURCETASKMDSTHUMBNAIL_H_

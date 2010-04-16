@@ -11,8 +11,11 @@ EXPORTS
 	_ZN21CGlxResolutionUtility14RemoveObserverER28MGlxResolutionChangeObserver @ 10 NONAME
 	_ZN21CGlxResolutionUtility5CloseEv @ 11 NONAME
 	_ZN21CGlxResolutionUtility9InstanceLEv @ 12 NONAME
-	_ZN22NGlxZoomStatePublisher13PublishStateLEi @ 13 NONAME
-	_ZNK21CGlxResolutionUtility10ScreenSizeEv @ 14 NONAME
-	_ZNK21CGlxResolutionUtility12PixelsToPossERKf @ 15 NONAME
-	_ZNK21CGlxResolutionUtility12PossToPixelsERKf @ 16 NONAME
+	_ZN21GlxAttributeRetriever9RetrieveLERK16MGlxFetchContextR13MGlxMediaListi @ 13 NONAME
+	_ZN22NGlxZoomStatePublisher13PublishStateLEi @ 14 NONAME
+	_ZNK21CGlxResolutionUtility10ScreenSizeEv @ 15 NONAME
+	_ZNK21CGlxResolutionUtility12PixelsToPossERKf @ 16 NONAME
+	_ZNK21CGlxResolutionUtility12PossToPixelsERKf @ 17 NONAME
+	_ZTI33CGlxSynchronousAttributeRetriever @ 18 NONAME
+	_ZTV33CGlxSynchronousAttributeRetriever @ 19 NONAME
 

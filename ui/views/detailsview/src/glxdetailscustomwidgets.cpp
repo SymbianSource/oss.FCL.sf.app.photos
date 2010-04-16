@@ -98,11 +98,18 @@ HbWidget* GlxDetailsCustomWidgets::createCustomWidget()
         }
     }
 
+bool GlxDetailsCustomWidgets::canSetModelIndex(const QModelIndex &index) const
+{
+    HbDataFormModelItem::DataItemType itemType =
+    static_cast<HbDataFormModelItem::DataItemType>(
+            index.data(HbDataFormModelItem::ItemTypeRole).toInt());
 
-void  GlxDetailsCustomWidgets::SetImageName(const QString &label)
-    {
-    qDebug("GlxDetailsCustomWidgets::SetImageName:mLabel ");
-    mLabel->setPlainText(label);
-    }
+    if(itemType >= ImageNameItem && 
+            itemType <= CommentsItem )
+        {
+        return true;
+        }
+    return false;
+}
 
 //EOF

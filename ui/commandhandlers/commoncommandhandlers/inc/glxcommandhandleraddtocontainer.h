@@ -44,6 +44,9 @@ public:
     QModelIndexList GetSelectionList(GlxAlbumModel *model,bool *ok = 0) const;
 
 private:
+    QString CompletionTextL() const;
+    QString ProgressTextL() const; 
+private:
     static TInt iSelectionCount;
     mutable bool mNewMediaAdded ;
     mutable CMPXCollectionPath* mTargetContainers ;

@@ -1,13 +1,5 @@
 <RCC>
     <qresource prefix="/" >
-        <file>data/Albums_default.png</file>
-        <file>data/All_default.png</file>
-        <file>data/camera_default.png</file>
-        <file>data/ovi_default.png</file>
-        <file>data/Albums_selected.png</file>
-        <file>data/All_selected.png</file>
-        <file>data/camera_selected.png</file>
-        <file>data/ovi_selected.png</file>
         <file>data/transition.fxml</file>
         <file>data/transitionleft.fxml</file>
         <file>data/transitionright.fxml</file>
@@ -29,11 +21,9 @@
         <file>data/transitionrotate90.fxml</file>
         <file>data/transitionrotate180.fxml</file>
         <file>data/transitionrotate270.fxml</file>
-        <file>data/corrupt.svg</file>
-        <file>data/imagestrip.css</file>
         <file>data/grid.docml</file>
         <file>data/listview.docml</file>
         <file>data/fullscreen.docml</file>
         <file>data/slideshow.docml</file>
-    </qresource>
+	    </qresource>
 </RCC>

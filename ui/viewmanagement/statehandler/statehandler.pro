@@ -31,6 +31,7 @@ INCLUDEPATH += . \
             ../viewmanager/inc \
             ../../commandhandlers\commandhandlerbase\inc \
             ../../commandhandlers\commoncommandhandlers\inc
+            
 DEFINES += BUILD_STATEMANAGER
 
 symbian: { 
@@ -45,7 +46,8 @@ LIBS += -lglxviewmanager.dll \
         -lglxlistmodel.dll \
         -lglxexternalutility.dll \
         -lglxloggerqt.dll \
-        -lglxcommoncommandhandlers.dll 
+        -lglxcommoncommandhandlers.dll \
+        -lglxlogging.dll
 
 # Input
 HEADERS += inc/glxbasestate.h \
@@ -55,7 +57,6 @@ HEADERS += inc/glxbasestate.h \
            inc/glxliststate.h \
            inc/glxstatemanager.h \
            inc/glxslideshowstate.h \
-           inc/processhandler.h \
            inc/glxactionhandler.h \
            inc/glxcommandhandlerfactory.h
 
@@ -66,7 +67,6 @@ SOURCES += src/glxbasestate.cpp \
            src/glxliststate.cpp \
            src/glxstatemanager.cpp \
            src/glxslideshowstate.cpp \
-           src/processhandler.cpp \
            src/glxactionhandler.cpp \
            src/glxcommandhandlerfactory.cpp
 

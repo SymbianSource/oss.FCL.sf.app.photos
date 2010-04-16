@@ -247,9 +247,10 @@ private:
     TBool iTnRequestInProgress;
     TInt iTnHandle;
     TGlxMediaId iMediaId;
-    
+#ifdef _DEBUG   
 	TTime iStartTime;
 	TTime iStopTime;
+#endif
 #else
     CGlxtnThumbnailCreator*   iThumbnailCreator;
     CGlxtnThumbnailDatabase*  iThumbnailDatabase;

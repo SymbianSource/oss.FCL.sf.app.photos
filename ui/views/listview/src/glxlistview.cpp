@@ -24,7 +24,7 @@
 #include <hbmainwindow.h>
 #include <hbdocumentloader.h>
 #include <hbabstractviewitem.h>
-
+#include <HbListViewItem.h>
 //User Includes
 #include "glxviewids.h"
 #include "glxlistview.h"
@@ -54,8 +54,6 @@ void GlxListView::deActivate()
 {
     qDebug("GlxListView::deActivate()");
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
-    takeToolBar(); //To:Do improved later
-    emit toolBarChanged();
 }
 
 void GlxListView::setModel(QAbstractItemModel *model) 
@@ -67,10 +65,6 @@ void GlxListView::setModel(QAbstractItemModel *model)
 
 void GlxListView::addToolBar( HbToolBar *toolBar ) 
 {
-    //toolBar->setParent(this);
-    if ( mListView ) {
-        toolBar->setZValue(mListView->zValue());
-    }
     setToolBar(toolBar) ;
 }
 
@@ -97,6 +91,7 @@ void GlxListView::addViewConnection ()
     qDebug("GlxListView::addViewConnection()");
     connect(mListView, SIGNAL(activated(const QModelIndex &)), this, SLOT( itemSelected(const QModelIndex &)));
     connect(mListView, SIGNAL(longPressed( HbAbstractViewItem*, QPointF )),this, SLOT( indicateLongPress( HbAbstractViewItem*, QPointF ) ) );
+    connect( mListView, SIGNAL( scrollingEnded() ), this, SLOT( setVisvalWindowIndex() ) );
 }
 
 void GlxListView::removeViewConnection()
@@ -104,7 +99,26 @@ void GlxListView::removeViewConnection()
     qDebug("GlxListView::removeViewConnection()");
     disconnect(mListView, SIGNAL(activated(const QModelIndex &)), this, SLOT( itemSelected(const QModelIndex &)));
     disconnect(mListView, SIGNAL(longPressed( HbAbstractViewItem*, QPointF )),this, SLOT( indicateLongPress( HbAbstractViewItem*, QPointF ) ) );
+    disconnect( mListView, SIGNAL( scrollingEnded() ), this, SLOT( setVisvalWindowIndex() ) );
 }
+
+void GlxListView::setVisvalWindowIndex()
+    {
+    QList< HbAbstractViewItem * >  visibleItemList =  mListView->visibleItems();
+    qDebug("GlxListView::setVisvalWindowIndex() %d", visibleItemList.count());    
+    
+    if ( visibleItemList.count() <= 0 )
+        return ;
+
+    HbAbstractViewItem *item = visibleItemList.at(0);    
+    if ( item == NULL ) 
+        return ;
+        
+    if (  item->modelIndex().row() < 0 || item->modelIndex().row() >= mModel->rowCount() )
+        return ;
+    
+    mModel->setData( item->modelIndex (), item->modelIndex().row(), GlxVisualWindowIndex);
+    }
 
 void GlxListView::loadListView()
 {
@@ -125,7 +139,9 @@ void GlxListView::loadListView()
                 //sets the widget
                 setWidget((QGraphicsWidget*) mView);
                 }
-            }   
+            }  
+        HbListViewItem *prototype = mListView->listItemPrototype();
+        prototype->setStretchingStyle(HbListViewItem::StretchLandscape);
         }
 }
 

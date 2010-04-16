@@ -23,8 +23,8 @@
 //FULLSCREEN VIEW
 #define GLXFULLSCREEN_VIEW     	  "mGlxFullscreenView"
 #define GLXFULLSCREEN_COVERFLOW	  "mCoverFlow"
-#define GLXFULLSCREEN_FLIP        "mFlip"
 #define GLXFULLSCREEN_FILMSTRIP   "mImageStrip"
+#define GLXFULLSCREEN_TOOLBAR     "toolBar"
 #define GLXFULLSCREENLSSECTION    "landscape"
 #define GLXFULLSCREENPTSECTION    "portrait"
 #define GLXFULLSCREENDOCMLPATH    ":/data/fullscreen.docml"

@@ -30,12 +30,16 @@
 //#define GLXPERFORMANCE_LOG  
 #include <glxperformancemacro.h>
 
+#include "glxicondefs.h" //Contains the icon names/Ids
+
 GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 {
 	qDebug("GlxMediaModel::GlxMediaModel");
+	
 	mMLWrapper = new GlxMLWrapper(modelParm.collection(),0,EGlxFilterImage);
-	mMLWrapper->setContextMode(GlxContextGrid);
-	mContextMode = GlxContextGrid;
+	mMLWrapper->setContextMode( modelParm.contextMode() );
+	mContextMode = modelParm.contextMode( ) ; 
+	
 	int err = connect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	qDebug("updateItem() connection status %d", err);
 	err = connect(mMLWrapper, SIGNAL(itemCorrupted(int)), this, SLOT(itemCorrupted(int)));
@@ -47,14 +51,17 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	err = connect(this, SIGNAL(iconAvailable(int, HbIcon*, GlxTBContextType)), this, SLOT(updateItemIcon(int, HbIcon*, GlxTBContextType)));
 	qDebug("iconAvailable() connection status %d", err);
 	//itemadded.resize(mMLWrapper->getItemCount());
+	
 	itemIconCache.setMaxCost(50);
 	itemFsIconCache.setMaxCost(5);
 	itemExternalIconCache.setMaxCost(0);
+	
 	//todo get this Default icon from some generic path and not directly.
-	m_DefaultIcon = new HbIcon(":/data/All_default.png");
+	m_DefaultIcon = new HbIcon(GLXICON_DEFAULT);
 	mExternalItems = NULL;
 	externalDataCount = 0;
 	mFocusIndex = -1;
+	mSubState = -1;
 }
 
 GlxMediaModel::~GlxMediaModel()
@@ -86,6 +93,10 @@ void GlxMediaModel::setContextMode(GlxContextMode contextMode)
 		itemFsIconCache.clear();
 		mMLWrapper->setContextMode(contextMode);
 		mContextMode = contextMode;
+		if ( mContextMode == GlxContextLsGrid || mContextMode == GlxContextPtGrid ) {
+            itemIconCache.clear();
+            emit dataChanged( index( 0, 0), index( rowCount() - 1, 0) );
+        }
 	}
 }
 
@@ -162,11 +173,6 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
     
 //retrieve Data from Media List		
     if (role == Qt::DecorationRole) {
-        // char temp[100];
-        // sprintf(temp, "Thumbnail %d requiest time ", index.row());
-        // WRITE_TIMESTAMP(temp)
-        // sprintf(temp, "Response time of Thumbnail Request %d", index.row());
-        // PERFORMANCE_ADV( d1, temp) {
         itemIcon = GetGridIconItem(itemIndex,GlxTBContextGrid);
         if(itemIcon == NULL || itemIcon->isNull() ){
             itemIcon = m_DefaultIcon;
@@ -224,6 +230,10 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
     if (role == GlxFrameCount) {
     qDebug("GlxMediaModel:: GlxFrameCount ");
     return (mMLWrapper->retrieveItemFrameCount(itemIndex));
+    }
+    
+    if ( role == GlxSubStateRole ) {
+        return mSubState;
     }
 	    
     return QVariant();
@@ -412,6 +422,11 @@ bool GlxMediaModel::setData ( const QModelIndex & idx, const QVariant & value, i
             setSelectedIndex( index( value.value <int> (), 0) );
             return TRUE;
         }
+    }
+    
+    if ( role == GlxSubStateRole && value.isValid() &&  value.canConvert <int> ()) {
+        mSubState = value.value <int> () ;
+        return TRUE;
     }
 
     return FALSE;

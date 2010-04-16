@@ -28,125 +28,144 @@
 #include <glxalbummodel.h>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxmodelparm.h>
-#include <QDebug>
 #include <glxfilterfactory.h>
-
 
 #include <hblistwidget.h>
 #include <hbview.h>
 #include <hbpushbutton.h>
 #include <QGraphicsGridLayout>
 #include <hbdialog.h>
+#include <hbmessagebox.h>
+
+#include "OstTraceDefinitions.h"
+#ifdef OST_TRACE_COMPILER_IN_USE
+#include "glxcommandhandleraddtocontainerTraces.h"
+#endif
+
 
 TInt GlxCommandHandlerAddToContainer::iSelectionCount = 0;
 
 const TInt KSelectionPopupListHierarchy = 5;
 
-GlxQueryContentWidget::GlxQueryContentWidget(QGraphicsItem* parent):QGraphicsWidget(parent),
-						mButton(0), mListView(0), mGrid(0)
-{
+GlxQueryContentWidget::GlxQueryContentWidget(QGraphicsItem* parent) :
+    QGraphicsWidget(parent), mButton(0), mListView(0), mGrid(0)
+    {
+    OstTraceFunctionEntry0( DUP1_GLXQUERYCONTENTWIDGET_GLXQUERYCONTENTWIDGET_ENTRY );
     mGrid = new QGraphicsGridLayout;
-    mGrid->setContentsMargins(0,0,0,0);
-    
-    mButton = new HbPushButton("New Item");      
+    mGrid->setContentsMargins(0, 0, 0, 0);
+
+    mButton = new HbPushButton("New Item");
     mListView = new HbListView(this);
     mListView->setSelectionMode(HbAbstractItemView::MultiSelection);
-    mListView->setMinimumSize(QSize(360, 180));
-    mListView->setMaximumSize(QSize(360, 180));
 
-    mGrid->addItem(mButton, 0,0);
-    mGrid->addItem(mListView, 1,0);
+    mGrid->addItem(mButton, 0, 0);
+    mGrid->addItem(mListView, 1, 0);
     setLayout(mGrid); //ownership transfered
-    
-    setPreferredWidth(360);
-}
+
+    OstTraceFunctionExit0( DUP1_GLXQUERYCONTENTWIDGET_GLXQUERYCONTENTWIDGET_EXIT );
+    }
 
 GlxQueryContentWidget::~GlxQueryContentWidget()
-{
-    qDebug("GlxQueryContentWidget::~GlxQueryContentWidget() ");
+    {
+    OstTraceFunctionEntry0( GLXQUERYCONTENTWIDGET_GLXQUERYCONTENTWIDGET_ENTRY );
     delete mListView;
     delete mButton;
-    qDebug("GlxQueryContentWidget::~GlxQueryContentWidget() exit");
-}
+    OstTraceFunctionExit0( GLXQUERYCONTENTWIDGET_GLXQUERYCONTENTWIDGET_EXIT );
+    }
 
-GlxCommandHandlerAddToContainer::GlxCommandHandlerAddToContainer():mNewMediaAdded(false)
-{
+GlxCommandHandlerAddToContainer::GlxCommandHandlerAddToContainer() :
+    mNewMediaAdded(false)
+    {
+    OstTraceFunctionEntry0( GLXCOMMANDHANDLERADDTOCONTAINER_GLXCOMMANDHANDLERADDTOCONTAINER_ENTRY );
     mTargetContainers = NULL;
-    qDebug("GlxCommandHandlerAddToContainer::GlxCommandHandlerAddToContainer() ");
-}
+    OstTraceFunctionExit0( GLXCOMMANDHANDLERADDTOCONTAINER_GLXCOMMANDHANDLERADDTOCONTAINER_EXIT );
+    }
 
 GlxCommandHandlerAddToContainer::~GlxCommandHandlerAddToContainer()
-{
+    {
+    OstTraceFunctionEntry0( DUP1_GLXCOMMANDHANDLERADDTOCONTAINER_GLXCOMMANDHANDLERADDTOCONTAINER_ENTRY );
     delete mTargetContainers;
-    qDebug("GlxCommandHandlerAddToContainer::~GlxCommandHandlerAddToContainer() ");
-}
+    OstTraceFunctionExit0( DUP1_GLXCOMMANDHANDLERADDTOCONTAINER_GLXCOMMANDHANDLERADDTOCONTAINER_EXIT );
+    }
 
-CMPXCommand* GlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume) const 
-{
-    qDebug("GlxCommandHandlerAddToContainer::CreateCommandL");
+CMPXCommand* GlxCommandHandlerAddToContainer::CreateCommandL(TInt /*aCommandId*/,
+        MGlxMediaList& aMediaList, TBool& /*aConsume*/) const
+    {
+    OstTraceFunctionEntry0( GLXCOMMANDHANDLERADDTOCONTAINER_CREATECOMMANDL_ENTRY );
     iSelectionCount = 0;
 
-    CMPXCollectionPath* sourceItems = aMediaList.PathLC( NGlxListDefs::EPathFocusOrSelection );
+    CMPXCollectionPath* sourceItems = aMediaList.PathLC(
+            NGlxListDefs::EPathFocusOrSelection);
     bool ok = false;
 
-
     //create target medialist
-   	CMPXCollectionPath* path = CMPXCollectionPath::NewL();
-    CleanupStack::PushL( path );
+    CMPXCollectionPath* path = CMPXCollectionPath::NewL();
+    CleanupStack::PushL(path);
     path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
 
-	CMPXFilter* filter = TGlxFilterFactory::CreateCameraAlbumExclusionFilterL();
+    CMPXFilter* filter =
+            TGlxFilterFactory::CreateCameraAlbumExclusionFilterL();
     CleanupStack::PushL(filter);
-	
+
     // Create the media list
-    MGlxMediaList* targetMediaList =  MGlxMediaList::InstanceL( *path, 
-	                  TGlxHierarchyId(KSelectionPopupListHierarchy), filter );  //todo take actual hierarchy 
-    CleanupStack::PopAndDestroy( filter );
+    MGlxMediaList* targetMediaList = MGlxMediaList::InstanceL(*path,
+            TGlxHierarchyId(KSelectionPopupListHierarchy), filter); //todo take actual hierarchy 
+    CleanupStack::PopAndDestroy(filter);
     CleanupStack::PopAndDestroy(path);
-    
+
     //create target model
-    GlxModelParm modelParm (KGlxCollectionPluginAlbumsImplementationUid, KSelectionPopupListHierarchy,EGlxFilterExcludeCamera);
-    GlxAlbumModel *albumMediaModel = new GlxAlbumModel (modelParm);
-    albumMediaModel->setData(QModelIndex(), (int)GlxContextSelectionList, GlxContextRole );
-    
-    //QModelIndexList selectedModelIndexes;
-    QModelIndexList modelList = GetSelectionList(albumMediaModel,&ok);
-    
+    GlxModelParm modelParm(KGlxCollectionPluginAlbumsImplementationUid,
+            KSelectionPopupListHierarchy, EGlxFilterExcludeCamera);
+    GlxAlbumModel *albumMediaModel = new GlxAlbumModel(modelParm);
+    albumMediaModel->setData(QModelIndex(), (int) GlxContextSelectionList,
+            GlxContextRole);
+
+    QModelIndexList modelList = GetSelectionList(albumMediaModel, &ok);
+
     CMPXCommand* command = NULL;
-    qDebug("GlxCommandHandlerAddToContainer::CreateCommandL OK %d new media added %d", ok, mNewMediaAdded);
-    
-    if (ok|| mNewMediaAdded) {        
+    OstTraceExt2( TRACE_NORMAL, GLXCOMMANDHANDLERADDTOCONTAINER_CREATECOMMANDL, "GlxCommandHandlerAddToContainer::CreateCommandL;ok=%d;newMedia=%d", ok, mNewMediaAdded );
+
+    if (ok || mNewMediaAdded)
+        {
         int count = modelList.count();
-        
-        for(int i = 0 ; i < count ; i++) {
-            albumMediaModel->setData( modelList[i], modelList[i].row(), GlxSelectedIndexRole );	
-        }
-        
-        if(!mNewMediaAdded) {
-            CMPXCollectionPath* targetContainers  = targetMediaList->PathLC( NGlxListDefs::EPathFocusOrSelection );
+
+        for (int i = 0; i < count; i++)
+            {
+            albumMediaModel->setData(modelList[i], modelList[i].row(),
+                    GlxSelectedIndexRole);
+            }
+
+        if (!mNewMediaAdded)
+            {
+            CMPXCollectionPath* targetContainers = targetMediaList->PathLC(
+                    NGlxListDefs::EPathFocusOrSelection);
             CleanupStack::Pop(targetContainers);
             delete mTargetContainers;
             mTargetContainers = NULL;
             mTargetContainers = targetContainers;
-        }
-        
-        command = TGlxCommandFactory::AddToContainerCommandLC(*sourceItems, *mTargetContainers);
-        CleanupStack::Pop(command); 
+            }
+
+        command = TGlxCommandFactory::AddToContainerCommandLC(*sourceItems,
+                *mTargetContainers);
+        CleanupStack::Pop(command);
         mNewMediaAdded = false;
-    }
+        }
 
     MGlxMediaList::UnmarkAllL(*targetMediaList);
     targetMediaList->Close();
     CleanupStack::PopAndDestroy(sourceItems);
     delete albumMediaModel;
+    OstTraceFunctionExit0( GLXCOMMANDHANDLERADDTOCONTAINER_CREATECOMMANDL_EXIT );
     return command;
-}
+    }
 
-QModelIndexList GlxCommandHandlerAddToContainer::GetSelectionList(GlxAlbumModel *model,bool *ok) const
-{
+QModelIndexList GlxCommandHandlerAddToContainer::GetSelectionList(
+        GlxAlbumModel *model, bool *ok) const
+    {
+    OstTraceFunctionEntry0( GLXCOMMANDHANDLERADDTOCONTAINER_GETSELECTIONLIST_ENTRY );
     // Create a popup
     HbDialog popup;
-
+    popup.setPreferredHeight(400);
     // Set dismiss policy that determines what tap events will cause the popup
     // to be dismissed
     popup.setDismissPolicy(HbDialog::NoDismiss);
@@ -157,58 +176,74 @@ QModelIndexList GlxCommandHandlerAddToContainer::GetSelectionList(GlxAlbumModel 
 
     GlxQueryContentWidget* view = new GlxQueryContentWidget();
     view->mListView->setModel(model);
-    
-    qDebug("GlxCommandHandlerAddToContainer::GetSelectionList model setting done row count %d",model->rowCount() );
+
     connect(view->mButton, SIGNAL(released ()), &popup, SLOT(close()));
     connect(view->mButton, SIGNAL(released ()), this, SLOT(createNewMedia()));
 
-    HbAction *primary = new HbAction("OK"); 
+
+    HbAction *primary = new HbAction("OK");
     popup.setPrimaryAction(primary);
 
-    HbAction *secondary = new HbAction("Cancel"); 
+    HbAction *secondary = new HbAction("Cancel");
     popup.setSecondaryAction(secondary);
     
     popup.setContentWidget(view); //ownership transfer
-    qDebug("GlxCommandHandlerAddToContainer::GetSelectionList after popup.setContentWidget ");
     view->mListView->show();
+    
     QModelIndexList selectedIndexes;
-    
-    do {
+
+    do
+        {
         HbAction* action = popup.exec();
-        if(action == popup.primaryAction()){
+        if (action == popup.primaryAction())
+            {
             *ok = true;
-        }
-        else {
+            }
+        else
+            {
             *ok = false;
-        }
-        
-        qDebug("GlxCommandHandlerAddToContainer::GetSelectionList after exec user action %d ", *ok);
-    
-        if( *ok ) {
-            GlxQueryContentWidget* cWidget = qobject_cast<GlxQueryContentWidget*>(popup.contentWidget());
-            QItemSelectionModel* selModel = cWidget->mListView->selectionModel();
-            qDebug("GlxCommandHandlerAddToContainer::GetSelectionList selection model %d", selModel);
+            }
+        OstTrace1( TRACE_NORMAL, GLXCOMMANDHANDLERADDTOCONTAINER_GETSELECTIONLIST, "GlxCommandHandlerAddToContainer::GetSelectionList;ok=%d", *ok );
+
+
+        if (*ok)
+            {
+            GlxQueryContentWidget* cWidget = qobject_cast<
+                    GlxQueryContentWidget*> (popup.contentWidget());
+            QItemSelectionModel* selModel =
+                    cWidget->mListView->selectionModel();
             selectedIndexes = selModel->selectedIndexes();
+            }
         }
-    }  while ( *ok && selectedIndexes.count() == 0); //continue until user select one album list or new item
+    while (*ok && selectedIndexes.count() == 0); //continue until user select one album list or new item
 
     delete primary;
     delete secondary;
-    qDebug("GlxCommandHandlerAddToContainer::GetSelectionList exit ");  
-    
+
+    OstTraceFunctionExit0( GLXCOMMANDHANDLERADDTOCONTAINER_GETSELECTIONLIST_EXIT );
     return selectedIndexes;
-}
+    }
 
 void GlxCommandHandlerAddToContainer::createNewMedia()
-{
-    qDebug("GlxCommandHandlerAddToContainer::createNewMedia ");
-    GlxCommandHandlerNewMedia* commandHandlerNewMedia = new GlxCommandHandlerNewMedia();
+    {
+    OstTraceFunctionEntry0( GLXCOMMANDHANDLERADDTOCONTAINER_CREATENEWMEDIA_ENTRY );
+    GlxCommandHandlerNewMedia* commandHandlerNewMedia =
+            new GlxCommandHandlerNewMedia();
     TGlxMediaId newMediaId;
-    TInt error  = commandHandlerNewMedia->ExecuteLD(newMediaId);
-    
-    if (error == KErrNone) {
+    TInt error = commandHandlerNewMedia->ExecuteLD(newMediaId);
+
+    while (error == KErrAlreadyExists)
+        {
+        HbMessageBox::warning("Name Already Exist!!!", new HbLabel(
+                "New Album"));
+        error = KErrNone;
+        error = commandHandlerNewMedia->ExecuteLD(newMediaId);
+        }
+
+    if (error == KErrNone)
+        {
         CMPXCollectionPath* path = CMPXCollectionPath::NewL();
-        CleanupStack::PushL( path );
+        CleanupStack::PushL(path);
         path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
         path->AppendL(newMediaId.Value());
         CleanupStack::Pop(path);
@@ -216,5 +251,16 @@ void GlxCommandHandlerAddToContainer::createNewMedia()
         mTargetContainers = NULL;
         mTargetContainers = path;
         mNewMediaAdded = true;
+        }
+    OstTraceFunctionExit0( GLXCOMMANDHANDLERADDTOCONTAINER_CREATENEWMEDIA_EXIT );
     }
-}
+
+QString GlxCommandHandlerAddToContainer::CompletionTextL() const
+    {
+    return QString("Item added!");
+    }
+
+QString GlxCommandHandlerAddToContainer::ProgressTextL() const
+    {
+    return QString("Adding album...");
+    }

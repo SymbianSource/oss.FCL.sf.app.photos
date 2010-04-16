@@ -46,7 +46,8 @@ public slots:
     
 private slots:
 	void indicateLongPress( HbAbstractViewItem *item, QPointF coords );
-
+	void setVisvalWindowIndex();
+	
 private:
 	void addViewConnection();
 	void removeViewConnection();

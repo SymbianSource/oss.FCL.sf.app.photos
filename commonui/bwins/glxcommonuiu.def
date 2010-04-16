@@ -24,4 +24,5 @@ EXPORTS
 	?SetToViewMode@CGlxNavigationalState@@QAEXXZ @ 23 NONAME ABSENT ; void CGlxNavigationalState::SetToViewMode(void)
 	?StateLC@CGlxNavigationalState@@QBEPAVCMPXCollectionPath@@XZ @ 24 NONAME ABSENT ; class CMPXCollectionPath * CGlxNavigationalState::StateLC(void) const
 	?ViewingMode@CGlxNavigationalState@@QAE?AW4TViewingMode@NGlxNavigationalState@@XZ @ 25 NONAME ABSENT ; enum NGlxNavigationalState::TViewingMode CGlxNavigationalState::ViewingMode(void)
+	?RetrieveL@GlxAttributeRetriever@@SAHABVMGlxFetchContext@@AAVMGlxMediaList@@H@Z @ 26 NONAME ; int GlxAttributeRetriever::RetrieveL(class MGlxFetchContext const &, class MGlxMediaList &, int)
 

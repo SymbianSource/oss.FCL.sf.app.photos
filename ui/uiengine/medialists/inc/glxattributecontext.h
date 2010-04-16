@@ -157,5 +157,36 @@ private:
 	TGlxFromFocusOutwardIterator iFromFocusIterator;	
 	};
 	
+/**
+ *  CGlxDefaultListAttributeContext
+ *
+ *  Fetch context to retrieve MPX attributes by using TGlxFromFocusOutwardListIterator
+ *  iterator specially designed for list in 10.1
+ *
+ *  @lib glxmedialists.lib
+ */
+class CGlxDefaultListAttributeContext : public CGlxAttributeContext
+    {
+public:
+    IMPORT_C static CGlxDefaultListAttributeContext* NewL();
+    IMPORT_C ~CGlxDefaultListAttributeContext();
+
+    /**
+     * Set the range offsets. These determine the outer limits
+     * of attributes to be retrieved, compared to current focus in
+     * the list.
+     * 
+     * NOTE : This works on Visible WindowIndex and not FocusIndex
+     * 
+     */
+    IMPORT_C void SetRangeOffsets(TInt aFrontOffset, TInt aRearOffset);
+
+private:
+    CGlxDefaultListAttributeContext();
+
+private:
+    TGlxFromVisibleIndexOutwardListIterator iFromVisibleIndexIterator;    
+    };
+
 #endif // C_GLXATTRIBUTECONTEXT_H
 

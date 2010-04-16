@@ -22,24 +22,20 @@
 // -----------------------------------------------------------------------------
 // NewL
 // -----------------------------------------------------------------------------
-CGlxHdmiDecoderAO* CGlxHdmiDecoderAO::NewL(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater,
-        TInt aFrameCount)
+CGlxHdmiDecoderAO* CGlxHdmiDecoderAO::NewL(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater)
     {
     TRACER("CGlxHdmiDecoderAO::NewL()");
-    CGlxHdmiDecoderAO* self = new (ELeave) CGlxHdmiDecoderAO(aHdmiSurfaceUpdater, 
-                                                                        aFrameCount);
+    CGlxHdmiDecoderAO* self = new (ELeave) CGlxHdmiDecoderAO(aHdmiSurfaceUpdater);
     return self;
     }
     
 // -----------------------------------------------------------------------------
 // CGlxHdmiDecoderAO()
 // -----------------------------------------------------------------------------
-CGlxHdmiDecoderAO::CGlxHdmiDecoderAO(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater,
-        TInt aFrameCount):CActive(CActive::EPriorityStandard-1),
-    iHdmiSurfaceUpdater(aHdmiSurfaceUpdater), iFrameCount(aFrameCount)
+CGlxHdmiDecoderAO::CGlxHdmiDecoderAO(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater):
+    CActive(CActive::EPriorityStandard-1),iHdmiSurfaceUpdater(aHdmiSurfaceUpdater)
     {
     TRACER("CGlxHdmiDecoderAO::CGlxHdmiDecoderAO()");
-    iDecodeCount = 0;
     CActiveScheduler::Add(this);
     }
 
@@ -83,18 +79,12 @@ void CGlxHdmiDecoderAO::DoCancel()
 // -----------------------------------------------------------------------------
 // ConvertImageL
 // -----------------------------------------------------------------------------
-void CGlxHdmiDecoderAO::ConvertImageL(CFbsBitmap& aBitmap, TInt aFrameNum,
-        CImageDecoder* aDecoder)
+void CGlxHdmiDecoderAO::ConvertImageL(CFbsBitmap& aBitmap,
+                                       CImageDecoder* aDecoder)
     {
     TRACER("CGlxHdmiDecoderAO::ConvertImageL()");
-    if (iDecoder)
-        {
-        GLX_LOG_INFO("CGlxHdmiDecoderAO::ConvertImageL() -1");
-        iDecoder = NULL;
-        }
     iDecoder = aDecoder;
-    GLX_LOG_INFO1("CGlxHdmiDecoderAO::ConvertImageL() FrameNo=%d",aFrameNum);
-    iDecoder->Convert(&iStatus,aBitmap, aFrameNum); 
+    iDecoder->Convert(&iStatus,aBitmap); 
     SetActive();
     }
     

@@ -44,8 +44,8 @@ class GlxDetailsCustomWidgets: public HbDataFormViewItem
 public:
     GlxDetailsCustomWidgets(QGraphicsItem *parent);
     ~GlxDetailsCustomWidgets();
-     virtual HbAbstractViewItem* createItem();
-     void SetImageName(const QString &label);
+     virtual HbAbstractViewItem* createItem();     
+     bool canSetModelIndex(const QModelIndex &index) const;
 
 protected:
     virtual HbWidget* createCustomWidget();

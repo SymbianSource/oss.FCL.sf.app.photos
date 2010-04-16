@@ -21,25 +21,31 @@
 #define GLXMODELPARM_H
 
 #include<glxfiltergeneraldefs.h>
+#include<glxuistd.h>
 
 enum
 {
-GlxFsImageRole = Qt::UserRole + 1,
-GlxContextRole,
-GlxFocusIndexRole,
-GlxVisualWindowIndex, 
-GlxUriRole,
-GlxDimensionsRole,
-GlxSelectedIndexRole,
-GlxDateRole,
-GlxFrameCount
+    GlxFsImageRole = Qt::UserRole + 1,  //to get the fullscreen image
+    GlxContextRole,                     //to get and set the context   
+    GlxFocusIndexRole,                  //to get and set the selected item index
+    GlxVisualWindowIndex,               //to set the visual window index in media list
+    GlxUriRole,                         //to get the URI of the image
+    GlxDimensionsRole,                  
+    GlxSelectedIndexRole,               //to get and set the seleceted item list
+    GlxDateRole,                        //to get the image created or modified date 
+    GlxFrameCount,                      //to get the number of frame in an image
+    GlxSubStateRole,                    //to publish the sub state of a SM states
 };
 
 
 class GlxModelParm
 {
 public:
-	GlxModelParm (qint32 collectionId = 0, qint32 depth = 0 , TGlxFilterItemType filterType = EGlxFilterItemAll ) : mCollectionId(collectionId) ,mDepth(depth) , mFilterType(filterType)
+	GlxModelParm (qint32 collectionId = 0, qint32 depth = 0 , TGlxFilterItemType filterType = EGlxFilterItemAll , GlxContextMode contextMode = GlxContextPtGrid ) 
+	    : mCollectionId(collectionId) ,
+	      mDepth(depth) , 
+	      mFilterType( filterType ),
+	      mContextMode( contextMode )
 	{
 	
 	}
@@ -49,10 +55,14 @@ public:
 	void setDepth (qint32 depth = 0) { mDepth = depth ; }
 	qint32 depth() { return mDepth; }
 	TGlxFilterItemType filterType() { return mFilterType; }
+	void setContextMode( GlxContextMode contextMode ) { mContextMode = contextMode ; }
+	GlxContextMode contextMode() { return mContextMode ; }
+	
 private:
 	qint32 mCollectionId;
 	qint32 mDepth;
 	TGlxFilterItemType mFilterType;
+	GlxContextMode mContextMode;
 };
 
 

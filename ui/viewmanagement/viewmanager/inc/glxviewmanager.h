@@ -193,8 +193,6 @@ private:
     QList<HbAction *>  mMarkingActionList; //marking mode tool bar action list
     HbToolBar          *mViewToolBar; //view tool bar
     HbToolBar          *mMarkingToolBar; //marking mode tool bar
-    QList<QString >    mSelIconPathList; //enable tool bar button icon path list
-    QList<QString >    mDefaultIconPathList; //disalbe tool bar button icon path list
     HbMenu *mMenu; 
     GlxView *mView;
     QAbstractItemModel *mModel; //no ownership

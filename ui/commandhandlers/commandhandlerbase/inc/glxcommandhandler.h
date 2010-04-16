@@ -26,12 +26,13 @@
 #define GLX_COMMANDHANDLERBASE_EXPORT Q_DECL_IMPORT
 #endif
 
+class QModelIndex;
 class GLX_COMMANDHANDLERBASE_EXPORT GlxCommandHandler : public QObject
 {
 public:
     GlxCommandHandler();
     virtual ~GlxCommandHandler();
-    virtual void executeCommand(int commandId,int collectionId) = 0;
+    virtual void executeCommand(int commandId,int collectionId ,QList<QModelIndex> indexList = QList<QModelIndex>() ) = 0;
     
 };
 #endif //GLXCOMMANDHANDLER_H

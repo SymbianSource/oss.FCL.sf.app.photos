@@ -165,17 +165,6 @@ void CGlxTv::CGlxTvOutCenRepMonitor::ConstructL()
 #else
     iSettingsTVAspectRatio = 0;
 #endif
-	// Commenting out code for request notification as these doesnt work fine,
-	// would be soon updated with latest api's to support aspectration chnages.
-    // Request notification when the user changes cenrep values
-//    TInt err = iRepository.NotifyRequest( iSettingsTVAspectRatio, iStatus );
-//    if (!(KErrNone ==err ||KErrAlreadyExists  ==err))
-//        {
-//        RDebug::Printf("## Error code in CGlxTv::CGlxTvOutCenRepMonitor::ConstructL() is %d",err);
-//        User::Leave(err);
-//        }
-    
-//    SetActive();
     }
 
     

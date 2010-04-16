@@ -21,6 +21,9 @@
 #include<glxcommandhandlerdelete.h>
 #include <glxcommandhandleraddtocontainer.h>
 #include <glxcommandhandlerrotate.h>
+#include <glxcommandhandlerremovefrom.h>
+#include <glxcommandhandlernewmedia.h>
+#include <glxcommandhandlersend.h>
 
 GlxCommandHandler* GlxCommandHandlerFactory::CreateCommandHandler(int commandId)
 {
@@ -33,6 +36,13 @@ GlxCommandHandler* GlxCommandHandlerFactory::CreateCommandHandler(int commandId)
            break;
 		case EGlxCmdRotate: cmdHandler = new GlxCommandHandlerRotate();
            break;
+        case EGlxCmdRemoveFrom:  cmdHandler = new GlxCommandHandlerRemoveFrom();  
+           break;
+        case EGlxCmdAddMedia:  cmdHandler = new GlxCommandHandlerNewMedia();
+            break;
+		
+		case EGlxCmdSend : cmdHandler = new GlxCommandHandlerSend();  
+	         break;
         default:
            break;
         }

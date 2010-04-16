@@ -20,13 +20,6 @@
 
 #include <glxbasestate.h>
 
-typedef enum 
-{
-    NO_SLIDESHOW_S,
-    SLIDESHOW_GRID_ITEM_S,
-    SLIDESHOW_ALBUM_ITEM_S,
-} SlideShowState;
-
 class GlxStateManager;
 
 class GlxSlideShowState : public GlxState

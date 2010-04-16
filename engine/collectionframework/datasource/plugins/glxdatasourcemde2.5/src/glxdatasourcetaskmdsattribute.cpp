@@ -114,9 +114,10 @@ void CGlxDataSourceTaskMdeAttributeMde::ExecuteRequestL()
         
     __ASSERT_DEBUG(request->MediaIds().Count() > 0, User::Invariant());
 
- 	RDebug::Print(_L("==> CGlxDataSourceTaskMdeAttributeMde::ExecuteRequestL"));
-	iStartTime.HomeTime(); // Get home time
-    
+ 	GLX_LOG_INFO("==> CGlxDataSourceTaskMdeAttributeMde::ExecuteRequestL");
+#ifdef _DEBUG
+ 	iStartTime.HomeTime(); // Get home time
+#endif
     if (request->MediaIds().Count() > 1)
         {
         iMediaArray = CMPXMediaArray::NewL();
@@ -1164,13 +1165,14 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL()
 	CMdEQuery* query = iQueries[0];
 	
     TInt queryResultsCount = query->Count();
-   	iStopTime.HomeTime(); // Get home time
-   	RDebug::Print(_L("==> CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL - queryResultsCount=%d"), queryResultsCount);
+   	GLX_LOG_INFO1("==> CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL - queryResultsCount=%d", queryResultsCount);
+#ifdef _DEBUG
+    iStopTime.HomeTime(); // Get home time
    	if (queryResultsCount)
    		{
-		RDebug::Print(_L("==> CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL took <%d> us"), (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+   		GLX_LOG_INFO1("==> CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL took <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
    		}
-
+#endif
     if( ( queryResultsCount == 1 ) && ( !iMediaArray ) )
         {
         CMdEObject& object = static_cast<CMdEObject&>(query->ResultItem(0));
@@ -1186,11 +1188,10 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL()
         for (TInt i = 0; i < queryResultsCount; i++)
             {
             CMdEObject& object = static_cast<CMdEObject&>(query->ResultItem(i));
-            
             CMPXMedia* entry = CMPXMedia::NewL();
             CleanupStack::PushL(entry);
-            iMediaArray->AppendL(entry);
-            CleanupStack::Pop(entry);
+            iMediaArray->AppendL(*entry);
+            CleanupStack::PopAndDestroy(entry);
             AddAttributesL(object, (*iMediaArray)[iMediaArray->Count() - 1]);
             }
         }    

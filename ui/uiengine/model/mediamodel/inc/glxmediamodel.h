@@ -100,6 +100,7 @@ private:
 	QCache<int, HbIcon> itemExternalIconCache;
 	int externalDataCount;
 	int mFocusIndex;
+	int mSubState;
 };
 
 

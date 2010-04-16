@@ -235,6 +235,66 @@ private:
 	};
 
 /**
+ * TGlxFromVisibleIndexOutwardListIterator
+ * 
+ * Ordered that returns the index of the focused item first and 
+ * then the surrounding items evenly from both sides based on the rangeoffset
+ * This is mainly designed for 10.1 List View(album) and mapped with
+ * VisibleWindowIndex and not FocusIndex as for Direct UI.
+ * 
+ *  @lib glxmedialists.lib
+ */ 
+class TGlxFromVisibleIndexOutwardListIterator : public MGlxMediaListIterator
+    {
+public:
+    IMPORT_C TGlxFromVisibleIndexOutwardListIterator();
+    IMPORT_C ~TGlxFromVisibleIndexOutwardListIterator();
+    
+    /**
+     * Set the range offsets
+     */
+    IMPORT_C void SetRangeOffsets(TInt aRearOffset, TInt aFrontOffset);
+    
+// From MGlxMediaListIterator
+    virtual void SetToFirst(const MGlxMediaList* aList);
+    virtual TInt operator++(TInt);
+    virtual TBool InRange(TInt aIndex) const;
+
+private:
+    /** 
+     * The count or ordinal of the item that is currently "selected"
+     * This translates to how many times ++ has been called
+     */
+    TInt iCurrentItem;
+
+    /**
+     * Number of items within range after focus index
+     */
+    TInt iFrontOffset;
+
+    /**
+     * Number of items within range before focus index
+     */
+    TInt iRearOffset;
+    
+    /**
+     * List being traversed
+     */
+    const MGlxMediaList* iList;
+    
+    // For E-Unit
+    friend class T_CGlxFromFocusOutwardIterator;
+    
+    /**
+     * Number of items within range as configured by clients
+     * This shall be used to restore back 
+     * while coming out of low memory conditions
+     */
+    TInt iOriginalFrontOffset;
+    TInt iOriginalRearOffset;
+    };
+
+/**
  * TGlxFromIndexOutwardBlockyIterator
  * 
  * Ordered that returns the index of the focused item first and 

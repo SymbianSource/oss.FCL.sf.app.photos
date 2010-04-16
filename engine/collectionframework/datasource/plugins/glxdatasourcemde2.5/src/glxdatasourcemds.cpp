@@ -226,6 +226,7 @@ void CGlxDataSourceMde::HandleSessionOpened( CMdESession& aSession, TInt aError 
 void CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt /*aError*/ )    
     {
     TRACER("CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt /*aError*/)")
+    delete iSession;
     iSession = NULL;
     iDataSourceReady = EFalse;
     iSessionOpen = EFalse;
@@ -252,14 +253,15 @@ CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest, MGlxDa
 		}
 	else if (dynamic_cast< CGlxGetRequest *>(aRequest))
 		{
-	    _LIT( KFormatTimeStamp, "[%H:%T:%S.%*C5]");
-	    RDebug::Print(_L("==> CGlxDataSourceMde::CreateTaskL - CGlxDataSourceTaskMdeAttributeMde+"));
+	    GLX_LOG_INFO("==> CGlxDataSourceMde::CreateTaskL - CGlxDataSourceTaskMdeAttributeMde+");
+#ifdef _DEBUG
+        _LIT( KFormatTimeStamp, "[%H:%T:%S.%*C5]");
 	    TTime time;
 	    time.HomeTime(); // Get home time
 	    TBuf<32> timeStampBuf;
 	    time.FormatL(timeStampBuf, KFormatTimeStamp);
 	    RDebug::Print(_L("%S"), &timeStampBuf);    
-		
+#endif
         CleanupStack::PushL(aRequest);
         CGlxDataSourceTaskMdeAttributeMde* task = new (ELeave) CGlxDataSourceTaskMdeAttributeMde(static_cast<CGlxGetRequest*>(aRequest), aObserver, this);
 		CleanupStack::Pop(aRequest); // now owned by task
@@ -280,14 +282,15 @@ CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest, MGlxDa
 		}
 	else if (dynamic_cast< CGlxThumbnailRequest *>(aRequest))
 		{	
-	    _LIT( KFormatTimeStamp, "[%H:%T:%S.%*C5]");
-	    RDebug::Print(_L("==> CGlxDataSourceMde::CreateTaskL - CGlxDataSourceTaskMdeThumbnail+"));
+	    GLX_LOG_INFO("==> CGlxDataSourceMde::CreateTaskL - CGlxDataSourceTaskMdeThumbnail+");
+#ifdef _DEBUG
+        _LIT( KFormatTimeStamp, "[%H:%T:%S.%*C5]");
 	    TTime time;
 	    time.HomeTime(); // Get home time
 	    TBuf<32> timeStampBuf;
 	    time.FormatL(timeStampBuf, KFormatTimeStamp);
 	    RDebug::Print(_L("%S"), &timeStampBuf);    
-
+#endif
         CleanupStack::PushL(aRequest);
         CGlxDataSourceTaskMdeThumbnail* task = new (ELeave) CGlxDataSourceTaskMdeThumbnail(static_cast<CGlxThumbnailRequest*>(aRequest), aObserver, this);
         CleanupStack::Pop(aRequest); // now owned by task
@@ -887,7 +890,9 @@ void CGlxDataSourceMde::FetchThumbnailL(CGlxRequest* aRequest, MThumbnailFetchRe
 	     GLX_LOG_INFO("CGlxDataSourceMde::FetchThumbnailL() - Fetch TN attrib - EFullScreenThumbnailSize");
 	}
     CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(request->ThumbnailInfo()->FilePath(), 0);
-	iStartTime.UniversalTime();
+#ifdef _DEBUG
+    iStartTime.UniversalTime();
+#endif
     iTnThumbnailCbId = iTnEngine->GetThumbnailL(*source);
     iTnRequestInProgress = ETrue;
     CleanupStack::PopAndDestroy();
@@ -915,9 +920,10 @@ void CGlxDataSourceMde::ThumbnailReady(TInt aError,
 	if (iTnThumbnailCbId == aId)
 		{
 		iTnRequestInProgress = EFalse;
+#ifdef _DEBUG
 		iStopTime.UniversalTime();
-		RDebug::Print(_L("==> S60 TNMan fetch took <%d> us"), (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
-	    
+		GLX_LOG_INFO1("==> S60 TNMan fetch took <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif
 	    if (aError == KErrNone && iTnHandle)
 	    	{
 	    	if (iTnHandle == KGlxMessageIdBackgroundThumbnail)

@@ -318,6 +318,8 @@ TGlxFilterProperties CGlxCollectionPluginAlbums::DefaultFilter(TInt aLevel)
         case KGlxCollectionAlbumContentsLevel:
             {
             filterProperties.iSortDirection = EGlxFilterSortDirectionDescending;
+			filterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
+            break;
             }
         case KGlxCollectionAlbumContentsFSLevel:
             {

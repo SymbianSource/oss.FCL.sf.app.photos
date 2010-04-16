@@ -29,13 +29,14 @@
 #define GLX_COMMANDHANDLERBASE_EXPORT Q_DECL_IMPORT
 #endif
 class MGlxMediaList;
+class HbProgressDialog;
 
 class GLX_COMMANDHANDLERBASE_EXPORT GlxMpxCommandHandler : public GlxCommandHandler, public MGlxMediaListObserver
 {
 public:
     GlxMpxCommandHandler();
     virtual ~GlxMpxCommandHandler();
-    virtual void executeCommand(int commandId,int collectionId);
+    virtual void executeCommand(int commandId,int collectionId,QList<QModelIndex> indexList = QList<QModelIndex>() );
 
 protected: // From MGlxMediaListObserver    
     /// See @ref MGlxMediaListObserver::HandleItemAddedL
@@ -66,21 +67,33 @@ protected: // From MGlxMediaListObserver
     /// See @ref MGlxMediaListObserver::HandleCommandCompleteL
     void HandleCommandCompleteL(TAny* aSessionId, CMPXCommand* aCommandResult, TInt aError, MGlxMediaList* aList);
     
+    /// See @ref MGlxMediaListObserver::HandleError
+    void HandleError(TInt aError);
 protected: // From derived class    
  
     virtual void DoHandleCommandCompleteL(TAny* aSessionId, 
             CMPXCommand* aCommandResult, TInt aError, MGlxMediaList* aList); 
 
     virtual CMPXCommand* CreateCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume) const = 0;
-	 virtual void DoExecuteCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume);
-            
-private:    
-
+	virtual void DoExecuteCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume);
+	virtual void HandleErrorL(TInt aErrorCode);
+	virtual QString CompletionTextL() const;
+	virtual QString ProgressTextL() const;        
+    virtual QString ConfirmationTextL(bool multiSelection = false) const; 
+private: 
+    bool ConfirmationNoteL(MGlxMediaList& aMediaList) const;
+    bool ConfirmationNoteSingleL(MGlxMediaList& aMediaList) const;
+    bool ConfirmationNoteMultipleL(MGlxMediaList& aMediaList) const;
+	void ProgressNoteL(TInt aCommandId);
+	void DismissProgressNoteL();
+	void CompletionNoteL() const;
+    void TryExitL(TInt aErrorCode);
     void CreateMediaListL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType) ;
     void CreateMediaListAlbumItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);
 private:
     // Instance of Media List
     MGlxMediaList* iMediaList;
-    
+	TBool iProgressComplete;
+	HbProgressDialog* mProgressDialog;
 };
 #endif //GLXMPXCOMMANDHANDLER_H

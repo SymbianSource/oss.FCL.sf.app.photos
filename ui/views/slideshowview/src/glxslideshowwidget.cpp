@@ -29,6 +29,7 @@
 
 
 //User Includes
+#include "glxicondefs.h" //Contains the icon names/Ids
 #include "glxmodelparm.h"
 #include "glxeffectengine.h"
 #include "glxdocloaderdefs.h"
@@ -46,17 +47,18 @@ GlxSlideShowWidget::GlxSlideShowWidget( QGraphicsItem *parent ) : HbScrollArea(p
 
 void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
     {
-
     //To:Do error handling
-    TRACER("GlxSlideShowWidget::setSlideShowWidget()");                                   
+    TRACER("GlxSlideShowWidget::setSlideShowWidget()");   
+    
     //create the effect engine
     mEffectEngine = new GlxSlideShowEffectEngine();
 
     // Now load the view and the contents.
+    // and then set the play icon to the button
     mContinueButton = static_cast<HbPushButton*>(DocLoader->findWidget(GLXSLIDESHOW_PB));
+    mContinueButton->setIcon(HbIcon(GLXICON_PLAY));
     mContinueButton->hide();
     mIsPause = false;
-
 
     for ( int i = 0; i < NBR_ITEM ; i++) {
     mIconItems[i] = new HbIconItem(this);
@@ -105,7 +107,8 @@ void GlxSlideShowWidget::cleanUp()
         delete mEffectEngine;
         mEffectEngine = NULL;
         }
-
+     
+    
     for ( int i = 0; i < NBR_ITEM ; i++) 
         {
         delete mIconItems[i] ;
@@ -405,6 +408,9 @@ void GlxSlideShowWidget::initializeNewModel()
 void GlxSlideShowWidget::resetSlideShow()
     {
     TRACER("GlxSlideShowWidget::resetSlideShow()" );
+	if(! mModel) {
+		return;
+	}
     QVariant variant = mModel->data( mModel->index( mSelIndex, 0 ), GlxFocusIndexRole );
     if ( variant.isValid() &&  variant.canConvert<int> () ) {
     mSelIndex = variant.value<int>() ;

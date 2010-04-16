@@ -26,4 +26,26 @@
 #define GLX_SLIDESHOWVIEW_ID     0x12121215
 #define GLX_DETAILSVIEW_ID       0x12121216
 
+
+typedef enum 
+{
+    NO_GRID_S,
+    ALL_ITEM_S,
+    ALBUM_ITEM_S,
+} GridState;
+
+typedef enum 
+{
+    NO_FULLSCREEN_S,
+    EXTERNAL_S,
+    IMAGEVIEWER_S
+} FullScreenState;
+
+typedef enum 
+{
+    NO_SLIDESHOW_S,
+    SLIDESHOW_GRID_ITEM_S,
+    SLIDESHOW_ALBUM_ITEM_S,
+} SlideShowState;
+
 #endif /* GLXVIEWIDS_H */

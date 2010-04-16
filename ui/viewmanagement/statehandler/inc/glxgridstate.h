@@ -24,13 +24,6 @@
 
 class GlxStateManager;
 
-typedef enum 
-{
-    NO_GRID_S,
-    ALL_ITEM_S,
-    ALBUM_ITEM_S,
-} GridState;
-
 class GlxGridState : public GlxState
 {
 public :

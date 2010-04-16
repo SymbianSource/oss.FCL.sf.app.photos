@@ -59,35 +59,34 @@ EXPORT_C CGlxHdmiController::~CGlxHdmiController()
 // Setting an Image Path 
 // -----------------------------------------------------------------------------
 EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
-        TSize aImageDimensions, TInt aFrameCount, TBool aStore)
+                                             TBool aStore)
     {
     TRACER("CGlxHdmiController::SetImageL()");
-    GLX_LOG_INFO2("CGlxHdmiController::SetImageL() - imagedimension width=%d, height=%d",aImageDimensions.iWidth,aImageDimensions.iHeight);
     if (aStore)
         {
         iIsImageSupported = ETrue;
-        StoreImageInfoL(aImageFile, aImageDimensions, aFrameCount);
+        StoreImageInfoL(aImageFile);
         }
     if (iGlxTvOut->IsHDMIConnected())
         {
 		iIsPostingMode = ETrue;
-        GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 2");
-        // do not close the surface , use the same surface instead.
-        // Call a function to pass imagefile, imagedimension, framecount
-        if (!iHdmiContainer)
-            {
-            CreateHdmiContainerL(); 
-            }            
-        if (!iSurfaceUpdater)
-            {
-            // This case would come when surface updater is not created at the first instance and also
-            // it satisfies the 720p condition                
-            CreateSurfaceUpdaterL(aImageFile, aImageDimensions, aFrameCount);
-            }
-        else
-            {
-            GLX_LOG_INFO1("CGlxHdmiController::SetImageL() FrameCount =%d",aFrameCount);
-            iSurfaceUpdater->UpdateNewImageL(aImageFile, aFrameCount,aImageDimensions);
+            GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 2");
+            // do not close the surface , use the same surface instead.
+            // Call a function to pass imagefile
+            if (!iHdmiContainer)
+                {            
+                CreateHdmiContainerL(); 
+                }            
+            if (!iSurfaceUpdater)
+                {
+                // This case would come when surface updater is not created at the first instance and also
+                // it satisfies the 720p condition                
+                CreateSurfaceUpdaterL(aImageFile);
+                }
+            else
+                {
+            GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 3");
+            iSurfaceUpdater->UpdateNewImageL(aImageFile);
             }
         iHdmiContainer->DrawNow();
         }
@@ -96,7 +95,7 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile,
 // -----------------------------------------------------------------------------
 // IsVideo 
 // -----------------------------------------------------------------------------
-EXPORT_C void CGlxHdmiController::IsVideo()
+EXPORT_C void CGlxHdmiController::ItemNotSupported()
     {
     TRACER("CGlxHdmiController::IsVideo()");
     iIsImageSupported = EFalse;
@@ -110,12 +109,12 @@ EXPORT_C void CGlxHdmiController::IsVideo()
 // -----------------------------------------------------------------------------
 // ActivateZoom 
 // -----------------------------------------------------------------------------
-EXPORT_C void CGlxHdmiController::ActivateZoom()
+EXPORT_C void CGlxHdmiController::ActivateZoom(TBool aAutoZoomOut)
     {
     TRACER("CGlxHdmiController::ActivateZoom()");
     if (iGlxTvOut->IsHDMIConnected())
         {
-        iSurfaceUpdater->ActivateZoom();
+        iSurfaceUpdater->ActivateZoom(aAutoZoomOut);
         }
     }
 
@@ -137,10 +136,10 @@ EXPORT_C void CGlxHdmiController::DeactivateZoom()
 EXPORT_C void CGlxHdmiController::ShiftToCloningMode()
     {
     TRACER("CGlxHdmiController::ShiftToCloningMode()");
+    iIsPostingMode = EFalse;
     if (iGlxTvOut->IsHDMIConnected() && iSurfaceUpdater)
         {
         iSurfaceUpdater->ShiftToCloningMode();
-		iIsPostingMode = EFalse;
         }
     }
 
@@ -150,10 +149,10 @@ EXPORT_C void CGlxHdmiController::ShiftToCloningMode()
 EXPORT_C void CGlxHdmiController::ShiftToPostingMode()
     {
     TRACER("CGlxHdmiController::ShiftToPostingMode()");
+    iIsPostingMode = ETrue;
     if (iGlxTvOut->IsHDMIConnected() && iSurfaceUpdater)
         {
         iSurfaceUpdater->ShiftToPostingMode();
-		iIsPostingMode = ETrue;
         }
     }
 
@@ -217,21 +216,19 @@ void CGlxHdmiController::CreateHdmiContainerL()
 // -----------------------------------------------------------------------------
 // CreateSurfaceUpdaterL 
 // -----------------------------------------------------------------------------
-void CGlxHdmiController::CreateSurfaceUpdaterL(const TDesC& aImageFile, 
-        TSize aImageDimensions, TInt aFrameCount)
+void CGlxHdmiController::CreateSurfaceUpdaterL(const TDesC& aImageFile)
     {
     TRACER("CGlxHdmiController::CreateSurfaceUpdater()");
     RWindow* window = iHdmiContainer->GetWindow();
-    iSurfaceUpdater = CGlxHdmiSurfaceUpdater::NewL(window, aImageFile, aImageDimensions, 
-            aFrameCount, iHdmiContainer);
+    iSurfaceUpdater = CGlxHdmiSurfaceUpdater::NewL(window, aImageFile, 
+                                                    iHdmiContainer);
     iHdmiContainer->DrawNow();
     }
 
 // -----------------------------------------------------------------------------
 // StoreImageInfoL 
 // -----------------------------------------------------------------------------
-void CGlxHdmiController::StoreImageInfoL(const TDesC& aImageFile,
-        TSize aImageDimensions, TInt aFrameCount)
+void CGlxHdmiController::StoreImageInfoL(const TDesC& aImageFile)
     {
     TRACER("CGlxHdmiController::StoreImageInfoL()");
     if(iStoredImagePath)
@@ -240,9 +237,6 @@ void CGlxHdmiController::StoreImageInfoL(const TDesC& aImageFile,
         iStoredImagePath = NULL;
         }
     iStoredImagePath = aImageFile.AllocL();
-    iImageDimensions = aImageDimensions;
-    iFrameCount = aFrameCount;
-    GLX_LOG_INFO1("CGlxHdmiController::StoreImageInfoL() FrameCount =%d",iFrameCount);
     }
 
 // -----------------------------------------------------------------------------
@@ -257,7 +251,7 @@ void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
             {
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Connected");
             // Calling SetImageL() with appropriate parameters
-            SetImageL(iStoredImagePath->Des(), iImageDimensions, iFrameCount, EFalse);
+            SetImageL(iStoredImagePath->Des(), EFalse);
             }
         else
             {
@@ -266,5 +260,14 @@ void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
             DestroySurfaceUpdater();
             }
         }
+    }
+
+// -----------------------------------------------------------------------------
+// HandleTvStatusChangedL 
+// -----------------------------------------------------------------------------
+EXPORT_C TBool CGlxHdmiController::IsHDMIConnected()
+    {
+    TRACER("CGlxHdmiController::IsHDMIConnected()");
+    return iGlxTvOut->IsHDMIConnected(); 
     }
 

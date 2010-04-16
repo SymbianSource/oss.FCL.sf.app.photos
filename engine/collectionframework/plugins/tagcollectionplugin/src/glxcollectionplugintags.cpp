@@ -344,6 +344,8 @@ TGlxFilterProperties CGlxCollectionPluginTags::DefaultFilter(TInt aLevel)
         case KGlxCollectionTagContentsLevel:
 	        {
         	filterProperties.iSortDirection = EGlxFilterSortDirectionDescending;
+			filterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
+            break;
 	        }
         case KGlxCollectionTagFSContentsLevel:
             {

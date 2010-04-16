@@ -38,49 +38,50 @@
 
 GlxSlideShowView::GlxSlideShowView(HbMainWindow *window,HbDocumentLoader *DocLoader) : GlxView(GLX_SLIDESHOWVIEW_ID), mModel(NULL),
                   mWindow(window), mSlideShowWidget(NULL),iHdmiController(NULL)
-    {
+{
     TRACER("GlxSlideShowView::GlxSlideShowView()");
     mDocLoader = DocLoader;
-    }
+}
 
 GlxSlideShowView::~GlxSlideShowView()
-    {
+{
     TRACER("GlxSlideShowView::~GlxSlideShowView()");
     if(mSlideShowWidget){
         disconnect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) );
         delete mSlideShowWidget;
         mSlideShowWidget = NULL;
-        }
+    }
 
     if(mDocLoader) {
         mDocLoader->reset();
         delete mDocLoader;
         mDocLoader = NULL;
-        }
     }
+}
 
 void GlxSlideShowView::activate()
-    {
+{
     //To:Do error handling
     TRACER("GlxSlideShowView::activate()");
+    mWindow->setOrientation(Qt::Horizontal, false);
 
     //finds the widgets from the docml
     loadObjects();
-    mWindow->setItemVisible(Hb::AllItems, false) ;
-    connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
+    setItemVisible(Hb::AllItems, false) ;
     connect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) ); 
     connect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
+    
     if (!iHdmiController) {
         GLX_LOG_INFO("GlxSlideShowView::activate() - CGlxHdmi" );
         iHdmiController = CGlxHdmiController::NewL();
-        }   
-    }
+    } 
+}
 
 void GlxSlideShowView::deActivate()
-    {
+{
     TRACER("GlxSlideShowView::deActivate()");
-    mWindow->setItemVisible(Hb::AllItems , TRUE);
-    disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
+    mWindow->unsetOrientation(false);
+    setItemVisible(Hb::AllItems , TRUE);
     disconnect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) );
     disconnect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
     //Delete the Items in the slide show widget
@@ -90,55 +91,54 @@ void GlxSlideShowView::deActivate()
         GLX_LOG_INFO("GlxSlideShowView() deActivate delete iHdmiController " );
         delete iHdmiController;
         iHdmiController = NULL;
-        }
     }
+}
 
 void GlxSlideShowView::setModel(QAbstractItemModel *model)
-    {
+{
     TRACER("GlxSlideShowView::setModel()");
     GLX_LOG_INFO2("GlxSlideShowView::setModel() model %u mModel %u", model, mModel);
     if ( mModel == model ) {
-    return ;
+        return ;
     }
     mModel = model;
     mSlideShowWidget->setModel(mModel);
     SetImageToHdmiL();
-    }
+}
 
 void GlxSlideShowView::setModelContext()
-    {
+{
     TRACER("GlxSlideShowView::setModelContext()");
     if ( mModel && mWindow ) {
-    GLX_LOG_INFO1("GlxSlideShowView::setModelContext %d", mWindow->orientation() );
-
-    if ( mWindow->orientation() == Qt::Horizontal ) {
-    mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
+        GLX_LOG_INFO1("GlxSlideShowView::setModelContext %d", mWindow->orientation() );
+    
+        if ( mWindow->orientation() == Qt::Horizontal ) {
+            mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
+        }
+        else {
+            mModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
+        }
     }
-    else {
-    mModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
-    }
-    }
-    }
+}
 
 void GlxSlideShowView::orientationChanged(Qt::Orientation)
-    {
+{
     TRACER("GlxSlideShowView::orientationChanged()");
-    QRect screenRect = mWindow->geometry(); 
     setModelContext();
-    mSlideShowWidget->orientationChanged(screenRect);
-    }
+    mSlideShowWidget->orientationChanged( screenGeometry() );
+}
 
 void GlxSlideShowView::slideShowEventHandler( GlxSlideShowEvent e) 
-    {
+{
     TRACER("GlxSlideShowView::slideShowEventHandler()");
     GLX_LOG_INFO1("GlxSlideShowView::slideShowEventHandler() event %d", e);
     switch ( e ) {
         case UI_ON_EVENT :
-            mWindow->setItemVisible(Hb::AllItems, TRUE) ;
+            setItemVisible(Hb::AllItems, TRUE) ;
             break;
 
         case UI_OFF_EVENT :
-            mWindow->setItemVisible(Hb::AllItems, false) ;
+            setItemVisible(Hb::AllItems, false) ;
             break;
 
         case EMPTY_DATA_EVENT :
@@ -148,30 +148,30 @@ void GlxSlideShowView::slideShowEventHandler( GlxSlideShowEvent e)
         default :
             break;        
     }
-    }
+}
 
 void GlxSlideShowView::indexchanged()
-    {
+{
     TRACER("GlxSlideShowView::indexchanged()");
     SetImageToHdmiL();
-    }
+}
 
 bool GlxSlideShowView::event(QEvent *event)
-    {
+{
     TRACER("GlxSlideShowView::event()");
     GLX_LOG_INFO1("GlxSlideShowView::event() %d event type", event->type());
     if ( event->type() ==  QEvent::WindowActivate && mSlideShowWidget) {
-    mSlideShowWidget->startSlideShow();
+        mSlideShowWidget->startSlideShow();
     }
 
     if ( event->type() ==  QEvent::WindowDeactivate && mSlideShowWidget) {
-    mSlideShowWidget->stopSlideShow();
+       mSlideShowWidget->stopSlideShow();
     }
     return HbView::event(event);
-    }
+}
 
 void GlxSlideShowView::loadObjects()
-    {
+{
     TRACER("GlxSlideShowView::loadObjects");    
     //Load/Retrieve the widgets
     HbView *view     = static_cast<GlxSlideShowView*>(mDocLoader->findWidget(GLXSLIDESHOW_VIEW));
@@ -179,28 +179,22 @@ void GlxSlideShowView::loadObjects()
     
     //Initialise the Slideshow widget
     mSlideShowWidget->setSlideShowWidget(mDocLoader);
-    mSlideShowWidget->setItemGeometry(mWindow->geometry());  
-    }
+    mSlideShowWidget->setItemGeometry( screenGeometry() );  
+}
 
 void GlxSlideShowView::SetImageToHdmiL()
-    {
+{
     TRACER("GlxSlideShowView::SetImageToHdmiL() - CGlxHdmi 1" );
-    if (iHdmiController)
-        {
+    if (iHdmiController) {
         GLX_LOG_INFO("GlxSlideShowView::SetImageToHdmiL() - CGlxHdmi 2" );
         // Get the image uri
         QString imagePath = (mModel->data(mModel->index(mModel->data(mModel->index(0,0),GlxFocusIndexRole).value<int>(),0),GlxUriRole)).value<QString>();
-        if(imagePath.isNull())
-            {
+        if(imagePath.isNull()) {
             GLX_LOG_INFO("GlxSlideShowView::SetImageToHdmiL() path is null" );
-            }
+        }
         qDebug() << "GlxSlideShowView::SetImageToHdmiL() imagePath= " << imagePath;
         TPtrC aPtr = reinterpret_cast<const TUint16*>(imagePath.utf16());
 
-        // Get the image Dimensions
-        QSize imageDimension = (mModel->data(mModel->index(mModel->data(mModel->index(0,0),GlxFocusIndexRole).value<int>(),0),GlxDimensionsRole)).value<QSize>();
-        TSize imageSize(imageDimension.width(),imageDimension.height());
-        
-        iHdmiController->SetImageL(aPtr,imageSize );
-        }
+        iHdmiController->SetImageL(aPtr);
     }
+}

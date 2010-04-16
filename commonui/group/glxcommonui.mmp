@@ -36,7 +36,7 @@ APP_LAYER_SYSTEMINCLUDE
 
 SYSTEMINCLUDE   ../../inc
 SYSTEMINCLUDE   ../../commonutilities/common/inc
-
+SYSTEMINCLUDE   ../../ui/uiengine/medialists/inc
 
 USERINCLUDE     ../inc
 
@@ -45,6 +45,7 @@ SOURCE          glxerrorposter.cpp
 SOURCE          glxresolutionmanager.cpp
 SOURCE          glxresolutionutility.cpp
 SOURCE          glxzoomstatepublisher.cpp
+SOURCE          glxattributeretriever.cpp
 
 LIBRARY         bafl.lib
 LIBRARY         efsrv.lib

@@ -67,6 +67,8 @@ void GlxGridState::defaultEventHandler ( qint32 &id )
         
    case EGlxCmdAddToAlbum :
    case EGlxCmdDelete :
+   case EGlxCmdRemoveFrom :
+   case EGlxCmdSend :       
        mStateManager->enterMarkingMode();
        mIsMarkingMode = TRUE;
        mCommandId = id;
@@ -142,13 +144,14 @@ void GlxGridState::albumItemEventHandler ( qint32 &id )
 void GlxGridState::setTranstionParameter(NavigationDir dir, GlxEffect &effect, GlxViewEffect &viewEffect)
 {
     qDebug("GlxListState::setTranstionParameter dir = %d", dir);
-    if ( dir == NO_DIR) {
+    if ( dir == NO_DIR || dir == FORWARD_DIR) {
         effect = ALBUMLIST_TO_GRID ;
         viewEffect = BOTH_VIEW ;
     }
-    else {
-        effect = NO_EFFECT ;
-        viewEffect = NO_VIEW ;    
+    
+    if ( dir == BACKWARD_DIR){
+        effect = GRID_TO_ALBUMLIST ;
+        viewEffect = BOTH_VIEW ;    
     }
 }
 

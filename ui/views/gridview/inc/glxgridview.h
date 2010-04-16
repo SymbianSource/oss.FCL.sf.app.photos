@@ -43,6 +43,7 @@ public :
     ~GlxGridView();
     void activate() ;
     void deActivate();
+    void initializeView(QAbstractItemModel *model);
     void setModel(QAbstractItemModel *model);
     void addToolBar( HbToolBar *toolBar );
     void enableMarking() ;
@@ -54,7 +55,6 @@ public :
 public slots:
     void itemSelected(const QModelIndex &  index);
     void setVisvalWindowIndex();
-    void scrollPositionChange (QPointF newPosition, Qt::Orientations importantDimensions);
     /*
      * This loads the docml and retrives the widgets from the 
      * docml corresponding to the present orentation 
@@ -71,6 +71,7 @@ private slots:
 private:
     void addViewConnection();
     void removeViewConnection();
+    void resetItemTransform();
   
 private:
 	HbGridView          *mGridView; 
@@ -79,7 +80,7 @@ private:
 	QAbstractItemModel  *mModel ;
 	int mVisualIndex;             //first item index of the page //To:Do remove later
 	HbAbstractViewItem   *mItem;
-    HbDocumentLoader     *mDocLoader; //Docml loader to load the widgets from docml    
+    HbDocumentLoader     *mDocLoader; //Docml loader to load the widgets from docml 
 };
 
 #endif /* GLXGRIDVIEW_H_ */

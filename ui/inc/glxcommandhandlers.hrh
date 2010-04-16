@@ -109,6 +109,7 @@ enum TGlxCommandId
     EGlxCmdContextAddToAlbum,
     EGlxCmdContextDelete,
     EGlxCmdContextAlbumDelete,
+    EGlxCmdContextSend,
     EGlxCmdSetupItem,
     EGlxCmdAiwBase = 0x6000
     };

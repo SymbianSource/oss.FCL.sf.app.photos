@@ -16,7 +16,7 @@
 */
 
 
-
+ 
 #ifndef GLXACTIONHANDLER_H
 #define GLXACTIONHANDLER_H
 
@@ -24,6 +24,7 @@
 #include <QHash>
 
 class GlxCommandHandler;
+class QModelIndex;
 
 class GlxActionHandler : public QObject
 {
@@ -36,12 +37,8 @@ public :
 	    
 signals :
 
-public slots:
-    void handleAction(qint32 commandId,int collectionId);
-
-protected:
-	
-private slots:
+public :
+    void handleAction(qint32 commandId,int collectionId,QList<QModelIndex> indexList = QList<QModelIndex>());
 
 private://functions
 

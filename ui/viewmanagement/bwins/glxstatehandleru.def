@@ -31,4 +31,5 @@ EXPORTS
 	?exitMarkingMode@GlxStateManager@@QAEXXZ @ 30 NONAME ; void GlxStateManager::exitMarkingMode(void)
 	?removeCurrentModel@GlxStateManager@@QAEXXZ @ 31 NONAME ; void GlxStateManager::removeCurrentModel(void)
 	?createModel@GlxStateManager@@AAEXHW4NavigationDir@@@Z @ 32 NONAME ; void GlxStateManager::createModel(int, enum NavigationDir)
+	?setFullScreenContext@GlxStateManager@@AAEXXZ @ 33 NONAME ; void GlxStateManager::setFullScreenContext(void)
 

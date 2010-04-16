@@ -111,10 +111,7 @@ private:
 
 
 private:
-    QGraphicsPixmapItem *mDetailsPixmap;
-
-    //The Black Background for the thumbnail to be shown
-    HbIconItem *mBlackBackgroundItem;
+    HbIconItem *mDetailsIcon;
 
     //The media Model to acess the attributes not owned
     QAbstractItemModel *mModel; 

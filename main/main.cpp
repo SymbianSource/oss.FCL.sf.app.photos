@@ -23,7 +23,6 @@
 #include <glxloggerenabler.h>
 
 #include <hbstyle.h>
-#include <hbstyleloader.h>
 #include <QDebug>
 #include <QTranslator>
 #include <xqserviceutil.h>
@@ -35,7 +34,7 @@
 #endif
 
 int main(int argc, char *argv[])
-    {
+{
     OstTrace0( TRACE_IMPORTANT, _MAIN, "::main" );
     QApplication::setGraphicsSystem("openvg");
     
@@ -53,23 +52,22 @@ int main(int argc, char *argv[])
     GlxStateManager* stateMgr = NULL;
     GlxFetcher* mainWindow = NULL;
 
-    HbStyleLoader::load(":/data/photos.css");
     OstTraceEventStart0( EVENT_DUP1__MAIN_START, "launch" );
 
     if(!XQServiceUtil::isService()){
-	stateMgr = new GlxStateManager();
-    app.setApplicationName("Photos");          
-    stateMgr->launchApplication();  
+	      stateMgr = new GlxStateManager();
+        app.setApplicationName("Photos");          
+        stateMgr->launchApplication();  
     }
     else
     {
-	mainWindow = new GlxFetcher();
-    mainWindow->show();
+	      mainWindow = new GlxFetcher();
+        mainWindow->show();
     }
     OstTraceEventStop( EVENT_DUP1__MAIN_STOP, "launch", EVENT_DUP1__MAIN_START );
 
-	int ret = app.exec();
-	delete stateMgr;
-	delete mainWindow;
+    int ret = app.exec();
+    delete stateMgr;
+    delete mainWindow;
     return ret;
-    }
+}

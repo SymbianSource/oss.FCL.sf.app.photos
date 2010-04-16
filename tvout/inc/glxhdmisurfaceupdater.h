@@ -42,12 +42,13 @@ public:
      * 
      */
     static CGlxHdmiSurfaceUpdater* NewL(RWindow* aWindow, const TDesC& aImageFile, 
-            TSize aImageDimensions, TInt aFrameCount, MGlxGenCallback* aCallBack);
+                                         MGlxGenCallback* aCallBack);
     
     /*
      * destructor
      */
     ~CGlxHdmiSurfaceUpdater();
+    
 public:
     /*
      * This is to cancel the active object from decoding 
@@ -57,13 +58,12 @@ public:
     /*
      * This updates the new image.
      */
-    void UpdateNewImageL(const TDesC& aImageFile, 
-            TInt aFrameCount,TSize aImageDimensions);
+    void UpdateNewImageL(const TDesC& aImageFile);
     
     /*
      * Activate Zoom 
      */
-    void ActivateZoom();
+    void ActivateZoom(TBool aAutoZoomOut);
     /*
     * Deactivate Zoom 
     */
@@ -88,12 +88,12 @@ private:
      * Ctor 
      */
     CGlxHdmiSurfaceUpdater(RWindow* aWindow, const TDesC& aImageFile,
-            TSize aOrigImageDimensions, TInt aFrameCount, MGlxGenCallback* aCallBack);
+                            MGlxGenCallback* aCallBack);
     
     /*
      * ConstructL()
      */
-    void ConstructL(TSize aImageDimensions);   
+    void ConstructL();   
     
     /*
      * Create a New surface with given size
@@ -123,7 +123,7 @@ private:
     /*
      * Create bitmap  
      */
-    void CreateBitmapAndStartDecodingL();
+    void CreateBitmapL();
     
     /*
      * Create an image decoder with given file
@@ -144,23 +144,9 @@ private:
 	* ModifySurface positions of the surface to be displayed on screen
 	*/
 	void ModifySurfacePostion();
-	
-    static TInt TimerCallbackL(TAny* aThis);
-    
-    /*
-     * 
-     */
-    void ProcessTimerEventL();
-
-    /*
-	 * 
-	 */
-	void ProcessTvImageL();
 private:
     RWindow* iWindow;
     const TDesC& iImagePath;
-    TSize iOrigImageDimensions;
-    TInt iFrameCount;
     MGlxGenCallback* iCallBack;
 
     // GCE Surface
@@ -172,7 +158,7 @@ private:
     TSurfaceConfiguration   iConfig;                // surface configuration for zoom
     
     TSize               iZoomRectSz ;
-    CFbsBitmap*         iDecodedBitmap[15];             //Decoded bitmap of the focussed image
+    CFbsBitmap*         iDecodedBitmap;             //Decoded bitmap of the focussed image
     
     void*               iSurfBuffer;               // Surface buffer
     CGlxActiveCallBack* iSurfBufferAO;             // Surface buffer AO 
@@ -180,14 +166,14 @@ private:
     //ICL
     CGlxHdmiDecoderAO*  iGlxDecoderAO;              // Internal Image decoder AO              
     CImageDecoder*      iImageDecoder;              // Image Decoder
-    TInt                iAnimCount;                 // animation count
     RFs                 iFsSession;                 // RFs
     
     TPoint iLeftCornerForZoom;
     CPeriodic* iTimer;
-    CPeriodic* iAnimationTimer;
     TBool iZoom;
 	TBool iBitmapReady;
+	TBool iAutoZoomOut;
+	TBool iSurfSessionConnected;
 #ifdef _DEBUG
     TTime iStartTime;
     TTime iStopTime;

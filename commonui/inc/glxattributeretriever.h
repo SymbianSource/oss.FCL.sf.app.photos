@@ -38,7 +38,7 @@ const TInt KGlxFetchContextPriorityBlocking = KMaxTInt32;
  *	@ingroup mlm_media_list_manager_design
  *  @lib glxuiutilities.lib
  */
-NONSHARABLE_CLASS( GlxAttributeRetriever )
+class GlxAttributeRetriever 
 	{
 public:
 	/**

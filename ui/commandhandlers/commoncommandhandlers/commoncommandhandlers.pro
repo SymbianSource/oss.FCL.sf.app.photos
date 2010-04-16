@@ -27,8 +27,11 @@ INCLUDEPATH += . \
             ../../uiengine/medialists/inc \
             ../../../inc \
             ../../inc \
+            ../../uiengine/model/mediamodel/inc \
             ../../uiengine/model/listmodel/inc \
-            ../../uiengine/medialistwrapper/inc 
+            ../../../commonui/inc \
+            ../../uiengine/medialistwrapper/inc \
+            ../../../traces
 
 DEFINES += BUILD_COMMONCOMMANDHANDLERS
 
@@ -45,20 +48,28 @@ LIBS += -lglxcommandhandlerbase.dll \
         -lglxcommon.dll \
        	-lglxlistmodel.dll \
         -lglxmedialists.dll \
-	-lexiflib.dll \
-	-lfbscli.dll \
-	-lbafl.dll
+        -lglxcommonui.dll \
+        -lshareui.dll \
+		-lexiflib.dll \
+		-lfbscli.dll \
+		-lbafl.dll
 
 # Input
 HEADERS += inc/glxcommandhandlerdelete.h
 HEADERS += inc/glxcommandhandleraddtocontainer.h
 HEADERS += inc/glxcommandhandlernewmedia.h
 HEADERS += inc/glxcommandhandlerrotate.h
+HEADERS += inc/glxcommandhandlersend.h
+HEADERS += inc/glxcommandhandlerremovefrom.h
+
 
 SOURCES += src/glxcommandhandlerdelete.cpp
 SOURCES += src/glxcommandhandleraddtocontainer.cpp
 SOURCES += src/glxcommandhandlernewmedia.cpp
 SOURCES += src/glxcommandhandlerrotate.cpp
+SOURCES += src/glxcommandhandlersend.cpp
+SOURCES += src/glxcommandhandlerremovefrom.cpp
+
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 

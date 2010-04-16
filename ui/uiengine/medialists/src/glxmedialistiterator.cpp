@@ -36,6 +36,10 @@ const TInt KGlxUpperMemoryLimitForCacheSize = 25000000;
 const TInt KMaxLowMemOffsetValue = 3;
 const TInt KMinLowMemOffsetValue = 1;
 
+const TInt KMaxLowMemOffsetValueList = 10;
+const TInt KMinLowMemOffsetValueList = 6;
+const TInt KRearOffsetListValue = 2;
+
 EXPORT_C TGlxSequentialIterator::TGlxSequentialIterator()
     {
     TRACER("TGlxSequentialIterator::TGlxSequentialIterator");
@@ -65,7 +69,7 @@ void TGlxSequentialIterator::SetToFirst(const MGlxMediaList* aList)
 TInt TGlxSequentialIterator::operator++(TInt) 
     {
     TRACER("TGlxSequentialIterator::operator++");
-    
+
     iCurrentItem++;
     if (iCurrentItem < iList->Count() && iCurrentItem < iRange )
         {
@@ -392,6 +396,145 @@ TBool TGlxFromFocusOutwardIterator::InRange(TInt aIndex) const
         }
   
     TInt focusIndex = iList->FocusIndex();
+    TInt firstInRange = GlxListUtils::NormalizedIndex(focusIndex - iRearOffset, count);
+    TInt lastInRange = GlxListUtils::NormalizedIndex(focusIndex + iFrontOffset, count);
+  
+    if (firstInRange <= lastInRange)
+        {
+        // Normal case:  |    F-------L   |
+        return aIndex >= firstInRange && aIndex <= lastInRange;
+        }
+    else 
+        {
+        // Looping case: |----L      F----|
+        return aIndex <= lastInRange || aIndex >= firstInRange;
+        }
+    }
+
+// -----------------------------------------------------------------------------
+// Constructor
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TGlxFromVisibleIndexOutwardListIterator::TGlxFromVisibleIndexOutwardListIterator()
+    {
+    TRACER("TGlxFromVisibleIndexOutwardListIterator::TGlxFromVisibleIndexOutwardListIterator");
+    iCurrentItem = 0;
+    iFrontOffset = 0;
+    iRearOffset = 0;
+    iList = NULL;
+  }
+    
+// -----------------------------------------------------------------------------
+// Destructor
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TGlxFromVisibleIndexOutwardListIterator::~TGlxFromVisibleIndexOutwardListIterator()
+    {
+    TRACER("TGlxFromVisibleIndexOutwardListIterator::~TGlxFromVisibleIndexOutwardListIterator");
+    } 
+
+// ----------------------------------------------------------------------------
+// Set range offsets
+// ----------------------------------------------------------------------------
+//
+EXPORT_C void TGlxFromVisibleIndexOutwardListIterator::SetRangeOffsets(TInt aRearOffset,
+    TInt aFrontOffset)
+    { 
+    TRACER("TGlxFromVisibleIndexOutwardListIterator::SetRangeOffsets");
+    __ASSERT_DEBUG(aRearOffset >= 0 && aFrontOffset >= 0, Panic(EGlxPanicIllegalArgument)); 
+    iFrontOffset = aFrontOffset;
+    iRearOffset = aRearOffset;
+    iOriginalFrontOffset = iFrontOffset;
+    iOriginalRearOffset = iRearOffset;    
+    }
+
+// -----------------------------------------------------------------------------
+// Set to first item
+// -----------------------------------------------------------------------------
+//
+void TGlxFromVisibleIndexOutwardListIterator::SetToFirst(const MGlxMediaList* aList) 
+    {
+    TRACER("TGlxFromVisibleIndexOutwardListIterator::SetToFirst");
+    __ASSERT_DEBUG(aList != NULL, Panic(EGlxPanicNullPointer));
+
+    iList = aList;
+    iCurrentItem = 0;
+    }
+
+// -----------------------------------------------------------------------------
+// Return the item index or KErrNotFound, and goes to next
+// -----------------------------------------------------------------------------
+//
+TInt TGlxFromVisibleIndexOutwardListIterator::operator++(TInt) 
+    {
+    TRACER("TGlxFromVisibleIndexOutwardListIterator::operator++");
+    __ASSERT_DEBUG(iList != NULL, Panic(EGlxPanicNullPointer));
+
+    TInt count = iList->Count();
+    if (count <= 0)
+        {
+        return KErrNotFound;
+        }
+
+    if (iOriginalFrontOffset > KMaxLowMemOffsetValue && 
+            iOriginalRearOffset > KMaxLowMemOffsetValue)
+        {
+        TInt freeMemory = 0;
+        HAL::Get( HALData::EMemoryRAMFree, freeMemory );    
+        if ( freeMemory < KGlxUpperMemoryLimitForCacheSize &&
+                freeMemory > KGlxLowerMemoryLimitForCacheSize )
+            {
+            iFrontOffset = KMaxLowMemOffsetValueList;
+            iRearOffset = KRearOffsetListValue;
+            }
+        else if ( freeMemory < KGlxLowerMemoryLimitForCacheSize )
+            {
+            iFrontOffset = KMinLowMemOffsetValueList;
+            iRearOffset = KRearOffsetListValue;
+            }
+        else if (iFrontOffset != iOriginalFrontOffset 
+                && iRearOffset!= iOriginalRearOffset)
+            {
+            iFrontOffset = Max(iFrontOffset, iOriginalFrontOffset );
+            iRearOffset = Max(iRearOffset, iOriginalRearOffset );
+            }
+        }
+
+    // Check if out of bounds
+    if (iFrontOffset + iRearOffset < iCurrentItem || count <= iCurrentItem)
+        {
+        return KErrNotFound;
+        }
+
+    TInt index = iList->VisibleWindowIndex() + iCurrentItem ;
+    iCurrentItem++;
+
+    // The index may be below 0 or above count. Normalise back to list indexes.
+    return GlxListUtils::NormalizedIndex(index, count); 
+    } 
+  
+// -----------------------------------------------------------------------------
+// Return ETrue if index is within range, EFalse otherwise
+// -----------------------------------------------------------------------------
+//
+TBool TGlxFromVisibleIndexOutwardListIterator::InRange(TInt aIndex) const
+    {
+    TRACER("TGlxFromVisibleIndexOutwardListIterator::InRange");
+    TInt count = iList->Count();
+  
+    // Handle the case where range is longer than count separately, because looping will
+    // confuse otherwise
+    if (count <= iRearOffset + iFrontOffset) 
+        {
+        // Range is longer than count, must be in range
+        return ETrue;
+        }
+    TInt focusIndex;
+    if (!iList->VisibleWindowIndex())
+        focusIndex = 0;
+    else
+        focusIndex = iList->VisibleWindowIndex();
+    
     TInt firstInRange = GlxListUtils::NormalizedIndex(focusIndex - iRearOffset, count);
     TInt lastInRange = GlxListUtils::NormalizedIndex(focusIndex + iFrontOffset, count);
   

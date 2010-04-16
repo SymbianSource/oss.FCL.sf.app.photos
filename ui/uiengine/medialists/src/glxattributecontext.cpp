@@ -414,3 +414,53 @@ EXPORT_C void CGlxAttributeContext::SetDefaultSpec(TInt aWidth, TInt aHeight)
     iDefaultSpecSize = TSize(aWidth, aHeight);
     }
 
+
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// CGlxDefaultListAttributeContext
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+//
+
+// NewL
+// -----------------------------------------------------------------------------
+//
+EXPORT_C CGlxDefaultListAttributeContext* CGlxDefaultListAttributeContext::NewL()
+    {
+    TRACER("CGlxDefaultListAttributeContext::NewL");
+    
+    CGlxDefaultListAttributeContext* obj = new (ELeave) CGlxDefaultListAttributeContext();
+    return obj;
+    }
+    
+// -----------------------------------------------------------------------------
+// Constructor
+// Sets the iterator of base class to be TGlxFromFocusOutwardIterator
+// -----------------------------------------------------------------------------
+//
+CGlxDefaultListAttributeContext::CGlxDefaultListAttributeContext() :
+        CGlxAttributeContext(&iFromVisibleIndexIterator)
+    {
+    }
+
+// -----------------------------------------------------------------------------
+// Destructor
+// -----------------------------------------------------------------------------
+//
+EXPORT_C CGlxDefaultListAttributeContext::~CGlxDefaultListAttributeContext()
+    {
+    TRACER("CGlxDefaultListAttributeContext::Destructor");
+    
+    }
+
+// ----------------------------------------------------------------------------
+// Set range offsets
+// ----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxDefaultListAttributeContext::SetRangeOffsets(TInt aFrontOffset, TInt aRearOffset)
+    {
+    TRACER("CGlxDefaultListAttributeContext::SetRangeOffsets");
+    
+    iFromVisibleIndexIterator.SetRangeOffsets(aRearOffset, aFrontOffset);
+    }
+

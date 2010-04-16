@@ -28,8 +28,9 @@ GlxPerformanceLog::GlxPerformanceLog(char *str) : mSpendTime(0), mTotalTime(0), 
     if( GlxPerformanceLog::mLogFile.isOpen() == FALSE) {
 	    GlxPerformanceLog::mLogFile.setFileName("glxperlog.txt");
 	    QDir::setCurrent("c:\\data\\");
-	    GlxPerformanceLog::mLogFile.open(QIODevice::Append);
-	    GlxPerformanceLog::mLogFile.setTextModeEnabled(TRUE);
+	    if(GlxPerformanceLog::mLogFile.open(QIODevice::Append)) {
+			 GlxPerformanceLog::mLogFile.setTextModeEnabled(TRUE);
+		}
     }
 }
 

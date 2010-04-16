@@ -22,13 +22,6 @@
 
 #include <glxbasestate.h>
 
-typedef enum 
-{
-    NO_FULLSCREEN_S,
-    EXTERNAL_S,
-    IMAGEVIEWER_S //don't add any state before this
-} FullScreenState;
-
 class GlxFullScreenState : public GlxState
 {
 public :

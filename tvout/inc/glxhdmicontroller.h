@@ -46,21 +46,18 @@ public:
     /*
      * Update Image
      * @param1 - Image file path
-     * @param2 - Image dimensions
-     * @param3 - frame count
      */
-    IMPORT_C void SetImageL(const TDesC& aImageFile,TSize aImageDimensions, 
-            TInt aFrameCount = 1, TBool aStore = ETrue);
+    IMPORT_C void SetImageL(const TDesC& aImageFile, TBool aStore = ETrue);
 
     /*
-     * To Determine it is a video and not image 
+     * To intimate that the item is not supported.  
      */
-    IMPORT_C void IsVideo();
+    IMPORT_C void ItemNotSupported();
     
     /*
      * Activating zoom in posting mode 
      */
-    IMPORT_C void ActivateZoom();
+    IMPORT_C void ActivateZoom(TBool aAutoZoomOut);
     /*
      * Deactivating zoom in posting mode 
      */
@@ -75,6 +72,11 @@ public:
      * ShiftToPostingMode
      */
     IMPORT_C void ShiftToPostingMode();
+
+    /*
+     * Tells if HDMi is Connected.
+     */
+    IMPORT_C TBool IsHDMIConnected();
 
 private:// From MGlxTvObserver
     virtual void HandleTvStatusChangedL ( TTvChangeType aChangeType );
@@ -97,12 +99,9 @@ private:
     
     /*
      * Create surface updater and update background surface 
-     * @param1 - Image file
-     * @param2 - Image dimensions
-     * @param3 - framecount
+     * @param1 - Image file     
      */
-    void CreateSurfaceUpdaterL(const TDesC& aImageFile, TSize aImageDimensions, 
-            TInt aFrameCount);
+    void CreateSurfaceUpdaterL(const TDesC& aImageFile);
     
     /*
      * To Destroy the surface updater if present
@@ -115,16 +114,14 @@ private:
     void DestroyContainer();
 
     /*
-     * 
+     * Stores the Image File name
+     * @param1 - Image file
      */
-    void StoreImageInfoL(const TDesC& aImageFile,
-            TSize aImageDimensions, TInt aFrameCount);
+    void StoreImageInfoL(const TDesC& aImageFile);
 
 private:
     HBufC*  iStoredImagePath;
-    TSize   iImageDimensions; 
-    TInt    iFrameCount;
-
+    
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;

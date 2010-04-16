@@ -33,10 +33,8 @@ public:
     /*
      * NewL()
      * @Param1 CGlxHdmiSurfaceUpdater
-     * @param2 framecount
      */
-    static CGlxHdmiDecoderAO* NewL(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater,
-            TInt aFrameCount);
+    static CGlxHdmiDecoderAO* NewL(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater);
     
     /*
      * Destructor
@@ -47,25 +45,24 @@ public:
      * ConvertImageL() 
      * This calls the asyncronous service request to ICL convert
      * @param1 - Destination Bitmap
-     * @param2 - Framecount
-     * @param3 - Image decoder 
+     * @param2 - Image decoder 
      */
-    void ConvertImageL(CFbsBitmap& iBitmap, TInt aFrameNum,CImageDecoder* aDecoder);
+    void ConvertImageL(CFbsBitmap& iBitmap,CImageDecoder* aDecoder);
+    
 protected:
     // from CActive
     void RunL();
     void DoCancel();
+    
 private:
     /*
      * Constructor
      */
-    CGlxHdmiDecoderAO(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater,TInt aFrameCount);
+    CGlxHdmiDecoderAO(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater);
 
 private:
     CGlxHdmiSurfaceUpdater* iHdmiSurfaceUpdater; // not owned
     CImageDecoder* iDecoder;
-    TInt iFrameCount;
-    TInt iDecodeCount;
     };
 
 #endif /* GLXACTIVEDECODER_H_ */

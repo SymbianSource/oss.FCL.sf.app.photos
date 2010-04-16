@@ -19,7 +19,6 @@ TARGET = photos
 DEPENDPATH += .
 INCLUDEPATH += . \
                ..\inc \
-               al \
                ../ui/viewmanagement/statehandler/inc \
                ../loggers/loggerqt/inc \
                ../ui/inc \
@@ -54,8 +53,7 @@ LIBS += -lglxstatehandler.dll \
 
 # Input
 SOURCES += main.cpp \
-			glxfetcher.cpp \
-            al/newallocator.cpp
+	   glxfetcher.cpp 
 HEADERS +=glxfetcher.h
 
 RESOURCES += ../photos.qrc

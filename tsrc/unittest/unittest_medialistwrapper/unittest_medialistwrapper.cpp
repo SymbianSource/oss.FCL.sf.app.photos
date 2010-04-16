@@ -122,7 +122,7 @@ void TestGlxMLWrapper::testSetContextMode()
     QVERIFY(icon == NULL);
     
     // After adding grid context should get grid icon 
-    mTestObject->setContextMode(GlxContextGrid);
+    mTestObject->setContextMode(GlxContextPtGrid);
     QTest::qWait(2000);
     icon = mTestObject->retrieveItemIcon(itemIndex,GlxTBContextGrid);
     QVERIFY(icon != NULL);
@@ -133,7 +133,7 @@ void TestGlxMLWrapper::testRetrieveItemUri()
     qDebug("TestGlxMLWrapper::testRetrieveItemUri enter");
 	
 	int count = mTestObject->getItemCount();
-	mTestObject->setContextMode(GlxContextGrid);
+	mTestObject->setContextMode(GlxContextPtGrid);
     QTest::qWait(20000);
 	QString uri = mTestObject->retrieveItemUri(count-1);
 	qDebug("TestGlxMLWrapper::testRetrieveItemUri =%d",uri.isEmpty());
@@ -145,7 +145,7 @@ void TestGlxMLWrapper::testRetrieveItemUriName()
     qDebug("TestGlxMLWrapper::testRetrieveItemUriName enter");
 	
 	int count = mTestObject->getItemCount();
-	mTestObject->setContextMode(GlxContextGrid);
+	mTestObject->setContextMode(GlxContextPtGrid);
     QTest::qWait(20000);
     	
     QString uri = mTestObject->retrieveItemUri(count-1);
@@ -173,7 +173,7 @@ void TestGlxMLWrapper::testRetrieveItemIcon()
     QVERIFY(icon != NULL);
     
     // Should get grid icon
-    mTestObject->setContextMode(GlxContextGrid);
+    mTestObject->setContextMode(GlxContextPtGrid);
     QTest::qWait(2000);
     icon = mTestObject->retrieveItemIcon(itemIndex,GlxTBContextGrid);
     QVERIFY(icon != NULL);
@@ -184,7 +184,7 @@ void TestGlxMLWrapper::testRetrieveItemDateIsNotNull()
 {
     qDebug("TestGlxMLWrapper::testRetrieveItemDateIsNotNull enter");
     int count = mTestObject->getItemCount();
-    mTestObject->setContextMode(GlxContextGrid);
+    mTestObject->setContextMode(GlxContextPtGrid);
     QTest::qWait(20000);
 	
 	QDate date = mTestObject->retrieveItemDate(count-1);
@@ -197,7 +197,7 @@ void TestGlxMLWrapper::testRetrieveItemDateIsValid()
 {
     qDebug("TestGlxMLWrapper::testRetrieveItemDateIsValid enter");
     int count = mTestObject->getItemCount();
-    mTestObject->setContextMode(GlxContextGrid);
+    mTestObject->setContextMode( GlxContextPtGrid );
     QTest::qWait(20000);
 	
 	QDate date = mTestObject->retrieveItemDate(count-1);
@@ -212,7 +212,7 @@ void TestGlxMLWrapper::testRetrieveItemDateValidate()
 {
     qDebug("TestGlxMLWrapper::testRetrieveItemDateValidate enter");
     int count = mTestObject->getItemCount();
-	mTestObject->setContextMode(GlxContextGrid);
+	mTestObject->setContextMode( GlxContextPtGrid );
     QTest::qWait(20000);
 	
     QDate date = mTestObject->retrieveItemDate(count-1);

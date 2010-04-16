@@ -19,6 +19,7 @@
 
 #include <glxviewmanager.h>
 #include <glxview.h>
+#include "glxicondefs.h" //Contains the icon names/Ids
 #include <glxviewsfactory.h>
 #include <glxeffectengine.h>
 #include <hbmainwindow.h>
@@ -32,10 +33,16 @@
 #include <hbtoolbar.h>
 #include <hbmenu.h>
 #include <QDebug>
+#include <hbstyleloader.h>
 
 
-GlxViewManager::GlxViewManager() : mBackAction( NULL ), mMenuManager( NULL ), mEffectEngine( NULL ), 
-            mViewToolBar( NULL ), mMarkingToolBar( NULL ), mMenu( NULL )
+GlxViewManager::GlxViewManager() 
+    : mBackAction( NULL ), 
+      mMenuManager( NULL ), 
+      mEffectEngine( NULL ), 
+      mViewToolBar( NULL ), 
+      mMarkingToolBar( NULL ), 
+      mMenu( NULL )
 {
     qDebug("GlxViewManager::GlxViewManager() ");
     PERFORMANCE_ADV ( viewMgrD1, "main window creation time" ) {
@@ -44,19 +51,21 @@ GlxViewManager::GlxViewManager() : mBackAction( NULL ), mMenuManager( NULL ), mE
         if(mMainWindow == NULL)	{
             mMainWindow = new HbMainWindow();
         }
-    } //end PERFORMANCE_ADV
-    
-    //mMainWindow->setOptimizationFlag(QGraphicsView::DontSavePainterState);
+		//Without this Zoom Does not work
+		mMainWindow->viewport()->grabGesture(Qt::PinchGesture);
+    }
+    HbStyleLoader::registerFilePath(":/data/photos.css");
 }
 
 void GlxViewManager::setupItems(int subState)
 {
-    mMenuManager = new GlxMenuManager();
+    mMenuManager = new GlxMenuManager(mMainWindow);
     addBackSoftKeyAction(); 
     createToolBar();
     addConnection();
     mView->addToolBar(mViewToolBar);
-    mMenuManager->CreateViewMenu( mView->viewId(), mView->menu(), ( 0 == mModel->rowCount() ),subState);
+    mMenuManager->addMenu( mView->viewId(), mView->menu() );
+    mMenuManager->setModel( mModel );
 }
 
 void GlxViewManager::launchApplication(qint32 id, QAbstractItemModel *model)
@@ -66,7 +75,6 @@ void GlxViewManager::launchApplication(qint32 id, QAbstractItemModel *model)
         mView = resolveView(id);
     }
     mView->activate();
-    //mView->show();
     
     PERFORMANCE_ADV ( viewMgrD3, "Set Model time")  
         mView->setModel(mModel);
@@ -93,20 +101,15 @@ void GlxViewManager::addBackSoftKeyAction ( )
 {
     qDebug("GlxViewManager::addBackSoftKeyAction ");
     //create the back soft key action and set the data
-    mBackAction = new HbAction(Hb::BackAction, this);
+    mBackAction = new HbAction(Hb::BackNaviAction, this);
     mBackAction->setData(EGlxCmdBack);
-    
-    //remove the current secondary soft key for main window and set the new created one
-    HbAction *action = mMainWindow->softKeyAction(Hb::SecondarySoftKey);
-    mMainWindow->removeSoftKeyAction(Hb::SecondarySoftKey,action);
-    mMainWindow->addSoftKeyAction(Hb::SecondarySoftKey, mBackAction);
+    mView->setNavigationAction(mBackAction);
 }
 
 Qt::Orientation GlxViewManager::orientation() const
 {
     return mMainWindow->orientation();
 }
-
 
 void GlxViewManager::launchView(qint32 id, QAbstractItemModel *model)
 {
@@ -197,20 +200,22 @@ void GlxViewManager::updateToolBarIcon(int id)
     
     qDebug("GlxViewManager::updateToolBarIcon() action ID list %d count %d", id, count);
     
-    for ( int i = 0; i < count ; i++ ) {
+    for ( int i = 0; i < count ; i++ )
+        {
         qDebug("GlxViewManager::updateToolBarIcon() toolBarActionId %d value %d", toolBarActionId, ( id & toolBarActionId ) );
         //check and get the icon path
-        if ( ( id & toolBarActionId ) == toolBarActionId ) {
-            path = mSelIconPathList.at(i);
-        }
-        else {
-            path = mDefaultIconPathList.at(i);
-        }
+        if ( ( id & toolBarActionId ) == toolBarActionId )
+            {
+            mActionList[i]->setCheckable(TRUE);
+            mActionList[i]->setChecked(TRUE);                        
+            }
+        else 
+            {
+            mActionList[i]->setChecked(FALSE);
+            }
         //to get it the next action id to verify it is selecter or not
         toolBarActionId = toolBarActionId << 1; 
-        HbIcon icon(path);
-        mActionList[i]->setIcon(icon) ;
-    }
+        }
 }
 
 void GlxViewManager::enterMarkingMode(qint32 viewId)
@@ -244,7 +249,6 @@ void GlxViewManager::exitMarkingMode(qint32 viewId)
     GlxView *view = findView ( viewId );
     qDebug("GlxViewManager::exitMarkingMode view ID %d", viewId);
     if ( view ) { 
-        //createToolBar(); //Marking mode tool bar is different from normal mode tool bar
         view->disableMarking(); 
         HbMenu *menu = view->takeMenu(); //Take the owner ship of current menu
         view->setMenu(mMenu); //Set the view menu option
@@ -283,11 +287,14 @@ GlxView * GlxViewManager::resolveView(qint32 id)
     
     view = GlxViewsFactory::createView(id, mMainWindow);
     if ( view ) {
-        //view->addToolBar(mViewToolBar);
         connect ( view, SIGNAL(actionTriggered(qint32 )), this, SLOT(actionProcess(qint32 )), Qt::QueuedConnection );
-        connect ( view, SIGNAL(itemSpecificMenuTriggered(qint32,QPointF ) ), this, SLOT( itemSpecificMenuTriggered(qint32,QPointF ) ));
+        connect ( view, SIGNAL(itemSpecificMenuTriggered(qint32,QPointF ) ), this, SLOT( itemSpecificMenuTriggered(qint32,QPointF ) ), Qt::QueuedConnection );
         mViewList.append(view);
         mMainWindow->addView(view);
+        if ( mMenuManager ) {
+            mMenuManager->addMenu( id, view->menu());
+        }
+        view->setNavigationAction(mBackAction);
     }
     return view;
 }
@@ -320,7 +327,6 @@ GlxView * GlxViewManager::findView(qint32 id)
             return mViewList.at(i);
         }
     }
-    //qDebug("GlxViewManager::findView view = %u ", view);
     return NULL;
 }
 
@@ -331,7 +337,6 @@ void GlxViewManager::deActivateView()
     GlxView *view = (GlxView *) mMainWindow->currentView();
     if ( view ){
         view->deActivate() ;
-        //view->hide(); //To:do is it required
     }
     if (mView && view) {
         mView->setZValue(view->zValue());
@@ -346,10 +351,7 @@ void GlxViewManager::activateView()
         mView->addToolBar(mViewToolBar);
         mView->activate();
         mView->show();
-        //check and create the view menu
-        if ( mView->menu()->isEmpty() ) {
-            mMenuManager->CreateViewMenu( mView->viewId(), mView->menu(), ( 0 == mModel->rowCount() ));
-        }
+        mMenuManager->setModel( mModel ); //set the model to get the item type info and row count info
     }        
       
     PERFORMANCE_ADV ( viewMgrD3, "Set Model time")  
@@ -364,37 +366,33 @@ void GlxViewManager::activateView()
 void GlxViewManager::createActions()
 {
     qDebug("GlxViewManager::createActions() " );
-    mActionList.clear();
-    mSelIconPathList.clear();
-    mDefaultIconPathList.clear();    
+    mActionList.clear();  
     
     //create the All tool bar button action
     HbAction* allAction = new HbAction(this);
     allAction->setData(EGlxCmdAllGridOpen);
-    mActionList.append(allAction);
-    mSelIconPathList.append(QString(":/data/All_selected.png"));
-    mDefaultIconPathList.append(QString(":/data/All_default.png"));
-
+    mActionList.append(allAction);    
+    allAction->setIcon(HbIcon(GLXICON_ALL)) ;
+       
     //create the Album tool bar button action
     HbAction* albumAction = new HbAction(this);
     albumAction->setData(EGlxCmdAlbumListOpen);
     mActionList.append(albumAction);
-    mSelIconPathList.append(QString(":/data/Albums_selected.png"));
-    mDefaultIconPathList.append(QString(":/data/Albums_default.png"));
-    
+    albumAction->setIcon(HbIcon(GLXICON_ALBUMS)) ;
+   
     //create the album tool bar button action
     HbAction* cameraAction = new HbAction(this);
     cameraAction->setData(EGlxCmdCameraOpen);
-    mActionList.append(cameraAction);
-    mSelIconPathList.append(QString(":/data/camera_selected.png"));
-    mDefaultIconPathList.append(QString(":/data/camera_default.png"));
+    mActionList.append(cameraAction);  
+    cameraAction->setIcon(HbIcon(GLXICON_CAMERA)) ;
+    
     
     //create the ovi tool bar button action
     HbAction* oviAction = new HbAction(this);
     oviAction->setData(EGlxCmdOviOpen);
     mActionList.append(oviAction);
-    mSelIconPathList.append(QString(":/data/ovi_selected.png"));
-    mDefaultIconPathList.append(QString(":/data/ovi_default.png"));
+    oviAction->setIcon(HbIcon(GLXICON_OVI)) ;
+
 }
 
 void GlxViewManager::createMarkingModeActions()
@@ -443,8 +441,7 @@ void GlxViewManager::createMarkingModeToolBar()
     mMarkingToolBar = new HbToolBar();
     mMarkingToolBar->setOrientation( Qt::Horizontal );
     mMarkingToolBar->setVisible(true);            
-    mMarkingToolBar->clearActions();
-    
+    mMarkingToolBar->clearActions();    
     createMarkingModeActions();
 }
 
@@ -476,10 +473,12 @@ void GlxViewManager::removeConnection()
     for ( int i = 0; i < count; i++ ) {
         disconnect ( mViewList.at(i), SIGNAL(actionTriggered(qint32 )), this, SLOT(actionProcess(qint32 )) );
         disconnect ( mViewList.at(i), SIGNAL(itemSpecificMenuTriggered(qint32, QPointF ) ), this, SLOT( itemSpecificMenuTriggered(qint32, QPointF ) ));
+        mMenuManager->removeMenu( mViewList.at(i)->viewId(), mViewList.at(i)->menu() ) ;
     }
 	   
     if ( mMenuManager )
         disconnect(mMenuManager, SIGNAL( commandTriggered(qint32 ) ), this, SLOT( handleMenuAction(qint32 ) ));
+    
     if ( mBackAction )
         disconnect(mBackAction, SIGNAL( triggered() ), this, SLOT( handleAction() ));
         
@@ -505,6 +504,7 @@ void GlxViewManager::actionProcess(qint32 id)
 GlxViewManager::~GlxViewManager()
 {
     qDebug("GlxViewManager::~GlxViewManager");
+    HbStyleLoader::unregisterFilePath(":/data/photos.css");
 	
     removeConnection();
     delete mMenuManager;
@@ -515,25 +515,12 @@ GlxViewManager::~GlxViewManager()
     }
     qDebug("GlxViewManager::~GlxViewManager view deleted");
     
-    while( mActionList.isEmpty() == FALSE) {
-        delete mActionList.takeLast();
-    }  
-	
-    while ( mMarkingActionList.isEmpty() == FALSE ) {
-        delete mMarkingActionList.takeLast();
-    }
-    qDebug("GlxViewManager::~GlxViewManager delete action list");
-    
+        
     delete mBackAction;
     delete mViewToolBar;
     delete mMarkingToolBar;
     delete mMenu;
-    qDebug("GlxViewManager::~GlxViewManager delete toolbar");
-    
-    mSelIconPathList.clear();
-    mDefaultIconPathList.clear();
-    qDebug("GlxViewManager::~GlxViewManager clear path list");
-    
+             
     if ( mEffectEngine ) {
         mEffectEngine->deregistertransitionEffect();
         delete mEffectEngine;

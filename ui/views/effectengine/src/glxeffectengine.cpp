@@ -203,7 +203,7 @@ void GlxSlideShowEffectEngine::runEffect(QList< QGraphicsItem * > &  items, GlxE
     
     GlxTransitionEffectSetting *effectSetting = mTransitionEffectList.value( transitionEffect );
     
-    if ( effectSetting == NULL && items.count() != effectSetting->count() ) {
+    if ( effectSetting == NULL || items.count() != effectSetting->count() ) {
          return;
     }
     
@@ -213,6 +213,7 @@ void GlxSlideShowEffectEngine::runEffect(QList< QGraphicsItem * > &  items, GlxE
         if ( ( i == effectSetting->count() -1) && effectSetting->isTransitionLater() )
         {
             effectSetting->setAnimationItem( items.at(i) );
+            items.at(i)->hide();
         }
         else {
             HbEffect::start(items.at(i), effectSetting->itemType().at(i), effectSetting->eventType().at(i), this, "transitionEffectFinished");
@@ -240,7 +241,7 @@ void GlxSlideShowEffectEngine::cancelEffect(QList< QGraphicsItem * > &  items, G
 {
     GlxTransitionEffectSetting *effectSetting = mTransitionEffectList.value( transitionEffect );
     
-    if ( effectSetting == NULL && items.count() != effectSetting->count() ) {
+    if ( effectSetting == NULL || items.count() != effectSetting->count() ) {
          return;
     }
     
@@ -291,7 +292,8 @@ void GlxSlideShowEffectEngine::transitionEffectFinished( const HbEffect::EffectS
     --mNbrEffectRunning;
     if ( mNbrEffectRunning == 1 ) {
         GlxTransitionEffectSetting *effectSetting = mTransitionEffectList.value( mTransitionEffect );
-        if (  effectSetting->isTransitionLater() ){        
+        if (  effectSetting->isTransitionLater() ){ 
+            effectSetting->animationItem()->show();
             HbEffect::start( effectSetting->animationItem(), effectSetting->itemType().at(1), effectSetting->eventType().at(1), this, "transitionEffectFinished");
             mTransitionEffect = NO_EFFECT;
         }    

@@ -27,6 +27,7 @@
 #define GLX_COMMONCOMMANDHANDLERS_EXPORT Q_DECL_IMPORT
 #endif
 
+class HbInputDialog;
 
 class GLX_COMMONCOMMANDHANDLERS_EXPORT GlxCommandHandlerNewMedia : public GlxMpxCommandHandler
 	{
@@ -37,10 +38,15 @@ public:
 
     TInt ExecuteLD(TGlxMediaId& aNewMediaId);
 
+private:
+    QString CompletionTextL() const;
+    QString ProgressTextL() const; 
+
 protected: // From MGlxMediaListObserver    
     /// See @ref MGlxMediaListObserver::HandleItemAddedL
     void HandleItemAddedL(TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList);
-    
+    void HandleError(TInt aError);
+    void HandleErrorL(TInt aErrorCode);
 protected: // from GlxMpxCommandHandler
 
     CMPXCommand* CreateCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume) const ;
@@ -48,7 +54,8 @@ protected: // from GlxMpxCommandHandler
 	void DoHandleCommandCompleteL(TAny* aSessionId, CMPXCommand* aCommandResult, 
             TInt aError, MGlxMediaList* aList);
 
-    
+private:
+    QString GenerateNewMediaItemTitleL(QString newMediaTilte,MGlxMediaList& aMediaList) const;
 public:
     /**
      *  Id of new media
@@ -66,9 +73,25 @@ public:
     mutable TInt iNewMediaCreationError;
     
     mutable HBufC* iNewMediaItemTitle;
+private:
+    bool mShowConfirmation;
 
 	};
 
+class GlxTextInputDialog : public QObject
+{
+	Q_OBJECT    
+public:
+    GlxTextInputDialog();
+    ~GlxTextInputDialog();
+    QString getText(const QString &label,const QString &text = QString(),bool *ok = 0);
+
+public slots:
+    void textChanged(const QString &text);
+
+private:
+    HbInputDialog* mDialog;
+};
     
     
 #endif // GLXCOMMANDHANDLERNEWMEDIA_H

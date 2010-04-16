@@ -593,7 +593,7 @@ void CGlxCacheManager::MaintainCacheL()
 #ifdef MEDIA_ID_BASED_TN_FETCH_ENABLED
 	               	 	GLX_DEBUG2("CGlxCacheManager::MaintainCacheL() requesting TN attribute (Medialist) itemId %d", itemId.Value());
 						if (item.Uri().Find(KFileIdentifier) != KErrNotFound ||
-						    item.Uri().Length() && itemId.Value())
+						    item.Uri().Length() == 0 && itemId.Value())
 #else
 	               	 	GLX_DEBUG1("CGlxCacheManager::MaintainCacheL() requesting TN attribute (Medialist) Uri");
 						if (item.Uri().Find(KFileIdentifier) != KErrNotFound)

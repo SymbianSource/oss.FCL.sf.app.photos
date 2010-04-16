@@ -33,6 +33,10 @@ public:
     GlxCommandHandlerDelete();
     ~GlxCommandHandlerDelete();
     CMPXCommand* CreateCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume) const ;
+private:
+    QString CompletionTextL() const;
+    QString ProgressTextL() const; 
+    QString ConfirmationTextL(bool multiSelection = false) const; 
 	};
 
 #endif // GLXCOMMANDHANDLERDELETE_H

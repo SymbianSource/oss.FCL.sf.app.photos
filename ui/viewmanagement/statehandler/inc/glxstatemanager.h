@@ -107,6 +107,10 @@ private:
  * Factory function to create the grid model.
  */  	
     void createGridModel(int internalState, NavigationDir dir = NO_DIR);
+/*
+ * To set the fullscreen context based on the currrent orientation
+ */    
+    void setFullScreenContext();
     void eventHandler(qint32 &id);
 /*
  * A function to care the exit for application, in the case when application launch from internal and external

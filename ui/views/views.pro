@@ -38,7 +38,9 @@ INCLUDEPATH += . ../inc \
           ../uiengine/medialistwrapper/inc \
           ../viewbase/inc \
           ../../commonutilities/imagedecoderwrapper/inc \
-          ../../loggers/loggerqt/inc
+          ../../loggers/loggerqt/inc \
+          ../../traces
+
 symbian: { 
 TARGET.UID3 = 0x200009EF
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
@@ -63,12 +65,12 @@ HEADERS += viewbase/inc/glxview.h \
            effectengine/effectplugin/inc/glxbackwardtransitionplugin.h \
            effectengine/effectplugin/inc/glxforwardtransitionplugin.h \
            effectengine/effectplugin/inc/glxfadeplugin.h \
-	   docloaders/inc/glxviewdocloader.h \
+	   	   docloaders/inc/glxviewdocloader.h \
            viewsfactory/inc/glxviewsfactory.h \
            ../../tvout/inc/glxhdmicontroller.h \
-           ../../traces
            
-SOURCES += fullscreenview/src/glxcoverflow.cpp \
+SOURCES += viewbase/src/glxview.cpp \
+           fullscreenview/src/glxcoverflow.cpp \
            fullscreenview/src/glxfullscreenview.cpp \
            fullscreenview/src/glxzoomslider.cpp \
            fullscreenview/src/glxzoomcontrol.cpp \

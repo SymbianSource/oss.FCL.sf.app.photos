@@ -16,31 +16,50 @@
 */
 #include <QObject>
 #include <QPointF>
+
 class HbMenu;
+class QAbstractItemModel;
+class QAction;
+class HbMainWindow;
+
+//Grid view option menu
+enum {
+   GlxGridViewSend,
+   GlxGridViewSlideShow,
+   GlxGridViewAddToAlbum,
+   GlxGridViewRemoveFromAlbum,
+   GlxGridViewDelete
+};
+
 class GlxMenuManager : public QObject
 {
 Q_OBJECT
 
 public :
-	GlxMenuManager();
+	GlxMenuManager(HbMainWindow* mainWindow);
 	~GlxMenuManager();
-    void CreateViewMenu(qint32 viewId,HbMenu* menu,bool empty = false , int subState = -1);
     void createMarkingModeMenu(HbMenu* menu);
     void ShowItemSpecificMenu(qint32 viewId,QPointF pos);
+    void setModel(QAbstractItemModel *model) { mModel = model ; }
+    void addMenu(qint32 viewId, HbMenu* menu);
+    void removeMenu(qint32 viewId, HbMenu* menu);
+    
 signals :
     void commandTriggered(qint32 commandId);
-public slots:
-
-protected:
-	
-private slots:
-    void menuItemSelected();
     
 private:
     void CreateGridMenu(HbMenu* menu);
     void CreateListMenu(HbMenu* menu);
     void CreateFullscreenMenu(HbMenu* menu);
-    void CreateImageViewerMenu(HbMenu* menu);
-private:
+    void setAllActionVisibility( QList<QAction*> actionList, bool visible );
+    int  viewSubState();
 
+private slots:
+    void menuItemSelected();
+    void updateGridMenu();
+    void updateFullscreenMenu();
+    
+private:
+    QAbstractItemModel *mModel; //It should point to current view model
+	HbMainWindow* mMainWindow;
 };

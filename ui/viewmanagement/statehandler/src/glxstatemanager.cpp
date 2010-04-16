@@ -33,7 +33,6 @@
 #include <glxalbummodel.h>
 #include <glxloggerenabler.h>
 #include <glxmediaid.h>
-#include "processhandler.h"
 #include <glxactionhandler.h>
 #include <glxcommandhandlers.hrh>
 #include <QApplication>
@@ -41,6 +40,7 @@
 #include <QDebug>
 #include <QItemSelectionModel>
 #include <hbmessagebox.h>
+#include <QProcess>
 
 GlxStateManager::GlxStateManager() : mAllMediaModel(NULL), mAlbumGridMediaModel(NULL),
             mAlbumMediaModel(NULL),mImageviewerMediaModel(NULL), mCurrentModel (NULL), mCurrentState (NULL), mActionHandler (NULL)
@@ -50,7 +50,7 @@ GlxStateManager::GlxStateManager() : mAllMediaModel(NULL), mAlbumGridMediaModel(
         mViewManager = new GlxViewManager();
     }
     connect ( this, SIGNAL( setupItemsSignal() ), this, SLOT( setupItems() ), Qt::QueuedConnection );
-    connect ( mViewManager, SIGNAL(actionTriggered(qint32 )), this, SLOT(actionTriggered(qint32 )) );
+    connect ( mViewManager, SIGNAL(actionTriggered(qint32 )), this, SLOT(actionTriggered(qint32 )), Qt::QueuedConnection );
 	//TO:DO TBD through exception when it is null
 }
 
@@ -80,7 +80,7 @@ bool GlxStateManager::executeCommand(qint32 commandId)
         qDebug( "GlxGridView::doneAction() : index %d", indexList[i].row());            
         mCurrentModel->setData( indexList[i], indexList[i].row(), GlxSelectedIndexRole );
     }
-    mActionHandler->handleAction(commandId, mCollectionId);
+    mActionHandler->handleAction(commandId, mCollectionId,indexList);
     return TRUE;
 }
 
@@ -287,7 +287,6 @@ void GlxStateManager::createModel(qint32 stateId, NavigationDir dir)
     switch( stateId ) {
     case GLX_GRIDVIEW_ID :
         createGridModel( mCurrentState->state(), dir );
-        mCurrentModel->setData(QModelIndex(), (int)GlxContextGrid, GlxContextRole );
         break;
 
     case GLX_LISTVIEW_ID :
@@ -297,14 +296,15 @@ void GlxStateManager::createModel(qint32 stateId, NavigationDir dir)
             mAlbumMediaModel = new GlxAlbumModel (modelParm);
         }
         mCurrentModel = mAlbumMediaModel;
+        mCollectionId = KGlxCollectionPluginAlbumsImplementationUid;
         mCurrentModel->setData(QModelIndex(), (int)GlxContextPtList, GlxContextRole );
         mViewManager->updateToolBarIcon(GLX_ALBUM_ACTION_ID);
         break;
         
     case GLX_FULLSCREENVIEW_ID :
 		if ( mCurrentState->state() == IMAGEVIEWER_S) {
-                GlxModelParm modelParm (KGlxCollectionPluginImageViewerImplementationUid, 0);
-                mCurrentModel = mImageviewerMediaModel = new GlxMediaModel (modelParm);
+            GlxModelParm modelParm (KGlxCollectionPluginImageViewerImplementationUid, 0);
+            mCurrentModel = mImageviewerMediaModel = new GlxMediaModel (modelParm);
 		}
         else if ( mCurrentState->state() == EXTERNAL_S) {
             if(!mAllMediaModel) {
@@ -314,23 +314,13 @@ void GlxStateManager::createModel(qint32 stateId, NavigationDir dir)
             else {
                 mCurrentModel = mAllMediaModel;
             }
-        mCollectionId = KGlxCollectionPluginAllImplementationUid;
+            mCollectionId = KGlxCollectionPluginAllImplementationUid;
         }
-        if ( mViewManager->orientation() == Qt::Horizontal ) {
-            mCurrentModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
-        }
-        else {
-            mCurrentModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
-        }
+		setFullScreenContext();
         break;
         
     case GLX_DETAILSVIEW_ID :
-        if ( mViewManager->orientation() == Qt::Horizontal ) {
-            mCurrentModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
-        }
-        else {
-            mCurrentModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
-        }
+        setFullScreenContext();
         break;
         
     case GLX_SLIDESHOWVIEW_ID :
@@ -338,28 +328,33 @@ void GlxStateManager::createModel(qint32 stateId, NavigationDir dir)
             GlxModelParm modelParm ( KGlxAlbumsMediaId , 0);
             mCurrentModel = mAlbumGridMediaModel = new GlxMediaModel( modelParm );
         }
-        if ( mViewManager->orientation() == Qt::Horizontal ) {
-            mCurrentModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
-        }
-        else {
-            mCurrentModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
-        }
+        setFullScreenContext();
         break;
     	    	
     default :
         break;
     }
+    mCurrentModel->setData( QModelIndex(), mCurrentState->state(), GlxSubStateRole );
 }
 
 void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
 {
     GlxModelParm modelParm;
+    GlxContextMode mode;
+    
+    if ( mViewManager->orientation() == Qt::Horizontal ) {
+        mode = GlxContextLsGrid ;
+    }
+    else {
+        mode = GlxContextPtGrid ;
+    }
     
     switch( internalState) {
     case ALL_ITEM_S :
         if ( mAllMediaModel == NULL ) {
             modelParm.setCollection( KGlxCollectionPluginAllImplementationUid );
             modelParm.setDepth(0);
+            modelParm.setContextMode( mode ) ;
             mAllMediaModel = new GlxMediaModel( modelParm );
         }
         mCollectionId = KGlxCollectionPluginAllImplementationUid;
@@ -370,7 +365,8 @@ void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
     case ALBUM_ITEM_S :
         if ( dir != BACKWARD_DIR ) { 
             modelParm.setCollection( KGlxAlbumsMediaId );
-            modelParm.setDepth(0); 
+            modelParm.setDepth(0);
+            modelParm.setContextMode( mode ) ;
             mAlbumGridMediaModel = new GlxMediaModel( modelParm );
         }               
         mCollectionId = KGlxAlbumsMediaId;
@@ -381,6 +377,18 @@ void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
     default :
         break;
     }
+    
+    mCurrentModel->setData(QModelIndex(), (int)mode, GlxContextRole );
+}
+
+void GlxStateManager::setFullScreenContext()
+{
+    if ( mViewManager->orientation() == Qt::Horizontal ) {
+        mCurrentModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
+    }
+    else {
+        mCurrentModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
+    }    
 }
 
 void GlxStateManager::eventHandler(qint32 &id)
@@ -437,13 +445,13 @@ void GlxStateManager::eventHandler(qint32 &id)
     	id = EGlxCmdHandled;
     	break;
     	
-    /*case EGlxCmdCameraOpen:
+    case EGlxCmdCameraOpen:
 		{
-        ProcessHandler*  processHandler = new ProcessHandler(this);
-        processHandler->StartCameraApp();
-        id = EGlxCmdHandled;
+		QProcess::startDetached(QString("cxui.exe"));
+		id = EGlxCmdHandled;
 		}
-        break;	*/
+        break;	
+        
     case EGlxCmdOviOpen:
 		{
 		HbMessageBox box(HbMessageBox::MessageTypeInformation);
@@ -485,12 +493,7 @@ void GlxStateManager::eventHandler(qint32 &id)
        id = EGlxCmdHandled;
        break;    
        
-   case EGlxCmdSend:
-       {
-       mViewManager->handleUserAction(mCurrentState->id(), id);
-       id = EGlxCmdHandled;
-       }
-       break;
+
        
    case EGlxCmdSetupItem :
        emit setupItemsSignal();
@@ -543,5 +546,7 @@ void GlxStateManager::cleanupExternal()
     qDebug("GlxStateManager::cleanupExternal");
     mViewManager->deactivateCurrentView();
     GlxMediaModel *glxModel = dynamic_cast<GlxMediaModel *>(mCurrentModel);
-    glxModel->clearExternalItems();  
+    if(glxModel) {
+		glxModel->clearExternalItems();  
+	}
 }

@@ -28,11 +28,13 @@
 #include <glxcoverflow.h>
 //Orbit/Qt forward declartion
 class QTimer;
+class HbAction;
 class HbGridView;
 class HbMainWindow;
 class HbPushButton;
 class HbDocumentLoader;
 class QAbstractItemModel;
+class HbIconItem;
 
 //User Defined forward declartion
 class GlxZoomSlider;
@@ -78,13 +80,12 @@ public slots:
     void scrollingEnded();
     void pressed(const QModelIndex &index );
     void released(const QModelIndex &index );
-	void showdetailsview();
-    void setVisvalWindowIndex();
+	void setVisvalWindowIndex();
     void coverFlowEventHandle( GlxCoverFlowEvent e);
+    void effectFinished( const HbEffect::EffectStatus  );
+    void imageSelectionEffectFinished( const HbEffect::EffectStatus  );
+    void handleToolBarAction();
  
-signals :
-    void cancelTimer();
-
 private:
     
     /*
@@ -107,7 +108,10 @@ private:
     /*
      * Called when an item is highlighted.
      */
-    void SetImageToHdmiL();
+    void SetImageToHdmiL();    
+    void loadFullScreenToolBar();
+    void imageSelectionAnimation(const QModelIndex &index);
+    
 private:
     QAbstractItemModel  *mModel;   //no ownership
     HbMainWindow        *mWindow;  //no ownership
@@ -115,16 +119,17 @@ private:
     HbGridView          *mImageStrip;
     bool                mUiOff;        // to check the current status of ui on / off
     QTimer              *mUiOffTimer;  //use for ui off after 30 sec
+    HbIconItem          *mIconItem ;   //temporary item for play the image strip select animation
 	  //for Zoom
     HbPushButton        *mZmPushButton;
     GlxZoomSlider       *mZoomSlider;
     GlxZoomControl      *mZoomControl;
-    bool                mSendUserActivityEvent;
-	//for the  FLIP CASE
-    HbPushButton        *mFlipPushButton;
-    int nbrCol; //to store the number of column in the image strip
     HbDocumentLoader    *mDocLoader;
     CGlxHdmiController* iHdmiController;
+    HbToolBar *mFullScreenToolBar; //Fullscreen Toolbar
+    HbAction *mFlipAction; //Action : it starts activates the details view
+    HbAction *mSendAction;
+    HbAction *mDeleteAction;
 };
 
 #endif /* GLXFULLSCREENVIEW_H_ */

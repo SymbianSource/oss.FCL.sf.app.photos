@@ -42,18 +42,20 @@
 #include "glxmlwrapper_p.h"
 #include "glxmlgenericobserver.h"
 #include "glxattributeretriever.h"
+#include "glxicondefs.h" //Contains the icon names/Ids
 
 //#define GLXPERFORMANCE_LOG  
 #include <glxperformancemacro.h>
 
 //constant declaration
-const TInt KItemsPerPage(18);
 const TInt KTBAttributeAvailable(1);
 const TInt KTBAttributeUnavailable(0);
 const TInt KTBAttributeCorrupt(-1);
 const TInt KListDataWindowSize(10);
-const TInt KGridTNWIdth (128);
-const TInt KGridTNHeight (128);
+const TInt KGridTNWIdth (127);
+const TInt KGridTNHeight (110);
+const TInt KGridTNPTWIdth (119);
+const TInt KGridTNPTHeight (103);
 const TInt KFullScreenTNLSWidth (640);
 const TInt KFullScreenTNLSHeight (360);
 const TInt KFullScreenTNPTWidth (360);
@@ -119,8 +121,6 @@ void GlxMLWrapperPrivate::ConstructL(int aCollectionId, int aHierarchyId, TGlxFi
 		CreateMediaListAlbumItemL(aCollectionId, aHierarchyId,aFilterType);
 		}
 	iMLGenericObserver = CGlxMLGenericObserver::NewL(*iMediaList,this);
-	iFsFromFocusOutwardIterator.SetRangeOffsets(2,2);
-	iFsFromFocusOutwardIteratorForFocus.SetRangeOffsets(0,0);
 	iBlockyIteratorForFocus.SetRangeOffsets(0,0);
     }
 
@@ -174,7 +174,7 @@ void GlxMLWrapperPrivate::SetListContextL(GlxContextMode aContextMode)
 			{
 			if(NULL == iTitleAttributeContext)
 				{
-				iTitleAttributeContext = CGlxDefaultAttributeContext::NewL();
+				iTitleAttributeContext = CGlxDefaultListAttributeContext::NewL();
 			    iTitleAttributeContext->SetRangeOffsets( KListDataWindowSize, 
 						KListDataWindowSize );
 			    iTitleAttributeContext->AddAttributeL( KMPXMediaGeneralTitle );
@@ -182,7 +182,7 @@ void GlxMLWrapperPrivate::SetListContextL(GlxContextMode aContextMode)
 				}
 			if(NULL == iSubtitleAttributeContext)
 				{
-			    iSubtitleAttributeContext = CGlxDefaultAttributeContext::NewL();
+			    iSubtitleAttributeContext = CGlxDefaultListAttributeContext::NewL();
 				iSubtitleAttributeContext->SetRangeOffsets( KListDataWindowSize, 
 						 KListDataWindowSize );
 				iSubtitleAttributeContext->AddAttributeL( 
@@ -192,10 +192,10 @@ void GlxMLWrapperPrivate::SetListContextL(GlxContextMode aContextMode)
 				}
             if(NULL == iListThumbnailContext)
 	            {
-	        	iListThumbnailContext = CGlxThumbnailContext::NewL( &iThumbnailIterator ); // set the thumbnail context
-	        	iThumbnailIterator.SetRange( 10 ); 
-	        	iListThumbnailContext->SetDefaultSpec( KGridTNWIdth,KGridTNHeight );
-	        	iMediaList->AddContextL(iListThumbnailContext ,KGlxFetchContextPriorityNormal );
+                iThumbnailIterator.SetRangeOffsets(KListDataWindowSize,2);
+	            iListThumbnailContext = CGlxThumbnailContext::NewL(&iThumbnailIterator);
+	            iListThumbnailContext->SetDefaultSpec(KGridTNWIdth,KGridTNHeight );
+	            iMediaList->AddContextL(iListThumbnailContext ,KGlxFetchContextPriorityNormal );   
 	            }
 			iPtListContextActivated = ETrue;
 			}
@@ -204,7 +204,7 @@ void GlxMLWrapperPrivate::SetListContextL(GlxContextMode aContextMode)
         {
             if(NULL == iTitleAttributeContext)
             {
-                iTitleAttributeContext = CGlxDefaultAttributeContext::NewL();
+                iTitleAttributeContext = CGlxDefaultListAttributeContext::NewL();
                 iTitleAttributeContext->SetRangeOffsets( KListDataWindowSize, KListDataWindowSize );
                 iTitleAttributeContext->AddAttributeL( KMPXMediaGeneralTitle );
                 iMediaList->AddContextL( iTitleAttributeContext, KMaxTInt );
@@ -220,46 +220,40 @@ void GlxMLWrapperPrivate::SetListContextL(GlxContextMode aContextMode)
 //
 void GlxMLWrapperPrivate::SetThumbnailContextL(GlxContextMode aContextMode)
 {
-	TRACER("GlxMLWrapperPrivate::SetThumbnailContext()");
-	if(aContextMode == GlxContextGrid) {
+    TRACER("GlxMLWrapperPrivate::SetThumbnailContext()");
+    if( aContextMode == GlxContextLsGrid || aContextMode == GlxContextPtGrid) {
+        if(!iGridContextActivated) {
+            CreateGridContextL();
+        }
+    
+        if(iPtFsContextActivated) {
+            RemovePtFsContext();
+        }
+        
+        if(iLsFsContextActivated) {
+            RemoveLsFsContext();
+        }
+    }
+	
+	if(aContextMode == GlxContextLsFs && !iLsFsContextActivated) {
 		if(!iGridContextActivated) {
 			CreateGridContextL();
 		}
-
-		if(iPtFsContextActivated)
-			{
+		if(iPtFsContextActivated) {
 			RemovePtFsContext();
-			}
-
-		if(iLsFsContextActivated)
-			{
-			RemoveLsFsContext();
-			}
 		}
-	if(aContextMode == GlxContextLsFs && !iLsFsContextActivated)
-		{
-		if(!iGridContextActivated)
-			{
-			CreateGridContextL();
-			}
-		if(iPtFsContextActivated)
-			{
-			RemovePtFsContext();
-			}
 		CreateLsFsContextL();
-		}
-	if(aContextMode == GlxContextPtFs && !iPtFsContextActivated)
-		{
-		if(!iGridContextActivated)
-			{
+	}
+	
+	if(aContextMode == GlxContextPtFs && !iPtFsContextActivated) {
+		if(!iGridContextActivated) {
 			CreateGridContextL();
-			}
-		if(iLsFsContextActivated)
-			{
-			RemoveLsFsContext();
-			}
-		CreatePtFsContextL();
 		}
+		if(iLsFsContextActivated) {
+			RemoveLsFsContext();
+		}
+		CreatePtFsContextL();
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -292,20 +286,22 @@ void GlxMLWrapperPrivate::CreateGridContextL()
 //
 void GlxMLWrapperPrivate::CreateLsFsContextL()
     {
-	TRACER("GlxMLWrapperPrivate::CreateGridContextL()");
-	if(iLsFsThumbnailContext && !iLsFsContextActivated)
-		{
-		delete iLsFsThumbnailContext;
-		iLsFsThumbnailContext = NULL;
-		}
-	if(!iLsFsContextActivated)
-		{
-		iLsFsThumbnailContext = CGlxThumbnailContext::NewL( &iFsFromFocusOutwardIterator ); // set the thumbnail context
-	    iLsFsThumbnailContext->SetDefaultSpec( KFullScreenTNLSWidth, KFullScreenTNLSHeight );  //todo get these image sizes from  the layout.
-	    
+    TRACER("GlxMLWrapperPrivate::CreateGridContextL()");
+    if(iLsFsThumbnailContext && !iLsFsContextActivated)
+        {
+        delete iLsFsThumbnailContext;
+        iLsFsThumbnailContext = NULL;
+        }
+    if(!iLsFsContextActivated)
+        {
+        iLsFsThumbnailContext = CGlxDefaultThumbnailContext::NewL();
+        iLsFsThumbnailContext->SetRangeOffsets(2,2);
+        iLsFsThumbnailContext->SetDefaultSpec( KFullScreenTNLSWidth, KFullScreenTNLSHeight );  //todo get these image sizes from  the layout.
+
         if(!iFocusFsThumbnailContext)
             {
-            iFocusFsThumbnailContext = CGlxThumbnailContext::NewL( &iFsFromFocusOutwardIteratorForFocus ); // set Focus FS thumbthe thumbnail context
+            iFocusFsThumbnailContext = CGlxDefaultThumbnailContext::NewL();
+            iFocusFsThumbnailContext->SetRangeOffsets(0,0);
             iFocusFsThumbnailContext->SetDefaultSpec( KFullScreenTNLSWidth, KFullScreenTNLSHeight );  //todo get these image sizes from  the layout.
             }
         if(!iFocusGridThumbnailContext)
@@ -313,16 +309,15 @@ void GlxMLWrapperPrivate::CreateLsFsContextL()
             iFocusGridThumbnailContext = CGlxThumbnailContext::NewL( &iBlockyIteratorForFocus ); // set the thumbnail context for Focus Grid
             iFocusGridThumbnailContext->SetDefaultSpec( KGridTNWIdth, KGridTNHeight );  //todo get these image sizes from  the layout.
             }
-	    
+
         // show static items if required
         iMediaList->SetStaticItemsEnabled(EFalse);
         iMediaList->AddContextL(iFocusFsThumbnailContext, 7 );      // Temp will change this number  
         iMediaList->AddContextL(iFocusGridThumbnailContext, 8 );    // Temp will change this number  
-	    iMediaList->AddContextL(iLsFsThumbnailContext, KGlxFetchContextPriorityGridViewFullscreenVisibleThumbnail );
-		iLsFsContextActivated = ETrue;
-		}
-    
-	}
+        iMediaList->AddContextL(iLsFsThumbnailContext, KGlxFetchContextPriorityGridViewFullscreenVisibleThumbnail );
+        iLsFsContextActivated = ETrue;
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // CreatePtFsContextL
@@ -330,37 +325,38 @@ void GlxMLWrapperPrivate::CreateLsFsContextL()
 //
 void GlxMLWrapperPrivate::CreatePtFsContextL()
     {
-	TRACER("GlxMLWrapperPrivate::CreateGridContextL()");
-	if(iPtFsThumbnailContext && !iPtFsContextActivated)
-		{
-		delete iPtFsThumbnailContext;
-		iPtFsThumbnailContext = NULL;
-		}
-	if(!iPtFsContextActivated)
-		{
-		iPtFsThumbnailContext = CGlxThumbnailContext::NewL( &iFsFromFocusOutwardIterator ); // set the thumbnail context
-	    iPtFsThumbnailContext->SetDefaultSpec( KFullScreenTNPTWidth, KFullScreenTNPTHeight );  //todo get these image sizes from  the layout.
-	    
-	    if(!iFocusFsThumbnailContext)
-	        {
-	        iFocusFsThumbnailContext = CGlxThumbnailContext::NewL( &iFsFromFocusOutwardIteratorForFocus ); // set Focus FS thumbthe thumbnail context
-	        iFocusFsThumbnailContext->SetDefaultSpec( KFullScreenTNLSWidth, KFullScreenTNLSHeight );  //todo get these image sizes from  the layout.
-	        }
-	    if(!iFocusGridThumbnailContext)
-	        {
-	        iFocusGridThumbnailContext = CGlxThumbnailContext::NewL( &iBlockyIteratorForFocus ); // set the thumbnail context for Focus Grid
-	        iFocusGridThumbnailContext->SetDefaultSpec( KGridTNWIdth, KGridTNHeight );  //todo get these image sizes from  the layout.
-	        }
-	    
-		// show static items if required
+    TRACER("GlxMLWrapperPrivate::CreateGridContextL()");
+    if(iPtFsThumbnailContext && !iPtFsContextActivated)
+        {
+        delete iPtFsThumbnailContext;
+        iPtFsThumbnailContext = NULL;
+        }
+    if(!iPtFsContextActivated)
+        {
+        iPtFsThumbnailContext = CGlxDefaultThumbnailContext::NewL(); // set the thumbnail context
+        iPtFsThumbnailContext->SetRangeOffsets(2,2);
+        iPtFsThumbnailContext->SetDefaultSpec( KFullScreenTNPTWidth, KFullScreenTNPTHeight );  //todo get these image sizes from  the layout.
+
+        if(!iFocusFsThumbnailContext)
+            {
+            iFocusFsThumbnailContext = CGlxDefaultThumbnailContext::NewL(); 
+            iFocusFsThumbnailContext->SetRangeOffsets(0,0);
+            iFocusFsThumbnailContext->SetDefaultSpec( KFullScreenTNLSWidth, KFullScreenTNLSHeight );  //todo get these image sizes from  the layout.
+            }
+        if(!iFocusGridThumbnailContext)
+            {
+            iFocusGridThumbnailContext = CGlxThumbnailContext::NewL( &iBlockyIteratorForFocus ); // set the thumbnail context for Focus Grid
+            iFocusGridThumbnailContext->SetDefaultSpec( KGridTNWIdth, KGridTNHeight );  //todo get these image sizes from  the layout.
+            }
+
+        // show static items if required
         iMediaList->SetStaticItemsEnabled(EFalse);
         iMediaList->AddContextL(iFocusFsThumbnailContext, 7 );      // Temp will change this number  
         iMediaList->AddContextL(iFocusGridThumbnailContext, 8 );    // Temp will change this number  
-	    iMediaList->AddContextL(iPtFsThumbnailContext, KGlxFetchContextPriorityGridViewFullscreenVisibleThumbnail );
-	    iPtFsContextActivated = ETrue;
-		}
-	    
-	}
+        iMediaList->AddContextL(iPtFsThumbnailContext, KGlxFetchContextPriorityGridViewFullscreenVisibleThumbnail );
+        iPtFsContextActivated = ETrue;
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // RemoveGridContext
@@ -543,67 +539,71 @@ void GlxMLWrapperPrivate::CreateMediaListL(int aCollectionId, int aHierarchyId, 
 	CleanupStack::PopAndDestroy(path);
 	}
 
-// ---------------------------------------------------------------------------
-//  retrieveItemIcon
-// ---------------------------------------------------------------------------
-//
+/*
+ * retrieveItemIcon
+ */
 HbIcon* GlxMLWrapperPrivate::RetrieveItemIcon(int aItemIndex, GlxTBContextType aTBContextType)
-	{
-	TInt itemHeight = 0;
-	TInt itemWidth = 0;
-	switch (aTBContextType)
-		{
-		case GlxTBContextGrid: 
-			{
-			itemHeight = KGridTNHeight;
-			itemWidth = KGridTNWIdth;
-			}
-			break;
-		case GlxTBContextPtFs: 
-			{
-			itemHeight = KFullScreenTNPTHeight;
-			itemWidth = KFullScreenTNPTWidth;
-			}
-			break;
-		case GlxTBContextLsFs: 
-			{
-			itemHeight = KFullScreenTNLSHeight;
-			itemWidth = KFullScreenTNLSWidth;
-			}
-			break;
-		}
-	const TGlxMedia& item = iMediaList->Item( aItemIndex );
-    TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail, 
-            GlxFullThumbnailAttributeId( ETrue,itemWidth,itemHeight ) ); //todo map icon size with actual mode        
-    const CGlxThumbnailAttribute* value = item.ThumbnailAttribute(
-            thumbnailAttribute );
-    TInt tnError = GlxErrorManager::HasAttributeErrorL(
-                      item.Properties(), KGlxMediaIdThumbnail );
-	TSize iconSize(itemWidth, itemHeight);
-
-    if (value)
-        {
-		if(value->iBitmap != NULL)
-			{
-			GLX_LOG_INFO1("### GlxMLWrapperPrivate::RetrieveItemIcon value-Index is %d",aItemIndex);
-			return (convertFBSBitmapToHbIcon(value->iBitmap));
-			}
-		}
-   /*else if (item.GetIconInfo(icon))   //todo will be required if we are planning to have static item else remove
-                {  
-                GLX_LOG_INFO1("### GlxMLWrapperPrivate::HandleAttributesAvailableL GetIconInfo-Index is %d",aItemIndex);
-                }*/
-	else if( tnError == KErrCANoRights)	
-		{
-		//handle DRM case
-		}
-	else if( tnError )
-		{
-		return (new HbIcon(":/data/corrupt.svg"));
-		}
-	 GLX_LOG_INFO1("### GlxMLWrapperPrivate::RetrieveItemIcon value-Index is %d and have returned empty icon",aItemIndex);
-	 return NULL;
-	}
+{
+    TInt itemHeight = 0;
+    TInt itemWidth = 0;
+    switch (aTBContextType) {
+        case GlxTBContextGrid: {
+            itemHeight = KGridTNHeight;
+            itemWidth = KGridTNWIdth;
+        }
+        break;
+        
+        case GlxTBContextPtFs:  {
+            itemHeight = KFullScreenTNPTHeight;
+            itemWidth = KFullScreenTNPTWidth;
+        }
+        break;
+        
+        case GlxTBContextLsFs: {
+            itemHeight = KFullScreenTNLSHeight;
+            itemWidth = KFullScreenTNLSWidth;
+        }
+        break;
+        
+        default :
+        break;
+    }
+    
+    const TGlxMedia& item = iMediaList->Item( aItemIndex );
+    TMPXAttribute thumbnailAttribute( KGlxMediaIdThumbnail, 
+                       GlxFullThumbnailAttributeId( ETrue, itemWidth, itemHeight ) ); //todo map icon size with actual mode        
+    const CGlxThumbnailAttribute* value = item.ThumbnailAttribute( thumbnailAttribute );
+    TInt tnError = GlxErrorManager::HasAttributeErrorL( item.Properties(), KGlxMediaIdThumbnail );
+	
+    if ( value && value->iBitmap != NULL ) {
+        if( aTBContextType == GlxTBContextGrid ) {
+            GLX_LOG_INFO1("### GlxMLWrapperPrivate::RetrieveItemIcon value-Index is %d",aItemIndex);
+            
+            if (  iContextMode == GlxContextPtGrid ) {
+                return convertFBSBitmapToHbIcon( value->iBitmap , KGridTNPTWIdth, KGridTNPTHeight);
+            }
+            else {
+                return convertFBSBitmapToHbIcon( value->iBitmap );
+            }
+        }
+        else {
+            return convertFBSBitmapToHbIcon( value->iBitmap, itemWidth, itemHeight ) ;
+        }
+    }
+    /*else if (item.GetIconInfo(icon))   //todo will be required if we are planning to have static item else remove
+    {  
+        GLX_LOG_INFO1("### GlxMLWrapperPrivate::HandleAttributesAvailableL GetIconInfo-Index is %d",aItemIndex);
+    }*/
+    else if( tnError == KErrCANoRights)	{
+        //handle DRM case
+    }
+    else if( tnError ) {
+        return (new HbIcon(GLXICON_CORRUPT));
+    }
+    
+    GLX_LOG_INFO1("### GlxMLWrapperPrivate::RetrieveItemIcon value-Index is %d and have returned empty icon",aItemIndex);
+    return NULL;
+}
 // ---------------------------------------------------------------------------
 //  RetrieveListTitle
 // ---------------------------------------------------------------------------
@@ -940,7 +940,7 @@ void GlxMLWrapperPrivate::HandleItemModifiedL( const RArray<TInt>& aItemIndexes,
 // GetItemCount
 // ---------------------------------------------------------------------------
 //
- HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap)
+HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap)
 {
 	GLX_LOG_INFO1("### GlxMLWrapperPrivate::convertFBSBitmapToHbIcon %d", 0);
 	aBitmap->LockHeap();
@@ -950,8 +950,29 @@ void GlxMLWrapperPrivate::HandleItemModifiedL( const RArray<TInt>& aItemIndexes,
 	//QImage share the memory occupied by data
 	QImage image(data, aBitmap->SizeInPixels().iWidth, aBitmap->SizeInPixels().iHeight, bytesPerLine, QImage::Format_RGB16);
 	aBitmap->UnlockHeap();
-	HbIcon* targetIcon = new HbIcon(QIcon(QPixmap::fromImage(image)));
+	HbIcon* targetIcon = new HbIcon( QIcon( QPixmap::fromImage(image) ) );
 	return targetIcon;
+}
+
+HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap, TInt itemWidth, TInt itemHeight)
+{
+    GLX_LOG_INFO1("### GlxMLWrapperPrivate::convertFBSBitmapToHbIcon 1 %d", 0);
+    
+    aBitmap->LockHeap();
+    TUint32 *tempData = aBitmap->DataAddress();
+    uchar *data = (uchar *)(tempData);  
+    int bytesPerLine = aBitmap->ScanLineLength(aBitmap->SizeInPixels().iWidth , aBitmap->DisplayMode());
+    //QImage share the memory occupied by data
+    QImage image(data, aBitmap->SizeInPixels().iWidth, aBitmap->SizeInPixels().iHeight, bytesPerLine, QImage::Format_RGB16);
+        
+    QPixmap pixmap = QPixmap::fromImage(image);
+    if ( aBitmap->SizeInPixels().iWidth > itemWidth || aBitmap->SizeInPixels().iHeight ) {
+        pixmap = pixmap.scaled( itemWidth, itemHeight, Qt::KeepAspectRatio );
+    }
+    
+    aBitmap->UnlockHeap();
+    HbIcon* targetIcon = new HbIcon( QIcon( pixmap ) );
+    return targetIcon;
 }
 
  // ---------------------------------------------------------------------------

@@ -18,7 +18,6 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
 #include <QModelIndex>
-#include <QtDebug>
 #include <qdatetime.h>
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -41,143 +40,127 @@
 #include "glxviewids.h"
 #include <glxcommandhandlers.hrh>
 
+#include "OstTraceDefinitions.h"
+#ifdef OST_TRACE_COMPILER_IN_USE
+#include "glxdetailsviewTraces.h"
+#endif
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //GlxDetailsView
 //--------------------------------------------------------------------------------------------------------------------------------------------
 GlxDetailsView::GlxDetailsView(HbMainWindow *window) :  GlxView ( GLX_DETAILSVIEW_ID),
-    mDetailsPixmap(NULL), 
-    mBlackBackgroundItem(NULL), 
+    mDetailsIcon(NULL), 
     mModel(NULL), 
     mWindow(window), 
     mDataForm(NULL), 
     mDetailModel(NULL),
     mCustomPrototype(NULL),
     mSelIndex (0)
-{
-    qDebug("@@@GlxDetailsView::GlxDetailsView constructor Enter");
+    {
+    OstTraceFunctionEntry0( GLXDETAILSVIEW_GLXDETAILSVIEW_ENTRY );
+    
     setContentFullScreen( true );//for smooth transtion between grid to full screen and vice versa
-}
+    OstTraceFunctionExit0( GLXDETAILSVIEW_GLXDETAILSVIEW_EXIT );
+    }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //~GlxDetailsView
 //--------------------------------------------------------------------------------------------------------------------------------------------
 GlxDetailsView::~GlxDetailsView()
-{
-    qDebug("@@@GlxDetailsView::~GlxDetailsView Enter");
+    {
+    OstTrace0( TRACE_IMPORTANT, GLXDETAILSVIEW_GLXDETAILSVIEW, "GlxDetailsView::~GlxDetailsView" );
 
-    if(mDetailsPixmap) {
-        delete mDetailsPixmap;
-        mDetailsPixmap = NULL;
+    if(mDetailsIcon) {
+    delete mDetailsIcon;
+    mDetailsIcon = NULL;
     }
 
     if(mDataForm && mDataForm->model()) {
-        delete mDataForm->model();
-        mDataForm->setModel(0);
+    delete mDataForm->model();
+    mDataForm->setModel(0);
     }
 
     if(mDataForm) {
-        delete mDataForm;
-        mDataForm = NULL;
+    delete mDataForm;
+    mDataForm = NULL;
     }
 
 
-    if(mBlackBackgroundItem) {
-        delete mBlackBackgroundItem;
-        mBlackBackgroundItem = NULL;
-    }
-    
+
     clearCurrentModel();
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(updateLayout(Qt::Orientation)));
-}
+    }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //activate
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::activate()
-{
-    qDebug("@@@GlxDetailsView::activate Enter");
+    {
+    OstTraceFunctionEntry0( GLXDETAILSVIEW_ACTIVATE_ENTRY );
+    
     setFormData();
     connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(updateLayout(Qt::Orientation)));
-}
+    OstTraceFunctionExit0( GLXDETAILSVIEW_ACTIVATE_EXIT );
+    }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //initializeView
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::initializeView(QAbstractItemModel *model)
 {   
-    qDebug("@@@GlxDetailsView::initializeView Enter");
-    
-    mBlackBackgroundItem = new HbIconItem(this);
-    mBlackBackgroundItem->setBrush(QBrush(Qt::black));
-    mBlackBackgroundItem->hide();
+    OstTraceFunctionEntry0( GLXDETAILSVIEW_INITIALIZEVIEW_ENTRY );
 
     //To show the thumbnail 
-    mDetailsPixmap = new QGraphicsPixmapItem(this);
+    if ( mDataForm == NULL) {
+        mDetailsIcon = new HbIconItem(this);
 
-    //Create the form and the model for the data form
-    mDataForm = new HbDataForm(this);
-    mDetailModel = new HbDataFormModel();
+        //Create the form and the model for the data form
+        mDataForm = new HbDataForm(this);
+        mDetailModel = new HbDataFormModel();
 
-    //custom prototype
-    mCustomPrototype = new GlxDetailsCustomWidgets(mDataForm);
-    mDataForm->setItemPrototype(mCustomPrototype);
+        //custom prototype
+        mCustomPrototype = new GlxDetailsCustomWidgets(mDataForm);           
+        QList <HbAbstractViewItem*> protos = mDataForm->itemPrototypes();
+        protos.append(mCustomPrototype);
+        mDataForm->setItemPrototypes(protos);
+    
+        //Add the Widgets according to the mime type
+        addWidgets();
+    }   
 
     //Set the Model
     mModel = model;
     initializeNewModel();
-    
-    //Add the Widgets according to the mime type
-    addWidgets();
-    
+
     //Set the Layout Correspondingly.
     updateLayout(mWindow->orientation());
-    
+
     //Shows the Image 
     showImage();
-        
+
+    OstTraceFunctionExit0( GLXDETAILSVIEW_INITIALIZEVIEW_EXIT );
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //resetView
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::resetView()
-{
- //Do Nothing here
-}
+    {
+    OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_RESETVIEW, "GlxDetailsView::resetView" );
+    
+    //Do Nothing here
+    }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //deActivate
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::deActivate()
 { 
-    qDebug("@@@GlxDetailsView::deActivate Enter");
-
-    //mWindow->setItemVisible(Hb::AllItems, FALSE) ;
-
-    if(mDetailsPixmap) {
-        delete mDetailsPixmap;
-        mDetailsPixmap = NULL;
-    }
-
-    if(mDataForm && mDataForm->model()) {
-        delete mDataForm->model();
-        mDataForm->setModel(0);
-    }
-
-    if(mDataForm) {
-        delete mDataForm;
-        mDataForm = NULL;
-    }
-
-    if(mBlackBackgroundItem) {
-        delete mBlackBackgroundItem;
-        mBlackBackgroundItem = NULL;
-    }
-    
+    OstTraceFunctionEntry0( GLXDETAILSVIEW_DEACTIVATE_ENTRY );
     clearCurrentModel();
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(updateLayout(Qt::Orientation)));
+    OstTraceFunctionExit0( GLXDETAILSVIEW_DEACTIVATE_EXIT );
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -185,36 +168,28 @@ void GlxDetailsView::deActivate()
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::addWidgets()
     {
-    qDebug("@@@GlxDetailsView::addWidgets create the form");
-
+    OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_ADDWIDGETS, "GlxDetailsView::addWidgets create Form" );
+    
     //----------------------------START OF CREATION OF WIDGETS---------------------------------//
     // To add new widgets in the details view, add it here.
 
     //---------------------------IMAGE NAME LABEL --------------------------------------------//
-    qDebug("@@@GlxDetailsView::addWidgets create Image name Label"); 
+    OstTrace0( TRACE_NORMAL, DUP1_GLXDETAILSVIEW_ADDWIDGETS, "GlxDetailsView::addWidgets create Image Label" );
     HbDataFormModelItem *imageLabelitem = mDetailModel->appendDataFormItem((HbDataFormModelItem::DataItemType)(ImageNameItem), QString("Name"), mDetailModel->invisibleRootItem());
     imageLabelitem->setData(HbDataFormModelItem::KeyRole,QString(""));
 
     //---------------------------DATE LABEL --------------------------------------------//
-    qDebug("@@@GlxDetailsView::addWidgets create Image name Label"); 
+    OstTrace0( TRACE_NORMAL, DUP2_GLXDETAILSVIEW_ADDWIDGETS, "GlxDetailsView::addWidgets date label" );
     HbDataFormModelItem *dateLabelItem = mDetailModel->appendDataFormItem((HbDataFormModelItem::DataItemType)(DateLabelItem), QString("Date"), mDetailModel->invisibleRootItem());
     dateLabelItem->setData(HbDataFormModelItem::KeyRole,QString(""));
 
     //---------------------------LOCATION LABEL--------------------------------------------//
-    qDebug("@@@GlxDetailsView::addWidgets create Location Label");
+    OstTrace0( TRACE_NORMAL, DUP3_GLXDETAILSVIEW_ADDWIDGETS, "GlxDetailsView::addWidgets location label" );
     HbDataFormModelItem *locationLabelItem = mDetailModel->appendDataFormItem((HbDataFormModelItem::DataItemType)(LocationTagItem), QString("Location Tag"), mDetailModel->invisibleRootItem());
     locationLabelItem->setData(HbDataFormModelItem::KeyRole, QString(""));
 
-    //---------------------------DURATION LABEL--------------------------------------------//
-    /*
-     Need to Add a check here for the type of the item, if it is video or image
-     qDebug("@@@GlxDetailsView::addWidgets create Duration Label");
-     HbDataFormModelItem *DurationLabelItem = mDetailModel->appendDataFormItem((HbDataFormModelItem::DataItemType)(DurationItem), QString("Duration"), mDetailModel->invisibleRootItem());
-     DurationLabelItem->setData(HbDataFormModelItem::KeyRole, QString("")); 
-    */
-
     //----------------------------COMMENTS TEXT ITEM---------------------------------------------//
-    qDebug("@@@GlxDetailsView::addWidgets create Comment text edit");
+    OstTrace0( TRACE_NORMAL, DUP5_GLXDETAILSVIEW_ADDWIDGETS, "GlxDetailsView::addWidgets comment text" );
     HbDataFormModelItem *commentsLabelItem = mDetailModel->appendDataFormItem((HbDataFormModelItem::DataItemType)(CommentsItem), QString("Comments"), mDetailModel->invisibleRootItem());
     commentsLabelItem->setData(HbDataFormModelItem::KeyRole, QString(""));
 
@@ -229,88 +204,75 @@ void GlxDetailsView::addWidgets()
 //setModel
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::setModel(QAbstractItemModel *model)
-{
-    qDebug("@@@GlxDetailsView::setModel");
+    {
+    OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_SETMODEL, "GlxDetailsView::setModel" );
     if ( mModel == model ) {
-        return ;
+    return ;
     }
     clearCurrentModel();
     mModel = model;
     initializeNewModel();
-}
+    }
 
 QGraphicsItem * GlxDetailsView::getAnimationItem(GlxEffect transtionEffect)
-{
+    {
+    OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_GETANIMATIONITEM, "GlxDetailsView::getAnimationItem" );
     if ( transtionEffect == FULLSCREEN_TO_DETAIL
             || transtionEffect == DETAIL_TO_FULLSCREEN ) {
-        return this;
+            return this;
     }
-    
+
     return NULL;    
-}
+    }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //updateLayout
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::updateLayout(Qt::Orientation orient)
     {
-    qDebug("GlxDetailsView::updateLayout() %d", orient );
-
+    OstTrace1( TRACE_NORMAL, GLXDETAILSVIEW_UPDATELAYOUT, "GlxDetailsView::updateLayout;orient=%d", orient );
+    
     QRect screen_rect = mWindow->geometry(); 
     setGeometry(screen_rect);
 
     if(orient == Qt::Horizontal)
         {
-        qDebug("GlxDetailsView::updateLayout HORIZONTAL");
-
-        mBlackBackgroundItem->setSize(QSize(280,280));
-        mBlackBackgroundItem->setPos(11,71);
-
-        mDetailsPixmap->setPos(15,75);
-        mDetailsPixmap->setZValue(mBlackBackgroundItem->zValue() + 1);
-
-       // mDataForm->setPos(301,5);
+        OstTrace0( TRACE_NORMAL, DUP1_GLXDETAILSVIEW_UPDATELAYOUT, "GlxDetailsView::updateLayout HORIZONTAL" );
+        mDetailsIcon->setPos(15,75);
         mDataForm->setGeometry(301,60,335,300);
 
         }
     else
         {
-        qDebug("GlxDetailsView::updateLayout VERTICAL");
-
-        mBlackBackgroundItem->setSize(QSize(310,260));
-        mBlackBackgroundItem->setPos(25,75);
-
-        mDetailsPixmap->setPos(25,75);
-        mDetailsPixmap->setZValue(mBlackBackgroundItem->zValue() + 1);
-
-//        mDataForm->setPos(5,291);
+        OstTrace0( TRACE_NORMAL, DUP2_GLXDETAILSVIEW_UPDATELAYOUT, "GlxDetailsView::updateLayout VERTICAL" );
+        mDetailsIcon->setPos(25,75);
         mDataForm->setGeometry(5,351,335,300);
         mDataForm->setMaximumWidth(340);
         }
     }
 
 void GlxDetailsView::rowsRemoved(const QModelIndex &parent, int start, int end)
-{
+    {
     Q_UNUSED(parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
-    qDebug("GlxDetailsView::rowsRemoved");
-    
+    OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_ROWSREMOVED, "GlxDetailsView::rowsRemoved" );
+
     if ( mModel->rowCount() <= 0 ) {
-        return emit actionTriggered( EGlxCmdEmptyData );
+    return emit actionTriggered( EGlxCmdEmptyData );
     }
-    
+
     if ( start <= mSelIndex && end >= mSelIndex ) {
-        return emit actionTriggered( EGlxCmdBack );
+    return emit actionTriggered( EGlxCmdBack );
     }
-}
+    }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //showImage
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::showImage()
     {
-    qDebug("GlxDetailsView::showImage() Enter" );
+    OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_SHOWIMAGE, "GlxDetailsView::showImage" );
     
     QVariant variant = mModel->data( mModel->index(0,0), GlxFocusIndexRole );    
     if ( variant.isValid() &&  variant.canConvert<int> () ) {
@@ -320,40 +282,18 @@ void GlxDetailsView::showImage()
     variant = mModel->data( mModel->index( mSelIndex ,0), GlxFsImageRole);
     if ( variant.isValid() &&  variant.canConvert<HbIcon> () )
         {
-        QIcon itemIcon = variant.value<HbIcon>().qicon();
         if(mWindow->orientation() == Qt::Horizontal)
             {
-            qDebug("GlxDetailsView::showImage HORIZONTAL");
-            QPixmap itemPixmap = itemIcon.pixmap(128,128);
-            QSize sz( 270, 270);
-            itemPixmap = itemPixmap.scaled(sz, Qt::IgnoreAspectRatio );
-            if(itemPixmap.isNull())
-                {
-                qDebug("@@@GlxDetailsView::showImage Null Pixmap");
-                }
-            else
-                {
-                qDebug("@@@GlxDetailsView::showImage NOT --Null Pixmap");
-                mDetailsPixmap->setPixmap(itemPixmap);
-                }
+            OstTrace0( TRACE_NORMAL, DUP1_GLXDETAILSVIEW_SHOWIMAGE, "GlxDetailsView::showImage HORIZONTAL" );
+            
+            mDetailsIcon->resize(QSize(270, 270));
+            mDetailsIcon->setIcon(variant.value<HbIcon>());
             }
         else
             {
-            qDebug("GlxDetailsView::showImage VERTICAL");
-
-            QPixmap itemPixmap = itemIcon.pixmap(128,128);
-            QSize sz( 310, 260);
-            itemPixmap = itemPixmap.scaled(sz, Qt::IgnoreAspectRatio );
-
-            if(itemPixmap.isNull())
-                {
-                qDebug("@@@GlxDetailsView::showImage Null Pixmap");
-                }
-            else
-                {
-                qDebug("@@@GlxDetailsView::showImage NOT --Null Pixmap");
-                mDetailsPixmap->setPixmap(itemPixmap);
-                }
+            OstTrace0( TRACE_NORMAL, DUP2_GLXDETAILSVIEW_SHOWIMAGE, "GlxDetailsView::showImage VERTICAL" );
+            mDetailsIcon->resize(QSize(310, 260));
+            mDetailsIcon->setIcon(variant.value<HbIcon>());
             }
         }
     }
@@ -363,7 +303,8 @@ void GlxDetailsView::showImage()
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::setFormData()
     {
-    qDebug("GlxDetailsView::FillData Enter");
+    OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_SETFORMDATA, "GlxDetailsView::setFormData" );
+    
     //Call to set the Image Name
     setImageName();
     //Call to set the date in the from
@@ -375,7 +316,7 @@ void GlxDetailsView::setFormData()
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::setImageName()
     {
-    qDebug("GlxDetailsView::setImageName Enter");
+    OstTraceFunctionEntry0( GLXDETAILSVIEW_SETIMAGENAME_ENTRY );
 
     QString imagePath = (mModel->data(mModel->index(mModel->data(mModel->index(0,0),GlxFocusIndexRole).value<int>(),0),GlxUriRole)).value<QString>();
     QString imageName = imagePath.section('\\',-1);
@@ -385,31 +326,32 @@ void GlxDetailsView::setImageName()
 
     if(imageLabel)
         {
-        qDebug("GlxDetailsView::setImageName  imageLabel!=NULL");
+        OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_SETIMAGENAME, "GlxDetailsView::setImageName ImageLabel !=NULL" );
         HbLineEdit* label = static_cast<HbLineEdit*>(imageLabel->dataItemContentWidget());
 
         if(label) 
             {
-            qDebug("GlxDetailsView::setImageName,setText");
+            OstTrace0( TRACE_NORMAL, DUP1_GLXDETAILSVIEW_SETIMAGENAME, "GlxDetailsView::setImageName SetText" );
             label->setText(imageName);
             }
         }
-}
+    OstTraceFunctionExit0( GLXDETAILSVIEW_SETIMAGENAME_EXIT );
+    }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //setDate
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::setDate()
     {
-    qDebug("GlxDetailsView::setDate Enter");
-
+    OstTraceFunctionEntry0( GLXDETAILSVIEW_SETDATE_ENTRY );
+    
     QString datestring;
     QString str("dd.MM.yyyy");
     QDate date = (mModel->data(mModel->index(mModel->data(mModel->index(0,0),GlxFocusIndexRole).value<int>(),0),GlxDateRole)).value<QDate>();
 
     if(date.isNull() == FALSE )
         {
-        qDebug("GlxDetailsView::setDate date is not Null");
+        OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_SETDATE, "GlxDetailsView::setDate is not NULL" );
         datestring = date.toString(str);
         }
 
@@ -418,28 +360,34 @@ void GlxDetailsView::setDate()
 
     if(dateLabel) 
         {
-        qDebug("GlxDetailsView::setDate  dateLabel!=NULL");
+        OstTrace0( TRACE_NORMAL, DUP1_GLXDETAILSVIEW_SETDATE, "GlxDetailsView::setDate Datelabel is not NULL" );
+        
         HbLabel* label = static_cast<HbLabel*>(dateLabel->dataItemContentWidget());
 
         if(label) 
             {
-            qDebug("GlxDetailsView::setDate,setText");
+            OstTrace0( TRACE_NORMAL, DUP2_GLXDETAILSVIEW_SETDATE, "GlxDetailsView::setDate SetText" );
             label->setPlainText(datestring);
             }
         }    
+    OstTraceFunctionExit0( GLXDETAILSVIEW_SETDATE_EXIT );
     }
 
 void GlxDetailsView::initializeNewModel()
-{
+    {
+    OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_INITIALIZENEWMODEL, "GlxDetailsView::initializeNewModel" );
+    
     if ( mModel ) {
-        connect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
+    connect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
     }
-}
+    }
 
 void GlxDetailsView::clearCurrentModel()
-{
+    {
+    OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_CLEARCURRENTMODEL, "GlxDetailsView::clearCurrentModel" );
+    
     if ( mModel ) {
-        disconnect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
-        mModel = NULL ;
+    disconnect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
+    mModel = NULL ;
     }    
-}
+    }

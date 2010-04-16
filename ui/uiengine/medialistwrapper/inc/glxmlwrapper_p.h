@@ -32,6 +32,8 @@ class CGlxMLGenericObserver;
 class CGlxThumbnailContext;
 class HbIcon;
 class CGlxDefaultAttributeContext;
+class CGlxDefaultThumbnailContext;
+class CGlxDefaultListAttributeContext;
 
 //to use first call GlxMLWrapperPrivate::Instance then set the mode by calling GlxMLWrapperPrivate::SetContextMode()
 //CLASS Declaration
@@ -92,6 +94,7 @@ public:
   //todo remove comment  void HandleCommandCompleteL( CMPXCommand* aCommandResult, TInt aError,MGlxMediaList* aList );
     void HandleMediaL( TInt aListIndex, MGlxMediaList* aList );
     void HandleItemModifiedL( const RArray<TInt>& aItemIndexes, MGlxMediaList* aList );
+
 public:
 	/**
 	* RetrieveItemIcon()
@@ -139,9 +142,14 @@ private:
 	void CheckPtFsTBAttribute(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes);
 	void CheckLsFsTBAttribute(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes);
 	void CheckListAttributes(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes);
+	/*
+	 * convert the CFbsbitmap to HbIcon
+	 */
 	HbIcon *convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap);
-
-
+	/*
+	 * convert the CFbsbitmap to HbIcon and scale down upto itemWidth and itemHeight
+	 */
+	HbIcon * convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap, TInt itemWidth, TInt itemHeight);
 
 private:
     // Instance of Media List
@@ -156,27 +164,25 @@ private:
 	CGlxThumbnailContext* iGridThumbnailContext;
 
 	// FS related thumbnail contexts
-	CGlxThumbnailContext* iPtFsThumbnailContext;
-    CGlxThumbnailContext* iLsFsThumbnailContext; 
-    CGlxThumbnailContext* iFocusFsThumbnailContext;
+	CGlxDefaultThumbnailContext* iPtFsThumbnailContext;
+	CGlxDefaultThumbnailContext* iLsFsThumbnailContext; 
+	CGlxDefaultThumbnailContext* iFocusFsThumbnailContext;
     CGlxThumbnailContext* iFocusGridThumbnailContext;
 
 	//List related contexts
 	// Fetch context for retrieving title attribute
-    CGlxDefaultAttributeContext* iTitleAttributeContext;
+    CGlxDefaultListAttributeContext* iTitleAttributeContext;
 
     // Fetch context for retrieving subtitle
-    CGlxDefaultAttributeContext* iSubtitleAttributeContext;
+    CGlxDefaultListAttributeContext* iSubtitleAttributeContext;
 	
     CGlxThumbnailContext* iListThumbnailContext;
     // for thumbnail context
-	TGlxSequentialIterator iThumbnailIterator;
+    TGlxFromVisibleIndexOutwardListIterator iThumbnailIterator;
 
 	// Iterators for Grid and FS
     TGlxFromManualIndexBlockyIterator iBlockyIterator;
     TGlxFromManualIndexBlockyIterator iBlockyIteratorForFocus;
-    TGlxFromFocusOutwardIterator iFsFromFocusOutwardIterator;
-    TGlxFromFocusOutwardIterator iFsFromFocusOutwardIteratorForFocus;
 
 	//Variables for checking the active contexts
 	//todo merge all these variables into 1 and have bitwise operation on them

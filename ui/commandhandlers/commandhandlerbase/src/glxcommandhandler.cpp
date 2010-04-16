@@ -16,12 +16,21 @@
 */
 
 #include <glxcommandhandler.h>
+#include "OstTraceDefinitions.h"
+#ifdef OST_TRACE_COMPILER_IN_USE
+#include "glxcommandhandlerTraces.h"
+#endif
+
 
 GlxCommandHandler::GlxCommandHandler()
 {
+OstTraceFunctionEntry0( GLXCOMMANDHANDLER_GLXCOMMANDHANDLER_ENTRY );
+OstTraceFunctionExit0( GLXCOMMANDHANDLER_GLXCOMMANDHANDLER_EXIT );
 }
 
 GlxCommandHandler::~GlxCommandHandler()
 {
+OstTraceFunctionEntry0( DUP1_GLXCOMMANDHANDLER_GLXCOMMANDHANDLER_ENTRY );
+OstTraceFunctionExit0( DUP1_GLXCOMMANDHANDLER_GLXCOMMANDHANDLER_EXIT );
 }
 

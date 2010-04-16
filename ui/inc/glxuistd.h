@@ -34,7 +34,8 @@ enum TGlxHuiCustomCommands
 enum GlxContextMode
 {
     GlxContextInvalid = -1,
-	GlxContextGrid,
+	GlxContextLsGrid,
+	GlxContextPtGrid,
 	GlxContextLsFs,
 	GlxContextPtFs,  //TB context check would be applied here . Please do not add any context between GlxContextLsFs and GlxContextPtFs
 	GlxContextLsList,

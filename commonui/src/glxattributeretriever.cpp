@@ -19,13 +19,11 @@
 
 #include "glxattributeretriever.h"
 
-#include <aknWaitDialog.h>
-#include <avkon.rsg>
-#include <EIKENV.H>
-#include <aknutils.h>
+#include <eikenv.h>
+#include <AknUtils.h>
 #include <bautils.h>
 #include <data_caging_path_literals.hrh>
-#include <stringloader.h>
+
 
 #include <mpxattributespecs.h>
 #include <mpxcollectionpath.h>
@@ -33,11 +31,8 @@
 #include <glxlog.h>
 #include <glxmedialist.h>
 #include <glxpanic.h>
-#include <glxuistd.h>
-#include <glxuiutilities.rsg>
 #include <mglxfetchcontext.h>
 #include <mglxmedialistobserver.h>
-#include <glxresourceutilities.h>
 
 
 
@@ -152,80 +147,6 @@ public:
     };
     
 /**
- *  This class displays a wait dialog and blocks until all requested metadata has been retrieved.
- */  
-class CGlxWaitDialogAttributeRetriever : public CBase, 
-                                         public MProgressDialogCallback,
-                                         public MGlxBlockingAttributeRetriever,
-                                         public MGlxAttributeRetrieverObserver
-    {
-public:
-    static CGlxWaitDialogAttributeRetriever* NewLC();
-    
-public: // from MGlxBlockingAttributeRetriever
-    /**
-     * See @ref MGlxBlockingAttributeRetriever::RetrieveL
-     */
-    TInt RetrieveL(const MGlxFetchContext* aContext, MGlxMediaList* aList);
-
-private: // from MGlxAttributeRetrieverObserver
-    /**
-     * See @ref MGlxAttributeRetrieverObserver::AttributeRetrievalCompleteL
-     */
-    void AttributeRetrievalCompleteL(TInt aError);
-    
-public: // From MProgressDialogCallback
-     void DialogDismissedL(TInt aButtonId);
-
-private:
-    /**
-     * Constructor
-     */
-    CGlxWaitDialogAttributeRetriever();
-    
-    /**
-     * Destructor
-     */
-    ~CGlxWaitDialogAttributeRetriever();
-    
-    /**
-     * Second stage constructor
-     */
-    void ConstructL();
-    
-private:
-    /**
-     * Loads the resource file for this dll
-     */
-    void AddResourceFileL();
-
-    /**
-     * Unloads the resource file for this dll
-     */
-    void RemoveResourceFile();
-
-private:
-    /// App environment used for accessing resource file (not owned)
-    CCoeEnv* iCoeEnv;
-
-    /// Wait dialog
-    CAknWaitDialog* iWaitDialog;
-
-    /// Resource file offset
-    TInt iResourceOffset;
-    
-    /**
-     * Attribute retriever (owned)
-     */
-    CGlxAttributeRetriever* iAttributeRetriever;
-    
-    /**
-     * Attribute retrieval error
-     */
-    TInt iError;
-    };
-
-/**
  *  This class blocks until all requested metadata has been retrieved
  */  
 class CGlxSynchronousAttributeRetriever : public CBase,
@@ -284,26 +205,12 @@ private:
 // -----------------------------------------------------------------------------
 //
 EXPORT_C TInt GlxAttributeRetriever::RetrieveL(const MGlxFetchContext& aContext, 
-        MGlxMediaList& aList, TBool aShowDialog)
+        MGlxMediaList& aList, TBool /*aShowDialog*/)
     {
-    MGlxBlockingAttributeRetriever* retriever = NULL;
-    if (aShowDialog)
-        {
-        retriever = CGlxWaitDialogAttributeRetriever::NewLC();
-        }
-    else
-        {
-        retriever = CGlxSynchronousAttributeRetriever::NewLC();
-        }
+    CGlxSynchronousAttributeRetriever* retriever = NULL;
+    retriever = CGlxSynchronousAttributeRetriever::NewLC();
     TInt err = retriever->RetrieveL(&aContext, &aList);
-   /**
-     * This will cause a code scanner warning, but it is not possible to do 
-     * CleanupStack::PopAndDestroy(retriever) because the pointer pushed 
-     * onto the cleanup stack was either of class CGlxWaitDialogAttributeRetriever
-     * or a CGlxSynchronousAttributeRetriever and the object 'retriever' is of
-     * class MGlxBlockingAttributeRetriever
-     */
-    CleanupStack::PopAndDestroy(); 
+    CleanupStack::PopAndDestroy(retriever); 
     return err;
     }
 
@@ -504,135 +411,6 @@ void CGlxAttributeRetriever::HandlePopulatedL(MGlxMediaList* /*aList*/)
     // If the media list is empty we will never get the HandleAttributesAvailableL callback,
     // therefore the call to NotifyObserversIfCompleteL below is necessary.
     NotifyObserverIfCompleteL();
-    }
-
-// -----------------------------------------------------------------------------
-// CGlxWaitDialogAttributeRetriever
-// -----------------------------------------------------------------------------
-//
-
-// -----------------------------------------------------------------------------
-// CGlxWaitDialogAttributeRetriever::NewLC
-// -----------------------------------------------------------------------------
-//
-CGlxWaitDialogAttributeRetriever* CGlxWaitDialogAttributeRetriever::NewLC()
-    {
-    CGlxWaitDialogAttributeRetriever* self = new (ELeave) CGlxWaitDialogAttributeRetriever();
-    CleanupStack::PushL(self);
-    self->ConstructL();
-    return self;
-    }
-    
-// -----------------------------------------------------------------------------
-// CGlxWaitDialogAttributeRetriever::RetrieveL
-// -----------------------------------------------------------------------------
-//
-TInt CGlxWaitDialogAttributeRetriever::RetrieveL(const MGlxFetchContext* aContext, MGlxMediaList* aList)
-    {
-    // Load the resource file for this dll containing the wait dialog
-    AddResourceFileL();
-    
-    // prepare the wait dialog
-    iWaitDialog = new( ELeave ) CAknWaitDialog(reinterpret_cast<CEikDialog**>(&iWaitDialog));
-    iWaitDialog->PrepareLC(R_GLX_WAIT_NOTE_BLOCKING); // Pushes a point to a CEikDialog onto the CleanupStack. RunLD Pops it.
-    
-    iWaitDialog->SetCallback(this);
-    
-    // Load string for dialog
-    HBufC* title = StringLoader::LoadLC( R_GLX_PROGRESS_GENERAL );
-    iWaitDialog->SetTextL(*title);
-    CleanupStack::PopAndDestroy(title);         
-    
-    // The cancel key is specified in the resource
-    CEikButtonGroupContainer* cba = CEikButtonGroupContainer::Current();
-    cba->AddCommandSetToStackL(R_AVKON_SOFTKEYS_CANCEL);
-    
-    iAttributeRetriever->RetrieveL(aContext, aList);
-    iWaitDialog->RunLD(); // starts another active scheduler and blocks
-    return iError;
-    }
-
-// -----------------------------------------------------------------------------
-// CGlxWaitDialogAttributeRetriever::AttributeRetrievalComplete
-// -----------------------------------------------------------------------------
-//
-void CGlxWaitDialogAttributeRetriever::AttributeRetrievalCompleteL(TInt aError)
-    {
-    iError = aError;
-    iWaitDialog->ProcessFinishedL();
-    }
-
-// -----------------------------------------------------------------------------
-// CGlxWaitDialogAttributeRetriever::DialogDismissedL
-// -----------------------------------------------------------------------------
-//
-void CGlxWaitDialogAttributeRetriever::DialogDismissedL(TInt aButtonId)
-    {
-    if (aButtonId == EEikBidCancel)
-        {
-        iAttributeRetriever->CancelRetrieve();
-        iError = KErrCancel;
-        }
-    }
-
-// -----------------------------------------------------------------------------
-// Constructor
-// -----------------------------------------------------------------------------
-//
-CGlxWaitDialogAttributeRetriever::CGlxWaitDialogAttributeRetriever()
-    {
-    iCoeEnv = CCoeEnv::Static();
-    }
-
-// -----------------------------------------------------------------------------
-// Destructor
-// -----------------------------------------------------------------------------
-//
-CGlxWaitDialogAttributeRetriever::~CGlxWaitDialogAttributeRetriever()
-    {
-    RemoveResourceFile();
-    delete iAttributeRetriever;
-    }
-
-// -----------------------------------------------------------------------------
-// CGlxWaitDialogAttributeRetriever::ConstructL
-// -----------------------------------------------------------------------------
-//
-void CGlxWaitDialogAttributeRetriever::ConstructL()
-    {
-    iAttributeRetriever = new (ELeave) CGlxAttributeRetriever(*this);
-    }
-
-// -----------------------------------------------------------------------------
-// AddResourceFileL
-// -----------------------------------------------------------------------------
-//
-void CGlxWaitDialogAttributeRetriever::AddResourceFileL()
-    {
-    if (!iResourceOffset) // Lazy construction - ensure that this is only run once
-        {
-        GLX_LOG_INFO("Adding attribute retriever resource file");
-        TParse parse;
-        parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-        TFileName resourceFile;
-        resourceFile.Append(parse.FullName());
-        CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
-        iResourceOffset = iCoeEnv->AddResourceFileL(resourceFile);
-        }
-    }
-
-// -----------------------------------------------------------------------------
-// RemoveResourceFile
-// -----------------------------------------------------------------------------
-//
-void CGlxWaitDialogAttributeRetriever::RemoveResourceFile()
-    {
-    if (iResourceOffset) // Check that the resource has been loaded
-        {
-        GLX_LOG_INFO("Removing attribute retriever resource file");
-        iCoeEnv->DeleteResourceFile( iResourceOffset );
-        iResourceOffset = 0;
-        }
     }
 
 // -----------------------------------------------------------------------------

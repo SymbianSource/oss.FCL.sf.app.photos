@@ -20,6 +20,7 @@
 #include <glxcommandhandler.h>
 #include<glxcommandhandlerfactory.h>
 #include "glxmediaid.h"
+#include <QModelIndexList>
 
 GlxActionHandler::GlxActionHandler()
 {
@@ -32,20 +33,26 @@ GlxActionHandler::~GlxActionHandler()
     mCommandHandlerList.clear();
 }
 
-void GlxActionHandler::handleAction(qint32 commandId,int collectionId)
+void GlxActionHandler::handleAction(qint32 commandId,int collectionId,QModelIndexList indexList)
 {
     GlxCommandHandler* cmdHandler = NULL;
 	switch ( commandId ) {
 	    case EGlxCmdContextAddToAlbum:
 	        commandId = EGlxCmdAddToAlbum;
 	        break;
+	        
 	    case EGlxCmdContextDelete:
 	        commandId = EGlxCmdDelete;
 	        break;
+	        
 	    case EGlxCmdContextAlbumDelete:
 	        commandId = EGlxCmdDelete;
-			collectionId = KGlxAlbumsMediaId;
 	        break;
+	        
+	    case EGlxCmdContextSend:
+	         commandId = EGlxCmdSend;
+	         break;
+	         
 		default : break;	
 		}
 		
@@ -57,7 +64,7 @@ void GlxActionHandler::handleAction(qint32 commandId,int collectionId)
         addCommandHandler(commandId,cmdHandler);
     }
     if ( cmdHandler ) {
-        cmdHandler->executeCommand(commandId,collectionId);
+        cmdHandler->executeCommand(commandId,collectionId,indexList);
     }
 }
 

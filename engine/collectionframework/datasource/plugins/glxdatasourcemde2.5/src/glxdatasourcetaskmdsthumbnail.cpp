@@ -160,10 +160,10 @@ void CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL()
     
     TGlxThumbnailRequest tnReq;
     request->ThumbnailRequest(tnReq);
-
+#ifdef _DEBUG
 	RDebug::Print(_L("==> CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL - FetchThumbnailL(Id=%d), W(%d), H(%d)"), request->ItemId().Value(), tnReq.iSizeClass.iWidth, tnReq.iSizeClass.iHeight);
 	iStartTime.HomeTime(); // Get home time
-
+#endif
 #ifdef USE_S60_TNM
 	if(request->ThumbnailInfo())
 		{
@@ -241,8 +241,10 @@ void CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL(const TGlxMed
     {
     TRACER("CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL()")
     __ASSERT_DEBUG(dynamic_cast<CGlxThumbnailRequest*>(iRequest), Panic(EGlxPanicLogicError));
-	iStopTime.HomeTime(); // Get home time
+#ifdef _DEBUG
+    iStopTime.HomeTime(); // Get home time
 	RDebug::Print(_L("==> ThumbnailFetchComplete <%d> us"), (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif
     CGlxThumbnailRequest* req = static_cast<CGlxThumbnailRequest*>(iRequest);
     delete iResponse;
     iResponse = NULL;

@@ -19,26 +19,60 @@
 #include <mglxmedialist.h>
 #include <glxcommandfactory.h>
 #include <glxcommandhandlerdelete.h>
-#include <QDebug>
+#include "OstTraceDefinitions.h"
+#ifdef OST_TRACE_COMPILER_IN_USE
+#include "glxcommandhandlerdeleteTraces.h"
+#endif
+
 
 GlxCommandHandlerDelete::GlxCommandHandlerDelete()
-{
-    qDebug("GlxCommandHandlerDelete::GlxCommandHandlerDelete() ");
-}
+    {
+    OstTraceFunctionEntry0( GLXCOMMANDHANDLERDELETE_GLXCOMMANDHANDLERDELETE_ENTRY );
+    OstTraceFunctionExit0( GLXCOMMANDHANDLERDELETE_GLXCOMMANDHANDLERDELETE_EXIT );
+    }
 
 GlxCommandHandlerDelete::~GlxCommandHandlerDelete()
-{
-    qDebug("GlxCommandHandlerDelete::~GlxCommandHandlerDelete() ");
-}
+    {
+    OstTraceFunctionEntry0( DUP1_GLXCOMMANDHANDLERDELETE_GLXCOMMANDHANDLERDELETE_ENTRY );
+    OstTraceFunctionExit0( DUP1_GLXCOMMANDHANDLERDELETE_GLXCOMMANDHANDLERDELETE_EXIT );
+    }
 
-CMPXCommand* GlxCommandHandlerDelete::CreateCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume) const 
-{
-	Q_UNUSED(aCommandId);
-	Q_UNUSED(aConsume);
-    qDebug("GlxCommandHandlerDelete::CreateCommandL");
-    CMPXCollectionPath* path = aMediaList.PathLC( NGlxListDefs::EPathFocusOrSelection );
+CMPXCommand* GlxCommandHandlerDelete::CreateCommandL(TInt aCommandId,
+        MGlxMediaList& aMediaList, TBool& aConsume) const
+    {
+    OstTraceFunctionEntry0( GLXCOMMANDHANDLERDELETE_CREATECOMMANDL_ENTRY );
+    Q_UNUSED(aCommandId);
+    Q_UNUSED(aConsume);
+    CMPXCollectionPath* path = aMediaList.PathLC(
+            NGlxListDefs::EPathFocusOrSelection);
     CMPXCommand* command = TGlxCommandFactory::DeleteCommandLC(*path);
     CleanupStack::Pop(command);
     CleanupStack::PopAndDestroy(path);
+    OstTraceFunctionExit0( GLXCOMMANDHANDLERDELETE_CREATECOMMANDL_EXIT );
     return command;
-}
+    }
+
+QString GlxCommandHandlerDelete::CompletionTextL() const
+    {
+    return QString("Item deleted!");
+    }
+
+QString GlxCommandHandlerDelete::ProgressTextL() const
+    {
+    return QString("Deleting...");
+    }
+
+QString GlxCommandHandlerDelete::ConfirmationTextL(bool multiSelection ) const
+    {
+    QString retString;
+    if(multiSelection)
+        {
+        retString = QString("Delete selected images");
+        }
+    else
+        {
+        retString = QString("Delete ");
+        }
+    return  retString;   
+    }    
+    

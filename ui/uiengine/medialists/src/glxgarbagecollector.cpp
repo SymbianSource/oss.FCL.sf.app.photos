@@ -365,7 +365,7 @@ void CGlxGarbageCollector::GetAttributesInUseL( const CGlxMedia& aMedia,
 // Delete all attributes from a media object except those specified
 // -----------------------------------------------------------------------------
 //
-void CGlxGarbageCollector::DeleteOtherAttributes( CGlxCache& aCache, CGlxMedia& aMedia, 
+void CGlxGarbageCollector::DeleteOtherAttributes( CGlxCache& /*aCache*/, CGlxMedia& aMedia, 
         const RArray<TMPXAttribute>& aAttributesToKeep ) const
     {
     TRACER("CGlxGarbageCollector::DeleteOtherAttributes");
@@ -374,17 +374,10 @@ void CGlxGarbageCollector::DeleteOtherAttributes( CGlxCache& aCache, CGlxMedia& 
     for ( TInt attrIndex = aMedia.Count() - 1; attrIndex >= 0; attrIndex-- )
         {
         // delete the attribute if it is not in use
-        const TMPXAttribute& attrib = aMedia.Attribute(attrIndex);
-        if ( KErrNotFound == aAttributesToKeep.Find( attrib, TMPXAttribute::Match ) )
+        if ( KErrNotFound == aAttributesToKeep.Find( aMedia.Attribute( attrIndex ), TMPXAttribute::Match ) )
             {
-            GLX_LOG_INFO( "CGlxGarbageCollector::DeleteOtherAttributes() - Deleted attribute" );
+            GLX_LOG_INFO( "CGlxGarbageCollector::CleanupMediaL - Deleted attribute" );
             aMedia.DeleteAttribute( attrIndex );
-            if (GlxThumbnailUtility::IsFullThumbnail(attrib))
-                {
-                GLX_DEBUG2("CGlxGarbageCollector::DeleteOtherAttributes(*** TN ***) aMediaId(%d)",
-                        aMedia.Id().Value());
-                aCache.CleanupMedia(aMedia.Id());
-                }
             }
         }
     }

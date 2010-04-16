@@ -31,4 +31,5 @@ EXPORTS
 	_ZNK15GlxStateManager10metaObjectEv @ 30 NONAME
 	_ZTI15GlxStateManager @ 31 NONAME
 	_ZTV15GlxStateManager @ 32 NONAME
+	_ZN15GlxStateManager20setFullScreenContextEv @ 33 NONAME
 

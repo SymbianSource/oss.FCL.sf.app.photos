@@ -20,6 +20,13 @@
 #include <QDebug>
 #include <hbicon.h>
 #include <QStringList>
+#include <QBrush>
+
+#include "glxicondefs.h" //Contains the icon names/Ids
+
+const QColor KListOddRowColor(211, 211, 211, 127);
+const QColor KListEvenRowColor(255, 250, 250, 127);
+
 
 GlxAlbumModel::GlxAlbumModel(GlxModelParm & modelParm):mContextMode(GlxContextInvalid)
 {
@@ -32,7 +39,7 @@ GlxAlbumModel::GlxAlbumModel(GlxModelParm & modelParm):mContextMode(GlxContextIn
     mContextMode = GlxContextSelectionList;
     
     //todo get this Default icon from some generic path and not directly.
-    mDefaultIcon = new HbIcon(":/data/All_default.png");
+     mDefaultIcon = new HbIcon(GLXICON_DEFAULT);
 
 	int err = connect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	qDebug("updateItem() connection status %d", err);
@@ -120,7 +127,18 @@ QVariant GlxAlbumModel::data(const QModelIndex &index, int role) const
                 return *itemIcon;
             }
         }
-		
+    case Qt::BackgroundRole:
+        {
+            if (rowIndex % 2 == 0)
+            {
+                return QBrush(KListEvenRowColor);
+            }
+            else
+            {
+                return QBrush(KListOddRowColor);
+            }
+        }
+
     case GlxFocusIndexRole :
         idx = getFocusIndex();
         return idx.row();
@@ -147,7 +165,14 @@ bool GlxAlbumModel::setData ( const QModelIndex & idx, const QVariant & value, i
             return TRUE;
         }
     }
-    
+
+    if ( GlxVisualWindowIndex == role ) {
+        if ( value.isValid() &&  value.canConvert <int> () ) {
+            mMLWrapper->setVisibleWindowIndex(  value.value <int> () );
+            return TRUE;
+        }
+    }
+
     if ( GlxSelectedIndexRole == role ) {
         if ( value.isValid() &&  value.canConvert <int> () ) {
             setSelectedIndex( index( value.value <int> (), 0) );
