@@ -239,7 +239,7 @@ void CGlxIVwrAppUi::HandleNavigationalStateChangedL()
 void CGlxIVwrAppUi::GetViewScoringIdsL( RArray<TUid>& aIds ) const
 {
 TRACER("void CGlxIVwrAppUi::GetViewScoringIdsL( RArray<TUid>& aIds ) const");
-
+    CleanupClosePushL(aIds);
 aIds.Reset(); // For maintenance safety
 
 // get current navigational state
@@ -249,10 +249,12 @@ CMPXCollectionPath* naviState = iNavigationalState->StateLC();
 // to be removed.added by gopa   
 if ( naviState->Levels() >= 1)
     {
-    if (iNavigationalState->ViewingMode() == NGlxNavigationalState::EBrowse) 
+        if (iNavigationalState->ViewingMode()
+                == NGlxNavigationalState::EBrowse)
         {
         // For image viewer collection, goto view mode
-        if (naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
+            if (naviState->Id() == TMPXItemId(
+                    KGlxCollectionPluginImageViewerImplementationUid))
             {
             aIds.AppendL( TUid::Uid(  KGlxViewingModeView ) );
             }
@@ -280,6 +282,7 @@ if( TUid::Null() != ViewScoringIdForNaviStateDepth( *naviState ) )
     }
 
 CleanupStack::PopAndDestroy( naviState );
+    CleanupStack::Pop(&aIds);
 }
 // ---------------------------------------------------------------------------
 // Handles the foreground events

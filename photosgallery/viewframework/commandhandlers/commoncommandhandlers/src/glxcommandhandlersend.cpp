@@ -24,7 +24,7 @@
 //  EXTERNAL INCLUDES
 #include <utf.h>							// for CnvUtfConverter
 #include <sendui.h>							// for CSendui
-#include <Sendnorm.rsg>						// for CSendui resources
+#include <sendnorm.rsg>						// for CSendui resources
 #include <SendUiConsts.h>					// for CSendui plugin type constants
 #include <CMessageData.h>					// for CMessageData
 #include <coemain.h>						// for CCoeEnv
@@ -63,13 +63,14 @@ namespace
 // Two-phased constructor.
 // ----------------------------------------------------------------------------
 EXPORT_C CGlxCommandHandlerSend* CGlxCommandHandlerSend::NewL(
-										MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem)
+		MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem,
+		const TDesC& aFileName)
 	{
 	GLX_FUNC("CGlxCommandHandlerSend::NewL");
-	CGlxCommandHandlerSend* self = 
-			new (ELeave) CGlxCommandHandlerSend(aMediaListProvider, aHasToolbarItem);
+	CGlxCommandHandlerSend* self = new (ELeave) CGlxCommandHandlerSend(
+			aMediaListProvider, aHasToolbarItem);
 	CleanupStack::PushL(self);
-	self->ConstructL();
+	self->ConstructL(aFileName);
 	CleanupStack::Pop(self);
 	return self;
 	}
@@ -84,28 +85,30 @@ CGlxCommandHandlerSend::CGlxCommandHandlerSend(MGlxMediaListProvider* aMediaList
 	// nothing to do
 	}			
 
+
+
 // ----------------------------------------------------------------------------
 // Symbian 2nd phase constructor can leave.
 // ----------------------------------------------------------------------------
-void CGlxCommandHandlerSend::ConstructL()
+void CGlxCommandHandlerSend::ConstructL(const TDesC& aFileName)
 	{
 	GLX_FUNC("CGlxCommandHandlerSend::ConstructL");
-	
+
 	iUiUtility = CGlxUiUtility::UtilityL();
 	iSendUi = CSendUi::NewL();
-	
-	LoadRscFileL();
-	
+
+	LoadRscFileL(aFileName);
+
 	// add the Send command
-   	TCommandInfo info(EGlxCmdSend);
-    info.iMinSelectionLength = 1;
-    info.iMaxSelectionLength = KMaxTInt;
-   	AddCommandL(info);
-	
-   	TCommandInfo singleclickinfo(EGlxCmdSingleClickSend);
-   	singleclickinfo.iMinSelectionLength = 1;
-   	singleclickinfo.iMaxSelectionLength = KMaxTInt;
-    AddCommandL(singleclickinfo);
+	TCommandInfo info(EGlxCmdSend);
+	info.iMinSelectionLength = 1;
+	info.iMaxSelectionLength = KMaxTInt;
+	AddCommandL(info);
+
+	TCommandInfo singleclickinfo(EGlxCmdSingleClickSend);
+	singleclickinfo.iMinSelectionLength = 1;
+	singleclickinfo.iMaxSelectionLength = KMaxTInt;
+	AddCommandL(singleclickinfo);
 	}	
 	
 
@@ -363,20 +366,15 @@ void CGlxCommandHandlerSend::SendSelectedItemsL()
 	
 
 
+
 // ----------------------------------------------------------------------------
 // LoadRscFileL
 // ----------------------------------------------------------------------------
-void CGlxCommandHandlerSend::LoadRscFileL()
+void CGlxCommandHandlerSend::LoadRscFileL(const TDesC& aFileName)
 	{
 	GLX_FUNC("CGlxCommandHandlerSend::LoadRscFileL");
-
-	TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
-    CCoeEnv* env = CCoeEnv::Static(); 
-   	iResourceOffset = env->AddResourceFileL(resourceFile);
+	CCoeEnv* env = CCoeEnv::Static();
+	iResourceOffset = env->AddResourceFileL(aFileName);
 	}
 
 
@@ -423,4 +421,24 @@ TBool CGlxCommandHandlerSend::DoIsDisabled(TInt aCommandId,
     
     return ETrue;
     }
+
+// ----------------------------------------------------------------------------
+// HandleItemSelectedL
+// ----------------------------------------------------------------------------
+//
+void CGlxCommandHandlerSend::HandleItemSelectedL(TInt /*aIndex*/,
+        TBool /*aSelected*/, MGlxMediaList* aList)
+    {
+    GLX_FUNC("CGlxCommandHandlerSend::HandleItemSelectedL");
+    if (aList->SelectionCount() > 0 && iUiUtility->GetGridToolBar())
+        {
+        iUiUtility->GetGridToolBar()->SetItemDimmed(EGlxCmdSend, EFalse,
+                ETrue);
+        }
+    else
+        {
+        iUiUtility->GetGridToolBar()->SetItemDimmed(EGlxCmdSend, ETrue, ETrue);
+        }
+    }
+
 // End of file		

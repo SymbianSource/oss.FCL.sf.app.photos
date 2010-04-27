@@ -67,6 +67,10 @@
 #include <glxtexturemanager.h>
 #include <glxerrormanager.h>             
 #include <glxthumbnailattributeinfo.h>   
+#include <glxicons.mbg>
+#include <AknIconUtils.h>
+#include <glxuistd.h>
+
 namespace
     {
     _LIT(KShwSlideshowViewResource,"shwslideshowview.rsc");
@@ -201,8 +205,8 @@ TInt CShwSlideshowView::ShowProgressDialogL()
 	// Show the dialog, we show it non blocking so no use for the return value
 	iWaitDialog->RunLD();
 	// set the callback to be engine start
-	iAsyncCallBack->Set( 
-	    TShwCallBack< CShwSlideshowView, StartEngineL >( this ) );
+    iAsyncCallBack->Set(TShwCallBack<CShwSlideshowView,
+            &CShwSlideshowView::StartEngineL> (this));
     // if both lists are ready
     if( iInputListReady && iPlayListReady )
         {
@@ -325,7 +329,9 @@ void CShwSlideshowView::ConstructL()
     
 	iEnv = iUiUtility->Env();
    	iDisplay = iUiUtility->Display();
-
+   	iScrnSize = iUiUtility->DisplaySize();
+   	iGridIconSize = iUiUtility->GetGridIconSize();
+   	
     // Construct the volume control
     iVolumeControl = CShwSlideshowVolumeControl::
         NewL( *iEnv,
@@ -354,8 +360,8 @@ void CShwSlideshowView::ConstructL()
     iPopulateListCallBack = new( ELeave )
         CAsyncCallBack( CActive::EPriorityStandard );
     // set the callback for the media list population
-    iPopulateListCallBack->Set(
-        TShwCallBack< CShwSlideshowView, PopulateListL >( this ) );
+    iPopulateListCallBack->Set(TShwCallBack<CShwSlideshowView,
+            &CShwSlideshowView::PopulateListL> (this));
     iMSKPressed = EFalse;
     iLSKPressed = EFalse;
     }
@@ -434,6 +440,10 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
 		{
 	    iHdmiController = CGlxHdmiController::NewL();
 		}
+	if(!iTvConnection)
+		{
+		iTvConnection = CGlxTv::NewL( *this );
+		}
     // Engine related construction
     // Instantiate the slideshow engine, with this class as its observer
     __ASSERT_DEBUG( !iEngine, Panic( EGlxPanicAlreadyInitialised ) );
@@ -464,8 +474,8 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
 
     // Request asynch callback that will end up in ShowProgressDialogL
     // once the active scheduler runs
-    iAsyncCallBack->Set( 
-        TShwCallBack< CShwSlideshowView, ShowProgressDialogL >( this ) );
+    iAsyncCallBack->Set(TShwCallBack<CShwSlideshowView,
+            &CShwSlideshowView::ShowProgressDialogL> (this));
     iAsyncCallBack->CallBack();
 
     iDisplay->Roster().ShowL( *iGestureControlGroup,KAlfRosterShowAtTop );
@@ -493,6 +503,11 @@ void CShwSlideshowView::DoViewDeactivate()
         GLX_LOG_INFO( "CShwSlideshowView::DoViewDeactivate() - delete hdmicontroller" );
         delete iHdmiController;
         iHdmiController = NULL;
+        }
+    if(iTvConnection)
+        {
+        delete iTvConnection;
+        iTvConnection = NULL;
         }
 
     //check if we have engine active object starting
@@ -1291,8 +1306,60 @@ void CShwSlideshowView::SetItemToHDMIL()
     if ( (item.Category() != EMPXVideo) 
             && (error == KErrNone) )
         {
-        GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Setting the Image");
-        iHdmiController->SetImageL(item.Uri());
+        GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Fetch FS thumbnail");
+        TMPXAttribute fsTnAttrib = TMPXAttribute(KGlxMediaIdThumbnail,
+                GlxFullThumbnailAttributeId(ETrue, iScrnSize.iWidth,
+                        iScrnSize.iHeight));
+        const CGlxThumbnailAttribute* fsValue = item.ThumbnailAttribute(
+                fsTnAttrib);
+        if (fsValue)
+            {
+            GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Setting FS Bitmap");
+            CFbsBitmap* fsBitmap = new (ELeave) CFbsBitmap;
+            CleanupStack::PushL(fsBitmap);
+            fsBitmap->Duplicate( fsValue->iBitmap->Handle());
+            
+            GLX_LOG_INFO2("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - FS Bitmap Size width=%d, height=%d", 
+                    fsBitmap->SizeInPixels().iWidth, fsBitmap->SizeInPixels().iHeight);
+            iHdmiController->SetImageL(item.Uri(),fsBitmap);
+            CleanupStack::PopAndDestroy(fsBitmap);
+            }
+        else
+            {
+            GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Fetch Grid thumbnail");
+            TMPXAttribute gridTnAttrib = TMPXAttribute(KGlxMediaIdThumbnail,
+                    GlxFullThumbnailAttributeId(ETrue, iGridIconSize.iWidth,
+                            iGridIconSize.iHeight));
+            const CGlxThumbnailAttribute* gridvalue = item.ThumbnailAttribute(
+                    gridTnAttrib);
+
+            if (gridvalue)
+                {
+                GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Setting Grid Bitmap");
+                CFbsBitmap* gridBitmap = new (ELeave) CFbsBitmap;
+                CleanupStack::PushL(gridBitmap);
+                gridBitmap->Duplicate( gridvalue->iBitmap->Handle());
+                
+                GLX_LOG_INFO2("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - gridBitmap Size width=%d, height=%d", 
+                        gridBitmap->SizeInPixels().iWidth, gridBitmap->SizeInPixels().iHeight);
+                iHdmiController->SetImageL(item.Uri(),gridBitmap);
+                CleanupStack::PopAndDestroy(gridBitmap);
+                }
+            else
+                {
+                GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Setting Null Bitmap");
+                TFileName resFile(KDC_APP_BITMAP_DIR);
+                resFile.Append(KGlxIconsFilename);
+                CFbsBitmap* defaultBitmap = new (ELeave) CFbsBitmap;
+                CleanupStack::PushL(defaultBitmap);
+                defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                        EMbmGlxiconsQgn_prop_image_notcreated);
+                GLX_LOG_INFO2("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Default Size width=%d, height=%d", 
+                        defaultBitmap->SizeInPixels().iWidth, defaultBitmap->SizeInPixels().iHeight);
+                iHdmiController->SetImageL(item.Uri(),defaultBitmap);
+                CleanupStack::PopAndDestroy(defaultBitmap); 
+                }
+            }
         }
     else
         {
@@ -1371,4 +1438,26 @@ void CShwSlideshowView::HandleMMCRemovalL()
     ProcessCommandL(EAknSoftkeyExit);
     }
 
+// ---------------------------------------------------------------------------
+//
+// HandleTvStatusChangedL
+// ---------------------------------------------------------------------------
+//
+void CShwSlideshowView::HandleTvStatusChangedL(TTvChangeType aChangeType )
+	{
+	TRACER("CShwSlideshowView::HandleTvConnectionStatusChangedL");
+    // This is a common function for both HDMI and TV-out status changes 
+    // (see CGlxTv::HandleTvConnectionStatusChangedL)
+    if ((aChangeType == ETvConnectionChanged)
+            && (!iTvConnection->IsHDMIConnected()
+                   	&& !iTvConnection->IsConnected()))
+	         {
+                 GLX_LOG_INFO("CShwSlideshowView::HandleTvConnectionStatusChangedL- Acessory Not Connected");
+	         //Issue pause command if not already paused
+                 if (!iPauseHandler->IsSlideShowEngineStatePaused())
+                    {
+	              ProcessCommandL(EShwSlideshowCmdPause);
+	            }
+		}
+	}
 

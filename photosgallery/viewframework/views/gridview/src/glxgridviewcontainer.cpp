@@ -182,6 +182,9 @@ void CGlxGridViewContainer::ConstructL()
 			GlxFullThumbnailAttributeId( EFalse,  iGridIconSize.iWidth,
 					iGridIconSize.iHeight ) );
 	CreateGridL();
+ 
+   iIsDialogLaunched = EFalse;
+   iIsMMCRemoved = EFalse;
 
    iMMCNotifier = CGlxMMCNotifier::NewL(*this);
 	}
@@ -931,9 +934,19 @@ TBool CGlxGridViewContainer::HandleViewCommandL(TInt aCommand)
 				{
 				iHgGrid->InitScreenL(GetHgGridRect());
 				}
+			if (iIsDialogLaunched && iIsMMCRemoved)
+			    {
+                iGlxGridViewObserver.HandleGridEventsL(EAknSoftkeyExit);
+			    }
 			retVal = ETrue;
+			iIsDialogLaunched = EFalse;
 			break;
 			}
+		case EGlxCmdDialogLaunched:
+		    {
+		    iIsDialogLaunched = ETrue;
+            break;
+   		    }
 		default:
 			break;
 		}
@@ -987,6 +1000,10 @@ void CGlxGridViewContainer::HandleMMCInsertionL()
 void CGlxGridViewContainer::HandleMMCRemovalL()
     {
     TRACER("CGlxGridViewContainer::HandleMMCRemovalL()");
-    iGlxGridViewObserver.HandleGridEventsL(EAknSoftkeyExit);
+    iIsMMCRemoved = ETrue;
+    if(!iIsDialogLaunched)
+        {
+        iGlxGridViewObserver.HandleGridEventsL(EAknSoftkeyExit);
+        }
     }
 //end of file

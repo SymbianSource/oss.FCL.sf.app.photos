@@ -592,10 +592,9 @@ void T_CShwZoomAndPanEffect::T_ZoomAndPanTestL()
 	// create timer to give us callback
 	TShwAutoPtr< CPeriodic > timer = CPeriodic::NewL( CActive::EPriorityStandard );
 	// wait for 1.5 seconds (to be sure the zoom completes)
-	timer->Start( 
-		1.5 * 1000000, 
-		1.5 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+    timer->Start(1.5 * 1000000, 1.5 * 1000000, TShwCallBack<
+            T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL> (
+            this));
 	// start async wait
 	iAsyncWait.Start();
 
@@ -620,10 +619,9 @@ void T_CShwZoomAndPanEffect::T_ZoomAndPanTestL()
 	// cancel old timer
 	timer->Cancel();
 	// wait for 1.5 seconds (to be sure the zoom completes)
-	timer->Start( 
-		1.5 * 1000000, 
-		1.5 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+    timer->Start(1.5 * 1000000, 1.5 * 1000000, TShwCallBack<
+            T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL> (
+            this));
 	// start async wait
 	iAsyncWait.Start();
 
@@ -682,10 +680,9 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	// create timer to give us callback
 	TShwAutoPtr< CPeriodic > timer = CPeriodic::NewL( CActive::EPriorityStandard );
 	// start asynch wait for 1.5 second
-	timer->Start( 
-		1.5 * 1000000, 
-		1.5 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+    timer->Start(1.5 * 1000000, 1.5 * 1000000, TShwCallBack<
+            T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL> (
+            this));
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer
@@ -716,10 +713,9 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	iCShwZoomAndPanEffect->Resume();
 	
 	// start timer for 1.5 seconds
-	timer->Start( 
-		1.5 * 1000000, 
-		1.5 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+    timer->Start(1.5 * 1000000, 1.5 * 1000000, TShwCallBack<
+            T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL> (
+            this));
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer
@@ -755,10 +751,9 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	// run the layout to get values
 	layout->SetLayoutValues( info );
 	// start timer for .1 seconds, to make sure opacity does not run too fast
-	timer->Start( 
-		0.1 * 1000000, 
-		0.1 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+    timer->Start(0.1 * 1000000, 0.1 * 1000000, TShwCallBack<
+            T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL> (
+            this));
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer
@@ -783,10 +778,9 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	// run the layout to get values
 	layout->SetLayoutValues( info2 );
 	// start timer for 1.0 seconds
-	timer->Start( 
-		1.0 * 1000000, 
-		1.0 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+    timer->Start(1.0 * 1000000, 1.0 * 1000000, TShwCallBack<
+            T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL> (
+            this));
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer
@@ -813,10 +807,9 @@ void T_CShwZoomAndPanEffect::T_PauseTestL()
 	// now do the resume
 	iCShwZoomAndPanEffect->Resume();
 	// start timer for 1.0 seconds
-	timer->Start( 
-		1.0 * 1000000, 
-		1.0 * 1000000, 
-		TShwCallBack< T_CShwZoomAndPanEffect, CancelAsyncL >( this ) );
+    timer->Start(1.0 * 1000000, 1.0 * 1000000, TShwCallBack<
+            T_CShwZoomAndPanEffect, &T_CShwZoomAndPanEffect::CancelAsyncL> (
+            this));
 	// start async wait
 	iAsyncWait.Start();
 	// cancel the timer

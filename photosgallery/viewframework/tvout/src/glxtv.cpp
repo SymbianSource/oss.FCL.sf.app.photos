@@ -159,9 +159,9 @@ void CGlxTv::CGlxTvOutCenRepMonitor::ConstructL()
 	TRACER("CGlxTv::CGlxTvOutCenRepMonitor::ConstructL");
     CActiveScheduler::Add( this );
 #ifdef __MARM
-    CGSServerEngine* aGSServerEngine= CGSServerEngine::NewLC();
-    iSettingsTVAspectRatio = aGSServerEngine->AspectRatioL();
-    CleanupStack::Pop(aGSServerEngine);
+    CGSServerEngine* gsServerEngine= CGSServerEngine::NewLC();
+    iSettingsTVAspectRatio = gsServerEngine->AspectRatioL();
+    CleanupStack::Pop(gsServerEngine);
 #else
     iSettingsTVAspectRatio = 0;
 #endif
@@ -388,9 +388,9 @@ void CGlxTv::CalcTvScreenSzL()
     iAspectRatio  = KErrNotFound;
    
 #ifdef __MARM
-    CGSServerEngine* aGSServerEngine = CGSServerEngine::NewLC();
-    iAspectRatio = aGSServerEngine->AspectRatioL();
-    CleanupStack::Pop(aGSServerEngine);
+    CGSServerEngine* gsServerEngine = CGSServerEngine::NewLC();
+    iAspectRatio = gsServerEngine->AspectRatioL();
+    CleanupStack::Pop(gsServerEngine);
 	User::LeaveIfError( iAspectRatio );
 #else
 	iAspectRatio = 0;

@@ -35,6 +35,7 @@
 
 const TInt KBytesInKB = 1024;
 const TInt KBytesInMB = 1024 * 1024;
+const TInt KBytesInGB = 1024 * 1024 * 1024;
 _LIT( KBlankText, " " );
 
 
@@ -216,10 +217,15 @@ EXPORT_C void CGlxUStringConverter::AsStringL(const TGlxMedia& aMedia, const TMP
 void CGlxUStringConverter::GetFormattedItemSizeL(const CGlxMedia& aMedia, HBufC*& aString) const
  	{
  	TRACER("CGlxUStringConverter::GetFormattedItemSizeL");
-    TInt size(0);
+    TUint size(0);
     if(aMedia.GetValueTObject( size, KMPXMediaGeneralSize ))
         {
-		if(size >= KBytesInMB)
+        if(size >= KBytesInGB)
+            {
+            TInt gbSize = size / KBytesInGB ; // Size in GB
+            aString = StringLoader::LoadL(R_QTN_SIZE_GB, gbSize);
+            }
+        else if(size >= KBytesInMB)
             {
             TInt mbSize = size / KBytesInMB ; // Size in MB
         	aString = StringLoader::LoadL(R_QTN_SIZE_MB, mbSize);

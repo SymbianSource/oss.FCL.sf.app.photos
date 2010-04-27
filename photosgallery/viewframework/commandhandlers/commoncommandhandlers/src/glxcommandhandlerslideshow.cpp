@@ -56,16 +56,18 @@ namespace
 // ---------------------------------------------------------------------------
 //
 EXPORT_C CGlxCommandHandlerSlideshow* CGlxCommandHandlerSlideshow::NewL(
-    MGlxMediaListProvider* aMediaListProvider, TBool aStepBack, TBool aHasToolbarItem )
-    {
-    TRACER( "CGlxCommandHandlerSlideshow::NewL" );
-    CGlxCommandHandlerSlideshow* self = new ( ELeave )
-    	CGlxCommandHandlerSlideshow(aMediaListProvider, aStepBack, aHasToolbarItem);
-    CleanupStack::PushL( self );
-    self->ConstructL();
-    CleanupStack::Pop( self );
-    return self;
-    }
+		MGlxMediaListProvider* aMediaListProvider, TBool aStepBack,
+		TBool aHasToolbarItem, const TDesC& aFileName)
+	{
+	TRACER( "CGlxCommandHandlerSlideshow::NewL" );
+	CGlxCommandHandlerSlideshow* self =
+			new (ELeave) CGlxCommandHandlerSlideshow(aMediaListProvider,
+					aStepBack, aHasToolbarItem);
+	CleanupStack::PushL(self);
+	self->ConstructL(aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
 
 // ---------------------------------------------------------------------------
 // C++ default constructor can NOT contain any code, that
@@ -79,66 +81,61 @@ CGlxCommandHandlerSlideshow::CGlxCommandHandlerSlideshow( MGlxMediaListProvider*
     // Do nothing
     }
  
+
 // ---------------------------------------------------------------------------
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerSlideshow::ConstructL()
-    {
-    TRACER( "CGlxCommandHandlerSlideshow::ConstructL" );
-    
-    // Get a handle 
-    iUiUtility = CGlxUiUtility::UtilityL();
+void CGlxCommandHandlerSlideshow::ConstructL(const TDesC& aFileName)
+	{
+	TRACER( "CGlxCommandHandlerSlideshow::ConstructL" );
 
-    // Load resource file
-	TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
-   	iResourceOffset = CCoeEnv::Static()->AddResourceFileL( resourceFile );
+	// Get a handle 
+	iUiUtility = CGlxUiUtility::UtilityL();
 
-    iShowInToolbar = ETrue;
+	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
 
-   	// Add supported commands with filter fields
-   	// Play slideshow forwards
-   	TCommandInfo info( EGlxCmdSlideshowPlay );
-   	// Disable for static items and dont enable empty slideshow
-    info.iMinSelectionLength = 1;
-   	// Enable only for albums that have more than one item
-    info.iMinSlideshowPlayableContainedItemCount = 1;
-    // Disable for animated GIFs
-    info.iDisallowAnimatedGIFs = ETrue;
-    // Disable DRM protected content
-    info.iDisallowDRM = ETrue;
-    // Note: cannot just require all to be images as user can also start 
-    // slideshow for a whole album from list view and in that case
-    // selection contains a container
+	iShowInToolbar = ETrue;
+
+	// Add supported commands with filter fields
+	// Play slideshow forwards
+	TCommandInfo info(EGlxCmdSlideshowPlay);
+	// Disable for static items and dont enable empty slideshow
+	info.iMinSelectionLength = 1;
+	// Enable only for albums that have more than one item
+	info.iMinSlideshowPlayableContainedItemCount = 1;
+	// Disable for animated GIFs
+	info.iDisallowAnimatedGIFs = ETrue;
+	// Disable DRM protected content
+	info.iDisallowDRM = ETrue;
+	// Note: cannot just require all to be images as user can also start 
+	// slideshow for a whole album from list view and in that case
+	// selection contains a container
 	// Disable all videos
 	TMPXGeneralCategory categoryFilter = EMPXVideo;
 	// Disable the command for videos
 	TCommandInfo::TCategoryRule categoryRule = TCommandInfo::EForbidAll;
 	info.iCategoryFilter = categoryFilter;
 	info.iCategoryRule = categoryRule;
-   	AddCommandL( info );
-   	
-    // new info to get the default filters
-   	TCommandInfo info_show_always( EGlxCmdSlideshowSettings );
-   	// Disable for empty views and views with only static items
-    info_show_always.iMinSelectionLength = 1;
-   	// slideshow settings
-   	AddCommandL( info_show_always );
+	AddCommandL(info);
 
-   	// Menu
-   	info_show_always.iCommandId = EGlxCmdSlideshow;
-   	AddCommandL( info_show_always );
+	// new info to get the default filters
+	TCommandInfo info_show_always(EGlxCmdSlideshowSettings);
+	// Disable for empty views and views with only static items
+	info_show_always.iMinSelectionLength = 1;
+	// slideshow settings
+	AddCommandL(info_show_always);
 
-    // Dummy command to get UPnP state
-    TCommandInfo infoUpnpState( EGlxCmdShowViaUpnpStateChanged );
-    AddCommandL( infoUpnpState );
+	// Menu
+	info_show_always.iCommandId = EGlxCmdSlideshow;
+	AddCommandL(info_show_always);
 
-   	// Buffer
-   	iBufFlat = CBufFlat::NewL( KShwDefaultBufferSize );
+	// Dummy command to get UPnP state
+	TCommandInfo infoUpnpState(EGlxCmdShowViaUpnpStateChanged);
+	AddCommandL(infoUpnpState);
+
+	// Buffer
+	iBufFlat = CBufFlat::NewL(KShwDefaultBufferSize);
 	}
 
 // ---------------------------------------------------------------------------
@@ -277,6 +274,8 @@ TBool CGlxCommandHandlerSlideshow::DoExecuteL(TInt aCommandId,
 			// framework) is activated & deactivated respectively.
 			// Activating and deactivating the HUI within the Settings 
 			// Dialog class will cause a Cone 8 panic.
+			
+			iAvkonAppUi->ProcessCommandL(EGlxCmdDialogLaunched);
 			
 			// hide HUI display
 			CGlxUiUtility::HideAlfDisplayL();

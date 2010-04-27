@@ -51,13 +51,15 @@ NONSHARABLE_CLASS (CGlxCommandHandlerSend) : public CGlxMediaListCommandHandler,
 	{
 public:  // Constructors and destructor
 	/**
-	* Two-phased constructor.
-    * @param aMediaListProvider pointer to media list owner
-    * @param aHasToolbarItem Whether Command Should be toolbar item (ETrue - if toolbar item)
-    * @return pointer to CGlxCommandHandlerSend object
-    */
-	IMPORT_C static CGlxCommandHandlerSend* NewL( 
-				MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem );
+	 * Two-phased constructor.
+	 * @param aMediaListProvider pointer to media list owner
+	 * @param aHasToolbarItem Whether Command Should be toolbar item (ETrue - if toolbar item)
+	 * @param aFileName resource file
+	 * @return pointer to CGlxCommandHandlerSend object
+	 */
+	IMPORT_C static CGlxCommandHandlerSend* NewL(
+			MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem,
+			const TDesC& aFileName);
     
     /**
     * Destructor.
@@ -73,9 +75,9 @@ protected:
 
 private:
 	/**
-    * Symbian 2nd phase constructor
-	*/
-    void ConstructL();
+	 * Symbian 2nd phase constructor
+	 */
+	void ConstructL(const TDesC& aFileName);
 
     /**
     * C++ default constructor.
@@ -157,11 +159,10 @@ private:  // From MGlxMediaListObserver
     				TInt aOldIndex, MGlxMediaList* aList);
 
     /**
-    * not implemented
 	* @ref MGlxMediaListObserver::HandleItemSelectedL
 	*/
-    void HandleItemSelectedL(TInt /*aIndex*/, TBool /*aSelected*/, 
-    							MGlxMediaList* /*aList*/){};
+    void HandleItemSelectedL(TInt aIndex, TBool aSelected, 
+    							MGlxMediaList* aList);
 
     /**
     * not implemented
@@ -190,9 +191,10 @@ private: // methods local to class
 	void SendSelectedItemsL();
 	
 	/**
-	* Load the resource file
-	*/
-	void LoadRscFileL();	
+	 * Load the resource file
+	 * @param aFileName resource file
+	 */
+	void LoadRscFileL(const TDesC& aFileName);	
 
 	/**
 	* Return the static capabilities for sending a media item

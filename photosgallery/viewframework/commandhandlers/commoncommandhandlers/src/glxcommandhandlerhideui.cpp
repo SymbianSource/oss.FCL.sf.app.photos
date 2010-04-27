@@ -110,7 +110,8 @@ TBool CGlxCommandHandlerHideUi::ExecuteL(TInt aCommand)
 // DynInitMenuPaneL
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerHideUi::DynInitMenuPaneL(TInt /*aResourceId*/, CEikMenuPane* aMenuPane)
+void CGlxCommandHandlerHideUi::DynInitMenuPaneL(TInt /*aResourceId*/, CEikMenuPane* aMenuPane,
+        TBool /*aIsBrowseMode*/)
     {
     if ( !iCommandAvailable && aMenuPane )
         {

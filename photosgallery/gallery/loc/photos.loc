@@ -65,6 +65,12 @@
 // d:In English language, "home network" should be shortened to "home net." if the longer version does not fit.
 
 
+//d: Title of the Photos app shown in matrix menu.
+//d: This is provided as part of the app registration file.
+//l: cell_app_pane_t1
+//r: 11.0
+#define qtn_lgal_photos_app_title "Photos"
+
 
 // d:Delete single item confirmation note
 // d:%U will be replaced with name of item about to be deleted
@@ -1050,6 +1056,12 @@
 //
 #define qtn_lgal_tooltip_save       "Save"
 
+// d:Option menu item to save the image.
+// l:list_single_pane_t1_cp2
+// r:11.0
+//
+#define qtn_lgal_options_save	   "Save"
+
 // d:Tooltip displayed when user focuses on use-image icon in the toolbar.
 // d:This submenu option enables the image to be set as wallpaper, as caller image, and so on
 // l:toolbar_text_tooltip
@@ -1180,7 +1192,7 @@
 //-----------------------------------------------------------------------------
 //
 // d:slideshow settings view title text
-// l:title_pane_t2/opt9
+// l:title_pane_t1/opt3
 // r:4.0
 //
 #define qtn_lgal_view_slideshow_settings_title_general  "Slide show settings"

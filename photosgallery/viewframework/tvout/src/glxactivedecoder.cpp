@@ -57,10 +57,12 @@ void CGlxHdmiDecoderAO::RunL()
     TRACER("CGlxHdmiDecoderAO::RunL()");
     if(iStatus == KErrUnderflow)
         {
+        GLX_LOG_INFO("CGlxHdmiDecoderAO::RunL() - call continueconvert");
         iDecoder->ContinueConvert(&iStatus);
         }
     else
         {
+        GLX_LOG_INFO("CGlxHdmiDecoderAO::RunL() - call handlerunL");
         iHdmiSurfaceUpdater->HandleRunL(iStatus);
         }
     }

@@ -94,19 +94,24 @@ CGlxAlbumGridViewPlugin::~CGlxAlbumGridViewPlugin()
 
     
 void CGlxAlbumGridViewPlugin::AddCommandHandlersL()
-    {
-    CGlxGridViewPluginBase::AddCommandHandlersL();
-    // Remove from Album
-    ///@todo this should only be added to the albums view plugin.
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(iGridView, EMPXAlbum));     
-    
-    TGlxHelpContext helpInfo;
-    helpInfo.iBrowseContext = LGAL_HLP_ALBUM_GRID;
-    helpInfo.iViewContext = LGAL_HLP_ALBUM_FULLSCREEN;
-   
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo)); 
+	{
+	CGlxGridViewPluginBase::AddCommandHandlersL();
+	// Remove from Album
+	///@todo this should only be added to the albums view plugin.
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
 
-    }
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(iGridView,
+			EMPXAlbum, uiutilitiesrscfile));
+
+	TGlxHelpContext helpInfo;
+	helpInfo.iBrowseContext = LGAL_HLP_ALBUM_GRID;
+	helpInfo.iViewContext = LGAL_HLP_ALBUM_FULLSCREEN;
+
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
+
+	}
 
 
 

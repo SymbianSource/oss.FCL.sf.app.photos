@@ -96,8 +96,6 @@ EXPORT_C void CGlxListViewPluginBase::AddCommandHandlersL()
     
     iListView->AddCommandHandlerL(
                               CGlxCommandHandlerBack::NewBackCommandHandlerL());
-    iListView->AddCommandHandlerL(
-                              CGlxCommandHandlerShowViaUpnp::NewL(iListView, EFalse));
     }
 
 

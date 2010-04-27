@@ -348,7 +348,7 @@ MGlxLayout* CShwZoomAndPanEffect::EnterViewL(
 			zoom_and_pan_dur,
 			TShwCallBack< 
 				TShwZoomAndPanLayout, 
-				TShwZoomAndPanLayout::InvertZoom >( 
+                &TShwZoomAndPanLayout::InvertZoom >( 
 				&iImpl->iZoomAndPanLayout ) );
 		}
 	else

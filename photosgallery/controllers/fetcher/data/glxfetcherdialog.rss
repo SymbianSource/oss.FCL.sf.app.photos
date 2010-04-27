@@ -213,21 +213,6 @@ RESOURCE DIALOG r_modal_multi_dialog
   // Do not add any items
   }
 
-RESOURCE TBUF r_fetcher_empty_view_text
-    {
-    buf = qtn_lgal_empty_grid_no_items;
-    }
-
-RESOURCE TBUF r_fetcher_empty_view_text_image
-    {
-    buf = qtn_lgal_empty_grid_no_images;
-    }
-
-RESOURCE TBUF r_fetcher_empty_view_text_video
-    {
-    buf = qtn_lgal_empty_grid_no_videos;
-    }
-
 RESOURCE TBUF r_glx_softkey_cancel  { buf = text_softkey_cancel; }
 
 RESOURCE TBUF r_glx_marking_mark

@@ -39,6 +39,7 @@
 #include    <glxviewbase.rsg>
 #include    "glxuiutility.h"
 #include <glxscreenfurniture.h>
+#include <glxresourceutilities.h>                // for CGlxResourceUtilities
 /** Error Id EMPY-7MKDHP **/ 
 #include 	"mglxmetadatadialogobserver.h" 				//for call back to dailog
 
@@ -220,6 +221,7 @@ CGlxTagsBoundCommand* CGlxTagsBoundCommand::NewLC()
 	return self;
 	}
 	
+
 // ----------------------------------------------------------------------------
 // CGlxTagsBoundCommand::ConstructL
 // ----------------------------------------------------------------------------
@@ -227,8 +229,12 @@ CGlxTagsBoundCommand* CGlxTagsBoundCommand::NewLC()
 void CGlxTagsBoundCommand::ConstructL()
 	{
 	TRACER("CGlxTagsBoundCommand::ConstructL");
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
 	//create command handler
-	iAddToTag =  CGlxCommandHandlerAddToContainer::NewL(this, EGlxCmdAddTag, EFalse);
+	iAddToTag = CGlxCommandHandlerAddToContainer::NewL(this, EGlxCmdAddTag,
+			EFalse, uiutilitiesrscfile);
 	}
 	
 // ----------------------------------------------------------------------------
@@ -748,6 +754,7 @@ CGlxAlbumsBoundCommand* CGlxAlbumsBoundCommand::NewLC()
 	return self;
 	}
 	
+
 // ----------------------------------------------------------------------------
 // CGlxAlbumsBoundCommand::ConstructL
 // ----------------------------------------------------------------------------
@@ -755,8 +762,12 @@ CGlxAlbumsBoundCommand* CGlxAlbumsBoundCommand::NewLC()
 void CGlxAlbumsBoundCommand::ConstructL()
 	{
 	TRACER("CGlxAlbumsBoundCommand::ConstructL");
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
 	//create command handler
-	iAddToAlbum=  CGlxCommandHandlerAddToContainer::NewL(this, EGlxCmdAddToAlbum, EFalse );
+	iAddToAlbum = CGlxCommandHandlerAddToContainer::NewL(this,
+			EGlxCmdAddToAlbum, EFalse, uiutilitiesrscfile);
 	}
 	
 // ----------------------------------------------------------------------------

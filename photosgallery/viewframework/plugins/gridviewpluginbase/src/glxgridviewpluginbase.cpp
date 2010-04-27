@@ -44,6 +44,7 @@
 #include <glxcommandhandlervideoplayback.h>
 #include <glxcommandhandleropen.h>
 #include <glxtracer.h>
+#include <glxresourceutilities.h>                // for CGlxResourceUtilities
 #include <mpxcollectionpath.h>
 #include <mpxcollectionutility.h>
 #include <mpxmediageneraldefs.h>
@@ -112,117 +113,97 @@ EXPORT_C CAknView* CGlxGridViewPluginBase::ConstructViewLC()
 // ---------------------------------------------------------------------------
 //
 EXPORT_C void CGlxGridViewPluginBase::AddCommandHandlersL()
-    {
-    TRACER("CGlxGridViewPluginBase::AddCommandHandlersL()");
+	{
+	TRACER("CGlxGridViewPluginBase::AddCommandHandlersL()");
 #ifdef _DEBUG
-    TTime startTime;
-    GLX_LOG_INFO("CGlxGridViewPluginBase::AddCommandHandlersL()");	
-    startTime.HomeTime();
+	TTime startTime;
+	GLX_LOG_INFO("CGlxGridViewPluginBase::AddCommandHandlersL()");
+	startTime.HomeTime();
 #endif
-        
-    GLX_LOG_INFO( "Adding CGlxCommandHandlerSlideshow" );
-    iGridView->AddCommandHandlerL(
-                        CGlxCommandHandlerSlideshow::NewL( iGridView, ETrue , EFalse ) );
-    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerSend");
-                iGridView->AddCommandHandlerL(CGlxCommandHandlerSend::NewL(iGridView, ETrue));
-        
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Album");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
-                                NewAddToAlbumCommandHandlerL(iGridView, EFalse));   
-								    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Album SingleClick");
-        iGridView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
-                                NewAddToAlbumSingleClickCommandHandlerL(iGridView, EFalse));  
-    GLX_LOG_INFO("Adding CGlxCommandHandlerDetails");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerDetails::
-                                NewL(iGridView));
-                                
-    GLX_LOG_INFO("Adding CGlxCommandHandlerOpen");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerOpen::
-                                 NewL(iGridView));
-                            
-    GLX_LOG_INFO("Adding CGlxCommandHandlerDelete");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerDelete::
-                                NewL(iGridView, EFalse, EFalse));
-                                
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Tag");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
-                                NewAddToTagCommandHandlerL(iGridView, EFalse));
-								
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Tag Single Click");
-        iGridView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
-                                NewAddToTagSingleClickCommandHandlerL(iGridView, EFalse));
-    // The AIW service handlers 
-    // ShowMap must be the first one                           
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShowMap");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwShowMap::
-                                NewL(iGridView, iResourceIds.iMenuId));
-    // Assign must be the second one
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwAssign");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwAssign::
-                                NewL(iGridView, iResourceIds.iMenuId));
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::
-                                NewL(iGridView));
-    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit-Single Click");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::
-                                NewL(iGridView, ETrue));
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
 
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwPrintPreview");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwPrintPreview::
-                                NewL(iGridView, iResourceIds.iMenuId));
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShareOnOvi");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwShareOnOvi::
-                                NewL(iGridView, iResourceIds.iMenuId));    
-    // End of AIW service handlers                            
-    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerMarking");
-    iGridView->AddCommandHandlerL( CGlxCommandHandlerMarking::NewL(
-                                            iGridView, ETrue ) );
-                                                            
-    GLX_LOG_INFO("Adding CGlxCommandHandlerBack");
-    iGridView->AddCommandHandlerL(
-                    CGlxCommandHandlerBack::NewBackCommandHandlerL());
-    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerMoreInfo");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerMoreInfo::
-                                NewL(iGridView,EFalse));    				
-    GLX_LOG_INFO("Adding CGlxCommandHandlerHideUi");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerHideUi::NewL());
+	GLX_LOG_INFO( "Adding CGlxCommandHandlerSlideshow" );
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerSlideshow::NewL(iGridView,
+			ETrue, EFalse, uiutilitiesrscfile));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerSend");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerSend::NewL(iGridView,
+			ETrue, uiutilitiesrscfile));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Album");
+	iGridView->AddCommandHandlerL(
+			CGlxCommandHandlerAddToContainer::NewAddToAlbumCommandHandlerL(
+					iGridView, EFalse, uiutilitiesrscfile));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Album SingleClick");
+	iGridView->AddCommandHandlerL(
+			CGlxCommandHandlerAddToContainer::NewAddToAlbumSingleClickCommandHandlerL(
+					iGridView, EFalse, uiutilitiesrscfile));
+	GLX_LOG_INFO("Adding CGlxCommandHandlerDetails");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerDetails::NewL(iGridView,
+			uiutilitiesrscfile));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerOpen");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerOpen::NewL(iGridView));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerDelete");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerDelete::NewL(iGridView,
+			EFalse, EFalse, uiutilitiesrscfile));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Tag");
+	iGridView->AddCommandHandlerL(
+			CGlxCommandHandlerAddToContainer::NewAddToTagCommandHandlerL(
+					iGridView, EFalse, uiutilitiesrscfile));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Tag Single Click");
+	iGridView->AddCommandHandlerL(
+			CGlxCommandHandlerAddToContainer::NewAddToTagSingleClickCommandHandlerL(
+					iGridView, EFalse, uiutilitiesrscfile));
+	// The AIW service handlers 
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::NewL(iGridView));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit-Single Click");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::NewL(iGridView,
+			ETrue));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShareOnOvi");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwShareOnOvi::NewL(
+			iGridView, iResourceIds.iMenuId, uiutilitiesrscfile));
+	// End of AIW service handlers                            
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerMarking");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerMarking::NewL(iGridView,
+			ETrue));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerBack");
+	iGridView->AddCommandHandlerL(
+			CGlxCommandHandlerBack::NewBackCommandHandlerL());
 
 #ifdef GLX_GRID_VIEW_IMAGES_OR_VIDEOS_ONLY_FILTERING
-    iGridView->AddCommandHandlerL( CGlxCommandHandlerFilterImagesOrVideos::NewL( iGridView ) );
+	iGridView->AddCommandHandlerL( CGlxCommandHandlerFilterImagesOrVideos::NewL( iGridView ) );
 #endif
-    GLX_LOG_INFO("Adding CGlxCommandHandlerCopyToHomeNetwork");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerCopyToHomeNetwork::NewL(*iGridView));
-    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerUpload");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerUpload::NewL(iGridView, ETrue));    
-    
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerUpload");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerUpload::NewL(iGridView,
+			ETrue));
+
 	//Fix for error ID EVTY-7M87LF
 	//@ Registration of Video Playback Command handler has to before UPnP.
 	//@ else UPnP will not get play command once video playback command is consumed.
 	GLX_LOG_INFO("Adding CGlxCommandHandlerVideoPlayback");
-    iGridView->AddCommandHandlerL(
-                        CGlxCommandHandlerVideoPlayback::NewL( iGridView ) );
-
-	//Fix for error ID EVTY-7M87LF
-	//@ Registration of UPnP Command handler has to be after video play back command
-	//@ priorty of command handling is last registered in first server basis.
-	//@ UPnP will get play command first everytime, where it'll check for UPnP active.
-	//@ if UPnP is active it'll consume the event, else it'll allow other registered command to execute it.
-    GLX_LOG_INFO("Adding CGlxCommandHandlerShowVisUpnp");
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerShowViaUpnp::NewL(iGridView, ETrue));
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerVideoPlayback::NewL(
+			iGridView));
 
 #ifdef _DEBUG
-    TTime stopTime;
-    stopTime.HomeTime();
-    GLX_DEBUG2("CGlxGridViewPluginBase::AddCommandHandlersL() took <%d> us", 
-                    (TInt)stopTime.MicroSecondsFrom(startTime).Int64());
+	TTime stopTime;
+	stopTime.HomeTime();
+	GLX_DEBUG2("CGlxGridViewPluginBase::AddCommandHandlersL() took <%d> us",
+			(TInt)stopTime.MicroSecondsFrom(startTime).Int64());
 #endif    
-    }
+	}
 
 // ---------------------------------------------------------------------------
 // GetResourceFilenameL

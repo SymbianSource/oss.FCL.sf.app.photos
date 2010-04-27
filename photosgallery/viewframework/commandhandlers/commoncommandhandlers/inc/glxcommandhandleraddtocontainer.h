@@ -40,46 +40,63 @@ public:
 	/** 
 	 * Create add to album command handler 
 	 * @param aMediaListProvider object that provides the media list.
+     * @param aFileName resource file
 	 */
-    IMPORT_C static CGlxCommandHandlerAddToContainer* NewAddToAlbumCommandHandlerL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
+    IMPORT_C static CGlxCommandHandlerAddToContainer
+			* NewAddToAlbumCommandHandlerL(
+					MGlxMediaListProvider* aMediaListProvider,
+					TBool aHasToolbarItem, const TDesC& aFileName);
 
 	/** 
 	 * Create add to album command handler for singleclick
 	 * @param aMediaListProvider object that provides the media list.
+     * @param aFileName resource file
 	 */
-    IMPORT_C static CGlxCommandHandlerAddToContainer* NewAddToAlbumSingleClickCommandHandlerL(
-            MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
+	IMPORT_C static CGlxCommandHandlerAddToContainer
+			* NewAddToAlbumSingleClickCommandHandlerL(
+					MGlxMediaListProvider* aMediaListProvider,
+					TBool aHasToolbarItem, const TDesC& aFileName);
 
      /** 
-     * Create add (to) tags command handler 
-     * @param aMediaListProvider object that provides the media list.
-     */
-    IMPORT_C static CGlxCommandHandlerAddToContainer* NewAddToTagCommandHandlerL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
+	 * Create add (to) tags command handler 
+	 * @param aMediaListProvider object that provides the media list.
+     * @param aFileName resource file
+	 */
+	IMPORT_C static CGlxCommandHandlerAddToContainer
+			* NewAddToTagCommandHandlerL(
+					MGlxMediaListProvider* aMediaListProvider,
+					TBool aHasToolbarItem, const TDesC& aFileName);
 
      /** 
-     * Create add (to) tags command handler for singleclick
-     * @param aMediaListProvider object that provides the media list.
-     */
-    IMPORT_C static CGlxCommandHandlerAddToContainer* NewAddToTagSingleClickCommandHandlerL(
-            MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
+	 * Create add (to) tags command handler for singleclick
+	 * @param aMediaListProvider object that provides the media list.
+     * @param aFileName resource file
+	 */
+	IMPORT_C static CGlxCommandHandlerAddToContainer
+			* NewAddToTagSingleClickCommandHandlerL(
+					MGlxMediaListProvider* aMediaListProvider,
+					TBool aHasToolbarItem, const TDesC& aFileName);
 
     /** 
-    * Create add (to) Favourites command handler 
-    * @param aMediaListProvider object that provides the media list.
-    */
-   IMPORT_C static CGlxCommandHandlerAddToContainer* NewAddToFavCommandHandlerL(
-       MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);
+	 * Create add (to) Favourites command handler 
+	 * @param aMediaListProvider object that provides the media list.
+    * @param aFileName resource file
+	 */
+	IMPORT_C static CGlxCommandHandlerAddToContainer
+			* NewAddToFavCommandHandlerL(
+					MGlxMediaListProvider* aMediaListProvider,
+					TBool aHasToolbarItem, const TDesC& aFileName);
 
    /** 
-     * Two-phase constructor: 
-     * Prefer NewAddToAlbumCommandHandlerL or NewAddToTagsCommandHandlerL
-     * @param aMediaListProvider object that provides the media list.
-     * @param aCommand The command to handle.
-     */
-	IMPORT_C static CGlxCommandHandlerAddToContainer* NewL(MGlxMediaListProvider* aMediaListProvider,
-	                                                       TInt aCommandId, TBool aHasToolbarItem );
+	 * Two-phase constructor: 
+	 * Prefer NewAddToAlbumCommandHandlerL or NewAddToTagsCommandHandlerL
+	 * @param aMediaListProvider object that provides the media list.
+	 * @param aCommand The command to handle.
+     * @param aFileName resource file
+	 */
+	IMPORT_C static CGlxCommandHandlerAddToContainer* NewL(
+			MGlxMediaListProvider* aMediaListProvider, TInt aCommandId,
+			TBool aHasToolbarItem, const TDesC& aFileName);
 	    
     /** Destructor */
 	IMPORT_C ~CGlxCommandHandlerAddToContainer();
@@ -114,9 +131,9 @@ private:
 	/** 
 	 * Second phase constructor
 	 * @param aCommand The command to handle.
+     * @param aFileName resource file
 	 */
-	void ConstructL(TInt aCommandId);
-
+	void ConstructL(TInt aCommandId, const TDesC& aFileName);
 	
     /** 
      * First phase constructor 

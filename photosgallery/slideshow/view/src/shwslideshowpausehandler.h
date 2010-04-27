@@ -104,6 +104,12 @@ NONSHARABLE_CLASS( CShwSlideShowPauseHandler )
           * Informs the pause handler that MSK Preesed when slide show is running. 
           */
         void ToggleUiControlsVisibiltyL();
+        
+        /**
+         * Returns the slideshow engine paused state.
+         * @return ETrue, if slideshow engine is in paused state
+         */
+        TBool IsSlideShowEngineStatePaused();
 
     private: // Implementation
 

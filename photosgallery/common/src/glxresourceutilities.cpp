@@ -17,7 +17,6 @@
 
 
 
-
 //  CLASS HEADER
 #include "glxresourceutilities.h"
     
@@ -25,7 +24,9 @@
 #include <bautils.h>
 #include <AknUtils.h>
 #include <f32file.h>
+#include <data_caging_path_literals.hrh>
 
+_LIT(KGlxUiUtilitiesResource, "glxuiutilities.rsc");  
 //  INTERNAL INCLUDES
 
 // ---------------------------------------------------------------------------
@@ -67,5 +68,16 @@ EXPORT_C void CGlxResourceUtilities::GetResourceFilenameL( TFileName& aResFile, 
             }
         }
     }
+// ---------------------------------------------------------------------------
+// GetUiUtilitiesResourceFilenameL
+// ---------------------------------------------------------------------------
+//
+EXPORT_C TFileName CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL()
 
-
+    {
+    TParse parse;
+    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
+    TFileName resourceFile(parse.FullName());
+    GetResourceFilenameL(resourceFile);
+    return resourceFile;
+    }

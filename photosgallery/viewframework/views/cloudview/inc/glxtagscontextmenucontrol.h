@@ -40,8 +40,9 @@ public:
     virtual void HandleGridMenuListL(TInt aCommand) = 0;
     };
 
-class CGlxTagsContextMenuControl  : public CAlfControl, public MGlxTimerNotifier
-        
+class CGlxTagsContextMenuControl : public CAlfControl,
+        public MGlxTimerNotifier
+
     {
 public:
     /**     
@@ -49,30 +50,33 @@ public:
      *  @param aItemMenuObserver - handles the menu items in grid layout
      *  @return Pointer to newly created object
      */
-    static CGlxTagsContextMenuControl* NewL( MGlxItemMenuObserver& aItemMenuObserver );
+    static CGlxTagsContextMenuControl* NewL(
+            MGlxItemMenuObserver& aItemMenuObserver);
     /**     
      *  Perform the two phase construction
      *  @param aItemMenuObserver - handles the menu items in grid layout
      *  @return Pointer to newly created object
      */
-    static CGlxTagsContextMenuControl* NewLC( MGlxItemMenuObserver& aItemMenuObserver );
+    static CGlxTagsContextMenuControl* NewLC(
+            MGlxItemMenuObserver& aItemMenuObserver);
     /**
      * Destroy the object and release all memory objects
      */
     ~CGlxTagsContextMenuControl();
-    
-public://MGlxTimernotifier
+
+public:
+    //MGlxTimernotifier
     /**
      * Virtual Function from MGlxTimernotifier
      */
     void TimerComplete();
-    
+
 public:
     /**
      * Sets the grid layout on the screen with the Point specified
      * @param aPoint - Point from which grid has to be displayed
      */
-    void SetDisplay(const TPoint& aPoint);  
+    void SetDisplay(const TPoint& aPoint);
     /**
      * Hides/shows the grid layout
      * @param aOpacity - Opacity value
@@ -85,24 +89,24 @@ public:
     TBool ItemMenuVisibility();
 
     /**
-    * Sets the drawable screen rect 
-    * It also handles coordinates changed from Orientation
-    * @param aRect - rect area where the Tags are drawn
-    */
+     * Sets the drawable screen rect 
+     * It also handles coordinates changed from Orientation
+     * @param aRect - rect area where the Tags are drawn
+     */
     void SetViewableRect(TRect aRect);
-    
+
 private:
     /**     
      *  constructor 
      *  @param aItemMenuObserver - handles the menu items in grid layout
      */
-    CGlxTagsContextMenuControl( MGlxItemMenuObserver& aItemMenuObserver );
+    CGlxTagsContextMenuControl(MGlxItemMenuObserver& aItemMenuObserver);
 
     /** 
      *  Perform the second phase of two phase construction
      */
     void ConstructL();
-    
+
     /** 
      *  Creates the font 
      *  @return the fontId
@@ -113,11 +117,15 @@ private:
      *  @param aFontId - Sets the text style
      */
     void CreateMenuListL(TInt aFontId);
-    
+
     /** 
-    *  Calculates the maximum text width of menu items 
-    */
+     *  Calculates the maximum text width of menu items 
+     */
     void CalculateMaxWidth();
+    /** 
+     *  Draws the line separators in Stylus menu
+     */
+    void DrawLineSeparatorsL();
     /**     
      *  Perform the two phase construction
      *  @param  aEvent - key Event to handle
@@ -127,35 +135,35 @@ private:
     TBool OfferEventL(const TAlfEvent& aEvent);
 
 private:
-    
+
     //Observer to handle the menu items in grid layout
-    MGlxItemMenuObserver& iItemMenuObserver;          
-    
+    MGlxItemMenuObserver& iItemMenuObserver;
+
     //Grid layout, not owning
     CAlfGridLayout* iGrid;
     /** The Alf environment*/
     CAlfEnv* iAlfEnv;
-    
+
     //Slideshow text, not owning
-    CAlfTextVisual* iSlideshowTextVisual;     
-    
+    CAlfTextVisual* iSlideshowTextVisual;
+
     //Delete text, not owning
     CAlfTextVisual* iDeleteTextVisual;
-    
+
     //Rename text, not owning
-    CAlfTextVisual* iRenameTextVisual;        
-    
+    CAlfTextVisual* iRenameTextVisual;
+
     // Anchor Layout
-    CAlfAnchorLayout* iMainVisual;                
-   
+    CAlfAnchorLayout* iMainVisual;
+
     //variable used for providing delay
-    CGlxBubbleTimer* iTimer;                                 
-   
+    CGlxBubbleTimer* iTimer;
+
     //Viewable rect
-    TRect iViewableRect;                                    
-    
+    TRect iViewableRect;
+
     //flag for stylus menu visibility
-    TBool iItemMenuVisibility;                                         
+    TBool iItemMenuVisibility;
     //Maximum text width of a menu item
     TInt iMaxTextWidth;
     };

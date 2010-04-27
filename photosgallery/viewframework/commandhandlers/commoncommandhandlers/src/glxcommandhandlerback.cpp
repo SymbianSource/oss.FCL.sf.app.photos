@@ -284,7 +284,8 @@ TBool CGlxCommandHandlerBack::ExecuteL( TInt aCommandId )
 // -----------------------------------------------------------------------------
 //
 void CGlxCommandHandlerBack::DynInitMenuPaneL(TInt /*aResourceId*/, 
-												CEikMenuPane* /*aMenuPane*/)
+												CEikMenuPane* /*aMenuPane*/,
+												TBool /*aIsBrowseMode*/)
 	{
 	// Do Nothing		
 	}

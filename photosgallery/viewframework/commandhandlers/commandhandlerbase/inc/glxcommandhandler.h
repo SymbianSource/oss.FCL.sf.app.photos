@@ -51,8 +51,10 @@ public:
 	 * Modify a menu before it is displayed.
 	 * @param aResourceId The resource ID of the menu
 	 * @param aMenuPane The in-memory representation of the menu pane
+ 	 * @param aIsBrowseMode ETrue if in grid view
 	 */
-	virtual void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane) = 0;
+	virtual void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane,
+                                   TBool aIsBrowseMode) = 0;
 
 	/**
 	 * Called when the owning view is activated

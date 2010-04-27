@@ -156,7 +156,10 @@ void CShwSlideshowSettingsDialog::SetSlShwToolbarVisibility(TBool aVisible)
     TRACER("CShwSlideshowSettingsDialog::SetSlShwToolbarVisibility");
     CAknAppUi* appUi = iAvkonAppUi;
     __ASSERT_DEBUG(appUi, Panic(EGlxPanicNullPointer));
-
+    if (!appUi)
+        {
+        return;
+        }
     CAknToolbar* popupToolbar = appUi->PopupToolbar();
     if(popupToolbar)
         {

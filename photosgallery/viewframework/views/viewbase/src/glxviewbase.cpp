@@ -229,10 +229,17 @@ EXPORT_C void CGlxViewBase::DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMe
     
 	// Allow implementing view to filter menu first
 	ViewDynInitMenuPaneL(aResourceId, aMenuPane);
-	   
+
+	//Since the toolbar is set only incase of grid view we can assume that
+	//it is in browse mode.	   
+	TBool isBrowseMode = EFalse;
+    if(iUiUtility->GetGridToolBar())
+        {
+        isBrowseMode = ETrue;
+        } 
     for (TInt i = 0; i < count; i++ )
         {
-        iCommandHandlerList[i]->DynInitMenuPaneL( aResourceId, aMenuPane );
+        iCommandHandlerList[i]->DynInitMenuPaneL( aResourceId, aMenuPane, isBrowseMode );
         }
 	}
 

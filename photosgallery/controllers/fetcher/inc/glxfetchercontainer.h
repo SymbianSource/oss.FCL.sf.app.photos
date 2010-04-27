@@ -92,12 +92,6 @@ public:
      *  CreateAndDisplayGridL
      */
      void CreateAndDisplayGridL( ); 
-
-     /** 
-     * Creates and Displays appropriate empty Strings when no 
-     * items selected
-     */
-     void CreateEmptyDisplayL(TGlxFilterItemType aFilterType );
      
      /** 
       *  SetPreviousTitleL

@@ -161,7 +161,8 @@ public: // From MGlxCommandHandler
     IMPORT_C virtual TBool ExecuteL(TInt aCommand);
 
     /// See @ref MGlxCommandHandler::DynInitMenuPaneL */
-    IMPORT_C virtual void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
+    IMPORT_C virtual void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane,
+                                            TBool aIsBrowseMode);
     
     /**
      * See @ref MGlxCommandHandler::Deactivate 
@@ -327,6 +328,17 @@ private:
 	 */
     void GetRequiredAttributesL(RArray< TMPXAttribute >& aAttributes, 
                                      TBool aFilterUsingSelection) const;
+    
+	/**
+     * Check if the command handler is currently disabled in browse mode
+  	 * @param aCommandId command ID of the command.
+	 * @param aMediaList Medialist instance to check the counts
+ 	 * @param aIsContextItem ETrue if the current item is an context menu item.
+     */
+    TBool CGlxMediaListCommandHandler::CheckDisabledForBrowseModeL(
+													TInt aCommandId, 
+										            MGlxMediaList& aMediaList,
+													TBool aIsContextItem);
     
 private:
 

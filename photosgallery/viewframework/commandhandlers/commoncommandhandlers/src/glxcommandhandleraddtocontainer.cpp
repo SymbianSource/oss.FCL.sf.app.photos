@@ -56,82 +56,89 @@ TInt CGlxCommandHandlerAddToContainer::iSelectionCount = 0;
 // Return add to album command handler
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CGlxCommandHandlerAddToContainer* 
-    CGlxCommandHandlerAddToContainer::NewAddToAlbumCommandHandlerL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
-    {
-    TRACER("CGlxCommandHandlerAddToContainer::NewAddToAlbumCommandHandlerL");
-    return CGlxCommandHandlerAddToContainer::NewL (aMediaListProvider, 
-                                                EGlxCmdAddToAlbum, aHasToolbarItem);
-    }
+EXPORT_C CGlxCommandHandlerAddToContainer*
+CGlxCommandHandlerAddToContainer::NewAddToAlbumCommandHandlerL(
+		MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem,
+		const TDesC& aFileName)
+	{
+	TRACER("CGlxCommandHandlerAddToContainer::NewAddToAlbumCommandHandlerL");
+	return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider,
+			EGlxCmdAddToAlbum, aHasToolbarItem, aFileName);
+	}
 
 // ---------------------------------------------------------------------------
 // Return add to album command handler for singleclick options menu
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CGlxCommandHandlerAddToContainer* 
-    CGlxCommandHandlerAddToContainer::NewAddToAlbumSingleClickCommandHandlerL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
-    {
-    return CGlxCommandHandlerAddToContainer::NewL (aMediaListProvider, 
-                              EGlxCmdSingleClickAddToAlbum, aHasToolbarItem);
-    }
+EXPORT_C CGlxCommandHandlerAddToContainer*
+CGlxCommandHandlerAddToContainer::NewAddToAlbumSingleClickCommandHandlerL(
+		MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem,
+		const TDesC& aFileName)
+	{
+	return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider,
+			EGlxCmdSingleClickAddToAlbum, aHasToolbarItem, aFileName);
+	}
 
 
 // ---------------------------------------------------------------------------
 // Return add (to) tags command handler
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CGlxCommandHandlerAddToContainer* 
-    CGlxCommandHandlerAddToContainer::NewAddToTagCommandHandlerL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
-    {
-    TRACER("CGlxCommandHandlerAddToContainer::NewAddToTagCommandHandlerL");
-    return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider, 
-                                                EGlxCmdAddTag, aHasToolbarItem);
-    }
+EXPORT_C CGlxCommandHandlerAddToContainer*
+CGlxCommandHandlerAddToContainer::NewAddToTagCommandHandlerL(
+		MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem,
+		const TDesC& aFileName)
+	{
+	TRACER("CGlxCommandHandlerAddToContainer::NewAddToTagCommandHandlerL");
+	return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider,
+			EGlxCmdAddTag, aHasToolbarItem, aFileName);
+	}
 
 // ---------------------------------------------------------------------------
 // Return add (to) tags command handler for singleclick option menu
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CGlxCommandHandlerAddToContainer* 
-    CGlxCommandHandlerAddToContainer::NewAddToTagSingleClickCommandHandlerL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
-    {
-    return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider, 
-                                EGlxCmdSingleClickAddTag, aHasToolbarItem);
-    }
+EXPORT_C CGlxCommandHandlerAddToContainer*
+CGlxCommandHandlerAddToContainer::NewAddToTagSingleClickCommandHandlerL(
+		MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem,
+		const TDesC& aFileName)
+	{
+	return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider,
+			EGlxCmdSingleClickAddTag, aHasToolbarItem, aFileName);
+	}
 
 
 // ---------------------------------------------------------------------------
 // Return add (to) Favourites command handler
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CGlxCommandHandlerAddToContainer* 
-    CGlxCommandHandlerAddToContainer::NewAddToFavCommandHandlerL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem) 
-    {
-    TRACER("CGlxCommandHandlerAddToContainer::NewAddToFavCommandHandlerL");
-    return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider, 
-                                    EGlxCmdAddToFavourites, aHasToolbarItem);
-    }
+EXPORT_C CGlxCommandHandlerAddToContainer*
+CGlxCommandHandlerAddToContainer::NewAddToFavCommandHandlerL(
+		MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem,
+		const TDesC& aFileName)
+	{
+	TRACER("CGlxCommandHandlerAddToContainer::NewAddToFavCommandHandlerL");
+	return CGlxCommandHandlerAddToContainer::NewL(aMediaListProvider,
+			EGlxCmdAddToFavourites, aHasToolbarItem, aFileName);
+	}
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
 // ---------------------------------------------------------------------------
 //
 EXPORT_C CGlxCommandHandlerAddToContainer* CGlxCommandHandlerAddToContainer::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TInt aCommandId, TBool aHasToolbarItem)
-    {
-    TRACER("CGlxCommandHandlerAddToContainer::NewL");
-    CGlxCommandHandlerAddToContainer* self = 
-        new ( ELeave ) CGlxCommandHandlerAddToContainer( aMediaListProvider, aHasToolbarItem );
-    CleanupStack::PushL( self );
-    self->ConstructL( aCommandId );
-    CleanupStack::Pop( self );
-    return self;
-    }
+		MGlxMediaListProvider* aMediaListProvider, TInt aCommandId,
+		TBool aHasToolbarItem, const TDesC& aFileName)
+	{
+	TRACER("CGlxCommandHandlerAddToContainer::NewL");
+	CGlxCommandHandlerAddToContainer* self =
+			new (ELeave) CGlxCommandHandlerAddToContainer(aMediaListProvider,
+					aHasToolbarItem);
+	CleanupStack::PushL(self);
+	self->ConstructL(aCommandId, aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
     
 // ---------------------------------------------------------------------------
 // Constructor
@@ -148,28 +155,24 @@ CGlxCommandHandlerAddToContainer::CGlxCommandHandlerAddToContainer(
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerAddToContainer::ConstructL(TInt aCommandId)
-    {
-    TRACER("CGlxCommandHandlerAddToContainer::ConstructL");
-    // Load resource
-	TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
-   	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
+void CGlxCommandHandlerAddToContainer::ConstructL(TInt aCommandId,
+		const TDesC& aFileName)
+	{
+	TRACER("CGlxCommandHandlerAddToContainer::ConstructL");
+	// Load resource
+	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
 	// Reset the Flag inorder to allow for a new selection pop-up to be created.
-   	iIsProcessOngoing = EFalse;
-   	// Add supported command
-   	TCommandInfo info(aCommandId);
-   	
-    // Filter out static items - user must have selected at least one item to
-    // enable the command handler    
-    const TInt KGlxCommandHandlerMinSelectionAllowSingle = 1;
-    info.iMinSelectionLength = KGlxCommandHandlerMinSelectionAllowSingle;
-    
-   	AddCommandL(info);
-   	iCommandId = aCommandId;
+	iIsProcessOngoing = EFalse;
+	// Add supported command
+	TCommandInfo info(aCommandId);
+
+	// Filter out static items - user must have selected at least one item to
+	// enable the command handler    
+	const TInt KGlxCommandHandlerMinSelectionAllowSingle = 1;
+	info.iMinSelectionLength = KGlxCommandHandlerMinSelectionAllowSingle;
+
+	AddCommandL(info);
+	iCommandId = aCommandId;
 	}
 
 // ---------------------------------------------------------------------------

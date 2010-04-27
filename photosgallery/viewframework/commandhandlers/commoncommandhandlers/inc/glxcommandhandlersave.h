@@ -55,7 +55,8 @@ public: // From MGlxCommandHandler
 	 * @param aResourceId The resource ID of the menu
 	 * @param aMenuPane The in-memory representation of the menu pane
 	 */
-	void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
+	void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane,
+                            TBool aIsBrowseMode);
 	
 	/**
 	 * Called when the owning view is activated

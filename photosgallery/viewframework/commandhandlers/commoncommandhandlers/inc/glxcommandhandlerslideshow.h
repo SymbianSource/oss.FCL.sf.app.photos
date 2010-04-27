@@ -44,16 +44,18 @@ NONSHARABLE_CLASS (CGlxCommandHandlerSlideshow) :
             public MGlxMediaListObserver
 	{
 public:
-    /**
-     * Two-phase constructor
-     * @param aMediaListProvider object that provides the media list
-     * @param aStepBack EFalse if the command handler should not change
-     *	 the path's level. E.g. this may depend on whether the view's media 
-     *   list contains media items or if it is a "list of lists"
-     * @param aHasToolbarItem Whether Command Should be toolbar item (ETrue - if toolbar item)
-     */
+	/**
+	 * Two-phase constructor
+	 * @param aMediaListProvider object that provides the media list
+	 * @param aStepBack EFalse if the command handler should not change
+	 *	 the path's level. E.g. this may depend on whether the view's media 
+	 *   list contains media items or if it is a "list of lists"
+	 * @param aHasToolbarItem Whether Command Should be toolbar item (ETrue - if toolbar item)
+	 * @param aFileName resource file
+	 */
 	IMPORT_C static CGlxCommandHandlerSlideshow* NewL(
-	    MGlxMediaListProvider* aMediaListProvider, TBool aStepBack, TBool aHasToolbarItem );
+			MGlxMediaListProvider* aMediaListProvider, TBool aStepBack,
+			TBool aHasToolbarItem, const TDesC& aFileName);
 	    
 	/** Destructor */
 	IMPORT_C ~CGlxCommandHandlerSlideshow();
@@ -88,7 +90,7 @@ private:    // From MGlxMediaListObserver
     
 private:
     /** Second phase constructor */
-	void ConstructL();
+	void ConstructL(const TDesC& aFileName);
 
     /** Constructor */
 	CGlxCommandHandlerSlideshow(MGlxMediaListProvider* aMediaListProvider,

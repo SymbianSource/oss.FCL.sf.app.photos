@@ -37,17 +37,19 @@ const TInt KGlxAiwPrintPreviewCommandSpace = 0x00000300;
 // NewL
 // -----------------------------------------------------------------------------
 //	
-EXPORT_C CGlxCommandHandlerAiwPrintPreview* 
-        CGlxCommandHandlerAiwPrintPreview::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource)
-    {
-    CGlxCommandHandlerAiwPrintPreview* self = new ( ELeave ) 
-        CGlxCommandHandlerAiwPrintPreview(aMediaListProvider, aMenuResource);
-    CleanupStack::PushL( self );
-    self->ConstructL();
-    CleanupStack::Pop( self );
-    return self;
-    }
+EXPORT_C CGlxCommandHandlerAiwPrintPreview*
+CGlxCommandHandlerAiwPrintPreview::NewL(
+		MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
+		const TDesC& aFileName)
+	{
+	CGlxCommandHandlerAiwPrintPreview* self =
+			new (ELeave) CGlxCommandHandlerAiwPrintPreview(aMediaListProvider,
+					aMenuResource);
+	CleanupStack::PushL(self);
+	self->ConstructL(aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
     
 // -----------------------------------------------------------------------------
 // CGlxCommandHandlerAiwPrintPreview::DoGetRequiredAttributesL

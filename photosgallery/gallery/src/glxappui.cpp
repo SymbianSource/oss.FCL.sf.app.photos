@@ -318,7 +318,7 @@ void CGlxAppUi::HandleNavigationalStateChangedL()
 void CGlxAppUi::GetViewScoringIdsL( RArray<TUid>& aIds ) const
     {
     TRACER("void CGlxAppUi::GetViewScoringIdsL( RArray<TUid>& aIds ) const");
-
+    CleanupClosePushL(aIds);
     aIds.Reset(); // For maintenance safety
 
     // get current navigational state
@@ -349,7 +349,9 @@ void CGlxAppUi::GetViewScoringIdsL( RArray<TUid>& aIds ) const
         }
 
     CleanupStack::PopAndDestroy(naviState);
+    CleanupStack::Pop(&aIds);
     }
+
 // ---------------------------------------------------------------------------
 // Handles the foreground events
 // ---------------------------------------------------------------------------
@@ -425,9 +427,7 @@ TUid CGlxAppUi::ViewScoringIdForNaviStateDepth( const CMPXCollectionPath& aNaviS
 void CGlxAppUi::HandleActivationMessageL(const TApaCommand& /*aCommand*/, 
         const TFileName& /*aDocumentName*/, const TDesC8& aData)
     {
-    TRACER("void CGlxAppUi::HandleActivationMessageL("
-            "const TApaCommand& aCommand, const TFileName& aDocumentName, "
-            "const TDesC8& aData)");
+    TRACER("void CGlxAppUi::HandleActivationMessageL(const TApaCommand& aCommand, const TFileName& aDocumentName,const TDesC8& aData)");
     GLX_LOG_INFO1("Glx-HandleActivationMessageL() aData length=%d",
             aData.Length());
 

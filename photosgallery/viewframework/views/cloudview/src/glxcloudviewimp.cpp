@@ -137,9 +137,6 @@ void CGlxCloudViewImp::ConstructL(MGlxMediaListFactory *aMediaListFactory,
 CGlxCloudViewImp::~CGlxCloudViewImp()
     {
     TRACER("GLX_CLOUD::CGlxCloudViewImp::~CGlxCloudViewImp");
-    
-    delete iMMCNotifier;
-    iMMCNotifier = NULL;
         
     CleanupVisuals ();
     delete iEmptyListText;
@@ -222,6 +219,7 @@ void CGlxCloudViewImp::DoMLViewActivateL(const TVwsViewId & /* aPrevViewId */,
 	
     // set app state to tag-browser view
     GlxSetAppState::SetState (EGlxInTagBrowserView);
+    iMMCNotifier = CGlxMMCNotifier::NewL(*this);
     }
 
 // ---------------------------------------------------------------------------
@@ -232,6 +230,10 @@ void CGlxCloudViewImp::DoMLViewActivateL(const TVwsViewId & /* aPrevViewId */,
 void CGlxCloudViewImp::DoMLViewDeactivate()
 	{
 	TRACER("GLX_CLOUD::CGlxCloudViewImp::DoMLViewDeactivate");
+	
+	delete iMMCNotifier;
+	iMMCNotifier = NULL;
+	
 	//Hide softkeys and toolbar upon view de-activation.
 	iViewWidget->enableControlPane(EFalse);
 	if ( EGlxNavigationForwards == iUiUtility->ViewNavigationDirection() )
@@ -368,9 +370,8 @@ void CGlxCloudViewImp::ConstructCloudControlL()
     
      //acquire the focus so as to get events to your control instead of widgets
     iCloudControl->AcquireFocus();
-    
-    iMMCNotifier = CGlxMMCNotifier::NewL(*this);
     }
+	
 // ---------------------------------------------------------------------------
 // SetScrollBarRect()
 // ---------------------------------------------------------------------------

@@ -48,7 +48,7 @@ EXPORTS
 	_ZNK9TGlxMedia5TitleEv @ 47 NONAME
 	_ZNK9TGlxMedia7CommentEv @ 48 NONAME
 	_ZNK9TGlxMedia7GetDateER5TTime @ 49 NONAME
-	_ZNK9TGlxMedia7GetSizeERi @ 50 NONAME
+	_ZNK9TGlxMedia7GetSizeERj @ 50 NONAME
 	_ZNK9TGlxMedia8CategoryEv @ 51 NONAME
 	_ZNK9TGlxMedia8IsStaticEv @ 52 NONAME
 	_ZNK9TGlxMedia8MimeTypeEv @ 53 NONAME

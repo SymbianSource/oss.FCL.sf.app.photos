@@ -51,15 +51,16 @@ namespace
 // ---------------------------------------------------------------------------
 //
 EXPORT_C CGlxCommandHandlerRename* CGlxCommandHandlerRename::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem )
-    {
-    CGlxCommandHandlerRename* self = new ( ELeave ) CGlxCommandHandlerRename
-    	( aMediaListProvider, aHasToolbarItem );
-    CleanupStack::PushL( self );
-    self->ConstructL();
-    CleanupStack::Pop( self );
-    return self;
-    }
+		MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem,
+		const TDesC& aFileName)
+	{
+	CGlxCommandHandlerRename* self = new (ELeave) CGlxCommandHandlerRename(
+			aMediaListProvider, aHasToolbarItem);
+	CleanupStack::PushL(self);
+	self->ConstructL(aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
 
 // ---------------------------------------------------------------------------
 // C++ default constructor can NOT contain any code, that
@@ -73,38 +74,33 @@ CGlxCommandHandlerRename::CGlxCommandHandlerRename( MGlxMediaListProvider*
     // Do nothing
     }
  
+
 // ---------------------------------------------------------------------------
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerRename::ConstructL()
-    {
-    iRenameText = HBufC::NewL( KNameMaxLength );
+void CGlxCommandHandlerRename::ConstructL(const TDesC& aFileName)
+	{
+	iRenameText = HBufC::NewL(KNameMaxLength);
 
-    // Load resource file
-	TParse parse;
-    parse.Set( KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL );
-    TFileName resourceFile;
-    resourceFile.Append( parse.FullName() );
-    CGlxResourceUtilities::GetResourceFilenameL( resourceFile );  
-   	iResourceOffset = CCoeEnv::Static()->AddResourceFileL( resourceFile );
+	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
 
-   	// Add supported command
-   	TCommandInfo info( EGlxCmdRename );
-   	// This setup disables the command if a static item is focused,
-   	// if the view is empty or if more than one item is selected.
-    info.iMinSelectionLength = 1;
-    info.iMaxSelectionLength = 1;
-    // Filter out system items
-    info.iDisallowSystemItems = ETrue;
-    // Allow animated GIFs to be renamed
-    info.iStopAnimationForExecution = ETrue;
-    
-   	AddCommandL( info );
+	// Add supported command
+	TCommandInfo info(EGlxCmdRename);
+	// This setup disables the command if a static item is focused,
+	// if the view is empty or if more than one item is selected.
+	info.iMinSelectionLength = 1;
+	info.iMaxSelectionLength = 1;
+	// Filter out system items
+	info.iDisallowSystemItems = ETrue;
+	// Allow animated GIFs to be renamed
+	info.iStopAnimationForExecution = ETrue;
 
-    iErrorCallback = new (ELeave) CAsyncCallBack( TCallBack( HandleErrorL, this ), 
-                                                  CActive::EPriorityStandard );
-    }
+	AddCommandL(info);
+
+	iErrorCallback = new (ELeave) CAsyncCallBack(TCallBack(HandleErrorL, this),
+			CActive::EPriorityStandard);
+	}
 
 // ---------------------------------------------------------------------------
 // Destructor

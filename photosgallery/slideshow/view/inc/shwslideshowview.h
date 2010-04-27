@@ -32,6 +32,8 @@
 #include "shwgestureobserver.h"
 #include "gesturecontrol.h"
 #include "glxmmcnotifier.h"
+#include <mglxtvobserver.h>
+#include <glxtv.h>
 // FORWARD DECLARATIONS
 class CAlfEnv;
 class CAlfDisplay;
@@ -67,7 +69,8 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
                                        public MProgressDialogCallback,
                                        public MShwTickObserver,
                                        public MShwGestureObserver,
-                                       public MStorageNotifierObserver
+                                       public MStorageNotifierObserver,
+                                       public MGlxTvObserver
     {
     public:
 
@@ -179,6 +182,9 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
     	/// @ref MGlxMediaListObserver::HandlePopulatedL
     	void HandlePopulatedL( MGlxMediaList* aList );
 
+    	// From MGlxTVObserver
+    	virtual void HandleTvStatusChangedL ( TTvChangeType aChangeType );
+    	
     	//form CAknView
 		void ProcessCommandL(TInt aCommandId);
     private: // From MShwEngineObserver
@@ -379,7 +385,10 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
 
         CMPXCollectionPath* iCollectionPath;            // owned
         NShwSlideshow::TPlayDirection iPlayDirection;   // owned
-
+    	
+        /// Own: The TV connection monitor
+    	CGlxTv *  iTvConnection;
+		
         TBool iEngineStartFailed;
 
         /// Own: asynch callback needed for media list population
@@ -413,6 +422,8 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
 	CGlxMMCNotifier* iMMCNotifier;
 	TBool iMMCState;
 	TBool iIsForegrnd;
+	TSize iScrnSize;
+	TSize iGridIconSize;
 	//to check if slideshow is paused in BG 
 	//and after that we are bringing to foreground
 	TBool iPrevNotInBackground;

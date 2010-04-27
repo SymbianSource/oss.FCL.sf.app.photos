@@ -40,9 +40,11 @@ NONSHARABLE_CLASS( CGlxCommandHandlerCopyAndMove )
 
 public:
     /** 
-     * Two-phase constructor: 
-     */
-    IMPORT_C static CGlxCommandHandlerCopyAndMove* NewL(MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource);
+	 * Two-phase constructor: 
+	 */
+	IMPORT_C static CGlxCommandHandlerCopyAndMove* NewL(
+			MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
+			const TDesC& aFileName);
     
     /** Destructor */
     IMPORT_C ~CGlxCommandHandlerCopyAndMove();
@@ -57,8 +59,10 @@ public: // from CGlxMediaListCommandHandler
     void DoDynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
 
 private:
-    /** Second phase constructor */
-    void ConstructL();
+    /** Second phase constructor
+	 * @param aResourceFile resource file
+	 */
+	void ConstructL(const TDesC& aFileName);
 
     /** First phase constructor */
     CGlxCommandHandlerCopyAndMove(MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource);

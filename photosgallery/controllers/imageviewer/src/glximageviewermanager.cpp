@@ -28,7 +28,9 @@
 
 _LIT( KPrivateFolder, "\\Private\\" );
 _LIT( KGifFileExt, ".gif" );
-_LIT( KTempFilePath, "?:\\data\\images\\200104E7.gif" );
+_LIT( KMbmFileExt, ".mbm");
+_LIT( KTempGifFilePath, "?:\\data\\images\\200104E7.gif" );
+_LIT( KTempMbmFilePath, "?:\\data\\images\\200104E7.mbm" );
     
 EXPORT_C CGlxImageViewerManager* CGlxImageViewerManager::InstanceL()
     {
@@ -173,10 +175,19 @@ EXPORT_C void CGlxImageViewerManager::SetImageFileHandleL(const RFile& aFileHand
         iFile = new (ELeave) RFile64;
         User::LeaveIfError(iFile->Duplicate(aFileHandle));
         iIsPrivate = ETrue;
-        if (parse.Ext().Compare(KGifFileExt) == 0)
+        // Gif / MBM file from private path, hence make a local copy.
+        if (parse.Ext().Compare(KGifFileExt) == 0 || parse.Ext().Compare(
+                KMbmFileExt) == 0)
             {
-            // Gif file from private path, hence make a local copy.
-            TFileName ramFilePath(KTempFilePath);
+            TFileName ramFilePath;
+            if (parse.Ext().Compare(KGifFileExt) == 0)
+                {
+                ramFilePath.Copy(KTempGifFilePath);
+                }
+            else
+                {
+                ramFilePath.Copy(KTempMbmFilePath);
+                }
             TChar drive;
             User::LeaveIfError(DriveInfo::GetDefaultDrive(
                     DriveInfo::EDefaultRam, drive));

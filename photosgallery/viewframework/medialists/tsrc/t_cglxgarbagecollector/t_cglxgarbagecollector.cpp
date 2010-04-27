@@ -2260,11 +2260,13 @@ void T_CGlxGarbageCollector::CGlxMediaUserTest::GetRequiredAttributesL(
         TInt /*aIndex*/, 
         RArray<TMPXAttribute>& aAttributes)
     {
+    CleanupClosePushL(aAttributes);
     TInt attributeCount = iAttributes.Count();
     for (TInt i = 0; i < attributeCount; ++i)
         {
         aAttributes.AppendL(iAttributes[i]);
         }
+    CleanupStack::Pop(&aAttributes);
     }
 
 void T_CGlxGarbageCollector::CGlxMediaUserTest::RemoveReference(TInt aIndex)

@@ -57,7 +57,8 @@ public: // From CGlxMediaListCommandHandler
     
     void PreDynInitMenuPaneL( TInt aResourceId );
     
-    void DynInitMenuPaneL( TInt aMenuId, CEikMenuPane* aMenuPane );
+    void DynInitMenuPaneL( TInt aMenuId, CEikMenuPane* aMenuPane, 
+                                TBool aIsBrowseMode);
     
 private:
     /** 

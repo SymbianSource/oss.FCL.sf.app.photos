@@ -583,7 +583,7 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
             CMdEPropertyDef& sizeProperty = aContainer->Def().GetPropertyDefL(
                     KPropertyDefNameSize);
             TInt sizeIndex = aContainer->Property(sizeProperty, size);
-            TInt sizeValue;
+            TUint sizeValue;
             if(sizeIndex == KErrNotFound)
                 {
                 sizeValue = 0;
@@ -1438,8 +1438,8 @@ void CGlxDataSourceTaskMdeAttributeMde::QueueObjectQueryL(CMdEObjectDef& aObject
     CMdEQuery* query = DataSource()->Session().NewObjectQueryL(*DataSource()->NamespaceDef(), 
             *queryBaseObject, this);
     CleanupStack::PushL(query);
-    SetQueryConditionsL(*query, aFilterProperties, aContainerId, aObjectDef);
     query->SetResultMode(aResultMode);
+    SetQueryConditionsL(*query, aFilterProperties, aContainerId, aObjectDef);
   
     iQueryAttributes.AppendL(TGlxQueryAttribute(aAttribute, aEntry, aFilterProperties));
 

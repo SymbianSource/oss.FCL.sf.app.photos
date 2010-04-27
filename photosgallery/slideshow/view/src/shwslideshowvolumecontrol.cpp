@@ -231,9 +231,9 @@ void CShwSlideshowVolumeControl::RefreshL()
 	        {
 	        // Restart the timer
 	        iTimer->Cancel();
-	        iTimer->Start( iInterval, iInterval,
-	                TShwCallBack< CShwSlideshowVolumeControl, TimerCallback>
-	        ( this ) );
+	        iTimer->Start(iInterval, iInterval, TShwCallBack< 
+	                CShwSlideshowVolumeControl, 
+	                &CShwSlideshowVolumeControl::TimerCallback> (this));
 	        }
 	    }
 	}

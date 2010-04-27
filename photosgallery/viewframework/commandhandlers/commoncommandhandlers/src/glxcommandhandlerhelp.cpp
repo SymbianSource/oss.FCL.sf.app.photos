@@ -135,7 +135,8 @@ TBool CGlxCommandHandlerHelp::ExecuteL(TInt aCommandId)
 // ---------------------------------------------------------------------------
 //
 void CGlxCommandHandlerHelp::DynInitMenuPaneL(TInt /*aResourceId*/, 
-                                                CEikMenuPane* /*aMenuPane*/)
+                                                CEikMenuPane* /*aMenuPane*/,
+                                                TBool /*aIsBrowseMode*/)
     {
     // No implementation
     }    

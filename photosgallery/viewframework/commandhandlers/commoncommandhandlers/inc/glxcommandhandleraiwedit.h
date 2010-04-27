@@ -80,7 +80,8 @@ private: // From CGlxMediaListCommandHandler
 
     void DoActivateL(TInt aViewId);
     TBool DoExecuteL( TInt aCommandId , MGlxMediaList& aList);
-    void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
+    void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane, 
+							TBool aIsBrowseMode);
     
 private: // Data Members
     
@@ -95,7 +96,9 @@ private: // Data Members
     // Not own
     CGlxImageViewerManager* iImageViewerInstance;
     
-    CFeatureDiscovery* iFeatManager;
+	//If in fullscreen mode
+    TBool iIsFullScreenMode;
+    
     };
 
 #endif // C_GLXCOMMANDHANDLERAIWEDIT_H

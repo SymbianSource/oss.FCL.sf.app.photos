@@ -56,19 +56,22 @@ const TInt KMaxNumberLength = 10;
 _LIT(KOpenBracket, "(");
 _LIT(KCloseBracket, ")");
 _LIT(KFileNameFormatString, "(%+02u)");
+
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CGlxCommandHandlerNewMedia* CGlxCommandHandlerNewMedia::NewL(MGlxMediaListProvider* aMediaListProvider)
-    {
-    TRACER("CGlxCommandHandlerNewMedia* CGlxCommandHandlerNewMedia::NewL");
-    CGlxCommandHandlerNewMedia* self = new (ELeave) CGlxCommandHandlerNewMedia(aMediaListProvider);
-    CleanupStack::PushL(self);
-    self->ConstructL();
-    CleanupStack::Pop(self);
-    return self;
-    }
+EXPORT_C CGlxCommandHandlerNewMedia* CGlxCommandHandlerNewMedia::NewL(
+		MGlxMediaListProvider* aMediaListProvider, const TDesC& aFileName)
+	{
+	TRACER("CGlxCommandHandlerNewMedia* CGlxCommandHandlerNewMedia::NewL");
+	CGlxCommandHandlerNewMedia* self = new (ELeave) CGlxCommandHandlerNewMedia(
+			aMediaListProvider);
+	CleanupStack::PushL(self);
+	self->ConstructL(aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
 
 // ---------------------------------------------------------------------------
 // C++ default constructor can NOT contain any code, that
@@ -118,23 +121,18 @@ EXPORT_C TBool CGlxCommandHandlerNewMedia::OkToExit() const
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerNewMedia::ConstructL()
-    {
-    TRACER("CGlxCommandHandlerNewMedia::ConstructL()");
-    iFileNameAlreadyExists = EFalse ;
-    // Load resource file
-	TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
-   	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
+void CGlxCommandHandlerNewMedia::ConstructL(const TDesC& aFileName)
+	{
+	TRACER("CGlxCommandHandlerNewMedia::ConstructL()");
+	iFileNameAlreadyExists = EFalse;
 
-    iAsyncFocuser = new (ELeave) CGlxAsyncFocuser(this);
-   	// Add supported command
-   	TCommandInfo info(EGlxCmdAddMedia);
-   	// Filter out static items
-   	AddCommandL(info);
+	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
+
+	iAsyncFocuser = new (ELeave) CGlxAsyncFocuser(this);
+	// Add supported command
+	TCommandInfo info(EGlxCmdAddMedia);
+	// Filter out static items
+	AddCommandL(info);
 	}
 
 // ---------------------------------------------------------------------------

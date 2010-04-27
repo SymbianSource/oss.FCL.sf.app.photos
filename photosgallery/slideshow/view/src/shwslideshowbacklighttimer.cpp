@@ -140,8 +140,9 @@ void CShwSlideshowBackLightTimer::StartL()
 	iStartTime.HomeTime();
 	User::ResetInactivityTime();
     iPeriodic->Cancel(); // in case it actually was running
-	iPeriodic->Start( iSettingsDelay, iSettingsDelay,
-	    TShwCallBack< CShwSlideshowBackLightTimer, Tick >( this ) );
+    iPeriodic->Start(iSettingsDelay, iSettingsDelay,
+            TShwCallBack<CShwSlideshowBackLightTimer,
+                    &CShwSlideshowBackLightTimer::Tick> (this));
 	}
 
 // -----------------------------------------------------------------------------

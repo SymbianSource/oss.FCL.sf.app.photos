@@ -35,6 +35,7 @@ EXPORT_C TInt TGlxCollectionSelectionPopup::ShowPopupL(
         RArray<TUint32>& aSelectedIds, TUint32 aCollectionType, 
         TBool aAllowMultipleSelection, TBool aEnableContainerCreation)
 	{
+    CleanupClosePushL(aSelectedIds);
 	TUint32 collectionId = 0;
 	CMPXFilter* filter = NULL;
 
@@ -95,6 +96,7 @@ EXPORT_C TInt TGlxCollectionSelectionPopup::ShowPopupL(
     	CleanupStack::PopAndDestroy(filter);
     	}
     	
+    CleanupStack::Pop(&aSelectedIds);
     
     if (accepted)
         {        

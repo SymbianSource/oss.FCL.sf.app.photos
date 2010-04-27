@@ -35,32 +35,34 @@ NONSHARABLE_CLASS (CGlxCommandHandlerDetails)
     : public CGlxMediaListCommandHandler
 	{
 	public:
-		/** 
-		 * Create command handler for launcing Metadata view or Tag manager
-		 * use above method for creating command handler
-		 * 
-		 * @param aCommandId Command id for command handler
-		 * @param aMediaListProvider media list owner
-		 */
-		IMPORT_C static CGlxCommandHandlerDetails* NewL(
-		                        MGlxMediaListProvider* aMediaListProvider );		
-			    
-	    /** Destructor */
-		IMPORT_C ~CGlxCommandHandlerDetails();
+	/** 
+	 * Create command handler for launcing Metadata view or Tag manager
+	 * use above method for creating command handler
+	 * 
+	 * @param aCommandId Command id for command handler
+	 * @param aMediaListProvider media list owner
+	 * @param aFileName resource file
+	 */
+	IMPORT_C static CGlxCommandHandlerDetails* NewL(
+			MGlxMediaListProvider* aMediaListProvider, const TDesC& aFileName);
+
+	/** Destructor */
+	IMPORT_C ~CGlxCommandHandlerDetails();
 	
 	private:
-				
-    	/** Second phase constructor 
-    	 * 
-		 * @param aCommandId Command id for command handler
-    	 */
-		void ConstructL();
-		
-		/**
-	     * Constructor
-    	 * @param aMediaListProvider The owner of the media list to use
-	     */
-		CGlxCommandHandlerDetails( MGlxMediaListProvider* aMediaListProvider );
+
+	/** Second phase constructor 
+	 * 
+	 * @param aCommandId Command id for command handler
+	 * @param aFileName resource file
+	 */
+	void ConstructL(const TDesC& aFileName);
+
+	/**
+	 * Constructor
+	 * @param aMediaListProvider The owner of the media list to use
+	 */
+	CGlxCommandHandlerDetails(MGlxMediaListProvider* aMediaListProvider);
 		
 	private: // From CGlxMediaListCommandHandler
 

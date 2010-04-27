@@ -206,8 +206,10 @@ EXPORT_C TBool TGlxCommandParser::IdsL(TUid& aCollectionUid, TUint32& aSessionId
 // TTGlxCommandParser::ArrayValueL
 // -----------------------------------------------------------------------------
 //	
-void TGlxCommandParser::ArrayValueL(const TMPXAttribute & aAttribute, RArray<TGlxMediaId>& aArray, const CMPXCommand& aCommand)
+void TGlxCommandParser::ArrayValueL(const TMPXAttribute & aAttribute, 
+        RArray<TGlxMediaId>& aArray, const CMPXCommand& aCommand)
     {
+    CleanupClosePushL(aArray);
     if (!aCommand.IsSupported(aAttribute) || aCommand.Type(aAttribute) != EMPXTypeCObject)
         {
         User::Leave(KErrArgument);
@@ -228,6 +230,7 @@ void TGlxCommandParser::ArrayValueL(const TMPXAttribute & aAttribute, RArray<TGl
     		aArray.AppendL(TGlxMediaId(list[i]));
     		}
     	}
+    CleanupStack::Pop(&aArray);
     }
 
 /// @todo minor: Rowland Cook 12/06/2007 Add method decription.

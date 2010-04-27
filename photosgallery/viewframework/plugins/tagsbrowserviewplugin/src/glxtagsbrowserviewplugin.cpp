@@ -38,7 +38,7 @@
 #include <glxcommandhandlerrename.h>
 #include <glxcommandhandlerdetails.h>        //For tag manager launch
 #include <glxmedialist.h>
-
+#include <glxresourceutilities.h>                // for CGlxResourceUtilities
 #include "glxtagsbrowserviewplugin.hrh"	// For Plugin Uids
 
 // Resource File
@@ -94,35 +94,43 @@ CGlxTagsBrowserViewPlugin::~CGlxTagsBrowserViewPlugin()
 // ---------------------------------------------------------------------------
 //
 CAknView *CGlxTagsBrowserViewPlugin::ConstructViewLC()
-{
-   TRACER("CGlxTagsBrowserViewPlugin::ConstructViewLC");
+	{
+	TRACER("CGlxTagsBrowserViewPlugin::ConstructViewLC");
 
-  GLX_LOG_INFO("CGlxTagsBrowserViewPlugin::ConstructViewLC - Create the view");
-  CGlxCloudView *view = CGlxCloudView::NewLC(this, KResourceFile(),  
-    // Resource file name
-  R_TAGSBROWSER_VIEW,  // View resource
-  R_TAGSBROWSER_EMPTY_TEXT,  // Empty list text
-  R_TAGSBROWSER_SOFTKEYS_OPTIONS_BACK_SELECT, //softket resource id
-  R_TAGSBROWSER_SOFTKEYS_MSK_DISABLED //msk disabled resource id
-  );
+	GLX_LOG_INFO("CGlxTagsBrowserViewPlugin::ConstructViewLC - Create the view");
+	CGlxCloudView *view = CGlxCloudView::NewLC(this, KResourceFile(),
+	// Resource file name
+			R_TAGSBROWSER_VIEW, // View resource
+			R_TAGSBROWSER_EMPTY_TEXT, // Empty list text
+			R_TAGSBROWSER_SOFTKEYS_OPTIONS_BACK_SELECT, //softket resource id
+			R_TAGSBROWSER_SOFTKEYS_MSK_DISABLED //msk disabled resource id
+			);
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
 
 	// Add commnad handler
-  view->AddCommandHandlerL(CGlxCommandHandlerSlideshow::NewL(view,EFalse,ETrue));
-  view->AddCommandHandlerL(CGlxCommandHandlerBack::NewBackCommandHandlerL());
-  view->AddCommandHandlerL(CGlxCommandHandlerShowViaUpnp::NewL(view, EFalse));
-  view->AddCommandHandlerL(CGlxCommandHandlerSortOrder::NewL(view,KGlxSortOrderTagBrowser));
-  view->AddCommandHandlerL(CGlxCommandHandlerDetails::NewL(view));
-  GLX_LOG_INFO("Adding CGlxCommandHandlerDelete");
-  view->AddCommandHandlerL(CGlxCommandHandlerDelete::
-                              NewL(view, ETrue, ETrue));
-  
-  TGlxHelpContext helpInfo;
-  helpInfo.iBrowseContext = LGAL_HLP_TAGS_BROWSER;
-  view->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo)); 
-  view->AddCommandHandlerL(CGlxCommandHandlerRename::NewL(view,ETrue));
+	view->AddCommandHandlerL(CGlxCommandHandlerSlideshow::NewL(view, EFalse,
+			ETrue, uiutilitiesrscfile));
+	view->AddCommandHandlerL(CGlxCommandHandlerBack::NewBackCommandHandlerL());
+	view->AddCommandHandlerL(CGlxCommandHandlerShowViaUpnp::NewL(view, EFalse));
+	view->AddCommandHandlerL(CGlxCommandHandlerSortOrder::NewL(view,
+			KGlxSortOrderTagBrowser));
+	view->AddCommandHandlerL(CGlxCommandHandlerDetails::NewL(view,
+			uiutilitiesrscfile));
 
-  return view;
-}
+	GLX_LOG_INFO("Adding CGlxCommandHandlerDelete");
+	view->AddCommandHandlerL(CGlxCommandHandlerDelete::NewL(view, ETrue, ETrue,
+			uiutilitiesrscfile));
+
+	TGlxHelpContext helpInfo;
+	helpInfo.iBrowseContext = LGAL_HLP_TAGS_BROWSER;
+	view->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
+	view->AddCommandHandlerL(CGlxCommandHandlerRename::NewL(view, ETrue,
+			uiutilitiesrscfile));
+
+	return view;
+	}
 
 // -----------------------------------------------------------------------------
 // MediaListL

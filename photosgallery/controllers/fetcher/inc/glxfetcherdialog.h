@@ -171,6 +171,9 @@ NONSHARABLE_CLASS (CGlxFetcherDialog) : public CAknDialog ,
        
         //mmc notifier
         CGlxMMCNotifier* iMMCNotifier;
+        
+        /// Resource file offset
+        TInt iResourceOffset;
 	};
 
 #endif /*GLXFETCHERDIALOG_H_*/

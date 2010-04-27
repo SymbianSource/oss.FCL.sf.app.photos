@@ -98,6 +98,15 @@ private:
      */
     void SetToolbarItemsDimmed(TBool aDimmed);
      
+    /**
+     * To check whether OneClickUpload is supported by the Shareonline 
+     * application. 
+     * NOTE: OneClickUpload is a feature of ShareOnline 4.3 and above. Hence this function
+     * ensures that the upload command works only if this version of ShareOnline is 
+     * available in the build. Else, Upload will not work! 
+     */
+    void CheckShareonlineVersionL();
+    
 private:    
     CAknToolbar* iToolbar;
     TBool iAttributeAvailable;

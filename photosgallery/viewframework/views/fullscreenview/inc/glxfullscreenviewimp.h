@@ -121,7 +121,7 @@ public:// CAknView
     void DoMLViewDeactivate();
     
       //Shows the exipry note/dialog for expired DRM files
-      void ShowDrmExpiaryNoteL();
+      void ShowDrmExpiryNoteL();
       
 	  // Callback for periodic timer, static, 
 	  static TInt PeriodicCallback( TAny* aPtr );
@@ -337,6 +337,10 @@ private:
     TBool iImgViewerMode;
 	CGlxMMCNotifier* iMMCNotifier;
 	TBool iMMCState;
+	TSize iScrnSize;   // ScrnSize
+	TSize iGridIconSize; // grid icon size
+    TBool iIsDialogLaunched;
+    TBool iIsMMCRemoved;
     };
 
 #endif

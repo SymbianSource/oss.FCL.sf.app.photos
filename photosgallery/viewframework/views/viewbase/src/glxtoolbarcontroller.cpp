@@ -29,8 +29,20 @@
 #include <glxnavigationalstate.h>
 #include <mpxcollectionpath.h>
 #include <glxcollectionpluginimageviewer.hrh>
-const TInt KGlxToolbarButtonUnLatched = 0;   // As per the states in resource file
-const TInt KGlxToolbarButtonLatched = 1 ;
+#include <centralrepository.h>              // for checking the ShareOnline version
+
+// CONSTANTS AND DEFINITIONS
+namespace
+    {
+    // ShareOnline application UID    
+    const TUid KShareOnlineUid = { 0x2002CC1F };
+    // Shareonline Application version
+    const TUint32 KShareApplicationVersion = 0x1010020;
+    // Buffer to maintain the ShareOnline version number in use
+    const TInt KPhotosShareOnlineVersionBufLen = 12;
+    // Minimum version required for OneClickUpload to work
+    const TVersion KShareOnlineMinimumVersion( 5, 0, 0 );
+    }
 
 //----------------------------------------------------------------------------------
 // NewL
@@ -206,8 +218,63 @@ CGlxToolbarController::~CGlxToolbarController()
 void CGlxToolbarController::SetStatusOnViewActivationL( MGlxMediaList* aList )
      {
     TRACER("CGlxToolbarController::SetStatusOnViewActivationL");
-    GLX_LOG_INFO1("CGlxToolbarController::SetStatusOnViewActivationL(%d)",
-            aList->Count());
+    TRAPD(err, CheckShareonlineVersionL());
+    GLX_LOG_INFO2("CGlxToolbarController::SetStatusOnViewActivationL(%d),"
+            " err(%d)", aList->Count(), err);
+
+    CGlxNavigationalState* navigationalState =
+            CGlxNavigationalState::InstanceL();
+    CleanupClosePushL(*navigationalState);
+    if (navigationalState->ViewingMode() == NGlxNavigationalState::EBrowse)
+        {
+        if (err == KErrNone)
+            {
+            CAknButton* sendButton =
+                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                            EGlxCmdSend));
+            if (sendButton)
+                {
+                iToolbar->RemoveItem(EGlxCmdSend);
+                }
+            }
+        else
+            {
+            CAknButton* uploadButton =
+                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                            EGlxCmdUpload));
+            if (uploadButton)
+                {
+                iToolbar->RemoveItem(EGlxCmdUpload);
+                }
+            }
+        SetToolbarItemsDimmed(EFalse);
+        }
+    else if (navigationalState->ViewingMode() == NGlxNavigationalState::EView)
+        {
+        if (err == KErrNone)
+            {
+            CAknButton* slideshowButton =
+                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                            EGlxCmdSlideshowPlay));
+            if (slideshowButton)
+                {
+                iToolbar->RemoveItem(EGlxCmdSlideshowPlay);
+                }
+            }
+        else
+            {
+            CAknButton* uploadButton =
+                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                            EGlxCmdUpload));
+            if (uploadButton)
+                {
+                iToolbar->RemoveItem(EGlxCmdUpload);
+                }
+            }
+        SetToolbarItemsDimmed(EFalse);
+        }
+    CleanupStack::PopAndDestroy(navigationalState);
+
     // When going back from fullscreen to grid, when the attributes are already 
     // available in the cache, there is no HandleAttributeAvailable callback. Hence,
     // checking for medialist count.
@@ -239,6 +306,13 @@ void CGlxToolbarController::SetStatusL(MGlxMediaList* aList)
             {
             SetToolbarItemsDimmed(EFalse);
             }
+        else if (navigationalState->ViewingMode()
+                == NGlxNavigationalState::EBrowse)
+            {
+            TBool dimmed = aList->SelectionCount() ? EFalse : ETrue;
+            iToolbar->SetItemDimmed(EGlxCmdSend, dimmed, ETrue);
+            iToolbar->SetItemDimmed(EGlxCmdUpload, dimmed, ETrue);
+            }
         CleanupStack::PopAndDestroy(navigationalState);
         }
     }
@@ -253,14 +327,14 @@ void CGlxToolbarController::EnableLatch( TInt aCommandId, TInt aLatched )
                                 (iToolbar->ControlOrNull( aCommandId ));
 
     if( toolbarButton )
-        {           
-        if(aLatched)
+        {
+        if (aLatched)
             {
-            toolbarButton->SetCurrentState( KGlxToolbarButtonLatched, ETrue );
+            toolbarButton->SetCurrentState(ETrue, ETrue);
             }
         else
             {
-            toolbarButton->SetCurrentState( KGlxToolbarButtonUnLatched, ETrue );
+            toolbarButton->SetCurrentState(EFalse, ETrue);
             }
         }
     }
@@ -289,26 +363,73 @@ void CGlxToolbarController::SetToolbarItemsDimmed(TBool aDimmed)
         {
         iToolbar->SetItemDimmed(EGlxCmdSlideshowPlay, aDimmed, ETrue);
         iToolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, aDimmed, ETrue);
-        
-        if (!aDimmed)
+        iToolbar->SetItemDimmed(EGlxCmdSend, aDimmed, ETrue);
+        iToolbar->SetItemDimmed(EGlxCmdUpload, aDimmed, ETrue);
+        }
+    }
+
+// ----------------------------------------------------------------------------
+// CheckShareonlineVersionL
+// ----------------------------------------------------------------------------
+//
+void CGlxToolbarController::CheckShareonlineVersionL()
+    {
+    TRACER("CGlxToolbarController::CheckShareonlineVersionL");
+
+    CRepository* rep = CRepository::NewLC(KShareOnlineUid);
+    //
+    TBuf<KPhotosShareOnlineVersionBufLen> versionBuf;
+    // Query the ShareOnline version in the build
+    User::LeaveIfError(rep->Get(KShareApplicationVersion, versionBuf));
+
+    // Initialize version to zero
+    TVersion version(0, 0, 0);
+    TLex lex(versionBuf);
+    User::LeaveIfError(lex.Val(version.iMajor));
+    if (lex.Get() != TChar('.'))
+        {
+        User::Leave(KErrCorrupt);
+        }
+    User::LeaveIfError(lex.Val(version.iMinor));
+    if (lex.Get() != TChar('.'))
+        {
+        User::Leave(KErrCorrupt);
+        }
+    User::LeaveIfError(lex.Val(version.iBuild));
+
+    // Compare version number and leave if the detected
+    // version is less than KShareOnlineMinimumVersion.
+    if (version.iMajor < KShareOnlineMinimumVersion.iMajor)
+        {
+        User::LeaveIfError(KErrNotSupported);
+        }
+    else if (version.iMajor == KShareOnlineMinimumVersion.iMajor)
+        {
+        if (version.iMinor < KShareOnlineMinimumVersion.iMinor)
             {
-            CAknButton* uploadButton =
-                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
-                            EGlxCmdUpload));
-            TBool dimmed = EFalse;
-            if (uploadButton)
+            User::LeaveIfError(KErrNotSupported);
+            }
+        else if (version.iMinor == KShareOnlineMinimumVersion.iMinor)
+            {
+            if (version.iBuild < KShareOnlineMinimumVersion.iBuild)
                 {
-                // Get current button state
-                CAknButtonState* currentState = uploadButton->State();
-                dimmed = uploadButton->IsDimmed();
-                iToolbar->SetItemDimmed(EGlxCmdUpload, dimmed, ETrue);
+                User::LeaveIfError(KErrNotSupported);
+                }
+            else
+                {
+                // Version is supported, fall through
                 }
             }
         else
             {
-            iToolbar->SetItemDimmed(EGlxCmdUpload, aDimmed, ETrue);
+            // Version is supported, fall through
             }
         }
+    else
+        {
+        // Version is supported, fall through
+        }
+    CleanupStack::PopAndDestroy(rep);
     }
 
 //end of file

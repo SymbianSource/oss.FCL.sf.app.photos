@@ -832,6 +832,12 @@ RESOURCE TBUF r_glx_completion_rem_from_favourites
     buf = "#Removed from Favourites";
     }
 
+// Completion note for "File saved to"
+RESOURCE TBUF r_glx_completion_file_saved_to
+    {
+    buf = qtn_lgal_note_file_saved_to;
+    }
+
 RESOURCE CBA r_glx_progressbar_softkey_hide
     {
     buttons =

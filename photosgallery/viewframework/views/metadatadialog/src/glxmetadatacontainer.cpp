@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
 * All rights reserved.
 * This component and the accompanying materials are made available
 * under the terms of "Eclipse Public License v1.0"
@@ -31,7 +31,7 @@
 #include  <glxcommandfactory.h>                   //for command factory
 #include  <mpxcommandgeneraldefs.h>               // Content ID identifying general category of content provided
 #include  "mglxmetadatadialogobserver.h"
-#include  <glxtextentrypopup.h>    
+#include  <glxtextentrypopup.h>
 #include  <glxcollectionpluginall.hrh>
 #include  <glxuistd.h>
 #include  <glxcollectionplugintags.hrh>       	  // tag collection plugin uid
@@ -40,7 +40,7 @@
 #include  <aknQueryControl.h>
 #include  <glxdrmutility.h>                       //For launching DRM details pane
 #include  <glxgeneraluiutilities.h>               // General utilties class definition
-#include  <ExifModify.h>    
+#include  <ExifModify.h>
 #include  <glxuiutilities.rsg>                    //For CExifModify
 #include  <mpxmediadrmdefs.h>
 #include  <glxfilterfactory.h>
@@ -65,12 +65,12 @@ _LIT( KGlxComma, ",");
 // ---------------------------------------------------------
 // NewL
 // ---------------------------------------------------------
-//	
+//
 CGlxMetadataContainer* CGlxMetadataContainer::NewL( const TRect& aRect,
                                                     MGlxMetadataDialogObserver& aDialogObserver,
                                                     const TDesC& item,MToolbarResetObserver& aResetToolbarObs)
 	{
-	TRACER("CGlxMetadataContainer::NewL");	
+	TRACER("CGlxMetadataContainer::NewL");
 	CGlxMetadataContainer* self = CGlxMetadataContainer::NewLC( aRect,
                                                                 aDialogObserver,item,aResetToolbarObs);
 	CleanupStack::Pop(self);
@@ -80,25 +80,25 @@ CGlxMetadataContainer* CGlxMetadataContainer::NewL( const TRect& aRect,
 // ---------------------------------------------------------
 // NewLC
 // ---------------------------------------------------------
-//	
+//
 CGlxMetadataContainer* CGlxMetadataContainer::NewLC( const TRect& aRect,
 													 MGlxMetadataDialogObserver&  aDialogObserver,
 													 const TDesC& aUri,MToolbarResetObserver& aResetToolbarObs)
 	{
-	TRACER("CGlxMetadataContainer::NewLC");	
-	CGlxMetadataContainer* self = new(ELeave) CGlxMetadataContainer(aDialogObserver,aUri,aResetToolbarObs);
+	TRACER("CGlxMetadataContainer::NewLC");
+	CGlxMetadataContainer* self = new(ELeave) CGlxMetadataContainer(aDialogObserver, aResetToolbarObs);
 	CleanupStack::PushL(self);
-	self->ConstructL( aRect);
+	self->ConstructL( aRect, aUri);
 	return self;
 	}
 
 // ---------------------------------------------------------
 // CGlxMetadataContainer
 // ---------------------------------------------------------
-//	
+//
 CGlxMetadataContainer::CGlxMetadataContainer(MGlxMetadataDialogObserver& aDialogObserver,
-                                              const TDesC& aUri,MToolbarResetObserver& aResetToolbarObs)
-					  :iDialogObesrver ( aDialogObserver ),iUri(aUri),iResetToolbarObs(aResetToolbarObs)
+                                              MToolbarResetObserver& aResetToolbarObs)
+					  :iDialogObesrver ( aDialogObserver ),iResetToolbarObs(aResetToolbarObs)
     {
     // No implementation
     }
@@ -106,66 +106,65 @@ CGlxMetadataContainer::CGlxMetadataContainer(MGlxMetadataDialogObserver& aDialog
 // ---------------------------------------------------------
 // CGlxMetadataContainer::ConstructL
 // ---------------------------------------------------------
-//	
-void CGlxMetadataContainer::ConstructL( const TRect& /*aRect*/ )
-	{	
+//
+void CGlxMetadataContainer::ConstructL( const TRect& /*aRect*/ , const TDesC& aUri)
+	{
+
+	//media's uri
+	iUri = aUri.AllocL();
+
 	//Creating the RBuf texts for all the items except tags & albums
 	//which would be updated as whne the item is edited
 	iTextSetter.CreateL(KMaxFileName);
-	
+
 	//RBuf text which would be updated as when a tag is edited for the item.
 	iTagSetter.CreateL(KMaxFileName);
-	
+
 	//RBuf text which would be updated as when a album is edited for the item.
 	iAlbumSetter.CreateL(KMaxFileName);
-	
+
 	//Create medialist filtered by uri - iUri
 	CreateMediaListForSelectedItemL();
-	
-	//Setting the iVideo flag to EFalse initially	
+
+	//Setting the iVideo flag to EFalse initially
 	iVideo = EFalse;
-	
+
 	//Setting the iMarquee flag to EFalse initially
     iMarquee = EFalse;
-    
+
     //check when Remove location information is selected.
     iLocationinfo = EFalse;
-    
-	//Creating a CGlxMetadataAsyncUpdate object
-	iAsyncRequest = CGlxMetadataAsyncUpdate::NewL(*this);
-	
-	//Initializing to NULL
-	iModifiedUri = NULL;	
-	
-	//Flag to check if rename is completed successfully.
-	iRenameCompleted = EFalse;
+
+	//Flag to indicate rename command is started
+	iRenameStarted = EFalse;
+
 	}
 
 // ---------------------------------------------------------
 // ~CGlxMetadataContainer
 // ---------------------------------------------------------
-//	
+//
 CGlxMetadataContainer::~CGlxMetadataContainer()
 	{
 	TRACER("CGlxMetadataContainer::~CGlxMetadataContainer");
-	if( iItemMediaList ) 
+	if( iItemMediaList )
 		{
 		iItemMediaList->RemoveContext(iMainListAttributecontext);
 		iItemMediaList->RemoveMediaListObserver(this);
 		iItemMediaList->Close();
-		iItemMediaList = NULL;  
-		} 
-    if ( iTagMediaList ) 
+		iItemMediaList = NULL;
+		}
+    if ( iTagMediaList )
 		{
 		iTagMediaList->RemoveContext(iTagContext);
-		iTagMediaList->RemoveMediaListObserver(this); 
+		iTagMediaList->RemoveMediaListObserver(this);
 		iTagMediaList->Close();
 		iTagMediaList = NULL;
 		}
-    if ( iAlbumMediaList ) 
+    if ( iAlbumMediaList )
 		{
 		iAlbumMediaList->RemoveContext(iAlbumContext);
-		iAlbumMediaList->RemoveMediaListObserver(this); 
+		iAlbumMediaList->RemoveMediaListObserver(this);
 		iAlbumMediaList->Close();
 		iAlbumMediaList = NULL;
 		}
@@ -173,7 +172,7 @@ CGlxMetadataContainer::~CGlxMetadataContainer()
 		{
         delete iTagContext;
         iTagContext = NULL;
-		}    
+		}
     if( iAlbumContext )
 		{
         delete iAlbumContext;
@@ -183,7 +182,7 @@ CGlxMetadataContainer::~CGlxMetadataContainer()
         {
         delete iMainListAttributecontext;
         iMainListAttributecontext = NULL;
-        }       
+        }
     if( IsVisible() )
 	    {
 	    MakeVisible(EFalse);
@@ -191,63 +190,61 @@ CGlxMetadataContainer::~CGlxMetadataContainer()
     iTextSetter.Close();
     iTagSetter.Close();
     iAlbumSetter.Close();
-    if(iAsyncRequest) 	
-	    {
-    	delete iAsyncRequest;
-	    }
-	if(iModifiedUri)
+
+	if(iUri)
 		{
-		delete iModifiedUri;
+		delete iUri;
+		iUri = NULL;
 		}
 	}
-	
+
 //-----------------------------------------------------------------------------
 // CGlxMetadataContainer::MediaList
 //-----------------------------------------------------------------------------
 MGlxMediaList& CGlxMetadataContainer::MediaList()
     {
     //returns the active medialist.
-    return *iItemMediaList;    
+    return *iItemMediaList;
     }
-    
+
 //-----------------------------------------------------------------------------
 // CGlxMetadataContainer::CreateSettingItemL
 //-----------------------------------------------------------------------------
 CAknSettingItem* CGlxMetadataContainer::CreateSettingItemL(TInt aResourceId)
     {
-    TRACER("CGlxMetadataContainer::CreateSettingItemL");      
+    TRACER("CGlxMetadataContainer::CreateSettingItemL");
     CAknSettingItem* settingItem = NULL; // No need to push onto cleanup stack
 	iTextSetter.Zero();
-    
+
     //Creating a empty Settings list box which will  be populated with metadata in handleattributeavailable
-    
+
     switch(aResourceId)
         {
         case ENameItem:
         case EDateAndTimeItem:
         case EDescriptionItem:
             {
-            settingItem = new (ELeave) CAknTextSettingItem( 
+            settingItem = new (ELeave) CAknTextSettingItem(
                                              aResourceId, iTextSetter );
 
-            break;          
+            break;
             }
         case ETagsItem:
             {
              iTagSetter.Copy(KGlxTextSetter);
              settingItem = new (ELeave) CAknTextSettingItem(
                                                              aResourceId, iTagSetter );
-            break;          
+            break;
             }
         case EAlbumsItem:
-            {            
+            {
             iAlbumSetter.Copy(KGlxTextSetter);
-            settingItem = new (ELeave) CAknTextSettingItem( 
+            settingItem = new (ELeave) CAknTextSettingItem(
                                                   aResourceId, iAlbumSetter );
-            break;          
+            break;
             }
         case ELocationItem:
-        case ESizeItem:            
+        case ESizeItem:
         case EResolutionItem:
             {
             settingItem = new (ELeave) CAknTextSettingItem( 
@@ -348,16 +345,20 @@ void CGlxMetadataContainer::HandleListBoxEventL(CEikListBox*  /*aListBox*/,
 void CGlxMetadataContainer::HandleListboxChangesL()
     {
     TRACER("CGlxMetadataContainer::HandleListboxChangesL");
-    if(iItemMediaList->Count() == 0)
+
+    //dont Edit Item's details if medialist is empty
+    //OR Rename command is in progress
+    if(iItemMediaList->Count() == 0 || iRenameStarted)
     	{
+		GLX_LOG_INFO("MediaList empty or Rename command started");
     	return;
     	}
-    
+
     TInt index = ListBox()->CurrentItemIndex();
-    
+
     switch(index)
         {
-        case ENameItem:        
+        case ENameItem:
         case EDescriptionItem:
             {
             SetNameDescriptionL(index);
@@ -365,24 +366,24 @@ void CGlxMetadataContainer::HandleListboxChangesL()
             }
         case ETagsItem:
 			{
-			//Set the focus of the item	
+			//Set the focus of the item
 			iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);
 			//Launch add to container commandhandler via dialog observer.
 			iDialogObesrver.AddTagL();
-			break;         
+			break;
 			}
         case EAlbumsItem:
 			{
-			//Set the focus of the item	
+			//Set the focus of the item
 			iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);
 			//Launch add to container commandhandler via dialog observer.
 			iDialogObesrver.AddAlbumL();
-			break;          
+			break;
 			}
 		case ELocationItem:
 			{
 			// Get the Media Item
-			const TGlxMedia& media = iItemMediaList->Item(0);    
+			const TGlxMedia& media = iItemMediaList->Item(0);
 			// Test to see if the Coordinate is Present
 			TCoordinate coordinate;
 			if( !media.GetCoordinate(coordinate) )
@@ -403,12 +404,16 @@ void CGlxMetadataContainer::HandleListboxChangesL()
 			}
         case ElicenseItem:
 			{
-			//Create DRM utility
-			CGlxDRMUtility* drmUtility = CGlxDRMUtility::InstanceL();
-			CleanupClosePushL(*drmUtility);
-			drmUtility->ShowDRMDetailsPaneL(iItemMediaList->Item(0).Uri());
-			CleanupStack::PopAndDestroy(drmUtility);
-			}  
+		    const TGlxMedia& item = iItemMediaList->Item(0);
+		    if( item.IsDrmProtected())
+		        {
+                //Create DRM utility
+                CGlxDRMUtility* drmUtility = CGlxDRMUtility::InstanceL();
+                CleanupClosePushL(*drmUtility);
+                drmUtility->ShowDRMDetailsPaneL(item.Uri());
+                CleanupStack::PopAndDestroy(drmUtility);
+			    }
+			}
 			break;
         default:
 			{
@@ -419,7 +424,7 @@ void CGlxMetadataContainer::HandleListboxChangesL()
 //-----------------------------------------------------------------------------
 // CGlxMetadataContainer::CreateMediaListForSelectedItemL
 //-----------------------------------------------------------------------------
-void CGlxMetadataContainer::CreateMediaListForSelectedItemL(TBool aIsRename)
+void CGlxMetadataContainer::CreateMediaListForSelectedItemL( )
     {
     TRACER("CGlxMetadataContainer::CreateMediaListForSelectedItemL");
    
@@ -429,20 +434,11 @@ void CGlxMetadataContainer::CreateMediaListForSelectedItemL(TBool aIsRename)
     //set the all collection path as the details dialog can be launched from any of the grid views and filter with URI
     path->AppendL(KGlxCollectionPluginAllImplementationUid);
     //create the filter with the URI
-    CMPXFilter* filter = NULL;
-    if(aIsRename)
-	    {
-	    //create the filter with the modified URI after Rename happens
-	    filter = TGlxFilterFactory::CreateURIFilterL(iModifiedUri->Des());
-	    }
-	else
-		{
-		filter  = TGlxFilterFactory::CreateURIFilterL(iUri);
-		}
-    CleanupStack::PushL( filter );
-    //create the medialist   
-    iItemMediaList = MGlxMediaList::InstanceL(*path,TGlxHierarchyId(KMediaListId),filter);   
-  
+    CMPXFilter* filter = TGlxFilterFactory::CreateURIFilterL(*iUri);
+	CleanupStack::PushL( filter );
+    //create the medialist
+    iItemMediaList = MGlxMediaList::InstanceL(*path,TGlxHierarchyId(KMediaListId),filter);
+
     //Add the attributes which are required to be displayed.
     iMainListAttributecontext = new (ELeave) CGlxAttributeContext(&iSelectionIterator);
     iMainListAttributecontext->AddAttributeL(KMPXMediaDrmProtected);
@@ -567,7 +563,10 @@ void CGlxMetadataContainer::ViewDynInitMenuPaneL(TInt aMenuId, CEikMenuPane* aMe
         aMenuPane->SetItemDimmed(KGlxViewBoundMenuCommandId,IsLicenseItem());
         //location info will be enabled if the item has a location info
 		aMenuPane->SetItemDimmed(KGlxDeleteBoundMenuCommandId,IsLocationItem());
-        aMenuPane->SetItemDimmed(EGlxCmdAiwShowMap,IsLocationItem());
+		// Show on Map is no longer part of requirements and should not be shown in the 
+		// options menu. When show on map has to come back, replace the 'ETrue' below with 
+		// the function IsLocationItem. 
+        aMenuPane->SetItemDimmed(EGlxCmdAiwShowMap,ETrue);
         }
         
     
@@ -787,6 +786,8 @@ void CGlxMetadataContainer::SetNameDescriptionL(TInt aItem)
     HBufC* textBuf = HBufC::NewLC( KMaxMediaPopupTitleLength );
     (textBuf->Des()).Copy((settingsitem->SettingTextL()));
     TPtr textPtr = textBuf->Des();
+    //Remove preceeding & trailing spaces
+    textPtr.Trim();
     TBuf<KMaxMediaPopupTitleLength> titleText(*textBuf);
     HBufC *buf = NULL;
     if(aItem == ENameItem)
@@ -811,8 +812,11 @@ void CGlxMetadataContainer::SetNameDescriptionL(TInt aItem)
 		{
 		if(0 != (titleText.Compare(*textBuf)))
 			{
+			
+			TFileName fileName = ParseFileName(*textBuf);
+			//check If filename already exists
 			if ((aItem == ENameItem) &&
-					(BaflUtils::FileExists(ControlEnv()->FsSession(), ParseFileName(*textBuf))))
+					(BaflUtils::FileExists(ControlEnv()->FsSession(), fileName)))
 				{
 				//if changed title is same as existing one then showing the already use popup to user
 				HBufC* info = StringLoader::LoadLC(R_GLX_NAME_ALREADY_USED, *textBuf);
@@ -826,24 +830,71 @@ void CGlxMetadataContainer::SetNameDescriptionL(TInt aItem)
 				iTextSetter.Copy(*textBuf);
 				EditItemL(aItem,EFalse);
 				iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);//set focus to first item
-				CMPXCollectionPath* path = iItemMediaList->PathLC();
-				CMPXCommand* command = NULL;
-				//Create the glx command based on the item
+				
 				if(aItem == ENameItem)
 					{
-					command = TGlxCommandFactory::RenameCommandLC(settingsitem->SettingTextL(),
-					                                                  *path);
+					//indicate Rename command is started
+					iRenameStarted = ETrue;
+					//set Setting List Box to Dimmed status
+					SetDimmed(iRenameStarted);
+					
+					const TGlxMedia& media = iItemMediaList->Item(0);
+					ContentAccess::CManager *manager = ContentAccess::CManager::NewL();
+					CleanupStack::PushL(manager);
+					HBufC* modifiedName = fileName.AllocLC();
+					
+					//rename the media
+					TInt error = manager->RenameFile(media.Uri(), *modifiedName);
+					if(KErrNone == error)
+						{
+						//Redundant call But needed in case FileSystem is too slow 
+						//to notify MDS for updating title.
+						//Create the glx command for updating Title in MDS
+						CMPXCollectionPath* path = iItemMediaList->PathLC();
+						CMPXCommand* command = TGlxCommandFactory::RenameCommandLC(
+								settingsitem->SettingTextL(), *path);
+						command->SetTObjectValueL<TAny*> (
+								KMPXCommandGeneralSessionId,
+								static_cast<TAny*> (this));
+						//issue command to the medialist which further 
+						//calls data source to update MDS
+						iItemMediaList->CommandL(*command);
+						CleanupStack::PopAndDestroy(command);
+						CleanupStack::PopAndDestroy(path);
+						}
+					else
+						{
+						//Renaming commmand failed
+						iRenameStarted = EFalse;
+						//reset Setting Items to undim status
+						SetDimmed(iRenameStarted);
+						//Reset the EName Settings field
+						iTextSetter.Zero();
+						iTextSetter.Copy(media.Title());
+						EditItemL(ENameItem,EFalse);
+						
+						User::LeaveIfError(error);
+						}
+					CleanupStack::PopAndDestroy(modifiedName);
+					CleanupStack::PopAndDestroy(manager);
 					}
 				else
 					{
-					command = TGlxCommandFactory::SetDescriptionCommandLC(settingsitem->SettingTextL(),
-					                                          *path);
+					//Create the glx command for changing description
+					CMPXCollectionPath* path = iItemMediaList->PathLC();
+					CMPXCommand* command =
+							TGlxCommandFactory::SetDescriptionCommandLC(
+									settingsitem->SettingTextL(), *path);
+					command->SetTObjectValueL<TAny*> (
+							KMPXCommandGeneralSessionId,
+							static_cast<TAny*> (this));
+					//issue command to the medialist which further 
+					//calls data source to update MDS
+					iItemMediaList->CommandL(*command);
+					CleanupStack::PopAndDestroy(command);
+					CleanupStack::PopAndDestroy(path);
 					}
-				command->SetTObjectValueL<TAny*>(KMPXCommandGeneralSessionId, static_cast<TAny*>(this));
-				//issue command to the medialist which further calls data source to update MDS
-				iItemMediaList->CommandL(*command);
-				CleanupStack::PopAndDestroy(command);
-				CleanupStack::PopAndDestroy(path);
+				
 				}
 			}
 		}
@@ -955,11 +1006,42 @@ void CGlxMetadataContainer::HandleAttributesAvailableL( TInt /*aItemIndex*/,
             //set attributes to the items in the container
             SetAttributesL(aAttributes[i]);
             }
-        if (iRenameCompleted)
-            {
-            iRenameCompleted = EFalse;
-            iAvkonAppUi->ProcessCommandL(EGlxCmdRenameCompleted);
-            }
+
+        //Here following 2 cases are handled:-
+        //1) Rename from Photos application or Post-Capture view
+        //- HandleAttributeavailable - new title & new uri at same time.
+        //May come twice here since Redundant Rename CMD sent to MDS.
+        //2) Rename from Filemanager.
+        //- HandleAttributeavailable - new title & new uri at same time.
+        //Check if media's uri(i.e 'aModifiedUri') is different from 'iUri'
+        //i.e media is Renamed then Refesh Media list.
+        TMPXAttribute uriAttrib(KMPXMediaGeneralUri);
+        TIdentityRelation< TMPXAttribute > match ( &TMPXAttribute::Match );
+        TInt index = aAttributes.Find(uriAttrib, match);
+        if (KErrNotFound != index)
+        	{
+        	HBufC* modifiedUri = NULL;
+			TGlxMedia item = iItemMediaList->Item(0);
+			//Create the string convertor instance
+			CGlxUStringConverter* stringConverter = CGlxUStringConverter::NewL();
+			CleanupStack::PushL(stringConverter);
+
+			//fetch media uri
+			stringConverter->AsStringL(item,aAttributes[index],0, modifiedUri );
+			CleanupStack::PopAndDestroy(stringConverter);
+
+			//Check if media item was renamed
+			if (modifiedUri && modifiedUri->Compare(*iUri) != 0)
+				{
+				//Set rename command as started since
+				//Rename is also possible from File Manager
+				iRenameStarted = ETrue;
+				CleanupStack::PushL(modifiedUri);
+				RefreshMediaListL(*modifiedUri);
+				CleanupStack::PopAndDestroy(modifiedUri);
+				}
+			}
+
         }
     
     TMPXAttribute titleAttrib(KMPXMediaGeneralTitle);
@@ -1016,7 +1098,7 @@ void CGlxMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndI
 			TGlxMedia item = iItemMediaList->Item(0);
 			CGlxUStringConverter* stringConverter = CGlxUStringConverter::NewL();
 			CleanupStack::PushL(stringConverter );
-			for(TInt index = 0; index <= ElicenseItem ; index++)
+			for(TInt index = 0; index <= EDurationItem ; index++)
 				{
 				HBufC* string = NULL;               
                 iTextSetter.Zero();             
@@ -1077,7 +1159,17 @@ void CGlxMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndI
 				CleanupStack::PopAndDestroy(string );
 				}
 			CleanupStack::PopAndDestroy(stringConverter );
-			}   
+
+			//Reopening Media list is completed
+			//& Rename Command is also completed
+			if(iRenameStarted)
+				{
+				iRenameStarted = EFalse;
+				//reset Setting Items to undimmed status
+				SetDimmed(iRenameStarted);
+				iAvkonAppUi->ProcessCommandL(EGlxCmdRenameCompleted);
+				}
+			}
         }
     }
 // ----------------------------------------------------------------------------
@@ -1113,35 +1205,18 @@ void CGlxMetadataContainer::HandleCommandCompleteL(TAny* aSessionId,
         CMPXCommand* aCommandResult, TInt aError, MGlxMediaList* aList)
     {
     TRACER("CGlxMetadataContainer::HandleCommandCompleteL()");
-    //To rename the uri in File System
+    
+    //Callback from MDS when rename the Title
     if(aError == KErrNone)
 		{
 		if(aList == iItemMediaList && aCommandResult->IsSupported(KMPXMediaGeneralTitle))
 			{
-			iItemMediaList->SetFocusL(NGlxListDefs::EAbsolute,0);
-			const TGlxMedia& media = iItemMediaList->Item(0);
-			ContentAccess::CManager *manager = ContentAccess::CManager::NewL();
-			CleanupStack::PushL(manager);
-			TFileName fileName = ParseFileName(iTextSetter);
-			if(iModifiedUri)
-				{
-				delete iModifiedUri;
-				iModifiedUri = NULL;	
-				}			
-			iModifiedUri = fileName.AllocL();			
-			iTextSetter.Zero();
-			TInt error = manager->RenameFile(media.Uri(), iModifiedUri->Des());
-			if(error == KErrNone)
-				{
-				iAsyncRequest->CompleteSelf();	
-				}
-			else
-				{
-				User::LeaveIfError(error);
-				}		
-			CleanupStack::PopAndDestroy(manager);
+			GLX_LOG_INFO("RenameCMD to MDS completed");
+			//Since RenameCommand to MDS is redundant and FileSystem has 
+			//already renamed the file, so there is no need to do anything here
 			}
 		}
+    
     //To update the location information once the delete operation is successful.
     if(aList == iItemMediaList && iLocationinfo 
             && static_cast<TAny*>( this ) == aSessionId)
@@ -1302,104 +1377,25 @@ TFileName CGlxMetadataContainer::ParseFileName(const TDesC& aTitleText)
 	}
 
 // ---------------------------------------------------------------------------
-// Create new MediaList with modified FileName.
+// Refresh MediaList with modified FileName.
 // ---------------------------------------------------------------------------
-void CGlxMetadataContainer::RefreshMediaListL()
+void CGlxMetadataContainer::RefreshMediaListL(const TDesC& aModifiedUri)
 	{
+	//Refresh media list since media is renamed
     TRACER("CGlxMetadataContainer::RefreshMediaList()");
-    if (iItemMediaList)
-        {
-        iItemMediaList->RemoveContext(iMainListAttributecontext);
-        iItemMediaList->RemoveMediaListObserver(this);
-        iItemMediaList->Close();
-        iItemMediaList = NULL;
-        if (iMainListAttributecontext)
-            {
-            delete iMainListAttributecontext;
-            iMainListAttributecontext = NULL;
-            }
-        CreateMediaListForSelectedItemL(ETrue);
-        }
-    iRenameCompleted = ETrue;
+    if (iUri)
+		{
+		delete iUri;
+		iUri = NULL;
+		}
+	//always points to current media name
+	iUri = aModifiedUri.AllocL();
+	CMPXFilter* filter = TGlxFilterFactory::CreateURIFilterL(*iUri);
+	CleanupStack::PushL(filter);
+
+	//Update media list's filter
+	iItemMediaList->SetFilterL(filter);
+	CleanupStack::PopAndDestroy(filter);
     }
 
-// ---------------------------------------------------------------------------
-// Completes the active object causing a call from the active scheduler to RunL()
-// ---------------------------------------------------------------------------
-//
-void CGlxMetadataAsyncUpdate::CompleteSelf()
-    {
-    TRACER("CGlxMetadataAsyncUpdate::CompleteSelf");
-    TRequestStatus* status=&iStatus;
-    User::RequestComplete(status, KErrNone);
-    SetActive();  	    
-    }
-    
-// -----------------------------------------------------------------------------
-// RunL
-// -----------------------------------------------------------------------------
-//  
-void CGlxMetadataAsyncUpdate::RunL()
-    {
-    TRACER("CGlxMetadataAsyncUpdate::RunL");
-    if(iStatus.Int() == KErrNone)
-    	{    	
-    	iObserver.RefreshMediaListL();    	
-    	}
-    }
-
-// -----------------------------------------------------------------------------
-// DoCancel
-// -----------------------------------------------------------------------------
-// 
-void CGlxMetadataAsyncUpdate::DoCancel()
-    {
-    TRACER("CGlxMetadataAsyncUpdate::DoCancel");
-    // No need to do anything
-    }    
-    
-// ---------------------------------------------------------
-// NewL
-// ---------------------------------------------------------
-//
-CGlxMetadataAsyncUpdate* CGlxMetadataAsyncUpdate::NewL(CGlxMetadataContainer& aObserver)
-	{
-	TRACER("CGlxMetadataAsyncUpdate::NewL");
-	CGlxMetadataAsyncUpdate* self = CGlxMetadataAsyncUpdate::NewLC(aObserver);
-	CleanupStack::Pop(self);
-	return self;
-	}
-
-// ---------------------------------------------------------
-// NewLC
-// ---------------------------------------------------------
-//
-CGlxMetadataAsyncUpdate* CGlxMetadataAsyncUpdate::NewLC(CGlxMetadataContainer& aObserver)
-	{
-	TRACER("CGlxMetadataAsyncUpdate::NewLC");
-	CGlxMetadataAsyncUpdate* self = new(ELeave) CGlxMetadataAsyncUpdate(aObserver);
-	CleanupStack::PushL(self);
-	return self;
-	}
-
-// ---------------------------------------------------------
-// Constructor
-// ---------------------------------------------------------
-//
-CGlxMetadataAsyncUpdate::CGlxMetadataAsyncUpdate(CGlxMetadataContainer& aObserver):
-								CActive(EPriorityStandard),iObserver(aObserver)
-    {
-    TRACER("CGlxMetadataAsyncUpdate::CGlxMetadataAsyncUpdate()");
-    CActiveScheduler::Add(this);
-    }
-	  
-// ---------------------------------------------------------
-// Destructor
-// ---------------------------------------------------------
-//	
-CGlxMetadataAsyncUpdate::~CGlxMetadataAsyncUpdate()
-	{
-	TRACER("CGlxMetadataAsyncUpdate::~CGlxMetadataAsyncUpdate");
-	Cancel();	
-	}
 //End of file

@@ -47,7 +47,8 @@ public:
      * Update Image
      * @param1 - Image file path
      */
-    IMPORT_C void SetImageL(const TDesC& aImageFile, TBool aStore = ETrue);
+    IMPORT_C void SetImageL(const TDesC& aImageFile, CFbsBitmap* aFsBitmap = NULL, 
+            TBool aStore = ETrue);
 
     /*
      * To intimate that the item is not supported.  
@@ -117,16 +118,16 @@ private:
      * Stores the Image File name
      * @param1 - Image file
      */
-    void StoreImageInfoL(const TDesC& aImageFile);
+    void StoreImageInfoL(const TDesC& aImageFile, CFbsBitmap* aFsBitmap);
 
 private:
+    CFbsBitmap* iFsBitmap;
     HBufC*  iStoredImagePath;
     
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;
     TBool iIsImageSupported;
-	TBool iIsPostingMode;
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

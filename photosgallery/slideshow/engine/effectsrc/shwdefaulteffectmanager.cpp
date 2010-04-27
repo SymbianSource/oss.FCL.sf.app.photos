@@ -25,6 +25,7 @@
 
 #include <glxlog.h>
 #include <glxtracer.h>
+#include <shwcleanupwrapper.h>
 
 #include "shweffect.h"
 #include "shwconstants.h"
@@ -219,12 +220,14 @@ void CShwDefaultEffectManager::GetActiveEffectsL(
     {
     TRACER("CShwDefaultEffectManager::GetActiveEffectsL");
     GLX_LOG_INFO( "CShwDefaultEffectManager::GetActiveEffectsL" );
+    ShwCleanupResetAndDestroyPushL(aEffects);
     // Retrieve each effect
     for( TInt i = 0; i < iEffects.Count(); ++i )
         {
         // append the effect pointer to the given array
         aEffects.AppendL( iEffects[i] );  
         }
+    CleanupStack::Pop(&aEffects);
     }
 
 // -----------------------------------------------------------------------------

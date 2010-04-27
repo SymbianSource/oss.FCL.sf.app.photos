@@ -67,8 +67,6 @@ RESOURCE MENU_PANE r_tagsbrowser_menu
                     txt=qtn_lgal_options_alphabetical; },
         MENU_ITEM { command=EGlxCmdSortByCount; 
                     txt=qtn_lgal_options_most_used; },
-        MENU_ITEM { command=EGlxStopShowing; 
-                    txt=qtn_lgal_options_stop_show; }, 
 		MENU_ITEM { command=EAknCmdHelp; 
 		            txt=qtn_options_help; },
 		MENU_ITEM { command=EAknCmdExit; 

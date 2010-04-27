@@ -42,7 +42,6 @@ class MGlxMediaList;
 class CGlxDetailsMulModelProvider;
 class MGlxMetadataDialogObserver;
 class CGlxCommandHandlerAddToContainer;
-class CGlxMetadataAsyncUpdate;
 
 #include "glxmedia.h"
 
@@ -113,23 +112,21 @@ private:
 		* 
 		* @param aMediaList media list
 		*/
-		CGlxMetadataContainer(MGlxMetadataDialogObserver& aDialogObserver,const TDesC& aUri
-		        ,MToolbarResetObserver& aResetToolbarObs);
+		CGlxMetadataContainer(MGlxMetadataDialogObserver& aDialogObserver,
+			MToolbarResetObserver& aResetToolbarObs);
 		
 		/**
 		* Symbian 2nd phase constructor
 		* @param aRect rect for this control
+		* @para aUri uri for media item
 		*/		
-		void ConstructL( const TRect& aRect);
+		void ConstructL( const TRect& aRect, const TDesC& aUri);
 		
 		/** 
 		*  Create media list with URI filter
 		*  This function creates the collection path filter and finally the MediaList 
-		*
-		*  @param aIsRename If ETrue,then MediaList is created with iModifiedUri 
-		*  ,if EFalse,then created with iUri
 		*/
-		void CreateMediaListForSelectedItemL(TBool aIsRename = EFalse);
+		void CreateMediaListForSelectedItemL( );
 		/** 
 		*  Create media list to get the tags list for the particular Item.
 		*  This function creates the collection path filter and finally the MediaList 
@@ -163,6 +160,14 @@ private:
 		*  @return TFileName as modified uri
 		*/
 		TFileName ParseFileName(const TDesC& aTitleText);	
+
+		/**
+		*  Refresh MediaList with modified FileName.
+		*
+		*  @param aModifiedUri is the new media uri
+		*/
+		void RefreshMediaListL(const TDesC& aModifiedUri);
+
 public:
 		//MedialistObserver APIS
 		void HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
@@ -182,11 +187,8 @@ public:
 		MGlxMediaList& MediaList();
 		void HandleCommandCompleteL(TAny* aSessionId, 
 		        CMPXCommand* /*aCommandResult*/, TInt aError, MGlxMediaList* aList);
-		/** 
-		*  Create new mediaList with modified filename.
-		*/
-		void RefreshMediaListL();
-	
+
+
 private: 	//data
     
 		MGlxMetadataDialogObserver& iDialogObesrver;
@@ -200,7 +202,10 @@ private: 	//data
 		RBuf iTextSetter;
 		RBuf iTagSetter;
 		RBuf iAlbumSetter;
-		const TDesC& iUri ;
+
+		//(Owns) must always represent the media's current uri.
+		HBufC* iUri;
+
 		MGlxMediaList* iItemMediaList;
 		MGlxMediaList* iTagMediaList;
 		MGlxMediaList* iAlbumMediaList;
@@ -209,61 +214,12 @@ private: 	//data
 		TGlxSelectionIterator iSelectionIterator;
 		CGlxAttributeContext* iMainListAttributecontext;   
 		MToolbarResetObserver& iResetToolbarObs; // observer
-		//New variable introduce to hold the modified uri name 
-		//since iUri is const type.     
-    	HBufC* iModifiedUri;
-		CGlxMetadataAsyncUpdate* iAsyncRequest;
-		TBool iRenameCompleted;
-    };
-    
-/**
- * CGlxMetadataAsyncUpdate
- * 
- * Metadata asynchronous update implementation
- * Asynchronously refreshing the MediaList because it can't be done in any MediaList callback.
- */
-class CGlxMetadataAsyncUpdate: public CActive
-	{
-	
-	public:
-		/**
-		* Symbian standard two phase construction.Construct object of CGlxMetadataAsyncUpdate class.
-		* 
-		* @param aObserver CGlxMetadataContainer
-		* @return MetadataAsynchronous object
-		*/
-		static CGlxMetadataAsyncUpdate* NewL(CGlxMetadataContainer& aObserver);
-		/**
-		* Symbian standard two phase construction.Construct object of CGlxMetadataAsyncUpdate class.
-		* 
-		* @param aObserver CGlxMetadataContainer
-		* @return MetadataAsynchronous object
-		*/
-		static CGlxMetadataAsyncUpdate* NewLC(CGlxMetadataContainer& aObserver);
-		/**
-	    * Destructor
-	    */       
-	    ~CGlxMetadataAsyncUpdate();
-	    /**
-	     * Completes the active object causing a call from the 
-	     * active scheduler to RunL()
-	     * (test in RunL using iStatus.Int())
-	     */
-    	void CompleteSelf();
-	private:
-		/**
-		* C++ constructor.
-		* 
-		* @param aObserver CGlxMetadataContainer
-		*/
-		CGlxMetadataAsyncUpdate(CGlxMetadataContainer& aObserver);
-		// from CActive
-	    void RunL();
-	    void DoCancel();
-	    
-    private:
-    	CGlxMetadataContainer& iObserver;
+
+    	//Flag to indicate rename command is started
+    	TBool iRenameStarted;
+
 	};
+
 #endif //C_GLXMETADATACONTAINER_H__
 
 //End of file

@@ -123,8 +123,6 @@ RESOURCE MENU_PANE r_glx_grid_menu
     {
         items=
                 {
-                  MENU_ITEM { command = EAknCmdOpen;
-                              txt = qtn_msk_open; },
                   MENU_ITEM { command = EGlxCmdPlay;
                               txt = qtn_lgal_options_play; },
                   MENU_ITEM { command = EGlxCmdSend;
@@ -167,20 +165,6 @@ RESOURCE MENU_PANE r_glx_grid_menu
                               txt = qtn_lgal_options_add_to_album;},
                   MENU_ITEM { command = EGlxCmdSingleClickAddTag;
                               txt = qtn_lgal_options_properties_add_tag;}, 
-                  MENU_ITEM { command = EGlxCmdAiwAssign;
-                              txt = qtn_lgal_options_use_items; 
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },                      
-                  MENU_ITEM { command = EGlxCmdAiwShowMap;
-                              txt = qtn_lgal_option_show_on_map;
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },                                           
-                  MENU_ITEM { command = EGlxCmdDrmMoreInfoOnline;
-                              txt=qtn_drm_options_more_info; },                   
-                  MENU_ITEM { command = EGlxCmdAiwPrint; 
-                              txt = qtn_lgal_options_print_menu; 
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },                            
-                  MENU_ITEM { command = EGlxHomeNetworkSubmenu; 
-                               txt = qtn_lgal_options_home_network; 
-                               cascade = r_home_network_menu; },
                   MENU_ITEM { command = EAknCmdHelp; 
                               txt = qtn_options_help; },
                   MENU_ITEM { command = EAknCmdExit; 
@@ -193,8 +177,6 @@ RESOURCE MENU_PANE r_glx_album_grid_menu
     {
         items= 
             {                             
-                  MENU_ITEM { command = EAknCmdOpen;
-                              txt = qtn_msk_open; },
                   MENU_ITEM { command = EGlxCmdPlay;
                               txt = qtn_lgal_options_play; },
                   MENU_ITEM { command = EGlxCmdSend;
@@ -239,20 +221,6 @@ RESOURCE MENU_PANE r_glx_album_grid_menu
                               txt = qtn_lgal_options_add_to_album;},
                   MENU_ITEM { command = EGlxCmdSingleClickAddTag;
                               txt = qtn_lgal_options_properties_add_tag;}, 
-                  MENU_ITEM { command = EGlxCmdAiwAssign;
-                              txt = qtn_lgal_options_use_items; 
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },                     
-                  MENU_ITEM { command = EGlxCmdAiwShowMap;
-                              txt = qtn_lgal_option_show_on_map;
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },                                           
-                  MENU_ITEM { command = EGlxCmdDrmMoreInfoOnline;
-                              txt=qtn_drm_options_more_info; },
-                  MENU_ITEM { command = EGlxCmdAiwPrint; 
-                              txt = qtn_lgal_options_print_menu; 
-                              cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },                            
-                  MENU_ITEM { command = EGlxHomeNetworkSubmenu; 
-                               txt = qtn_lgal_options_home_network; 
-                               cascade = r_home_network_menu; },
                   MENU_ITEM { command = EAknCmdHelp; 
                               txt = qtn_options_help; },
                   MENU_ITEM { command = EAknCmdExit; 
@@ -265,8 +233,6 @@ RESOURCE MENU_PANE r_taggrid_menu
    {
    items=
          {
-        MENU_ITEM { command = EAknCmdOpen;
-                    txt = qtn_msk_open; },
         MENU_ITEM { command = EGlxCmdPlay;
                     txt = qtn_lgal_options_play; },
         MENU_ITEM { command = EGlxCmdSend;
@@ -311,20 +277,6 @@ RESOURCE MENU_PANE r_taggrid_menu
                     flags = EEikMenuItemSpecific; },
         MENU_ITEM { command = EGlxCmdSingleClickAddTag;
                     txt = qtn_lgal_options_properties_add_tag;}, 
-        MENU_ITEM { command = EGlxCmdAiwAssign;
-                    txt = qtn_lgal_options_use_items; 
-                    cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },            
-        MENU_ITEM { command = EGlxCmdAiwShowMap;
-                    txt = qtn_lgal_option_show_on_map;
-                    cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },                                           
-        MENU_ITEM { command = EGlxCmdDrmMoreInfoOnline;
-                    txt=qtn_drm_options_more_info; },
-        MENU_ITEM { command = EGlxCmdAiwPrint;
-                    txt = qtn_lgal_options_print_menu; 
-                    cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },                            
-        MENU_ITEM { command = EGlxHomeNetworkSubmenu; 
-                     txt = qtn_lgal_options_home_network; 
-                     cascade = r_home_network_menu; },
          MENU_ITEM { command = EAknCmdHelp; 
                      txt = qtn_options_help; },
          MENU_ITEM { command = EAknCmdExit; 
@@ -542,6 +494,15 @@ RESOURCE TBUF r_grid_empty_view_text
     buf = qtn_lgal_empty_grid_no_items; 
     }
 
+RESOURCE TBUF r_grid_empty_view_text_image
+    {
+    buf = qtn_lgal_empty_grid_no_images;
+    }
+
+RESOURCE TBUF r_grid_empty_view_text_video
+    {
+    buf = qtn_lgal_empty_grid_no_videos;
+    }
 RESOURCE TBUF r_grid_view_text_download_header
     {
     buf = qtn_lgal_info_download_header;
@@ -613,7 +574,27 @@ RESOURCE AVKON_TOOLBAR r_glx_grid_view_toolbar
                       };
                   };
               },
-
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdSend;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                        bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                        press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                        helptxt = qtn_lgal_tooltip_send;
+                        }
+                    };
+                };
+            },
         TBAR_CTRL
             {
             type = EAknCtButton;

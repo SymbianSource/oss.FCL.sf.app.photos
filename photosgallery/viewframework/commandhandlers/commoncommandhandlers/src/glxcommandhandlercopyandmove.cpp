@@ -45,14 +45,18 @@ _LIT(KColonBackslash, ":\\");
 // Two-phased constructor.
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CGlxCommandHandlerCopyAndMove* CGlxCommandHandlerCopyAndMove::NewL(MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource)
-    {
-    CGlxCommandHandlerCopyAndMove* self = new (ELeave) CGlxCommandHandlerCopyAndMove(aMediaListProvider, aMenuResource);
-    CleanupStack::PushL(self);
-    self->ConstructL();
-    CleanupStack::Pop(self);
-    return self;
-    }
+EXPORT_C CGlxCommandHandlerCopyAndMove* CGlxCommandHandlerCopyAndMove::NewL(
+		MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
+		const TDesC& aFileName)
+	{
+	CGlxCommandHandlerCopyAndMove* self =
+			new (ELeave) CGlxCommandHandlerCopyAndMove(aMediaListProvider,
+					aMenuResource);
+	CleanupStack::PushL(self);
+	self->ConstructL(aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
 
 // ---------------------------------------------------------------------------
 // Destructor.
@@ -147,51 +151,46 @@ void CGlxCommandHandlerCopyAndMove::DoDynInitMenuPaneL(TInt aResourceId, CEikMen
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerCopyAndMove::ConstructL()
-    {
-    // Load resource file
-    TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
+void CGlxCommandHandlerCopyAndMove::ConstructL(const TDesC& aFileName)
+	{
+	// Load resource file
 
-    iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
+	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
 
-    // Add supported command
-    TCommandInfo copyInfo(EGlxCmdCopy);
-    copyInfo.iMinSelectionLength = 1;
-    copyInfo.iMaxSelectionLength = KMaxTInt;
-    // Filter out static items
-    AddCommandL(copyInfo);
-    
-    TCommandInfo moveInfo(EGlxCmdMove);
-    moveInfo.iMinSelectionLength = 1;
-    moveInfo.iMaxSelectionLength = KMaxTInt;
-    // Filter out static items
-    AddCommandL(moveInfo);
-    
-    TCommandInfo copyAndMoveSubmenuInfo(EGlxCmdCopyMoveSubmenu);
-    copyAndMoveSubmenuInfo.iMinSelectionLength = 1;
-    copyAndMoveSubmenuInfo.iMaxSelectionLength = KMaxTInt;
-    // Show in Grid View
-    copyAndMoveSubmenuInfo.iViewingState = TCommandInfo::EViewingStateBrowse;
-    // Filter out static items 
-    // (The whole sub menu should be filtered out if a static item is selected)
-    AddCommandL(copyAndMoveSubmenuInfo);
-    
-    TCommandInfo browseInfo(EGlxCmdStateBrowse);
-    browseInfo.iMinSelectionLength = 0;
-    browseInfo.iMaxSelectionLength = KMaxTInt;
-    // Filter out static items
-    AddCommandL(browseInfo);
-    
-    TCommandInfo viewInfo(EGlxCmdStateView);
-    viewInfo.iMinSelectionLength = 0;
-    viewInfo.iMaxSelectionLength = KMaxTInt;
-    // Filter out static items
-    AddCommandL(viewInfo);
-    }
+	// Add supported command
+	TCommandInfo copyInfo(EGlxCmdCopy);
+	copyInfo.iMinSelectionLength = 1;
+	copyInfo.iMaxSelectionLength = KMaxTInt;
+	// Filter out static items
+	AddCommandL(copyInfo);
+
+	TCommandInfo moveInfo(EGlxCmdMove);
+	moveInfo.iMinSelectionLength = 1;
+	moveInfo.iMaxSelectionLength = KMaxTInt;
+	// Filter out static items
+	AddCommandL(moveInfo);
+
+	TCommandInfo copyAndMoveSubmenuInfo(EGlxCmdCopyMoveSubmenu);
+	copyAndMoveSubmenuInfo.iMinSelectionLength = 1;
+	copyAndMoveSubmenuInfo.iMaxSelectionLength = KMaxTInt;
+	// Show in Grid View
+	copyAndMoveSubmenuInfo.iViewingState = TCommandInfo::EViewingStateBrowse;
+	// Filter out static items 
+	// (The whole sub menu should be filtered out if a static item is selected)
+	AddCommandL(copyAndMoveSubmenuInfo);
+
+	TCommandInfo browseInfo(EGlxCmdStateBrowse);
+	browseInfo.iMinSelectionLength = 0;
+	browseInfo.iMaxSelectionLength = KMaxTInt;
+	// Filter out static items
+	AddCommandL(browseInfo);
+
+	TCommandInfo viewInfo(EGlxCmdStateView);
+	viewInfo.iMinSelectionLength = 0;
+	viewInfo.iMaxSelectionLength = KMaxTInt;
+	// Filter out static items
+	AddCommandL(viewInfo);
+	}
 
 // ---------------------------------------------------------------------------
 // C++ default constructor can NOT contain any code, that

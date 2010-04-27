@@ -45,15 +45,17 @@
 // ---------------------------------------------------------------------------
 //
 EXPORT_C CGlxCommandHandlerDelete* CGlxCommandHandlerDelete::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aContainerList, TBool aHasToolbarItem)
-    {
-    /// @todo Minor: Rowland Cook 06/06/07 no use of glx logging
-    CGlxCommandHandlerDelete* self = new (ELeave) CGlxCommandHandlerDelete(aMediaListProvider, aHasToolbarItem);
-    CleanupStack::PushL( self );
-    self->ConstructL(aContainerList);
-    CleanupStack::Pop( self );
-    return self;
-    }
+		MGlxMediaListProvider* aMediaListProvider, TBool aContainerList,
+		TBool aHasToolbarItem, const TDesC& aFileName)
+	{
+	/// @todo Minor: Rowland Cook 06/06/07 no use of glx logging
+	CGlxCommandHandlerDelete* self = new (ELeave) CGlxCommandHandlerDelete(
+			aMediaListProvider, aHasToolbarItem);
+	CleanupStack::PushL(self);
+	self->ConstructL(aContainerList, aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
 
 // ---------------------------------------------------------------------------
 // C++ default constructor can NOT contain any code, that
@@ -66,34 +68,32 @@ CGlxCommandHandlerDelete::CGlxCommandHandlerDelete(MGlxMediaListProvider* aMedia
     // Don't do anything.
     }
  
+
+
 // ---------------------------------------------------------------------------
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerDelete::ConstructL(TBool aIsContainerList)
-    {
-    iIsContainerList = aIsContainerList;
-    iUiUtility = CGlxUiUtility::UtilityL();
-    
-    // Load resource file
-	TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
-   	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
+void CGlxCommandHandlerDelete::ConstructL(TBool aIsContainerList,
+		const TDesC& aFileName)
+	{
+	iIsContainerList = aIsContainerList;
+	iUiUtility = CGlxUiUtility::UtilityL();
 
-   	// Add supported command
-   	TCommandInfo info( EGlxCmdDelete );
-   	// Filter out static items
-    info.iMinSelectionLength = 1;
-    info.iDisallowSystemItems = aIsContainerList;
-   	AddCommandL(info);
-   	
-   	TCommandInfo singleclkinfo( EGlxCmdSingleClickDelete );
-    singleclkinfo.iMinSelectionLength = 1;
-    singleclkinfo.iDisallowSystemItems = aIsContainerList;
-    AddCommandL(singleclkinfo);
+	// Load resource file
+	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
+
+	// Add supported command
+	TCommandInfo info(EGlxCmdDelete);
+	// Filter out static items
+	info.iMinSelectionLength = 1;
+	info.iDisallowSystemItems = aIsContainerList;
+	AddCommandL(info);
+
+	TCommandInfo singleclkinfo(EGlxCmdSingleClickDelete);
+	singleclkinfo.iMinSelectionLength = 1;
+	singleclkinfo.iDisallowSystemItems = aIsContainerList;
+	AddCommandL(singleclkinfo);
 	}
 
 // ---------------------------------------------------------------------------

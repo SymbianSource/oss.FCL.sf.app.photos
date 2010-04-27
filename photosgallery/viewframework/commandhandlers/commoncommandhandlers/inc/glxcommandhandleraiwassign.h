@@ -41,17 +41,19 @@ NONSHARABLE_CLASS (CGlxCommandHandlerAiwAssign)
     {
 public:
     /**
-     * Two-phase constructor
-     * @param aMediaListProvider object that provides the media list
-     * @param aMenuResource The menu resource that the AIW command will be 
-     *          implented in
-     * @return Fully constructed command handler
-     * @warning ConstructL of base class is called. If ConstructL is 
-     *          implemented in this class, then care must be taken to call 
-     *          CGlxCommandHandlerAiwBase::ConstructL
-     */
+	 * Two-phase constructor
+	 * @param aMediaListProvider object that provides the media list
+	 * @param aMenuResource The menu resource that the AIW command will be 
+	 *          implented in
+     * @param aFileName resource file
+	 * @return Fully constructed command handler
+	 * @warning ConstructL of base class is called. If ConstructL is 
+	 *          implemented in this class, then care must be taken to call 
+	 *          CGlxCommandHandlerAiwBase::ConstructL
+	 */
 	IMPORT_C static CGlxCommandHandlerAiwAssign* NewL(
-	    MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource);
+			MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
+			const TDesC& aFileName);
 	
 	~CGlxCommandHandlerAiwAssign();
 	
@@ -77,8 +79,10 @@ private:
      */
     CGlxCommandHandlerAiwAssign(MGlxMediaListProvider* aMediaListProvider, 
         TInt aMenuResource);
-    
-    void ConstructL();
+    /**
+     * @param aFileName resource file
+     */
+    void ConstructL(const TDesC& aFileName);
 
 private: // Data Members
     

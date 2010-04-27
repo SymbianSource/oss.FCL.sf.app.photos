@@ -172,10 +172,8 @@ void T_CShwTimerControl::T_PauseL()
 	// iCShwTimerControl to send any event
 	// start asynch wait for 1 second
 	iStoppedForTimer = EFalse;
-	timer->Start( 
-		1 * 1000000, 
-		1 * 1000000, 
-		TShwCallBack< T_CShwTimerControl, TimerCallBack >( this ) );
+    timer->Start(1 * 1000000, 1 * 1000000, TShwCallBack<T_CShwTimerControl,
+            &T_CShwTimerControl::TimerCallBack> (this));
 
 	// Need to let the scheduler loop
 	iWait.Start();
@@ -191,10 +189,8 @@ void T_CShwTimerControl::T_PauseL()
 
 	// start the timer again
 	iStoppedForTimer = EFalse;
-	timer->Start( 
-		1 * 1000000, 
-		1 * 1000000, 
-		TShwCallBack< T_CShwTimerControl, TimerCallBack >( this ) );
+    timer->Start(1 * 1000000, 1 * 1000000, TShwCallBack<T_CShwTimerControl,
+            &T_CShwTimerControl::TimerCallBack> (this));
 
 	// Need to let the scheduler loop
 	iWait.Start();
@@ -215,7 +211,8 @@ void T_CShwTimerControl::T_PauseL()
 	timer->Start( 
 		1 * 1000000, 
 		1 * 1000000, 
-		TShwCallBack< T_CShwTimerControl, TimerCallBack >( this ) );
+        TShwCallBack<T_CShwTimerControl,
+            &T_CShwTimerControl::TimerCallBack> (this));
 	// Need to let the scheduler loop
 	iWait.Start();
 	timer->Cancel();

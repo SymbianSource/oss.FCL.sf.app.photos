@@ -64,6 +64,7 @@ SYSTEMINCLUDE   ../../../commandhandlers/commoncommandhandlers/inc
 SYSTEMINCLUDE   ../../../commandhandlers/commandhandlerupnp/inc      //Command Handler Upnp
 SYSTEMINCLUDE   ../../../medialists/inc
 SYSTEMINCLUDE	../../../../slideshow/engine/inc
+SYSTEMINCLUDE	  ../../../../common/inc
 
 APP_LAYER_SYSTEMINCLUDE
 
@@ -83,7 +84,7 @@ LIBRARY         glxviewbase.lib
 LIBRARY         glxlistview.lib
 LIBRARY         glxcommoncommandhandlers.lib
 LIBRARY         glxupnpcommandhandler.lib                            //upnp Command handlers
-
+LIBRARY         glxcommon.lib					// For CReourceUtilities
 
 //EXPORTUNFROZEN
 

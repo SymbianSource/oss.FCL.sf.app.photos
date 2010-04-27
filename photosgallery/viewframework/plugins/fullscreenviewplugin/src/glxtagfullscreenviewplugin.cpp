@@ -91,22 +91,26 @@ CGlxTagFullScreenViewPlugin::~CGlxTagFullScreenViewPlugin()
 // Adds Command Handlers to the view
 //-----------------------------------------------------------------------------
 void CGlxTagFullScreenViewPlugin::AddCommandHandlersL()
-   {
-   TRACER( "CGlxTagFullScreenViewPlugin::AddCommandHandlersL"); 
-    
-   CGlxFullScreenViewPluginBase::AddCommandHandlersL();
-    
-   //For tag tile view
-   GLX_LOG_INFO("Adding CGlxCommandHandlerRemoveFrom");
-   iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(iFullScreenView, EMPXTag)); 
+	{
+	TRACER( "CGlxTagFullScreenViewPlugin::AddCommandHandlersL");
 
-    // set up help context info
-    TGlxHelpContext helpInfo;
-    helpInfo.iBrowseContext = LGAL_HLP_TAGS_GRID;
-    helpInfo.iBrowseContext = LGAL_HLP_TAGS_FULLSCREEN;
-    
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo)); 
-    }
+	CGlxFullScreenViewPluginBase::AddCommandHandlersL();
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+
+	//For tag tile view
+	GLX_LOG_INFO("Adding CGlxCommandHandlerRemoveFrom");
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(
+			iFullScreenView, EMPXTag, uiutilitiesrscfile));
+
+	// set up help context info
+	TGlxHelpContext helpInfo;
+	helpInfo.iBrowseContext = LGAL_HLP_TAGS_GRID;
+	helpInfo.iBrowseContext = LGAL_HLP_TAGS_FULLSCREEN;
+
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
+	}
 
 //-----------------------------------------------------------------------------
 // Get the Resource File Name

@@ -51,7 +51,8 @@ public:
 
 public: // From CGlxCommandHandler
 	virtual TBool ExecuteL(TInt aCommand);
-	virtual void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
+	virtual void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane,
+                                    TBool aIsBrowseMode);
 	virtual void DoActivateL(TInt aViewId);
 	virtual void Deactivate();
 	virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent, TEventCode aType);

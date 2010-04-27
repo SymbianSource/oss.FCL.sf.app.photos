@@ -56,11 +56,12 @@ const TInt KRecreateGridSize(5); //minimum no of items added to trigger recreate
 // ---------------------------------------------------------------------------
 //
 EXPORT_C CGlxGridViewMLObserver* CGlxGridViewMLObserver::NewL(
-        MGlxMediaList& aMediaList, CHgGrid* aHgGrid)
+        MGlxMediaList& aMediaList, CHgGrid* aHgGrid,
+        TGlxFilterItemType aFilterType)
     {
     TRACER("CGlxGridViewMLObserver::NewL()");
-    CGlxGridViewMLObserver* self = 
-            new (ELeave) CGlxGridViewMLObserver(aMediaList, aHgGrid);
+    CGlxGridViewMLObserver* self = new (ELeave) CGlxGridViewMLObserver(
+            aMediaList, aHgGrid, aFilterType);
     CleanupStack::PushL(self);
     self->ConstructL();
     CleanupStack::Pop(self);
@@ -72,7 +73,8 @@ EXPORT_C CGlxGridViewMLObserver* CGlxGridViewMLObserver::NewL(
 // ---------------------------------------------------------------------------
 //
 CGlxGridViewMLObserver::CGlxGridViewMLObserver(MGlxMediaList& aMediaList,
-        CHgGrid* aHgGrid ) : iMediaList(aMediaList), iHgGrid(aHgGrid)
+        CHgGrid* aHgGrid, TGlxFilterItemType aFilterType) :
+    iMediaList(aMediaList), iHgGrid(aHgGrid), iFilterType(aFilterType)
     {
     TRACER("CGlxGridViewMLObserver::CGlxGridViewMLObserver()");
     }
@@ -224,7 +226,7 @@ void CGlxGridViewMLObserver::HandleAttributesAvailableL( TInt aItemIndex,
         TInt tnError = GlxErrorManager::HasAttributeErrorL(
                           item.Properties(), KGlxMediaIdThumbnail );
         GLX_DEBUG4("GlxGridMLObs::HandleAttributesAvailableL() tnError(%d)"
-                "qualityTn(%x) and speedTn(%x)", qualityTn, speedTn, tnError);
+                "qualityTn(%x) and speedTn(%x)",tnError, qualityTn, speedTn );
 
         if (qualityTn)
             {
@@ -416,12 +418,29 @@ void CGlxGridViewMLObserver::HandlePopulatedL( MGlxMediaList* /*aList*/ )
     if (iHgGrid)
         {
         // Setting the Empty Text
-        HBufC* emptyText = 
-                  StringLoader::LoadLC(R_GRID_EMPTY_VIEW_TEXT);
-        iHgGrid->SetEmptyTextL(*emptyText);
-        CleanupStack::PopAndDestroy(emptyText);
+        if (iFilterType == EGlxFilterImage)
+            {
+            HBufC* emptyText = StringLoader::LoadLC(
+                    R_GRID_EMPTY_VIEW_TEXT_IMAGE);
+            iHgGrid->SetEmptyTextL(*emptyText);
+            CleanupStack::PopAndDestroy(emptyText);
+            }
+        else if (iFilterType == EGlxFilterVideo)
+            {
+            HBufC* emptyText = StringLoader::LoadLC(
+                    R_GRID_EMPTY_VIEW_TEXT_VIDEO);
+            iHgGrid->SetEmptyTextL(*emptyText);
+            CleanupStack::PopAndDestroy(emptyText);
+            }
+        else
+            {
+            HBufC* emptyText = StringLoader::LoadLC(R_GRID_EMPTY_VIEW_TEXT);
+            iHgGrid->SetEmptyTextL(*emptyText);
+            CleanupStack::PopAndDestroy(emptyText);
+            }
+
         GLX_DEBUG2("GridMLObserver::HandlePopulatedL() iMediaList.Count()=%d",
-                                                          iMediaList.Count());
+                iMediaList.Count());
         
         if (iMediaList.Count() <= 0)
             {

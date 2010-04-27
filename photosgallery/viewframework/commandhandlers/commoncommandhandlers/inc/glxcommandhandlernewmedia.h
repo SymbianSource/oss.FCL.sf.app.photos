@@ -39,10 +39,12 @@ NONSHARABLE_CLASS(CGlxCommandHandlerNewMedia) : public CGlxMpxCommandCommandHand
 	{
 public:
     /** 
-     * Two-phase constructor: 
-     * @param aMediaListProvider object that provides the media list.
-     */
-	IMPORT_C static CGlxCommandHandlerNewMedia* NewL(MGlxMediaListProvider* aMediaListProvider);
+	 * Two-phase constructor: 
+	 * @param aMediaListProvider object that provides the media list.
+	 * @param aFileName resource file
+	 */
+	IMPORT_C static CGlxCommandHandlerNewMedia* NewL(
+			MGlxMediaListProvider* aMediaListProvider, const TDesC& aFileName);
     
 	/** Destructor */
 	IMPORT_C ~CGlxCommandHandlerNewMedia();
@@ -78,7 +80,7 @@ public: // from CGlxMediaListCommandHandler
 	
 private:
     /** Second phase constructor */
-	void ConstructL();
+	void ConstructL(const TDesC& aFileName);
 	
     /** 
      * First phase constructor 

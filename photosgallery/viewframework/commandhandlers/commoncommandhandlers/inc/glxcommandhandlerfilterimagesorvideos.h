@@ -70,7 +70,8 @@ NONSHARABLE_CLASS( CGlxCommandHandlerFilterImagesOrVideos )
     private: // From CGlxMediaListCommandHandler
 
         /// @ref CGlxMediaListCommandHandler
-        void DynInitMenuPaneL( TInt aResourceId, CEikMenuPane* aMenuPane );
+        void DynInitMenuPaneL( TInt aResourceId, CEikMenuPane* aMenuPane, 
+								TBool aIsBrowseMode );
 
         /// @ref CGlxMediaListCommandHandler
         void DoActivateL( TInt aViewId );

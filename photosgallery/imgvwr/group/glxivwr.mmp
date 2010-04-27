@@ -30,7 +30,7 @@ TARGET                  glxivwr.exe
 TARGETTYPE              exe
 UID                     0x100039CE 0x200104E7
 
-CAPABILITY              GLX_CAPABILITIES
+CAPABILITY              CAP_APPLICATION
 
 SOURCEPATH              ../src
 SOURCE                  glxivwrapplication.cpp 

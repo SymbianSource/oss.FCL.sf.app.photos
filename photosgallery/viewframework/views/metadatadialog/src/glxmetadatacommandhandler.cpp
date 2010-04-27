@@ -25,7 +25,7 @@
 #include <glxcommandhandleraiwshowmap.h>
 #include <glxcommandhandlers.hrh>
 #include <glxmetadatadialog.rsg>
-
+#include <glxresourceutilities.h>        
 
 //-----------------------------------------------------------------------------
 // C++ default constructor.
@@ -61,8 +61,11 @@ CGlxMetadataCommandHandler* CGlxMetadataCommandHandler::NewL(
 void CGlxMetadataCommandHandler::ConstructL()
 	{
 	TRACER("CGlxMetadataCommandHandler::ConstructL");
-	
-	iShowOnMapCmdHandler = CGlxCommandHandlerAiwShowMap::NewL(iMediaListProvider, R_METADATA_MENU);
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+	iShowOnMapCmdHandler = CGlxCommandHandlerAiwShowMap::NewL(
+			iMediaListProvider, R_METADATA_MENU,uiutilitiesrscfile);
 	}
 
 //-----------------------------------------------------------------------------
@@ -109,9 +112,10 @@ void CGlxMetadataCommandHandler::PreDynInitMenuPaneL( TInt aResourceId )
 // DynInitMenuPaneL
 // -----------------------------------------------------------------------------
 //
-void CGlxMetadataCommandHandler::DynInitMenuPaneL( TInt aMenuId, CEikMenuPane* aMenuPane )
+void CGlxMetadataCommandHandler::DynInitMenuPaneL( TInt aMenuId, CEikMenuPane* aMenuPane,
+        TBool aIsBrowseMode)
     {
 	TRACER("CGlxMetadataCommandHandler::DynInitMenuPaneL");
     
-    iShowOnMapCmdHandler->DynInitMenuPaneL(aMenuId,aMenuPane);
+    iShowOnMapCmdHandler->DynInitMenuPaneL(aMenuId,aMenuPane,aIsBrowseMode);
     }

@@ -60,7 +60,6 @@ EXPORT_C CGlxCommandHandlerAiwEdit* CGlxCommandHandlerAiwEdit::NewL(
 //
 EXPORT_C CGlxCommandHandlerAiwEdit::~CGlxCommandHandlerAiwEdit()
     {
-    delete iFeatManager;
     delete iServiceHandler;
 
     if (NULL != iImageViewerInstance)
@@ -75,12 +74,20 @@ EXPORT_C CGlxCommandHandlerAiwEdit::~CGlxCommandHandlerAiwEdit()
 //
 void CGlxCommandHandlerAiwEdit::ConstructL()
     {
-    TRAP_IGNORE(
-                {
-                iServiceHandler = CAiwServiceHandler::NewL();
-                iServiceHandler->AttachL( R_GLX_AIW_EDIT_INTEREST );
-                iEditSupported = ETrue;
-                });
+    CFeatureDiscovery* featManager = CFeatureDiscovery::NewL();
+    CleanupStack::PushL(featManager);
+    
+    if(featManager->IsFeatureSupportedL(KFeatureIdFfImageEditor)
+       && featManager->IsFeatureSupportedL(KFeatureIdFfVideoEditor))
+        {
+        TRAP_IGNORE(
+                    {
+                    iServiceHandler = CAiwServiceHandler::NewL();
+                    iServiceHandler->AttachL( R_GLX_AIW_EDIT_INTEREST );
+                    iEditSupported = ETrue;
+                    });
+        }
+    CleanupStack::PopAndDestroy(featManager);
 
     if (iCommandSingleClick)
         {
@@ -93,8 +100,9 @@ void CGlxCommandHandlerAiwEdit::ConstructL()
         AddCommandL(info);
         }
 
-    iImageViewerInstance = CGlxImageViewerManager::InstanceL();
-    iFeatManager = CFeatureDiscovery::NewL();
+    iImageViewerInstance = CGlxImageViewerManager::InstanceL();   
+    
+    iIsFullScreenMode = IsInFullScreenViewingModeL();
     }
 
 // -----------------------------------------------------------------------------
@@ -123,22 +131,19 @@ void CGlxCommandHandlerAiwEdit::DoActivateL(TInt /*aViewId*/)
 // -----------------------------------------------------------------------------
 //
 void CGlxCommandHandlerAiwEdit::DynInitMenuPaneL(TInt /*aResourceId*/,
-        CEikMenuPane* aMenuPane)
+        CEikMenuPane* aMenuPane, TBool /*aIsBrowseMode*/)
     {
-    MGlxMediaList& mediaList = MediaList();
-    TInt pos;
 
     if (aMenuPane)
         {
+        MGlxMediaList& mediaList = MediaList();
+        TInt pos;
         //If stylus menu is present, hide it for multiple selection
         if (iCommandSingleClick && aMenuPane->MenuItemExists(
                 EGlxCmdAiwSingleClickEdit, pos)
 
                 && (((!mediaList.Count()) || (mediaList.SelectionCount() > 1))
-                        || (!iFeatManager->IsFeatureSupportedL(
-                                KFeatureIdFfImageEditor)
-                                && !iFeatManager->IsFeatureSupportedL(
-                                        KFeatureIdFfVideoEditor))))
+                        || !iEditSupported))
             {
             aMenuPane->SetItemDimmed(EGlxCmdAiwSingleClickEdit, ETrue);
             }
@@ -149,11 +154,8 @@ void CGlxCommandHandlerAiwEdit::DynInitMenuPaneL(TInt /*aResourceId*/,
             // selection is not equal to 1, we should hide Edit menu item 
             if ((iImageViewerInstance->IsPrivate()
                     || (mediaList.SelectionCount() != 1
-                            && !IsInFullScreenViewingModeL()))
-                    || (!iFeatManager->IsFeatureSupportedL(
-                            KFeatureIdFfImageEditor)
-                            && !iFeatManager->IsFeatureSupportedL(
-                                    KFeatureIdFfVideoEditor)))
+                            && !iIsFullScreenMode))
+                    || !iEditSupported)
                 {
                 aMenuPane->SetItemDimmed(EGlxCmdAiwEdit, ETrue);
                 }

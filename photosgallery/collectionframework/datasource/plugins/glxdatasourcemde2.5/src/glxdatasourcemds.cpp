@@ -533,7 +533,7 @@ void CGlxDataSourceMde::AddMdEObserversL()
 	iSession->AddObjectObserverL(*this, addCondition );
 	iSession->AddObjectPresentObserverL(*this );
 		
-	CleanupStack::PopAndDestroy( addCondition ); 
+	CleanupStack::Pop( addCondition ); //This addCondition should only be popped. The destroy part will be done by MDS.
     }
 
 // ---------------------------------------------------------------------------

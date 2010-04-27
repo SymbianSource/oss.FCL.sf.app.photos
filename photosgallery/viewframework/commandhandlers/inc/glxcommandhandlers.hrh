@@ -98,6 +98,7 @@ enum TGlxCommandId
     EGlxCmdAiwSingleClickEdit,
     EGlxCmdSingleClickRemoveFrom,
     EGlxCmdRenameCompleted, 
+    EGlxCmdDialogLaunched,
     EGlxCmdAiwBase = 0x6000
     };
     

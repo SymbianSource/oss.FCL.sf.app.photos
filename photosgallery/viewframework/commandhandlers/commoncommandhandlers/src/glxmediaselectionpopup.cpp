@@ -413,9 +413,10 @@ EXPORT_C CMPXCollectionPath* CGlxMediaSelectionPopup::ExecuteLD(
 
         if (iMediaList->Item(iListBox->CurrentItemIndex()).IsStatic())
             {
-
-            CGlxCommandHandlerNewMedia* commandHandlerNewMedia =
-                    CGlxCommandHandlerNewMedia::NewL(this);
+			TFileName uiutilitiesrscfile;
+			uiutilitiesrscfile.Append(CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+			CGlxCommandHandlerNewMedia* commandHandlerNewMedia =
+			CGlxCommandHandlerNewMedia::NewL(this,uiutilitiesrscfile);
             TGlxMediaId newMediaId;
             TInt error = commandHandlerNewMedia->ExecuteLD(newMediaId);
             if (error == KErrNone)

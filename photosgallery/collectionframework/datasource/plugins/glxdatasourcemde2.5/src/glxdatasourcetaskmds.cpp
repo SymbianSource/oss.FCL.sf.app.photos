@@ -253,7 +253,11 @@ void CGlxDataSourceTaskMde::SetQueryConditionsL(CMdEQuery& aQuery,
     CMdEObjectDef* objectDef = &aObjectDef;
 
     SetQueryFilterConditionsL(rootCondition, *objectDef, aFilterProperties);
-    SetSortOrderL(aQuery, aObjectDef, aFilterProperties);
+
+    if (aQuery.ResultMode() != EQueryResultModeCount)
+        {
+        SetSortOrderL(aQuery, aObjectDef, aFilterProperties);
+        }
     
     if( KGlxCollectionRootId != aContainerId.Value() )
         {
@@ -544,8 +548,8 @@ void CGlxDataSourceTaskMde::DoQueryL(CMdEObjectDef& aObjectDef,
             *queryBaseObject, this);
     CleanupStack::PushL(query);
     
-    SetQueryConditionsL(*query, iFilterProperties, aContainerId, aObjectDef);   
     query->SetResultMode(aResultMode);
+    SetQueryConditionsL(*query, iFilterProperties, aContainerId, aObjectDef);   
     
     CleanupStack::Pop(query);
     

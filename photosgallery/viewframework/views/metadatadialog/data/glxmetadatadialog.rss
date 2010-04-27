@@ -133,21 +133,20 @@ RESOURCE DIALOG r_metadata_dialog
                         name = qtn_lgal_details_resolution_title;
                         empty_item_text = " ";
                         },
+                    AVKON_SETTING_ITEM
+                       {
+                       identifier = ElicenseItem;
+                       setting_page_resource = r_metadata_name_settings_page;
+                       name = qtn_lgal_detail_drm;
+                       empty_item_text = " ";
+                       },
                    AVKON_SETTING_ITEM
                        {
                        identifier = EDurationItem;
                        setting_page_resource = r_metadata_name_settings_page;
                        name = qtn_lgal_details_duration;
                        empty_item_text = " ";
-                       },
-                       AVKON_SETTING_ITEM
-                       {
-                       identifier = ElicenseItem;
-                       setting_page_resource = r_metadata_name_settings_page;
-                       name = qtn_lgal_detail_drm;
-                       empty_item_text = " ";
                        }
-       
                     };
                 };
             }

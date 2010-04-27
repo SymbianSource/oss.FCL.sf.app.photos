@@ -322,20 +322,20 @@ inline void CShwThumbnailLoader::CShwThumbnailLoaderImpl::ConstructL()
     // is faster than the timers we have
     iCompletedCallBack = new( ELeave ) CAsyncCallBack( CActive::EPriorityHigh );
     // set the callback
-    iCompletedCallBack->Set( 
-        TShwCallBack< CShwThumbnailLoaderImpl, CompletedNotifyL >( this ) );
+    iCompletedCallBack->Set(TShwCallBack<CShwThumbnailLoaderImpl,
+            &CShwThumbnailLoaderImpl::CompletedNotifyL> (this));
 
     // create async callback to give error callbacks once scheduler runs
     iErrorCallBack = new( ELeave ) CAsyncCallBack( CActive::EPriorityHigh );
     // set the callback
-    iErrorCallBack->Set( 
-        TShwCallBack< CShwThumbnailLoaderImpl, ErrorNotifyL >( this ) );
+    iErrorCallBack->Set(TShwCallBack<CShwThumbnailLoaderImpl,
+            &CShwThumbnailLoaderImpl::ErrorNotifyL> (this));
         
     // create async callback to give callback once we run onto errors
     iErrorHandlerCallBack = new( ELeave ) CAsyncCallBack( CActive::EPriorityHigh );
     // set the callback
-    iErrorHandlerCallBack->Set( 
-        TShwCallBack< CShwThumbnailLoaderImpl, AsyncErrorHandleL >( this ) );
+    iErrorHandlerCallBack->Set(TShwCallBack<CShwThumbnailLoaderImpl,
+            &CShwThumbnailLoaderImpl::AsyncErrorHandleL> (this));
     }
 
 // -----------------------------------------------------------------------------

@@ -222,6 +222,8 @@ private:
     CAknToolbar* iToolbar;
     CGlxProgressIndicator* iProgressIndicator;
     CGlxMMCNotifier* iMMCNotifier;
+    TBool iIsDialogLaunched;
+    TBool iIsMMCRemoved;
 	};
 
 #endif // CGLXGRIDVIEWCONTROL_H

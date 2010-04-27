@@ -41,12 +41,14 @@ NONSHARABLE_CLASS(CGlxCommandHandlerRename) :
 	{
 public:
     /**
-     * Two-phase constructor
-     * @param aMediaListProvider object that provides the media list
-     * @param aHasToolbarItem Whether Command Should be toolbar item (ETrue - if toolbar item)
-     */
+	 * Two-phase constructor
+	 * @param aMediaListProvider object that provides the media list
+	 * @param aHasToolbarItem Whether Command Should be toolbar item (ETrue - if toolbar item)
+	 * @param aFileName resource file
+	 */
 	IMPORT_C static CGlxCommandHandlerRename* NewL(
-	    MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem );
+			MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem,
+			const TDesC& aFileName);
 	    
 	/** Destructor */
 	IMPORT_C ~CGlxCommandHandlerRename();
@@ -75,7 +77,7 @@ private:
 
 private:
     /** Second phase constructor */
-	void ConstructL();
+	void ConstructL(const TDesC& aFileName);
 
     /**
      *  Constructor

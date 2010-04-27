@@ -13,7 +13,7 @@ EXPORTS
 	_ZN27CGlxMediaListCommandHandler12TCommandInfoC1Ei @ 12 NONAME
 	_ZN27CGlxMediaListCommandHandler12TCommandInfoC2Ei @ 13 NONAME
 	_ZN27CGlxMediaListCommandHandler14OfferKeyEventLERK9TKeyEvent10TEventCode @ 14 NONAME
-	_ZN27CGlxMediaListCommandHandler16DynInitMenuPaneLEiP12CEikMenuPane @ 15 NONAME
+	_ZN27CGlxMediaListCommandHandler16DynInitMenuPaneLEiP12CEikMenuPanei @ 15 NONAME
 	_ZN27CGlxMediaListCommandHandler18DoDynInitMenuPaneLEiP12CEikMenuPane @ 16 NONAME
 	_ZN27CGlxMediaListCommandHandler19PreDynInitMenuPaneLEi @ 17 NONAME
 	_ZN27CGlxMediaListCommandHandler8ExecuteLEi @ 18 NONAME
@@ -62,20 +62,20 @@ EXPORTS
 	_ZNK28CGlxMpxCommandCommandHandler23ConfirmationNoteSingleLEiR13MGlxMediaList @ 61 NONAME
 	_ZNK28CGlxMpxCommandCommandHandler25ConfirmationNoteMultipleLEiR13MGlxMediaList @ 62 NONAME
 	_ZNK28CGlxMpxCommandCommandHandler8OkToExitEv @ 63 NONAME
-	_ZTI18CGlxCommandHandler @ 64 NONAME ; #<TI>#
-	_ZTI27CGlxMediaListCommandHandler @ 65 NONAME ; #<TI>#
-	_ZTI28CGlxMpxCommandCommandHandler @ 66 NONAME ; #<TI>#
-	_ZTV18CGlxCommandHandler @ 67 NONAME ; #<VT>#
-	_ZTV27CGlxMediaListCommandHandler @ 68 NONAME ; #<VT>#
-	_ZTV28CGlxMpxCommandCommandHandler @ 69 NONAME ; #<VT>#
-	_ZThn48_N28CGlxMpxCommandCommandHandler12HandleMediaLEiP13MGlxMediaList @ 70 NONAME ; #<thunk>#
-	_ZThn48_N28CGlxMpxCommandCommandHandler14HandleMessageLERK9CMPXMediaP13MGlxMediaList @ 71 NONAME ; #<thunk>#
-	_ZThn48_N28CGlxMpxCommandCommandHandler16HandleItemAddedLEiiP13MGlxMediaList @ 72 NONAME ; #<thunk>#
-	_ZThn48_N28CGlxMpxCommandCommandHandler18HandleItemRemovedLEiiP13MGlxMediaList @ 73 NONAME ; #<thunk>#
-	_ZThn48_N28CGlxMpxCommandCommandHandler19HandleFocusChangedLEN12NGlxListDefs16TFocusChangeTypeEiiP13MGlxMediaList @ 74 NONAME ; #<thunk>#
-	_ZThn48_N28CGlxMpxCommandCommandHandler19HandleItemModifiedLERK6RArrayIiEP13MGlxMediaList @ 75 NONAME ; #<thunk>#
-	_ZThn48_N28CGlxMpxCommandCommandHandler19HandleItemSelectedLEiiP13MGlxMediaList @ 76 NONAME ; #<thunk>#
-	_ZThn48_N28CGlxMpxCommandCommandHandler22HandleCommandCompleteLEPvP9CMPXMediaiP13MGlxMediaList @ 77 NONAME ; #<thunk>#
-	_ZThn48_N28CGlxMpxCommandCommandHandler26HandleAttributesAvailableLEiRK6RArrayI13TMPXAttributeEP13MGlxMediaList @ 78 NONAME ; #<thunk>#
-	_ZThn52_N28CGlxMpxCommandCommandHandler16DialogDismissedLEi @ 79 NONAME ; #<thunk>#
+	_ZTI18CGlxCommandHandler @ 64 NONAME
+	_ZTI27CGlxMediaListCommandHandler @ 65 NONAME
+	_ZTI28CGlxMpxCommandCommandHandler @ 66 NONAME
+	_ZTV18CGlxCommandHandler @ 67 NONAME
+	_ZTV27CGlxMediaListCommandHandler @ 68 NONAME
+	_ZTV28CGlxMpxCommandCommandHandler @ 69 NONAME
+	_ZThn48_N28CGlxMpxCommandCommandHandler12HandleMediaLEiP13MGlxMediaList @ 70 NONAME
+	_ZThn48_N28CGlxMpxCommandCommandHandler14HandleMessageLERK9CMPXMediaP13MGlxMediaList @ 71 NONAME
+	_ZThn48_N28CGlxMpxCommandCommandHandler16HandleItemAddedLEiiP13MGlxMediaList @ 72 NONAME
+	_ZThn48_N28CGlxMpxCommandCommandHandler18HandleItemRemovedLEiiP13MGlxMediaList @ 73 NONAME
+	_ZThn48_N28CGlxMpxCommandCommandHandler19HandleFocusChangedLEN12NGlxListDefs16TFocusChangeTypeEiiP13MGlxMediaList @ 74 NONAME
+	_ZThn48_N28CGlxMpxCommandCommandHandler19HandleItemModifiedLERK6RArrayIiEP13MGlxMediaList @ 75 NONAME
+	_ZThn48_N28CGlxMpxCommandCommandHandler19HandleItemSelectedLEiiP13MGlxMediaList @ 76 NONAME
+	_ZThn48_N28CGlxMpxCommandCommandHandler22HandleCommandCompleteLEPvP9CMPXMediaiP13MGlxMediaList @ 77 NONAME
+	_ZThn48_N28CGlxMpxCommandCommandHandler26HandleAttributesAvailableLEiRK6RArrayI13TMPXAttributeEP13MGlxMediaList @ 78 NONAME
+	_ZThn52_N28CGlxMpxCommandCommandHandler16DialogDismissedLEi @ 79 NONAME
 

@@ -111,7 +111,7 @@ void CGlxCommandHandlerFilterImagesOrVideos::ConstructL()
 // DynInitMenuPaneL
 // -----------------------------------------------------------------------------
 void CGlxCommandHandlerFilterImagesOrVideos::DynInitMenuPaneL(
-    TInt /*aResourceId*/, CEikMenuPane* aMenuPane )
+    TInt /*aResourceId*/, CEikMenuPane* aMenuPane, TBool /*aIsBrowseMode*/ )
 	{
 	if( iInFullScreen )
 	    {

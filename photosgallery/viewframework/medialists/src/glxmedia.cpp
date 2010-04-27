@@ -153,7 +153,7 @@ EXPORT_C TBool TGlxMedia::GetDimensions(TSize& aSize) const
 // -----------------------------------------------------------------------------
 // Gets the (file) size
 // -----------------------------------------------------------------------------
-EXPORT_C TBool TGlxMedia::GetSize(TInt& aSize) const
+EXPORT_C TBool TGlxMedia::GetSize(TUint& aSize) const
     {
     TRACER("TGlxMedia::GetSize");
     

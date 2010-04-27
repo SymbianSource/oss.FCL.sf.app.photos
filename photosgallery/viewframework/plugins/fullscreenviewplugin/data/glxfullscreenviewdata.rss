@@ -129,12 +129,8 @@ RESOURCE MENU_PANE r_glx_fullscreen_menu
     {
         items=
                 {
-                MENU_ITEM { command = EGlxStopShowing; 
-                            txt=qtn_lgal_options_stop_show; }, 
                 MENU_ITEM { command = EGlxCmdPlay;
                             txt = qtn_lgal_options_play; },
-                MENU_ITEM { command = EGlxCmdHideUI;
-                            txt = qtn_lgal_options_hide_toolbar; },
                 MENU_ITEM { command = EGlxCmdSend;
                             txt = qtn_options_send_via; },   
                 MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
@@ -155,19 +151,9 @@ RESOURCE MENU_PANE r_glx_fullscreen_menu
                 MENU_ITEM { command = EGlxCmdAiwAssign; 
                             txt = qtn_lgal_options_use_items; 
                             cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
-                MENU_ITEM { command = EGlxCmdAiwShowMap;
-                            txt = qtn_lgal_option_show_on_map;
-                            cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
-                MENU_ITEM { command = EGlxCmdDrmMoreInfoOnline;
-                            txt=qtn_drm_options_more_info; },  
-//                MENU_ITEM { command=EGlxCmdRotate; 
-//                            txt=qtn_lgal_options_rotate;
-//                            cascade = r_rotate_sub_menu; },  
                 MENU_ITEM { command = EGlxCmdAiwPrint; 
                             txt = qtn_lgal_options_print_menu; 
                             cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },             
-                MENU_ITEM { command=EGlxShowViaUpnp; 
-                            txt=qtn_lgal_options_show_ext; },               
                 MENU_ITEM { command = EAknCmdHelp; 
                             txt = qtn_options_help; },
                 MENU_ITEM { command = EAknCmdExit; 
@@ -181,12 +167,8 @@ RESOURCE MENU_PANE r_glx_album_fullscreen_menu
     {
     items=
             {
-            MENU_ITEM { command = EGlxStopShowing; 
-                        txt=qtn_lgal_options_stop_show; }, 
             MENU_ITEM { command = EGlxCmdPlay;
                         txt = qtn_lgal_options_play; },
-            MENU_ITEM { command = EGlxCmdHideUI;
-                        txt = qtn_lgal_options_hide_toolbar; },
             MENU_ITEM { command = EGlxCmdSend;
                         txt = qtn_options_send_via; }, 
             MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
@@ -209,19 +191,9 @@ RESOURCE MENU_PANE r_glx_album_fullscreen_menu
             MENU_ITEM { command = EGlxCmdAiwAssign; 
                         txt = qtn_lgal_options_use_items; 
                         cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
-            MENU_ITEM { command = EGlxCmdAiwShowMap;
-                        txt = qtn_lgal_option_show_on_map;
-                        cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
-            MENU_ITEM { command = EGlxCmdDrmMoreInfoOnline;
-                        txt=qtn_drm_options_more_info; },  
-//            MENU_ITEM { command=EGlxCmdRotate; 
-//                        txt=qtn_lgal_options_rotate;
-//                        cascade = r_rotate_sub_menu; },  
             MENU_ITEM { command = EGlxCmdAiwPrint; 
                         txt = qtn_lgal_options_print_menu; 
                         cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },             
-            MENU_ITEM { command=EGlxShowViaUpnp; 
-                        txt=qtn_lgal_options_show_ext; },           
             MENU_ITEM { command = EAknCmdHelp; 
                         txt = qtn_options_help; },
             MENU_ITEM { command = EAknCmdExit; 
@@ -234,12 +206,8 @@ RESOURCE MENU_PANE r_glx_tagfullscreen_menu
    {
    items=
            {
-           MENU_ITEM { command = EGlxStopShowing; 
-                       txt=qtn_lgal_options_stop_show; }, 
            MENU_ITEM { command = EGlxCmdPlay;
                        txt = qtn_lgal_options_play; },
-           MENU_ITEM { command = EGlxCmdHideUI;
-                       txt = qtn_lgal_options_hide_toolbar; },
            MENU_ITEM { command = EGlxCmdSend;
                        txt = qtn_options_send_via; },   
            MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
@@ -262,19 +230,9 @@ RESOURCE MENU_PANE r_glx_tagfullscreen_menu
            MENU_ITEM { command = EGlxCmdAiwAssign; 
                        txt = qtn_lgal_options_use_items; 
                        cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
-           MENU_ITEM { command = EGlxCmdAiwShowMap;
-                       txt = qtn_lgal_option_show_on_map;
-                       cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
-           MENU_ITEM { command = EGlxCmdDrmMoreInfoOnline;
-                       txt=qtn_drm_options_more_info; },  
-//           MENU_ITEM { command=EGlxCmdRotate; 
-//                       txt=qtn_lgal_options_rotate;
-//                       cascade = r_rotate_sub_menu; },  
            MENU_ITEM { command = EGlxCmdAiwPrint; 
                        txt = qtn_lgal_options_print_menu; 
                        cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },             
-           MENU_ITEM { command=EGlxShowViaUpnp; 
-                       txt=qtn_lgal_options_show_ext; },
            MENU_ITEM { command = EAknCmdHelp; 
                        txt = qtn_options_help; },
            MENU_ITEM { command = EAknCmdExit; 
@@ -288,8 +246,7 @@ RESOURCE MENU_PANE r_glx_imageviewer_fullscreen_menu
         items=
                 {
                 MENU_ITEM { command = EGlxCmdSave;
-                            txt= "Save"; },
-                            //txt= qtn_lgal_tooltip_save; },
+                            txt= qtn_lgal_options_save; },
                 MENU_ITEM { command = EGlxCmdSend;
                             txt = qtn_options_send_via; },
                 MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
@@ -411,48 +368,6 @@ RESOURCE AVKON_TOOLBAR r_glx_fullscreen_view_toolbar
     items =
         {
         TBAR_CTRL
-              {
-              type = EAknCtButton;
-              id = EGlxCmdSend;
-              control = AVKON_BUTTON
-                  {
-                  flags = 0;
-                  states =
-                      {
-                      AVKON_BUTTON_STATE
-                          {
-                          bmpfile = "z:\\Resource\\apps\\glxicons.mif";
-                          bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send; 
-                          bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
-                          press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
-                          press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
-                          helptxt = qtn_lgal_tooltip_send;
-                          }
-                      };
-                  };
-              },
-          TBAR_CTRL
-              {
-              type = EAknCtButton;
-              id = EGlxCmdDelete;
-              control = AVKON_BUTTON
-                  {
-                  flags = 0;
-                  states =
-                      {
-                      AVKON_BUTTON_STATE
-                          {
-                          bmpfile = "z:\\Resource\\apps\\glxicons.mif";
-                          bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete; 
-                          bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
-                          press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
-                          press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
-                          helptxt = qtn_lgal_tooltip_delete;
-                          }
-                      };
-                  };
-              },
-          TBAR_CTRL
             {
             type = EAknCtButton;
             id = EGlxCmdUpload;
@@ -467,7 +382,70 @@ RESOURCE AVKON_TOOLBAR r_glx_fullscreen_view_toolbar
                         bmpid = EMbmGlxiconsQgn_indi_cam4_tb_upload;
                         bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_upload_mask;
                         press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_upload;
-                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_upload_mask;                       
+                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_upload_mask;
+                        }
+                    };
+                };
+            },
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdSlideshowPlay;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                        bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                        press_bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                        press_bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                        helptxt = qtn_lgal_tooltip_slideshow;
+                        }
+                    };
+                };
+            },
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdDelete;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
+                        bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                        press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
+                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                        helptxt = qtn_lgal_tooltip_delete;
+                        }
+                    };
+                };
+            },
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdSend;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                        bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                        press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                        helptxt = qtn_lgal_tooltip_send;
                         }
                     };
                 };
@@ -497,8 +475,7 @@ RESOURCE AVKON_TOOLBAR r_glx_imageviewer_fullscreen_view_toolbar
                           bmpmask = EMbmGlxiconsSave_mask;
                           press_bmpid = EMbmGlxiconsSave;
                           press_bmpmask = EMbmGlxiconsSave_mask;
-                          //helptxt = qtn_lgal_tooltip_save;
-                          helptxt = "Save";
+                          helptxt = qtn_lgal_tooltip_save;
                           }
                       };
                   };

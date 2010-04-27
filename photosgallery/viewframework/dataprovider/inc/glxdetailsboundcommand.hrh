@@ -45,8 +45,8 @@ enum TDetailsFields
 	ELocationItem,
 	ESizeItem,
 	EResolutionItem,
-	EDurationItem,
-	ElicenseItem
+	ElicenseItem,
+	EDurationItem
 	};
 
 enum TImageVwrDetailsFields

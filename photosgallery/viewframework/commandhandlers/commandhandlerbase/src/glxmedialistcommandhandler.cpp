@@ -155,7 +155,7 @@ EXPORT_C TBool CGlxMediaListCommandHandler::ExecuteL(TInt aCommandId)
 // -----------------------------------------------------------------------------
 //	
 EXPORT_C void CGlxMediaListCommandHandler::DynInitMenuPaneL(TInt aResourceId, 
-        CEikMenuPane* aMenuPane)
+        CEikMenuPane* aMenuPane, TBool aIsBrowseMode)
 	{
 	if ( aMenuPane )
 	    {
@@ -175,8 +175,31 @@ EXPORT_C void CGlxMediaListCommandHandler::DynInitMenuPaneL(TInt aResourceId,
 
         	    // Check if the menu command is know to this command handler
         	    if ( IsSupported( item.iCommandId ) )
-        	        {
-        	        TBool isDisabled = IsDisabledL(item.iCommandId, MediaList());
+        	        { 
+                    TBool isDisabled = EFalse;
+					//If we are in grid view check whether to disable the item
+					//with a light weight API, since the API IsDisabledL( )
+					//takes time to execute randomly over the time, which is
+					//not predictable. This is not be required for list view
+					//since it has only 2-3 commands and there are no AIW 
+					//menu.                        
+                    if(aIsBrowseMode)
+                        {
+                        TBool isContextItem = EFalse;
+    					//Check whether its a context menu item.
+                        if(item.iFlags & EEikMenuItemSpecific)
+                            {
+                            isContextItem = ETrue;
+                            }
+							
+                        isDisabled = CheckDisabledForBrowseModeL(item.iCommandId, 
+                                MediaList(), isContextItem);
+                        }
+                    else
+                        {
+                        isDisabled = IsDisabledL(item.iCommandId, MediaList());
+                        }
+                    
         	        // Check visibility of the menu item
     				aMenuPane->SetItemDimmed( item.iCommandId, isDisabled);
     				
@@ -239,10 +262,12 @@ EXPORT_C void CGlxMediaListCommandHandler::GetRequiredAttributesL(
             		                TBool aFilterUsingCommandId,
                                     TInt aCommandId) const
     {
+    CleanupClosePushL(aAttributes);
     if (!aFilterUsingCommandId || IsSupported(aCommandId))
     	{
     	GetRequiredAttributesL(aAttributes, aFilterUsingSelection);
     	}
+    CleanupStack::Pop(&aAttributes);    
     }
     
 // -----------------------------------------------------------------------------
@@ -645,3 +670,61 @@ void CGlxMediaListCommandHandler::GetRequiredAttributesL(
     	
     DoGetRequiredAttributesL(aAttributes, aFilterUsingSelection);
 	}
+
+// -----------------------------------------------------------------------------
+// Check if the command should be disabled/enabled for grid view
+// -----------------------------------------------------------------------------
+//  
+TBool CGlxMediaListCommandHandler::CheckDisabledForBrowseModeL(TInt aCommandId, 
+        MGlxMediaList& aMediaList, TBool aIsContextItem)
+        
+    {    
+    TInt mlCount = aMediaList.Count();
+    TInt selectionCount = aMediaList.SelectionCount();
+    
+    if(mlCount<=0)
+        {
+		//If no items are present then enable Help and Exit in options
+        if(aCommandId != EAknCmdHelp &&
+                aCommandId != EAknCmdExit)
+            {
+            return ETrue;
+            }        
+        }
+		//If count is >0 and if its context menu item then enable them
+		//always, Since all the items are static it would not affect
+		//the normal behaviour present earlier.
+    else if(aIsContextItem)
+        {
+        return EFalse;
+        }
+		//If selectionCount is 0 then enable only slideshow, markall
+		//help and exit as present currently.		
+    else if((selectionCount == 0) && 
+            (aCommandId != EAknCmdHelp &&
+            aCommandId != EAknCmdExit &&
+            aCommandId != EGlxCmdSlideshow &&
+            aCommandId != EAknMarkAll &&
+            aCommandId != EGlxCmdSlideshowPlay &&
+            aCommandId != EGlxCmdSlideshowSettings))
+        {
+        return ETrue;
+        }
+		//If selectionCount is same as media count then disable
+		//Markall and Details view. If only one item is present
+		//then only disable MarkAll.				
+    else if((selectionCount == mlCount) && 
+            (aCommandId == EAknMarkAll ||
+            (aCommandId == EGlxCmdDetails && mlCount>1)))
+        {
+        return ETrue;
+        }             
+		//If selectionCount > 1 then disable Details view.
+    else if((selectionCount > 1) &&
+            (aCommandId == EGlxCmdDetails))
+        {
+        return ETrue;
+        }       
+           
+    return EFalse;
+    }

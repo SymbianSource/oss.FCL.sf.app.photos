@@ -58,13 +58,14 @@
 // Two-phased constructor.
 // ---------------------------------------------------------------------------
 //
-EXPORT_C CGlxCommandHandlerDetails* 
-			CGlxCommandHandlerDetails::NewL( 
-			MGlxMediaListProvider* aMediaListProvider )
+EXPORT_C CGlxCommandHandlerDetails*
+CGlxCommandHandlerDetails::NewL(MGlxMediaListProvider* aMediaListProvider,
+		const TDesC& aFileName)
 	{
-	CGlxCommandHandlerDetails* self = new (ELeave) CGlxCommandHandlerDetails(aMediaListProvider);
+	CGlxCommandHandlerDetails* self = new (ELeave) CGlxCommandHandlerDetails(
+			aMediaListProvider);
 	CleanupStack::PushL(self);
-	self->ConstructL();
+	self->ConstructL(aFileName);
 	CleanupStack::Pop(self);
 	return self;
 	}
@@ -80,50 +81,45 @@ CGlxCommandHandlerDetails::CGlxCommandHandlerDetails(MGlxMediaListProvider* aMed
 	//Do nothing
 	}			
 
+
+
 // ---------------------------------------------------------------------------
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //	
-void CGlxCommandHandlerDetails::ConstructL()
+void CGlxCommandHandlerDetails::ConstructL(const TDesC& aFileName)
 	{
-    // Load resource file
-    GLX_FUNC("GLX_Property::ConstructL");
-	
-	// register property command in command handler
-	TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
+	// Load resource file
+	GLX_FUNC("GLX_Property::ConstructL");
 
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile); 
-   	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
-				
+	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
+
 	// register property command in command handler
-   	TCommandInfo infoProp(EGlxCmdDetails);
-   	// Filter out static items and only allows one item to select
-    infoProp.iMinSelectionLength = 1;
-    infoProp.iMaxSelectionLength = 1;
-    //Allow DRM
-    infoProp.iDisallowDRM = EFalse;
-    //Allow system items
-    infoProp.iDisallowSystemItems= EFalse;
-    //Allow animation
-    infoProp.iStopAnimationForExecution = EFalse;  
-    //no category filter
-    infoProp.iCategoryFilter = EMPXNoCategory;
-   	AddCommandL(infoProp);
-		   			   	
-   	TCommandInfo infoSubMenu(EGlxCmdDetailsOption);
-    infoSubMenu.iViewingState = TCommandInfo::EViewingStateBrowse;
-   	
-   	// register for the reset view command so that we can 
-   	// dismiss the dialog if it is being shown when we are activated
-   	// from SpaceUI 
-    TCommandInfo resetViewCmd( EGlxCmdResetView );
-    AddCommandL( resetViewCmd );
-    
-   	// get pointer to HUI utility
-    iUiUtility = CGlxUiUtility::UtilityL();
+	TCommandInfo infoProp(EGlxCmdDetails);
+	// Filter out static items and only allows one item to select
+	infoProp.iMinSelectionLength = 1;
+	infoProp.iMaxSelectionLength = 1;
+	//Allow DRM
+	infoProp.iDisallowDRM = EFalse;
+	//Allow system items
+	infoProp.iDisallowSystemItems = EFalse;
+	//Allow animation
+	infoProp.iStopAnimationForExecution = EFalse;
+	//no category filter
+	infoProp.iCategoryFilter = EMPXNoCategory;
+	AddCommandL(infoProp);
+
+	TCommandInfo infoSubMenu(EGlxCmdDetailsOption);
+	infoSubMenu.iViewingState = TCommandInfo::EViewingStateBrowse;
+
+	// register for the reset view command so that we can 
+	// dismiss the dialog if it is being shown when we are activated
+	// from SpaceUI 
+	TCommandInfo resetViewCmd(EGlxCmdResetView);
+	AddCommandL(resetViewCmd);
+
+	// get pointer to HUI utility
+	iUiUtility = CGlxUiUtility::UtilityL();
 	}	
 	
 // ---------------------------------------------------------------------------
@@ -177,6 +173,8 @@ TBool CGlxCommandHandlerDetails::DoExecuteL( TInt aCommandId, MGlxMediaList& aLi
 			// context off the list
 			CleanupStack::PopAndDestroy( &contextRemover );
 
+			iAvkonAppUi->ProcessCommandL(EGlxCmdDialogLaunched);
+
 			if ( err == KErrNone )
 				{
 				TInt focusIndex = aList.FocusIndex();
@@ -225,6 +223,9 @@ TBool CGlxCommandHandlerDetails::DoExecuteL( TInt aCommandId, MGlxMediaList& aLi
                     }
                 }
             CleanupStack::PopAndDestroy( attrContext );
+
+            iAvkonAppUi->ProcessCommandL(EGlxCmdResetView);
+
             consume = ETrue;
             break;
             }// contextRemover goes out of scope and removes the context from media list

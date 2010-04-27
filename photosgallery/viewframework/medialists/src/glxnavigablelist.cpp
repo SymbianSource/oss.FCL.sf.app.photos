@@ -561,6 +561,7 @@ inline void CGlxNavigableList::SelectionL( RArray< TGlxMediaId >& aItemIds ) con
     {
     TRACER( "CGlxNavigableList::SelectionL");
     
+    CleanupClosePushL(aItemIds);
     aItemIds.Reset();
 
     // Reserve full required space to avoid reallocations during loop
@@ -571,6 +572,7 @@ inline void CGlxNavigableList::SelectionL( RArray< TGlxMediaId >& aItemIds ) con
         {
         aItemIds.AppendL( iItemList->Item( iSelectedItemIndices[ i ] ).Id() );
         }
+    CleanupStack::Pop(&aItemIds);
     }
 
 // -----------------------------------------------------------------------------

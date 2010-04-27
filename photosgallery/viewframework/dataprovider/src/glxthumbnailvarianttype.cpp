@@ -176,11 +176,20 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
         TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL( 
     	    icon.bitmapId, resFile, defaultSize ).Id() );
         }
+    else if( drm && isValid == EGlxDrmRightsInvalid )
+    	{
+		//show default image for DRM expired images
+    	GLX_LOG_INFO( "GlxThumbnailVariantType::CreateIconTextureL"
+    			"::EGlxDrmRightsInvalid" );
+    	TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL( 
+    			EMbmGlxiconsQgn_prop_image_notcreated, resFile, defaultSize ).Id() );
+		}
 	else if ( (KErrNone == thumbnailError) || (KErrArgument == thumbnailError) 
         || (KErrDiskFull == thumbnailError) || (KErrNoMemory == thumbnailError) 
-		|| ( drm && isValid == EGlxDrmRightsInvalid ) 
-		|| thumbnailError == KErrCANoRights )
+		|| (KErrCANoRights == thumbnailError) )
 	    {
+        GLX_LOG_INFO1( "GlxThumbnailVariantType::thumbnailError=%d" , 
+        		thumbnailError );
 		//Try and see if we can scale and show the grid tnm else show the default
 	    TBool isGridTnmShown = EFalse;		
 	    if(HasRelevantThumbnail(aMedia,defaultSize))

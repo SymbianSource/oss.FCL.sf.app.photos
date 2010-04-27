@@ -110,50 +110,10 @@ EXPORT_C CGlxCommandHandlerAiwShowMapHardKey* CGlxCommandHandlerAiwShowMapHardKe
 TBool CGlxCommandHandlerAiwShowMapHardKey::DoExecuteL (TInt /*aCommandId*/, MGlxMediaList& aList)
     {
     TRACER("CGlxCommandHandlerAiwShowMapHardKey::DoExecuteL");
-    TBool handled = EFalse;
-    TCoordinate coordinate; 
-    TInt focusIndex = aList.FocusIndex();
-    const TGlxMedia& item = aList.Item(focusIndex);
-
-    if(item.GetCoordinate(coordinate))
-        {
-        CPosLandmark* lmk = CPosLandmark::NewLC();
-        TLocality locality;
-        HBufC8* lmBuf;
-        
-        //set location
-        locality.SetCoordinate( coordinate.Latitude(), coordinate.Longitude(), 
-                coordinate.Altitude() );
-     
-        lmk->SetPositionL(locality);
-        
-        //set  in parameters
-        iInList->Reset();
-        lmBuf =PosLandmarkSerialization::PackL( *lmk );
-        CleanupStack::PushL( lmBuf );
-        TAiwGenericParam param( EGenericParamLandmark, TAiwVariant( *lmBuf ) );     
-        iInList->AppendL( param );       
-        TMnAiwCommonOptionsParam options;
-        options.iRunChained = EFalse;
-        TPckg<TMnAiwCommonOptionsParam> optionsPack( options );
-        TAiwGenericParam optParam( EGenericParamMnCommonOptions, TAiwVariant( optionsPack ) );
-        iInList->AppendL( optParam );
-                
-        iAiwServiceHandler->ExecuteServiceCmdL( KAiwCmdMnShowMap, *iInList, *iOutList, 0); 
-        
-        CleanupStack::PopAndDestroy( lmBuf);
-        CleanupStack::PopAndDestroy( lmk); 
-        handled = ETrue;
-        }
-    else
-        {
-        // if location info not present then display note to put on camera settings
-        HBufC* popupText = StringLoader::LoadLC(
-                R_GLX_POPUP_NO_LOCATION_INFO);                  
-        GlxGeneralUiUtilities::ShowInfoNoteL( popupText->Des(), EFalse ); 
-        CleanupStack::PopAndDestroy( popupText ); 
-        }
-    return handled;
+    
+    // Show on Map Hard key is not there in 9.2.
+    // if need arises this can be readded from synergy: v7 of this file and older.   
+    return EFalse;
     }
 
 // ----------------------------------------------------------------------------

@@ -97,22 +97,26 @@ CGlxTagGridViewPlugin::~CGlxTagGridViewPlugin()
 // Adds Command Handlers to the view
 //-----------------------------------------------------------------------------
 void CGlxTagGridViewPlugin::AddCommandHandlersL()
-   {
-   TRACER( "CGlxTagGridViewPlugin::AddCommandHandlersL"); 
-    
-   CGlxGridViewPluginBase::AddCommandHandlersL();
-    
-   //For tag Grid view
-   GLX_LOG_INFO("Adding CGlxCommandHandlerRemoveFrom");
-   iGridView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(iGridView, EMPXTag)); 
+	{
+	TRACER( "CGlxTagGridViewPlugin::AddCommandHandlersL");
 
-    // set up help context info
-    TGlxHelpContext helpInfo;
-    helpInfo.iBrowseContext = LGAL_HLP_TAGS_GRID;
-    helpInfo.iViewContext = LGAL_HLP_TAGS_FULLSCREEN;
-    
-    iGridView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo)); 
- }
+	CGlxGridViewPluginBase::AddCommandHandlersL();
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+
+	//For tag Grid view
+	GLX_LOG_INFO("Adding CGlxCommandHandlerRemoveFrom");
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(iGridView,
+			EMPXTag, uiutilitiesrscfile));
+
+	// set up help context info
+	TGlxHelpContext helpInfo;
+	helpInfo.iBrowseContext = LGAL_HLP_TAGS_GRID;
+	helpInfo.iViewContext = LGAL_HLP_TAGS_FULLSCREEN;
+
+	iGridView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
+	}
 
 //-----------------------------------------------------------------------------
 // Get the Resource File Name

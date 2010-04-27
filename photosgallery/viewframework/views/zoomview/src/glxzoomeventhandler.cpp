@@ -941,7 +941,10 @@ void CGlxZoomPanEventHandler::ActivateZoom(TInt aInitialZoomRatio,
             iZoomEventHandler.HandleShowUi(EFalse);
             }
             break;
-        case EZoomStartSlider :
+        case EZoomStartSlider:
+            {
+            Zoom(aInitialZoomRatio, 0, iZoomMode);
+            }
             break;
         default:
             break;
@@ -995,7 +998,8 @@ TBool CGlxZoomPanEventHandler::HandleEvent( const TAlfEvent& aEvent )
                     MulSliderPos* dataPtr = (MulSliderPos*)(aEvent.CustomEventData());  
                     TInt currentSliderValue = dataPtr->mCurrentValue;
 
-                    // is current value within accetable ranges.
+                    // Is current value within acceptable range? 
+					// If yes, then zoom in or zoom out as needed.
                     if ( currentSliderValue > iMinZoomRatio 
                             &&  currentSliderValue <= iMaxZoomRatio )
                         {

@@ -74,6 +74,7 @@ LIBRARY			glxupnpcommandhandler.lib			//For Upnp Command Handler
 LIBRARY         glxviewbase.lib						// for CGlxViewBase
 LIBRARY         mpxviewplugin.lib					// for CMPXViewPlugin
 LIBRARY         flogger.lib							// For Logging Tracer
+LIBRARY         glxcommon.lib					// For CGlxUiUtilities
 
 
 // End of File

@@ -40,15 +40,17 @@ NONSHARABLE_CLASS( CGlxCommandHandlerRemoveFrom )
 	{
 public:
     /**
-     * Two-phase constructor
-     * @param aMediaListProvider object that provides the media list
-     * @param aContainerType specifies the container type. (Used to determine
-     * the correct confirmation note.) Only confirmation notes for EMPXAlbum
-     * and EMPXTag are supported. A confirmation note will not be displayed for
-     * unsupported types.
-     */
+	 * Two-phase constructor
+	 * @param aMediaListProvider object that provides the media list
+	 * @param aContainerType specifies the container type. (Used to determine
+	 * the correct confirmation note.) Only confirmation notes for EMPXAlbum
+	 * and EMPXTag are supported. A confirmation note will not be displayed for
+	 * unsupported types.
+	 * @param aFileName resource file
+	 */
 	IMPORT_C static CGlxCommandHandlerRemoveFrom* NewL(
-	    MGlxMediaListProvider* aMediaListProvider, TMPXGeneralCategory aContainerType);
+			MGlxMediaListProvider* aMediaListProvider,
+			TMPXGeneralCategory aContainerType, const TDesC& aFileName);
 	    
 	/** Destructor */
 	IMPORT_C ~CGlxCommandHandlerRemoveFrom();
@@ -79,7 +81,7 @@ protected: // from CGlxCommandHandler
 
 private:
     /** Second phase constructor */
-	void ConstructL();
+	void ConstructL(const TDesC& aFileName);
 
     /** Constructor */
 	CGlxCommandHandlerRemoveFrom(MGlxMediaListProvider* aMediaListProvider, TMPXGeneralCategory aContainerType);

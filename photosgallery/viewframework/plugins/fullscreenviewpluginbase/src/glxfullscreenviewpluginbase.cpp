@@ -53,6 +53,7 @@
 #include <glxcommandhandlerhelp.h>
 #include <glxcommandhandleraiwshowonmaphardkey.h>
 
+#include <glxresourceutilities.h>                // for CGlxResourceUtilities
 #include "glxfullscreenview.h"
 
 /**
@@ -157,97 +158,77 @@ EXPORT_C CAknView* CGlxFullScreenViewPluginBase::ConstructViewLC()
 // ---------------------------------------------------------------------------
 //
 EXPORT_C void CGlxFullScreenViewPluginBase::AddCommandHandlersL()
-    {
-    TRACER("CGlxFullScreenViewPluginBase::AddCommandHandlersL()");
-    
-    // Note that the order in which the command handlers are added determines
-    // the order in which the toolbar displays the icons
-    
-    GLX_LOG_INFO( "Adding CGlxCommandHandlerSave" );
-            iFullScreenView->AddCommandHandlerL(
-                            CGlxCommandHandlerSave::NewL() );
-    
-    GLX_LOG_INFO( "Adding CGlxCommandHandlerSlideshow" );
-    iFullScreenView->AddCommandHandlerL(
-                    CGlxCommandHandlerSlideshow::NewL( iFullScreenView, ETrue , ETrue ) );
-    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerDetails");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerDetails::
-                                NewL(iFullScreenView));
-    
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
-            NewAddToAlbumCommandHandlerL(iFullScreenView, EFalse));                             
+	{
+	TRACER("CGlxFullScreenViewPluginBase::AddCommandHandlersL()");
 
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
-            NewAddToFavCommandHandlerL(iFullScreenView, EFalse));                             
+	// Note that the order in which the command handlers are added determines
+	// the order in which the toolbar displays the icons
 
-    GLX_LOG_INFO("Adding CGlxCommandHandlerDetails");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerDetails::
-            NewL(iFullScreenView));
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+	GLX_LOG_INFO( "Adding CGlxCommandHandlerSave" );
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerSave::NewL());
 
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAddToContainer::
-                                NewAddToTagCommandHandlerL(iFullScreenView, EFalse));
-    // The AIW service handlers 
-    // ShowMap must be the first one                           
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShowMap");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwShowMap::
-                                NewL(iFullScreenView, iResourceIds.iMenuId));
-    // Assign must be the second one
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwAssign");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwAssign::
-                                NewL(iFullScreenView, iResourceIds.iMenuId));
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::
-                                NewL(iFullScreenView));
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwPrintPreview");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwPrintPreview::
-                                NewL(iFullScreenView, iResourceIds.iMenuId));
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShareOnOvi");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwShareOnOvi::
-            NewL(iFullScreenView, iResourceIds.iMenuId));
-    // End of AIW service handlers                            
+	GLX_LOG_INFO( "Adding CGlxCommandHandlerSlideshow" );
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerSlideshow::NewL(
+			iFullScreenView, ETrue, ETrue, uiutilitiesrscfile));
 
-    GLX_LOG_INFO("Adding CGlxCommandHandlerMoreInfo");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerMoreInfo::
-                                NewL(iFullScreenView,EFalse));    				
-    GLX_LOG_INFO("Adding CGlxCommandHandlerHideUi");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerHideUi::NewL());
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer");
+	iFullScreenView->AddCommandHandlerL(
+			CGlxCommandHandlerAddToContainer::NewAddToAlbumCommandHandlerL(
+					iFullScreenView, EFalse, uiutilitiesrscfile));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer");
+	iFullScreenView->AddCommandHandlerL(
+			CGlxCommandHandlerAddToContainer::NewAddToFavCommandHandlerL(
+					iFullScreenView, EFalse, uiutilitiesrscfile));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerDetails");
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerDetails::NewL(
+			iFullScreenView, uiutilitiesrscfile));
+
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer");
+	iFullScreenView->AddCommandHandlerL(
+			CGlxCommandHandlerAddToContainer::NewAddToTagCommandHandlerL(
+					iFullScreenView, EFalse, uiutilitiesrscfile));
+	// The AIW service handlers 
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwAssign");
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwAssign::NewL(
+			iFullScreenView, iResourceIds.iMenuId, uiutilitiesrscfile));
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit");
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::NewL(
+			iFullScreenView));
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwPrintPreview");
+	iFullScreenView->AddCommandHandlerL(
+			CGlxCommandHandlerAiwPrintPreview::NewL(iFullScreenView,
+					iResourceIds.iMenuId, uiutilitiesrscfile));
+	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShareOnOvi");
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwShareOnOvi::NewL(
+			iFullScreenView, iResourceIds.iMenuId, uiutilitiesrscfile));
+	// End of AIW service handlers                            
+
 
 	//Fix for error ID EVTY-7M87LF
 	//@ Registration of Video Playback Command handler has to before UPnP.
 	//@ else UPnP will not get play command once video playback command is consumed.
-    GLX_LOG_INFO("Adding CGlxCommandHandlerVideoPlayback");
-    iFullScreenView->AddCommandHandlerL(
-                    CGlxCommandHandlerVideoPlayback::NewL( iFullScreenView ) );
+	GLX_LOG_INFO("Adding CGlxCommandHandlerVideoPlayback");
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerVideoPlayback::NewL(
+			iFullScreenView));
 
-	//Fix for error ID EVTY-7M87LF
-	//@ Registration of UPnP Command handler has to be after video play back command
-	//@ priorty of command handling is last registered in first server basis.
-	//@ UPnP will get play command first everytime, where it'll check for UPnP active.
-    //@ if UPnP is active it'll consume the event, else it'll allow other registered command to execute it.
+	//Toolbar commands for all Fullscreen views. May also be present in Options menu.
+	GLX_LOG_INFO("Adding CGlxCommandHandlerSend");
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerSend::NewL(
+			iFullScreenView, ETrue, uiutilitiesrscfile));
 
-    GLX_LOG_INFO("Adding CGlxCommandHandlerShowVisUpnp");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerShowViaUpnp::NewL(
-            iFullScreenView,EFalse));
+	GLX_LOG_INFO("Adding CGlxCommandHandlerDelete");
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerDelete::NewL(
+			iFullScreenView, EFalse, ETrue, uiutilitiesrscfile));
+	GLX_LOG_INFO("Adding CGlxCommandHandlerUpload");
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerUpload::NewL(
+			iFullScreenView, ETrue));
 
-    //Toolbar commands for all Fullscreen views. May also be present in Options menu.
-    GLX_LOG_INFO("Adding CGlxCommandHandlerSend");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerSend::NewL(
-            iFullScreenView, ETrue));
-    GLX_LOG_INFO("Adding CGlxCommandHandlerDelete");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerDelete::
-            NewL(iFullScreenView, EFalse, ETrue));
-    GLX_LOG_INFO("Adding CGlxCommandHandlerUpload");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerUpload::NewL(
-            iFullScreenView, ETrue));
-
-    GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShowMapHardKey");
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerAiwShowMapHardKey::NewL(
-            iFullScreenView, ETrue));
-    }
+	}
 
 // ---------------------------------------------------------------------------
 // GetResourceFilenameL

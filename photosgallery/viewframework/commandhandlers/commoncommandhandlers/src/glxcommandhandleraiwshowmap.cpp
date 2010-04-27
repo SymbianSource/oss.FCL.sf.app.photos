@@ -47,16 +47,18 @@ const TInt KGlxAiwShowMapCommandSpace = 0x00000400;
 // -----------------------------------------------------------------------------
 //
 EXPORT_C CGlxCommandHandlerAiwShowMap* CGlxCommandHandlerAiwShowMap::NewL(
-    MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource )
-    {
-    TRACER("CGlxCommandHandlerAiwShowMap::NewL");
-    CGlxCommandHandlerAiwShowMap* self = new ( ELeave )
-        CGlxCommandHandlerAiwShowMap( aMediaListProvider, aMenuResource );
-    CleanupStack::PushL( self );
-    self->ConstructL();
-    CleanupStack::Pop( self );
-    return self;
-    }
+		MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
+		const TDesC& aFileName)
+	{
+	TRACER("CGlxCommandHandlerAiwShowMap::NewL");
+	CGlxCommandHandlerAiwShowMap* self =
+			new (ELeave) CGlxCommandHandlerAiwShowMap(aMediaListProvider,
+					aMenuResource);
+	CleanupStack::PushL(self);
+	self->ConstructL(aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
 
 // -----------------------------------------------------------------------------
 // Destructor

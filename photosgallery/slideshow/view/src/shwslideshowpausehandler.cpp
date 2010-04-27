@@ -185,4 +185,12 @@ void CShwSlideShowPauseHandler::SwitchToForegroundL()
         iEngine.ResumeL(); 
         }
     }
+// -----------------------------------------------------------------------------
+// IsSlideShowEngineStatePaused
+// -----------------------------------------------------------------------------
+TBool CShwSlideShowPauseHandler::IsSlideShowEngineStatePaused()
+	{
+	TRACER("CShwSlideShowPauseHandler::IsSlideShowEngineStatePaused()");
+	return iUserPaused;
+	}
 

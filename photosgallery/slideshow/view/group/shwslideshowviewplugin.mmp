@@ -130,5 +130,5 @@ LIBRARY         remconcoreapi.lib
 LIBRARY         remconinterfacebase.lib
 //LIBRARY 		hgcontextutility.lib 					// For Teleport
 LIBRARY			glxtvout.lib
-
+LIBRARY			fbscli.lib
 // End of File

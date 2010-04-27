@@ -28,7 +28,7 @@
 #include <glxcommandhandlerhelp.h>
 #include <glxcommandhandlerslideshow.h>
 #include <glxlistviewplugin.rsg>
-
+#include <glxresourceutilities.h>                // for CGlxResourceUtilities
 #include "glxlistviewplugin.hrh"
 
 // ---------------------------------------------------------------------------
@@ -90,19 +90,27 @@ CGlxListView* CGlxAlbumListViewPlugin::ConstructListViewLC(MGlxMediaListFactory*
 // ---------------------------------------------------------------------------
 //
 void CGlxAlbumListViewPlugin::AddCommandHandlersL()
-    {
-    CGlxListViewPluginBase::AddCommandHandlersL();
-    iListView->AddCommandHandlerL(CGlxCommandHandlerSlideshow::NewL( iListView, EFalse, ETrue ) );
-    iListView->AddCommandHandlerL(CGlxCommandHandlerDelete::NewL(iListView, ETrue, EFalse));
-    iListView->AddCommandHandlerL(CGlxCommandHandlerNewMedia::NewL(iListView));
-    iListView->AddCommandHandlerL(CGlxCommandHandlerRename::NewL(iListView, ETrue));
-    // add help command handler
-    
-    // set up help context info
-    TGlxHelpContext helpInfo;
-    helpInfo.iBrowseContext = LGAL_HLP_ALBUM_LIST;
+	{
+	CGlxListViewPluginBase::AddCommandHandlersL();
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
 
-    iListView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
-    }
+	iListView->AddCommandHandlerL(CGlxCommandHandlerSlideshow::NewL(iListView,
+			EFalse, ETrue, uiutilitiesrscfile));
+	iListView->AddCommandHandlerL(CGlxCommandHandlerDelete::NewL(iListView,
+			ETrue, EFalse, uiutilitiesrscfile));
+	iListView->AddCommandHandlerL(CGlxCommandHandlerNewMedia::NewL(iListView,
+			uiutilitiesrscfile));
+	iListView->AddCommandHandlerL(CGlxCommandHandlerRename::NewL(iListView,
+			ETrue, uiutilitiesrscfile));
+	// add help command handler
+
+	// set up help context info
+	TGlxHelpContext helpInfo;
+	helpInfo.iBrowseContext = LGAL_HLP_ALBUM_LIST;
+
+	iListView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
+	}
 
 //  End of File

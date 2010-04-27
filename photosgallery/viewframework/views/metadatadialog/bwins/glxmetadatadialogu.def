@@ -6,4 +6,5 @@ EXPORTS
 	?GetResourceFilenameL@CGlxResourceUtilities@@SAXAAV?$TBuf@$0BAA@@@AAVRFs@@@Z @ 5 NONAME ; void CGlxResourceUtilities::GetResourceFilenameL(class TBuf<256> &, class RFs &)
 	?GetResourceFilenameL@CGlxResourceUtilities@@SAXAAV?$TBuf@$0BAA@@@@Z @ 6 NONAME ; void CGlxResourceUtilities::GetResourceFilenameL(class TBuf<256> &)
 	?NewL@CGlxImgVwrMetadataDialog@@SAPAV1@ABVTDesC16@@@Z @ 7 NONAME ; class CGlxImgVwrMetadataDialog * CGlxImgVwrMetadataDialog::NewL(class TDesC16 const &)
+	?GetUiUtilitiesResourceFilenameL@CGlxResourceUtilities@@SA?AV?$TBuf@$0BAA@@@XZ @ 8 NONAME ; class TBuf<256> CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL(void)
 

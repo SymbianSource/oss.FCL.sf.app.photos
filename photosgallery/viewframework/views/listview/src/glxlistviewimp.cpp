@@ -133,7 +133,6 @@ void CGlxListViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
     CleanupStack::PopAndDestroy(uiUtility);     
     //Register the view to recieve toolbar events. ViewBase handles the events    
     SetToolbarObserver(this);
-	iMMCNotifier = CGlxMMCNotifier::NewL(*this);
     }
 
 // ---------------------------------------------------------------------------
@@ -143,8 +142,6 @@ void CGlxListViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
 CGlxListViewImp::~CGlxListViewImp()
     {    
     TRACER("CGlxListViewImp::~CGlxListViewImp");
-    delete iMMCNotifier;
-    iMMCNotifier = NULL;
     
     if ( iNavigationalState )
         {
@@ -187,13 +184,20 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
     TRACER("CGlxListViewImp::DoMLViewActivateL");  
     
     TUint transitionID = (iUiUtility->ViewNavigationDirection()==
-          EGlxNavigationForwards)?KActivateTransitionId:KDeActivateTransitionId;
-
-    GfxTransEffect::BeginFullScreen( transitionID, TRect(),
+         EGlxNavigationForwards)?KActivateTransitionId:KDeActivateTransitionId;
+		
+    //Do the activate animation only for views other than mainlist view and
+	//on backward navigation from any other views to main list view, since 
+	//for the app start the animation effect is by default provided.
+    if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot || 
+           transitionID == KDeActivateTransitionId) 
+        {
+    	GfxTransEffect::BeginFullScreen( transitionID, TRect(),
                                    AknTransEffect::EParameterType, 
                          AknTransEffect::GfxTransParam( KPhotosUid, 
-                                 AknTransEffect::TParameter::EEnableEffects) );   
-    GfxTransEffect::EndFullScreen();
+                         AknTransEffect::TParameter::EEnableEffects) );   
+    	GfxTransEffect::EndFullScreen();
+    	}
     
     iNextViewActivationEnabled = ETrue;
     if(StatusPane())
@@ -272,6 +276,7 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
 		}
     iProgressIndicator = CGlxProgressIndicator::NewL(*this);
     iProgressIndicator->ShowProgressbarL();
+    iMMCNotifier = CGlxMMCNotifier::NewL(*this);
     }
 
 // ---------------------------------------------------------------------------
@@ -317,6 +322,9 @@ void CGlxListViewImp::DoMLViewDeactivate()
         delete iProgressIndicator;
         iProgressIndicator = NULL;
 	    }
+	
+	delete iMMCNotifier;
+	iMMCNotifier = NULL;
 	}
 
 // ---------------------------------------------------------------------------
@@ -393,7 +401,7 @@ void CGlxListViewImp::HandleStatusPaneSizeChange ( )
 
 TTypeUid::Ptr CGlxListViewImp::MopSupplyObject(TTypeUid aId)
 	{   
-    if (iBgContext)
+    if (iBgContext && aId.iUid == MAknsControlContext::ETypeId)
     	{
         return MAknsControlContext::SupplyMopObject(aId, iBgContext );
     	}

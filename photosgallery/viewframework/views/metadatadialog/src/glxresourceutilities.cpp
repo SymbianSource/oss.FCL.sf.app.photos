@@ -25,7 +25,8 @@
 #include <bautils.h>
 #include <AknUtils.h>
 #include <f32file.h>
-
+#include <glxuistd.h>
+#include <data_caging_path_literals.hrh>
 //  INTERNAL INCLUDES
 #include	<glxtracer.h>
 
@@ -73,4 +74,17 @@ EXPORT_C void CGlxResourceUtilities::GetResourceFilenameL( TFileName& aResFile, 
         }
     }
 
+// ---------------------------------------------------------------------------
+// GetUiUtilitiesResourceFilenameL
+// ---------------------------------------------------------------------------
+//
+EXPORT_C TFileName CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL()
+
+    {
+    TParse parse;
+    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
+    TFileName resourceFile(parse.FullName());
+    GetResourceFilenameL(resourceFile);
+    return resourceFile;
+    }
 

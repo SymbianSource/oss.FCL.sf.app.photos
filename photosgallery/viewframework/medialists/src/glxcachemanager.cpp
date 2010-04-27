@@ -856,7 +856,7 @@ void CGlxCacheManager::MaintainCacheL()
                                             }
                                         if(err == KErrNone)
                                             {
-                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, sz);
+                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, (TUint)sz);
                                             }
                                         else
                                             {
@@ -872,7 +872,7 @@ void CGlxCacheManager::MaintainCacheL()
                                             {
                                             TEntry entry;   
                                             fs.Entry(fileName,entry);    
-                                            TInt sz = (TUint)entry.iSize;                                      
+                                            TUint sz = entry.iSize;                                      
                                             iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, sz);
                                             }
                                         else

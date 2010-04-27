@@ -24,7 +24,7 @@
 #include <glxcommandhandlerhelp.h>
 #include <glxcommandhandlerslideshow.h>
 #include <glxlistview.h>
-
+#include <glxresourceutilities.h>
 #include <glxlistviewplugin.rsg>
 
 
@@ -90,15 +90,17 @@ CGlxListView* CGlxMonthListViewPlugin::ConstructListViewLC(MGlxMediaListFactory*
 // ---------------------------------------------------------------------------
 //
 void CGlxMonthListViewPlugin::AddCommandHandlersL()
-    {
-    CGlxListViewPluginBase::AddCommandHandlersL();
-    
-    // set up help context info
-    TGlxHelpContext helpInfo;
-    helpInfo.iBrowseContext = LGAL_HLP_MONTH_LIST;
-    
-    iListView->AddCommandHandlerL(CGlxCommandHandlerSlideshow::NewL( iListView, EFalse, ETrue ) );
-    iListView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
-    }
+	{
+	CGlxListViewPluginBase::AddCommandHandlersL();
+	// set up help context info
+	TGlxHelpContext helpInfo;
+	helpInfo.iBrowseContext = LGAL_HLP_MONTH_LIST;
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+	iListView->AddCommandHandlerL(CGlxCommandHandlerSlideshow::NewL(iListView,
+			EFalse, ETrue, uiutilitiesrscfile));
+	iListView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
+	}
 
 //  End of File

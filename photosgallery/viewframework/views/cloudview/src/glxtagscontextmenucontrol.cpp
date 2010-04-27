@@ -28,6 +28,8 @@
 #include <alf/alfeventhandler.h>
 #include <alf/alfutil.h>
 #include <alf/alftexture.h>
+#include <alf/alfcurvepath.h>
+#include <alf/alflinevisual.h>
 #include <alf/alfevent.h>
 #include <alf/alfdisplay.h>
 #include <alf/alfframebrush.h>
@@ -59,7 +61,7 @@ const TInt KNoOfColumns = 1;
 const TReal KOpacityOpaque = 1.0;
 //lowest possible value to make control completely transparent
 const TReal KOpacityTransparent = 0.0;
-const TPoint KDummyPoint(100,100);
+const TPoint KDummyPoint(500, 500);
 //6 Seconds delay for menu control visibility on screen 
 const TInt KTimerDelay = 6000000;
 //Control complete height
@@ -72,6 +74,10 @@ const TInt KShrinkXCoord = 5;
 const TInt KShrinkYCoord = 5;
 //Padding value for Minimum width for control
 const TInt KWidthPadding = 20;
+//Padding value for Minimum spacing for line separators
+const TInt KLinePadding = 5;
+//Context menu separator line thickness value
+const TReal KSeparatorLineThickness = 0.2;
 //For Tagging the visuals
 _LIT8(KTagSlideshow, "SS");
 _LIT8(KTagRename, "Ren");
@@ -156,6 +162,7 @@ void CGlxTagsContextMenuControl::ConstructL()
     iMainVisual->Brushes()->AppendL(frameBrush, EAlfHasOwnership);
     CleanupStack::Pop(frameBrush);
 
+    DrawLineSeparatorsL();
 	ShowItemMenu(EFalse);
     }
 // --------------------------------------------------------------------------- 
@@ -261,11 +268,11 @@ void CGlxTagsContextMenuControl::SetDisplay(const TPoint& aPoint)
         }
 
     TInt upperYPos = aPoint.iY - KMinimalGap;
-    TInt XPos = aPoint.iX ;
+    TInt XPos = aPoint.iX + KWidthPadding;
     
     //Preferred is to display in upper area
     TInt upperDisplayableHeight = upperYPos - iViewableRect.iTl.iY;
-    TInt rightDisplayableWidth = iViewableRect.iBr.iY - XPos;
+    TInt rightDisplayableWidth = iViewableRect.iBr.iX - XPos ;
 
     //always draw above
     if(rightDisplayableWidth < iMaxTextWidth)
@@ -281,8 +288,11 @@ void CGlxTagsContextMenuControl::SetDisplay(const TPoint& aPoint)
         iMainVisual->SetPos(TAlfRealPoint(XPos , upperYPos - KGridHeight));
         }
     
-    iTimer->Cancel();          //cancels any outstanding requests
-    iTimer->SetDelay(KTimerDelay);
+	if ( iTimer)
+	    {
+		iTimer->Cancel();          //cancels any outstanding requests
+	    iTimer->SetDelay(KTimerDelay);
+		}
     }
 
 // --------------------------------------------------------------------------- 
@@ -301,6 +311,7 @@ void CGlxTagsContextMenuControl::ShowItemMenu (TBool aShow)
         {
         iMainVisual->SetOpacity(KOpacityTransparent);
         iItemMenuVisibility = EFalse;
+        iMainVisual->SetPos(TAlfRealPoint(KDummyPoint));
         }
     }
 
@@ -389,4 +400,37 @@ void CGlxTagsContextMenuControl::CalculateMaxWidth()
                               ? iMaxTextWidth
                                  : iDeleteTextVisual->TextExtents().iWidth);
 
+    }
+// --------------------------------------------------------------------------- 
+// --------------------------------------------------------------------------- 
+// DrawLineSeparatorsL()
+// --------------------------------------------------------------------------- 
+//
+void CGlxTagsContextMenuControl::DrawLineSeparatorsL()
+    {
+    TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::DrawLineSeparators");
+    TRgb color;
+    //Gets the color of the line specific to skin 
+    AknsUtils::GetCachedColor(AknsUtils::SkinInstance(), color,
+            KAknsIIDQsnLineColors, EAknsCIQsnLineColorsCG11);
+
+    for (TInt i = 1; i < KNumofMenuItems; i++)
+        {
+        CAlfCurvePath* curvePath = CAlfCurvePath::NewLC(*iAlfEnv);
+        curvePath->AppendArcL(
+                TPoint(KLinePadding, KReqHeightPerMenuItem * i), TSize(), 0,
+                0, 0);
+        curvePath->AppendLineL(
+                TPoint(KLinePadding, KReqHeightPerMenuItem * i), TPoint(
+                        iMainVisual->DisplayRect().Width() - KLinePadding,
+                        KReqHeightPerMenuItem * i), 0);
+
+        CAlfLineVisual* line = CAlfLineVisual::AddNewL(*this, iMainVisual);
+        line->SetPath(curvePath, EAlfHasOwnership);
+        line->SetThickness(KSeparatorLineThickness);
+        line->SetColor(color);
+        line->SetFlag(EAlfVisualFlagIgnorePointer);
+
+        CleanupStack::Pop(curvePath);
+        }
     }

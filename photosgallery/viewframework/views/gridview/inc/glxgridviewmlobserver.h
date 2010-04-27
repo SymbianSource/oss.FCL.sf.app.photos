@@ -21,6 +21,7 @@
 
 // Photos Headers
 #include <mglxmedialistobserver.h>
+#include <glxfiltergeneraldefs.h>
 
 // FORWARD DECLARATIONS
 class CGlxMediaList;
@@ -41,7 +42,8 @@ public:
      * @return Pointer to newly created object.
      */
     IMPORT_C static CGlxGridViewMLObserver* NewL(MGlxMediaList& aMediaList,
-            CHgGrid* aHgGrid);
+            CHgGrid* aHgGrid, TGlxFilterItemType aFilterType =
+                    EGlxFilterVideoAndImages);
 
     /**
      * Destructor.
@@ -69,7 +71,8 @@ private:
     /**
      * C++ default constructor.
      */
-    CGlxGridViewMLObserver(MGlxMediaList& aMediaList,CHgGrid* aHgGrid);
+    CGlxGridViewMLObserver(MGlxMediaList& aMediaList, CHgGrid* aHgGrid,
+            TGlxFilterItemType aFilterType);
 
     /**
      * By default Symbian 2nd phase constructor is private.
@@ -133,5 +136,7 @@ private:
     //Grid Thumbnail Attribs
     TMPXAttribute iQualityTnAttrib;
     TMPXAttribute iSpeedTnAttrib;    
+    // Filtertype, Image / Video
+    TGlxFilterItemType iFilterType;
     };
 #endif //GLXGRIDVIEWMLOBSERVER_H_

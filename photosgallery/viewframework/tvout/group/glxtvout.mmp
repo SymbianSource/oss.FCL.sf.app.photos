@@ -74,6 +74,10 @@ LIBRARY         surfacemanager.lib				// surface manager
 LIBRARY         imageconversion.lib				// ICL 
 LIBRARY 	efsrv.lib
 LIBRARY		glxuiutilities.lib				// for GlxGeneralUiUtilities
+LIBRARY         bitgdi.lib 
+LIBRARY         apgrfx.lib // 
+LIBRARY		apmime.lib // For ImageViewer mime type extraction
+LIBRARY		AccPolicy.lib //For RAccessoryConnection status ID's	
 // Other Dependency Libraries
 #ifdef __MARM
 LIBRARY 		GSServerEngine.lib  // FOr AspectRatio

@@ -41,14 +41,17 @@
 // ---------------------------------------------------------------------------
 //
 EXPORT_C CGlxCommandHandlerRemoveFrom* CGlxCommandHandlerRemoveFrom::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TMPXGeneralCategory aContainerType)
-    {
-    CGlxCommandHandlerRemoveFrom* self = new (ELeave) CGlxCommandHandlerRemoveFrom(aMediaListProvider, aContainerType);
-    CleanupStack::PushL(self);
-    self->ConstructL();
-    CleanupStack::Pop(self);
-    return self;
-    }
+		MGlxMediaListProvider* aMediaListProvider,
+		TMPXGeneralCategory aContainerType, const TDesC& aFileName)
+	{
+	CGlxCommandHandlerRemoveFrom* self =
+			new (ELeave) CGlxCommandHandlerRemoveFrom(aMediaListProvider,
+					aContainerType);
+	CleanupStack::PushL(self);
+	self->ConstructL(aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
 
 // ---------------------------------------------------------------------------
 // C++ default constructor can NOT contain any code, that
@@ -65,27 +68,21 @@ CGlxCommandHandlerRemoveFrom::CGlxCommandHandlerRemoveFrom(MGlxMediaListProvider
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerRemoveFrom::ConstructL()
-    {
-    // Load resource file
-	TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
-   	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
+void CGlxCommandHandlerRemoveFrom::ConstructL(const TDesC& aFileName)
+	{
+	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
 
-   	// Add supported command
-   	TCommandInfo info(EGlxCmdRemoveFrom);
-   	// Filter out static items
-    info.iMinSelectionLength = 1;
-    info.iMaxSelectionLength = KMaxTInt;
-   	AddCommandL(info);
-   	
-   	TCommandInfo singleclickinfo(EGlxCmdSingleClickRemoveFrom);
-   	singleclickinfo.iMinSelectionLength = 1;
-   	singleclickinfo.iMaxSelectionLength = KMaxTInt;
-    AddCommandL(singleclickinfo);
+	// Add supported command
+	TCommandInfo info(EGlxCmdRemoveFrom);
+	// Filter out static items
+	info.iMinSelectionLength = 1;
+	info.iMaxSelectionLength = KMaxTInt;
+	AddCommandL(info);
+
+	TCommandInfo singleclickinfo(EGlxCmdSingleClickRemoveFrom);
+	singleclickinfo.iMinSelectionLength = 1;
+	singleclickinfo.iMaxSelectionLength = KMaxTInt;
+	AddCommandL(singleclickinfo);
 	}
 
 // ---------------------------------------------------------------------------

@@ -40,18 +40,20 @@ NONSHARABLE_CLASS( CGlxCommandHandlerDelete)
 	{
 public:
     /**
-     * Two-phase constructor
-     * @param aMediaListProvider object that provides the media list
-     * @param aIsContainerList If ETrue, shows "delete container"
-     *                         confirmation notes and does not allow
-     *                         deleting system items
-     *                         If EFalse, shows "delete item" 
-     *                         confirmation notes and does not check 
-     *                         for system items
-     */
+	 * Two-phase constructor
+	 * @param aMediaListProvider object that provides the media list
+	 * @param aIsContainerList If ETrue, shows "delete container"
+	 *                         confirmation notes and does not allow
+	 *                         deleting system items
+	 *                         If EFalse, shows "delete item" 
+	 *                         confirmation notes and does not check 
+	 *                         for system items
+	 * @param aFileName resource file
+	 */
 	IMPORT_C static CGlxCommandHandlerDelete* NewL(
-	    MGlxMediaListProvider* aMediaListProvider, TBool aIsContainerList, TBool aHasToolbarItem);
-	    
+			MGlxMediaListProvider* aMediaListProvider, TBool aIsContainerList,
+			TBool aHasToolbarItem, const TDesC& aFileName);
+
 	/** Destructor */
 	IMPORT_C ~CGlxCommandHandlerDelete();
     
@@ -79,7 +81,7 @@ protected:
 
 private:
     /** Second phase constructor */
-	void ConstructL(TBool aIsContainerList);
+	void ConstructL(TBool aIsContainerList, const TDesC& aFileName);
 
     /** Constructor */
 	CGlxCommandHandlerDelete(MGlxMediaListProvider* aMediaListProvider, TBool aHasToolbarItem);

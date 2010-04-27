@@ -24,6 +24,8 @@
 #include <data_caging_path_literals.hrh>        // for KDC_APP_RESOURCE_DIR
 #include <glxcollectionpluginimageviewer.hrh>
 #include <StringLoader.h>                       // String Loader
+#include <AknIconUtils.h>
+#include <e32math.h>
 
 //For animation Effects
 #include <akntranseffect.h>
@@ -72,6 +74,7 @@ using namespace GestureHelper;
 #include <glxnavigationalstate.h>
 #include <mpxcollectionpath.h>
 #include <glxcollectionpluginimageviewer.hrh>
+#include <glxuistd.h>
 #include "glxfullscreenbusyicon.h"
 
 using namespace Alf;
@@ -90,7 +93,7 @@ const TInt KPeriodicStartDelay = 250000;
 /**
  * Interval delay for the periodic timer, in microseconds
  */
-const TInt KPeriodicIntervalDelay = 100000; 
+const TInt KPeriodicIntervalDelay = 500000; 
 
 //This constant is used to calculate the index of the item for which texture has to removed.
 //6 = 5(iterator value in forward or backward direction for fullscreen) + 1(focus index)
@@ -98,6 +101,7 @@ const TInt KFullScreenIterator = 3;
 //Constant which says maximum number of fullscreen textures that we have have at a time.
 //11 = (5(5 fullscreen texture backwards)+1(fucus index texture)+5(5 fullscreen texture forwards))
 const TInt KFullScreenTextureOffset = 5;
+const TInt KGlxDecodingThreshold = 3000000; // pixels
 
 _LIT( KTfxResourceActivateFullScreen, "z:\\resource\\effects\\photos_fullscreen_open.fxml" );
 
@@ -184,6 +188,9 @@ void  CGlxFullScreenViewImp::ConstructL(
 	iDrmUtility = CGlxDRMUtility::InstanceL();
    // Get object that stores the active media list registry
     iActiveMediaListRegistry = CGlxActiveMediaListRegistry::InstanceL();
+    
+    iIsDialogLaunched = EFalse;
+    iIsMMCRemoved = EFalse;
 	
 	iMMCNotifier = CGlxMMCNotifier::NewL(*this);
 	if(!iPeriodic)
@@ -322,6 +329,9 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
     //destroy and close navistate and navipath
     CleanupStack::PopAndDestroy( naviState );
     CleanupStack::PopAndDestroy( navigationalState );
+
+    iScrnSize = iUiUtility->DisplaySize();
+    iGridIconSize = iUiUtility->GetGridIconSize();
 
     //Create hdmicontroller when it is only launched from fullscreen.  
     //From filemanager show only clone mode.
@@ -690,8 +700,16 @@ void CGlxFullScreenViewImp::ActivateZoomControlL(TZoomStartMode aStartMode, TPoi
                 
                 iHdmiController->ActivateZoom(autoZoomOut);
                 }
-            iZoomControl->ActivateL(GetInitialZoomLevel(),aStartMode, focus,
+            if (aStartMode == EZoomStartSlider) 
+                {
+                iZoomControl->ActivateL(iSliderModel->PrimaryValue(),aStartMode, focus,
                                         item, apZoomFocus,iImgViewerMode);
+                }
+            else 
+                {
+                iZoomControl->ActivateL(GetInitialZoomLevel(),aStartMode, focus,
+                                        item, apZoomFocus,iImgViewerMode);
+                }
             // Now to remove all textures other than the one we are focussing on.  
             TInt count = iMediaList->Count();
             while (count > 0)
@@ -1027,7 +1045,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                     {
                     HideUi(ETrue);
                     }
-                TRAP_IGNORE(ShowDrmExpiaryNoteL());
+                TRAP_IGNORE(ShowDrmExpiryNoteL());
                 return EEventConsumed;
                 }
             case EVideoIconSelect:
@@ -1093,7 +1111,12 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
 		case EGlxCmdResetView:
 		    {		    
 		    HideUi(ETrue);
+		    if (iIsDialogLaunched && iIsMMCRemoved)
+		        {
+                ProcessCommandL(EAknSoftkeyExit);
+		        }
 		    consumed = ETrue;
+		    iIsDialogLaunched = EFalse;
 		    break;
 		    }
 		case EGlxCmdFullScreenBack:
@@ -1105,6 +1128,11 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
 		    {
             SetItemToHDMIL();
 			consumed = ETrue;
+            break;
+            }
+		case EGlxCmdDialogLaunched:
+            {
+            iIsDialogLaunched = ETrue;
             break;
             }
         } 
@@ -1149,6 +1177,16 @@ TInt CGlxFullScreenViewImp::GetInitialZoomLevel()
     TSize size;
     TUint8 initialZoomLevel;
     item.GetDimensions( size );
+    if (KGlxDecodingThreshold < (size.iWidth * size.iHeight))
+        {
+        TReal areaRatio = TReal(size.iWidth*size.iHeight)/KGlxDecodingThreshold ;
+        
+        TReal sideRatio;
+        Math::Sqrt(sideRatio, areaRatio);
+        
+        size.iHeight = size.iHeight /  sideRatio ;
+        size.iWidth  = size.iWidth  /  sideRatio ;
+        }
     TRect rect = AlfUtil::ScreenSize();
 
     if( rect.Width()>= size.iWidth && rect.Height() >= size.iHeight)
@@ -1264,39 +1302,52 @@ TInt CGlxFullScreenViewImp::PeriodicCallback(TAny* aPtr )
 inline void CGlxFullScreenViewImp::CallPeriodicCallback()
     {
     TRACER("CGlxFullScreenViewImp::CallPeriodicCallback");
-    TRAP_IGNORE(ShowDrmExpiaryNoteL());
+    TRAP_IGNORE(ShowDrmExpiryNoteL());
     }
 	
 // ---------------------------------------------------------------------------
 // Shows expiry note / Consumes DRM rights for expired DRM files
 // ---------------------------------------------------------------------------
 //
-void CGlxFullScreenViewImp::ShowDrmExpiaryNoteL()
+void CGlxFullScreenViewImp::ShowDrmExpiryNoteL()
 	{
-    TRACER("CGlxFullScreenViewImp::ShowDrmExpiaryNoteL");
+    TRACER("CGlxFullScreenViewImp::ShowDrmExpiryNoteL");
     if (iMediaList->Count() > 0)
         {
         const TGlxMedia& media = iMediaList->Item(iMediaList->FocusIndex());
         TInt tnError = GlxErrorManager::HasAttributeErrorL(
                 media.Properties(), KGlxMediaIdThumbnail);
-        GLX_LOG_INFO1("CGlxFullScreenViewImp::ShowDrmExpiaryNoteL()"
+        GLX_LOG_INFO1("CGlxFullScreenViewImp::ShowDrmExpiryNoteL()"
                 " tnError=%d ", tnError);
 
         if (media.IsDrmProtected())
             {
-            GLX_LOG_INFO("CGlxFullScreenViewImp::ShowDrmExpiaryNoteL()"
+            GLX_LOG_INFO("CGlxFullScreenViewImp::ShowDrmExpiryNoteL()"
                     "- ConsumeDRMRightsL()");
+            //Consume DRM Rights & cancel Periodic timer for DRM images
+            //only if Quality TN is available
             ConsumeDRMRightsL(media);
             }
-
-        if (tnError == KErrNone)
+        else
             {
-            if (iPeriodic->IsActive())
+            //Cancel the periodic timer if quality thumbnail is available
+            //and no error in fetching quality thumbnail.
+            TSize tnSize = iUiUtility->DisplaySize();
+            TMPXAttribute qtyTnAttrib = TMPXAttribute(KGlxMediaIdThumbnail,
+                    GlxFullThumbnailAttributeId(ETrue, tnSize.iWidth,
+                            tnSize.iHeight));
+            const CGlxThumbnailAttribute* qtyTn = media.ThumbnailAttribute(
+                    qtyTnAttrib);
+            if (qtyTn && tnError == KErrNone)
                 {
-                iPeriodic->Cancel();
+                if (iPeriodic->IsActive())
+                    {
+                    iPeriodic->Cancel();
+                    }
                 }
             }
-
+        
+        //check if any Error message is to be displayed
         TMPXGeneralCategory cat = media.Category();
         TBool checkViewRights = (cat == EMPXImage);
         if (iDrmUtility->ItemRightsValidityCheckL(media.Uri(),
@@ -1314,7 +1365,7 @@ void CGlxFullScreenViewImp::ShowDrmExpiaryNoteL()
             if (naviState->Id() == TMPXItemId(
                     KGlxCollectionPluginImageViewerImplementationUid))
                 {
-                GLX_LOG_INFO("CGlxFullScreenViewImp::ShowDrmExpiaryNoteL()"
+                GLX_LOG_INFO("CGlxFullScreenViewImp::ShowDrmExpiryNoteL()"
                         "- ShowErrorNoteL()");
                 GlxGeneralUiUtilities::ShowErrorNoteL(tnError);
                 }
@@ -1476,7 +1527,7 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
     TGlxMedia item = iMediaList->Item(focusIndex);
     TInt error = GlxErrorManager::HasAttributeErrorL(item.Properties(),
         KGlxMediaIdThumbnail);
-    
+    GLX_LOG_INFO1("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - error=%d", error);
     // Item will be supported by HDMI ONLY if
     // it is not a video
     // and it has valid DRM Viewing rights
@@ -1485,8 +1536,60 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
             && iDrmUtility->ItemRightsValidityCheckL(item.Uri(), ETrue) 
             && (error == KErrNone) )
         {
-        GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Setting the Image");
-        iHdmiController->SetImageL(item.Uri());
+        GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Fetch FS thumbnail");
+        TMPXAttribute fsTnAttrib = TMPXAttribute(KGlxMediaIdThumbnail,
+                GlxFullThumbnailAttributeId(ETrue, iScrnSize.iWidth,
+                        iScrnSize.iHeight));
+        const CGlxThumbnailAttribute* fsValue = item.ThumbnailAttribute(
+                fsTnAttrib);
+        if (fsValue)
+            {
+            GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Setting FS Bitmap");
+            CFbsBitmap* fsBitmap = new (ELeave) CFbsBitmap;
+            CleanupStack::PushL(fsBitmap);
+            fsBitmap->Duplicate( fsValue->iBitmap->Handle());
+            
+            GLX_LOG_INFO2("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - FS Bitmap Size width=%d, height=%d", 
+                    fsBitmap->SizeInPixels().iWidth, fsBitmap->SizeInPixels().iHeight);
+            iHdmiController->SetImageL(item.Uri(),fsBitmap);
+            CleanupStack::PopAndDestroy(fsBitmap);
+            }
+        else
+            {
+            GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Fetch Grid thumbnail");
+            TMPXAttribute gridTnAttrib = TMPXAttribute(KGlxMediaIdThumbnail,
+                    GlxFullThumbnailAttributeId(ETrue, iGridIconSize.iWidth,
+                            iGridIconSize.iHeight));
+            const CGlxThumbnailAttribute* gridvalue = item.ThumbnailAttribute(
+                    gridTnAttrib);
+
+            if (gridvalue)
+                {
+                GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Setting Grid Bitmap");
+                CFbsBitmap* gridBitmap = new (ELeave) CFbsBitmap;
+                CleanupStack::PushL(gridBitmap);
+                gridBitmap->Duplicate( gridvalue->iBitmap->Handle());
+                
+                GLX_LOG_INFO2("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - gridBitmap Size width=%d, height=%d", 
+                        gridBitmap->SizeInPixels().iWidth, gridBitmap->SizeInPixels().iHeight);
+                iHdmiController->SetImageL(item.Uri(),gridBitmap);
+                CleanupStack::PopAndDestroy(gridBitmap);
+                }
+            else
+                {
+                GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Setting Default Bitmap");
+                TFileName resFile(KDC_APP_BITMAP_DIR);
+                resFile.Append(KGlxIconsFilename);
+                CFbsBitmap* defaultBitmap = new (ELeave) CFbsBitmap;
+                CleanupStack::PushL(defaultBitmap);
+                defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                        EMbmGlxiconsQgn_prop_image_notcreated);
+                GLX_LOG_INFO2("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Default Size width=%d, height=%d", 
+                        defaultBitmap->SizeInPixels().iWidth, defaultBitmap->SizeInPixels().iHeight);
+                iHdmiController->SetImageL(item.Uri(),defaultBitmap);
+                CleanupStack::PopAndDestroy(defaultBitmap); 
+                }
+            }
         }
     else
         {
@@ -1540,12 +1643,16 @@ void CGlxFullScreenViewImp::NavigateToMainListL()
 void CGlxFullScreenViewImp::HandleMMCRemovalL()
     {
     TRACER("CGlxFullScreenViewImp::HandleMMCRemovalL()");
-    if(iZoomControl && iZoomControl->Activated())
+    iIsMMCRemoved = ETrue;
+    if(!iIsDialogLaunched)
         {
-        SetSliderLevel();
-        DeactivateZoomControlL();   
+        if(iZoomControl && iZoomControl->Activated())
+            {
+            SetSliderLevel();
+            DeactivateZoomControlL();   
+            }
+        ProcessCommandL(EAknSoftkeyExit);
         }
-    ProcessCommandL(EAknSoftkeyExit);
     }
 	
 // ---------------------------------------------------------------------------

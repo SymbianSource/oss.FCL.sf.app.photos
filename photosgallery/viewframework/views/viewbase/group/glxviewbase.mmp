@@ -98,6 +98,7 @@ LIBRARY         mpxcommon.lib
 LIBRARY         mpxviewutility.lib
 LIBRARY         ws32.lib 
 LIBRARY         commonengine.lib
+LIBRARY         centralrepository.lib  //for CRepository
 
 // Uiaccelerator related libraries 
 LIBRARY         osncore.lib 

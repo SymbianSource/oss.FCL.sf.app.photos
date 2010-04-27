@@ -34,15 +34,17 @@ const TInt KGlxAiwShareOnOviCommandSpace = 0x00000500;
 // -----------------------------------------------------------------------------
 //  
 EXPORT_C CGlxCommandHandlerAiwShareOnOvi* CGlxCommandHandlerAiwShareOnOvi::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource)
-    {
-    CGlxCommandHandlerAiwShareOnOvi* self = new ( ELeave ) 
-    CGlxCommandHandlerAiwShareOnOvi(aMediaListProvider, aMenuResource);
-    CleanupStack::PushL( self );
-    self->ConstructL();
-    CleanupStack::Pop( self );
-    return self;
-    }
+		MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
+		const TDesC& aFileName)
+	{
+	CGlxCommandHandlerAiwShareOnOvi* self =
+			new (ELeave) CGlxCommandHandlerAiwShareOnOvi(aMediaListProvider,
+					aMenuResource);
+	CleanupStack::PushL(self);
+	self->ConstructL(aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
 
 // -----------------------------------------------------------------------------
 // CGlxCommandHandlerAiwShareOnOvi::DoGetRequiredAttributesL

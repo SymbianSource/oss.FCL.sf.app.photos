@@ -33,6 +33,7 @@
 #include <glxcollectionpluginimageviewer.hrh>
 #include "glxaiwservicehandler.h"
 #include <featdiscovery.h>
+#include <glximageviewermanager.h>          // for CGlxImageViewerManager
 
 const TInt KGlxAiwAssignCommandSpace = 0x00000100;
 
@@ -41,16 +42,18 @@ const TInt KGlxAiwAssignCommandSpace = 0x00000100;
 // -----------------------------------------------------------------------------
 //	
 EXPORT_C CGlxCommandHandlerAiwAssign* CGlxCommandHandlerAiwAssign::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource)
-    {
-    TRACER("CGlxCommandHandlerAiwAssign* CGlxCommandHandlerAiwAssign::NewL");
-    CGlxCommandHandlerAiwAssign* self = new ( ELeave ) 
-        CGlxCommandHandlerAiwAssign(aMediaListProvider, aMenuResource);
-    CleanupStack::PushL( self );
-    self->ConstructL();
-    CleanupStack::Pop( self );
-    return self;
-    }
+		MGlxMediaListProvider* aMediaListProvider, TInt aMenuResource,
+		const TDesC& aFileName)
+	{
+	TRACER("CGlxCommandHandlerAiwAssign* CGlxCommandHandlerAiwAssign::NewL");
+	CGlxCommandHandlerAiwAssign* self =
+			new (ELeave) CGlxCommandHandlerAiwAssign(aMediaListProvider,
+					aMenuResource);
+	CleanupStack::PushL(self);
+	self->ConstructL(aFileName);
+	CleanupStack::Pop(self);
+	return self;
+	}
     
 // -----------------------------------------------------------------------------
 // Constructor
@@ -68,13 +71,13 @@ CGlxCommandHandlerAiwAssign::~CGlxCommandHandlerAiwAssign()
     delete iFeatManager;
     }
 
-void CGlxCommandHandlerAiwAssign::ConstructL()
-    {
-    //Calling base class implementation
-    CGlxCommandHandlerAiwBase::ConstructL();
-    
-    iFeatManager = CFeatureDiscovery::NewL();
-    }
+void CGlxCommandHandlerAiwAssign::ConstructL(const TDesC& aFileName)
+	{
+	//Calling base class implementation
+	CGlxCommandHandlerAiwBase::ConstructL(aFileName);
+
+	iFeatManager = CFeatureDiscovery::NewL();
+	}
 
 // -----------------------------------------------------------------------------
 // CGlxCommandHandlerAiwAssign::DoGetRequiredAttributesL
@@ -150,6 +153,7 @@ void CGlxCommandHandlerAiwAssign::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/,
     {
     TRACER("void CGlxCommandHandlerAiwAssign::AiwDoDynInitMenuPaneL");
     TBool fullscreenViewingMode = EFalse;
+    TBool privateFile = EFalse;
     CGlxNavigationalState* aNavigationalState = CGlxNavigationalState::InstanceL();
     CMPXCollectionPath* naviState = aNavigationalState->StateLC();
     
@@ -178,6 +182,17 @@ void CGlxCommandHandlerAiwAssign::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/,
     CleanupStack::PopAndDestroy( naviState );
     aNavigationalState->Close();
     
+    if (fullscreenViewingMode)
+        {
+        CGlxImageViewerManager* viewerInst =
+                CGlxImageViewerManager::InstanceL();
+        if (viewerInst && viewerInst->IsPrivate())
+            {
+            privateFile = ETrue;
+            }
+        viewerInst->DeleteInstance();
+        }
+
     HBufC* currentTitle = StringLoader::LoadLC( R_QTN_LGAL_OPTIONS_USE_ITEMS );
     // get commandId for the current menupane item title
     TInt cmdId = AiwMenuCmdIdL( *currentTitle,aMenuPane ) ;
@@ -188,7 +203,8 @@ void CGlxCommandHandlerAiwAssign::AiwDoDynInitMenuPaneL(TInt /*aResourceId*/,
         {
         MGlxMediaList& mediaList = MediaList();
 
-        if (mediaList.SelectionCount() == 1 || fullscreenViewingMode )
+        if (mediaList.SelectionCount() == 1 || (fullscreenViewingMode
+                && !privateFile))
             {
     		TGlxSelectionIterator iterator;
             

@@ -272,7 +272,7 @@ CGlxZoomControl::~CGlxZoomControl()
 // ActivateL:Activates the Zoom Control,set the image visual ,do the initial setup
 // -----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxZoomControl::ActivateL(TInt /*aInitialZoomRatio*/, TZoomStartMode aStartMode, 
+EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode aStartMode, 
         TInt aFocusIndex, TGlxMedia& aItem, TPoint* aZoomFocus,TBool aViewingMode)
     {
     TRACER("CGlxZoomControl::ActivateL()");
@@ -320,16 +320,28 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt /*aInitialZoomRatio*/, TZoomStartM
             // Maximum is an
             TInt initialZoomRatio = GetInitialZoomLevel(maxVirtualImageSize);
             iZoomSliderModel->SetMinRange(initialZoomRatio);
-    
+
             iEventHandler->SetZoomActivated(ETrue);
-            iEventHandler->ActivateZoom(initialZoomRatio,
-                    maxVirtualImageSize,
-                    aStartMode,
-                    iZoomSliderModel->MinRange(), 
-                    iZoomSliderModel->MaxRange(),
-                    maxVirtualImageSize,
-                    aZoomFocus);
-            
+            if (aStartMode == EZoomStartSlider) 
+                {
+                iEventHandler->ActivateZoom(aInitialZoomRatio,
+                        maxVirtualImageSize,
+                        aStartMode,
+                        iZoomSliderModel->MinRange(), 
+                        iZoomSliderModel->MaxRange(),
+                        maxVirtualImageSize,
+                        aZoomFocus);
+                }
+            else 
+                {
+                iEventHandler->ActivateZoom(initialZoomRatio,
+                        maxVirtualImageSize,
+                        aStartMode,
+                        iZoomSliderModel->MinRange(), 
+                        iZoomSliderModel->MaxRange(),
+                        maxVirtualImageSize,
+                        aZoomFocus);
+                }
             TRAP_IGNORE(iImageTexture = 
             &(iTextureMgr->CreateZoomedTextureL(aItem,thumbNailAttribute,idspace,this)));
            
@@ -882,11 +894,8 @@ void CGlxZoomControl::HandleGestureL( const GestureHelper::MGestureEvent& aEvent
                 iEventHandler->HandleDragEvent(aEvent);
                 }
                 break;
-            case EGestureTap:
-            if (aEvent.Visual() == iImageVisual)
-                {
+            case EGestureTap:            
                 iEventHandler->HandleSingleTap(aEvent);
-                }
                 break;
             case EGesturePinch:
                 iEventHandler->HandlePinchEventL(aEvent);

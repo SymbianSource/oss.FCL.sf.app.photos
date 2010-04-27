@@ -45,6 +45,7 @@
 #include <glxscreenfurniture.h>
 #include <glxuiutilities.rsg>
 #include <glxpanic.h>                    // For Panics
+#include <glxresourceutilities.h>                // for CGlxResourceUtilities
 #include "glxmetadatacommandhandler.h"
 
 // ============================ MEMBER FUNCTIONS ===============================
@@ -75,56 +76,61 @@ CGlxMetadataDialog::CGlxMetadataDialog(const TDesC& aUri):iUri(aUri)
 void CGlxMetadataDialog::ConstructL()
 	{
 	TRACER("CGlxMetadataDialog::ConstructL");
-		
+
 	// Load dialog's resource file
 	InitResourceL();
-	
-	
+
 	iStatusPaneAvailable = EFalse;
 	// set the title to the dialog, Note that avkon dialogs do not support
 	// setting the title in the status pane so we need to do it the hard way
 	// get status pane
 	CEikStatusPane* statusPane = iEikonEnv->AppUiFactory()->StatusPane();
-	
-	if(statusPane && statusPane->IsVisible())
+
+	if (statusPane && statusPane->IsVisible())
 		{
-		iStatusPaneAvailable = ETrue;	    
+		iStatusPaneAvailable = ETrue;
 		}
 
-    // make the toolbar disabled
-    SetDetailsDlgToolbarVisibility(EFalse);	       
+	// make the toolbar disabled
+	SetDetailsDlgToolbarVisibility(EFalse);
 
 	// do we have status pane
-	if( statusPane )
+	if (statusPane)
 		{
-		GLX_LOG_INFO1("GLX_UMP::CGlxMetadataDialog::ConstructL::STATUS PANE = %d",statusPane->IsVisible());    
+		GLX_LOG_INFO1("GLX_UMP::CGlxMetadataDialog::ConstructL::STATUS PANE = %d",statusPane->IsVisible());
 		// load the title text
-		HBufC* text = StringLoader::LoadL(R_GLX_METADATA_VIEW_TITLE_DETAILS, iEikonEnv );
-		SetTitleL( *text );
-		if( text)
-		    {
-		    delete text;
-		    }
-		iAvkonAppUi->StatusPane()->MakeVisible(ETrue);			  
+		HBufC* text = StringLoader::LoadL(R_GLX_METADATA_VIEW_TITLE_DETAILS,
+				iEikonEnv );
+		SetTitleL(*text);
+		if (text)
+			{
+			delete text;
+			}
+		iAvkonAppUi->StatusPane()->MakeVisible(ETrue);
 		}
-		
-	iUiUtility = CGlxUiUtility::UtilityL();	
-	iAddToTag =  CGlxCommandHandlerAddToContainer::NewL(this, EGlxCmdAddTag, EFalse);
-	iAddToAlbum =  CGlxCommandHandlerAddToContainer::NewL(this, EGlxCmdAddToAlbum, EFalse);
-  
+
+	iUiUtility = CGlxUiUtility::UtilityL();
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+
+	iAddToTag = CGlxCommandHandlerAddToContainer::NewL(this, EGlxCmdAddTag,
+			EFalse, uiutilitiesrscfile);
+	iAddToAlbum = CGlxCommandHandlerAddToContainer::NewL(this,
+			EGlxCmdAddToAlbum, EFalse, uiutilitiesrscfile);
+
 	// Call the base class' two-phased constructor
-  	CAknDialog::ConstructL( R_METADATA_MENUBAR );
-	
+	CAknDialog::ConstructL(R_METADATA_MENUBAR);
+
 	// Instantiate the command handler
 	iMetadataCmdHandler = CGlxMetadataCommandHandler::NewL(this);
-	
+
 	//steps to find kinetic scroll threshold value
 	CAknPhysics* physics = CAknPhysics::NewL(*this, NULL);
 	CleanupStack::PushL(physics);
 	iKineticDragThreshold = physics->DragThreshold();
 	CleanupStack::PopAndDestroy(physics);
 	physics = NULL;
-	} 
+	}
 
 // -----------------------------------------------------------------------------
 // ~CGlxMetadataDialog
@@ -339,7 +345,7 @@ void CGlxMetadataDialog::DynInitMenuPaneL( TInt aMenuId, CEikMenuPane* aMenuPane
     {
     TRACER("CGlxMetadataDialog::DynInitMenuPaneL");
     iMetadataCmdHandler->PreDynInitMenuPaneL(aMenuId);
-    iMetadataCmdHandler->DynInitMenuPaneL(aMenuId,aMenuPane);   
+    iMetadataCmdHandler->DynInitMenuPaneL(aMenuId,aMenuPane,EFalse);   
     //To enable/diable the options based on the item selected.
     iContainer->ViewDynInitMenuPaneL(aMenuId, aMenuPane);
     }

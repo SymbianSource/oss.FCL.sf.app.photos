@@ -74,8 +74,10 @@ protected: // New functions
 	CGlxCommandHandlerAiwBase(MGlxMediaListProvider* aMediaListProvider, 
 	                          TInt aMenuResource);
 
-    /** Second phase constructor */
-	void ConstructL();
+    /** Second phase constructor
+     * @param aFileName resource file
+     */
+	void ConstructL(const TDesC& aFileName);
 	
     /**
      *  This appends a Uri and/or a mimetype parameter to the InParams list (see Aiw Service Handler)

@@ -96,7 +96,8 @@ protected:
     TBool ExecuteL(TInt aCommandId);
     
     /** see @ref MGlxCommandHandler::DynInitMenuPaneL */
-    void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane);
+    void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane,
+                        TBool aIsBrowseMode);
     
     /** see @ref MGlxCommandHandler::OfferKeyEventL */
     TKeyResponse OfferKeyEventL(const TKeyEvent& /*aKeyEvent*/, 

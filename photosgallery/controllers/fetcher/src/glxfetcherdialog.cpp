@@ -26,13 +26,13 @@
 #include <eikdialogext.h>
 #include <AknsBasicBackgroundControlContext.h>
 #include <MMGFetchVerifier.h>             // For VerifySelectionL()
-
+#include <glxresourceutilities.h>         // for CGlxResourceUtilities
 #include <glxuiutility.h>
 #include <glxscreenfurniture.h>
 #include <glxtracer.h> 					  // Logging macros
 #include <glxlog.h>
 #include <glxcommandhandlers.hrh>         //command ids
-
+#include <data_caging_path_literals.hrh>  // KDC_APP_RESOURCE_DIR
 #include <mglxmedialist.h>				  // MGlxMediaList, CMPXCollectionPath
 
 #include <alf/alfevent.h>
@@ -45,7 +45,9 @@
 #include "glxfetcher.hrh"
 
 const TInt KControlId = 1;
-     
+
+_LIT(KGlxGridviewResource, "glxgridviewdata.rsc");
+
 //-----------------------------------------------------------------------------
 // C++ default constructor.
 //-----------------------------------------------------------------------------
@@ -88,6 +90,11 @@ CGlxFetcherDialog* CGlxFetcherDialog::NewL(CDesCArray& aSelectedFiles,
 CGlxFetcherDialog::~CGlxFetcherDialog()
 	{
 	TRACER("CGlxFetcherDialog::~CGlxFetcherDialog");
+    if (iResourceOffset)
+        {
+        CCoeEnv::Static()->DeleteResourceFile(iResourceOffset);
+        }
+    
 	if(iMMCNotifier)
 	    {
         delete iMMCNotifier;
@@ -124,6 +131,15 @@ void CGlxFetcherDialog::ConstructL()
         {
         iAvkonAppUi->CurrentFixedToolbar()->SetToolbarVisibility(EFalse);
         }
+    
+    // Load resource file for grid view empty text
+    TParse parse;
+    parse.Set(KGlxGridviewResource, &KDC_APP_RESOURCE_DIR, NULL);
+    TFileName resourceFile;
+    resourceFile.Append(parse.FullName());
+    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
+    iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
+    
 	// Get the Hitchcock environment.
     iUiUtility = CGlxUiUtility::UtilityL();
     iEnv = iUiUtility->Env();

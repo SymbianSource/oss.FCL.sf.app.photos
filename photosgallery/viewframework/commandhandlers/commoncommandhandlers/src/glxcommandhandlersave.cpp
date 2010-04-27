@@ -23,6 +23,9 @@
 #include <glxtracer.h>
 #include <DocumentHandler.h>
 #include <glxpanic.h>
+#include <glxuiutilities.rsg>
+#include <glxgeneraluiutilities.h>
+#include <StringLoader.h>
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
@@ -86,21 +89,35 @@ TBool CGlxCommandHandlerSave::ExecuteL(TInt aCommandId)
             if ( imageHandle.SubSessionHandle() != KNullHandle )
                 {
                 TDataType nullType;
-                CDocumentHandler* handler = CDocumentHandler::NewLC(NULL); 
+                CDocumentHandler* handler = CDocumentHandler::NewLC(NULL);
                 __ASSERT_ALWAYS(handler, Panic(EGlxPanicNullPointer));
-                TRAP_IGNORE(handler->CopyL(imageHandle, KNullDesC, nullType, NULL));
+                TRAPD(err, handler->CopyL(imageHandle, KNullDesC, nullType, NULL));
                 CleanupStack::PopAndDestroy(handler);
+                if (err == KErrNone)
+                    {
+                    HBufC* noteText = StringLoader::LoadL(
+                            R_GLX_COMPLETION_FILE_SAVED_TO);
+                    if (noteText)
+                        {
+                        CleanupStack::PushL(noteText);
+                        GlxGeneralUiUtilities::ShowConfirmationNoteL(
+                                *noteText, ETrue);
+                        CleanupStack::PopAndDestroy(noteText);
+                        }
+                    }
                 }            
     		}
     	return ETrue;
     	}
     return EFalse;
     } 
+
 // ---------------------------------------------------------------------------
 // DynInitMenuPaneL
 // ---------------------------------------------------------------------------
 //
-void CGlxCommandHandlerSave::DynInitMenuPaneL(TInt /*aResourceId*/, CEikMenuPane* aMenuPane)
+void CGlxCommandHandlerSave::DynInitMenuPaneL(TInt /*aResourceId*/, CEikMenuPane* aMenuPane,
+                                                TBool /*aIsBrowseMode*/)
     {
     TRACER("CGlxCommandHandlerSave::DynInitMenuPaneL");
     if ( aMenuPane )

@@ -218,7 +218,7 @@ EXPORT_C void CGlxCollectionPluginBase::MediaL(const CMPXCollectionPath& aPath,
 	    
 	    if(aSpecs->IsSupported(KMPXMediaGeneralSize))
 	    	{
-	    	tnFileInfo->iFileSize = aSpecs->ValueTObjectL<TInt>(KMPXMediaGeneralSize);
+	    	tnFileInfo->iFileSize = aSpecs->ValueTObjectL<TUint>(KMPXMediaGeneralSize);
 	    	countInfo++;
 	    	}
 	    if(aSpecs->IsSupported(KGlxMediaGeneralLastModifiedDate))

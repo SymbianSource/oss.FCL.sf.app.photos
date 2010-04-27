@@ -91,17 +91,20 @@ CGlxAlbumFullScreenViewPlugin::~CGlxAlbumFullScreenViewPlugin()
 
     
 void CGlxAlbumFullScreenViewPlugin::AddCommandHandlersL()
-    {
-    CGlxFullScreenViewPluginBase::AddCommandHandlersL();
-    // Remove from Album.
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(iFullScreenView, EMPXAlbum));     
-    
-    TGlxHelpContext helpInfo;
-    helpInfo.iBrowseContext = LGAL_HLP_ALBUM_FULLSCREEN;
-   
-    iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo)); 
-    }
+	{
+	CGlxFullScreenViewPluginBase::AddCommandHandlersL();
+	TFileName uiutilitiesrscfile;
+	uiutilitiesrscfile.Append(
+			CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+	// Remove from Album.
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerRemoveFrom::NewL(
+			iFullScreenView, EMPXAlbum, uiutilitiesrscfile));
 
+	TGlxHelpContext helpInfo;
+	helpInfo.iBrowseContext = LGAL_HLP_ALBUM_FULLSCREEN;
+
+	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));
+	}
 
 
 void CGlxAlbumFullScreenViewPlugin::GetResourceFilenameL(TFileName& aResFile)

@@ -159,8 +159,6 @@ void CGlxFetcherContainer::CreateAndDisplayGridL()
     
     CreateGridMediaListObserverL();
 	
-    CreateEmptyDisplayL( iFilterType );
-	
 	// If multiple image selection is allowed, then set marking flag on grid widget.
 	if(iMultiSelectionEnabled)
 	    {
@@ -170,29 +168,6 @@ void CGlxFetcherContainer::CreateAndDisplayGridL()
 	    iHgGrid->SetFlags( CHgScroller::EHgScrollerSelectionMode );
 	    iMultipleMarkNotStarted = EFalse;
 	    }
-	}
-// ---------------------------------------------------------------------------
-// CreateEmptyDisplayL
-// Displays the empty string if no items in grid with respect to item selected.
-// ---------------------------------------------------------------------------
-//  
-void CGlxFetcherContainer::CreateEmptyDisplayL( TGlxFilterItemType aFilterType )
-	{
-	TRACER("CGlxFetcherContainer::CreateEmptyDisplayL");
-    if (aFilterType == EGlxFilterImage)
-        {
-        HBufC* emptyText = 
-                  StringLoader::LoadLC(R_FETCHER_EMPTY_VIEW_TEXT_IMAGE);
-        iHgGrid->SetEmptyTextL(*emptyText);
-        CleanupStack::PopAndDestroy(emptyText);
-        }
-    else if (aFilterType == EGlxFilterVideo)
-        {
-        HBufC* emptyText = 
-                  StringLoader::LoadLC(R_FETCHER_EMPTY_VIEW_TEXT_VIDEO);
-        iHgGrid->SetEmptyTextL(*emptyText);
-        CleanupStack::PopAndDestroy(emptyText);
-        }
 	}
 // ---------------------------------------------------------------------------
 // CreateMediaListL()
@@ -238,14 +213,6 @@ void CGlxFetcherContainer::CreateHgGridWidgetL()
     iThumbnailContext->SetDefaultSpec( iUiUtility->GetGridIconSize().iWidth,
             iUiUtility->GetGridIconSize().iHeight );
 
-    CGlxDefaultAttributeContext* attrContext = CGlxDefaultAttributeContext::NewL();
-    CleanupStack::PushL(attrContext);
-    attrContext->AddAttributeL(KMPXMediaGeneralCount);
-    attrContext->SetRangeOffsets(KItemsPerPage, KItemsPerPage);
-    iMediaList->AddContextL(attrContext, KGlxFetchContextPriorityGridViewVisibleThumbnail);
-    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attrContext,*iMediaList,EFalse));
-    iMediaList->RemoveContext(attrContext);
-    CleanupStack::PopAndDestroy( attrContext );
     iMediaList->AddContextL(iThumbnailContext, KGlxFetchContextPriorityNormal );
 
     if (!iHgGrid)
@@ -276,6 +243,8 @@ void CGlxFetcherContainer::CreateHgGridWidgetL()
         CleanupStack::Pop(bitmap);
         }
 
+	// Set the grid to use different layout for landscape mode in fetcher
+    //iHgGrid->SetToolbarVisibility(EFalse);
     iHgGrid->SetSelectedIndex(iMediaList->FocusIndex());
     // Setting to MopParent to update background skin
     iHgGrid->SetMopParent(this);
@@ -297,7 +266,8 @@ void CGlxFetcherContainer::CreateHgGridWidgetL()
 //  
 void CGlxFetcherContainer::CreateGridMediaListObserverL()
     {
-    iGlxGridMLObserver = CGlxGridViewMLObserver::NewL(*iMediaList , iHgGrid);
+    iGlxGridMLObserver = CGlxGridViewMLObserver::NewL(*iMediaList, iHgGrid,
+            iFilterType);
     }
     
 // ---------------------------------------------------------------------------

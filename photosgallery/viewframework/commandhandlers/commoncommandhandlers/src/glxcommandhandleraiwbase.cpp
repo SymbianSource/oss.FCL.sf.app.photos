@@ -53,33 +53,26 @@ CGlxCommandHandlerAiwBase::CGlxCommandHandlerAiwBase(
 // ConstructL
 // -----------------------------------------------------------------------------
 //	
-void CGlxCommandHandlerAiwBase::ConstructL()
-    {
+void CGlxCommandHandlerAiwBase::ConstructL(const TDesC& aFileName)
+	{
 
-    TParse parse;
-    parse.Set(KGlxUiUtilitiesResource, &KDC_APP_RESOURCE_DIR, NULL);
-    TFileName resourceFile;
-    resourceFile.Append(parse.FullName());
-    CGlxResourceUtilities::GetResourceFilenameL(resourceFile);  
+	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
 
-    iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
+	iAiwServiceHandler = CGlxAiwServiceHandler::InstanceL();
 
-    iAiwServiceHandler = CGlxAiwServiceHandler::InstanceL();
-    
-    iAiwServiceHandler->AttachMenuL( iMenuResource, AiwInterestResource() ); 
+	iAiwServiceHandler->AttachMenuL(iMenuResource, AiwInterestResource());
 
-   	// Add supported command
-   	TCommandInfo info(CommandId());
-   	// Filter out static items
-    info.iMinSelectionLength = 1;
-    info.iMaxSelectionLength = MaxSelectedItems();
-    info.iStopAnimationForExecution = ETrue;
-    info.iCategoryFilter = EMPXCommand;
-    info.iCategoryRule = TCommandInfo::EForbidAll; 
-   	AddCommandL(info);
-   	
+	// Add supported command
+	TCommandInfo info(CommandId());
+	// Filter out static items
+	info.iMinSelectionLength = 1;
+	info.iMaxSelectionLength = MaxSelectedItems();
+	info.iStopAnimationForExecution = ETrue;
+	info.iCategoryFilter = EMPXCommand;
+	info.iCategoryRule = TCommandInfo::EForbidAll;
+	AddCommandL(info);
 
-    }
+	}
     
 // -----------------------------------------------------------------------------
 // Destructor

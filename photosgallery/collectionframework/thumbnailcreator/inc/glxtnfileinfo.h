@@ -71,7 +71,7 @@ public:
 
 public:
     /** Size of the media file */
-    TInt iFileSize;
+    TUint iFileSize;
     /** Last modified time of the media file */
     TTime iFileTime;
     /** True if the thumbnail is temporary and should not be stored */

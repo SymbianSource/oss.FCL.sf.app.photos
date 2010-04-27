@@ -52,6 +52,13 @@ public:
       * @param The file server session, must be connected before the call
       */
     IMPORT_C static void GetResourceFilenameL( TFileName& aResFile, RFs& aFs );
+    
+    /** 
+	 * Gets the full name of the UiUtilities resource file.
+	 * @return TFileName  - The resource filename for UiUtilities
+	 */
+	IMPORT_C static TFileName GetUiUtilitiesResourceFilenameL();
+    
     };
     
 
