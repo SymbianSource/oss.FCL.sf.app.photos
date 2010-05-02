@@ -33,38 +33,47 @@ class HbListView;
 class QGraphicsGridLayout;
 class GlxAlbumModel;
 class QGraphicsItem;
+class HbDialog;
+class QItemSelectionModel;
+class QEventLoop;
 
 class GLX_COMMONCOMMANDHANDLERS_EXPORT GlxCommandHandlerAddToContainer : public GlxMpxCommandHandler
-	{
-	Q_OBJECT    
+{
+  
 public:
     GlxCommandHandlerAddToContainer();
     ~GlxCommandHandlerAddToContainer();
     CMPXCommand* CreateCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume) const ;
-    QModelIndexList GetSelectionList(GlxAlbumModel *model,bool *ok = 0) const;
 
 private:
     QString CompletionTextL() const;
     QString ProgressTextL() const; 
+    void createNewMedia() const;
+
 private:
     static TInt iSelectionCount;
     mutable bool mNewMediaAdded ;
     mutable CMPXCollectionPath* mTargetContainers ;
-
-private slots:    
-	void createNewMedia();
-	};
-
-class GlxQueryContentWidget :public QGraphicsWidget
-{
-	Q_OBJECT
-public:
-    HbPushButton* mButton;
-    HbListView* mListView;
-    QGraphicsGridLayout *mGrid;
-    GlxQueryContentWidget(QGraphicsItem* parent = 0);
-    ~GlxQueryContentWidget();
 };
+
+class GlxAlbumSelectionPopup: public QObject
+{
+    Q_OBJECT
+
+public:
+    GlxAlbumSelectionPopup();
+    ~GlxAlbumSelectionPopup();
+    QModelIndexList GetSelectionList(GlxAlbumModel *model,bool *ok = 0) ;
     
+private slots:
+    void changeButtonText();
+    void dialogClosed( HbAction *action ) ;
+    
+private :
+    HbDialog* mPopupDlg;
+    QItemSelectionModel * mSelectionModel; //no owner ship
+    QEventLoop *mEventLoop;
+    bool mResult;        
+};
     
 #endif // GLXCOMMANDHANDLERADDTOCONTAINER_H

@@ -21,11 +21,12 @@
 #define GLXSLIDESHOWWIDGET_H
 
 //Includes
-#include <hbscrollarea.h>
+#include <hbwidget.h>
 #include <hbeffect.h>
 
 //Qt/Orbit forward declarations
 class QTimer;
+class QGestureEvent;
 class HbIconItem;
 class HbMainWindow;
 class HbPushButton;
@@ -46,7 +47,7 @@ typedef enum
     EMPTY_DATA_EVENT //send the signal when model have no data
 } GlxSlideShowEvent;
 
-class GlxSlideShowWidget : public HbScrollArea
+class GlxSlideShowWidget : public HbWidget
 {
 Q_OBJECT
 
@@ -92,8 +93,7 @@ protected slots :
     void rightGesture (int value);
     
 protected :
-    void mouseReleaseEvent( QGraphicsSceneMouseEvent *event);
-    void mousePressEvent ( QGraphicsSceneMouseEvent * event ) ;
+    void gestureEvent(QGestureEvent *event);
     
 private :
     //clear all the model connection

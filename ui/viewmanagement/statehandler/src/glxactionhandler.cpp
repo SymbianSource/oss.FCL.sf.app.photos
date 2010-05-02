@@ -56,7 +56,9 @@ void GlxActionHandler::handleAction(qint32 commandId,int collectionId,QModelInde
         case EGlxCmdContextRename:
 	        commandId = EGlxCmdRename;
 	        break;
-	         
+        case EGlxCmdContextRemoveFrom:
+            commandId = EGlxCmdRemoveFrom;
+            break;
 		default : break;	
 		}
 		

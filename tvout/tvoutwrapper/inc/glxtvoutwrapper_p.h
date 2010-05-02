@@ -99,6 +99,11 @@ private:
      * and pass it to HDMI controller
      */
     void SetNewImage();
+    
+    /*
+     * getsubstate
+     */
+    int getSubState();
 private:
     GlxTvOutWrapper*            iTvOutWrapper;          // Instance of the Tv Wrapper
     QAbstractItemModel*         iModel;                 // Instance of the model

@@ -73,6 +73,7 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile, CFbsBitmap*
         }
     if (iGlxTvOut->IsHDMIConnected())
         {
+        iIsPostingMode = ETrue;         // the image should be in posting mode
         GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 2");
         // do not close the surface , use the same surface instead.
         // Call a function to pass imagefile
@@ -139,8 +140,10 @@ EXPORT_C void CGlxHdmiController::DeactivateZoom()
 EXPORT_C void CGlxHdmiController::ShiftToCloningMode()
     {
     TRACER("CGlxHdmiController::ShiftToCloningMode()");
+    // Shift to cloning only if HDMI is connected and surfaceupdater available.
     if (iGlxTvOut->IsHDMIConnected() && iSurfaceUpdater)
         {
+        iIsPostingMode = EFalse;
         iSurfaceUpdater->ShiftToCloningMode();
         }
     }
@@ -151,14 +154,27 @@ EXPORT_C void CGlxHdmiController::ShiftToCloningMode()
 EXPORT_C void CGlxHdmiController::ShiftToPostingMode()
     {
     TRACER("CGlxHdmiController::ShiftToPostingMode()");
-    if (iGlxTvOut->IsHDMIConnected() && iSurfaceUpdater)
+    if (iGlxTvOut->IsHDMIConnected())
         {
-        iSurfaceUpdater->ShiftToPostingMode();
+        if (!iSurfaceUpdater)
+            {
+            GLX_LOG_INFO("CGlxHdmiController::ShiftToPostingMode() - 1");
+            // This case would come when HDMI connected, TvOut /headphones being connected
+            // and then it shows a popup of "microphone connected" 
+            // thus Background - Foreground when headphones connected during HDMI connected
+            SetImageL(iStoredImagePath->Des(), iFsBitmap, EFalse);
+            }
+        else
+            {
+            GLX_LOG_INFO("CGlxHdmiController::ShiftToPostingMode() - 2");
+            iSurfaceUpdater->ShiftToPostingMode();
+            }
+        iIsPostingMode = ETrue;
         }
     }
 
 // -----------------------------------------------------------------------------
-// HandleTvStatusChangedL 
+// IsHDMIConnected 
 // -----------------------------------------------------------------------------
 EXPORT_C TBool CGlxHdmiController::IsHDMIConnected()
     {
@@ -171,7 +187,8 @@ EXPORT_C TBool CGlxHdmiController::IsHDMIConnected()
 // Constructor
 // -----------------------------------------------------------------------------
 CGlxHdmiController::CGlxHdmiController():
-            iFsBitmap(NULL)
+            iFsBitmap(NULL),
+            iIsPostingMode(EFalse)
     {
     TRACER("CGlxHdmiController::CGlxHdmiController()");
     // Implement nothing here
@@ -211,6 +228,7 @@ void CGlxHdmiController::DestroySurfaceUpdater()
         delete iSurfaceUpdater;
         iSurfaceUpdater = NULL;
         }    
+    iIsPostingMode = EFalse;
     }
 
 // -----------------------------------------------------------------------------
@@ -264,7 +282,14 @@ void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
     TRACER("CGlxHdmiController::HandleTvStatusChangedL()");
     if ( aChangeType == ETvConnectionChanged )          
         {
-        if ( iGlxTvOut->IsHDMIConnected() && iIsImageSupported )
+        if ( iGlxTvOut->IsHDMIConnected() && iGlxTvOut->IsConnected() && iSurfaceUpdater)
+            {
+            GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI and TV Connected");
+            // Do nothing , as this means HDMI is already connected and headset/tv cable connected
+            // meaning we shouldnt destroy HDMI and neither have to create surface updater.
+            return;
+            }
+        else if ( iGlxTvOut->IsHDMIConnected() && iIsImageSupported && iIsPostingMode)
             {
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Connected");
             // Calling SetImageL() with appropriate parameters
@@ -272,8 +297,8 @@ void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
             }
         else
             {
-            GLX_LOG_INFO2("CGlxHdmiController::HandleTvStatusChangedL() iIsImageSupported=%d, iGlxTvOut->IsHDMIConnected()=%d", 
-                    iIsImageSupported,iGlxTvOut->IsHDMIConnected());
+            GLX_LOG_INFO3("CGlxHdmiController::HandleTvStatusChangedL() iIsImageSupported=%d, iGlxTvOut->IsHDMIConnected()=%d, iIsPostingMode=%d", 
+                    iIsImageSupported,iGlxTvOut->IsHDMIConnected(),iIsPostingMode);
             // if it gets disconnected, destroy the surface 
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Not Connected");
             DestroySurfaceUpdater();

@@ -24,15 +24,12 @@
 #include "glxview.h"
 
 //Qt/Orbit forward declarations
-class HbGridView;
 class HbMainWindow;
-class HbDocumentLoader;
 class QAbstractItemModel;
-class HbAbstractViewItem;
-
-#define NBR_ROW 5
-#define NBR_COL 3
-#define NBR_PAGE NBR_ROW * NBR_COL
+class HgWidget;
+class GlxModelWrapper;
+class HbPushButton;
+class HbIconItem;
 
 class GlxGridView : public GlxView
 {
@@ -54,34 +51,33 @@ public :
 
 public slots:
     void itemSelected(const QModelIndex &  index);
-    void setVisvalWindowIndex();
-    /*
-     * This loads the docml and retrives the widgets from the 
-     * docml corresponding to the present orentation 
-     */
-     void loadGridView(Qt::Orientation orient);
-    void itemDestroyed();
-        
+    void scrollingEnded();
+    void scrollingStarted();
+    void orientationchanged(Qt::Orientation orient);
+    void visibleIndexChanged(const QModelIndex& current, const QModelIndex& previous);
+
 protected :
     QVariant  itemChange (GraphicsItemChange change, const QVariant &value) ;
 
 private slots:
-    void indicateLongPress( HbAbstractViewItem *item, QPointF coords );
+    void indicateLongPress(const QModelIndex& index, QPointF coords);
+    void uiButtonClicked(bool checked);
 	
 private:
     void addViewConnection();
     void removeViewConnection();
-    void resetItemTransform();
+    void hideorshowitems(Qt::Orientation orient);
+    void scrolltofocus();
+    void loadGridView();
   
-private:
-	HbGridView          *mGridView; 
-	HbView              *mView;
-	HbMainWindow        *mWindow;  //no ownership
+	HbMainWindow        *mWindow;          // no ownership
 	QAbstractItemModel  *mModel ;
-	int mVisualIndex;             //first item index of the page //To:Do remove later
-	HbAbstractViewItem   *mItem;
-    HbDocumentLoader     *mDocLoader; //Docml loader to load the widgets from docml 
-    bool                 mIsLongPress; //to check the long press has happend or not
+	HgWidget            *mWidget;          // HG Grid Widget
+	QItemSelectionModel *mSelectionModel;  // Selected items model
+    GlxModelWrapper     *mModelWrapper;    // Temp Model Wrapper, so That Role Change not a problem
+    HbPushButton        *mUiOnButton;
+    bool                 mScrolling;
+    HbIconItem          *mIconItem;
 };
 
 #endif /* GLXGRIDVIEW_H_ */

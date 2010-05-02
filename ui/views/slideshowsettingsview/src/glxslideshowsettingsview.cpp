@@ -27,47 +27,33 @@
 #include "glxuistd.h"
 #include "glxviewids.h"
 #include "glxslideshowsettingsview.h"
-#include "glxmodelparm.h"
+#include "glxeffectengine.h"
 
 
 
 
 GlxSlideShowSettingsView::GlxSlideShowSettingsView(HbMainWindow *window) 
     : GlxView ( GLX_SLIDESHOWSETTINGSVIEW_ID ), 
+      mEffect(NULL),
       mDelay(NULL),
-      mEffect(NULL), 
+      mWindow(window), 
       mContextlabel (NULL),
       mEffectlabel (NULL),
       mDelaylabel (NULL),
-      mWindow(window)
+      mSettings( NULL )
 {
-	 	mTempEffect = 0;
-  	mTempDelay =0 ;
+    mSettings = new GlxSlideShowSetting();
   	setContentFullScreen( true );
 }
 
 GlxSlideShowSettingsView::~GlxSlideShowSettingsView()
 {
-		if(mContextlabel) {
     	delete mContextlabel;
-    	mContextlabel = NULL;
-  	}
-    if(mEffectlabel) {
     	delete mEffectlabel;
-    	mEffectlabel = NULL;
-    }
-    if(mDelaylabel) {
     	delete mDelaylabel;
-    	 mDelaylabel = NULL;
-    }
-    if(mEffect) {
     	delete mEffect;
-    	mEffect = NULL;
-    }
-    if(mDelay) {
     	delete mDelay;
-    	mDelay = NULL;
-    }
+        delete mSettings;
 }
 
 void GlxSlideShowSettingsView::setModel(QAbstractItemModel *model)
@@ -94,8 +80,7 @@ void GlxSlideShowSettingsView::activate()
     
     if ( mEffect == NULL ) {
         mEffect = new HbComboBox(this);
-        QStringList effectList;
-        effectList<<"wave"<<"smooth fade"<<"zoom to face";
+        QStringList effectList = mSettings->slideShowEffectList();
         mEffect->addItems( effectList );
         
     }
@@ -111,9 +96,10 @@ void GlxSlideShowSettingsView::activate()
         mDelay->addItems( delayList );
     }
    
-    mEffect->setCurrentIndex( mTempEffect);
-    mDelay->setCurrentIndex ( mTempDelay );
+   // Read the values from the cenrep
     
+    mEffect->setCurrentIndex( mSettings->slideShowEffectIndex());
+    mDelay->setCurrentIndex( mSettings->slideShowDelayIndex());
     setLayout();
 }
 
@@ -131,8 +117,8 @@ void GlxSlideShowSettingsView::setLayout()
 void GlxSlideShowSettingsView::deActivate()
 {
 	 //Store the current effect and delay before going back to the previous view
-    mTempEffect = mEffect->currentIndex();
-    mTempDelay = mDelay->currentIndex();
+	mSettings->setslideShowEffectIndex(mEffect->currentIndex());
+	mSettings->setSlideShowDelayIndex(mDelay->currentIndex()); 
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
 }
 

@@ -4,73 +4,63 @@ EXPORTS
 	?RotateImageL@GlxCommandHandlerRotate@@AAEXV?$TBuf@$0BAA@@@@Z @ 3 NONAME ; void GlxCommandHandlerRotate::RotateImageL(class TBuf<256>)
 	?qt_metacall@GlxCommandHandlerNewMedia@@UAEHW4Call@QMetaObject@@HPAPAX@Z @ 4 NONAME ; int GlxCommandHandlerNewMedia::qt_metacall(enum QMetaObject::Call, int, void * *)
 	?ProgressTextL@GlxCommandHandlerRemoveFrom@@EBE?AVQString@@XZ @ 5 NONAME ; class QString GlxCommandHandlerRemoveFrom::ProgressTextL(void) const
-	??1GlxCommandHandlerAddToContainer@@UAE@XZ @ 6 NONAME ; GlxCommandHandlerAddToContainer::~GlxCommandHandlerAddToContainer(void)
-	?getStaticMetaObject@GlxCommandHandlerNewMedia@@SAABUQMetaObject@@XZ @ 7 NONAME ; struct QMetaObject const & GlxCommandHandlerNewMedia::getStaticMetaObject(void)
-	?SetImageOrientationL@GlxCommandHandlerRotate@@AAEXG@Z @ 8 NONAME ; void GlxCommandHandlerRotate::SetImageOrientationL(unsigned short)
-	?ConfirmationTextL@GlxCommandHandlerDelete@@EBE?AVQString@@_N@Z @ 9 NONAME ; class QString GlxCommandHandlerDelete::ConfirmationTextL(bool) const
-	??_EGlxCommandHandlerSend@@UAE@I@Z @ 10 NONAME ; GlxCommandHandlerSend::~GlxCommandHandlerSend(unsigned int)
-	?trUtf8@GlxCommandHandlerNewMedia@@SA?AVQString@@PBD0@Z @ 11 NONAME ; class QString GlxCommandHandlerNewMedia::trUtf8(char const *, char const *)
-	?HandleErrorL@GlxCommandHandlerNewMedia@@MAEXH@Z @ 12 NONAME ; void GlxCommandHandlerNewMedia::HandleErrorL(int)
-	?tr@GlxCommandHandlerNewMedia@@SA?AVQString@@PBD0H@Z @ 13 NONAME ; class QString GlxCommandHandlerNewMedia::tr(char const *, char const *, int)
-	?trUtf8@GlxCommandHandlerAddToContainer@@SA?AVQString@@PBD0@Z @ 14 NONAME ; class QString GlxCommandHandlerAddToContainer::trUtf8(char const *, char const *)
-	?DoExecuteCommandL@GlxCommandHandlerRotate@@UAEXHAAVMGlxMediaList@@AAH@Z @ 15 NONAME ; void GlxCommandHandlerRotate::DoExecuteCommandL(int, class MGlxMediaList &, int &)
-	?metaObject@GlxCommandHandlerNewMedia@@UBEPBUQMetaObject@@XZ @ 16 NONAME ; struct QMetaObject const * GlxCommandHandlerNewMedia::metaObject(void) const
-	?CreateCommandL@GlxCommandHandlerDelete@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 17 NONAME ; class CMPXMedia * GlxCommandHandlerDelete::CreateCommandL(int, class MGlxMediaList &, int &) const
-	?CreateCommandL@GlxCommandHandlerAddToContainer@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 18 NONAME ; class CMPXMedia * GlxCommandHandlerAddToContainer::CreateCommandL(int, class MGlxMediaList &, int &) const
-	?CompletionTextL@GlxCommandHandlerDelete@@EBE?AVQString@@XZ @ 19 NONAME ; class QString GlxCommandHandlerDelete::CompletionTextL(void) const
-	?DoHandleCommandCompleteL@GlxCommandHandlerNewMedia@@MAEXPAXPAVCMPXMedia@@HPAVMGlxMediaList@@@Z @ 20 NONAME ; void GlxCommandHandlerNewMedia::DoHandleCommandCompleteL(void *, class CMPXMedia *, int, class MGlxMediaList *)
-	?GenerateNewMediaItemTitleL@GlxCommandHandlerNewMedia@@ABE?AVQString@@V2@AAVMGlxMediaList@@@Z @ 21 NONAME ; class QString GlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL(class QString, class MGlxMediaList &) const
-	??1GlxCommandHandlerRemoveFrom@@UAE@XZ @ 22 NONAME ; GlxCommandHandlerRemoveFrom::~GlxCommandHandlerRemoveFrom(void)
-	?qt_metacast@GlxCommandHandlerNewMedia@@UAEPAXPBD@Z @ 23 NONAME ; void * GlxCommandHandlerNewMedia::qt_metacast(char const *)
-	?qt_metacall@GlxCommandHandlerAddToContainer@@UAEHW4Call@QMetaObject@@HPAPAX@Z @ 24 NONAME ; int GlxCommandHandlerAddToContainer::qt_metacall(enum QMetaObject::Call, int, void * *)
+	??0GlxCommandHandlerRename@@QAE@XZ @ 6 NONAME ; GlxCommandHandlerRename::GlxCommandHandlerRename(void)
+	??1GlxCommandHandlerAddToContainer@@UAE@XZ @ 7 NONAME ; GlxCommandHandlerAddToContainer::~GlxCommandHandlerAddToContainer(void)
+	?getStaticMetaObject@GlxCommandHandlerNewMedia@@SAABUQMetaObject@@XZ @ 8 NONAME ; struct QMetaObject const & GlxCommandHandlerNewMedia::getStaticMetaObject(void)
+	?SetImageOrientationL@GlxCommandHandlerRotate@@AAEXG@Z @ 9 NONAME ; void GlxCommandHandlerRotate::SetImageOrientationL(unsigned short)
+	?ConfirmationTextL@GlxCommandHandlerDelete@@EBE?AVQString@@_N@Z @ 10 NONAME ; class QString GlxCommandHandlerDelete::ConfirmationTextL(bool) const
+	??_EGlxCommandHandlerSend@@UAE@I@Z @ 11 NONAME ; GlxCommandHandlerSend::~GlxCommandHandlerSend(unsigned int)
+	?trUtf8@GlxCommandHandlerNewMedia@@SA?AVQString@@PBD0@Z @ 12 NONAME ; class QString GlxCommandHandlerNewMedia::trUtf8(char const *, char const *)
+	?HandleErrorL@GlxCommandHandlerNewMedia@@MAEXH@Z @ 13 NONAME ; void GlxCommandHandlerNewMedia::HandleErrorL(int)
+	?GetName@GlxCommandHandlerRename@@ABE?AVQString@@AAVMGlxMediaList@@@Z @ 14 NONAME ; class QString GlxCommandHandlerRename::GetName(class MGlxMediaList &) const
+	?tr@GlxCommandHandlerNewMedia@@SA?AVQString@@PBD0H@Z @ 15 NONAME ; class QString GlxCommandHandlerNewMedia::tr(char const *, char const *, int)
+	?DoExecuteCommandL@GlxCommandHandlerRotate@@UAEXHAAVMGlxMediaList@@AAH@Z @ 16 NONAME ; void GlxCommandHandlerRotate::DoExecuteCommandL(int, class MGlxMediaList &, int &)
+	?metaObject@GlxCommandHandlerNewMedia@@UBEPBUQMetaObject@@XZ @ 17 NONAME ; struct QMetaObject const * GlxCommandHandlerNewMedia::metaObject(void) const
+	?CreateCommandL@GlxCommandHandlerDelete@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 18 NONAME ; class CMPXMedia * GlxCommandHandlerDelete::CreateCommandL(int, class MGlxMediaList &, int &) const
+	?CreateCommandL@GlxCommandHandlerAddToContainer@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 19 NONAME ; class CMPXMedia * GlxCommandHandlerAddToContainer::CreateCommandL(int, class MGlxMediaList &, int &) const
+	?CompletionTextL@GlxCommandHandlerDelete@@EBE?AVQString@@XZ @ 20 NONAME ; class QString GlxCommandHandlerDelete::CompletionTextL(void) const
+	?DoHandleCommandCompleteL@GlxCommandHandlerNewMedia@@MAEXPAXPAVCMPXMedia@@HPAVMGlxMediaList@@@Z @ 21 NONAME ; void GlxCommandHandlerNewMedia::DoHandleCommandCompleteL(void *, class CMPXMedia *, int, class MGlxMediaList *)
+	?GenerateNewMediaItemTitleL@GlxCommandHandlerNewMedia@@ABE?AVQString@@V2@AAVMGlxMediaList@@@Z @ 22 NONAME ; class QString GlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL(class QString, class MGlxMediaList &) const
+	??1GlxCommandHandlerRemoveFrom@@UAE@XZ @ 23 NONAME ; GlxCommandHandlerRemoveFrom::~GlxCommandHandlerRemoveFrom(void)
+	?qt_metacast@GlxCommandHandlerNewMedia@@UAEPAXPBD@Z @ 24 NONAME ; void * GlxCommandHandlerNewMedia::qt_metacast(char const *)
 	??0GlxCommandHandlerRemoveFrom@@QAE@XZ @ 25 NONAME ; GlxCommandHandlerRemoveFrom::GlxCommandHandlerRemoveFrom(void)
 	?HandleItemAddedL@GlxCommandHandlerNewMedia@@MAEXHHPAVMGlxMediaList@@@Z @ 26 NONAME ; void GlxCommandHandlerNewMedia::HandleItemAddedL(int, int, class MGlxMediaList *)
-	?tr@GlxCommandHandlerAddToContainer@@SA?AVQString@@PBD0@Z @ 27 NONAME ; class QString GlxCommandHandlerAddToContainer::tr(char const *, char const *)
-	?tr@GlxCommandHandlerNewMedia@@SA?AVQString@@PBD0@Z @ 28 NONAME ; class QString GlxCommandHandlerNewMedia::tr(char const *, char const *)
-	?metaObject@GlxCommandHandlerAddToContainer@@UBEPBUQMetaObject@@XZ @ 29 NONAME ; struct QMetaObject const * GlxCommandHandlerAddToContainer::metaObject(void) const
-	?ReadImageOrientationL@GlxCommandHandlerRotate@@AAEGXZ @ 30 NONAME ; unsigned short GlxCommandHandlerRotate::ReadImageOrientationL(void)
-	??1GlxCommandHandlerRotate@@UAE@XZ @ 31 NONAME ; GlxCommandHandlerRotate::~GlxCommandHandlerRotate(void)
+	?tr@GlxCommandHandlerNewMedia@@SA?AVQString@@PBD0@Z @ 27 NONAME ; class QString GlxCommandHandlerNewMedia::tr(char const *, char const *)
+	?createNewMedia@GlxCommandHandlerAddToContainer@@ABEXXZ @ 28 NONAME ; void GlxCommandHandlerAddToContainer::createNewMedia(void) const
+	?ReadImageOrientationL@GlxCommandHandlerRotate@@AAEGXZ @ 29 NONAME ; unsigned short GlxCommandHandlerRotate::ReadImageOrientationL(void)
+	??1GlxCommandHandlerRotate@@UAE@XZ @ 30 NONAME ; GlxCommandHandlerRotate::~GlxCommandHandlerRotate(void)
+	?CreateCommandL@GlxCommandHandlerRename@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 31 NONAME ; class CMPXMedia * GlxCommandHandlerRename::CreateCommandL(int, class MGlxMediaList &, int &) const
 	??1GlxCommandHandlerNewMedia@@UAE@XZ @ 32 NONAME ; GlxCommandHandlerNewMedia::~GlxCommandHandlerNewMedia(void)
 	??_EGlxCommandHandlerNewMedia@@UAE@I@Z @ 33 NONAME ; GlxCommandHandlerNewMedia::~GlxCommandHandlerNewMedia(unsigned int)
 	?CompletionTextL@GlxCommandHandlerRemoveFrom@@EBE?AVQString@@XZ @ 34 NONAME ; class QString GlxCommandHandlerRemoveFrom::CompletionTextL(void) const
 	??_EGlxCommandHandlerDelete@@UAE@I@Z @ 35 NONAME ; GlxCommandHandlerDelete::~GlxCommandHandlerDelete(unsigned int)
 	?ProgressTextL@GlxCommandHandlerDelete@@EBE?AVQString@@XZ @ 36 NONAME ; class QString GlxCommandHandlerDelete::ProgressTextL(void) const
-	?staticMetaObject@GlxCommandHandlerNewMedia@@2UQMetaObject@@B @ 37 NONAME ; struct QMetaObject const GlxCommandHandlerNewMedia::staticMetaObject
-	??0GlxCommandHandlerDelete@@QAE@XZ @ 38 NONAME ; GlxCommandHandlerDelete::GlxCommandHandlerDelete(void)
+	?CompletionTextL@GlxCommandHandlerRename@@EBE?AVQString@@XZ @ 37 NONAME ; class QString GlxCommandHandlerRename::CompletionTextL(void) const
+	?staticMetaObject@GlxCommandHandlerNewMedia@@2UQMetaObject@@B @ 38 NONAME ; struct QMetaObject const GlxCommandHandlerNewMedia::staticMetaObject
 	?DestroyExifWriter@GlxCommandHandlerRotate@@AAEXXZ @ 39 NONAME ; void GlxCommandHandlerRotate::DestroyExifWriter(void)
-	??0GlxCommandHandlerSend@@QAE@XZ @ 40 NONAME ; GlxCommandHandlerSend::GlxCommandHandlerSend(void)
-	?HandleError@GlxCommandHandlerNewMedia@@MAEXH@Z @ 41 NONAME ; void GlxCommandHandlerNewMedia::HandleError(int)
-	??0GlxCommandHandlerAddToContainer@@QAE@XZ @ 42 NONAME ; GlxCommandHandlerAddToContainer::GlxCommandHandlerAddToContainer(void)
-	?getStaticMetaObject@GlxCommandHandlerAddToContainer@@SAABUQMetaObject@@XZ @ 43 NONAME ; struct QMetaObject const & GlxCommandHandlerAddToContainer::getStaticMetaObject(void)
-	??_EGlxCommandHandlerRotate@@UAE@I@Z @ 44 NONAME ; GlxCommandHandlerRotate::~GlxCommandHandlerRotate(unsigned int)
-	?ProgressTextL@GlxCommandHandlerAddToContainer@@EBE?AVQString@@XZ @ 45 NONAME ; class QString GlxCommandHandlerAddToContainer::ProgressTextL(void) const
-	??1GlxCommandHandlerSend@@UAE@XZ @ 46 NONAME ; GlxCommandHandlerSend::~GlxCommandHandlerSend(void)
-	?tr@GlxCommandHandlerAddToContainer@@SA?AVQString@@PBD0H@Z @ 47 NONAME ; class QString GlxCommandHandlerAddToContainer::tr(char const *, char const *, int)
-	?GetSelectionList@GlxCommandHandlerAddToContainer@@QBE?AV?$QList@VQModelIndex@@@@PAVGlxAlbumModel@@PA_N@Z @ 48 NONAME ; class QList<class QModelIndex> GlxCommandHandlerAddToContainer::GetSelectionList(class GlxAlbumModel *, bool *) const
-	?CompletionTextL@GlxCommandHandlerAddToContainer@@EBE?AVQString@@XZ @ 49 NONAME ; class QString GlxCommandHandlerAddToContainer::CompletionTextL(void) const
-	??0GlxCommandHandlerNewMedia@@QAE@XZ @ 50 NONAME ; GlxCommandHandlerNewMedia::GlxCommandHandlerNewMedia(void)
-	?trUtf8@GlxCommandHandlerNewMedia@@SA?AVQString@@PBD0H@Z @ 51 NONAME ; class QString GlxCommandHandlerNewMedia::trUtf8(char const *, char const *, int)
-	?doHandleUserAction@GlxCommandHandlerSend@@UBEXPAVGlxMediaModel@@V?$QList@VQModelIndex@@@@@Z @ 52 NONAME ; void GlxCommandHandlerSend::doHandleUserAction(class GlxMediaModel *, class QList<class QModelIndex>) const
-	??_EGlxCommandHandlerAddToContainer@@UAE@I@Z @ 53 NONAME ; GlxCommandHandlerAddToContainer::~GlxCommandHandlerAddToContainer(unsigned int)
-	?ProgressTextL@GlxCommandHandlerNewMedia@@EBE?AVQString@@XZ @ 54 NONAME ; class QString GlxCommandHandlerNewMedia::ProgressTextL(void) const
-	?staticMetaObject@GlxCommandHandlerAddToContainer@@2UQMetaObject@@B @ 55 NONAME ; struct QMetaObject const GlxCommandHandlerAddToContainer::staticMetaObject
+	??0GlxCommandHandlerDelete@@QAE@XZ @ 40 NONAME ; GlxCommandHandlerDelete::GlxCommandHandlerDelete(void)
+	??1GlxCommandHandlerRename@@UAE@XZ @ 41 NONAME ; GlxCommandHandlerRename::~GlxCommandHandlerRename(void)
+	??0GlxCommandHandlerSend@@QAE@XZ @ 42 NONAME ; GlxCommandHandlerSend::GlxCommandHandlerSend(void)
+	?HandleError@GlxCommandHandlerNewMedia@@MAEXH@Z @ 43 NONAME ; void GlxCommandHandlerNewMedia::HandleError(int)
+	??0GlxCommandHandlerAddToContainer@@QAE@XZ @ 44 NONAME ; GlxCommandHandlerAddToContainer::GlxCommandHandlerAddToContainer(void)
+	??_EGlxCommandHandlerRename@@UAE@I@Z @ 45 NONAME ; GlxCommandHandlerRename::~GlxCommandHandlerRename(unsigned int)
+	?HandleErrorL@GlxCommandHandlerRename@@EAEXH@Z @ 46 NONAME ; void GlxCommandHandlerRename::HandleErrorL(int)
+	??_EGlxCommandHandlerRotate@@UAE@I@Z @ 47 NONAME ; GlxCommandHandlerRotate::~GlxCommandHandlerRotate(unsigned int)
+	?ProgressTextL@GlxCommandHandlerAddToContainer@@EBE?AVQString@@XZ @ 48 NONAME ; class QString GlxCommandHandlerAddToContainer::ProgressTextL(void) const
+	??1GlxCommandHandlerSend@@UAE@XZ @ 49 NONAME ; GlxCommandHandlerSend::~GlxCommandHandlerSend(void)
+	?CompletionTextL@GlxCommandHandlerAddToContainer@@EBE?AVQString@@XZ @ 50 NONAME ; class QString GlxCommandHandlerAddToContainer::CompletionTextL(void) const
+	??0GlxCommandHandlerNewMedia@@QAE@XZ @ 51 NONAME ; GlxCommandHandlerNewMedia::GlxCommandHandlerNewMedia(void)
+	?trUtf8@GlxCommandHandlerNewMedia@@SA?AVQString@@PBD0H@Z @ 52 NONAME ; class QString GlxCommandHandlerNewMedia::trUtf8(char const *, char const *, int)
+	?doHandleUserAction@GlxCommandHandlerSend@@UBEXPAVGlxMediaModel@@V?$QList@VQModelIndex@@@@@Z @ 53 NONAME ; void GlxCommandHandlerSend::doHandleUserAction(class GlxMediaModel *, class QList<class QModelIndex>) const
+	??_EGlxCommandHandlerAddToContainer@@UAE@I@Z @ 54 NONAME ; GlxCommandHandlerAddToContainer::~GlxCommandHandlerAddToContainer(unsigned int)
+	?ProgressTextL@GlxCommandHandlerNewMedia@@EBE?AVQString@@XZ @ 55 NONAME ; class QString GlxCommandHandlerNewMedia::ProgressTextL(void) const
 	?ExecuteLD@GlxCommandHandlerNewMedia@@QAEHAAVTGlxMediaId@@@Z @ 56 NONAME ; int GlxCommandHandlerNewMedia::ExecuteLD(class TGlxMediaId &)
-	?createNewMedia@GlxCommandHandlerAddToContainer@@AAEXXZ @ 57 NONAME ; void GlxCommandHandlerAddToContainer::createNewMedia(void)
-	?CreateCommandL@GlxCommandHandlerRotate@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 58 NONAME ; class CMPXMedia * GlxCommandHandlerRotate::CreateCommandL(int, class MGlxMediaList &, int &) const
-	?trUtf8@GlxCommandHandlerAddToContainer@@SA?AVQString@@PBD0H@Z @ 59 NONAME ; class QString GlxCommandHandlerAddToContainer::trUtf8(char const *, char const *, int)
-	?CompletionTextL@GlxCommandHandlerNewMedia@@EBE?AVQString@@XZ @ 60 NONAME ; class QString GlxCommandHandlerNewMedia::CompletionTextL(void) const
-	?CreateCommandL@GlxCommandHandlerRemoveFrom@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 61 NONAME ; class CMPXMedia * GlxCommandHandlerRemoveFrom::CreateCommandL(int, class MGlxMediaList &, int &) const
-	?CalculateFinalOrientationL@GlxCommandHandlerRotate@@AAEGG@Z @ 62 NONAME ; unsigned short GlxCommandHandlerRotate::CalculateFinalOrientationL(unsigned short)
-	?InitializeExifWriterL@GlxCommandHandlerRotate@@AAEXV?$TBuf@$0BAA@@@@Z @ 63 NONAME ; void GlxCommandHandlerRotate::InitializeExifWriterL(class TBuf<256>)
-	?CreateCommandL@GlxCommandHandlerNewMedia@@MBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 64 NONAME ; class CMPXMedia * GlxCommandHandlerNewMedia::CreateCommandL(int, class MGlxMediaList &, int &) const
-	??1GlxCommandHandlerDelete@@UAE@XZ @ 65 NONAME ; GlxCommandHandlerDelete::~GlxCommandHandlerDelete(void)
-	??0GlxCommandHandlerRotate@@QAE@XZ @ 66 NONAME ; GlxCommandHandlerRotate::GlxCommandHandlerRotate(void)
-	?qt_metacast@GlxCommandHandlerAddToContainer@@UAEPAXPBD@Z @ 67 NONAME ; void * GlxCommandHandlerAddToContainer::qt_metacast(char const *)
-	??0GlxCommandHandlerRename@@QAE@XZ @ 68 NONAME ; GlxCommandHandlerRename::GlxCommandHandlerRename(void)
-	?GetName@GlxCommandHandlerRename@@ABE?AVQString@@AAVMGlxMediaList@@@Z @ 69 NONAME ; class QString GlxCommandHandlerRename::GetName(class MGlxMediaList &) const
-	?CreateCommandL@GlxCommandHandlerRename@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 70 NONAME ; class CMPXMedia * GlxCommandHandlerRename::CreateCommandL(int, class MGlxMediaList &, int &) const
-	?CompletionTextL@GlxCommandHandlerRename@@EBE?AVQString@@XZ @ 71 NONAME ; class QString GlxCommandHandlerRename::CompletionTextL(void) const
-	??1GlxCommandHandlerRename@@UAE@XZ @ 72 NONAME ; GlxCommandHandlerRename::~GlxCommandHandlerRename(void)
-	??_EGlxCommandHandlerRename@@UAE@I@Z @ 73 NONAME ; GlxCommandHandlerRename::~GlxCommandHandlerRename(unsigned int)
-	?HandleErrorL@GlxCommandHandlerRename@@EAEXH@Z @ 74 NONAME ; void GlxCommandHandlerRename::HandleErrorL(int)
+	?CreateCommandL@GlxCommandHandlerRotate@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 57 NONAME ; class CMPXMedia * GlxCommandHandlerRotate::CreateCommandL(int, class MGlxMediaList &, int &) const
+	?CompletionTextL@GlxCommandHandlerNewMedia@@EBE?AVQString@@XZ @ 58 NONAME ; class QString GlxCommandHandlerNewMedia::CompletionTextL(void) const
+	?CreateCommandL@GlxCommandHandlerRemoveFrom@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 59 NONAME ; class CMPXMedia * GlxCommandHandlerRemoveFrom::CreateCommandL(int, class MGlxMediaList &, int &) const
+	?CalculateFinalOrientationL@GlxCommandHandlerRotate@@AAEGG@Z @ 60 NONAME ; unsigned short GlxCommandHandlerRotate::CalculateFinalOrientationL(unsigned short)
+	?InitializeExifWriterL@GlxCommandHandlerRotate@@AAEXV?$TBuf@$0BAA@@@@Z @ 61 NONAME ; void GlxCommandHandlerRotate::InitializeExifWriterL(class TBuf<256>)
+	?CreateCommandL@GlxCommandHandlerNewMedia@@MBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 62 NONAME ; class CMPXMedia * GlxCommandHandlerNewMedia::CreateCommandL(int, class MGlxMediaList &, int &) const
+	??1GlxCommandHandlerDelete@@UAE@XZ @ 63 NONAME ; GlxCommandHandlerDelete::~GlxCommandHandlerDelete(void)
+	??0GlxCommandHandlerRotate@@QAE@XZ @ 64 NONAME ; GlxCommandHandlerRotate::GlxCommandHandlerRotate(void)
 

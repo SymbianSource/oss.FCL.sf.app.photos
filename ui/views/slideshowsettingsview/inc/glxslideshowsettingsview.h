@@ -30,6 +30,7 @@ class HbView;
 class HbMainWindow;
 class HbComboBox;
 class QAbstractItemModel;
+class GlxSlideShowSetting;
 
 class GlxSlideShowSettingsView : public GlxView
 {
@@ -55,8 +56,7 @@ private:
 	HbLabel *mContextlabel;				 //Display SlideShow label
 	HbLabel *mEffectlabel;				 //Display "Transition Effect: "
 	HbLabel *mDelaylabel;					 //Display "Transition delay: "
-	int     mTempEffect;					 //To store the index of effect.Temporary usage, Will be removed.
-	int     mTempDelay;						 //To store the index of effect.Temporary usage, Will be removed.
+	GlxSlideShowSetting *mSettings;
 };
 
 #endif /* GLXGRIDVIEW_H_ */

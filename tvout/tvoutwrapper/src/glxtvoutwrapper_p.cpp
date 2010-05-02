@@ -20,6 +20,7 @@
 #include "glxtvconnectionobserver.h"
 #include "glxhdmicontroller.h"
 #include "glxmodelparm.h"
+#include "glxviewids.h"
 
 // -----------------------------------------------------------------------------
 // Static method to create the private wrapper instance 
@@ -89,7 +90,7 @@ void GlxTvOutWrapperPrivate::HandleConnectionChange(bool aConnected)
     iHdmiConnected = aConnected;
     // if Connection state positive and uri/bmp are not passed to HDMI already
     // then it is a new image - Set it.
-    if (!isImageSetToHdmi && iHdmiConnected)
+    if (!isImageSetToHdmi && iHdmiConnected && getSubState() !=IMAGEVIEWER_S)
         {
         SetNewImage();
         }
@@ -123,7 +124,14 @@ void GlxTvOutWrapperPrivate::SetImagetoHDMI()
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::SetNewImage()
     {
-    int focusIndex = (iModel->data(iModel->index(0,0),GlxFocusIndexRole).value<int>());
+    QVariant focusVariant =(iModel->data(iModel->index(0,0),GlxFocusIndexRole)); 
+    int focusIndex;
+    if (focusVariant.isValid() && focusVariant.canConvert<int>()) {
+        focusIndex = (focusVariant.value<int>());
+	}
+	else{
+		return ;
+	}
     
     // Get the image uri
     QString imagePath = (iModel->data(iModel->index(focusIndex,0),GlxUriRole)).value<QString>();
@@ -187,5 +195,18 @@ void GlxTvOutWrapperPrivate::DeactivateZoom()
     iHdmiController->DeactivateZoom();
     }
     }
+
+// -----------------------------------------------------------------------------
+// getSubState 
+// -----------------------------------------------------------------------------
+int GlxTvOutWrapperPrivate::getSubState()
+{
+    int substate = NO_FULLSCREEN_S;
+    QVariant variant = iModel->data( iModel->index(0,0), GlxSubStateRole );    
+    if ( variant.isValid() &&  variant.canConvert<int> ()  ) {
+        substate = variant.value<int>();
+    }
+    return substate;
+}
 
 // End of file

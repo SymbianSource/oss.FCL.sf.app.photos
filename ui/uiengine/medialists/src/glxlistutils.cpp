@@ -61,7 +61,8 @@ TInt GlxListUtils::VisibleItemsGranularityL()
     //Need to replace with KGlxDefaultVisibleItemsGranularity after
     //getting the feature flag.
     TInt ret = KGlxVGAVisibleItemsGranularity;
-    FeatureManager::InitializeLibL();
+//  for 10.1 we need it to be 21,
+    /*FeatureManager::InitializeLibL();
     
     if (FeatureManager::FeatureSupported( KFeatureIdLayout640_360_Touch ) || 
         FeatureManager::FeatureSupported( KFeatureIdLayout360_640_Touch ))
@@ -75,6 +76,6 @@ TInt GlxListUtils::VisibleItemsGranularityL()
       {
       ret = KGlxVGAVisibleItemsGranularity;
       }
-    FeatureManager::UnInitializeLib(); 
+    FeatureManager::UnInitializeLib(); */
     return ret;
     }

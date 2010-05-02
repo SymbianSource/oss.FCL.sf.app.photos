@@ -31,8 +31,9 @@
 
 
 GlxMenuManager::GlxMenuManager(HbMainWindow* mainWindow)
- : mMainWindow( mainWindow ),
-   mContextMenu( 0 )
+    : mModel( 0),
+      mMainWindow( mainWindow ),
+      mContextMenu( 0 )
 {
 }
 
@@ -163,10 +164,6 @@ void GlxMenuManager::CreateFullscreenMenu(HbMenu* menu)
     action = menu->addAction(GLX_OPTION_ADD_TO_ALBUM);
     action->setData(EGlxCmdAddToAlbum);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
-	
-    action = menu->addAction("Rotate");
-    action->setData(EGlxCmdRotate);
-    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 }
 
 void GlxMenuManager::setAllActionVisibility( QList<QAction*> actionList, bool visible )
@@ -263,7 +260,13 @@ void GlxMenuManager::ShowItemSpecificMenu(qint32 viewId,QPointF pos)
 	        action = mContextMenu->addAction(GLX_MENU_SLIDESHOW);
 	        action->setData(EGlxCmdSelectSlideshow);
 	        connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
-		    
+
+	        if ( viewSubState() == ALBUM_ITEM_S ) {        
+	        action = mContextMenu->addAction(GLX_OPTION_REMOVE_FROM_ALBUM);
+	        action->setData(EGlxCmdContextRemoveFrom);
+	        connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+	        }
+	        
 	        action = mContextMenu->addAction(GLX_MENU_ADD_TO_ALBUM);
 		    action->setData(EGlxCmdContextAddToAlbum);
 		    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
@@ -273,29 +276,46 @@ void GlxMenuManager::ShowItemSpecificMenu(qint32 viewId,QPointF pos)
 		    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 			break;
 	    	
-	    case GLX_LISTVIEW_ID :
-	        action = mContextMenu->addAction(GLX_MENU_SLIDESHOW);
-	        action->setData(EGlxCmdAlbumSlideShow);
-	        connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
-    
-            action = mContextMenu->addAction(GLX_MENU_RENAME);
-            action->setData(EGlxCmdContextRename);
-            connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
-	                    
-		    action = mContextMenu->addAction(GLX_MENU_DELETE);
-		    action->setData(EGlxCmdContextAlbumDelete);
-		    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+	    case GLX_LISTVIEW_ID : {
+	        int count = 0;
+            QVariant variant = mModel->data( mModel->index(0,0), GlxListItemCount );    
+	        if ( variant.isValid() &&  variant.canConvert<int> () ) {
+	            count = variant.value<int>();  
+	        }  
+
+	        if ( count ) {
+                action = mContextMenu->addAction(GLX_MENU_SLIDESHOW);
+                action->setData(EGlxCmdAlbumSlideShow);
+                connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+	        }
+	        
+	        variant = mModel->data( mModel->index(0,0), GlxSystemItemRole );    
+            if ( variant.isValid() &&  variant.canConvert<bool> () && ( variant.value<bool>() == false ) ) {           
+                action = mContextMenu->addAction(GLX_MENU_RENAME);
+                action->setData(EGlxCmdContextRename);
+                connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+                            
+                action = mContextMenu->addAction(GLX_MENU_DELETE);
+                action->setData(EGlxCmdContextAlbumDelete);
+                connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+            }
+	    }
 			break;
 			
 		default:
 		    break;	
 		}
 
-	connect( mMainWindow, SIGNAL( aboutToChangeOrientation () ), mContextMenu, SLOT( close() ) );
-	connect( mContextMenu, SIGNAL( aboutToClose () ), this, SLOT( closeContextMenu() ) );
-	mContextMenu->setPreferredPos( pos );
-	mContextMenu->show();
-    
+    if ( mContextMenu->isEmpty() ) {
+        delete mContextMenu ;
+        mContextMenu = NULL ;
+    }
+    else {
+        connect( mMainWindow, SIGNAL( aboutToChangeOrientation () ), mContextMenu, SLOT( close() ) );
+        connect( mContextMenu, SIGNAL( aboutToClose () ), this, SLOT( closeContextMenu() ) );
+        mContextMenu->setPreferredPos( pos );
+        mContextMenu->show(); 
+    }    
 }
 
 void GlxMenuManager::closeContextMenu()

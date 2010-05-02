@@ -66,7 +66,6 @@ public :
     void setModel(QAbstractItemModel *model);
     void setModelContext ( );
     void cleanUp();
-    void handleUserAction(qint32 commandId);
     QGraphicsItem * getAnimationItem(GlxEffect transitionEffect);
     
     
@@ -85,7 +84,10 @@ public slots:
     void effectFinished( const HbEffect::EffectStatus  );
     void imageSelectionEffectFinished( const HbEffect::EffectStatus  );
     void handleToolBarAction();
- 
+
+protected :
+    bool event(QEvent *event);
+
 private:
     
     /*

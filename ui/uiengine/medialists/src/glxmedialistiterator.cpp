@@ -1212,3 +1212,152 @@ TBool TGlxFromManualIndexBlockyIterator::InRange(TInt aIndex) const
         return aIndex <= lastInRange || aIndex >= firstInRange;
         }
     }
+
+// -----------------------------------------------------------------------------
+// Constructor
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TGlxScrollingDirectionIterator::TGlxScrollingDirectionIterator( )
+    {
+    TRACER("TGlxScrollingDirectionIterator::TGlxScrollingDirectionIterator");
+    iMovingDirection = EForward;
+    iExVisindex = 0;
+    iDefaultVisItems = GlxListUtils::VisibleItemsGranularityL();       
+    iCurrentItem = 0;
+    iFrontOffset = 4 * iDefaultVisItems;
+    iRearOffset = 2 * iDefaultVisItems;  // Rear Is Not Handled Yet, We Need To ?
+    iList = NULL;
+  }
+    
+// -----------------------------------------------------------------------------
+// Destructor
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TGlxScrollingDirectionIterator::~TGlxScrollingDirectionIterator()
+    {
+    TRACER("TGlxScrollingDirectionIterator::~TGlxScrollingDirectionIterator");
+    
+    } 
+
+// ----------------------------------------------------------------------------
+// Set range offsets
+// ----------------------------------------------------------------------------
+//
+EXPORT_C void TGlxScrollingDirectionIterator::SetRangeOffsets(TInt aRearOffset,
+    TInt aFrontOffset)
+    { 
+    TRACER("TGlxScrollingDirectionIterator::SetRangeOffsets");
+    
+    __ASSERT_DEBUG(aRearOffset >= 0 && aFrontOffset >= 0, Panic(EGlxPanicIllegalArgument)); 
+    iFrontOffset = Max(aFrontOffset, iDefaultVisItems );
+    iRearOffset = Max(aRearOffset, iDefaultVisItems );
+    }
+
+// -----------------------------------------------------------------------------
+// Set to first item
+// -----------------------------------------------------------------------------
+//
+void TGlxScrollingDirectionIterator::SetToFirst(const MGlxMediaList* aList) 
+    {
+    TRACER("TGlxScrollingDirectionIterator::SetToFirst");
+    __ASSERT_DEBUG(aList != NULL, Panic(EGlxPanicNullPointer));
+
+    iList = aList;
+    iCurrentItem = 0;
+    }
+
+// -----------------------------------------------------------------------------
+// Return the item index or KErrNotFound, and goes to next
+// -----------------------------------------------------------------------------
+//
+TInt TGlxScrollingDirectionIterator::operator++(TInt) 
+    {
+    TRACER("TGlxScrollingDirectionIterator::operator++");
+    __ASSERT_DEBUG(iList != NULL, Panic(EGlxPanicNullPointer));
+
+    TInt listCount = iList->Count();
+    TInt index = iList->VisibleWindowIndex();
+    __ASSERT_ALWAYS( index >= 0 && index <= listCount, Panic( EGlxPanicIllegalState ) );
+    
+    if (listCount <= 0 || iFrontOffset + iRearOffset < iCurrentItem || listCount <= iCurrentItem)
+        {
+        return KErrNotFound;
+        }
+  
+    if(iExVisindex < index)
+        {
+        iMovingDirection = EForward;
+        iExVisindex = index;
+        }
+    else if(iExVisindex > index)
+        {
+        iMovingDirection = EBackward;
+        iExVisindex = index;
+        }
+    
+    if(EForward == iMovingDirection)
+        {
+        if ((index + iCurrentItem  < index + iFrontOffset) && (index + iCurrentItem  < listCount))
+            {
+            index += iCurrentItem;
+            }
+        else
+            {
+            return KErrNotFound;
+            }
+        }
+    else
+        {
+        if((index + iDefaultVisItems - iCurrentItem > index + iDefaultVisItems - iFrontOffset) && (index + iDefaultVisItems - iCurrentItem < listCount))
+            {
+            index += iDefaultVisItems - iCurrentItem;
+            }
+        else
+            {
+            return KErrNotFound;
+            }
+        }
+
+      iCurrentItem++;
+    
+      // The index may be below 0 or above count. Normalise back to list indexes.
+      return GlxListUtils::NormalizedIndex(index, listCount); 
+      } 
+  
+// -----------------------------------------------------------------------------
+// Return ETrue if index is within range, EFalse otherwise,
+// -----------------------------------------------------------------------------
+//
+TBool TGlxScrollingDirectionIterator::InRange(TInt aIndex) const
+    {
+    TRACER("TGlxScrollingDirectionIterator::InRange");
+    
+    // Rear Window is Not Handled yet , Still We include Rear window in Consideration for Garbage Collection
+    // Need to Re-Visit
+    TInt count = iList->Count();
+  
+    // Handle the case where range is longer than count separately, because looping will
+    // confuse otherwise
+    if (count <= iRearOffset + iFrontOffset) 
+        {
+        // Range is longer than count, must be in range
+        return ETrue;
+        }
+  
+    TInt index = iList->VisibleWindowIndex();
+    __ASSERT_ALWAYS( index >= 0 && index < iList->Count(), Panic( EGlxPanicIllegalState ) );
+    
+    TInt firstInRange = GlxListUtils::NormalizedIndex(index - iRearOffset, count);
+    TInt lastInRange = GlxListUtils::NormalizedIndex(index + iFrontOffset, count);
+  
+    if (firstInRange <= lastInRange)
+        {
+        // Normal case:  |    F-------L   |
+        return aIndex >= firstInRange && aIndex <= lastInRange;
+        }
+    else 
+        {
+        // Looping case: |----L      F----|
+        return aIndex <= lastInRange || aIndex >= firstInRange;
+        }
+    }

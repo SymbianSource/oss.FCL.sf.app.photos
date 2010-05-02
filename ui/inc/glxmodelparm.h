@@ -25,7 +25,8 @@
 
 enum
 {
-    GlxFsImageRole = Qt::UserRole + 1,  //to get the fullscreen image
+    GlxHgVisibilityRole = Qt::UserRole + 1, // VisibilityRole For MediaWall ,  Dont Change This Value - Depedency To HgWidget
+    GlxFsImageRole,                         //to get the fullscreen image
     GlxContextRole,                     //to get and set the context   
     GlxFocusIndexRole,                  //to get and set the selected item index
     GlxVisualWindowIndex,               //to set the visual window index in media list
@@ -36,17 +37,24 @@ enum
     GlxFrameCount,                      //to get the number of frame in an image
     GlxSubStateRole,                    //to publish the sub state of a SM states
     GlxHdmiBitmap,                      //to get the pre decoded thumbnail for HDMI
+	GlxListItemCount,                   //to get the number of item in the album list
+	GlxSystemItemRole,                   //to get the item is system item or not
+    GlxFavorites,                       //to get the image is in favorites folder or not
+    GlxQImageSmall,                     //To Get Grid Thumbnail as QImage
+    GlxQImageLarge,                     //To Get FullScreen Thumbnail as QImage
+    GlxDefaultImage                     //To Get Default Thumbnail 
 };
 
 
 class GlxModelParm
 {
 public:
-	GlxModelParm (qint32 collectionId = 0, qint32 depth = 0 , TGlxFilterItemType filterType = EGlxFilterItemAll , GlxContextMode contextMode = GlxContextPtGrid ) 
+	GlxModelParm (qint32 collectionId = 0, qint32 depth = 0 , TGlxFilterItemType filterType = EGlxFilterItemAll , GlxContextMode contextMode = GlxContextPtGrid ,QString uri = NULL) 
 	    : mCollectionId(collectionId) ,
 	      mDepth(depth) , 
 	      mFilterType( filterType ),
-	      mContextMode( contextMode )
+	      mContextMode( contextMode ),
+          mUri(uri)
 	{
 	
 	}
@@ -55,6 +63,8 @@ public:
 	qint32 collection() { return mCollectionId; }
 	void setDepth (qint32 depth = 0) { mDepth = depth ; }
 	qint32 depth() { return mDepth; }
+	QString path() { return mUri; }
+	void setPath(QString uri = NULL) {  mUri=uri; }
 	TGlxFilterItemType filterType() { return mFilterType; }
 	void setContextMode( GlxContextMode contextMode ) { mContextMode = contextMode ; }
 	GlxContextMode contextMode() { return mContextMode ; }
@@ -64,6 +74,7 @@ private:
 	qint32 mDepth;
 	TGlxFilterItemType mFilterType;
 	GlxContextMode mContextMode;
+	QString mUri;
 };
 
 

@@ -22,7 +22,6 @@
 #include <glxfilterfactory.h>
 #include <glxcollectionpluginall.hrh>
 #include <mglxmedialist.h>
-#include <glxcommandfactory.h>
 #include <glxmpxcommandhandler.h>
 #include <glxfetchcontextremover.h>
 #include <glxmedialistiterator.h>
@@ -39,6 +38,8 @@
 #ifdef OST_TRACE_COMPILER_IN_USE
 #include "glxmpxcommandhandlerTraces.h"
 #endif
+
+#include <hbaction.h>
 
 GlxMpxCommandHandler::GlxMpxCommandHandler() :
     iProgressComplete(EFalse)
@@ -66,7 +67,6 @@ void GlxMpxCommandHandler::executeCommand(int commandId, int collectionId,QList<
     int aHierarchyId = 0;
     TGlxFilterItemType aFilterType = EGlxFilterImage;
 
-    //CreateMediaListL(aCollectionId, aHierarchyId,aFilterType);
     if (collectionId != KGlxAlbumsMediaId)
         {
         OstTrace0( TRACE_NORMAL, DUP2_GLXMPXCOMMANDHANDLER_EXECUTECOMMAND, "GlxMpxCommandHandler::executeCommand::CreateMediaListL" );
@@ -81,27 +81,38 @@ void GlxMpxCommandHandler::executeCommand(int commandId, int collectionId,QList<
 
     TBool consume = ETrue;
     iProgressComplete = EFalse;
+    mProgressDialog = NULL;
     //Execute Command 
     DoExecuteCommandL(commandId, *iMediaList, consume);
-    //Create MPX command if any
-    consume = ConfirmationNoteL(*iMediaList);
-    if(consume)
+    mCommandId = commandId;
+    ConfirmationNoteL(*iMediaList);
+    OstTraceFunctionExit0( GLXMPXCOMMANDHANDLER_EXECUTECOMMAND_EXIT );
+    }
+
+void GlxMpxCommandHandler::executeMpxCommand(bool execute)
+    {
+    if(execute && !iMediaList->IsCommandActive())            
         {
-        CMPXCommand* command = CreateCommandL(commandId, *iMediaList, consume);
+        TBool consume = ETrue;
+        CMPXCommand* command = CreateCommandL(mCommandId, *iMediaList, consume);
         if (command)
             {
             command->SetTObjectValueL<TAny*> (KMPXCommandGeneralSessionId,
                     static_cast<TAny*> (this));
             iMediaList->AddMediaListObserverL(this);
             iMediaList->CommandL(*command);
-            ProgressNoteL(commandId);
+            
+            if(iMediaList->SelectionCount() > 1)
+                {
+                 ProgressNoteL(mCommandId);
+                }
             }
         }
     else //command cancelled,so unmark all items
         {
         MGlxMediaList::UnmarkAllL(*iMediaList);
         }
-    OstTraceFunctionExit0( GLXMPXCOMMANDHANDLER_EXECUTECOMMAND_EXIT );
+    
     }
 
 // ---------------------------------------------------------------------------
@@ -347,6 +358,7 @@ void GlxMpxCommandHandler::TryExitL(TInt aErrorCode)
         DismissProgressNoteL();
         iMediaList->RemoveMediaListObserver(this);
         CompletionNoteL();
+        iProgressComplete = EFalse;
         }
     OstTraceFunctionExit0( GLXMPXCOMMANDHANDLER_TRYEXITL_EXIT );
     }
@@ -394,18 +406,20 @@ void GlxMpxCommandHandler::ProgressNoteL(TInt /*aCommandId*/)
     {
     mProgressDialog = new HbProgressDialog(HbProgressDialog::WaitDialog);
     mProgressDialog->setText(ProgressTextL());
-    mProgressDialog->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
     mProgressDialog->show();
     }
 
 void GlxMpxCommandHandler::DismissProgressNoteL()
     {
-    mProgressDialog->close();
-    delete mProgressDialog;
-    mProgressDialog = NULL;
+    if(mProgressDialog)
+        {
+        mProgressDialog->close();
+        delete mProgressDialog;
+        mProgressDialog = NULL;
+        }
     }
 
-bool GlxMpxCommandHandler::ConfirmationNoteL(MGlxMediaList& aMediaList) const
+void GlxMpxCommandHandler::ConfirmationNoteL(MGlxMediaList& aMediaList)
     {
 	TInt selectionCount = aMediaList.SelectionCount();
 
@@ -418,23 +432,18 @@ bool GlxMpxCommandHandler::ConfirmationNoteL(MGlxMediaList& aMediaList) const
 		}
 	
     // Show confirmation note
-	bool confirmed = true;
 	if ( selectionCount == 1 )
 	    {
-		confirmed = ConfirmationNoteSingleL(aMediaList);
+		ConfirmationNoteSingleL(aMediaList);
 	    }
 	else
 	    {
-		confirmed = ConfirmationNoteMultipleL(aMediaList);
+		ConfirmationNoteMultipleL(aMediaList);
 	    }
-		
-	return confirmed;
     }
 
-bool GlxMpxCommandHandler::ConfirmationNoteSingleL(MGlxMediaList& aMediaList) const
+void GlxMpxCommandHandler::ConfirmationNoteSingleL(MGlxMediaList& aMediaList)
     {
-    bool confirmAction = true;
-
     QString qtText = ConfirmationTextL();
     
     if(!qtText.isEmpty ())
@@ -472,46 +481,41 @@ bool GlxMpxCommandHandler::ConfirmationNoteSingleL(MGlxMediaList& aMediaList) co
             qtText.append(QString("%1").arg(qtItemName));
             }
             // (else) If error, assume confirmed anyway
-            	
-            CleanupStack::PopAndDestroy(attributeContext);
-        
-        HbMessageBox box(HbMessageBox::MessageTypeQuestion);
-        box.setDismissPolicy(HbDialog::NoDismiss);
-
-        // Set timeout to zero to wait user to either click Ok or Cancel
-        box.setTimeout(HbDialog::NoTimeout);
-        
-        box.setText(qtText);
-        HbAction *action = box.exec();
-        if(action != box.primaryAction())
-            {
-            confirmAction = false;
-            }
-        }    
-    return confirmAction;
+        CleanupStack::PopAndDestroy(attributeContext);
+        HbMessageBox::question(qtText, this, SLOT(messageDialogClose(HbAction*)));  
+        }
+    else{
+        executeMpxCommand(true);
+        }
     }
-    
-bool GlxMpxCommandHandler::ConfirmationNoteMultipleL(MGlxMediaList& /*aMediaList*/) const
-    {
-    bool confirmAction = true;
 
+void GlxMpxCommandHandler::ConfirmationNoteMultipleL(MGlxMediaList& /*aMediaList*/)
+    {
     QString qtText = ConfirmationTextL(true);
     if(!qtText.isEmpty ())
         {
-        HbMessageBox box(HbMessageBox::MessageTypeQuestion);
-        box.setDismissPolicy(HbDialog::NoDismiss);
-        // Set timeout to zero to wait user to either click Ok or Cancel
-        box.setTimeout(HbDialog::NoTimeout);
-        box.setText(qtText);
-        HbAction *action = box.exec();
-        if(action != box.primaryAction())
-            {
-            confirmAction = false;
-            }
+        HbMessageBox::question(qtText, this, SLOT(messageDialogClose(HbAction*)));
         }    
-    return confirmAction;
+    else{
+        executeMpxCommand(true);
+        }
     }
-    
+
+void GlxMpxCommandHandler::messageDialogClose(HbAction* action)
+    {
+    HbMessageBox *dlg = static_cast<HbMessageBox*>(sender());
+    if(action == dlg->actions().at(0)) 
+        {
+        executeMpxCommand(true);
+        }
+    else
+        {
+        // Cancellation is done.
+        executeMpxCommand(false);
+        }
+    }
+
+
 QString GlxMpxCommandHandler::ConfirmationTextL(bool /*multiSelection */) const
     {
     return QString();

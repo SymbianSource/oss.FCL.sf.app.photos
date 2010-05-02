@@ -48,7 +48,12 @@ TARGET.EPOCALLOWDLLDATA = 1
 }
 
 # Input
-HEADERS += inc/glxcommandhandler.h  inc/glxmpxcommandhandler.h inc/glxmodelcommandhandler.h
-SOURCES += src/glxcommandhandler.cpp src/glxmpxcommandhandler.cpp src/glxmodelcommandhandler.cpp
+HEADERS += inc/glxcommandhandler.h
+HEADERS += inc/glxmpxcommandhandler.h
+HEADERS += inc/glxmodelcommandhandler.h
+
+SOURCES += src/glxcommandhandler.cpp
+SOURCES += src/glxmpxcommandhandler.cpp
+SOURCES += src/glxmodelcommandhandler.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT

@@ -30,13 +30,18 @@
 #endif
 class MGlxMediaList;
 class HbProgressDialog;
+class HbAction;
 
 class GLX_COMMANDHANDLERBASE_EXPORT GlxMpxCommandHandler : public GlxCommandHandler, public MGlxMediaListObserver
 {
+Q_OBJECT    
 public:
     GlxMpxCommandHandler();
     virtual ~GlxMpxCommandHandler();
     virtual void executeCommand(int commandId,int collectionId,QList<QModelIndex> indexList = QList<QModelIndex>() );
+
+public slots:
+    void messageDialogClose(HbAction* action);
 
 protected: // From MGlxMediaListObserver    
     /// See @ref MGlxMediaListObserver::HandleItemAddedL
@@ -81,19 +86,21 @@ protected: // From derived class
 	virtual QString ProgressTextL() const;        
     virtual QString ConfirmationTextL(bool multiSelection = false) const; 
 private: 
-    bool ConfirmationNoteL(MGlxMediaList& aMediaList) const;
-    bool ConfirmationNoteSingleL(MGlxMediaList& aMediaList) const;
-    bool ConfirmationNoteMultipleL(MGlxMediaList& aMediaList) const;
+    void ConfirmationNoteL(MGlxMediaList& aMediaList);
+    void ConfirmationNoteSingleL(MGlxMediaList& aMediaList) ;
+    void ConfirmationNoteMultipleL(MGlxMediaList& aMediaList) ;
 	void ProgressNoteL(TInt aCommandId);
 	void DismissProgressNoteL();
 	void CompletionNoteL() const;
     void TryExitL(TInt aErrorCode);
     void CreateMediaListL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType) ;
     void CreateMediaListAlbumItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);
+    void executeMpxCommand(bool execute);
 private:
     // Instance of Media List
     MGlxMediaList* iMediaList;
 	TBool iProgressComplete;
 	HbProgressDialog* mProgressDialog;
+	int mCommandId;
 };
 #endif //GLXMPXCOMMANDHANDLER_H

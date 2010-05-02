@@ -61,17 +61,6 @@ CMPXCommand* GlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
     CMPXCollectionPath* path = aMediaList.PathLC(NGlxListDefs::EPathParent);
     CMPXCommand* command = NULL;
    
-
-    _LIT(KName, "TEST");
-    HBufC* newMediaItemTitle = HBufC::NewL(40);
-    TPtr newMediaItemTitleDes = newMediaItemTitle->Des();
-    newMediaItemTitleDes.Append(KName);
-
-
-    delete iNewMediaItemTitle;
-    iNewMediaItemTitle = NULL;
-    iNewMediaItemTitle = newMediaItemTitle;
-
     QString title("NEW MEDIA");
     QString mainPane = GenerateNewMediaItemTitleL("Album",aMediaList);
     bool ok = false;

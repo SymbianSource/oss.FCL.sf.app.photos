@@ -31,7 +31,7 @@
 class CGlxAttributeContext;
 class CGlxDRMUtility;
 class CGlxResolutionUtility;
-class MGlxCache;
+//class MGlxCache;
 class MGlxMediaList;
 class TGlxMedia;
 
@@ -207,7 +207,7 @@ private:
     MGlxMediaListIterator* iIterator;	
 
     /** Cache manager interface (owned) */
-    MGlxCache* iCache;
+    //MGlxCache* iCache;
 
     /** Utility to translate between pixels and poss units */
     CGlxResolutionUtility* iResolutionUtility;

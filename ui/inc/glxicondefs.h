@@ -42,4 +42,7 @@
 //DEFAULT ICON
 #define GLXICON_DEFAULT "qtg_mono_camera"
 
+#define GLXICON_ADD_TO_FAV  "qtg_graf_ratingslider_rated"
+#define GLXICON_REMOVE_FAV  "qtg_graf_ratingslider_unrated"
+
 #endif /* GLXICONDEFS_H */

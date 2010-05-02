@@ -19,8 +19,9 @@
 #define GLXCOMMONDIALOGS_H
 
 #include <QObject>
-
 #include <hbinputdialog.h>
+
+class QEventLoop;
 
 class GlxTextInputDialog : public QObject
 {
@@ -32,9 +33,12 @@ public:
 
 public slots:
     void textChanged(const QString &text);
+    void dialogClosed(HbAction *action);
 
 private:
     HbInputDialog* mDialog;
+    QEventLoop *mEventLoop;
+    bool mResult;
 };
 
 #endif // GLXCOMMONDIALOGS_H

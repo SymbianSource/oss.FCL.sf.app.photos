@@ -58,13 +58,7 @@ HbWidget* GlxDetailsCustomWidgets::createCustomWidget()
             return dateLabel;
             }
         
-        case CommentsItem:
-            {
-            qDebug("GlxDetailsCustomWidgets::createCustomWidget:CommentsItem");
-            HbLineEdit *lineEdit = new HbLineEdit();
-            lineEdit->setGeometry(25,25,280,120);
-            return lineEdit;
-            }
+
 
         default:
             return 0;

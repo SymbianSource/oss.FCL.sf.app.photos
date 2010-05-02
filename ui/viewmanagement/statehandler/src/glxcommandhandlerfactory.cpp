@@ -26,6 +26,7 @@
 #include <glxcommandhandlersend.h>
 #include <glxcommandhandlerrename.h>
 
+
 GlxCommandHandler* GlxCommandHandlerFactory::CreateCommandHandler(int commandId)
 {
     GlxCommandHandler* cmdHandler = NULL;
@@ -33,11 +34,15 @@ GlxCommandHandler* GlxCommandHandlerFactory::CreateCommandHandler(int commandId)
         {
         case EGlxCmdDelete: cmdHandler = new GlxCommandHandlerDelete();
            break;
-        case EGlxCmdAddToAlbum: cmdHandler = new GlxCommandHandlerAddToContainer();
+        case EGlxCmdAddToAlbum: 
+        case EGlxCmdAddToFav:
+                            cmdHandler = new GlxCommandHandlerAddToContainer();
            break;
 		case EGlxCmdRotate: cmdHandler = new GlxCommandHandlerRotate();
            break;
-        case EGlxCmdRemoveFrom:  cmdHandler = new GlxCommandHandlerRemoveFrom();  
+        case EGlxCmdRemoveFrom:
+        case EGlxCmdRemoveFromFav: 
+                         cmdHandler = new GlxCommandHandlerRemoveFrom();  
            break;
         case EGlxCmdAddMedia:  cmdHandler = new GlxCommandHandlerNewMedia();
             break;

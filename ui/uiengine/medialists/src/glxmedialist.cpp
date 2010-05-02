@@ -866,6 +866,24 @@ void CGlxMediaList::CommandL(CMPXCommand& aCommand)
     }
 
 // -----------------------------------------------------------------------------
+// Checks if a command is active or not
+// -----------------------------------------------------------------------------
+TBool CGlxMediaList::IsCommandActive()
+    {
+    TRACER("CGlxMediaList::IsCommandActive");
+
+    if(iCommandPending)
+        {
+         return ETrue;  
+        }
+    else
+        {
+         return EFalse;
+        }
+    }
+
+
+// -----------------------------------------------------------------------------
 // Cancels a command on the collection
 // -----------------------------------------------------------------------------
 void CGlxMediaList::CancelCommand()

@@ -180,6 +180,9 @@ public: // From MGlxMediaList
 
     /// See @ref MGlxMediaList::CancelCommand
     void CancelCommand();
+    
+    /// See @ref MGlxMediaList::IsCommandActive
+    TBool IsCommandActive();
 
     /// See @ref MGlxMediaList::SetFilterL
     void SetFilterL(CMPXFilter* aFilter);

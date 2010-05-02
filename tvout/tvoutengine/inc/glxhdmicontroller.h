@@ -20,7 +20,6 @@
 
 // Internal includes
 #include <mglxtvobserver.h>     // for inteface MGlxTvObserver
-#include <fbs.h>
 
 class CGlxHdmiContainer;
 class CGlxHdmiSurfaceUpdater;
@@ -128,7 +127,8 @@ private:
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;
-    TBool iIsImageSupported;
+    TBool   iIsImageSupported;          // Flag to see if Image is supported
+    TBool   iIsPostingMode;             // Flag for determining if the image needs to be in posting mode
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

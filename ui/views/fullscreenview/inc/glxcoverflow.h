@@ -30,6 +30,7 @@ class HbIconItem;
 class HbMainWindow;
 class QAbstractItemModel;
 
+class QGestureEvent;
 typedef enum
 {
     NO_MOVE,
@@ -46,7 +47,7 @@ typedef enum
     EMPTY_ROW_EVENT //send the signal when model have no data
 } GlxCoverFlowEvent;
 
-class GlxCoverFlow : public HbScrollArea
+class GlxCoverFlow : public HbWidget
 {
 Q_OBJECT
 
@@ -59,12 +60,10 @@ public :
     void setUiOn(bool uiOn) { mUiOn = uiOn; }
     void partiallyClean();
     void partiallyCreate(QAbstractItemModel *model, QSize itemSize);
-	void rotateImage();
-    void setCoverFlow();
+	void setCoverFlow();
     void ClearCoverFlow();
 		    
 public slots:
-    void rotationEffectFinished( const HbEffect::EffectStatus &status );
 
 signals :
     void coverFlowEvent(GlxCoverFlowEvent e);
@@ -84,8 +83,7 @@ protected slots:
     void autoRightMove();
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);	
-    void mouseReleaseEvent (QGraphicsSceneMouseEvent *event) ;
+	void gestureEvent(QGestureEvent *event);
 
     void move(int value);
 
@@ -103,7 +101,6 @@ protected:
     //reset all the data of cover flow
     void resetCoverFlow();
     int getSubState();
-private slots:
 
 private:
 	HbIconItem *mIconItem[NBR_ICON_ITEM];      //at most contain only five item
@@ -117,9 +114,8 @@ private:
     bool mUiOn;
     int mBounceBackDeltaX;
     QAbstractItemModel *mModel;
-    GlxUserMove mMoveDir;                       //arun_goel3 may be remove later or change later
-	int rotAngle;
-        
+    GlxUserMove mMoveDir;
+    int mSpeed;        
 };
 
 #endif /* GLXCOVERFLOW_H_ */

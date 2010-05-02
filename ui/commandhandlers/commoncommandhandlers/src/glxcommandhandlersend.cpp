@@ -17,7 +17,7 @@
 
 #include "glxcommandhandlersend.h"
 #include <QModelIndex>
-#include <shareuidialog.h>
+#include <shareui.h>
 #include <glxmodelparm.h>
 #include <glxmediamodel.h>
 #include <QAbstractItemModel>
