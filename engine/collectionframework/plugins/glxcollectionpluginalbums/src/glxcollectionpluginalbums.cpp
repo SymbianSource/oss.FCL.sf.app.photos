@@ -97,6 +97,7 @@ CGlxCollectionPluginAlbums::CGlxCollectionPluginAlbums(
 void CGlxCollectionPluginAlbums::ConstructL()
     {
     iDataSource = MGlxDataSource::OpenDataSourceL(KGlxDefaultDataSourceUid, *this);
+    initializeTextResolverSymbian();
     }
 
 void CGlxCollectionPluginAlbums::CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray)
@@ -275,13 +276,15 @@ void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 					{
 					if( TGlxMediaId(KCapturedAlbumId) == aMediaId )
 						{
-						HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_CAMERA_TITLE);
-						aResponse->SetTextValueL(attr, *title);  
-						CleanupStack::PopAndDestroy(title);						
+					     _LIT(KCameraText,"txt_photos_dblist_my_camera");
+						 HBufC* title = LoadLocalizedStringLC(KCameraText);
+						 aResponse->SetTextValueL(attr, *title);  
+						 CleanupStack::PopAndDestroy(title);						
 						}
 					else if (TGlxMediaId(KFavoriteAlbumId) == aMediaId  )
 						{
-						HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_FAVORITES_TITLE);
+					    _LIT(KMyFavText,"txt_photos_dblist_my_favorites");				                                    					                  
+						HBufC* title = LoadLocalizedStringLC(KMyFavText);
 						aResponse->SetTextValueL(attr, *title);  
 						CleanupStack::PopAndDestroy(title);						
 						}

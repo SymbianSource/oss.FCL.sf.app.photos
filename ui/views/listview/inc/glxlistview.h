@@ -64,6 +64,7 @@ private:
 	HbMainWindow       *mWindow;  //no ownership
 	QAbstractItemModel *mModel ;
 	HbDocumentLoader   *mDocLoader; //Docml loader to load the widgets from docml
+	bool               mIsLongPress;
 };
 
 #endif /* GLXLISTVIEW_H */

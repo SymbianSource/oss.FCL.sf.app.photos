@@ -67,8 +67,6 @@
 #include "glxdatasourcemds.hrh"
 #include "glxdatasourcemdsutility.h"
 
-// CONSTANTS
-const TInt KGlxAlbumPromotionPosition = 0;
 
 _LIT(KPropertyDefNameCreationDate, "CreationDate");
 

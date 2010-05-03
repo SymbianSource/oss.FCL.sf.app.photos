@@ -1091,7 +1091,9 @@ void CGlxMediaList::HandleCollectionMessageL(const CMPXMessage& aMessage)
                     HandleItemModifiedL(itemId, attributes);
                     CleanupStack::PopAndDestroy(&attributes);
                     iManager->HandleWindowChangedL(this);
-
+                    //Fix for Bug 'ESLM-827JU8 Vasco w03':Dont 'ReOpenL()' in any case
+	      			//Side Effect: Does not reorder album list in case of renaming album (To be handled later).
+	      			break;
                     // Drop through to perform sync, in case the order has changed
                     }
                 case EMPXItemInserted:

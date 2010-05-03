@@ -23,6 +23,7 @@
 #include <glxliststate.h>
 #include <glxfullscreenstate.h>
 #include <glxdetailstate.h>
+#include <glxslideshowsettingsstate.h>
 #include <glxslideshowstate.h>
 #include <glxmodelparm.h>
 #include <glxcollectionpluginall.hrh>
@@ -39,7 +40,7 @@
 #include <glxplugincommandid.hrh>
 #include <QDebug>
 #include <QItemSelectionModel>
-#include <hbmessagebox.h>
+#include <hbnotificationdialog.h>
 #include <QProcess>
 
 GlxStateManager::GlxStateManager() : mAllMediaModel(NULL), mAlbumGridMediaModel(NULL),
@@ -110,8 +111,7 @@ void GlxStateManager::launchFromExternal()
     createModel(GLX_FULLSCREENVIEW_ID);
     mCurrentModel->setData( mCurrentModel->index(0,0), 0, GlxFocusIndexRole );
     mViewManager->launchApplication( GLX_FULLSCREENVIEW_ID, mCurrentModel);
-    //todo remove state dependency from view manager
-	mViewManager->setupItems(IMAGEVIEWER_S);
+	setupItems();
 }
 
 void GlxStateManager::actionTriggered(qint32 id)
@@ -276,6 +276,8 @@ GlxState * GlxStateManager::createState(qint32 stateId)
         
     case GLX_SLIDESHOWVIEW_ID :
         return new GlxSlideShowState( this, mCurrentState );
+    case GLX_SLIDESHOWSETTINGSVIEW_ID :
+        return new GlxSlideShowSettingsState(this, mCurrentState );
     	
     default :
         return NULL;		
@@ -305,6 +307,7 @@ void GlxStateManager::createModel(qint32 stateId, NavigationDir dir)
 		if ( mCurrentState->state() == IMAGEVIEWER_S) {
             GlxModelParm modelParm (KGlxCollectionPluginImageViewerImplementationUid, 0);
             mCurrentModel = mImageviewerMediaModel = new GlxMediaModel (modelParm);
+            mCollectionId = KGlxCollectionPluginImageViewerImplementationUid;
 		}
         else if ( mCurrentState->state() == EXTERNAL_S) {
             if(!mAllMediaModel) {
@@ -324,7 +327,7 @@ void GlxStateManager::createModel(qint32 stateId, NavigationDir dir)
         break;
         
     case GLX_SLIDESHOWVIEW_ID :
-        if ( mCurrentState->state() == ALBUM_ITEM_S ) {
+        if ( mCurrentState->state() == SLIDESHOW_ALBUM_ITEM_S ) {
             GlxModelParm modelParm ( KGlxAlbumsMediaId , 0);
             mCurrentModel = mAlbumGridMediaModel = new GlxMediaModel( modelParm );
         }
@@ -429,6 +432,10 @@ void GlxStateManager::eventHandler(qint32 &id)
         id = EGlxCmdHandled;
         break;
         
+    case EGlxCmdSlideshowSettings:
+        nextState(GLX_SLIDESHOWSETTINGSVIEW_ID,-1 );
+        id = EGlxCmdHandled;
+        break;
     case EGlxCmdDetailsOpen:
         qDebug("GlxStateManager::eventHandler EGlxCmdDetailsOpen");
         nextState( GLX_DETAILSVIEW_ID, -1 );
@@ -454,9 +461,7 @@ void GlxStateManager::eventHandler(qint32 &id)
         
     case EGlxCmdOviOpen:
 		{
-		HbMessageBox box(HbMessageBox::MessageTypeInformation);
-		box.setText("Not Implemented");
-		box.exec();
+		HbNotificationDialog::launchDialog("Not Implemented");
         id = EGlxCmdHandled;
 		}
         break;	

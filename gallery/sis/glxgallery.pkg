@@ -85,6 +85,7 @@
 "\epoc32\data\z\resource\apps\0xE2C223D9.mif"             - "!:\resource\apps\0xE2C223D9.mif"
 
 ;qt dlls
+"\epoc32\release\armv5\urel\glxtvoutwrapper.dll"            -"!:\sys\bin\glxtvoutwrapper.dll"
 "\epoc32\release\armv5\urel\glxmedialistwrapper.dll"            -"!:\sys\bin\glxmedialistwrapper.dll"
 "\epoc32\release\armv5\urel\glxexternalutility.dll"        -"!:\sys\bin\glxexternalutility.dll"
 "\epoc32\release\armv5\urel\glxmediamodel.dll"        -"!:\sys\bin\glxmediamodel.dll"

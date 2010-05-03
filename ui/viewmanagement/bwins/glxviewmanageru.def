@@ -43,4 +43,5 @@ EXPORTS
 	?setupItems@GlxViewManager@@QAEXXZ @ 42 NONAME ABSENT ; void GlxViewManager::setupItems(void)
 	?launchApplication@GlxViewManager@@QAEXHPAVQAbstractItemModel@@@Z @ 43 NONAME ; void GlxViewManager::launchApplication(int, class QAbstractItemModel *)
 	?setupItems@GlxViewManager@@QAEXH@Z @ 44 NONAME ; void GlxViewManager::setupItems(int)
+	?checkMarked@GlxViewManager@@AAEXXZ @ 45 NONAME ; void GlxViewManager::checkMarked(void)
 

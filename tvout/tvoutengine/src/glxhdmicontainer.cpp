@@ -20,7 +20,10 @@
 #include <glxtracer.h>
 #include <glxlog.h>
 #include "glxhdmicontainer.h"
+
 const TInt KGroupNameLength = 32;
+_LIT(KPhotosHdmi,"PhotosHdmi");
+
 // -----------------------------------------------------------------------------
 // NewLC
 // -----------------------------------------------------------------------------
@@ -93,7 +96,7 @@ void CGlxHdmiContainer::CreateHdmiWindowL()
     iWsWindowGroup = RWindowGroup(iSession);
     User::LeaveIfError(iWsWindowGroup.Construct(id, iScreenDevice));
     iWsWindowGroup.SetOrdinalPosition(0);
-    TBuf<KGroupNameLength> winGroupName(_L("PhotosHdmi"));
+    TBuf<KGroupNameLength> winGroupName(KPhotosHdmi);
     iWsWindowGroup.SetName(winGroupName); 
     iWsWindowGroupID = iWsWindowGroup.Identifier();
 

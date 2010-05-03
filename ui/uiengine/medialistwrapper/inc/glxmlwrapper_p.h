@@ -106,7 +106,7 @@ public:
 	QSize   RetrieveItemDimension(int index);
 	QDate   RetrieveItemDate(int index);
 	int     RetrieveItemFrameCount(int aItemIndex);
-	
+	CFbsBitmap* RetrieveBitmap(int aItemIndex);
 		
 private:
 

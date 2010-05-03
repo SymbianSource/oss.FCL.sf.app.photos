@@ -39,7 +39,7 @@
 #include "glxcoverflow.h"
 #include "glxdocloaderdefs.h" //contains the definations of path, widget names and view names in docml
 #include "glxloggerenabler.h"
-#include "glxhdmicontroller.h"
+#include "glxtvoutwrapper.h"
 #include "glxfullscreenview.h" 
 #include "glxcommandhandlers.hrh"
 //#include "glxzoomwidget.h"
@@ -59,11 +59,13 @@ GlxFullScreenView::GlxFullScreenView(HbMainWindow *window,HbDocumentLoader *DocL
     mCoverFlow(NULL) , 
     mImageStrip (NULL), 
     mUiOffTimer(NULL),
-    iHdmiController(NULL),
+    mIconItem(NULL),
+    mTvOutWrapper(NULL),
     mFullScreenToolBar(NULL),
 	mFlipAction(NULL),
 	mSendAction(NULL),
-	mDeleteAction(NULL)
+	mDeleteAction(NULL),
+	mUseImageAction(NULL)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_ENTRY );
     
@@ -80,6 +82,11 @@ void GlxFullScreenView::initializeView(QAbstractItemModel *model)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_INITIALIZEVIEW_ENTRY );
     
+    // if animations is on, then Set the image to HDMI here
+    if (!mTvOutWrapper){
+        mTvOutWrapper = new GlxTvOutWrapper();
+    }
+    setHdmiModel(model);
 
     //Load/Retrieve the Widgets
     loadWidgets();
@@ -142,12 +149,23 @@ void GlxFullScreenView::loadFullScreenToolBar()
     //create  Delete tool bar button action
     mDeleteAction = new HbAction(this);
     mDeleteAction->setData(EGlxCmdDelete);        
-    mDeleteAction->setIcon(HbIcon(GLXICON_DELETE));   
-    mFullScreenToolBar->addAction( mDeleteAction); 
+    mDeleteAction->setIcon(HbIcon(GLXICON_DELETE)); 
+    
+    //create  Use Image tool bar button action
+    mUseImageAction = new HbAction(this);
+    //mUseImageAction->setData(EGlxCmdDelete);        
+    mUseImageAction->setIcon(HbIcon(GLXICON_USEIMAGE)); 
+    if(getSubState() != IMAGEVIEWER_S){
+        mFullScreenToolBar->addAction( mDeleteAction);
+    }else{
+        mFullScreenToolBar->addAction( mUseImageAction);
+    }
+     
 
     connect(mFlipAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) ); 
     connect(mSendAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) ); 
     connect(mDeleteAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );
+    connect(mUseImageAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_LOADFULLSCREENTOOLBAR_EXIT );
 }
@@ -173,15 +191,12 @@ void GlxFullScreenView::activate()
     mUiOff = true;
     mUiOffTimer->stop();        
     mCoverFlow->setUiOn(FALSE);    
-
     addConnection(); 
     setLayout();
      
-    if (!iHdmiController) {
-        OstTrace0( TRACE_NORMAL, GLXFULLSCREENVIEW_ACTIVATE, "GlxFullScreenView::activate - CGlxHdmi" );
-        iHdmiController = CGlxHdmiController::NewL();
-    }
-    
+    if (!mTvOutWrapper){
+        mTvOutWrapper = new GlxTvOutWrapper();
+        }
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_ACTIVATE_EXIT );
 }
 
@@ -206,11 +221,11 @@ void GlxFullScreenView::resetView()
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_RESETVIEW_ENTRY );    
 
-    //Clear the 4 icons present in the Coverflow,so that the transition between the views are smooth
-    mCoverFlow->partiallyClean();
-
     //Clean up the rest of the resources allocated
     cleanUp(); 
+        
+    //Clear the 4 icons present in the Coverflow,so that the transition between the views are smooth
+    mCoverFlow->partiallyClean();
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_RESETVIEW_EXIT );
 }
@@ -252,13 +267,10 @@ void GlxFullScreenView::cleanUp()
        mFullScreenToolBar = NULL;
     }
     
-    
-    if (iHdmiController) {
-        OstTrace0( TRACE_NORMAL, DUP2_GLXFULLSCREENVIEW_CLEANUP, "GlxFullScreenView::cleanUp() delete iHdmiController" );
-        delete iHdmiController;
-        iHdmiController = NULL;
+    if (mTvOutWrapper) {
+        delete mTvOutWrapper;
+        mTvOutWrapper = NULL;
     }
-    
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_CLEANUP_EXIT );
 }
 
@@ -279,12 +291,28 @@ void GlxFullScreenView::setModel( QAbstractItemModel *model )
     OstTraceExt2( TRACE_NORMAL, GLXFULLSCREENVIEW_SETMODEL, "GlxFullScreenView::setModel; model=%x; mModel=%u", ( TUint )( model ), ( TUint ) mModel );
     
     mModel = model;     
-	mCoverFlow->setModel(mModel);
-   setImageStripModel();
-    SetImageToHdmiL(); // for the first image on screen
-    
+    setHdmiModel(mModel);
+
+    mCoverFlow->setModel(mModel);
+    setImageStripModel();
+    if(getSubState() == IMAGEVIEWER_S)
+        {
+        setTitle("Image Viewer");
+        }
+	else if(getSubState() == FETCHER_S){
+		setItemVisible(Hb::AllItems, TRUE) ;
+	}
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_SETMODEL_EXIT );
 }
+
+void GlxFullScreenView::setHdmiModel(QAbstractItemModel* model)
+    {
+    if (mTvOutWrapper)
+        mTvOutWrapper->setModel(model);
+    
+    // for the first image on screen
+    mTvOutWrapper->setImagetoHDMI();
+    }
 
 void GlxFullScreenView::setModelContext()
 {
@@ -324,7 +352,7 @@ void GlxFullScreenView::activateUI()
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_ACTIVATEUI_ENTRY );
     
-    if ( mUiOff ){      
+    if ( mUiOff && getSubState() != FETCHER_S){      
         if(!mFullScreenToolBar) {
             loadFullScreenToolBar();
         }
@@ -336,10 +364,16 @@ void GlxFullScreenView::activateUI()
             mImageStrip->scrollTo( mModel->index( variant.value<int>(), 0), HbGridView::PositionAtTop ); 
         }
         
-        mImageStrip->show(); 
         mFullScreenToolBar->show();
         setItemVisible(Hb::AllItems, TRUE) ;
-        HbEffect::start(mImageStrip, QString("HbGridView"), QString("TapShow"), this, "effectFinished" );
+
+        if ( mImageStrip && getSubState() != IMAGEVIEWER_S) {
+            mImageStrip->show(); 
+            HbEffect::start(mImageStrip, QString("HbGridView"), QString("TapShow"), this, "effectFinished" );
+        }
+        else if( getSubState() == IMAGEVIEWER_S){
+            setTitle("Image Viewer");
+        }
     }
     else {
         hideUi();
@@ -360,8 +394,10 @@ void GlxFullScreenView::hideUi()
     }
     
     mUiOff = TRUE;
-    setItemVisible(Hb::AllItems, FALSE) ;
-    if ( mImageStrip ) {
+	if ( getSubState() != FETCHER_S ) {
+		setItemVisible(Hb::AllItems, FALSE) ;
+	}
+    if ( mImageStrip && ( getSubState() != IMAGEVIEWER_S && getSubState() != FETCHER_S )) {
         HbEffect::start(mImageStrip, QString("HbGridView"), QString("TapHide"), this, "effectFinished" );
     }
 
@@ -379,11 +415,17 @@ void GlxFullScreenView::changeSelectedIndex(const QModelIndex &index)
     QVariant variant = mModel->data( mModel->index(0,0), GlxFocusIndexRole );    
     if ( variant.isValid() &&  variant.canConvert<int> () && ( index.row() == variant.value<int>() ) ) {
        OstTraceFunctionExit0( GLXFULLSCREENVIEW_CHANGESELECTEDINDEX_EXIT );
+       if (mTvOutWrapper){
+       // for the image changed on deletion
+       mTvOutWrapper->setImagetoHDMI();
+       }
        return;
     }         
     mModel->setData( index, index.row(), GlxFocusIndexRole );    
-	SetImageToHdmiL(); // for the image changed on swipe
-    
+    if (mTvOutWrapper){
+    // for the image changed on swipe
+    mTvOutWrapper->setImagetoHDMI();
+    }
     OstTraceFunctionExit0( DUP1_GLXFULLSCREENVIEW_CHANGESELECTEDINDEX_EXIT );
 }
 
@@ -399,8 +441,11 @@ void GlxFullScreenView::indexChanged(const QModelIndex &index)
     mModel->setData( index, index.row(), GlxFocusIndexRole );
     mCoverFlow->indexChanged(index.row());
     mImageStrip->scrollTo(index, HbGridView::EnsureVisible );
-    SetImageToHdmiL();  // for the indexchnaged through filmstrip  
-        //disable the animation for the time being
+    if (mTvOutWrapper){
+    // for the indexchnaged through filmstrip
+    mTvOutWrapper->setImagetoHDMI();
+    }
+    //disable the animation for the time being
     //imageSelectionAnimation( index );
     
     OstTraceFunctionExit0( DUP1_GLXFULLSCREENVIEW_INDEXCHANGED_EXIT );
@@ -502,6 +547,10 @@ void GlxFullScreenView::coverFlowEventHandle( GlxCoverFlowEvent e )
 void GlxFullScreenView::effectFinished( const HbEffect::EffectStatus  )
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_EFFECTFINISHED_ENTRY );
+    
+    if ( mUiOffTimer == NULL ){ //view is already deactivate so no need to do any thing
+       return ;
+    }
     
     if ( mUiOff ) {
         mUiOffTimer->stop();        
@@ -605,6 +654,10 @@ void GlxFullScreenView::removeConnection()
         disconnect(mDeleteAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );  
     }
 
+    if(mUseImageAction) {
+        disconnect(mUseImageAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );  
+    }
+    
 	disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
 
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_REMOVECONNECTION_EXIT );
@@ -678,27 +731,6 @@ void GlxFullScreenView::handleUserAction(qint32 commandId)
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_HANDLEUSERACTION_EXIT );
 }
 
-void GlxFullScreenView::SetImageToHdmiL()
-{
-    OstTraceFunctionEntry0( GLXFULLSCREENVIEW_SETIMAGETOHDMIL_ENTRY );
-    
-    if (iHdmiController) {
-        OstTrace0( TRACE_NORMAL, GLXFULLSCREENVIEW_SETIMAGETOHDMIL, "GlxFullScreenView::SetImageToHdmiL() - CGlxHdmi 2" );
-        
-        // Get the image uri
-        QString imagePath = (mModel->data(mModel->index(mModel->data(mModel->index(0,0),GlxFocusIndexRole).value<int>(),0),GlxUriRole)).value<QString>();
-        if(imagePath.isNull()) {
-            OstTrace0( TRACE_NORMAL, DUP1_GLXFULLSCREENVIEW_SETIMAGETOHDMIL, "GlxFullScreenView::SetImageToHdmiL() path is null" );
-        }
-       
-        TPtrC aPtr = reinterpret_cast<const TUint16*>(imagePath.utf16());
-
-        iHdmiController->SetImageL(aPtr);
-    }
-
-    OstTraceFunctionExit0( GLXFULLSCREENVIEW_SETIMAGETOHDMIL_EXIT );
-}
-
 void GlxFullScreenView::imageSelectionAnimation(const QModelIndex &index)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_IMAGESELECTIONANIMATION_ENTRY );
@@ -735,4 +767,14 @@ void GlxFullScreenView::handleToolBarAction()
     emit actionTriggered( commandId );
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_HANDLETOOLBARACTION_EXIT );
+}
+
+int GlxFullScreenView::getSubState()
+{
+	int substate = NO_FULLSCREEN_S;
+	QVariant variant = mModel->data( mModel->index(0,0), GlxSubStateRole );    
+	if ( variant.isValid() &&  variant.canConvert<int> ()  ) {
+		substate = variant.value<int>();
+	}
+	return substate;
 }

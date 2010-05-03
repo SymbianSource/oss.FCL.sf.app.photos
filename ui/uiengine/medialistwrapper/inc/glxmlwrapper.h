@@ -23,12 +23,16 @@
 #include <QObject>
 #include <glxfiltergeneraldefs.h>
 #include <QtGlobal>
+#include <qmetatype.h>
 #include <glxuistd.h>
 #include <QSize>
+#include <QVariant>
+
 #include <qdatetime.h>
 //forward declarations
 class GlxMLWrapperPrivate;
 class HbIcon;
+class CFbsBitmap;
 //constant declarations
 
 
@@ -38,6 +42,7 @@ class HbIcon;
 #define GLX_MLWRAPPER_EXPORT Q_DECL_IMPORT
 #endif
 
+Q_DECLARE_METATYPE(CFbsBitmap*);
 
 class GLX_MLWRAPPER_EXPORT GlxMLWrapper : public QObject
 {
@@ -82,7 +87,13 @@ public:
 	QSize retrieveItemDimension(int index);
 	QDate retrieveItemDate(int index);
 	int retrieveItemFrameCount(int index);
-
+	
+	/*
+	 * retriveBitmap helps to retrive the bitmap
+	 * @param1 index 
+	 */
+	QVariant RetrieveBitmap(int index);
+	
 signals:
      void updateItem(int index, GlxTBContextType tbContextType);
 	 void insertItems(int startIndex,int endIndex);

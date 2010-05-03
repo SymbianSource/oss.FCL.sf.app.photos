@@ -25,9 +25,9 @@ CONFIG += ordered
 SUBDIRS	    = group \
               loggers \
 	      commonutilities \
+	      tvout\tvoutwrapper \
 	      ui \
-              main \
-              imageviewerapp
+              main
               
 BLD_INF_RULES.prj_exports += "$${LITERAL_HASH}include <platform_paths.hrh>" \
         "rom/photos.iby   CORE_APP_LAYER_IBY_EXPORT_PATH(photos.iby)" \

@@ -66,4 +66,11 @@ EXPORTS
 	??1GlxCommandHandlerDelete@@UAE@XZ @ 65 NONAME ; GlxCommandHandlerDelete::~GlxCommandHandlerDelete(void)
 	??0GlxCommandHandlerRotate@@QAE@XZ @ 66 NONAME ; GlxCommandHandlerRotate::GlxCommandHandlerRotate(void)
 	?qt_metacast@GlxCommandHandlerAddToContainer@@UAEPAXPBD@Z @ 67 NONAME ; void * GlxCommandHandlerAddToContainer::qt_metacast(char const *)
+	??0GlxCommandHandlerRename@@QAE@XZ @ 68 NONAME ; GlxCommandHandlerRename::GlxCommandHandlerRename(void)
+	?GetName@GlxCommandHandlerRename@@ABE?AVQString@@AAVMGlxMediaList@@@Z @ 69 NONAME ; class QString GlxCommandHandlerRename::GetName(class MGlxMediaList &) const
+	?CreateCommandL@GlxCommandHandlerRename@@UBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 70 NONAME ; class CMPXMedia * GlxCommandHandlerRename::CreateCommandL(int, class MGlxMediaList &, int &) const
+	?CompletionTextL@GlxCommandHandlerRename@@EBE?AVQString@@XZ @ 71 NONAME ; class QString GlxCommandHandlerRename::CompletionTextL(void) const
+	??1GlxCommandHandlerRename@@UAE@XZ @ 72 NONAME ; GlxCommandHandlerRename::~GlxCommandHandlerRename(void)
+	??_EGlxCommandHandlerRename@@UAE@I@Z @ 73 NONAME ; GlxCommandHandlerRename::~GlxCommandHandlerRename(unsigned int)
+	?HandleErrorL@GlxCommandHandlerRename@@EAEXH@Z @ 74 NONAME ; void GlxCommandHandlerRename::HandleErrorL(int)
 

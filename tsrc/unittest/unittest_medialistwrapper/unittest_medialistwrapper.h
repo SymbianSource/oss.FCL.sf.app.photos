@@ -52,13 +52,15 @@ private slots:
     void cleanupTestCase();
  
     
-    void testGetItemCount(); 
+    void testGetItemCount();
+    void testRetrieveItemDateIsNull();
+    void testRetrieveItemIconIsNull();
+    void testSetContextMode();
+    void testRetrieveItemIcon();
     void testGetFocusIndex();
     void testSetFocusIndex();
-    void testSetContextMode();
 	void testRetrieveItemUri();
 	void testRetrieveItemUriName();
-	void testRetrieveItemIcon();
 	void testRetrieveItemDateIsNotNull();
 	void testRetrieveItemDateIsValid();
 	void testRetrieveItemDateValidate();
@@ -69,7 +71,6 @@ private slots:
     void testHandleReceivedIcon();
     void testHandleIconCorrupt();
     void testHandleListItemAvailable();
-    void testRetrieveItemDateIsNull();
     // void testRetrieveListTitle();
     // void testRetrieveListSubTitle();
     // void testRetrieveItemDimension();

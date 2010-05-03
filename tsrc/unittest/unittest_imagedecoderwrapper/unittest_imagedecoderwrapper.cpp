@@ -17,27 +17,7 @@
 
 #include "unittest_imagedecoderwrapper.h"
 #include "glximagedecoderwrapper.h"
-#include "hbmainwindow.h"
-#include "hbapplication.h"
 #include <e32base.h>
-
-int main(int argc, char *argv[])
-{
-    Q_UNUSED(argc);
-    HbApplication app(argc, argv);	    
-
-    HbMainWindow *mMainWindow = new HbMainWindow();
-    TestGlxImageDecoderWrapper tv;
-
-    char *pass[3];
-    pass[0] = argv[0];
-    pass[1] = "-o";
-    pass[2] = "c:\\data\\testdecoder.txt";
-
-    int res = QTest::qExec(&tv, 3, pass);
-
-    return res;
-}
 
 // -----------------------------------------------------------------------------
 // initTestCase
@@ -46,7 +26,8 @@ int main(int argc, char *argv[])
 void TestGlxImageDecoderWrapper::initTestCase()
 {
     mTestObject = 0;
-    //mMainWindow = new HbMainWindow();
+    TRAP_IGNORE(mTestObject = new GlxImageDecoderWrapper());
+    QVERIFY(mTestObject);
 }
 
 // -----------------------------------------------------------------------------
@@ -55,8 +36,7 @@ void TestGlxImageDecoderWrapper::initTestCase()
 //
 void TestGlxImageDecoderWrapper::init()
 {
-    TRAP_IGNORE(mTestObject = new GlxImageDecoderWrapper());
-    QVERIFY(mTestObject);
+    
 }
 
 // -----------------------------------------------------------------------------
@@ -65,11 +45,7 @@ void TestGlxImageDecoderWrapper::init()
 //
 void TestGlxImageDecoderWrapper::cleanup()
 {
-    if(mTestObject)
-    {
-        delete mTestObject;
-        mTestObject = 0;
-    }  
+    
 }
 
 // -----------------------------------------------------------------------------
@@ -78,7 +54,11 @@ void TestGlxImageDecoderWrapper::cleanup()
 //
 void TestGlxImageDecoderWrapper::cleanupTestCase()
 {
-
+    if(mTestObject)
+    {
+        delete mTestObject;
+        mTestObject = 0;
+    }
 }
 
 void TestGlxImageDecoderWrapper::testgetPixmap() 
@@ -90,7 +70,7 @@ void TestGlxImageDecoderWrapper::testDecodeImage()
 {
     QString imagePath = "c:\\data\\images\\Battle.jpg";
     TRAP_IGNORE(mTestObject->decodeImage(imagePath));
-    //QTest::qWait(1000);
+    QTest::qWait(1000);
     //QEXPECT_FAIL("", "Will fix in the next release", Continue);
     QVERIFY(!mTestObject->getPixmap().isNull());
 } 
@@ -99,7 +79,7 @@ void TestGlxImageDecoderWrapper::testResetDecoder()
 {
     QString imagePath = "c:\\data\\images\\Battle.jpg";
     TRAP_IGNORE(mTestObject->decodeImage(imagePath));
-    //QTest::qWait(1000);
+    QTest::qWait(1000);
     //QEXPECT_FAIL("", "This should fail", Continue);
     QVERIFY(!mTestObject->getPixmap().isNull());
 
@@ -107,3 +87,5 @@ void TestGlxImageDecoderWrapper::testResetDecoder()
     QVERIFY(mTestObject->getPixmap().isNull());
 } 
 
+QTEST_MAIN(TestGlxImageDecoderWrapper)
+#include "moc_unittest_imagedecoderwrapper.cpp"

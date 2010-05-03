@@ -24,7 +24,7 @@
 #include <hbmainwindow.h>
 #include <hbdocumentloader.h>
 #include <hbabstractviewitem.h>
-#include <HbListViewItem.h>
+#include <hblistviewitem.h>
 //User Includes
 #include "glxviewids.h"
 #include "glxlistview.h"
@@ -33,8 +33,13 @@
 #include "glxcommandhandlers.hrh"
 
 
-GlxListView::GlxListView(HbMainWindow *window) : GlxView ( GLX_LISTVIEW_ID ), 
-             mListView(NULL), mView(NULL), mWindow(window), mModel ( NULL)
+GlxListView::GlxListView(HbMainWindow *window) 
+    : GlxView ( GLX_LISTVIEW_ID ), 
+      mListView(NULL), 
+      mView(NULL), 
+      mWindow(window), 
+      mModel ( NULL),
+      mIsLongPress( false )
 {
     qDebug("GlxListView::GlxListView()");
     mDocLoader = new HbDocumentLoader();
@@ -103,7 +108,7 @@ void GlxListView::removeViewConnection()
 }
 
 void GlxListView::setVisvalWindowIndex()
-    {
+{
     QList< HbAbstractViewItem * >  visibleItemList =  mListView->visibleItems();
     qDebug("GlxListView::setVisvalWindowIndex() %d", visibleItemList.count());    
     
@@ -118,31 +123,28 @@ void GlxListView::setVisvalWindowIndex()
         return ;
     
     mModel->setData( item->modelIndex (), item->modelIndex().row(), GlxVisualWindowIndex);
-    }
+}
 
 void GlxListView::loadListView()
 {
     qDebug("GlxListView::loadListView()");
     bool loaded = true;
     //Load the widgets accroding to the current Orientation
-    if (mListView == NULL )
-        {
+    if (mListView == NULL ) {
         mDocLoader->load(GLX_LISTVIEW_DOCMLPATH,&loaded);
-        if(loaded)
-            {
+        if(loaded) {
             //retrieve the widgets
             mView = static_cast<HbView*>(mDocLoader->findWidget(QString(GLX_LISTVIEW_VIEW)));
             mListView = static_cast<HbListView*>(mDocLoader->findWidget(QString(GLX_LISTVIEW_LIST)));
 
-            if(mListView)
-                { 
+            if(mListView) { 
                 //sets the widget
                 setWidget((QGraphicsWidget*) mView);
-                }
-            }  
+            }
+        }  
         HbListViewItem *prototype = mListView->listItemPrototype();
         prototype->setStretchingStyle(HbListViewItem::StretchLandscape);
-        }
+    }
 }
 
 void GlxListView::createListView()
@@ -156,35 +158,36 @@ GlxListView::~GlxListView()
 {
     qDebug("GlxListView::~GlxListView()");
 
-    if(widget())
-        {
+    if(widget()) {
         qDebug("GlxListView::~GlxListView() takeWidget");
         takeWidget();    
-        }       
+    }       
 
     removeViewConnection();
 
-    if(mListView)
-        {
+    if(mListView) {
         delete mListView;
         mListView = NULL;
-        }
+    }
 
-    if(mView)
-        {
+    if(mView) {
         delete mView ;
         mView = NULL;
-        }
-    if(mDocLoader)
-        {
+    }
+    
+    if(mDocLoader) {
         delete mDocLoader;
         mDocLoader = NULL;
-        }    
+    }
 }
 
 void GlxListView::itemSelected(const QModelIndex &  index)
 {
     qDebug("GlxListView::itemSelected() index = %d", index.row() );
+    if ( mIsLongPress ) {
+        mIsLongPress = false ;
+        return ;
+    }
     if ( mModel ) {
         mModel->setData( index, index.row(), GlxFocusIndexRole );
     }
@@ -197,7 +200,8 @@ void GlxListView::indicateLongPress(HbAbstractViewItem *item, QPointF coords)
     qDebug() << "GlxListView:indicateLongPress Item " << item->modelIndex() << "long pressed at " << coords;
     if ( mModel ) {
         mModel->setData( item->modelIndex(), item->modelIndex().row(), GlxFocusIndexRole );
-    }      
+    }
+    mIsLongPress = true;
     emit itemSpecificMenuTriggered(viewId(),coords);
 }
 

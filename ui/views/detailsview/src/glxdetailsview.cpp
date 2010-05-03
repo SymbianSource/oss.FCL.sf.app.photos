@@ -172,21 +172,19 @@ void GlxDetailsView::addWidgets()
     
     //----------------------------START OF CREATION OF WIDGETS---------------------------------//
     // To add new widgets in the details view, add it here.
-
-    //---------------------------IMAGE NAME LABEL --------------------------------------------//
+	
+	//---------------------------IMAGE NAME LABEL --------------------------------------------//
     OstTrace0( TRACE_NORMAL, DUP1_GLXDETAILSVIEW_ADDWIDGETS, "GlxDetailsView::addWidgets create Image Label" );
-    HbDataFormModelItem *imageLabelitem = mDetailModel->appendDataFormItem((HbDataFormModelItem::DataItemType)(ImageNameItem), QString("Name"), mDetailModel->invisibleRootItem());
-    imageLabelitem->setData(HbDataFormModelItem::KeyRole,QString(""));
 
+    HbDataFormModelItem *imageLabelitem =
+    mDetailModel->appendDataFormItem(HbDataFormModelItem::TextItem, QString("Name"), mDetailModel->invisibleRootItem());
+    imageLabelitem->setData(HbDataFormModelItem::KeyRole, QString(""));
+    imageLabelitem->setContentWidgetData(QString("text"),QString(""));
+    
     //---------------------------DATE LABEL --------------------------------------------//
     OstTrace0( TRACE_NORMAL, DUP2_GLXDETAILSVIEW_ADDWIDGETS, "GlxDetailsView::addWidgets date label" );
     HbDataFormModelItem *dateLabelItem = mDetailModel->appendDataFormItem((HbDataFormModelItem::DataItemType)(DateLabelItem), QString("Date"), mDetailModel->invisibleRootItem());
     dateLabelItem->setData(HbDataFormModelItem::KeyRole,QString(""));
-
-    //---------------------------LOCATION LABEL--------------------------------------------//
-    OstTrace0( TRACE_NORMAL, DUP3_GLXDETAILSVIEW_ADDWIDGETS, "GlxDetailsView::addWidgets location label" );
-    HbDataFormModelItem *locationLabelItem = mDetailModel->appendDataFormItem((HbDataFormModelItem::DataItemType)(LocationTagItem), QString("Location Tag"), mDetailModel->invisibleRootItem());
-    locationLabelItem->setData(HbDataFormModelItem::KeyRole, QString(""));
 
     //----------------------------COMMENTS TEXT ITEM---------------------------------------------//
     OstTrace0( TRACE_NORMAL, DUP5_GLXDETAILSVIEW_ADDWIDGETS, "GlxDetailsView::addWidgets comment text" );

@@ -78,20 +78,6 @@ private:
 
 	};
 
-class GlxTextInputDialog : public QObject
-{
-	Q_OBJECT    
-public:
-    GlxTextInputDialog();
-    ~GlxTextInputDialog();
-    QString getText(const QString &label,const QString &text = QString(),bool *ok = 0);
-
-public slots:
-    void textChanged(const QString &text);
-
-private:
-    HbInputDialog* mDialog;
-};
     
     
 #endif // GLXCOMMANDHANDLERNEWMEDIA_H

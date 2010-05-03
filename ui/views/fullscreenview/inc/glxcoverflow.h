@@ -102,7 +102,7 @@ protected:
     void initializeNewModel();
     //reset all the data of cover flow
     void resetCoverFlow();
-	
+    int getSubState();
 private slots:
 
 private:

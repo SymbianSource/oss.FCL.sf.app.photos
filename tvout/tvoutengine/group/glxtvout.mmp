@@ -42,7 +42,7 @@ USERINCLUDE     ../inc
 
 
 // System includes from the source tree
-SYSTEMINCLUDE   ../../inc            // for tv out constants
+SYSTEMINCLUDE   ../../../inc            // for tv out constants
 SYSTEMINCLUDE   /epoc32/include
 SYSTEMINCLUDE   /epoc32/include/icl
 
@@ -60,7 +60,11 @@ LIBRARY         surfaceupdateclient.lib 		// surface update client
 LIBRARY         surfacemanager.lib				// surface manager
 LIBRARY         imageconversion.lib				// ICL 
 LIBRARY 		efsrv.lib
+LIBRARY         bitgdi.lib 
+LIBRARY                 apgrfx.lib // 
+LIBRARY			apmime.lib // For ImageViewer mime type extraction
 LIBRARY 		glxlogging.lib
+LIBRARY		AccPolicy.lib //For RAccessoryConnection status ID's	
 // Other Dependency Libraries
 #ifdef __MARM
 LIBRARY 		GSServerEngine.lib  // FOr AspectRatio

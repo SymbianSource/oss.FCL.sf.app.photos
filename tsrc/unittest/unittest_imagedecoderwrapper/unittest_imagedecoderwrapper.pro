@@ -33,4 +33,13 @@ HEADERS += unittest_imagedecoderwrapper.h
           
 
 SOURCES += unittest_imagedecoderwrapper.cpp
-BLD_INF_RULES.prj_exports += "../../../gallery/data/Battle.jpg  /epoc32/winscw/c/data/images/Battle.jpg"
+symbian: { 
+    TARGET.CAPABILITY = ALL -TCB
+    TARGET.EPOCHEAPSIZE = 0x20000 0x1600000
+    TARGET.UID3 = 0x20000A05
+}
+#BLD_INF_RULES.prj_exports += "../../../gallery/data/Battle.jpg  c:/data/images/Battle.jpg"
+
+myFiles.sources = "../../../gallery/data/Battle.jpg"
+myFiles.path = c:\data\images
+DEPLOYMENT += myFiles

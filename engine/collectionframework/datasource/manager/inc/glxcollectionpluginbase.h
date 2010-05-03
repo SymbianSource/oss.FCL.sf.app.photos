@@ -220,6 +220,18 @@ protected:
 	 */	 
     IMPORT_C HBufC* LoadLocalizedStringLC(const TDesC& aResourceFile, const TInt aResourceId);
     
+	/**
+	 * initialize the TextResolver for the symbian code
+	 */
+    IMPORT_C void initializeTextResolverSymbian();
+    
+    /**
+     * returns localised string.
+     * @param aStringName - name of the string that need to be localised.
+     * @return HBufC* containing the required string.
+     */
+    IMPORT_C HBufC* LoadLocalizedStringLC(const TDesC& aStringName);
+    
     IMPORT_C virtual TGlxFilterProperties DefaultFilter(TInt aLevel);
 
 protected: 

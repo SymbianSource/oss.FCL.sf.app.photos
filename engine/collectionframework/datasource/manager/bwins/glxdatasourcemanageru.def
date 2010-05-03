@@ -50,4 +50,6 @@ EXPORTS
 	?ThumbnailInfo@CGlxThumbnailRequest@@QBEPAVCGlxtnFileInfo@@XZ @ 49 NONAME ; class CGlxtnFileInfo * CGlxThumbnailRequest::ThumbnailInfo(void) const
 	?ThumbnailRequest@CGlxThumbnailRequest@@QBEXAAVTGlxThumbnailRequest@@@Z @ 50 NONAME ; void CGlxThumbnailRequest::ThumbnailRequest(class TGlxThumbnailRequest &) const
 	?TryStartTask@CGlxDataSource@@IAEXH@Z @ 51 NONAME ; void CGlxDataSource::TryStartTask(int)
+	?initializeTextResolverSymbian@CGlxCollectionPluginBase@@IAEXXZ @ 52 NONAME ; void CGlxCollectionPluginBase::initializeTextResolverSymbian(void)
+	?LoadLocalizedStringLC@CGlxCollectionPluginBase@@IAEPAVHBufC16@@ABVTDesC16@@@Z @ 53 NONAME ; class HBufC16 * CGlxCollectionPluginBase::LoadLocalizedStringLC(class TDesC16 const &)
 

@@ -22,9 +22,10 @@
 
 
 //FULLSCREEN TOOLBAR
-#define GLXICON_FLIP     "qtg_mono_info"
-#define GLXICON_SEND     "qtg_mono_send"
-#define GLXICON_DELETE   "qtg_mono_delete"
+#define GLXICON_FLIP        "qtg_mono_info"
+#define GLXICON_SEND        "qtg_mono_send"
+#define GLXICON_DELETE      "qtg_mono_delete"
+#define GLXICON_USEIMAGE    "qtg_small_ovi"
 
 //GRID TOOLBAR
 #define GLXICON_ALL     "qtg_mono_photos_all"

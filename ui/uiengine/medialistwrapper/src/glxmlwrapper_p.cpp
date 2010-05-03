@@ -683,8 +683,57 @@ QDate GlxMLWrapperPrivate::RetrieveItemDate(int index)
         date = QDate(dateTime.Year(),TInt(dateTime.Month()+1),(dateTime.Day()+1));
         }
      return date;
-     
     }
+
+// ---------------------------------------------------------------------------
+//  RetrieveFsBitmap
+// ---------------------------------------------------------------------------
+//
+CFbsBitmap* GlxMLWrapperPrivate::RetrieveBitmap(int aItemIndex)
+    {
+    GLX_LOG_INFO1("GlxMLWrapperPrivate::RetrieveBitmap %d",aItemIndex);
+    const TGlxMedia& item = iMediaList->Item( aItemIndex );
+    TMPXAttribute fsTnAttrib= TMPXAttribute(KGlxMediaIdThumbnail,
+                GlxFullThumbnailAttributeId(ETrue, KFullScreenTNPTWidth,
+                        KFullScreenTNPTHeight));
+    const CGlxThumbnailAttribute* fsTnValue = item.ThumbnailAttribute(
+            fsTnAttrib);
+    if (fsTnValue)
+        {
+        GLX_LOG_INFO("GlxMLWrapperPrivate::RetrieveBitmap - returning FS bitmap");
+        CFbsBitmap* fsTnBitmap = new (ELeave) CFbsBitmap;
+        fsTnBitmap->Duplicate( fsTnValue->iBitmap->Handle());
+        
+        GLX_LOG_INFO2("GlxMLWrapperPrivate::RetrieveBitmap - bitmap height=%d, bitmap width=%d",
+                fsTnBitmap->SizeInPixels().iHeight,fsTnBitmap->SizeInPixels().iWidth);
+
+        return fsTnBitmap;
+        }
+    else // fetch grid Thumbnail
+        {
+        TMPXAttribute gridTnAttrib = TMPXAttribute(KGlxMediaIdThumbnail,
+                        GlxFullThumbnailAttributeId(ETrue, KGridTNWIdth,
+                                KGridTNHeight));
+        const CGlxThumbnailAttribute* gridTnValue = item.ThumbnailAttribute(
+                gridTnAttrib);
+        if (gridTnValue)
+            {
+            GLX_LOG_INFO("GlxMLWrapperPrivate::RetrieveBitmap - returning Grid bitmap");
+            CFbsBitmap* gridTnBitmap = new (ELeave) CFbsBitmap;
+            gridTnBitmap->Duplicate( gridTnValue->iBitmap->Handle());
+            
+            GLX_LOG_INFO2("GlxMLWrapperPrivate::RetrieveBitmap - bitmap height=%d, bitmap width=%d",
+                    gridTnBitmap->SizeInPixels().iHeight,gridTnBitmap->SizeInPixels().iWidth);
+            return gridTnBitmap;
+            }
+        else
+            {
+            GLX_LOG_INFO("GlxMLWrapperPrivate::RetrieveBitmap - returning default bitmap");
+            CFbsBitmap* defaultBitmap = new (ELeave) CFbsBitmap;
+            return defaultBitmap;
+            }
+        }
+}
 
 // ---------------------------------------------------------------------------
 // HandleItemAddedL

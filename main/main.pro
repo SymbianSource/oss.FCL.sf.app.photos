@@ -49,12 +49,15 @@ symbian: {
 LIBS += -lglxstatehandler.dll \
         -lglxloggerqt.dll \
         -lglxviews.dll \
-        -lglxmediamodel.dll
+        -lglxmediamodel.dll \
+        -lglxexternalutility.dll \
+	-lglximageviewermanager.dll
+		
 
 # Input
 SOURCES += main.cpp \
-	   glxfetcher.cpp 
-HEADERS +=glxfetcher.h
+	   glxaiwservicehandler.cpp 
+HEADERS +=glxaiwservicehandler.h
 
 RESOURCES += ../photos.qrc
 TRANSLATIONS= photos.ts
@@ -64,3 +67,114 @@ LIBS+=-lxqservice -lxqserviceutil -lflogger
 SERVICE.FILE = service_conf.xml
 SERVICE.OPTIONS = embeddable
 ##### /qthighway
+
+RSS_RULES += \
+  "datatype_list = " \
+  "      {" \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/jpeg\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/jpg\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/jp2\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/tiff\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/x-wmf\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/ico\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/gif\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/bmp\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/x-bmp\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/x-bitmap\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/x-xbitmap\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/x-win-bitmap\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/x-windows-bmp\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/ms-bmp\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/x-ms-bmp\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/vnd.wap.wbmp\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/png\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/x-epoc-mbm\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/vnd.nokia.ota-bitmap\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/x-ota-bitmap\";" \  
+  "          }," \
+  "      DATATYPE" \
+  "          {" \
+  "          priority = EDataTypePriorityHigh;" \
+  "          type = \"image/mng\";" \  
+  "          }" \
+  "      };" \
+

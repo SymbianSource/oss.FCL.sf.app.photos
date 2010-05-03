@@ -84,4 +84,15 @@ EXPORTS
 	_ZTV31GlxCommandHandlerAddToContainer @ 83 NONAME
 	_ZThn8_N25GlxCommandHandlerNewMedia11HandleErrorEi @ 84 NONAME
 	_ZThn8_N25GlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 85 NONAME
+	_ZN23GlxCommandHandlerRenameC1Ev @ 86 NONAME
+	_ZN23GlxCommandHandlerRenameC2Ev @ 87 NONAME
+	_ZN23GlxCommandHandlerRenameD0Ev @ 88 NONAME
+	_ZN23GlxCommandHandlerRenameD1Ev @ 89 NONAME
+	_ZN23GlxCommandHandlerRenameD2Ev @ 90 NONAME
+	_ZNK23GlxCommandHandlerRename14CreateCommandLEiR13MGlxMediaListRi @ 91 NONAME
+	_ZNK23GlxCommandHandlerRename15CompletionTextLEv @ 92 NONAME
+	_ZNK23GlxCommandHandlerRename7GetNameER13MGlxMediaList @ 93 NONAME
+	_ZTI23GlxCommandHandlerRename @ 94 NONAME
+	_ZTV23GlxCommandHandlerRename @ 95 NONAME
+	_ZN23GlxCommandHandlerRename12HandleErrorLEi @ 96 NONAME
 

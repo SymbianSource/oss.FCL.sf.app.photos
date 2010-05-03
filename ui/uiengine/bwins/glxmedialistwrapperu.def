@@ -32,8 +32,9 @@ EXPORTS
 	??0GlxMLWrapper@@QAE@HHW4TGlxFilterItemType@@@Z @ 31 NONAME ; GlxMLWrapper::GlxMLWrapper(int, int, enum TGlxFilterItemType)
 	?setContextMode@GlxMLWrapper@@QAEXW4GlxContextMode@@@Z @ 32 NONAME ; void GlxMLWrapper::setContextMode(enum GlxContextMode)
 	??1GlxMLWrapper@@UAE@XZ @ 33 NONAME ; GlxMLWrapper::~GlxMLWrapper(void)
-	?qt_metacast@GlxMLWrapper@@UAEPAXPBD@Z @ 34 NONAME ; void * GlxMLWrapper::qt_metacast(char const *)
-	?setSelectedIndex@GlxMLWrapper@@QAEXH@Z @ 35 NONAME ; void GlxMLWrapper::setSelectedIndex(int)
-	?itemsAdded@GlxMLWrapper@@QAEXHH@Z @ 36 NONAME ; void GlxMLWrapper::itemsAdded(int, int)
-	?retrieveItemIcon@GlxMLWrapper@@QAEPAVHbIcon@@HW4GlxTBContextType@@@Z @ 37 NONAME ; class HbIcon * GlxMLWrapper::retrieveItemIcon(int, enum GlxTBContextType)
+	?RetrieveBitmap@GlxMLWrapper@@QAE?AVQVariant@@H@Z @ 34 NONAME ; class QVariant GlxMLWrapper::RetrieveBitmap(int)
+	?qt_metacast@GlxMLWrapper@@UAEPAXPBD@Z @ 35 NONAME ; void * GlxMLWrapper::qt_metacast(char const *)
+	?setSelectedIndex@GlxMLWrapper@@QAEXH@Z @ 36 NONAME ; void GlxMLWrapper::setSelectedIndex(int)
+	?itemsAdded@GlxMLWrapper@@QAEXHH@Z @ 37 NONAME ; void GlxMLWrapper::itemsAdded(int, int)
+	?retrieveItemIcon@GlxMLWrapper@@QAEPAVHbIcon@@HW4GlxTBContextType@@@Z @ 38 NONAME ; class HbIcon * GlxMLWrapper::retrieveItemIcon(int, enum GlxTBContextType)
 

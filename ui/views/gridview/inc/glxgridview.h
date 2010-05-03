@@ -81,6 +81,7 @@ private:
 	int mVisualIndex;             //first item index of the page //To:Do remove later
 	HbAbstractViewItem   *mItem;
     HbDocumentLoader     *mDocLoader; //Docml loader to load the widgets from docml 
+    bool                 mIsLongPress; //to check the long press has happend or not
 };
 
 #endif /* GLXGRIDVIEW_H_ */

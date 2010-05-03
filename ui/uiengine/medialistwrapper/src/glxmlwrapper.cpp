@@ -109,9 +109,17 @@ QDate GlxMLWrapper::retrieveItemDate(int index)
 }
 
 int GlxMLWrapper::retrieveItemFrameCount(int index)
-    {
+{
     return (mMLWrapperPrivate->RetrieveItemFrameCount(index));
-    }
+}
+
+QVariant GlxMLWrapper::RetrieveBitmap(int index)
+{
+    QVariant var;
+    var.setValue(mMLWrapperPrivate->RetrieveBitmap(index));
+    return var;
+}
+
 // ---------------------------------------------------------------------------
 // getFocusIndex.
 // ---------------------------------------------------------------------------

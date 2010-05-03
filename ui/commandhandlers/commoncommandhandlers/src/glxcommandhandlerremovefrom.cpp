@@ -56,7 +56,7 @@ CMPXCommand* GlxCommandHandlerRemoveFrom::CreateCommandL(TInt aCommandId,
 
 QString GlxCommandHandlerRemoveFrom::CompletionTextL() const
     {
-    return QString("Item removed!");
+	return QString();
     }
 
 QString GlxCommandHandlerRemoveFrom::ProgressTextL() const

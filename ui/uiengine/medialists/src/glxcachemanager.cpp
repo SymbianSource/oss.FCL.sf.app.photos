@@ -116,7 +116,6 @@ void CGlxCacheManager::ConstructL()
     
     iGarbageCollector = CGlxGarbageCollector::NewL( iCaches );
     iTempErrorTimer = CPeriodic::NewL(CActive::EPriorityStandard);
-    iSchedulerWait = new (ELeave) CActiveSchedulerWait();
     iMaintainCacheCallback = new ( ELeave )
 	    CAsyncCallBack( TCallBack( MaintainCacheL, this ), CActive::EPriorityStandard );
 	    
@@ -134,7 +133,6 @@ CGlxCacheManager::~CGlxCacheManager()
 	{
 	TRACER("CGlxCacheManager::Destructor");
 	
-    delete iSchedulerWait;
  	iObserverList.ResetAndDestroy();
  	iCaches.ResetAndDestroy();
  	delete iTempThumbnail;
@@ -779,20 +777,16 @@ void CGlxCacheManager::MaintainCacheL()
                             iRequestOwner = list;
                             CleanupStack::PopAndDestroy(attrSpecs); 
                             TGlxIdSpaceId spaceId = list->IdSpaceId(iRequestedItemIndexes[0]);
-                            HandleCollectionMediaL(spaceId, *iMPXMedia, KErrArgument);
+                            HandleCollectionMediaL(spaceId, *iMPXMedia, errInImage);
                             CleanupStack::PopAndDestroy(imageVwrMgr);
                             return;
                             }
 
                         if(!iReader)
                             {
-                            TRAP(errInImage,iReader = CGlxImageReader::NewL(*this));
-                            if(errInImage == KErrNone)
-                                {
-                                iSchedulerWait->Start();
-                                }
+                            TRAP(errInImage, iReader = CGlxImageReader::NewL());
                             }
-                    
+
                         for ( TInt i = 0; i < iRequestedAttrs.Count(); i++ )
                             {
                             if ( iRequestedAttrs[i] == KMPXMediaGeneralId )
@@ -932,21 +926,29 @@ void CGlxCacheManager::MaintainCacheL()
                                 }
                             else if ( iRequestedAttrs[i] == KGlxMediaGeneralDimensions )
                                 {
+                                TSize dimensions = TSize();
                                 if(errInImage == KErrNone)
                                     {
                                     //need to fetch the original file dimensions
-                                    TSize dimensions(iImgSz.iWidth,iImgSz.iHeight);
+                                    if(errInImage == KErrNone)
+                                        {
+                                        dimensions = iReader->GetDimensions();
+                                        }
                                     iMPXMedia->SetTObjectValueL(KGlxMediaGeneralDimensions, dimensions);
                                     }
                                 else
                                     {
-                                    TSize dimensions(0,0);
                                     iMPXMedia->SetTObjectValueL(KGlxMediaGeneralDimensions, dimensions);
                                     }
                                 }
                             else if ( iRequestedAttrs[i] == KGlxMediaGeneralFramecount )
                                 {
                                 TInt fcount = 1;
+                                if(errInImage == KErrNone)
+                                    {
+                                    fcount = iReader->GetFrameCount();
+                                    }
+                                GLX_DEBUG2("Imageviewer Collection framecount(%d)", fcount);
                                 iMPXMedia->SetTObjectValueL(KGlxMediaGeneralFramecount, fcount);
                                 }
                             else if ( iRequestedAttrs[i] == KMPXMediaGeneralComment )
@@ -1546,23 +1548,5 @@ void CGlxCacheManager::GetMimeTypeL(TFileName& aFileName, TDataType& aMimeType)
     CleanupStack::PopAndDestroy(&session);
     }
 
-// -----------------------------------------------------------------------------
-// ImageSizeReady()
-// -----------------------------------------------------------------------------
-//
-void CGlxCacheManager::ImageSizeReady(TInt aError, const TSize aSz)
-    {
-    TRACER("CGlxCacheManager::ImageSizeReady");
-    GLX_DEBUG2("CGlxCacheManager::ImageSizeReady aError=%d", aError);
-    iImgSz = TSize();
-    if(iSchedulerWait)
-        {
-        iSchedulerWait->AsyncStop();    
-        }    
-
-    iImgSz = aSz;
-    GLX_DEBUG3("CGlxCacheManager::ImageSizeReady() iImgSz w(%d) h(%d)", 
-            iImgSz.iWidth, iImgSz.iHeight);    
-    }
 
 //End of file

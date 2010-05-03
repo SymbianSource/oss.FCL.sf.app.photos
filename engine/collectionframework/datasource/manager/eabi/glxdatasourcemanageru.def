@@ -80,4 +80,6 @@ EXPORTS
 	_ZThn28_N14CGlxDataSource18DataSourceRequestLEP11CGlxRequestR29MGlxDataSourceRequestObserver @ 79 NONAME ; #<thunk>#
 	_ZThn28_N14CGlxDataSource5CloseER28MGlxDataSourceUpdateObserver @ 80 NONAME ; #<thunk>#
 	_ZThn28_N24CGlxCollectionPluginBase13HandleMessageER9CMPXMedia @ 81 NONAME ; #<thunk>#
+	_ZN24CGlxCollectionPluginBase21LoadLocalizedStringLCERK7TDesC16 @ 82 NONAME
+	_ZN24CGlxCollectionPluginBase29initializeTextResolverSymbianEv @ 83 NONAME
 

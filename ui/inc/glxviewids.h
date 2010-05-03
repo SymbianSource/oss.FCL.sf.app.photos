@@ -25,6 +25,7 @@
 #define GLX_FULLSCREENVIEW_ID    0x12121214
 #define GLX_SLIDESHOWVIEW_ID     0x12121215
 #define GLX_DETAILSVIEW_ID       0x12121216
+#define GLX_SLIDESHOWSETTINGSVIEW_ID 0x12121217
 
 
 typedef enum 
@@ -38,7 +39,8 @@ typedef enum
 {
     NO_FULLSCREEN_S,
     EXTERNAL_S,
-    IMAGEVIEWER_S
+    IMAGEVIEWER_S,
+	FETCHER_S
 } FullScreenState;
 
 typedef enum 

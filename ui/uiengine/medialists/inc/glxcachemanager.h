@@ -55,8 +55,7 @@ class CGlxImageViewerManager;
  */
 class CGlxCacheManager : public CBase, 
                          public MGlxCache, 
-                         public MGlxMediaPool,
-                         public MImageReadyCallBack
+                         public MGlxMediaPool
 #ifdef USE_S60_TNM
                          , public MThumbnailManagerObserver
 #endif
@@ -183,9 +182,6 @@ public: // From MGlxCache
     void StopRAMReleaseL();
 	//OOM
     void ForceCleanupMedia(TGlxIdSpaceId aSpaceId,TGlxMediaId aId); 
-	
-public:
-    void ImageSizeReady(TInt aError, const TSize aSz);
 
 private:
     /**
@@ -362,11 +358,6 @@ private:
 
 	RArray<TInt> iRequestedItemIndexes;
     CGlxImageReader* iReader;
-    TSize iImgSz; 
-    /**
-     *  Active scheduler wait object. (Owned)
-     */
-    CActiveSchedulerWait* iSchedulerWait;
 #ifdef USE_S60_TNM
     CThumbnailManager* iTnEngine; // Own
 	CMPXMedia* iMPXMedia;

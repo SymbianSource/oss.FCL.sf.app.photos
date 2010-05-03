@@ -14,8 +14,6 @@
 * Description: 
 *
 */
-#include "hbmainwindow.h"
-#include "hbapplication.h"
 
 #include "unittest_statehandler.h"
 #include "glxstatemanager.h"
@@ -25,31 +23,21 @@
 #include <glxcollectionpluginall.hrh>
 #include "glxmediaid.h"
 
-int main(int argc, char *argv[])
-{
-    Q_UNUSED(argc);
-    HbApplication app(argc, argv);	    
-
-    HbMainWindow *mMainWindow = new HbMainWindow();
-    TestGlxStateManager tv;
-
-    char *pass[3];
-    pass[0] = argv[0];
-    pass[1] = "-o";
-    pass[2] = "c:\\data\\teststatehandler.txt";
-
-    int res = QTest::qExec(&tv, 3, pass);
-
-    return res;
-}
 
 // -----------------------------------------------------------------------------
 // initTestCase
 // -----------------------------------------------------------------------------
 //
 void TestGlxStateManager::initTestCase()
-{
-    mStateManager = 0;
+{    
+    mStateManager = new GlxStateManager();
+    //mStateManager->setupItems();
+    mStateManager->mCurrentState = mStateManager->createState(GLX_GRIDVIEW_ID);
+    mStateManager->mCurrentState->setState(ALL_ITEM_S);
+    
+    QVERIFY(mStateManager);
+    QVERIFY(mStateManager->mViewManager);
+    QVERIFY(mStateManager->mActionHandler == 0);
 }
 
 // -----------------------------------------------------------------------------
@@ -58,10 +46,7 @@ void TestGlxStateManager::initTestCase()
 //
 void TestGlxStateManager::init()
 {
-    mStateManager = new GlxStateManager();
-    QVERIFY(mStateManager);
-    QVERIFY(mStateManager->mViewManager);
-    QVERIFY(mStateManager->mActionHandler);
+    
 }
 
 void TestGlxStateManager::removeModelTestCase1()
@@ -112,8 +97,10 @@ void TestGlxStateManager::createModelTestCase2()
     QVERIFY(mStateManager->mAllMediaModel);
     
     mStateManager->removeCurrentModel();
-    delete mStateManager->mCurrentState;
-    mStateManager->mCurrentState = NULL;
+    GlxState *state = mStateManager->mCurrentState;
+    mStateManager->mCurrentState = state->previousState();
+    delete state;
+    state = NULL;
 }
 
 void TestGlxStateManager::createGridModelTestCase1()
@@ -139,11 +126,7 @@ void TestGlxStateManager::createGridModelTestCase2()
 //
 void TestGlxStateManager::cleanup()
 {
-    if(mStateManager)
-    {
-        delete mStateManager;
-        mStateManager = 0;
-    }  
+    
 }
 
 // -----------------------------------------------------------------------------
@@ -152,5 +135,13 @@ void TestGlxStateManager::cleanup()
 //
 void TestGlxStateManager::cleanupTestCase()
 {
-
+    if(mStateManager)
+    {
+        QCoreApplication::processEvents(); //To:Do remove it once mainwindow delete hang problem will resolve
+        delete mStateManager;
+        mStateManager = 0;
+    }  
 }
+
+QTEST_MAIN(TestGlxStateManager)
+#include "moc_unittest_statehandler.cpp"

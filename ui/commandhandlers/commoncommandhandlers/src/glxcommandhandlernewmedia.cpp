@@ -24,7 +24,7 @@
 #include <glxattributeretriever.h>
 #include <glxfetchcontextremover.h>
 #include <glxcollectionpluginalbums.hrh>
-
+#include <glxcommondialogs.h>
 #include <hbinputdialog.h>
 #include <hblabel.h>
 #include <hbmessagebox.h>
@@ -33,60 +33,6 @@
 #include "glxcommandhandlernewmediaTraces.h"
 #endif
 #include <hbaction.h>
-
-GlxTextInputDialog::GlxTextInputDialog()
-    {
-    }
-
-GlxTextInputDialog::~GlxTextInputDialog()
-    {
-    }
-
-QString GlxTextInputDialog::getText(const QString &label,
-        const QString &text, bool *ok)
-    {
-    mDialog = new HbInputDialog();
-    mDialog->setPromptText(label);
-    mDialog->setInputMode(HbInputDialog::TextInput);
-    mDialog->setValue(text);
-    connect(mDialog->lineEdit(0), SIGNAL( textChanged (const QString &) ),
-            this, SLOT( textChanged (const QString &)));
-    HbAction* action = mDialog->exec();
-    QString retText = NULL;
-    if (action == mDialog->secondaryAction())
-        { //Cancel was pressed
-        if (ok)
-            {
-            *ok = false;
-            }
-        }
-    else
-        { //OK was pressed
-        if (ok)
-            {
-            *ok = true;
-            }
-        retText = mDialog->value().toString().trimmed();
-        }
-    disconnect(mDialog->lineEdit(0), SIGNAL( textChanged (const QString &) ),
-            this, SLOT( textChanged (const QString &)));
-    delete mDialog;
-    mDialog = NULL;
-    return retText;
-    }
-
-void GlxTextInputDialog::textChanged(const QString &text)
-    {
-    if (text.trimmed().isEmpty())
-        {
-        mDialog->primaryAction()->setEnabled(false);
-        }
-    else
-        {
-        mDialog->primaryAction()->setEnabled(true);
-        }
-    }
-
 
 GlxCommandHandlerNewMedia::GlxCommandHandlerNewMedia() :
     iNewMediaCreationError(KErrNone), iNewMediaItemTitle(0) , mShowConfirmation(false)
@@ -334,10 +280,6 @@ QString GlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL(
 
 QString GlxCommandHandlerNewMedia::CompletionTextL() const
     {
-    if (!mShowConfirmation)
-        {
-        return QString("Album added");
-        }
     return QString();
     }
 

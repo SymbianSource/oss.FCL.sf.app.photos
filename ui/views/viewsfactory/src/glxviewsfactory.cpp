@@ -22,6 +22,7 @@
 #include "glxview.h"
 #include "glxviewids.h"
 #include "glxgridview.h"
+#include "glxslideshowsettingsview.h"
 #include "glxlistview.h"
 #include "glxdetailsview.h"
 #include "glxviewsfactory.h"
@@ -41,7 +42,7 @@ GlxView * GlxViewsFactory::createView(qint32 viewId, HbMainWindow *window)
 
     case GLX_FULLSCREENVIEW_ID :
 	{
-	    GlxFullScreenView *fullscreenView;
+	    GlxFullScreenView *fullscreenView = NULL;
 	    bool isloaded;
 		
         GlxFullscreenViewDocLoader *docLoader = new GlxFullscreenViewDocLoader();
@@ -61,7 +62,7 @@ GlxView * GlxViewsFactory::createView(qint32 viewId, HbMainWindow *window)
 
     case GLX_SLIDESHOWVIEW_ID :
 	{
-	    GlxSlideShowView *slideShowView;
+	    GlxSlideShowView *slideShowView = NULL;
 	    bool isloaded;
 		
         GlxSlideShowViewDocLoader *docLoader = new GlxSlideShowViewDocLoader();
@@ -75,6 +76,8 @@ GlxView * GlxViewsFactory::createView(qint32 viewId, HbMainWindow *window)
         return slideShowView;
    }
 
+    case GLX_SLIDESHOWSETTINGSVIEW_ID :
+        return new GlxSlideShowSettingsView ( window );
     default :
         return 0;     
     }

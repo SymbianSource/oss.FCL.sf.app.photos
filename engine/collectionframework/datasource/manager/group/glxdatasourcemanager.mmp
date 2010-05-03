@@ -49,6 +49,8 @@ USERINCLUDE     ../inc
 SYSTEMINCLUDE   ../../../../../commonutilities/common/inc
 SYSTEMINCLUDE   ../../../../../inc
 SYSTEMINCLUDE   ../../../thumbnailcreator/inc
+SYSTEMINCLUDE	/epoc32/include/mw/hb/hbcore
+
 
 // System includes from epoc32/include
 
@@ -62,6 +64,7 @@ LIBRARY         bafl.lib
 LIBRARY         mpxcommon.lib
 LIBRARY         glxcommon.lib
 LIBRARY         flogger.lib
+LIBRARY		    HbCore.lib
 
 // End of File
 

@@ -29,18 +29,20 @@
 #include <AknWsEventObserver.h>     // for MAknWsEventObserver
 #include <AccessoryServer.h>        // for RAccessoryServer
 #include <AccessoryMode.h>          // for RAccessoryMode
+#include <AccessoryConnection.h>	// for RAccessoryConnection
+#include <AccPolGenericIDArray.h>
 
 
 // Forward Declarations
-class MGlxTvConnectionObserver;       
+class MGlxTvConnectionObserver;
 
 
 /**
  * Class Description
  * An Active object derived class is used to monitor the TV out connection
  * @author Loughlin
- */        
-NONSHARABLE_CLASS(CGlxTvConnectionMonitor) : public CActive 
+ */
+NONSHARABLE_CLASS(CGlxTvConnectionMonitor) : public CActive
     {
 public:
 
@@ -49,24 +51,24 @@ public:
      */
     static CGlxTvConnectionMonitor* NewL(
                             MGlxTvConnectionObserver& aConnectionObserver);
-    
+
     /**
      * Destructor.
      */
     ~CGlxTvConnectionMonitor();
-    
+
 private:
 
     /**
      * Standard C++ constructor
      */
-    CGlxTvConnectionMonitor( 
+    CGlxTvConnectionMonitor(
                         MGlxTvConnectionObserver& aConnectionObserver);
-    
+
     /*
      * Symbian second stage construction
      */
-    void ConstructL(); 
+    void ConstructL();
 
 public: // class member functions
 
@@ -129,10 +131,12 @@ private: // class member data
     
     // Accessory mode 
     RAccessoryMode iTvAccMode;
-    
-    // Accessory Mode structure - details the type of accessory
-    TAccPolAccessoryMode iCurrentAccMode; 
 
+    // Accessory Connection - details the type of accessory
+    RAccessoryConnection iTvAccCon;
+
+    //Class gives Generic ID
+    TAccPolGenericIDArray iCurrentAccArray;
     };
 
 

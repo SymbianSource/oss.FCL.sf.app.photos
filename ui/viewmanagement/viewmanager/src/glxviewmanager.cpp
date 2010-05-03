@@ -28,6 +28,7 @@
 #include <glxmenumanager.h>
 #include <glxcommandhandlers.hrh>
 #include <glxplugincommandid.hrh>
+#include "glxlocalisationstrings.h"
 
 #include <hbaction.h>
 #include <hbtoolbar.h>
@@ -41,8 +42,9 @@ GlxViewManager::GlxViewManager()
       mMenuManager( NULL ), 
       mEffectEngine( NULL ), 
       mViewToolBar( NULL ), 
-      mMarkingToolBar( NULL ), 
-      mMenu( NULL )
+      mMarkingToolBar( NULL ),      
+      mMenu( NULL ),
+      mSelectionModel ( NULL )
 {
     qDebug("GlxViewManager::GlxViewManager() ");
     PERFORMANCE_ADV ( viewMgrD1, "main window creation time" ) {
@@ -218,6 +220,19 @@ void GlxViewManager::updateToolBarIcon(int id)
         }
 }
 
+void GlxViewManager::checkMarked()
+{
+    qDebug("GlxViewManager::checkMarked");
+    QModelIndexList selectedModelIndex = mSelectionModel->selectedIndexes();
+    for ( int i = 0 ; i <  mMarkingActionList.count(); i++) {
+        if( mMarkingActionList.at(i)->data()==EGlxCmdSelect) {
+       		bool noSelection=selectedModelIndex.empty();
+          mMarkingActionList.at(i)->setDisabled(noSelection);
+          mMenuManager->disableAction(mView->menu(),noSelection);
+        	break;
+        }
+    }
+}
 void GlxViewManager::enterMarkingMode(qint32 viewId)
 {
     GlxView *view = findView ( viewId );
@@ -240,6 +255,12 @@ void GlxViewManager::enterMarkingMode(qint32 viewId)
         mMenu = menu;
         view->takeToolBar();
         view->addToolBar(mMarkingToolBar);
+        mSelectionModel = view->getSelectionModel();
+        if(mSelectionModel) 
+        {
+            connect(mSelectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection& ) ), this, SLOT(checkMarked()));
+            checkMarked();
+        }
     }
     qDebug("GlxViewManager::enterMarkingMode view ID %d exit", viewId);
 }
@@ -255,6 +276,10 @@ void GlxViewManager::exitMarkingMode(qint32 viewId)
         mMenu = menu;
         view->takeToolBar();
         view->addToolBar(mViewToolBar);
+        if(mSelectionModel)
+        {
+            disconnect(mSelectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection& ) ), this, SLOT(checkMarked()));
+        }
     }
     qDebug("GlxViewManager::exitMarkingMode view ID %d exit", viewId);
 }
@@ -400,14 +425,14 @@ void GlxViewManager::createMarkingModeActions()
     mMarkingActionList.clear();
     
     //create the ok tool bar button action
-    HbAction* selectAction = new HbAction("Ok", this);
+    HbAction* selectAction = new HbAction(GLX_BUTTON_OK, this);
     selectAction->setData(EGlxCmdSelect);
     mMarkingActionList.append(selectAction);
     connect( selectAction, SIGNAL(triggered( )), this, SLOT(handleAction( )), Qt::QueuedConnection );
     mMarkingToolBar->addAction( selectAction );
     
     //create the cancel tool bar button action
-    HbAction* cancelAction = new HbAction("Cancel", this);
+    HbAction* cancelAction = new HbAction(GLX_BUTTON_CANCEL, this);
     cancelAction->setData(EGlxCmdCancel);
     mMarkingActionList.append(cancelAction); 
     connect( cancelAction, SIGNAL(triggered( )), this, SLOT(handleAction( )), Qt::QueuedConnection ); 

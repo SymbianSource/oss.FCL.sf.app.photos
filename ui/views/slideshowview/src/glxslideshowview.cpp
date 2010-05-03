@@ -32,12 +32,13 @@
 #include "glxslideshowwidget.h"
 #include "glxcommandhandlers.hrh" //To:Do temporary remove once orbit back problem is resolved
 
-#include <glxhdmicontroller.h>
+#include <glxtvoutwrapper.h>
+
 #include <glxlog.h>
 #include <glxtracer.h>
 
 GlxSlideShowView::GlxSlideShowView(HbMainWindow *window,HbDocumentLoader *DocLoader) : GlxView(GLX_SLIDESHOWVIEW_ID), mModel(NULL),
-                  mWindow(window), mSlideShowWidget(NULL),iHdmiController(NULL)
+                  mWindow(window), mSlideShowWidget(NULL),mTvOutWrapper(NULL)
 {
     TRACER("GlxSlideShowView::GlxSlideShowView()");
     mDocLoader = DocLoader;
@@ -71,10 +72,9 @@ void GlxSlideShowView::activate()
     connect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) ); 
     connect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
     
-    if (!iHdmiController) {
-        GLX_LOG_INFO("GlxSlideShowView::activate() - CGlxHdmi" );
-        iHdmiController = CGlxHdmiController::NewL();
-    } 
+    if (!mTvOutWrapper){
+        mTvOutWrapper = new GlxTvOutWrapper();
+        }
 }
 
 void GlxSlideShowView::deActivate()
@@ -87,10 +87,9 @@ void GlxSlideShowView::deActivate()
     //Delete the Items in the slide show widget
     mSlideShowWidget->cleanUp();
     mModel = NULL;
-    if (iHdmiController) {
-        GLX_LOG_INFO("GlxSlideShowView() deActivate delete iHdmiController " );
-        delete iHdmiController;
-        iHdmiController = NULL;
+    if (mTvOutWrapper){
+        delete mTvOutWrapper;
+        mTvOutWrapper = NULL;
     }
 }
 
@@ -103,7 +102,10 @@ void GlxSlideShowView::setModel(QAbstractItemModel *model)
     }
     mModel = model;
     mSlideShowWidget->setModel(mModel);
-    SetImageToHdmiL();
+    if (mTvOutWrapper){
+        mTvOutWrapper->setModel(mModel);
+        mTvOutWrapper->setImagetoHDMI();
+        }
 }
 
 void GlxSlideShowView::setModelContext()
@@ -153,7 +155,10 @@ void GlxSlideShowView::slideShowEventHandler( GlxSlideShowEvent e)
 void GlxSlideShowView::indexchanged()
 {
     TRACER("GlxSlideShowView::indexchanged()");
-    SetImageToHdmiL();
+    if (mTvOutWrapper){
+        mTvOutWrapper->setImagetoHDMI();
+    }
+
 }
 
 bool GlxSlideShowView::event(QEvent *event)
@@ -182,19 +187,3 @@ void GlxSlideShowView::loadObjects()
     mSlideShowWidget->setItemGeometry( screenGeometry() );  
 }
 
-void GlxSlideShowView::SetImageToHdmiL()
-{
-    TRACER("GlxSlideShowView::SetImageToHdmiL() - CGlxHdmi 1" );
-    if (iHdmiController) {
-        GLX_LOG_INFO("GlxSlideShowView::SetImageToHdmiL() - CGlxHdmi 2" );
-        // Get the image uri
-        QString imagePath = (mModel->data(mModel->index(mModel->data(mModel->index(0,0),GlxFocusIndexRole).value<int>(),0),GlxUriRole)).value<QString>();
-        if(imagePath.isNull()) {
-            GLX_LOG_INFO("GlxSlideShowView::SetImageToHdmiL() path is null" );
-        }
-        qDebug() << "GlxSlideShowView::SetImageToHdmiL() imagePath= " << imagePath;
-        TPtrC aPtr = reinterpret_cast<const TUint16*>(imagePath.utf16());
-
-        iHdmiController->SetImageL(aPtr);
-    }
-}

@@ -39,4 +39,8 @@ HEADERS += unittest_medialistwrapper.h
 
 SOURCES += unittest_medialistwrapper.cpp
 
-symbian: {TARGET.CAPABILITY = ALL -TCB }
+symbian: { 
+    TARGET.CAPABILITY = ALL -TCB
+    TARGET.EPOCHEAPSIZE = 0x20000 0x1600000
+    TARGET.UID3 = 0x20000A0E
+}

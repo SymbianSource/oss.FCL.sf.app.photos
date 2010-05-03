@@ -9,30 +9,31 @@ EXPORTS
 	_ZN12GlxMLWrapper12itemsRemovedEii @ 8 NONAME
 	_ZN12GlxMLWrapper13itemCorruptedEi @ 9 NONAME
 	_ZN12GlxMLWrapper13setFocusIndexEi @ 10 NONAME
-	_ZN12GlxMLWrapper14setContextModeE14GlxContextMode @ 11 NONAME
-	_ZN12GlxMLWrapper15retrieveItemUriEi @ 12 NONAME
-	_ZN12GlxMLWrapper16retrieveItemDateEi @ 13 NONAME
-	_ZN12GlxMLWrapper16retrieveItemIconEi16GlxTBContextType @ 14 NONAME
-	_ZN12GlxMLWrapper16setSelectedIndexEi @ 15 NONAME
-	_ZN12GlxMLWrapper16staticMetaObjectE @ 16 NONAME DATA 16
-	_ZN12GlxMLWrapper17handleIconCorruptEi @ 17 NONAME
-	_ZN12GlxMLWrapper17retrieveListTitleEi @ 18 NONAME
-	_ZN12GlxMLWrapper18handleGeneralErrorEi @ 19 NONAME
-	_ZN12GlxMLWrapper18handleReceivedIconEi16GlxTBContextType @ 20 NONAME
-	_ZN12GlxMLWrapper19getStaticMetaObjectEv @ 21 NONAME
-	_ZN12GlxMLWrapper20retrieveListSubTitleEi @ 22 NONAME
-	_ZN12GlxMLWrapper21getVisibleWindowIndexEv @ 23 NONAME
-	_ZN12GlxMLWrapper21retrieveItemDimensionEi @ 24 NONAME
-	_ZN12GlxMLWrapper21setVisibleWindowIndexEi @ 25 NONAME
-	_ZN12GlxMLWrapper22retrieveItemFrameCountEi @ 26 NONAME
-	_ZN12GlxMLWrapper23handleListItemAvailableEi @ 27 NONAME
-	_ZN12GlxMLWrapperC1Eii18TGlxFilterItemType @ 28 NONAME
-	_ZN12GlxMLWrapperC2Eii18TGlxFilterItemType @ 29 NONAME
-	_ZN12GlxMLWrapperD0Ev @ 30 NONAME
-	_ZN12GlxMLWrapperD1Ev @ 31 NONAME
-	_ZN12GlxMLWrapperD2Ev @ 32 NONAME
-	_ZNK12GlxMLWrapper10metaObjectEv @ 33 NONAME
-	_ZNK12GlxMLWrapper13getFocusIndexEv @ 34 NONAME
-	_ZTI12GlxMLWrapper @ 35 NONAME
-	_ZTV12GlxMLWrapper @ 36 NONAME
+	_ZN12GlxMLWrapper14RetrieveBitmapEi @ 11 NONAME
+	_ZN12GlxMLWrapper14setContextModeE14GlxContextMode @ 12 NONAME
+	_ZN12GlxMLWrapper15retrieveItemUriEi @ 13 NONAME
+	_ZN12GlxMLWrapper16retrieveItemDateEi @ 14 NONAME
+	_ZN12GlxMLWrapper16retrieveItemIconEi16GlxTBContextType @ 15 NONAME
+	_ZN12GlxMLWrapper16setSelectedIndexEi @ 16 NONAME
+	_ZN12GlxMLWrapper16staticMetaObjectE @ 17 NONAME DATA 16
+	_ZN12GlxMLWrapper17handleIconCorruptEi @ 18 NONAME
+	_ZN12GlxMLWrapper17retrieveListTitleEi @ 19 NONAME
+	_ZN12GlxMLWrapper18handleGeneralErrorEi @ 20 NONAME
+	_ZN12GlxMLWrapper18handleReceivedIconEi16GlxTBContextType @ 21 NONAME
+	_ZN12GlxMLWrapper19getStaticMetaObjectEv @ 22 NONAME
+	_ZN12GlxMLWrapper20retrieveListSubTitleEi @ 23 NONAME
+	_ZN12GlxMLWrapper21getVisibleWindowIndexEv @ 24 NONAME
+	_ZN12GlxMLWrapper21retrieveItemDimensionEi @ 25 NONAME
+	_ZN12GlxMLWrapper21setVisibleWindowIndexEi @ 26 NONAME
+	_ZN12GlxMLWrapper22retrieveItemFrameCountEi @ 27 NONAME
+	_ZN12GlxMLWrapper23handleListItemAvailableEi @ 28 NONAME
+	_ZN12GlxMLWrapperC1Eii18TGlxFilterItemType @ 29 NONAME
+	_ZN12GlxMLWrapperC2Eii18TGlxFilterItemType @ 30 NONAME
+	_ZN12GlxMLWrapperD0Ev @ 31 NONAME
+	_ZN12GlxMLWrapperD1Ev @ 32 NONAME
+	_ZN12GlxMLWrapperD2Ev @ 33 NONAME
+	_ZNK12GlxMLWrapper10metaObjectEv @ 34 NONAME
+	_ZNK12GlxMLWrapper13getFocusIndexEv @ 35 NONAME
+	_ZTI12GlxMLWrapper @ 36 NONAME
+	_ZTV12GlxMLWrapper @ 37 NONAME
 

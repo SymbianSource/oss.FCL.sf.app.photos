@@ -60,20 +60,4 @@ PRJ_EXPORTS
 #include "../ui/uiengine/drmutility/group/bld.inf"
 #include "../ui/uiengine/medialists/group/bld.inf"
 
-#include "../tvout/group/bld.inf"
-
-// include the icons
-//rem #include "../icons/bld.inf"
-
-// include the view framework subsystem
-//rem #include "../viewframework/group/bld.inf"
-
-// include the controllers subsystem
-//rem #include "../controllers/group/bld.inf"
-
-// Include the application
-//rem #include "../gallery/group/bld.inf"
-
-// include the slideshow build
-//rem #include "../slideshow/group/bld.inf"
-
+#include "../tvout/tvoutengine/group/bld.inf"

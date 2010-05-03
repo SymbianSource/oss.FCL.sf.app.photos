@@ -35,6 +35,7 @@ enum
     GlxDateRole,                        //to get the image created or modified date 
     GlxFrameCount,                      //to get the number of frame in an image
     GlxSubStateRole,                    //to publish the sub state of a SM states
+    GlxHdmiBitmap,                      //to get the pre decoded thumbnail for HDMI
 };
 
 

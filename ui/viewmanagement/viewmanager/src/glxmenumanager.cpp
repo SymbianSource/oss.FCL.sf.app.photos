@@ -26,8 +26,13 @@
 #include "glxmenumanager.h"
 #include "glxcommandhandlers.hrh"
 #include "glxmodelparm.h"
+#include "glxlocalisationstrings.h"
 
-GlxMenuManager::GlxMenuManager(HbMainWindow* mainWindow):mMainWindow(mainWindow)
+
+
+GlxMenuManager::GlxMenuManager(HbMainWindow* mainWindow)
+ : mMainWindow( mainWindow ),
+   mContextMenu( 0 )
 {
 }
 
@@ -40,25 +45,26 @@ void GlxMenuManager::createMarkingModeMenu(HbMenu* menu)
     qDebug()<< "GlxMenuManager::CreateMarkingModeMenu" ;  
     HbAction *action = NULL;
     
-    action = menu->addAction("Mark All");
+    action = menu->addAction(GLX_OPTION_MARK_ALL);
     action->setData(EGlxCmdMarkAll);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
     
-    action = menu->addAction("UnMark All");
+    action = menu->addAction(GLX_OPTION_UN_MARK_ALL);
+    action->setDisabled(true);  //Dim UnMarkAll when no images are marked
     action->setData(EGlxCmdUnMarkAll);
-    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
-    
-    action = menu->addAction("Help");
-    action->setData(EGlxCmdUnMarkAll);
-    action->setVisible(FALSE);
-    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
-    
-    action = menu->addAction("Exit");
-    action->setData(EGlxCmdUnMarkAll);
-    action->setVisible(FALSE);
-    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));    
 }
 
+void GlxMenuManager::disableAction(HbMenu* menu, bool disable)
+{
+    QList<QAction*> actionList = menu->actions();
+    for ( int i = 0 ; i < actionList.count(); i++) {
+        if(actionList.at(i)->data()==EGlxCmdUnMarkAll) {
+               actionList.at(i)->setDisabled(disable);
+               break;
+        }
+     }
+}
 void GlxMenuManager::addMenu(qint32 viewId, HbMenu* menu)
 {
     switch(viewId) {
@@ -102,23 +108,27 @@ void GlxMenuManager::CreateGridMenu(HbMenu* menu)
     qDebug()<<"GlxMenuManager::CreateGridMenu";
     HbAction *action = NULL;
     
-    action = menu->addAction("Send");
+    action = menu->addAction(GLX_OPTION_SHARE);
     action->setData(EGlxCmdSend);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
    
-    action = menu->addAction("Slide Show");
+    mSubMenu = menu->addMenu(GLX_OPTION_SLIDESHOW);
+    action = mSubMenu->addAction(GLX_OPTION_SS_PLAY); 
     action->setData(EGlxCmdFirstSlideshow);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
     
-    action = menu->addAction("Add to album");
+    action = mSubMenu->addAction(GLX_OPTION_SS_SETTINGS);
+    action->setData(EGlxCmdSlideshowSettings);
+    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected())); 
+    action = menu->addAction(GLX_OPTION_ADD_TO_ALBUM);
     action->setData(EGlxCmdAddToAlbum);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
     
-    action = menu->addAction("Remove From Album");
+    action = menu->addAction(GLX_OPTION_REMOVE_FROM_ALBUM);
     action->setData(EGlxCmdRemoveFrom);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 
-    action = menu->addAction("Delete");
+    action = menu->addAction(GLX_OPTION_DELETE);
     action->setData(EGlxCmdDelete);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 }
@@ -128,7 +138,7 @@ void GlxMenuManager::CreateListMenu(HbMenu* menu)
     qDebug()<<"GlxMenuManager::CreateListMenu";
     HbAction *action = NULL;
     
-    action = menu->addAction("New album");
+    action = menu->addAction(GLX_OPTION_NEW_ALBUM);
     action->setData(EGlxCmdAddMedia);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 }
@@ -138,15 +148,19 @@ void GlxMenuManager::CreateFullscreenMenu(HbMenu* menu)
     qDebug()<<"GlxMenuManager::CreateFullscreenMenu";
     HbAction *action = NULL;
     
-    action = menu->addAction("Send");
+    action = menu->addAction(GLX_OPTION_SHARE);
     action->setData(EGlxCmdSend);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
     
-    action = menu->addAction("Slide Show");
+    mSubMenu = menu->addMenu(GLX_OPTION_SLIDESHOW);
+    action = mSubMenu->addAction(GLX_OPTION_SS_PLAY); 
     action->setData(EGlxCmdSelectSlideshow);
+    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected())); 
+    action = mSubMenu->addAction(GLX_OPTION_SS_SETTINGS);
+    action->setData(EGlxCmdSlideshowSettings);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
     
-    action = menu->addAction("Add to album");
+    action = menu->addAction(GLX_OPTION_ADD_TO_ALBUM);
     action->setData(EGlxCmdAddToAlbum);
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 	
@@ -237,43 +251,58 @@ void GlxMenuManager::menuItemSelected()
 void GlxMenuManager::ShowItemSpecificMenu(qint32 viewId,QPointF pos)
 {
     qDebug("GlxMenuManager::showContextMenu " );
-    HbMenu *mainMenu = new HbMenu();
+    mContextMenu = new HbMenu();
     HbAction *action = NULL;
-	switch ( viewId ) {
+
+    switch ( viewId ) {
 	    case GLX_GRIDVIEW_ID :
-	        action = mainMenu->addAction("Send");
+	        action = mContextMenu->addAction(GLX_MENU_SHARE);
 	        action->setData(EGlxCmdContextSend);
 	        connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 	        
-	        action = mainMenu->addAction("Slide Show");
+	        action = mContextMenu->addAction(GLX_MENU_SLIDESHOW);
 	        action->setData(EGlxCmdSelectSlideshow);
 	        connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 		    
-	        action = mainMenu->addAction("Add to album");
+	        action = mContextMenu->addAction(GLX_MENU_ADD_TO_ALBUM);
 		    action->setData(EGlxCmdContextAddToAlbum);
 		    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 		    
-		    action = mainMenu->addAction("Delete");
+		    action = mContextMenu->addAction(GLX_MENU_DELETE);
 		    action->setData(EGlxCmdContextDelete);
 		    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 			break;
 	    	
 	    case GLX_LISTVIEW_ID :
-	        action = mainMenu->addAction("Slide Show");
+	        action = mContextMenu->addAction(GLX_MENU_SLIDESHOW);
 	        action->setData(EGlxCmdAlbumSlideShow);
 	        connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+    
+            action = mContextMenu->addAction(GLX_MENU_RENAME);
+            action->setData(EGlxCmdContextRename);
+            connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 	                    
-		    action = mainMenu->addAction("Delete");
+		    action = mContextMenu->addAction(GLX_MENU_DELETE);
 		    action->setData(EGlxCmdContextAlbumDelete);
 		    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 			break;
+			
 		default:
 		    break;	
 		}
 
-	connect(mMainWindow, SIGNAL(aboutToChangeOrientation ()), mainMenu, SLOT(close()));
-    mainMenu->exec(pos);
-    disconnect(mMainWindow, SIGNAL(aboutToChangeOrientation ()), mainMenu, SLOT(close()));
-    delete mainMenu;
-
+	connect( mMainWindow, SIGNAL( aboutToChangeOrientation () ), mContextMenu, SLOT( close() ) );
+	connect( mContextMenu, SIGNAL( aboutToClose () ), this, SLOT( closeContextMenu() ) );
+	mContextMenu->setPreferredPos( pos );
+	mContextMenu->show();
+    
 }
+
+void GlxMenuManager::closeContextMenu()
+{
+    disconnect( mMainWindow, SIGNAL( aboutToChangeOrientation () ), mContextMenu, SLOT( close() ) );
+    disconnect( mContextMenu, SIGNAL( aboutToClose () ), this, SLOT( closeContextMenu() ) ); 
+    mContextMenu->deleteLater();
+    mContextMenu = NULL;
+}
+

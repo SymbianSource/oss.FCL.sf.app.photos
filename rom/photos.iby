@@ -56,6 +56,7 @@ file=ABI_DIR/BUILD_DIR/glxloggerqt.dll              SHARED_LIB_DIR/glxloggerqt.d
 
 file=ABI_DIR/BUILD_DIR/glxcommandhandlerbase.dll              SHARED_LIB_DIR/glxcommandhandlerbase.dll
 file=ABI_DIR/BUILD_DIR/glxcommoncommandhandlers.dll              SHARED_LIB_DIR/glxcommoncommandhandlers.dll
+file=ABI_DIR/BUILD_DIR/glxtvoutwrapper.dll              SHARED_LIB_DIR/glxtvoutwrapper.dll
 
 file=ABI_DIR/BUILD_DIR/glxdrmutility.dll											SHARED_LIB_DIR/glxdrmutility.dll
 file=ABI_DIR/BUILD_DIR/glxmedialists.dll                        SHARED_LIB_DIR/glxmedialists.dll
@@ -73,10 +74,6 @@ S60_APP_EXE(photos)
 data=/epoc32/data/z/private/10003a3f/import/apps/photos_reg.rsc         private/10003a3f/import/apps/photos_reg.rsc
 data=DATAZ_/APP_RESOURCE_DIR/0xE2C223D9.mif                     APP_RESOURCE_DIR/0xE2C223D9.mif  
 
-;fetcher binaries
-S60_APP_EXE(imageviewerapp)
-data=DATAZ_/APP_RESOURCE_DIR/imageviewerapp.rsc     APP_RESOURCE_DIR/imageviewerapp.rsc
-data=/epoc32/data/z/private/10003a3f/import/apps/imageviewerapp_reg.rsc         private/10003a3f/import/apps/imageviewerapp_reg.rsc
 //data=/epoc32/data/z/system/install/photos_stub.sis        /system/install/photos_stub.sis
 
 #endif //__PHOTOS_IBY__

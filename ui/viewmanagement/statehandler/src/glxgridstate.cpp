@@ -114,8 +114,7 @@ void GlxGridState::allItemEventHandler ( qint32 &id )
     	break ;
     	
     default :
-    	break;
-    
+    	break;    
     }
 }
 	
@@ -125,6 +124,7 @@ void GlxGridState::albumItemEventHandler ( qint32 &id )
 
     switch(id) {
     case EGlxCmdAllGridOpen :
+        mStateManager->removeCurrentModel();
         mStateManager->goBack( GLX_GRIDVIEW_ID, ALL_ITEM_S );
         id = EGlxCmdHandled;
         break ;

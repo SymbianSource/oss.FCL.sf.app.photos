@@ -76,6 +76,7 @@
 ""- "z:\resource\apps\0xE2C223D9.mif"
 
 ;qt dlls
+""-"z:\sys\bin\glxtvoutwrapper.dll"
 ""-"z:\sys\bin\glxmedialistwrapper.dll"
 ""-"z:\sys\bin\glxexternalutility.dll"
 ""-"z:\sys\bin\glxmediamodel.dll"

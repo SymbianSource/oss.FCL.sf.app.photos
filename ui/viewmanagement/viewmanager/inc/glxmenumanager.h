@@ -22,6 +22,7 @@ class QAbstractItemModel;
 class QAction;
 class HbMainWindow;
 
+
 //Grid view option menu
 enum {
    GlxGridViewSend,
@@ -43,6 +44,7 @@ public :
     void setModel(QAbstractItemModel *model) { mModel = model ; }
     void addMenu(qint32 viewId, HbMenu* menu);
     void removeMenu(qint32 viewId, HbMenu* menu);
+    void disableAction(HbMenu* menu,bool disable);
     
 signals :
     void commandTriggered(qint32 commandId);
@@ -58,8 +60,11 @@ private slots:
     void menuItemSelected();
     void updateGridMenu();
     void updateFullscreenMenu();
+    void closeContextMenu();
     
 private:
     QAbstractItemModel *mModel; //It should point to current view model
 	HbMainWindow* mMainWindow;
+	HbMenu *mContextMenu;
+	HbMenu* mSubMenu;
 };

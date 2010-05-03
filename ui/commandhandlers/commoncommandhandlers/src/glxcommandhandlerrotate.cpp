@@ -18,7 +18,7 @@
 #include <mpxcollectionpath.h>
 #include <mglxmedialist.h>
 #include <glxcommandfactory.h>
-#include <glxcommandHandlerrotate.h>
+#include <glxcommandhandlerrotate.h>
 #include <ExifRead.h>
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE

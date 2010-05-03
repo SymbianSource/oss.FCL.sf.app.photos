@@ -39,7 +39,7 @@ class HbIconItem;
 //User Defined forward declartion
 class GlxZoomSlider;
 class GlxZoomControl;
-class CGlxHdmiController;
+class GlxTvOutWrapper;
 
 class GlxFullScreenView : public GlxView
 {
@@ -105,31 +105,31 @@ private:
     void createUiControl();
     void setImageStripModel();
     
-    /*
-     * Called when an item is highlighted.
-     */
-    void SetImageToHdmiL();    
     void loadFullScreenToolBar();
     void imageSelectionAnimation(const QModelIndex &index);
-    
+    int getSubState();
+    void setHdmiModel(QAbstractItemModel *model);
 private:
     QAbstractItemModel  *mModel;   //no ownership
     HbMainWindow        *mWindow;  //no ownership
     GlxCoverFlow        *mCoverFlow;
     HbGridView          *mImageStrip;
-    bool                mUiOff;        // to check the current status of ui on / off
     QTimer              *mUiOffTimer;  //use for ui off after 30 sec
     HbIconItem          *mIconItem ;   //temporary item for play the image strip select animation
-	  //for Zoom
+    GlxTvOutWrapper     *mTvOutWrapper;
+    HbToolBar           *mFullScreenToolBar; //Fullscreen Toolbar
+    HbAction            *mFlipAction; //Action : it starts activates the details view
+    HbAction            *mSendAction;
+    HbAction            *mDeleteAction;
+    HbAction            *mUseImageAction;
+
+    //for Zoom
     HbPushButton        *mZmPushButton;
     GlxZoomSlider       *mZoomSlider;
     GlxZoomControl      *mZoomControl;
     HbDocumentLoader    *mDocLoader;
-    CGlxHdmiController* iHdmiController;
-    HbToolBar *mFullScreenToolBar; //Fullscreen Toolbar
-    HbAction *mFlipAction; //Action : it starts activates the details view
-    HbAction *mSendAction;
-    HbAction *mDeleteAction;
+  
+    bool                mUiOff;        // to check the current status of ui on / off
 };
 
 #endif /* GLXFULLSCREENVIEW_H_ */

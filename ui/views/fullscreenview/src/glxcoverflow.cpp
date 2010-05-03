@@ -25,7 +25,7 @@
 //User Includes
 #include <glxmodelparm.h>
 #include <glxcoverflow.h>
-
+#include "glxviewids.h"
 
 const int KMoveX = 60;  //coverflow auto move speed
 
@@ -138,7 +138,10 @@ void GlxCoverFlow::rotationEffectFinished (const HbEffect::EffectStatus &status)
 void GlxCoverFlow::panGesture ( const QPointF & delta )  
 {
     qDebug("GlxCoverFlow::panGesture deltaX= %d", (int)delta.x());  
-      
+    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S )
+        {
+        return;
+        }
 	move((int) delta.x());    
     if( delta.x() > 0 ) {     
         mMoveDir = RIGHT_MOVE;
@@ -157,6 +160,10 @@ void GlxCoverFlow::leftGesture(int value)
 {
 	Q_UNUSED(value);
     qDebug("GlxCoverFlow::leftGesture CurrentPos= %d value %d", mCurrentPos, value); 
+    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S )
+        {
+        return;
+        }
     mMoveDir = NO_MOVE;
     mBounceBackDeltaX = mItemSize.width() >> 2;
     emit autoLeftMoveSignal();
@@ -170,6 +177,10 @@ void GlxCoverFlow::rightGesture(int value)
 {
 	Q_UNUSED(value);
     qDebug("GlxCoverFlow::rightGesture CurrentPos= %d value %d ", mCurrentPos, value);
+    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S )
+        {
+        return;
+        }
     mMoveDir = NO_MOVE;
     mBounceBackDeltaX = mItemSize.width() >> 2;
     emit autoRightMoveSignal();
@@ -566,4 +577,14 @@ void GlxCoverFlow::ClearCoverFlow()
             mIconItem[i] = NULL;
         }
     }	
+}
+
+int GlxCoverFlow::getSubState()
+{
+    int substate = NO_FULLSCREEN_S;
+    QVariant variant = mModel->data( mModel->index(0,0), GlxSubStateRole );    
+    if ( variant.isValid() &&  variant.canConvert<int> ()  ) {
+        substate = variant.value<int>();
+    }
+    return substate;
 }

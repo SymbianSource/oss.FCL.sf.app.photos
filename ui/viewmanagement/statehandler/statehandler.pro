@@ -54,6 +54,7 @@ HEADERS += inc/glxbasestate.h \
            inc/glxfullscreenstate.h \
            inc/glxdetailstate.h \
            inc/glxgridstate.h \
+           inc/glxslideshowsettingsstate.h \
            inc/glxliststate.h \
            inc/glxstatemanager.h \
            inc/glxslideshowstate.h \
@@ -64,6 +65,7 @@ SOURCES += src/glxbasestate.cpp \
            src/glxfullscreenstate.cpp \
            src/glxdetailstate.cpp \
            src/glxgridstate.cpp \
+           src/glxslideshowsettingsstate.cpp \
            src/glxliststate.cpp \
            src/glxstatemanager.cpp \
            src/glxslideshowstate.cpp \

@@ -37,6 +37,8 @@
 #include <hbdialog.h>
 #include <hbmessagebox.h>
 
+#include "glxlocalisationstrings.h"
+
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
 #include "glxcommandhandleraddtocontainerTraces.h"
@@ -46,6 +48,7 @@
 TInt GlxCommandHandlerAddToContainer::iSelectionCount = 0;
 
 const TInt KSelectionPopupListHierarchy = 5;
+const TInt KListPrefferedHeight = 400;
 
 GlxQueryContentWidget::GlxQueryContentWidget(QGraphicsItem* parent) :
     QGraphicsWidget(parent), mButton(0), mListView(0), mGrid(0)
@@ -57,6 +60,7 @@ GlxQueryContentWidget::GlxQueryContentWidget(QGraphicsItem* parent) :
     mButton = new HbPushButton("New Item");
     mListView = new HbListView(this);
     mListView->setSelectionMode(HbAbstractItemView::MultiSelection);
+    mListView->setPreferredHeight(KListPrefferedHeight);
 
     mGrid->addItem(mButton, 0, 0);
     mGrid->addItem(mListView, 1, 0);
@@ -150,6 +154,10 @@ CMPXCommand* GlxCommandHandlerAddToContainer::CreateCommandL(TInt /*aCommandId*/
         CleanupStack::Pop(command);
         mNewMediaAdded = false;
         }
+    else
+        {
+        MGlxMediaList::UnmarkAllL(aMediaList);
+        }
 
     MGlxMediaList::UnmarkAllL(*targetMediaList);
     targetMediaList->Close();
@@ -181,10 +189,10 @@ QModelIndexList GlxCommandHandlerAddToContainer::GetSelectionList(
     connect(view->mButton, SIGNAL(released ()), this, SLOT(createNewMedia()));
 
 
-    HbAction *primary = new HbAction("OK");
+    HbAction *primary = new HbAction(GLX_BUTTON_OK);
     popup.setPrimaryAction(primary);
 
-    HbAction *secondary = new HbAction("Cancel");
+    HbAction *secondary = new HbAction(GLX_BUTTON_CANCEL);
     popup.setSecondaryAction(secondary);
     
     popup.setContentWidget(view); //ownership transfer
@@ -257,7 +265,7 @@ void GlxCommandHandlerAddToContainer::createNewMedia()
 
 QString GlxCommandHandlerAddToContainer::CompletionTextL() const
     {
-    return QString("Item added!");
+	return QString();	
     }
 
 QString GlxCommandHandlerAddToContainer::ProgressTextL() const

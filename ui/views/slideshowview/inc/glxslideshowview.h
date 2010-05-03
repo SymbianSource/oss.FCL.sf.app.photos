@@ -31,8 +31,7 @@ class HbDocumentLoader;
 //User Includes forward Declaration
 class GlxView;
 class GlxSlideShowWidget;
-class CGlxHdmiController;
-
+class GlxTvOutWrapper;
 
 class GlxSlideShowView : public GlxView
 {
@@ -56,13 +55,12 @@ protected :
     
 private:
     void loadObjects();
-    void SetImageToHdmiL();
 private:
     QAbstractItemModel  *mModel;
     HbMainWindow        *mWindow;
     GlxSlideShowWidget  *mSlideShowWidget;    
     HbDocumentLoader    *mDocLoader; //Docml loader to load the widgets from docml
-    CGlxHdmiController* iHdmiController;
+    GlxTvOutWrapper*    mTvOutWrapper;
 };
 
 #endif /*GLXSLIDESHOWVIEW_H*/

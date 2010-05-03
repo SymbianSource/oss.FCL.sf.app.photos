@@ -17,7 +17,7 @@
 TEMPLATE = lib
 TARGET = glxviews
 
-DEPENDPATH += . fullscreenview/inc fullscreenview/src gridview/inc gridview/src viewbase/inc
+DEPENDPATH += . fullscreenview/inc fullscreenview/src gridview/inc gridview/src slideshowsettingsview/inc slideshowsettingsview/src viewbase/inc
 CONFIG += hb
 
 LIBS += -lglxmediamodel.dll \
@@ -26,6 +26,7 @@ LIBS += -lglxmediamodel.dll \
         -lglxloggerqt.dll \
         -lshareui.dll \
         -lglxtvout.dll \
+        -lglxtvoutwrapper.dll \
         -lxqserviceutil.dll \
         -lglxlogging.dll
 
@@ -39,7 +40,8 @@ INCLUDEPATH += . ../inc \
           ../viewbase/inc \
           ../../commonutilities/imagedecoderwrapper/inc \
           ../../loggers/loggerqt/inc \
-          ../../traces
+          ../../traces \
+          ../../tvout/tvoutwrapper/inc
 
 symbian: { 
 TARGET.UID3 = 0x200009EF
@@ -57,6 +59,7 @@ HEADERS += viewbase/inc/glxview.h \
            detailsview/inc/glxdetailsview.h  \
            detailsview/inc/glxdetailscustomwidgets.h  \
            gridview/inc/glxgridview.h \
+					 slideshowsettingsview/inc/glxslideshowsettingsview.h \
            listview/inc/glxlistview.h \
            effectengine/inc/glxeffectengine.h \
            slideshowview/inc/glxslideshowview.h \
@@ -67,7 +70,6 @@ HEADERS += viewbase/inc/glxview.h \
            effectengine/effectplugin/inc/glxfadeplugin.h \
 	   	   docloaders/inc/glxviewdocloader.h \
            viewsfactory/inc/glxviewsfactory.h \
-           ../../tvout/inc/glxhdmicontroller.h \
            
 SOURCES += viewbase/src/glxview.cpp \
            fullscreenview/src/glxcoverflow.cpp \
@@ -77,6 +79,7 @@ SOURCES += viewbase/src/glxview.cpp \
            detailsview/src/glxdetailsview.cpp \
            detailsview/src/glxdetailscustomwidgets.cpp \
            gridview/src/glxgridview.cpp \
+           slideshowsettingsview/src/glxslideshowsettingsview.cpp \
            listview/src/glxlistview.cpp \
            effectengine/src/glxeffectengine.cpp \
            slideshowview/src/glxslideshowview.cpp \

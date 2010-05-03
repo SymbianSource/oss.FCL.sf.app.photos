@@ -42,4 +42,5 @@ EXPORTS
 	_ZNK14GlxViewManager11orientationEv @ 41 NONAME
 	_ZTI14GlxViewManager @ 42 NONAME
 	_ZTV14GlxViewManager @ 43 NONAME
+	_ZN14GlxViewManager11checkMarkedEv @ 44 NONAME
 

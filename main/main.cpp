@@ -26,7 +26,7 @@
 #include <QDebug>
 #include <QTranslator>
 #include <xqserviceutil.h>
-#include <glxfetcher.h>
+#include <glxaiwservicehandler.h>
 
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
@@ -43,14 +43,20 @@ int main(int argc, char *argv[])
             localTime.hour(), localTime.minute(), localTime.second() );
 
     HbApplication app(argc, argv);	
-
-    // TODO: this needs to be checked where translator _really_ should be installed
+    
+	bool loaded(false);	
+    
     QTranslator translator;
-    translator.load("photos_" + QLocale::system().name());
-    qApp->installTranslator(&translator);
+    QString path = "Z:/resource/qt/translations/";
+    loaded = translator.load("photos_" + QLocale::system().name(), path);
+    if(loaded)
+        {
+         qApp->installTranslator(&translator);
+        }
+    
     
     GlxStateManager* stateMgr = NULL;
-    GlxFetcher* mainWindow = NULL;
+    GlxAiwServiceHandler* mainWindow = NULL;
 
     OstTraceEventStart0( EVENT_DUP1__MAIN_START, "launch" );
 
@@ -61,7 +67,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-	      mainWindow = new GlxFetcher();
+	      mainWindow = new GlxAiwServiceHandler();
         mainWindow->show();
     }
     OstTraceEventStop( EVENT_DUP1__MAIN_STOP, "launch", EVENT_DUP1__MAIN_START );

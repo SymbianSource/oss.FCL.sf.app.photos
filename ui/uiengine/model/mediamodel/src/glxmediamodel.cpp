@@ -152,6 +152,10 @@ QModelIndex GlxMediaModel::parent(const QModelIndex &child) const
 //todo refactor this whole function ... too many return statements are not good
 QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
 {
+    if ( role == GlxSubStateRole ) {
+        return mSubState;
+    }
+
     HbIcon* itemIcon = NULL;
     int itemIndex = index.row();
     qDebug("GlxMediaModel::data buffer concept index %d role %d", index.row(), role);
@@ -232,8 +236,8 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
     return (mMLWrapper->retrieveItemFrameCount(itemIndex));
     }
     
-    if ( role == GlxSubStateRole ) {
-        return mSubState;
+    if (role == GlxHdmiBitmap) {
+        return mMLWrapper->RetrieveBitmap(itemIndex);
     }
 	    
     return QVariant();

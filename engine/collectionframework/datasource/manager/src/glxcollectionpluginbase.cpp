@@ -33,6 +33,7 @@
 #include <mpxmediadrmdefs.h>
 #include <mpxmediageneraldefs.h>
 #include <mpxmessagegeneraldefs.h>
+#include <hbtextresolversymbian.h>
 #include <glxtracer.h>
 
 #include "glxcommandrequest.h"
@@ -514,6 +515,18 @@ EXPORT_C TGlxFilterProperties CGlxCollectionPluginBase::DefaultFilter(TInt /*aLe
     return filterProperties;
     }
     
+EXPORT_C void CGlxCollectionPluginBase::initializeTextResolverSymbian()
+    {
+    TRACER("CGlxCollectionPluginBase::initializeTextResolverSymbian");
+    _LIT(KSomeFile, "photos_");
+    _LIT(KPath, "z:\\resource\\qt\\translations");      
+     HbTextResolverSymbian::Init(KSomeFile, KPath);
+    }
 
+EXPORT_C HBufC* CGlxCollectionPluginBase::LoadLocalizedStringLC(const TDesC& aStringName)
+    {
+     TRACER("void CGlxCollectionPluginBase::LoadLocalizedStringLC()");
+     return HbTextResolverSymbian::LoadLC(aStringName); 
+    }
 
 // End of file

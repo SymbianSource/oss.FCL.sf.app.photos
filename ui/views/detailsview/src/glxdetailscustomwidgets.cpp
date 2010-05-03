@@ -50,40 +50,14 @@ HbWidget* GlxDetailsCustomWidgets::createCustomWidget()
             modelIndex().data(HbDataFormModelItem::ItemTypeRole).toInt());
     switch(itemType)
         {
-        case ImageNameItem:
-            {
-            qDebug("GlxDetailsCustomWidgets::createCustomWidget:ImageNameItem");
-            HbLineEdit *lineEdit = new HbLineEdit();
-            lineEdit->setGeometry(25,25,280,120);
-            return lineEdit;
-            }
-
-        case DateLabelItem :
+        
+		case DateLabelItem :
             {
             qDebug("GlxDetailsCustomWidgets::createCustomWidget:DateLabelItem");
             HbLabel *dateLabel = new HbLabel();
             return dateLabel;
             }
-
-        case LocationTagItem:
-            {
-            qDebug("GlxDetailsCustomWidgets::createCustomWidget:LocationTagItem");
-            HbLabel *locationLabel = new HbLabel();
-            return locationLabel;
-            }
-            
-        case DurationItem:
-            {
-            qDebug("GlxDetailsCustomWidgets::createCustomWidget:DurationLabelItem");
-            HbLabel *durationLabel = new HbLabel();
-            return durationLabel;
-            }
-
-        case ShareWithItem:
-            {
-            //To be added later.
-            }
-         
+        
         case CommentsItem:
             {
             qDebug("GlxDetailsCustomWidgets::createCustomWidget:CommentsItem");

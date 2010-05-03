@@ -50,7 +50,8 @@ GlxGridView::GlxGridView(HbMainWindow *window)
       mWindow(window), 
       mModel ( NULL), 
       mVisualIndex(0),
-      mItem(NULL)
+      mItem(NULL),
+      mIsLongPress (false)
 {
     OstTraceFunctionEntry0( GLXGRIDVIEW_GLXGRIDVIEW_ENTRY );
     mDocLoader = new HbDocumentLoader();
@@ -73,6 +74,7 @@ void GlxGridView::deActivate()
 {
     OstTraceFunctionEntry0( GLXGRIDVIEW_DEACTIVATE_ENTRY );
     removeViewConnection();
+    mModel = NULL;
     OstTraceFunctionExit0( GLXGRIDVIEW_DEACTIVATE_EXIT );
 }
 
@@ -175,7 +177,7 @@ QGraphicsItem * GlxGridView::getAnimationItem(GlxEffect transitionEffect)
 void GlxGridView::loadGridView(Qt::Orientation orient)
 {
     OstTraceFunctionEntry0( GLXGRIDVIEW_LOADGRIDVIEW_ENTRY );
-    bool loaded = true;
+    bool loaded = false;
     QString section;
     GlxContextMode mode ;
     
@@ -234,9 +236,6 @@ void GlxGridView::addViewConnection ()
     connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(loadGridView(Qt::Orientation)));
     connect(mGridView, SIGNAL(activated(const QModelIndex &)), this, SLOT( itemSelected(const QModelIndex &)));
     connect( mGridView, SIGNAL( scrollingEnded() ), this, SLOT( setVisvalWindowIndex() ) );
-    if(XQServiceUtil::isService()){
-        connect(mGridView, SIGNAL(activated(const QModelIndex &)), this, SIGNAL( gridItemSelected(const QModelIndex &)));
-    }
     connect(mGridView, SIGNAL(longPressed( HbAbstractViewItem*, QPointF )),this, SLOT( indicateLongPress( HbAbstractViewItem*, QPointF ) ) );
 }
 
@@ -245,7 +244,6 @@ void GlxGridView::removeViewConnection ()
     OstTrace0( TRACE_NORMAL, GLXGRIDVIEW_REMOVEVIEWCONNECTION, "GlxGridView::removeViewConnection" );
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(loadGridView(Qt::Orientation)));
     disconnect(mGridView, SIGNAL(activated(const QModelIndex &)), this, SLOT( itemSelected(const QModelIndex &)));
-    disconnect(mGridView, SIGNAL(activated(const QModelIndex &)), this, SIGNAL( gridItemSelected(const QModelIndex &)));
     disconnect( mGridView, SIGNAL( scrollingEnded() ), this, SLOT( setVisvalWindowIndex() ) );
     disconnect(mGridView, SIGNAL(longPressed( HbAbstractViewItem*, QPointF )),this, SLOT( indicateLongPress( HbAbstractViewItem*, QPointF ) ) );
 }
@@ -265,15 +263,23 @@ void GlxGridView::itemSelected(const QModelIndex &  index)
 {
     OstTrace1( TRACE_NORMAL, GLXGRIDVIEW_ITEMSELECTED, "GlxGridView::itemSelected;index=%d", index.row() );
 
-    if ( mGridView->selectionMode() == HbGridView::MultiSelection ){ //in multi selection mode no need to open the full screen
-    return ;
+    if ( mGridView->selectionMode() == HbGridView::MultiSelection ) { //in multi selection mode no need to open the full screen
+        return ;
     }
+    if ( mIsLongPress ) {
+        mIsLongPress = false;
+        return ;
+    }
+    if(XQServiceUtil::isService()){
+        emit gridItemSelected(index);
+        return;
+    }
+    
     OstTraceEventStart0( EVENT_DUP1_GLXGRIDVIEW_ITEMSELECTED_START, "Fullscreen Launch Time" );
     
-    if ( mModel ) 
-        {
+    if ( mModel ) {
         mModel->setData( index, index.row(), GlxFocusIndexRole );
-        }
+    }
     emit actionTriggered( EGlxCmdFullScreenOpen );
     OstTraceEventStop( EVENT_DUP1_GLXGRIDVIEW_ITEMSELECTED_STOP, "Fullscreen Launch Time", EVENT_DUP1_GLXGRIDVIEW_ITEMSELECTED_START );
 }
@@ -329,5 +335,6 @@ void GlxGridView::indicateLongPress(HbAbstractViewItem *item, QPointF coords)
     if ( mModel ) {
     	mModel->setData( item->modelIndex(), item->modelIndex().row(), GlxFocusIndexRole );
     }
+    mIsLongPress = true;
     emit itemSpecificMenuTriggered(viewId(),coords);
 }

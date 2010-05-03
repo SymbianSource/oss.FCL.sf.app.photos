@@ -32,6 +32,7 @@
 
 #include <textresolver.h>
 #include <hbmessagebox.h>
+#include <hbnotificationdialog.h>
 #include <e32debug.h>
 #include <hbprogressdialog.h>
 #include "OstTraceDefinitions.h"
@@ -365,9 +366,7 @@ void GlxMpxCommandHandler::HandleErrorL(TInt aErrorCode)
 
     QString qtText = QString::fromUtf16(text.Ptr(), text.Length());
 
-    HbMessageBox box(HbMessageBox::MessageTypeInformation);
-    box.setText(qtText);
-    box.exec();
+	HbNotificationDialog::launchDialog(qtText);
     CleanupStack::PopAndDestroy(textresolver);
     OstTraceFunctionExit0( GLXMPXCOMMANDHANDLER_HANDLEERRORL_EXIT );
     }
@@ -377,7 +376,7 @@ void GlxMpxCommandHandler::CompletionNoteL() const
     QString displayText = CompletionTextL();
     if (!displayText.isNull())
         {
-        HbMessageBox::information(displayText);
+		HbNotificationDialog::launchDialog(displayText);
         }
     }
 

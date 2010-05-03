@@ -31,7 +31,11 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 CONFIG += qtestlib \
           Hb
 
-symbian: {TARGET.CAPABILITY = ALL -TCB }
+symbian: { 
+    TARGET.CAPABILITY = ALL -TCB
+    TARGET.EPOCHEAPSIZE = 0x20000 0x1600000
+    TARGET.UID3 = 0x2000A773
+}
 
 LIBS += -lflogger.dll 
 LIBS += -lglxstatehandler.dll

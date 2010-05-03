@@ -19,7 +19,7 @@
 
 #ifndef GLXVIEWMANAGER_H
 #define GLXVIEWMANAGER_H
-
+ #include <QItemSelectionModel>
 #include <QObject>
 #include <QList>
 #include <hbeffect.h>
@@ -141,6 +141,7 @@ protected:
 	
 private slots:
 
+   void checkMarked();
 private:
 /*
  * It will create and return the view
@@ -196,6 +197,7 @@ private:
     HbMenu *mMenu; 
     GlxView *mView;
     QAbstractItemModel *mModel; //no ownership
+	QItemSelectionModel * mSelectionModel;
 };
 
 

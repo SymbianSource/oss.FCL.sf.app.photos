@@ -21,40 +21,54 @@
 #include <hbmainwindow.h>
 #include <xqserviceprovider.h>
 #include <QStringList>
-
+#include <xqsharablefile.h>
 
 //FORWARD CLASS DECLARATION
 class GlxView;
 class HbPushButton;
+class HbMenu;
 class QGraphicsGridLayout; 
 class GlxGetImageService;
 class GlxMediaModel;
 class QModelIndex;
+class GlxImageViewerService;
+class GlxStateManager;
+class CGlxImageViewerManager;
 /**
- *  GlxFetcher
+ *  GlxAiwServiceHandler
  * 
  */
-class GlxFetcher: public HbMainWindow
+class GlxAiwServiceHandler: public HbMainWindow
     {
     Q_OBJECT
 public:
     /**
      * Constructor
      */
-    GlxFetcher();
+    GlxAiwServiceHandler();
 
     /**
      * Destructor.
      */
-    ~GlxFetcher();
+    ~GlxAiwServiceHandler();
 	void launchFetcher();
+	void launchImageViewer();
 public slots:  
     void itemSelected(const QModelIndex &  index);    
+    void handleClientDisconnect();
+	void itemSpecificMenuTriggered(qint32,QPointF );
+    void openFSView();
+	void handleFSSelect();
+    void closeContextMenu();
     
 private:
     GlxMediaModel *mModel;
     GlxView* mView;
     GlxGetImageService* mService;
+	GlxImageViewerService* mImageViewerService;
+	GlxStateManager *mStateMgr;
+	GlxView* mFSView;
+    HbMenu *mFetcherContextMenu;
     };
 
 /**
@@ -65,7 +79,7 @@ class GlxGetImageService : public XQServiceProvider
 {
     Q_OBJECT
 public:
-    GlxGetImageService( GlxFetcher *parent = 0 );
+    GlxGetImageService( GlxAiwServiceHandler *parent = 0 );
     ~GlxGetImageService();
     bool isActive();
     void complete( QStringList filesList);
@@ -81,7 +95,30 @@ private:
     
 private:
     int mImageRequestIndex;
-    GlxFetcher* mServiceApp;
+    GlxAiwServiceHandler* mServiceApp;
 };
+
+
+class GlxImageViewerService : public XQServiceProvider
+{
+    Q_OBJECT
+    public:
+        GlxImageViewerService( GlxAiwServiceHandler *parent = 0 );
+        ~GlxImageViewerService();
+        void complete(bool ok);
+
+    public slots:
+        bool view(QString file);
+        bool view(XQSharableFile file);
+        bool asyncRequest() {return mAsyncRequest;}
+
+    private:
+        GlxAiwServiceHandler* mServiceApp;
+        int mAsyncReqId;
+        bool mRetValue;
+		bool mAsyncRequest;
+		CGlxImageViewerManager* mImageViewerInstance;
+};
+
     
 #endif //GLXFETCHER_H
