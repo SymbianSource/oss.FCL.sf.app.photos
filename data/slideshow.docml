@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbdocument version="0.9">
+    <widget name="mglxslideshow" type="HbView">
+        <widget name="content" role="HbView:widget" type="HbWidget">
+            <widget name="mscrollArea" type="HbScrollArea">
+                <widget name="scrollAreaContents" role="HbScrollArea:contents" type="HbWidget">
+                    <real name="z" value="16"/>
+                    <layout type="anchor"/>
+                </widget>
+                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                <enums name="scrollDirections" value="Horizontal"/>
+                <real name="z" value="14"/>
+                <sizehint height="95.52239un" type="PREFERRED" width="53.73134un"/>
+            </widget>
+            <widget name="mContinueButton" type="HbPushButton">
+                <real name="z" value="10"/>
+                <real name="opacity" value="0.5"/>
+                <sizehint height="expr(var(hb-param-margin-gene-top)+var(hb-param-margin-gene-bottom)+var(hb-param-graphic-size-function))" type="PREFERRED" width="expr(var(hb-param-margin-gene-top)+var(hb-param-margin-gene-bottom)+var(hb-param-graphic-size-function))"/>
+                <string name="text" value=""/>
+                <bool name="visible" value="FALSE"/>
+                <string name="state" value="normal"/>
+            </widget>
+            <real name="z" value="12"/>
+            <layout type="anchor">
+                <anchoritem dst="mscrollArea" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
+                <anchoritem dst="mscrollArea" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
+                <anchoritem dst="mscrollArea" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
+                <anchoritem dst="mscrollArea" dstEdge="BOTTOM" spacing="0un" src="" srcEdge="BOTTOM"/>
+                <anchoritem dst="mContinueButton" dstEdge="CENTERV" spacing="0un" src="" srcEdge="CENTERV"/>
+                <anchoritem dst="mContinueButton" dstEdge="CENTERH" spacing="0un" src="" srcEdge="CENTERH"/>
+            </layout>
+        </widget>
+        <string name="title" value="Photos"/>
+        <bool name="contentFullScreen" value="TRUE"/>
+        <real name="z" value="10"/>
+    </widget>
+    <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">
+        <uistate name="Common ui state" sections="#common"/>
+    </metadata>
+</hbdocument>

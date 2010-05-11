@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbdocument version="0.9">
+    <widget name="glxgridview" type="HbView">
+        <widget name="content" role="HbView:widget" type="HbWidget">
+            <widget name="hbgridview" type="HbGridView">
+                <real name="z" value="1"/>
+                <sizehint height="88.65672un" type="PREFERRED" width="53.28358un"/>
+            </widget>
+            <layout type="anchor">
+                <anchoritem dst="hbgridview" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
+                <anchoritem dst="hbgridview" dstEdge="TOP" spacing="9un" src="" srcEdge="TOP"/>
+                <anchoritem dst="hbgridview" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
+                <anchoritem dst="hbgridview" dstEdge="BOTTOM" spacing="-9un" src="" srcEdge="BOTTOM"/>
+            </layout>
+        </widget>
+        <string name="title" value="Photos"/>
+        <bool name="contentFullScreen" value="TRUE"/>
+    </widget>
+    <section name="portrait">
+        <widget name="glxgridview" type="HbView">
+            <real name="z" value="0"/>
+            <string name="HbVkbHost" value=""/>
+        </widget>
+        <widget name="hbgridview" type="HbGridView">
+            <bool name="itemRecycling" value="TRUE"/>
+            <bool name="textVisible" value="FALSE"/>
+            <enums name="verticalScrollBarPolicy" value="ScrollBarAutoHide"/>
+            <enums name="scrollDirections" value="Vertical"/>
+            <bool name="uniformItemSizes" value="TRUE"/>
+            <enums name="horizontalScrollBarPolicy" value="ScrollBarAutoHide"/>
+            <real name="z" value="5"/>
+            <sizehint height="77.52239un" type="PREFERRED" width="53.28358un"/>
+            <integer name="columnCount" value="3"/>
+            <bool name="frictionEnabled" value="TRUE"/>
+            <integer name="rowCount" value="5"/>
+        </widget>
+        <widget name="content" role="HbView:widget" type="HbWidget">
+            <layout type="anchor">
+                <anchoritem dst="hbgridview" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
+                <anchoritem dst="hbgridview" dstEdge="TOP" spacing="9un" src="" srcEdge="TOP"/>
+                <anchoritem dst="hbgridview" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
+                <anchoritem dst="hbgridview" dstEdge="BOTTOM" spacing="-9un" src="" srcEdge="BOTTOM"/>
+            </layout>
+        </widget>
+    </section>
+    <section name="landscape">
+        <widget name="hbgridview" type="HbGridView">
+            <bool name="itemRecycling" value="TRUE"/>
+            <bool name="textVisible" value="FALSE"/>
+            <enums name="verticalScrollBarPolicy" value="ScrollBarAutoHide"/>
+            <bool name="uniformItemSizes" value="TRUE"/>
+            <enums name="horizontalScrollBarPolicy" value="ScrollBarAutoHide"/>
+            <enums name="scrollDirections" value="Horizontal"/>
+            <integer name="columnCount" value="5"/>
+            <sizehint height="33.1343un" type="PREFERRED" width="95.52239un"/>
+            <bool name="frictionEnabled" value="TRUE"/>
+            <integer name="rowCount" value="2"/>
+        </widget>
+        <widget name="content" role="HbView:widget" type="HbWidget">
+            <layout type="anchor">
+                <anchoritem dst="hbgridview" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
+                <anchoritem dst="hbgridview" dstEdge="TOP" spacing="10.4478un" src="" srcEdge="TOP"/>
+                <anchoritem dst="hbgridview" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
+                <anchoritem dst="hbgridview" dstEdge="BOTTOM" spacing="-9.7015un" src="" srcEdge="BOTTOM"/>
+            </layout>
+        </widget>
+    </section>
+    <metadata activeUIState="portrait" display="NHD portrait" unit="un">
+        <uistate name="Common ui state" sections="#common"/>
+        <uistate name="landscape" sections="#common landscape"/>
+        <uistate name="portrait" sections="#common portrait"/>
+    </metadata>
+</hbdocument>
