@@ -275,6 +275,17 @@ void CShwSlideshowEngineImpl::VolumeDownL()
 		}
 	}
 
+// -----------------------------------------------------------------------------
+// GetMusicVolumeL
+// -----------------------------------------------------------------------------
+void CShwSlideshowEngineImpl::GetMusicVolumeL()
+    {
+    TRACER("CShwSlideshowEngineImpl::GetMusicVolumeL");
+    if(iFactory)
+        {
+        iFactory->GetMusicVolumeL();
+        }
+    }
 
 // -----------------------------------------------------------------------------
 // ResumeL.

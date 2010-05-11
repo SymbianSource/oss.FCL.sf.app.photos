@@ -31,6 +31,8 @@
 #include <alf/alfwidgetenvextension.h>
 #include <glxuiutility.h>
 #include <glxresourceutilities.h>  // for CGlxResourceUtilities
+#include <glxcollectionplugintags.hrh>
+#include <glxfiltergeneraldefs.h>
 
 #include <mpxcollectionutility.h>
 #include <mpxcollectionpath.h>
@@ -171,18 +173,29 @@ TBool CGlxCloudViewImp::HandleViewCommandL(TInt aCommand)
 		case EAknCmdOpen:
 		case EKeyEnter:
 			{
-			// Processing of this Command depends on Medialist Count ( > 0 tags Available) 
-			if(iMediaList->Count())
-			    {
-			// There can be no selection in cloud view, so assume that path contains focused item
-		        iUiUtility->SetViewNavigationDirection(EGlxNavigationForwards);
-			CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathFocusOrSelection );
-			iCollectionUtility->Collection().OpenL (*path);
-			CleanupStack::PopAndDestroy (path);
-			consumed= ETrue;
-			    }
-			break;
-			}
+            // Processing of this Command depends on Medialist Count ( > 0 tags Available) 
+            if (iMediaList->Count())
+                {
+                // There can be no selection in cloud view, so assume that path contains focused item
+                iUiUtility->SetViewNavigationDirection(EGlxNavigationForwards);
+                CMPXCollectionPath* path = iMediaList->PathLC(
+                        NGlxListDefs::EPathFocusOrSelection);
+                // When a collection is opened for browsing, 
+                // there are two queries executed with similar filter. 
+                // First query to open the collection from list / cloud view.
+                // Second one from grid view construction. To improve the grid opening
+                // performance, the first query will be completed with empty Id list.
+                RArray<TMPXAttribute> attributeArray;
+                CleanupClosePushL(attributeArray);
+                attributeArray.AppendL(KGlxFilterGeneralNavigationalStateOnly);
+                iCollectionUtility->Collection().OpenL(*path,
+                        attributeArray.Array());
+                CleanupStack::PopAndDestroy(&attributeArray);
+                CleanupStack::PopAndDestroy(path);
+                consumed = ETrue;
+                }
+            break;
+            }
 		}
 		
 	return consumed;

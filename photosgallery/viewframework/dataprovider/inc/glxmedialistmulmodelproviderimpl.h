@@ -23,6 +23,7 @@
 #define _GLXMEDIALISTMULMODELPROVIDERIMPL_H_
 
 #include <e32base.h>                       // Container Base Class
+#include <glxmediaid.h>
 #include "glxmulmodelproviderbase.h"       // DataProvider Base
 #include "mglxbindingobserver.h"           // Notifies that binding has changed
  
@@ -130,7 +131,7 @@ private:
     CGlxResolutionUtility* iResolutionUtility;
     Alf::IMulWidget& iWidget;
     CGlxUiUtility* iUiUtility;
-
+    TGlxMediaId iMediaIDForTextureDeletion;
     };
     
 #endif // _GLXMEDIALISTMULMODELPROVIDERIMPL_H_

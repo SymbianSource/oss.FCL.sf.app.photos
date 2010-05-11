@@ -50,7 +50,7 @@ RESOURCE TBUF { buf="GLFV"; }
 RESOURCE AVKON_VIEW r_glx_fullscreen_view
 	{
 	menubar = r_glx_fullscreen_menubar;
-	cba = r_glx_fullscreen_softkeys;
+	cba = r_glx_fullscreen_emptysoftkeys;
 	toolbar = r_glx_fullscreen_view_toolbar;
 	}
 
@@ -307,6 +307,30 @@ RESOURCE MENU_PANE r_glx_fullscreen_shw_menu
 // ------------------------------------------------------------------------------------
 // Softkey Resources
 // ------------------------------------------------------------------------------------
+
+// Fullscreen Empty softkeys
+RESOURCE CBA r_glx_fullscreen_emptysoftkeys
+    {
+    flags = EEikCbaFlagTransparent;
+    buttons =
+        {
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyEmpty;
+            txt = " ";
+            },
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyEmpty;
+            txt = " ";
+            },
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyEmpty;
+            txt = " ";
+            }
+        };
+    }
 
 // Fullscreen softkeys
 RESOURCE CBA r_glx_fullscreen_softkeys

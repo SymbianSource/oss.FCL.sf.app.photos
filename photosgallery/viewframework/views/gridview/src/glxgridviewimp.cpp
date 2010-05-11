@@ -32,7 +32,7 @@
 #include <mglxmedialist.h>                              // CGlxMedialist
 #include <glxsetappstate.h>
 #include <glxtracer.h>                                  // For Tracer
-
+#include <glxlog.h>
 
 // User Includes
 #include "glxgridviewimp.h"                         
@@ -45,6 +45,10 @@
 #include "glxgfxtranseffect.h"  // For transition effects
 
 const TInt KGlxToolbarButtonUnLatched = 0;              // Toolbar mark button's unlatched state defined in the rss file
+
+//Video playback view uid
+#define KMPXVIDEOPLAYBACKVIEWUID 0x200159B4
+const TUid KVideoPlayBackUid = TUid::Uid(KMPXVIDEOPLAYBACKVIEWUID);
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -111,13 +115,6 @@ void CGlxGridViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
 	ViewBaseConstructL();
 	MLViewBaseConstructL(aMediaListFactory, aTitle);   
 
-	//create the tool bar dynamically
-	//to reduce the startup time of the application.
-	iToolbar = CAknToolbar::NewL(R_GLX_GRID_VIEW_TOOLBAR);
-	SetGridToolBar(iToolbar);
-	SetToolbarObserver(this);
-	iToolbar->SetToolbarVisibility(ETrue);
-    
 	// Get object that stores the active media list registry
 	iActiveMediaListRegistry = CGlxActiveMediaListRegistry::InstanceL();
 	}
@@ -128,20 +125,29 @@ void CGlxGridViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
 // ---------------------------------------------------------------------------
 //
 void CGlxGridViewImp::DoMLViewActivateL(
-		const TVwsViewId& /* aPrevViewId */, 
+		const TVwsViewId& aPrevViewId, 
 		TUid /* aCustomMessageId */,
-		const TDesC8& /*aCustomMessage*/)
+		const TDesC8& aCustomMessage)
 	{
 	TRACER("CGlxGridViewImp::DoMLViewActivateL()");
 
     TUint transitionID = (iUiUtility->ViewNavigationDirection()==
           EGlxNavigationForwards)?KActivateTransitionId:KFSDeActivateTransitionId; 
     
-	GfxTransEffect::BeginFullScreen( transitionID, TRect(),
-                                AknTransEffect::EParameterType, 
-                                AknTransEffect::GfxTransParam( KPhotosUid,
-                                AknTransEffect::TParameter::EEnableEffects) );	
-	GfxTransEffect::EndFullScreen();
+    HBufC8* activationParam = HBufC8::NewLC(KMaxUidName);
+    activationParam->Des().AppendNum(KGlxActivationCmdShowAll);    
+
+    //Do not animate the view if launched from camera application.
+    if (aCustomMessage.Compare(activationParam->Des()) != 0) 
+        {    
+        GfxTransEffect::BeginFullScreen( transitionID, TRect(),
+                                    AknTransEffect::EParameterType, 
+                                    AknTransEffect::GfxTransParam( KPhotosUid,
+                                    AknTransEffect::TParameter::EEnableEffects) );	
+        GfxTransEffect::EndFullScreen();
+        }
+	
+	CleanupStack::PopAndDestroy(activationParam);
 	
 	if(StatusPane())
 		{
@@ -173,11 +179,20 @@ void CGlxGridViewImp::DoMLViewActivateL(
         iToolbar = CAknToolbar::NewL(R_GLX_GRID_VIEW_TOOLBAR);
         SetGridToolBar(iToolbar);
         SetToolbarObserver(this);
-        iToolbar->SetToolbarVisibility(ETrue);
+        TBool visibility = iUiUtility->ViewNavigationDirection()
+                == EGlxNavigationBackwards ? ETrue : EFalse;
+        if (aPrevViewId.iViewUid == KVideoPlayBackUid)
+            {
+            GLX_DEBUG1( "CGlxGridViewImp::DoMLViewActivateL() "
+                    "- Coming from video playback!");        
+            visibility = ETrue;
+            }
+        iToolbar->SetToolbarVisibility(visibility);
         }
 	//Create HG Grid, medialist observer, FS thumbnailcontext
 	iGlxGridViewContainer = CGlxGridViewContainer::NewL(iMediaList,iUiUtility,*this,iToolbar);
 	iEikonEnv->AppUi()->AddToStackL(*this,iGlxGridViewContainer);
+	iUiUtility->DestroyScreenClearer();
 	}
 
 // ---------------------------------------------------------------------------

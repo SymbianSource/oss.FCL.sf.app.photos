@@ -76,13 +76,10 @@ CGlxProgressIndicator::~CGlxProgressIndicator()
         {
         iProgressbarTicker->Cancel();
         delete iProgressbarTicker;
-        }
-    if(iProgressDialog)
-        {
-        iProgressDialog->ProcessFinishedL();
+        iProgressbarTicker = NULL;
         }
 
-	// Stop force generation of thumbnails when progress dialog is dismissed
+    // Stop force generation of thumbnails when progress dialog is dismissed
     if (iUiUtility)
         {
         iUiUtility->StopTNMDaemon();
@@ -99,14 +96,13 @@ void CGlxProgressIndicator::ConstructL()
     TRACER("CGlxProgressIndicator::ConstructL()");
     iUiUtility->StartTNMDaemon();
 
-    if(!iProgressbarTicker)
+    if (!iProgressbarTicker)
         {
         iProgressbarTicker = CPeriodic::NewL(CActive::EPriorityStandard);
         }
 
     iFinalCount = iUiUtility->GetItemsLeftCount();
     GLX_LOG_INFO1("final count in viewactivate = %d",iFinalCount);
-
     }
 
 
@@ -117,7 +113,7 @@ void CGlxProgressIndicator::ConstructL()
 TInt CGlxProgressIndicator::PeriodicCallbackL(TAny* aPtr )
     {
     TRACER("CGlxProgressIndicator::PeriodicCallbackL");
-    static_cast< CGlxProgressIndicator* >( aPtr )->DisplayProgressBarL();
+    static_cast<CGlxProgressIndicator*> (aPtr)->DisplayProgressBarL();
     return KErrNone;
     }
 
@@ -131,13 +127,13 @@ inline void CGlxProgressIndicator::DisplayProgressBarL()
     TInt itemsLeft = iUiUtility->GetItemsLeftCount();
     GLX_LOG_INFO1("itemsLeft in DisplayProgressBarL = %d",iFinalCount);
     UpdateProgressBar();
-    if(!itemsLeft)
+    if (!itemsLeft)
         {
-        if(iProgressbarTicker->IsActive())
+        if (iProgressbarTicker->IsActive())
             {
             iProgressbarTicker->Cancel();
             }
-        StartProgressNoteL(iFinalCount,EFalse);
+        StartProgressNoteL(iFinalCount, EFalse);
         }
     }
 
@@ -149,39 +145,38 @@ void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue,TBool aShow)
     {
     TRACER("CGlxProgressIndicator::StartProgressNoteL()");
     TInt itemsLeft = iUiUtility->GetItemsLeftCount();
-    if(aShow)
+    if (aShow)
         {
-        if(!iProgressDialog)
+        if (!iProgressDialog)
             {
             iProgressDialog = new (ELeave) CAknProgressDialog(
                     (reinterpret_cast<CEikDialog**> (&iProgressDialog)),
                     ETrue);
             }
         iProgressDialog->PrepareLC(R_PROGRESS_NOTE);
-        
+
         iProgressInfo = iProgressDialog->GetProgressInfoL();
-        
+
         iProgressDialog->SetCallback(this);
-        
-        HBufC* processingInfo = 
-                    StringLoader::LoadLC(R_GLX_MAIN_LIST_VIEW_PROCESSING_DIALOG);
+
+        HBufC* processingInfo = StringLoader::LoadLC(
+                R_GLX_MAIN_LIST_VIEW_PROCESSING_DIALOG);
         iProgressDialog->SetTextL(*processingInfo);
-        CleanupStack::PopAndDestroy(processingInfo );
+        CleanupStack::PopAndDestroy(processingInfo);
         iProgressInfo->SetFinalValue(aFinalValue);
-        iProgressInfo->SetAndDraw(iFinalCount-itemsLeft);
+        iProgressInfo->SetAndDraw(iFinalCount - itemsLeft);
         iProgressDialog->RunLD();
         }
     else
         {
         iProgressDialog->ProcessFinishedL();
         iGlxGridViewNotifyObserver.HandleDialogDismissedL();
-        if(iProgressDialog)
+        if (iProgressDialog)
             {
             iProgressDialog = NULL;
             iProgressInfo = NULL;
             }
         }
-     
     }
     
 // -----------------------------------------------------------------------------
@@ -189,9 +184,9 @@ void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue,TBool aShow)
 // -----------------------------------------------------------------------------
 //
 void CGlxProgressIndicator::UpdateProgressBar()
-    {   
+    {
     TRACER("CGlxProgressIndicator::UpdateProgressBar()");
-    if(iProgressInfo)
+    if (iProgressInfo)
         {
         /*
          * to show a number string in the progress bar use the below code
@@ -208,20 +203,17 @@ void CGlxProgressIndicator::UpdateProgressBar()
 // DialogDismissedL
 // -----------------------------------------------------------------------------
 //  
-void CGlxProgressIndicator::DialogDismissedL(TInt aButtonId)
+void CGlxProgressIndicator::DialogDismissedL(TInt /*aButtonId*/)
     {
     TRACER("CGlxProgressIndicator::DialogDismissedL()");
-    if(iProgressbarTicker)
+    if (iProgressbarTicker)
         {
         iProgressbarTicker->Cancel();
+        delete iProgressbarTicker;
         iProgressbarTicker = NULL;
         }
-
-    if(iProgressDialog)
-        {
-        iProgressDialog = NULL;
-        iProgressInfo = NULL;
-        }
+    iProgressDialog = NULL;
+    iProgressInfo = NULL;
     }
 
 // -----------------------------------------------------------------------------
@@ -283,3 +275,18 @@ void EXPORT_C CGlxProgressIndicator::ShowProgressbarL()
         iUiUtility->StopTNMDaemon();
         }
     }
+
+// -----------------------------------------------------------------------------
+// DismissProgressDialog
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxProgressIndicator::DismissProgressDialog()
+    {
+    TRACER("CGlxProgressIndicator::DismissProgressDialog");
+    
+    if(iProgressDialog)
+        {
+        TRAP_IGNORE(iProgressDialog->ProcessFinishedL());
+        }
+    }
+

@@ -80,7 +80,7 @@ public:
     IMPORT_C TBool IsHDMIConnected();
 
 private:// From MGlxTvObserver
-    virtual void HandleTvStatusChangedL ( TTvChangeType aChangeType );
+    void HandleTvStatusChangedL ( TTvChangeType aChangeType );
 
 private:
     /*
@@ -127,7 +127,8 @@ private:
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;
-    TBool iIsImageSupported;
+    TBool   iIsImageSupported;          // Flag to see if Image is supported
+    TBool   iPhotosForeground;             // Flag for determining if the image needs to be in posting mode
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

@@ -55,8 +55,11 @@ const TInt KYearBufferSize = 8;
 const TInt KDateBufferPaddingMin = 10;
 const TInt KDateBufferPaddingMax = 20;
 const TInt KDateFormat1 = 1;
+
+#ifdef SHOW_MONTHS_START_END_SUB_TITLE 
 const TInt KDateFormat2 = 2;
 const TInt KDateFormat3 = 3;
+#endif
 
 _LIT(KResourceFile, "z:glxpluginmonths.rsc");
 
@@ -120,8 +123,10 @@ void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
 		// need to add the usage count. but check first if it is already present
 		TInt attrCount = aAttributeArray.Count();
 		TBool found = EFalse;
+#if defined(GLX_SUB_TITLE_REL8) || defined(SHOW_MONTHS_START_END_SUB_TITLE)		
 		TBool startfound = EFalse;
 		TBool endfound = EFalse;
+#endif
 		
 #ifdef GLX_SUB_TITLE_REL8		
 
@@ -177,6 +182,7 @@ void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
 	            {
 	            found = ETrue;
 	            }
+#ifdef SHOW_MONTHS_START_END_SUB_TITLE			
 	        else if ( aAttributeArray[index] == KGlxMediaCollectionInternalStartDate )
 	            {
 	            startfound = ETrue;
@@ -185,12 +191,14 @@ void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
 	        	{
 	        	endfound = ETrue;
 	        	}
+#endif // #ifdef SHOW_MONTHS_START_END_SUB_TITLE				
 	        }
 	        
 	    if (!found)
 	        {
 	        aAttributeArray.Append(KGlxMediaCollectionInternalUsageCount);
 	        }
+#ifdef SHOW_MONTHS_START_END_SUB_TITLE				
 	    if (!startfound)
 	        {
 	        aAttributeArray.Append(KGlxMediaCollectionInternalStartDate);
@@ -199,7 +207,8 @@ void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
 	    	{
 	    	aAttributeArray.Append(KGlxMediaCollectionInternalEndDate);
 	        }
-#endif	        
+#endif // #ifdef SHOW_MONTHS_START_END_SUB_TITLE
+#endif // #ifdef GLX_SUB_TITLE_REL8
 	    // end date will be returned when start date is requested.			
 		}
 	}
@@ -284,11 +293,10 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 	    if (attr == KGlxMediaCollectionPluginSpecificSubTitle)
 			{
 			GLX_LOG_INFO("Attribute : SubTitle");
-			
+#if defined(GLX_SUB_TITLE_REL8) || defined(SHOW_MONTHS_START_END_SUB_TITLE)				
 			if (TGlxMediaId(KGlxCollectionRootId) == aMediaId)
 				{
 				GLX_LOG_INFO("Attribute : SubTitle-RootId");
-				
 #ifdef GLX_SUB_TITLE_REL8
 					            
 				//The usage Count is required for the subtitle in the main list view	                
@@ -410,8 +418,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 #endif				                 
 				}
 			else
+#endif // #if defined(GLX_SUB_TITLE_REL8) || defined(SHOW_MONTHS_START_END_SUB_TITLE)			    
 				{
-				
 #ifdef GLX_SUB_TITLE_REL8				
 
 				HBufC* tempTitle = NULL;

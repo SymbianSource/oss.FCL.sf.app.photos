@@ -30,6 +30,7 @@
 #include <mpxcollectionpath.h>
 #include <glxcollectionpluginimageviewer.hrh>
 #include <centralrepository.h>              // for checking the ShareOnline version
+#include <glxuiutility.h>
 
 // CONSTANTS AND DEFINITIONS
 namespace
@@ -292,30 +293,37 @@ void CGlxToolbarController::SetStatusL(MGlxMediaList* aList)
 	{
     TRACER("CGlxToolbarController::SetStatusL");
 
-    GLX_LOG_INFO1("CGlxToolbarController::SetStatusL(%d)", aList->Count());
-    if (aList->Count() <= 0)
-        {
-        SetToolbarItemsDimmed(ETrue);
-        }
-    else if (KErrNotFound != aList->FocusIndex())
-        {
-        CGlxNavigationalState* navigationalState =
-                CGlxNavigationalState::InstanceL();
-        CleanupClosePushL(*navigationalState);
-        if (navigationalState->ViewingMode() == NGlxNavigationalState::EView)
-            {
-            SetToolbarItemsDimmed(EFalse);
-            }
-        else if (navigationalState->ViewingMode()
-                == NGlxNavigationalState::EBrowse)
-            {
-            TBool dimmed = aList->SelectionCount() ? EFalse : ETrue;
-            iToolbar->SetItemDimmed(EGlxCmdSend, dimmed, ETrue);
-            iToolbar->SetItemDimmed(EGlxCmdUpload, dimmed, ETrue);
-            }
-        CleanupStack::PopAndDestroy(navigationalState);
-        }
-    }
+	GLX_LOG_INFO1("CGlxToolbarController::SetStatusL(%d)", aList->Count());
+    // When going back from fullscreen to grid, when the attributes are already 
+    // available in the cache, there is no HandleAttributeAvailable callback. Hence,
+    // checking for medialist count and backward navigation
+	CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
+	CleanupClosePushL(*uiUtility);
+	if (aList->Count() <= 0 && (uiUtility->ViewNavigationDirection()
+			== EGlxNavigationBackwards))
+		{
+		SetToolbarItemsDimmed(ETrue);
+		}
+	else if (KErrNotFound != aList->FocusIndex())
+		{
+		CGlxNavigationalState* navigationalState =
+				CGlxNavigationalState::InstanceL();
+		CleanupClosePushL(*navigationalState);
+		if (navigationalState->ViewingMode() == NGlxNavigationalState::EView)
+			{
+			SetToolbarItemsDimmed(EFalse);
+			}
+		else if (navigationalState->ViewingMode()
+				== NGlxNavigationalState::EBrowse)
+			{
+			TBool dimmed = aList->SelectionCount() ? EFalse : ETrue;
+			iToolbar->SetItemDimmed(EGlxCmdSend, dimmed, ETrue);
+			iToolbar->SetItemDimmed(EGlxCmdUpload, dimmed, ETrue);
+			}
+		CleanupStack::PopAndDestroy(navigationalState);
+		}
+	CleanupStack::PopAndDestroy(uiUtility);
+	}
 
 //----------------------------------------------------------------------------
 // EnableLatch
@@ -350,6 +358,12 @@ void CGlxToolbarController::HandlePopulatedL( MGlxMediaList* aList )
         {
         SetToolbarItemsDimmed(ETrue);
         }
+    if (!iToolbar->IsVisible())
+        {
+        GLX_DEBUG1("CGlxToolbarController::HandlePopulatedL()"
+                " - SetToolbarVisibility(ETrue)");       
+        iToolbar->SetToolbarVisibility(ETrue);
+        } 
     }
 
 // ----------------------------------------------------------------------------

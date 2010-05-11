@@ -314,7 +314,10 @@ void CGlxCache::CopyNewAndModifiedL(CGlxMedia& aTarget, const CMPXMedia& aSource
                         }
                     else if (attrib == KGlxMediaGeneralLastModifiedDate)
                         {
-                        aTarget.SetTObjectValueL(attrib, aSource.ValueTObjectL<TInt64>(attrib));
+                        TTime modified = aSource.ValueTObjectL<TInt64>(attrib);
+                        TTimeIntervalSeconds utcOffset = User::UTCOffset();
+                        modified += utcOffset;
+                        aTarget.SetTObjectValueL(attrib, modified);
                         }
                     else if (attrib == KMPXMediaGeneralSize)
                         {

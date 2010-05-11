@@ -91,7 +91,7 @@ TBool CGlxCommandHandlerSave::ExecuteL(TInt aCommandId)
                 TDataType nullType;
                 CDocumentHandler* handler = CDocumentHandler::NewLC(NULL);
                 __ASSERT_ALWAYS(handler, Panic(EGlxPanicNullPointer));
-                TRAPD(err, handler->CopyL(imageHandle, KNullDesC, nullType, NULL));
+                TInt err = handler->CopyL(imageHandle, KNullDesC, nullType, NULL);
                 CleanupStack::PopAndDestroy(handler);
                 if (err == KErrNone)
                     {

@@ -44,8 +44,8 @@ public: // Constructors and destructor
     /**
      * Singleton constructor.
      */
-    static CGlxImageViewerManager* InstanceL();
-    
+    IMPORT_C static CGlxImageViewerManager* InstanceL();
+
 public:
     IMPORT_C HBufC* ImageUri();
     IMPORT_C RFile64& ImageFileHandle();

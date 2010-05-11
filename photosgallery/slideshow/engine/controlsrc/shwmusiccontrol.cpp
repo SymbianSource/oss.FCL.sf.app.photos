@@ -238,6 +238,18 @@ void CShwMusicControl::HandleMediaL(
     }
 
 // ---------------------------------------------------------------------------
+// GetMusicVolumeL
+// ---------------------------------------------------------------------------
+void CShwMusicControl::GetMusicVolumeL()
+    {
+    TRACER("CShwMusicControl::GetMusicVolumeL");
+    if ( iCanPlay )
+        {
+        VolumeL();
+        }
+    }
+	
+// ---------------------------------------------------------------------------
 // From class MMPXPlaybackObserver 
 // Handle playback message - required for debugging state of MPX 
 // Player component

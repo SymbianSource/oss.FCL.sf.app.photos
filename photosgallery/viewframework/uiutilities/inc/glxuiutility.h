@@ -47,6 +47,8 @@ class CAlfControl;
 class CGlxTv;
 class CGlxResolutionManager;
 class CGlxScreenFurniture;
+class CAknLocalScreenClearer;
+
 //class CHgContextUtility;
 /**
  * Enumeration for different types of navigations that occur from one view to the next
@@ -102,7 +104,7 @@ public:
      * Get a pointer to the Alf environment.
      * @return The ALF environment owned by the AlfUtility.
      */
-    IMPORT_C CAlfEnv* Env() const;
+    IMPORT_C CAlfEnv* Env();
     
     /**
      * Get a pointer to the Alf display.
@@ -232,6 +234,16 @@ public:
      * @param aToolbar Current Toolbar
      */
     IMPORT_C void SetGridToolBar(CAknToolbar* aToolbar);
+   
+    /**
+     * Display Blank screen
+     */
+    IMPORT_C void CGlxUiUtility::DisplayScreenClearerL();
+
+    /**
+     * Destroy Blank screen
+     */
+    IMPORT_C void CGlxUiUtility::DestroyScreenClearer();
     
 public: // from class MGlxTvObserver
 
@@ -262,7 +274,12 @@ public:
 	 */
     IMPORT_C void RemoveSkinChangeObserver(MGlxSkinChangeObserver& aObserver);   
     
-
+public:
+    // Callback for periodic timer, static, 
+    static TInt PeriodicCallback( TAny* aPtr );
+	
+    // Non-static func called from periodic timer
+    void CreateAlfEnvCallbackL();
 private: 
     /**
      * C++ default constructor.
@@ -296,6 +313,12 @@ private:
      * different thumbnail icons in Thumbnail database.
      */
      void GridIconSizeL();
+    
+     /**
+      * Create Alf environment
+      */
+     void CreateAlfEnvL();
+     
     // internal class to contain details of a style
 private:
     class TGlxTextStyle
@@ -357,6 +380,8 @@ private:
 	
 	//current Toolbar being used
     CAknToolbar* iToolbar;
+    CPeriodic* iPeriodic;
+    CAknLocalScreenClearer* iClearer;
     };
 
 

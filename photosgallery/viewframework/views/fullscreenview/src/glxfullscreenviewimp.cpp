@@ -104,6 +104,7 @@ const TInt KFullScreenTextureOffset = 5;
 const TInt KGlxDecodingThreshold = 3000000; // pixels
 
 _LIT( KTfxResourceActivateFullScreen, "z:\\resource\\effects\\photos_fullscreen_open.fxml" );
+_LIT( KTfxResourceNoEffect, "");
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -169,7 +170,7 @@ void  CGlxFullScreenViewImp::ConstructL(
 	SetToolbarObserver(this);
 	iImgViewerMode = EFalse;
     //Disable the toolbar always while entering fullscreen
-	EnableFSToolbarL(EFalse);
+	EnableFSToolbar(EFalse);
     ShowToolbarOnViewActivation(EFalse);
 	
 	//Get the ScreenFurniture instance
@@ -177,6 +178,7 @@ void  CGlxFullScreenViewImp::ConstructL(
 	
     //Get the env from the uiutilities
 	iEnv = iUiUtility->Env ();
+	
 	iZoomButtonGroup = CEikButtonGroupContainer::NewL(
 	        CEikButtonGroupContainer::ECba,  // type
 	        CEikButtonGroupContainer::EHorizontal,  // orientation
@@ -206,7 +208,10 @@ void  CGlxFullScreenViewImp::ConstructL(
 CGlxFullScreenViewImp::~CGlxFullScreenViewImp()
     {
     TRACER("CGlxFullScreenViewImp::~CGlxFullScreenViewImp");
-    
+    if(iAlfEffectObs)
+        {
+        delete iAlfEffectObs;
+        }
     delete iMMCNotifier;
     iMMCNotifier = NULL;
     
@@ -295,14 +300,10 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
 		const TDesC8 & /* aCustomMessage */)
 	{
     TRACER("CGlxFullScreenViewImp::DoMLViewActivateL");
-	//Disable the softkeys
-    Cba()->MakeVisible( EFalse );
-    Cba()->DrawNow();
-    
+	
     // hide the toolbar
-    EnableFSToolbarL(EFalse);
+    EnableFSToolbar(EFalse);
     
-
     CGlxNavigationalState* navigationalState =  CGlxNavigationalState::InstanceL();
     CleanupClosePushL( *navigationalState );
     CMPXCollectionPath* naviState = navigationalState->StateLC();
@@ -343,7 +344,7 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
     iScreenFurniture->SetActiveView(iViewUid);
     
     //set the ui state to off,when the Fullscreen launches
-    SetUiSate(NGlxNFullScreenUIState::EUiOff);
+    SetUiState(EUiOff);
    
    	GlxSetAppState::SetState(EGlxInFullScreenView);
    	 
@@ -375,8 +376,14 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
     if (CAknTransitionUtils::TransitionsEnabled(
                                     AknTransEffect::EFullScreenTransitionsOff))
         {
+        if(!iAlfEffectObs)
+            {
+            iAlfEffectObs = CAlfEffectObserver::NewL();
+            }
         const_cast<CAlfLayout&> (iCoverFlowWidget->ContainerLayout()).SetEffectL(
                 KTfxResourceActivateFullScreen);
+        iEffectHandle = iCoverFlowWidget->ContainerLayout().Identifier();
+        iAlfEffectObs->SubscribeCallbackL(this,iEffectHandle);
         }
     
 	//Disable the status pane here as it causes flicker while animating
@@ -513,17 +520,20 @@ void  CGlxFullScreenViewImp::ShowUiL(TBool aStartTimer)
     if(!iImgViewerMode)
         {
         //show the toolbar
-        EnableFSToolbarL(ETrue);
+        EnableFSToolbar(ETrue);
         }
      
     // For floating toolbar in non-touch devices
     iScreenFurniture->SetToolbarVisibility(ETrue);
+    
     //show the softkeys
-    Cba()->MakeVisible( ETrue );
-    Cba()->DrawNow();
+    CEikButtonGroupContainer* cba = Cba();
+    cba->SetCommandSetL( R_GLX_FULLSCREEN_SOFTKEYS );
+    cba->MakeVisible( ETrue );
+    cba->DrawNow();
 
     //set the ui state to On
-    SetUiSate(NGlxNFullScreenUIState::EUiOn);
+    SetUiState(EUiOn);
     
     //start the timer,for the screen timeout
     iTimer->Cancel();
@@ -537,7 +547,7 @@ void  CGlxFullScreenViewImp::ShowUiL(TBool aStartTimer)
 // HideUi
 // ---------------------------------------------------------------------------
 //	
-void  CGlxFullScreenViewImp::HideUi(TBool aSliderStatus)
+void  CGlxFullScreenViewImp::HideUi(TBool aHideSlider)
     {
     TRACER("CGlxFullScreenViewImp::HideUi");
     //cancel the timer
@@ -545,11 +555,12 @@ void  CGlxFullScreenViewImp::HideUi(TBool aSliderStatus)
 
     // For floating toolbar in non-touch devices
     iScreenFurniture->SetToolbarVisibility(EFalse);
-    // hide the slider
-    if(aSliderStatus && iSliderWidget)
+    
+    // hide/show the slider
+    if(iSliderWidget) 
         {
-   	    iSliderWidget->ShowWidget(EFalse);
-		}
+        iSliderWidget->ShowWidget(!aHideSlider);        
+        }
 
     if (iCoverFlowWidget)
         {
@@ -572,26 +583,26 @@ void  CGlxFullScreenViewImp::HideUi(TBool aSliderStatus)
     Cba()->DrawNow();
  
     // set the ui state to On
-    SetUiSate(NGlxNFullScreenUIState::EUiOff);
+    SetUiState(EUiOff);
     }
 
 // ---------------------------------------------------------------------------
-// SetUiSate
+// SetUiState
 // ---------------------------------------------------------------------------
 //	
-void CGlxFullScreenViewImp::SetUiSate (NGlxNFullScreenUIState::TUiState  aState)
+void CGlxFullScreenViewImp::SetUiState (TUiState  aState)
     {
-    TRACER("CGlxFullScreenViewImp::SetUiSate");
+    TRACER("CGlxFullScreenViewImp::SetUiState");
     iUiState = aState;
     }
 
 // ---------------------------------------------------------------------------
-// GetUiSate
+// GetUiState
 // ---------------------------------------------------------------------------
 //	
-NGlxNFullScreenUIState::TUiState CGlxFullScreenViewImp::GetUiSate()    
+TUiState CGlxFullScreenViewImp::GetUiState()    
     {
-    TRACER("CGlxFullScreenViewImp::GetUiSate");
+    TRACER("CGlxFullScreenViewImp::GetUiState");
     return iUiState;
     }
 
@@ -607,7 +618,7 @@ TInt CGlxFullScreenViewImp::TimeOut(TAny* aSelf)
         CGlxFullScreenViewImp* self = static_cast <CGlxFullScreenViewImp*> (aSelf);
         if (self)
             {
-            if ( NGlxNFullScreenUIState::EUiOn == self->GetUiSate())
+            if ( EUiOn == self->GetUiState())
                 {
                 // After time out, hide UI only when menu is not being displayed.
                 if( self->MenuBar() && !(self->MenuBar()->IsDisplayed()) )
@@ -635,9 +646,14 @@ void  CGlxFullScreenViewImp::DeactivateFullScreen()
     if(iSliderWidget)
         {
         iSliderWidget->RemoveEventHandler(*this);
-        }
-    //Dont Hide the slider,when activating the Zoom control,so pass EFalse
-    HideUi(EFalse);
+    
+        //show/hide the slider based on the return value of
+        //IsHidden()
+	    if(iZoomControl->Activated())
+	        {
+	        HideUi(iSliderWidget->IsHidden());
+	        }
+		}
     iViewWidget->show(ETrue);
     }
 
@@ -656,7 +672,6 @@ void CGlxFullScreenViewImp::ActivateFullScreenL()
         }
     if(iSliderWidget)
         {
-        iSliderWidget->ShowWidget( EFalse );
         iSliderWidget->AddEventHandler(*this);
         }
     iViewWidget->show(ETrue);
@@ -748,8 +763,24 @@ void CGlxFullScreenViewImp::DeactivateZoomControlL()
         {        
         iZoomControl->Deactivate();
         }
-    //Once into fullscreen view,show the screen furniture
-    HideUi(ETrue);
+    
+    //check if the slider is already visible in zoom view.
+    //if yes then do not disable the slider.
+    TBool sliderInvisible = ETrue;
+    if (EUiOn == iZoomControl->ZoomUiState())
+        {
+        sliderInvisible = EFalse;
+        }
+    
+    HideUi(sliderInvisible);
+    
+    if (!sliderInvisible)
+        {
+        //Set the UI State to On Explicitly since the slider is ON and we have
+        //to disable on timeout. The timer is already cancelled in HideUi().
+        SetUiState(EUiOn);
+        iTimer->Start(KGlxScreenTimeout,KGlxScreenTimeout,TCallBack( TimeOut,this ));
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -765,7 +796,14 @@ void CGlxFullScreenViewImp::DoMLViewDeactivate()
     if(!iImgViewerMode)
         {    
         // hide the toolbar
-        TRAP_IGNORE(EnableFSToolbarL(EFalse));
+        EnableFSToolbar(EFalse);
+        
+        //Setting Soft key to EmptySoftKeys would cause crash
+		//When Fullscreen is opened from ImageViewer. 
+        //So Set Soft Keys to empty only when not in Image Viewer mode.
+		CEikButtonGroupContainer* cba = Cba();
+		TRAP_IGNORE( cba->SetCommandSetL( R_GLX_FULLSCREEN_EMPTYSOFTKEYS ) );
+		cba->DrawNow();
         }
     
     HideUi(ETrue); 
@@ -899,10 +937,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 {
                 if(EEventKeyDown == aEvent.Code())
                     {
-                    //Dont start the timer while activating the zoom control,
-                    //when the timer activates while launching the zoom 
-                    //it causes the crash.
-                    ShowUiL(EFalse);
+                    HideUi(EFalse);
                     TRAP_IGNORE( ActivateZoomControlL(EZoomStartKey));
                     return EEventConsumed;
                     }
@@ -915,7 +950,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 //EKeyApplicationD for which TStdScancode is EStdKeyApplicatoinD 
             case EStdKeyApplicationD: 
                 {
-                if ( NGlxNFullScreenUIState::EUiOff == GetUiSate()&& (
+                if ( EUiOff == GetUiState()&& (
                         aEvent.Code() == EEventKey ) )
                     {
                     //the Ui timer should be started once the UI screen furniture is shown
@@ -926,7 +961,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
             case EStdKeyLeftArrow:
             case EStdKeyRightArrow:
                 {
-                if ( NGlxNFullScreenUIState::EUiOn == GetUiSate() )                    
+                if ( EUiOn == GetUiState() )                    
                     {
                     HideUi(ETrue);
                     }
@@ -973,7 +1008,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 TBool pensupport = iUiUtility->IsPenSupported();
                 if ( pensupport )
                     {
-                    if ( NGlxNFullScreenUIState::EUiOn == GetUiSate() )                    
+                    if ( EUiOn == GetUiState() )                    
                         {
                         //Hide the slider 
                         HideUi(ETrue);
@@ -986,7 +1021,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                     }
                 else
                     {
-                    if ( NGlxNFullScreenUIState::EUiOff == GetUiSate() )                    
+                    if ( EUiOff == GetUiState() )                    
                         {
                         //the Ui timer should be started once the UI screen furniture is shown
                         ShowUiL(ETrue);
@@ -1027,6 +1062,18 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
             case ETypeItemRemoved:
                 {
                 SetItemToHDMIL();
+                TInt focusIndex = iMediaList->FocusIndex();
+                if (focusIndex != KErrNotFound
+                        && EUiOn == GetUiState()
+                        && iMediaList->Item(focusIndex).Category()
+                                == EMPXVideo)
+                    {
+                    // hide the slider
+                    if (iSliderWidget)
+                        {
+                        iSliderWidget->ShowWidget(EFalse);
+                        }
+                    }
                 return EEventConsumed;
                 }
             case ETypeHighlight:
@@ -1041,7 +1088,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                     RemoveTexture();
                     }
                 SetItemToHDMIL();
-                if ( NGlxNFullScreenUIState::EUiOn == GetUiSate() )
+                if ( EUiOn == GetUiState() )
                     {
                     HideUi(ETrue);
                     }
@@ -1057,7 +1104,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                     } 
                 else
                     { 
-                    if ( NGlxNFullScreenUIState::EUiOn == GetUiSate() )                    
+                    if ( EUiOn == GetUiState() )                    
                         {
                         HideUi(ETrue);
                         }
@@ -1637,7 +1684,7 @@ void CGlxFullScreenViewImp::NavigateToMainListL()
     }
 	
 // ---------------------------------------------------------------------------
-// HandleMMCInsertionL
+// HandleMMCRemovalL
 // 
 // ---------------------------------------------------------------------------
 void CGlxFullScreenViewImp::HandleMMCRemovalL()
@@ -1656,18 +1703,33 @@ void CGlxFullScreenViewImp::HandleMMCRemovalL()
     }
 	
 // ---------------------------------------------------------------------------
-// EnableFSToolbarL
-// 
+// EnableFSToolbar
 // ---------------------------------------------------------------------------
 //
-void CGlxFullScreenViewImp::EnableFSToolbarL(TBool aEnable)
+void CGlxFullScreenViewImp::EnableFSToolbar(TBool aEnable)
     {
-	TRACER("CGlxFullScreenViewImp::EnableFSToolbarL()");
+	TRACER("CGlxFullScreenViewImp::EnableFSToolbar()");
     CAknToolbar* toolbar = Toolbar();
     if(toolbar)
         {
-        toolbar->DisableToolbarL(!aEnable);
+        TRAP_IGNORE(toolbar->DisableToolbarL(!aEnable));
         toolbar->SetToolbarVisibility(aEnable); 
         }
     }
 	
+// ---------------------------------------------------------------------------
+// HandleEffectCallback
+// 
+// ---------------------------------------------------------------------------
+//
+void CGlxFullScreenViewImp::HandleEffectCallback(TInt aType, TInt aHandle, 
+                                                 TInt /*aStatus*/)
+    {
+    TRACER("CGlxFullScreenViewImp::HandleEffectCallback()");
+    if (aHandle == iEffectHandle && aType == EAlfEffectComplete)
+        {
+        TRAP_IGNORE(const_cast<CAlfLayout&>
+                (iCoverFlowWidget->ContainerLayout()).SetEffectL(
+                                                     KTfxResourceNoEffect));
+        }
+    }

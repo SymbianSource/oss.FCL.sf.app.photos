@@ -298,6 +298,15 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
             iZoomSliderWidget.AddEventHandler(*this);
             iZoomSliderWidget.SetHandleKeyEvent(EFalse);
             iZoomSliderModel = (IMulSliderModel*) iZoomSliderWidget.model();
+            
+            if(iZoomSliderWidget.IsHidden())
+                {
+                iEventHandler->SetZoomUiState(EUiOff);
+                }
+            else
+                {
+                iEventHandler->SetZoomUiState(EUiOn);
+                }
             // Get size, return value tells us if it was available
             //We need this Value to calculate the size of the visual/Layout corresponding to the Zoom factor
             TSize imageSize;
@@ -442,7 +451,6 @@ EXPORT_C void CGlxZoomControl::Deactivate()
            {
            iTimer->Cancel();           
            }  
-        iZoomSliderWidget.ShowWidget( EFalse, 0 );
         iZoomSliderWidget.RemoveEventHandler(*this);
         iZoomBackKey->MakeVisible( EFalse );
         iTextureMgr->RemoveZoomList();
@@ -619,7 +627,7 @@ void CGlxZoomControl::VisualLayoutUpdated(CAlfVisual& aVisual)
     
     TRect rect;
     rect = AlfUtil::ScreenSize();
-    if ( (rect.Width() != iScreenSize.iWidth) && ( rect.Height() != iScreenSize.iHeight) && (Activated()) )
+    if ( (rect.Width() != iScreenSize.iWidth) && ( rect.Height() != iScreenSize.iHeight))
         {
         //notify slider about Orientation Change
         iZoomSliderWidget.ContainerLayout().Owner().VisualLayoutUpdated(aVisual);
@@ -631,8 +639,10 @@ void CGlxZoomControl::VisualLayoutUpdated(CAlfVisual& aVisual)
         //[TODO]: Use the Maths engine ro arrive at this figure (virtual and viewport sizes). else there might be problems in fringe conditions
         iViewPort->SetVirtualSize(TAlfRealSize(iScreenSize.iWidth,iScreenSize.iHeight), 0);
         iViewPort->SetViewportSize(TAlfRealSize(iScreenSize.iWidth,iScreenSize.iHeight), 0);
-
-        iEventHandler->OrientationChanged(rect);
+		if(Activated())
+        	{
+	        iEventHandler->OrientationChanged(rect);
+      		}
         }
     }
 
@@ -962,5 +972,13 @@ void CGlxZoomControl::HandleTvStatusChangedL( TTvChangeType aChangeType )
         }
     }
 
-
+// ---------------------------------------------------------------------------
+// ZoomUiState
+// ---------------------------------------------------------------------------
+//  
+EXPORT_C TUiState CGlxZoomControl::ZoomUiState()    
+    {
+    TRACER("CGlxFullScreenViewImp::GetUiState");
+    return iEventHandler->ZoomUiState();
+    }
 //  End of File

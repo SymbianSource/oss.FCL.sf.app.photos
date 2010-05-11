@@ -96,17 +96,18 @@ EXPORT_C void CGlxUStringConverter::AsStringL(const TGlxMedia& aMedia, const TMP
                 }
            break;
 
-
     		case EMPXTypeTObject:
     			{
-    			if( aAttribute == KMPXMediaGeneralDate )
+                if (aAttribute == KMPXMediaGeneralDate || aAttribute
+                        == KGlxMediaGeneralLastModifiedDate)
     				{
+                    TMPXAttribute mpxAttrib = aAttribute;
     				TTime date(0);
     				if( aFormatString == R_QTN_DATE_USUAL_WITH_ZERO )
                         {
                         HBufC* dateString = HBufC::NewLC(KMaxLongDateFormatSpec);
                         TPtr dateStringPtr (dateString->Des());
-                        media->GetValueTObject(date,KMPXMediaGeneralDate);
+                        media->GetValueTObject(date, mpxAttrib);
                         HBufC* dateFormat = CCoeEnv::Static()->AllocReadResourceLC
                             ( R_QTN_DATE_USUAL_WITH_ZERO );
                         date.FormatL( dateStringPtr , *dateFormat );
@@ -115,7 +116,7 @@ EXPORT_C void CGlxUStringConverter::AsStringL(const TGlxMedia& aMedia, const TMP
                         
                         HBufC* timeString = HBufC::NewLC(KMaxTimeFormatSpec);
                         TPtr timeStringPtr (timeString->Des());
-                        media->GetValueTObject(date,KMPXMediaGeneralDate);
+                        media->GetValueTObject(date, mpxAttrib);
                         HBufC* timeFormat = CCoeEnv::Static()->AllocReadResourceLC
                              ( R_QTN_TIME_USUAL_WITH_ZERO );
                         date.FormatL(  timeStringPtr , *timeFormat );
@@ -135,7 +136,7 @@ EXPORT_C void CGlxUStringConverter::AsStringL(const TGlxMedia& aMedia, const TMP
     				else if( aFormatString == R_QTN_TIME_USUAL_WITH_ZERO)
     					{
     					TBuf<20> timeString;
-    					media->GetValueTObject(date,KMPXMediaGeneralDate);
+    					media->GetValueTObject(date, mpxAttrib);
     					HBufC* timeFormat = CCoeEnv::Static()->AllocReadResourceLC
     						( R_QTN_TIME_USUAL_WITH_ZERO );
     					
@@ -147,7 +148,7 @@ EXPORT_C void CGlxUStringConverter::AsStringL(const TGlxMedia& aMedia, const TMP
                     else if( aFormatString == R_QTN_DATE_USUAL)
                         {
                         TBuf<20> dateString;
-                        media->GetValueTObject(date,KMPXMediaGeneralDate);
+                        media->GetValueTObject(date, mpxAttrib);
                         HBufC* dateFormat = CCoeEnv::Static()->AllocReadResourceLC
                             ( R_QTN_DATE_USUAL );
                         

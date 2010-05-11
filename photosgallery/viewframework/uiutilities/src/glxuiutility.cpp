@@ -39,6 +39,9 @@
 #include <alf/alftextstylemanager.h>
 #include <featmgr.h>
 #include <bldvariant.hrh>   // For feature constants
+#include <eikenv.h> 
+#include <eikappui.h>
+#include <aknclearer.h>
 
 // Internal incudes
 #include <glxresolutionmanager.h>       // for CGlxResolutionManager
@@ -55,11 +58,18 @@
 
 #include <e32property.h>
 
+//For animation Effects
+#include <akntranseffect.h>
+#include <akntransitionutils.h>
+
 //Publish-Subscribe from Thumbnail manager
 const TUid KTAGDPSNotification = { 0x2001FD51 }; //PS category 
 const TInt KForceBackgroundGeneration = 0x00000010; //PS Key 
 const TInt KItemsleft = 0x00000008; //PS key value
-
+/**
+ * Start Delay for the periodic timer, in microseconds
+ */
+const TInt KPeriodicStartDelay = 1000000; 
 
 //Hg 
 //#include <hg/hgcontextutility.h>
@@ -107,7 +117,7 @@ CGlxUiUtility* CGlxUiUtility::NewL()
 // -----------------------------------------------------------------------------
 //
 CGlxUiUtility::CGlxUiUtility()
-:   iNavigationDirection( EGlxNavigationForwards ),
+:   iEnv(NULL),iNavigationDirection( EGlxNavigationForwards ),
     iOrientation( EGlxOrientationUninitialised )
     {
     TRACER("CGlxUiUtility::CGlxUiUtility()");
@@ -122,8 +132,57 @@ void CGlxUiUtility::ConstructL()
     {
     TRACER("CGlxUiUtility::ConstructL()");
     iSettingsModel = CGlxSettingsModel::InstanceL();
+
+    iOrientation = EGlxOrientationDefault; // Always start in default orientation
+	
+    if (!iPeriodic)
+        {
+        iPeriodic = CPeriodic::NewL(CActive::EPriorityStandard);
+        }
+		
+    if (!iPeriodic->IsActive())
+        {
+        iPeriodic->Start(KPeriodicStartDelay, KMaxTInt,
+                TCallBack(&PeriodicCallback, static_cast<TAny*> (this)));
+        }
+		
+    GridIconSizeL();
+    iScreenFurniture = CGlxScreenFurniture::NewL(*this);
+    }
+
+// -----------------------------------------------------------------------------
+// Callback from periodic timer
+// -----------------------------------------------------------------------------
+//
+TInt CGlxUiUtility::PeriodicCallback(TAny* aPtr )
+    {
+    TRACER("CGlxUiUtility::PeriodicCallback");
+    static_cast< CGlxUiUtility* >( aPtr )->CreateAlfEnvCallbackL();
+    return KErrNone;
+    }
+
+// -----------------------------------------------------------------------------
+// Callback from periodic timer-- non static
+// -----------------------------------------------------------------------------
+//
+void CGlxUiUtility::CreateAlfEnvCallbackL()
+    {
+    TRACER("CGlxUiUtility::CreateAlfEnvCallbackL");
+    CreateAlfEnvL();
+    }
+
+// -----------------------------------------------------------------------------
+// Create ALF env
+// -----------------------------------------------------------------------------
+//
+void CGlxUiUtility::CreateAlfEnvL()
+    {
+    TRACER("CGlxUiUtility::CreateAlfEnvL");
+    if (iPeriodic->IsActive())
+        {
+        iPeriodic->Cancel();
+        }
     
-	iOrientation = EGlxOrientationDefault; // Always start in default orientation
     iEnv = CAlfEnv::Static();
     if (!iEnv)
        {
@@ -143,9 +202,9 @@ void CGlxUiUtility::ConstructL()
     // calling CGlxHuiUtility::Utility() in CGlxTextureManager creates a recursive call
     // to CGlxTextureManager::NewL which again calls CGlxHuiUtility::Utility() and so on.
     AddSkinChangeObserverL( *iGlxTextureManager );    
-	GridIconSizeL();
-	TRect rect;
-	AknLayoutUtils::LayoutMetricsRect( AknLayoutUtils::EScreen, rect ); 
+    
+    TRect rect;
+    AknLayoutUtils::LayoutMetricsRect( AknLayoutUtils::EScreen, rect ); 
     iAlfDisplay = &iEnv->NewDisplayL(rect,
             CAlfEnv::ENewDisplayAsCoeControl | CAlfEnv::ENewDisplayFullScreen );
             
@@ -160,9 +219,7 @@ void CGlxUiUtility::ConstructL()
     // Is the TV Out display on
     // Note that this also sets the initial size for the resolution manager
     HandleTvStatusChangedL( ETvConnectionChanged );
-    
-    iScreenFurniture = CGlxScreenFurniture::NewL(*this);
-	}
+    }
 
 // -----------------------------------------------------------------------------
 // Destructor
@@ -172,10 +229,28 @@ CGlxUiUtility::~CGlxUiUtility()
     {
     TRACER("CGlxUiUtility::~CGlxUiUtility()");
     GLX_LOG_INFO("~CGlxUiUtility");
-    delete iScreenFurniture;
-    // Destroy TV Out related objects
-    delete iGlxTvOut;
-    delete iGlxResolutionManager;
+
+    if(iClearer)
+        {
+        delete iClearer;
+        }
+
+    if(iScreenFurniture)
+        {
+        delete iScreenFurniture;
+        }
+    
+    if(iGlxTvOut)
+        {
+        // Destroy TV Out related objects
+        delete iGlxTvOut;
+        }
+    
+    if(iGlxResolutionManager)
+        {
+        delete iGlxResolutionManager;
+        }
+    
     DestroyTvOutDisplay();
     
 	if( iGlxTextureManager )
@@ -188,8 +263,10 @@ CGlxUiUtility::~CGlxUiUtility()
         {
         delete iAlfDisplay;
         }
-   
-    iEnv->RemoveActionObserver(this);
+    if(iEnv)
+       {
+       iEnv->RemoveActionObserver(this);
+       }
 
     if ( iGlxSkinChangeMonitor )
         {
@@ -201,24 +278,33 @@ CGlxUiUtility::~CGlxUiUtility()
         {
         delete iEnv;
         }
-        
     iTextStyles.Close();
     if ( iSettingsModel )
         {
         iSettingsModel->Close();
         }    
-
+    
+	if (iPeriodic)
+        {
+        iPeriodic->Cancel();
+        delete iPeriodic;
+        }
     }
 
 // -----------------------------------------------------------------------------
 // Env
 // -----------------------------------------------------------------------------
 //
-EXPORT_C CAlfEnv* CGlxUiUtility::Env() const
+EXPORT_C CAlfEnv* CGlxUiUtility::Env()
 	{
-	TRACER("CGlxUiUtility::Env()");
+	TRACER("CGlxUiUtility::EnvL()");
+	if(!iEnv)
+	    {
+        TRAP_IGNORE(CreateAlfEnvL());
+	    }
 	return iEnv;
 	}
+
 
 // -----------------------------------------------------------------------------
 // Display
@@ -303,7 +389,7 @@ EXPORT_C void CGlxUiUtility::SetViewNavigationDirection(
 EXPORT_C TSize CGlxUiUtility::DisplaySize() const
     {
     TRACER("CGlxUiUtility::DisplaySize()");
-    const TRect& rect = Env()->PrimaryDisplay().VisibleArea();
+    const TRect& rect = CEikonEnv::Static()->EikAppUi()->ApplicationRect();
 	return rect.Size();
     }
 
@@ -749,5 +835,33 @@ EXPORT_C TInt CGlxUiUtility::GetItemsLeftCount()
         leftVariable = 0;
         }
     return leftVariable;
+    }
+
+// -----------------------------------------------------------------------------
+// DisplayScreenClearer
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxUiUtility::DisplayScreenClearerL()
+    {
+    TRACER("CGlxUiUtility::DisplayScreenClearerL");
+    if(!iClearer && CAknTransitionUtils::TransitionsEnabled(
+            AknTransEffect::EFullScreenTransitionsOff))
+        {
+        iClearer = CAknLocalScreenClearer::NewL( ETrue );
+        }
+    }
+
+// -----------------------------------------------------------------------------
+// DisplayScreenClearer
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxUiUtility::DestroyScreenClearer()
+    {
+    TRACER("CGlxUiUtility::DestroyScreenClearer");
+    if(iClearer)
+        {
+        delete iClearer;
+        iClearer = NULL;
+        }
     }
 // End of file

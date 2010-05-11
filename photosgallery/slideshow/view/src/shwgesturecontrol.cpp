@@ -75,7 +75,7 @@ CShwGestureControl::CShwGestureControl( )
 CShwGestureControl::~CShwGestureControl()
     {
 	TRACER("CShwGestureControl::~CShwGestureControl");
-    //no implementation
+	iObservers.ResetAndDestroy();
     }
 
 // -----------------------------------------------------------------------------

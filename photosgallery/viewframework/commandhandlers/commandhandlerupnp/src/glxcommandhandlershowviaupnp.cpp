@@ -57,7 +57,7 @@ CGlxCommandHandlerShowViaUpnp::CGlxCommandHandlerShowViaUpnp
 //-----------------------------------------------------------------------------------------
 // Destructor
 //-----------------------------------------------------------------------------------------
-CGlxCommandHandlerShowViaUpnp::~CGlxCommandHandlerShowViaUpnp()
+EXPORT_C CGlxCommandHandlerShowViaUpnp::~CGlxCommandHandlerShowViaUpnp()
     {
     //Do Nothing  
     }  

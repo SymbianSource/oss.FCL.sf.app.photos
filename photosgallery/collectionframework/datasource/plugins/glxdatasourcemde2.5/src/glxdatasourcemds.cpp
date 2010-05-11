@@ -189,13 +189,12 @@ void CGlxMDSShutdownObserver::RunL()
     
     // retrieve the value
     TInt value = 0;
-    TInt Err = iProperty.Get(value);
-    GLX_DEBUG2("CGlxMDSShutdownObserver::RunL(): iProperty.Get(value); returns %d", Err);
+    TInt err = iProperty.Get(value);
+    GLX_DEBUG2("CGlxMDSShutdownObserver::RunL(): iProperty.Get(value); returns %d", err);
     
-    User::LeaveIfError(Err);
+    User::LeaveIfError(err);
 
     iObserver.ShutdownNotification(value);
-    
     }
 
 // ---------------------------------------------------------------------------
@@ -345,10 +344,7 @@ void CGlxDataSourceMde::HandleSessionOpened( CMdESession& aSession, TInt aError 
 void CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt aError )    
     {
     TRACER("CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt aError)")
-    delete iSession;
-    iSession = NULL;
-    
-    GLX_DEBUG2("void CGlxDataSourceMde::HandleSessionError() Session Error = %d", aError);
+    GLX_DEBUG2("void CGlxDataSourceMde::HandleSessionError() aError(%d)", aError);
 
     iDataSourceReady = EFalse;
     iSessionOpen = EFalse;
@@ -361,7 +357,6 @@ void CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt aErro
         iCreateSessionCallback->CallBack();
         }
     }
-
 
 // ---------------------------------------------------------------------------
 // CreateTaskL
@@ -533,7 +528,9 @@ void CGlxDataSourceMde::AddMdEObserversL()
 	iSession->AddObjectObserverL(*this, addCondition );
 	iSession->AddObjectPresentObserverL(*this );
 		
-	CleanupStack::Pop( addCondition ); //This addCondition should only be popped. The destroy part will be done by MDS.
+	// This addCondition should only be popped. 
+	// As the ownership is transferred, the same will be destroyed by MdS.
+	CleanupStack::Pop( addCondition ); 
     }
 
 // ---------------------------------------------------------------------------
@@ -711,9 +708,10 @@ TInt CGlxDataSourceMde::CreateSession(TAny* aPtr)
 void CGlxDataSourceMde::CreateSessionL()
     {
     TRACER("CGlxDataSourceMde::CreateSessionL()");
+    delete iSession;
+    iSession = NULL;
 	iSession = CMdESession::NewL( *this );
     }
-            
 
 // ---------------------------------------------------------------------------
 // ProcessItemUpdate
@@ -1245,15 +1243,25 @@ void CGlxDataSourceMde::HarvestingUpdated(
         }
     }
 
+// ---------------------------------------------------------------------------
+// ShutdownNotification
+// ---------------------------------------------------------------------------
+//  
 void CGlxDataSourceMde::ShutdownNotification(TInt aShutdownState)
     {
     TRACER("void CGlxDataSourceMde::ShutdownNotification(TInt aShutdownState)")
-    GLX_DEBUG2("CGlxDataSourceMde::ShutdownNotification(TInt aShutdownState)  aShutdownState = %d", aShutdownState);
+    GLX_DEBUG2("CGlxDataSourceMde::ShutdownNotification(aShutdownState=%d)", 
+            aShutdownState);
 
-    // iDataSourceReady is set to false if we have lost an MDS session.
-    // a ShutdownNotification with aaShutdownState == 0 means that MDS has restarted. So this is the time to recreate a session with MDS.  
-    if ( (!iDataSourceReady) && (0 == aShutdownState) )
+    if (!iDataSourceReady && 0 == aShutdownState)
         {
+        GLX_DEBUG1("Photos MdS ShutdownNotification - MdS Server restarted!");
         CreateSession();
+        }
+
+    if (iDataSourceReady && 1 == aShutdownState)
+        {
+        GLX_DEBUG1("Photos MdS ShutdownNotification - MdS Server Shutdown!");
+        HandleSessionError(*iSession, KErrServerTerminated);
         }
     }

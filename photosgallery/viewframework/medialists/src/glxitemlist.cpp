@@ -538,7 +538,7 @@ TInt CGlxItemList::Index( const TGlxIdSpaceId& aIdSpaceId, const TGlxMediaId& aI
 // ---------------------------------------------------------------------------
 // Test invariant
 // ---------------------------------------------------------------------------
-void CGlxItemList::__DbgTestInvariant() const
+EXPORT_C void CGlxItemList::__DbgTestInvariant() const
     {
     #ifdef _DEBUG
     

@@ -344,7 +344,7 @@ EXPORT_C TBool CGlxMediaListCommandHandler::IsDisabledL(TInt aCommandId,
                 if( (!isDisabled )&&( info.iDisallowDRM ) )
                     {
                     // disable if DRM protected
-                    isDisabled = item.IsDrmProtected();
+		            item.GetDrmProtected(isDisabled);
                     }
                 // Check animated GIF if not yet disabled by previous rules
                 TInt frameCount(0);

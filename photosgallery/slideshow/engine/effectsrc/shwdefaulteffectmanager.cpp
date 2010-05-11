@@ -25,8 +25,8 @@
 
 #include <glxlog.h>
 #include <glxtracer.h>
-#include <shwcleanupwrapper.h>
 
+#include "shwcleanupwrapper.h"
 #include "shweffect.h"
 #include "shwconstants.h"
 #include "shwslideshowenginepanic.h"

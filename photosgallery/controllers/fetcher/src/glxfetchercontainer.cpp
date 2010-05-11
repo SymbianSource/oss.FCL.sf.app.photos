@@ -244,7 +244,7 @@ void CGlxFetcherContainer::CreateHgGridWidgetL()
         }
 
 	// Set the grid to use different layout for landscape mode in fetcher
-    //iHgGrid->SetToolbarVisibility(EFalse);
+    iHgGrid->SetToolbarVisibility(EFalse);
     iHgGrid->SetSelectedIndex(iMediaList->FocusIndex());
     // Setting to MopParent to update background skin
     iHgGrid->SetMopParent(this);

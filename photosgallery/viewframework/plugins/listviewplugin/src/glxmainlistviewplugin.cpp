@@ -101,9 +101,7 @@ void CGlxMainListViewPlugin::AddCommandHandlersL()
     // add help command handler
     TGlxHelpContext helpInfo;
     helpInfo.iBrowseContext =  LGAL_HLP_VIEW_LIST;
-    iListView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo)); 
-    //add ShowViaUpnp Command Handler for stop showing
-    iListView->AddCommandHandlerL(CGlxCommandHandlerShowViaUpnp::NewL(iListView, EFalse)); 
+    iListView->AddCommandHandlerL(CGlxCommandHandlerHelp::NewL(helpInfo));  
     }
 
 //  End of File

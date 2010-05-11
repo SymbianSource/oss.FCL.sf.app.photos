@@ -142,6 +142,7 @@ void CGlxZoomPanEventHandler::SetupAnimatedZoom(TZoomMode aZoomMode, TPoint* /*a
     iTargetAnimatedZoomRatio = (iMaxZoomRatio + iMinZoomRatio)/2 ;
     
     CancelAnimationTimer();
+    CancelUITimer();
     
     //ToDo: Verify this with images slightly smaller or slightly larger than fullscreen size. 
     if (EZoomIn == aZoomMode)
@@ -233,6 +234,12 @@ void CGlxZoomPanEventHandler::NextStepAnimatedZoom()
         CancelAnimationTimer();
         TSize screensize = iMathsEngine.ScreenSize();
         iZoomFocus = TPoint(screensize.iWidth>>1,screensize.iHeight>>1) ;
+        
+        //start the timer here after the animation is complete
+        if(EUiOn == iZoomUiState && iZoomActivated)
+            {
+            ShowScreenFurniture(KGlxScreenTimeout);
+            }
         }
     }
 
@@ -377,14 +384,14 @@ TBool CGlxZoomPanEventHandler::HandlekeyEvents(const TAlfEvent &aEvent)
             //Listen EStdKeyApplicationC as EKeyZoomIn key is mapped to TKeyCode:: EKeyApplicationC for which TStdScancode is EStdKeyApplicatoinC
             case EStdKeyApplicationC :
                 {
-                HandleZoomStripeAction(EZoomIn ,aEvent.Code()) ;
+                HandleZoomKey(EZoomIn ,aEvent.Code()) ;
                 consumed = ETrue;
                 break ;
                 }
             //Listen EStdKeyApplicationD as EKeyZoomOut key is mapped to TKeyCode:: EKeyApplicationD for which TStdScancode is EStdKeyApplicatoinD
             case EStdKeyApplicationD :
                 {
-                HandleZoomStripeAction(EZoomOut,aEvent.Code());
+                HandleZoomKey(EZoomOut,aEvent.Code());
                 consumed = ETrue;
                 break ;
                 }                
@@ -397,13 +404,13 @@ TBool CGlxZoomPanEventHandler::HandlekeyEvents(const TAlfEvent &aEvent)
     }
 
 // -----------------------------------------------------------------------------
-// HandleZoomStripeAction:Zooms the image on zoom stripe action.
+// HandleZoomKey:Zooms the image on zoom stripe action.
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::HandleZoomStripeAction(TZoomMode aZoomMode ,
+void CGlxZoomPanEventHandler::HandleZoomKey(TZoomMode aZoomMode ,
         TEventCode aEventCode)
     {
-    TRACER("CGlxZoomControl::HandleZoomStripeAction ");
+    TRACER("CGlxZoomControl::HandleZoomKey ");
     if ( iZoomActivated )
         {
         switch(aEventCode)
@@ -736,8 +743,14 @@ void CGlxZoomPanEventHandler::HandleSingleTap(const GestureHelper::MGestureEvent
         {
         return;
         }
-    
-    ShowScreenFurniture(KGlxScreenTimeout);
+
+    if (EUiOff == iZoomUiState)
+        {
+        ShowScreenFurniture(KGlxScreenTimeout);
+        }
+    else{
+        HideScreenFurniture();
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -841,8 +854,13 @@ void CGlxZoomPanEventHandler::OrientationChanged(const TRect& aNewScreenRect)
 void CGlxZoomPanEventHandler::ShowScreenFurniture(TTimeIntervalMicroSeconds32 aTimeout)
     {
     TRACER("CGlxZoomPanEventHandler::ShowScreenFurniture()");
-
-    iZoomEventHandler.HandleShowUi(ETrue);
+    
+    if (EUiOff == iZoomUiState )
+        {
+        // make visible if not already visible. 
+        // the timer will ofcourse get restarted. 
+        iZoomEventHandler.HandleShowUi(ETrue);
+        }
     
     if (aTimeout.Int())
         {
@@ -858,9 +876,11 @@ void CGlxZoomPanEventHandler::ShowScreenFurniture(TTimeIntervalMicroSeconds32 aT
 void CGlxZoomPanEventHandler::HideScreenFurniture()
     {
     TRACER("CGlxZoomPanEventHandler::HideScreenFurniture()");
-
-    iZoomEventHandler.HandleShowUi(EFalse);
-    CancelUITimer();
+    if (EUiOn == iZoomUiState )
+        {
+        iZoomEventHandler.HandleShowUi(EFalse);
+        CancelUITimer();
+        }
     }
 
 
@@ -1145,6 +1165,7 @@ void CGlxZoomPanEventHandler::SetZoomUiState(TUiState aZoomUiState)
 TUiState CGlxZoomPanEventHandler::ZoomUiState()
     {
     TRACER("CGlxZoomPanEventHandler::ZoomUiState");
+    GLX_LOG_INFO1("CGlxZoomPanEventHandler::ZoomUiState :=%d",iZoomUiState);
     return iZoomUiState ;
     }
 

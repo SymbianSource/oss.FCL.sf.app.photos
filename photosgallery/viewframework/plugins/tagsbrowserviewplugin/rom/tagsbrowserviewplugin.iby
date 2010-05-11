@@ -29,4 +29,3 @@ ECOM_PLUGIN( glxtagsbrowserviewplugin.dll, glxtagsbrowserviewplugin.rsc )
 #endif // __TAGSBROWSERVIEWPLUGIN_IBY__
 
 // End of file
------------------------------------------------------------

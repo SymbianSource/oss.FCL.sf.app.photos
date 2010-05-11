@@ -116,6 +116,7 @@ LIBRARY		      libglib.lib
 LIBRARY 		  libstdcpp.lib
 LIBRARY         flogger.lib
 //LIBRARY 		hgcontextutility.lib 					// For Teleport
+LIBRARY		akntransitionutils.lib
 // EXPORTUNFROZEN 
 
 // End of File

@@ -26,4 +26,3 @@ file=ABI_DIR\BUILD_DIR\glxtvout.dll      SHARED_LIB_DIR\glxtvout.dll
 #endif // __GLX_TVOUT_IBY__
 
 // End of file
------------------------------------------------------------

@@ -11,35 +11,35 @@ EXPORTS
 	_ZN13CGlxUiUtility22HandleTvStatusChangedLE13TTvChangeType @ 10 NONAME
 	_ZN13CGlxUiUtility23ViewNavigationDirectionEv @ 11 NONAME
 	_ZN13CGlxUiUtility26SetViewNavigationDirectionE23TGlxNavigationDirection @ 12 NONAME
-	_ZN13CGlxUiUtility5CloseEv @ 13 NONAME
-	_ZN13CGlxUiUtility8UtilityLEv @ 14 NONAME
-	_ZN18CGlxTextureManager13RemoveTextureERK11CAlfTexture @ 15 NONAME
-	_ZN18CGlxTextureManager17HandleSkinChangedEv @ 16 NONAME
-	_ZN18CGlxTextureManager18CreateIconTextureLEiR7TDesC165TSize @ 17 NONAME
-	_ZN18CGlxTextureManager23CreateAvkonIconTextureLERK11TAknsItemIDi5TSize @ 18 NONAME
-	_ZN18CGlxTextureManager4NewLER18CAlfTextureManager @ 19 NONAME
-	_ZN26CGlxCommandHandlerMoreInfo4NewLEP21MGlxMediaListProvideri @ 20 NONAME
-	_ZN26CGlxCommandHandlerMoreInfoD0Ev @ 21 NONAME
-	_ZN26CGlxCommandHandlerMoreInfoD1Ev @ 22 NONAME
-	_ZN26CGlxCommandHandlerMoreInfoD2Ev @ 23 NONAME
-	_ZN27CGlxMediaListCommandHandler10DeactivateEv @ 24 NONAME
-	_ZN27CGlxMediaListCommandHandler11AddCommandLERKNS_12TCommandInfoE @ 25 NONAME
-	_ZN27CGlxMediaListCommandHandler11CommandInfoEi @ 26 NONAME
-	_ZN27CGlxMediaListCommandHandler11DoActivateLEi @ 27 NONAME
-	_ZN27CGlxMediaListCommandHandler12TCommandInfoC1Ei @ 28 NONAME
-	_ZN27CGlxMediaListCommandHandler12TCommandInfoC2Ei @ 29 NONAME
-	_ZN27CGlxMediaListCommandHandler14OfferKeyEventLERK9TKeyEvent10TEventCode @ 30 NONAME
-	_ZN27CGlxMediaListCommandHandler16DynInitMenuPaneLEiP12CEikMenuPane @ 31 NONAME
-	_ZN27CGlxMediaListCommandHandler18DoDynInitMenuPaneLEiP12CEikMenuPane @ 32 NONAME
-	_ZN27CGlxMediaListCommandHandler19PreDynInitMenuPaneLEi @ 33 NONAME
-	_ZN27CGlxMediaListCommandHandler8ExecuteLEi @ 34 NONAME
-	_ZN27CGlxMediaListCommandHandler9MediaListEv @ 35 NONAME
-	_ZN27CGlxMediaListCommandHandlerC2EP21MGlxMediaListProvideri @ 36 NONAME
-	_ZN27CGlxMediaListCommandHandlerD0Ev @ 37 NONAME
-	_ZN27CGlxMediaListCommandHandlerD1Ev @ 38 NONAME
-	_ZN27CGlxMediaListCommandHandlerD2Ev @ 39 NONAME
-	_ZNK13CGlxUiUtility11DisplaySizeEv @ 40 NONAME
-	_ZNK13CGlxUiUtility3EnvEv @ 41 NONAME
+	_ZN13CGlxUiUtility3EnvEv @ 13 NONAME
+	_ZN13CGlxUiUtility5CloseEv @ 14 NONAME
+	_ZN13CGlxUiUtility8UtilityLEv @ 15 NONAME
+	_ZN18CGlxTextureManager13RemoveTextureERK11CAlfTexture @ 16 NONAME
+	_ZN18CGlxTextureManager17HandleSkinChangedEv @ 17 NONAME
+	_ZN18CGlxTextureManager18CreateIconTextureLEiR7TDesC165TSize @ 18 NONAME
+	_ZN18CGlxTextureManager23CreateAvkonIconTextureLERK11TAknsItemIDi5TSize @ 19 NONAME
+	_ZN18CGlxTextureManager4NewLER18CAlfTextureManager @ 20 NONAME
+	_ZN26CGlxCommandHandlerMoreInfo4NewLEP21MGlxMediaListProvideri @ 21 NONAME
+	_ZN26CGlxCommandHandlerMoreInfoD0Ev @ 22 NONAME
+	_ZN26CGlxCommandHandlerMoreInfoD1Ev @ 23 NONAME
+	_ZN26CGlxCommandHandlerMoreInfoD2Ev @ 24 NONAME
+	_ZN27CGlxMediaListCommandHandler10DeactivateEv @ 25 NONAME
+	_ZN27CGlxMediaListCommandHandler11AddCommandLERKNS_12TCommandInfoE @ 26 NONAME
+	_ZN27CGlxMediaListCommandHandler11CommandInfoEi @ 27 NONAME
+	_ZN27CGlxMediaListCommandHandler11DoActivateLEi @ 28 NONAME
+	_ZN27CGlxMediaListCommandHandler12TCommandInfoC1Ei @ 29 NONAME
+	_ZN27CGlxMediaListCommandHandler12TCommandInfoC2Ei @ 30 NONAME
+	_ZN27CGlxMediaListCommandHandler14OfferKeyEventLERK9TKeyEvent10TEventCode @ 31 NONAME
+	_ZN27CGlxMediaListCommandHandler16DynInitMenuPaneLEiP12CEikMenuPanei @ 32 NONAME
+	_ZN27CGlxMediaListCommandHandler18DoDynInitMenuPaneLEiP12CEikMenuPane @ 33 NONAME
+	_ZN27CGlxMediaListCommandHandler19PreDynInitMenuPaneLEi @ 34 NONAME
+	_ZN27CGlxMediaListCommandHandler8ExecuteLEi @ 35 NONAME
+	_ZN27CGlxMediaListCommandHandler9MediaListEv @ 36 NONAME
+	_ZN27CGlxMediaListCommandHandlerC2EP21MGlxMediaListProvideri @ 37 NONAME
+	_ZN27CGlxMediaListCommandHandlerD0Ev @ 38 NONAME
+	_ZN27CGlxMediaListCommandHandlerD1Ev @ 39 NONAME
+	_ZN27CGlxMediaListCommandHandlerD2Ev @ 40 NONAME
+	_ZNK13CGlxUiUtility11DisplaySizeEv @ 41 NONAME
 	_ZNK13CGlxUiUtility7DisplayEv @ 42 NONAME
 	_ZNK27CGlxMediaListCommandHandler11IsDisabledLEiR13MGlxMediaList @ 43 NONAME
 	_ZNK27CGlxMediaListCommandHandler11IsSupportedEi @ 44 NONAME
@@ -52,11 +52,11 @@ EXPORTS
 	_ZNK27CGlxMediaListCommandHandler23BypassFiltersForExecuteEv @ 51 NONAME
 	_ZNK27CGlxMediaListCommandHandler24DoGetRequiredAttributesLER6RArrayI13TMPXAttributeEi @ 52 NONAME
 	_ZNK27CGlxMediaListCommandHandler9MediaListEv @ 53 NONAME
-	_ZTI13CGlxUiUtility @ 54 NONAME ; #<TI>#
-	_ZTI27CGlxMediaListCommandHandler @ 55 NONAME ; #<TI>#
-	_ZTV13CGlxUiUtility @ 56 NONAME ; #<VT>#
-	_ZTV27CGlxMediaListCommandHandler @ 57 NONAME ; #<VT>#
-	_ZThn4_N13CGlxUiUtility22HandleTvStatusChangedLE13TTvChangeType @ 58 NONAME ; #<thunk>#
-	_ZThn4_N18CGlxTextureManager17HandleSkinChangedEv @ 59 NONAME ; #<thunk>#
-	_ZThn8_N13CGlxUiUtility13HandleActionLERK17TAlfActionCommand @ 60 NONAME ; #<thunk>#
+	_ZTI13CGlxUiUtility @ 54 NONAME
+	_ZTI27CGlxMediaListCommandHandler @ 55 NONAME
+	_ZTV13CGlxUiUtility @ 56 NONAME
+	_ZTV27CGlxMediaListCommandHandler @ 57 NONAME
+	_ZThn4_N13CGlxUiUtility22HandleTvStatusChangedLE13TTvChangeType @ 58 NONAME
+	_ZThn4_N18CGlxTextureManager17HandleSkinChangedEv @ 59 NONAME
+	_ZThn8_N13CGlxUiUtility13HandleActionLERK17TAlfActionCommand @ 60 NONAME
 

@@ -129,6 +129,12 @@ public:
             TInt aTransitionTime ,
             TSize  *apViewPortDimension = NULL,
             TInt aPrimarySliderLevel = -1);
+
+    /**
+    * Retrieve the UI State of the Zoom view 
+    */
+    IMPORT_C TUiState ZoomUiState();
+
 private:// From MGlxTvObserver
     virtual void HandleTvStatusChangedL ( TTvChangeType aChangeType );
 

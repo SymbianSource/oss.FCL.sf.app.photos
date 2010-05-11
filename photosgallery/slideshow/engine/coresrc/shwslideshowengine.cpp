@@ -145,7 +145,7 @@ EXPORT_C void CShwSlideshowEngine::VolumeUpL()
 	}
 
 // -----------------------------------------------------------------------------
-// ResumeL.
+// VolumeDownL.
 // -----------------------------------------------------------------------------
 EXPORT_C void CShwSlideshowEngine::VolumeDownL()
 	{
@@ -153,6 +153,16 @@ EXPORT_C void CShwSlideshowEngine::VolumeDownL()
 	GLX_LOG_INFO("CShwSlideshowEngine::VolumeDownL");
 	this->iImpl->VolumeDownL();
 	}
+
+// -----------------------------------------------------------------------------
+// GetMusicVolumeL
+// -----------------------------------------------------------------------------
+EXPORT_C void CShwSlideshowEngine::GetMusicVolumeL()
+    {
+    TRACER("CShwSlideshowEngine::GetMusicVolumeL");
+    this->iImpl->GetMusicVolumeL();
+    }
+
 // -----------------------------------------------------------------------------
 // ToggleControlsVisibiltyL. LSKPressed
 // -----------------------------------------------------------------------------

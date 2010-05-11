@@ -1,7 +1,8 @@
 EXPORTS
 	?HandleZoomForegroundEvent@CGlxZoomControl@@QAEXH@Z @ 1 NONAME ; void CGlxZoomControl::HandleZoomForegroundEvent(int)
 	?Activated@CGlxZoomControl@@QAEHXZ @ 2 NONAME ; int CGlxZoomControl::Activated(void)
-	?NewL@CGlxZoomControl@@SAPAV1@AAVMGlxUiCommandHandler@@AAVMGlxMediaList@@AAVCEikButtonGroupContainer@@AAVIMulSliderWidget@Alf@@PAVCGestureHelper@GestureHelper@@@Z @ 3 NONAME ; class CGlxZoomControl * CGlxZoomControl::NewL(class MGlxUiCommandHandler &, class MGlxMediaList &, class CEikButtonGroupContainer &, class Alf::IMulSliderWidget &, class GestureHelper::CGestureHelper *)
-	?Deactivate@CGlxZoomControl@@QAEXXZ @ 4 NONAME ; void CGlxZoomControl::Deactivate(void)
-	?ActivateL@CGlxZoomControl@@QAEXHW4TZoomStartMode@@HAAVTGlxMedia@@PAVTPoint@@H@Z @ 5 NONAME ; void CGlxZoomControl::ActivateL(int, enum TZoomStartMode, int, class TGlxMedia &, class TPoint *, int)
+	?ZoomUiState@CGlxZoomControl@@QAE?AW4TUiState@@XZ @ 3 NONAME ; enum TUiState CGlxZoomControl::ZoomUiState(void)
+	?NewL@CGlxZoomControl@@SAPAV1@AAVMGlxUiCommandHandler@@AAVMGlxMediaList@@AAVCEikButtonGroupContainer@@AAVIMulSliderWidget@Alf@@PAVCGestureHelper@GestureHelper@@@Z @ 4 NONAME ; class CGlxZoomControl * CGlxZoomControl::NewL(class MGlxUiCommandHandler &, class MGlxMediaList &, class CEikButtonGroupContainer &, class Alf::IMulSliderWidget &, class GestureHelper::CGestureHelper *)
+	?Deactivate@CGlxZoomControl@@QAEXXZ @ 5 NONAME ; void CGlxZoomControl::Deactivate(void)
+	?ActivateL@CGlxZoomControl@@QAEXHW4TZoomStartMode@@HAAVTGlxMedia@@PAVTPoint@@H@Z @ 6 NONAME ; void CGlxZoomControl::ActivateL(int, enum TZoomStartMode, int, class TGlxMedia &, class TPoint *, int)
 

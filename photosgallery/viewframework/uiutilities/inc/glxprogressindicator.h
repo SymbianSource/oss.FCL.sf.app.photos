@@ -38,7 +38,10 @@ public:
     IMPORT_C static CGlxProgressIndicator* NewL(MDialogDismisedObserver&  aGlxGridViewNotifyObserver);
     ~CGlxProgressIndicator();
     static CGlxProgressIndicator* NewLC(MDialogDismisedObserver&  aGlxGridViewNotifyObserver);
-
+    /**
+     * dismiss progress dialog when it is needed
+     */
+    IMPORT_C void DismissProgressDialog();
 private:
     CGlxProgressIndicator(MDialogDismisedObserver&  aGlxGridViewNotifyObserver);
     void ConstructL();

@@ -26,4 +26,3 @@ ECOM_PLUGIN( glxcollectionplugintags.dll, glxcollectionplugintags.rsc )
 #endif // __TAGCOLLECTIONPLUGIN_IBY__
 
 // End of file
------------------------------------------------------------

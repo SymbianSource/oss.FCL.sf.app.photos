@@ -44,10 +44,12 @@
 #include <glxerrormanager.h>             // For CGlxErrormanager
 #include <glxthumbnailcontext.h>
 #include <glxthumbnailattributeinfo.h>
+#include <glxcollectionpluginall.hrh>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionplugintype.hrh>
 #include <glxnavigationalstate.h>
+#include <glxfiltergeneraldefs.h>
 
 #include <akntranseffect.h>  // For transition effects
 #include <gfxtranseffect/gfxtranseffect.h>  // For transition effects
@@ -343,7 +345,7 @@ void CGlxListViewImp::DestroyListViewWidget()
         }
 	delete iBgContext;
 	iBgContext = NULL;
-	if(iUiUtility->ViewNavigationDirection() == EGlxNavigationBackwards )
+	if(iBackwardNavigation)
 		{
 		iLastFocusedIndex = 0;
 		}
@@ -452,7 +454,6 @@ void CGlxListViewImp::RequestL(TInt aRequestStart, TInt aRequestEnd)
         iList->ItemL(i).SetTitleL(item.Title());
         iList->ItemL(i).SetTextL(item.SubTitle());
         UpdatePreviewL(i);
-        iList->RefreshScreen(i);
         }
     
     iList->RefreshScreen(visIndex);
@@ -525,12 +526,43 @@ void CGlxListViewImp::HandleOpenL( TInt aIndex )
         iMediaList->SetFocusL(NGlxListDefs::EAbsolute,aIndex);
         iLastFocusedIndex = iMediaList->FocusIndex();
 	    iNextViewActivationEnabled = EFalse;
-        iUiUtility->SetViewNavigationDirection(EGlxNavigationForwards); 
-        //Navigate to the next view
+		
+		//Navigate to the next view
+        iUiUtility->SetViewNavigationDirection(EGlxNavigationForwards);
+        GLX_LOG_INFO("CGlxListViewImp::HandleOpenL()- EGlxNavigationForwards!");
+
         CMPXCollectionPath* path = iMediaList->PathLC(
                 NGlxListDefs::EPathFocusOrSelection);
-        iCollectionUtility->Collection().OpenL(*path);
-        CleanupStack::PopAndDestroy(path);  
+
+        // When a collection is opened for browsing, 
+        // there are two queries executed with similar filter. 
+        // First query to open the collection from list / cloud view.
+        // Second one from grid view construction. To improve the grid opening
+        // performance, the first query will be completed with empty Id list.
+        CMPXCollectionPath* pathParent = iMediaList->PathLC(
+                NGlxListDefs::EPathParent);
+
+        if ((iMediaList->IdSpaceId(0) == KGlxIdSpaceIdRoot && path->Id(0)
+                == KGlxCollectionPluginAllImplementationUid)
+                || (pathParent->Id()
+                        == KGlxCollectionPluginMonthsImplementationUid)
+                || (pathParent->Id()
+                        == KGlxCollectionPluginAlbumsImplementationUid))
+            {
+            RArray<TMPXAttribute> attributeArray;
+            CleanupClosePushL(attributeArray);
+            attributeArray.AppendL(KGlxFilterGeneralNavigationalStateOnly);
+            iCollectionUtility->Collection().OpenL(*path,
+                    attributeArray.Array());
+            CleanupStack::PopAndDestroy(&attributeArray);
+            }
+        else
+            {
+            iCollectionUtility->Collection().OpenL(*path);
+            }
+
+        CleanupStack::PopAndDestroy(pathParent);
+        CleanupStack::PopAndDestroy(path);
 	    }
     }
 
@@ -586,7 +618,7 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
     TInt lastOnScreen = firstIndex + itemsOnScreen - 1;
     if (lastOnScreen > (mediaCount - 1))
 	    {
-		lastOnScreen = mediaCount;	    	
+		lastOnScreen = mediaCount - 1;	    	
 	    }
     
     GLX_DEBUG2("CGlxListViewImp::PreviewTNReadyL()"
@@ -717,7 +749,7 @@ void CGlxListViewImp::CreateListL()
         // Enable Buffer support
         iList->EnableScrollBufferL(*this, KNoOfPages * items, items);
 	
-        if (iUiUtility->ViewNavigationDirection() == EGlxNavigationBackwards)
+        if (iBackwardNavigation)
             {
             GLX_DEBUG1("CGlxListViewImp::CreateListL() - SetEmptyTextL()");			
             //set the text to be shown if the list is empty.
@@ -853,8 +885,7 @@ void CGlxListViewImp::HandleAttributesAvailableL( TInt aItemIndex,
 		// If there is some modified in grid/fullscreen view,
 		// HandleAttributesAvailableL will get called. Here we are setting
 		// iIsRefreshNeeded flag to ETrue		
-		if (!iIsRefreshNeeded && iUiUtility->ViewNavigationDirection()
-				== EGlxNavigationBackwards)
+		if (!iIsRefreshNeeded && iBackwardNavigation)
 			{
 			iIsRefreshNeeded = ETrue;
 			if(iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
@@ -1153,6 +1184,9 @@ void CGlxListViewImp::HandleMMCInsertionL()
 void CGlxListViewImp::HandleMMCRemovalL()
     {
     TRACER("CGlxListViewImp::HandleMMCRemovalL()");
+	//Dismiss the dialog before env destruction starts.
+	//Otherwise dialog's ProcessFinishedL() Panics.
+    iProgressIndicator->DismissProgressDialog();
     ProcessCommandL(EAknSoftkeyExit);
     }
 

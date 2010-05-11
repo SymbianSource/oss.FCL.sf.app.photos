@@ -109,7 +109,7 @@ CGlxUiUtility::~CGlxUiUtility()
 // Env
 // -----------------------------------------------------------------------------
 //
-EXPORT_C CAlfEnv* CGlxUiUtility::Env() const
+EXPORT_C CAlfEnv* CGlxUiUtility::Env() 
 	{
 	return iEnv;
 	}

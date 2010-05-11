@@ -390,6 +390,10 @@ void CShwSlideshowView::HandleForegroundEventL(TBool aForeground)
 	iIsForegrnd = aForeground;
     if( aForeground )
         {
+        if (iHdmiController && iHdmiActive)
+            {
+            iHdmiController->ShiftToPostingMode();
+            }
         // we gained the foreground
         if(iMMCState && iPrevNotInBackground)
             {
@@ -398,10 +402,15 @@ void CShwSlideshowView::HandleForegroundEventL(TBool aForeground)
         else
             {
             iPauseHandler->SwitchToForegroundL();
+            iEngine->GetMusicVolumeL();
             }
         }
     else
         {
+        if (iHdmiController && iHdmiActive)
+            {
+            iHdmiController->ShiftToCloningMode();
+            }
         // Something else has gained the foreground
         iPauseHandler->SwitchToBackgroundL();
         }
@@ -790,6 +799,7 @@ void CShwSlideshowView::EngineResumedL()
 	{
 	TRACER("CShwSlideshowView::EngineResumedL");
   	GLX_LOG_INFO( "CShwSlideshowView::EngineResumedL" );
+	iEngine->GetMusicVolumeL();
     // Re-enable the backlight if it's off
     if ( !iBackLightTimer->IsRunning() )
         {

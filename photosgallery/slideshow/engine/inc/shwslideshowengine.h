@@ -131,6 +131,11 @@ NONSHARABLE_CLASS( CShwSlideshowEngine ) : public CBase
          */
         IMPORT_C void VolumeDownL();
         
+		/**
+		 * Get the latest music volume value. 
+		 */
+        IMPORT_C void GetMusicVolumeL();
+        
         /**
          * This method change the ui staus in slideshow when MSK Preesed
          */

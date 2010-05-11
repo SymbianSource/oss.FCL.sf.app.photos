@@ -26,4 +26,12 @@ enum TZoomStartMode
     EZoomStartDoubleTap =6
     };
 
+/*
+ Defines the state of the Ui in fullscreen and Zoom 
+ */ 
+enum TUiState
+    {
+     EUiOn,EUiOff
+    };
+
 #endif /* GLXFULLSCREENVIEW_HRH_ */

@@ -446,7 +446,7 @@ void CGlxMetadataContainer::CreateMediaListForSelectedItemL( )
     iMainListAttributecontext->AddAttributeL(KMPXMediaGeneralSize);
     iMainListAttributecontext->AddAttributeL(KGlxMediaGeneralDimensions); 
     iMainListAttributecontext->AddAttributeL(KMPXMediaGeneralTitle);
-    iMainListAttributecontext->AddAttributeL(KMPXMediaGeneralDate);
+    iMainListAttributecontext->AddAttributeL(KGlxMediaGeneralLastModifiedDate);
     iMainListAttributecontext->AddAttributeL(KMPXMediaGeneralComment); 
     iMainListAttributecontext->AddAttributeL(KGlxMediaGeneralLocation);
     iMainListAttributecontext->AddAttributeL(KMPXMediaGeneralDuration);    
@@ -719,7 +719,7 @@ void CGlxMetadataContainer::SetAttributesL(TMPXAttribute attribute)
     HBufC* string = NULL;    
     
     //if attribute is date and time we need to pass the format it as R_QTN_DATE_USUAL_WITH_ZERO else null
-    if(attribute == KMPXMediaGeneralDate)
+    if(attribute == KGlxMediaGeneralLastModifiedDate)
         {
         stringConverter->AsStringL(item, 
                                    attribute,
@@ -747,7 +747,7 @@ void CGlxMetadataContainer::SetAttributesL(TMPXAttribute attribute)
 			{
 			EditItemL(ENameItem,EFalse);
 			}
-		else if(attribute == KMPXMediaGeneralDate)
+		else if(attribute == KGlxMediaGeneralLastModifiedDate)
 			{  
 			EditItemL(EDateAndTimeItem,EFalse);
 			}
@@ -1121,7 +1121,7 @@ void CGlxMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /*aEndI
 				else if(index == EDateAndTimeItem)
 					{  
 					stringConverter->AsStringL( item, 
-							KMPXMediaGeneralDate,
+					        KGlxMediaGeneralLastModifiedDate,
 							R_QTN_DATE_USUAL_WITH_ZERO,string );
 					}
 				else if(index == EDescriptionItem)

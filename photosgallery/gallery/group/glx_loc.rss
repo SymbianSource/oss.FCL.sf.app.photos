@@ -41,12 +41,12 @@ RESOURCE RSS_SIGNATURE { }
 
 RESOURCE LOCALISABLE_APP_INFO r_glx_localisable_app_info
 	{
-	short_caption = qtn_lgal_title_main_view;
+	short_caption = qtn_lgal_photos_app_title;
 	caption_and_icon =
 		{
 		CAPTION_AND_ICON_INFO 
 			{
-			caption=qtn_lgal_title_main_view;
+			caption=qtn_lgal_photos_app_title;
 			number_of_icons=1;
 			icon_file="\\resource\\apps\\glx_aif.mif";
 			}

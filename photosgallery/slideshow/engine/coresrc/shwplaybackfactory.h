@@ -90,6 +90,9 @@ NONSHARABLE_CLASS( CShwPlaybackFactory ) : public CBase
         /// @ref CShwSlideshowEngine::AvailableEffectsL
         static void AvailableEffectsL( RArray<TShwEffectInfo>& aEffects );
         
+        /// @ref CShwSlideshowEngine::GetMusicVolumeL
+        void GetMusicVolumeL();
+        
     private:
 
         /// Own: The implementation of the class, hidden from the clients

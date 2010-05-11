@@ -126,6 +126,11 @@ NONSHARABLE_CLASS( CShwMusicControl )
          */
 		void HandleMediaL(
 		    const CMPXMedia& aProperties, TInt aError );
+		
+		/**
+		 * Get the latest music volume value. 
+		 */
+		void GetMusicVolumeL();
 
 	private:	// From MMPXPlaybackObserver 
 	

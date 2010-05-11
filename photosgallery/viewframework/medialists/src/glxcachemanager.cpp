@@ -802,92 +802,67 @@ void CGlxCacheManager::MaintainCacheL()
                                 TParsePtrC parser(fileName);
                                 iMPXMedia->SetTextValueL(KMPXMediaGeneralTitle, parser.Name());
                                 }
-                            else if ( iRequestedAttrs[i] == KMPXMediaGeneralDate )
+                            else if ((iRequestedAttrs[i] == KGlxMediaGeneralLastModifiedDate)
+                                    || (iRequestedAttrs[i] == KMPXMediaGeneralDate))
                                 {
+                                // Image viewer use case, no need of genaral date, 
+                                // but, the same is added for attribute completion purpose.
+                                TMPXAttribute attrib = iRequestedAttrs[i];
                                 TTime time;
                                 time.HomeTime();
-                                iMPXMedia->SetTObjectValueL(KMPXMediaGeneralDate, time.Int64());
-                                }
-                            else if ( iRequestedAttrs[i] == KGlxMediaGeneralLastModifiedDate )
-                                {
-                                if(errInImage == KErrNone)
+                                if (errInImage == KErrNone)
                                     {
                                     RFs fs;
                                     CleanupClosePushL(fs);
-                                    TInt err = fs.Connect();   
-                                    if(err == KErrNone)
-                                        {                                    
-                                        TEntry entry;   
-                                        fs.Entry(fileName,entry);    
-                                        TTime time = entry.iModified;   
-                                        iMPXMedia->SetTObjectValueL(
-                                                KGlxMediaGeneralLastModifiedDate, 
-                                                time.Int64());
-                                        }
-                                    else
+                                    TInt err = fs.Connect();
+                                    if (err == KErrNone)
                                         {
-                                        TTime time;
-                                        time.HomeTime();
-                                        iMPXMedia->SetTObjectValueL(
-                                                KGlxMediaGeneralLastModifiedDate, 
-                                                time.Int64());
+                                        TEntry entry;
+                                        fs.Entry(fileName, entry);
+                                        time = entry.iModified;
                                         }
-                                    CleanupStack::PopAndDestroy(&fs);                                    
+                                    CleanupStack::PopAndDestroy(&fs);
                                     }
-                                else
-                                    {
-                                    TTime time;
-                                    time.HomeTime();
-                                    iMPXMedia->SetTObjectValueL(KGlxMediaGeneralLastModifiedDate, time.Int64());
-                                    }
+                                iMPXMedia->SetTObjectValueL(attrib,
+                                        time.Int64());
                                 }
                             else if ( iRequestedAttrs[i] == KMPXMediaGeneralSize )
                                 {
-                                if(errInImage == KErrNone)
+                                TInt64 size = 0;
+                                TInt err = KErrNotFound;
+                                if (errInImage == KErrNone)
                                     {
-                                    if(iImageViewerInstance->IsPrivate())
+                                    if (iImageViewerInstance->IsPrivate())
                                         {
-                                        TInt64 sz = 0;
-                                        TInt err = KErrNotFound;                                      
-                                        RFile64& imageHandle = iImageViewerInstance->ImageFileHandle();
-                                        if ( imageHandle.SubSessionHandle() != KNullHandle )
+                                        RFile64& imageHandle =
+                                                iImageViewerInstance->ImageFileHandle();
+                                        if (imageHandle.SubSessionHandle()
+                                                != KNullHandle)
                                             {
-                                            err = imageHandle.Size(sz);
-                                            }
-                                        if(err == KErrNone)
-                                            {
-                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, (TUint)sz);
-                                            }
-                                        else
-                                            {
-                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, 0);                                            
+                                            err = imageHandle.Size(size);
                                             }
                                         }
                                     else
                                         {
                                         RFs fs;
                                         CleanupClosePushL(fs);
-                                        TInt err = fs.Connect();   
-                                        if(err == KErrNone)
+                                        err = fs.Connect();
+                                        if (err == KErrNone)
                                             {
-                                            TEntry entry;   
-                                            fs.Entry(fileName,entry);    
-                                            TUint sz = entry.iSize;                                      
-                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, sz);
-                                            }
-                                        else
-                                            {
-                                            iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, 0);
+                                            TEntry entry;
+                                            fs.Entry(fileName, entry);
+                                            size = (TUint) entry.iSize;
                                             }
                                         CleanupStack::PopAndDestroy(&fs);
                                         }
+
+                                    if (err != KErrNone)
+                                        {
+                                        size = 0;
+                                        }
                                     }
-                                // If any error while image is being decoded by image decorder, Need to set
-                                // default vaule for that image. Typical case is corrupted image.
-                                else
-                                    {
-                                    iMPXMedia->SetTObjectValueL(KMPXMediaGeneralSize, 0);
-                                    }
+                                iMPXMedia->SetTObjectValueL(
+                                        KMPXMediaGeneralSize, size);
                                 }
                             else if ( iRequestedAttrs[i] == KMPXMediaGeneralDrive )
                                 {

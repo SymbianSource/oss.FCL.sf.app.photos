@@ -102,24 +102,38 @@ EXPORT_C void CGlxCollectionPluginBase::CommandL(CMPXCommand& aCmd)
 // ----------------------------------------------------------------------------
 //
 EXPORT_C void CGlxCollectionPluginBase::OpenL(const CMPXCollectionPath& aPath,
-                   const TArray<TMPXAttribute>& /*aAttrs*/,
+                   const TArray<TMPXAttribute>& aAttrs,
                    CMPXFilter* aFilter)
     {
     TRACER("void CGlxCollectionPluginBase::OpenL()");
     iPath = CMPXCollectionPath::NewL(aPath);
-    if(aFilter)
+    // When a collection is opened for browsing, 
+    // there are two queries executed with similar filter. 
+    // First query to open the collection from list / cloud view.
+    // Second one from grid view construction. To improve the grid opening
+    // performance, the first query will be completed with empty Id list.
+    TBool openRequest = EFalse;
+    for (TInt index = 0; index < aAttrs.Count(); index++)
         {
-        if(aFilter->IsSupported(KGlxFilterGeneralNavigationalStateOnly))
+        const TMPXAttribute attr = aAttrs[index];
+
+        if (attr == KGlxFilterGeneralNavigationalStateOnly)
             {
-            RArray<TMPXItemId> mpxIds;
-         	CleanupClosePushL(mpxIds);
-            iPath->AppendL(mpxIds.Array());
-            iObs->HandleOpen(iPath, KErrNone);
-            CleanupStack::PopAndDestroy(&mpxIds);
-            delete iPath;
-            iPath = NULL;
-            return;
+            openRequest = ETrue;
             }
+        }
+
+    if ((aFilter && aFilter->IsSupported(
+            KGlxFilterGeneralNavigationalStateOnly)) || openRequest)
+        {
+        RArray<TMPXItemId> mpxIds;
+        CleanupClosePushL(mpxIds);
+        iPath->AppendL(mpxIds.Array());
+        iObs->HandleOpen(iPath, KErrNone);
+        CleanupStack::PopAndDestroy(&mpxIds);
+        delete iPath;
+        iPath = NULL;
+        return;
         }
 
     TGlxMediaId targetId(aPath.Id());

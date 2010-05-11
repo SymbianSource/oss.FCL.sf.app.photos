@@ -97,6 +97,8 @@ NONSHARABLE_CLASS( CShwPlaybackFactory::CShwPlaybackFactoryImpl )
 		/// @ref CShwSlideshowEngine::AvailableEffectsL
 		// @returns ownership of array of effects
 		static void CreateEffectsL( RPointerArray<MShwEffect>& aEffects );
+		/// @ref CShwSlideshowEngine::GetMusicVolumeL
+		void GetMusicVolumeL();
 
 	private:
 
@@ -206,6 +208,15 @@ void CShwPlaybackFactory::AvailableEffectsL( RArray<TShwEffectInfo>&
 	// ownership transferred, remove array from stack
 	CleanupStack::PopAndDestroy( &effects );
     }
+
+// -----------------------------------------------------------------------------
+// GetMusicVolumeL
+// -----------------------------------------------------------------------------
+void CShwPlaybackFactory::GetMusicVolumeL()
+	{
+	TRACER("CShwPlaybackFactory::GetMusicVolumeL");
+	this->iImpl->GetMusicVolumeL();
+	}
 
 //------------------------------------------------------------------------------
 // CShwPlaybackFactoryImpl
@@ -363,4 +374,16 @@ void CShwPlaybackFactory::CShwPlaybackFactoryImpl::CreateEffectsL(
 	aEffects.AppendL( CShwCrossFadeEffect::NewLC() );
 	CleanupStack::Pop(); // CShwCrossFadeEffect::NewLC()
     CleanupStack::Pop(&aEffects);
+    }
+
+//------------------------------------------------------------------------------
+// CShwPlaybackFactoryImpl::GetMusicVolumeL
+//------------------------------------------------------------------------------
+void CShwPlaybackFactory::CShwPlaybackFactoryImpl::GetMusicVolumeL()
+    {
+    TRACER("CShwPlaybackFactory::CShwPlaybackFactoryImpl::GetMusicVolumeL");
+    if(iMusicControl)
+        {
+        iMusicControl->GetMusicVolumeL();
+        }
     }

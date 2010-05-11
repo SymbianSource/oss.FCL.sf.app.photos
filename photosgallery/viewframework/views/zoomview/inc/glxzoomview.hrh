@@ -38,10 +38,4 @@ enum TGlxPanIncrementType
     EGlxPanIncrementInertic
     };
 
-enum TUiState
-    {
-    EUiOn,
-    EUiOff
-    };
-
 #endif /* GLXZOOMVIEW_HRH_ */

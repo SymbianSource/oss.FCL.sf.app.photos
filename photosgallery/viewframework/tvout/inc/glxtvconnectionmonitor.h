@@ -114,6 +114,10 @@ private:
      */
     void IssueNotificationL();
 
+    /**
+	 * Updates the ConnectionState of Tv Out and HDMI
+	 */
+	void UpdateConnectionStatusL();
 
 private: // class member data
 

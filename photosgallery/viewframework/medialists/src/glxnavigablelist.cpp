@@ -918,7 +918,7 @@ inline TInt CGlxNavigableList::FindFirstSelectedItemIndexBefore( TInt aMaxIndex 
 // ---------------------------------------------------------------------------
 // Test invariant
 // ---------------------------------------------------------------------------
-void CGlxNavigableList::__DbgTestInvariant() const
+EXPORT_C void CGlxNavigableList::__DbgTestInvariant() const
     {
     TRACER( "CGlxNavigableList::__DbgTestInvariant");
     

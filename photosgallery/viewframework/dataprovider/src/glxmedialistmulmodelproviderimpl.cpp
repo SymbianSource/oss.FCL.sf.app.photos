@@ -100,6 +100,7 @@ void CGlxMediaListMulModelProviderImpl::ConstructL( CAlfEnv& aEnv,
 			iBindingSet->HandleItemChangedL( *path ); 
 			CleanupStack::PopAndDestroy( path );
 			}
+		iMediaIDForTextureDeletion = iMediaList.Item(iMediaList.FocusIndex()).Id();
 	    }
 	    
 	if(UString( KListWidget ) == UString(iWidget.widgetName() ) ||  UString( KCoverFlowWidget ) == UString(iWidget.widgetName() ) )
@@ -175,6 +176,26 @@ void CGlxMediaListMulModelProviderImpl::HandleFocusChangedL( NGlxListDefs::TFocu
         }
 	
 	CleanupStack::PopAndDestroy( path );
+	// Check for the deletion of a media item and delete the texture of the deleted media item.
+	// Deleting the texture after removing the item from the mul model and updating the new image.
+	// Hence the texture deletion is done at a later stage here instead of in HandleItemRemovedL().
+	if ((aNewIndex == aOldIndex) && (iMediaIDForTextureDeletion.Value()
+            != KGlxInvalidIdValue) || (aNewIndex == KErrNotFound && aOldIndex
+            == 0))
+        {
+        iUiUtility->GlxTextureManager().RemoveTexture(
+                iMediaIDForTextureDeletion, EFalse);
+        }
+    
+    // Storing the focussed media id for use during the focussed media item deletion operation
+    if (aNewIndex >= 0 && aNewIndex < aList->Count())
+        {
+        iMediaIDForTextureDeletion = aList->Item(aNewIndex).Id();
+        }
+    else
+        {
+        iMediaIDForTextureDeletion.SetValue(KGlxInvalidIdValue);
+        }
 	}
 
 // ----------------------------------------------------------------------------

@@ -208,11 +208,11 @@ private:
     TBool HandlePanKey(const TAlfEvent &aEvent);
     
     /**
-    * Handle zoom stripe key pressed.
+    * Handle zoom key pressed.
     * @param aZoomIn    :ETrue for Zoom In key, EFalse for Zoom Out key
     * @param aEventCode :Type of key event.
     */
-    void HandleZoomStripeAction(TZoomMode aZoomMode ,TEventCode aEventCode);
+    void HandleZoomKey(TZoomMode aZoomMode ,TEventCode aEventCode);
     
     /**
     * Handle the drag events for panning
@@ -292,11 +292,7 @@ private:
     
     GestureHelper::TGestureCode        iPreviousGestureCode ;
     
-    
-    
     TGlxZoomAndPanMathsEngine iMathsEngine;             
-    
-    
     };
 
 

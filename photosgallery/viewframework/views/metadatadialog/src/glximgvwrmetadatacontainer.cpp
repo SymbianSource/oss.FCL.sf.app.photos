@@ -319,7 +319,7 @@ void CGlxImgVwrMetadataContainer::HandleItemAddedL( TInt /*aStartIndex*/, TInt /
                 else if(index == EImgVwrDateAndTimeItem)
                     {  
                     stringConverter->AsStringL( item, 
-                            KMPXMediaGeneralDate,
+                            KGlxMediaGeneralLastModifiedDate,
                             R_QTN_DATE_USUAL_WITH_ZERO,string );
                     }
                 else if(index == EImgVwrDescriptionItem)
@@ -526,7 +526,7 @@ void CGlxImgVwrMetadataContainer::CreateMediaListForSelectedItemL()
     iMainListAttributecontext->AddAttributeL(KMPXMediaGeneralSize);
     iMainListAttributecontext->AddAttributeL(KGlxMediaGeneralDimensions); 
     iMainListAttributecontext->AddAttributeL(KMPXMediaGeneralTitle);
-    iMainListAttributecontext->AddAttributeL(KMPXMediaGeneralDate);
+    iMainListAttributecontext->AddAttributeL(KGlxMediaGeneralLastModifiedDate);
     iMainListAttributecontext->AddAttributeL(KMPXMediaGeneralComment); 
 
     //Add Context so that we get the handleattributes call once the medialist is populated with above mentioned attributes.
@@ -560,7 +560,7 @@ void CGlxImgVwrMetadataContainer::SetAttributesL(TMPXAttribute attribute)
     HBufC* string = NULL;    
 
     //if attribute is date and time we need to pass the format it as R_QTN_DATE_USUAL_WITH_ZERO else null
-    if(attribute == KMPXMediaGeneralDate)
+    if(attribute == KGlxMediaGeneralLastModifiedDate)
         {
         stringConverter->AsStringL(item, 
                 attribute,
@@ -584,7 +584,7 @@ void CGlxImgVwrMetadataContainer::SetAttributesL(TMPXAttribute attribute)
             {
             EditItemL(EImgVwrNameItem,EFalse);
             }
-        else if(attribute == KMPXMediaGeneralDate)
+        else if(attribute == KGlxMediaGeneralLastModifiedDate)
             {  
             EditItemL(EImgVwrDateAndTimeItem,EFalse);
             }

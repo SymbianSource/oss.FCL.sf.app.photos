@@ -22,7 +22,7 @@
 #include <mglxuicommandhandler.h>
 #include <gesturehelper.h>
 #include <gestureobserver.h>
-
+#include <alf/alfcompositionutility.h>
 #include "glxfullscreenview.h"
 #include "glxfullscreenbindingsetfactory.h"
 #include "glxfullscreenview.hrh"
@@ -48,7 +48,6 @@ class CGlxHdmiController;
 class CGestureHelper;
 class TGlxMedia;
 class CGlxFullScreenBusyIcon;
-//class CHgContextUtility;
 
 namespace Alf
 	{
@@ -57,16 +56,6 @@ namespace Alf
    class IMulSliderWidget;
    class IMulSliderModel;
 	}
-/*
- Defines the state of the Ui in fullscreen
- */	
-namespace NGlxNFullScreenUIState
-    {
-    enum TUiState
-        {
-         EUiOn,EUiOff
-        };
-    }
 /*
  Defines the swipe direction
  */ 
@@ -78,7 +67,8 @@ enum TSwipe
 NONSHARABLE_CLASS (CGlxFullScreenViewImp): public CGlxFullScreenView, 
                                             public IAlfWidgetEventHandler,
  											public MGlxUiCommandHandler,
-			                                public MStorageNotifierObserver
+			                                public MStorageNotifierObserver,
+			                                public CAlfEffectObserver::MAlfEffectObserver
     {
 public:    
     /**
@@ -144,8 +134,9 @@ public:
     AlfEventHandlerType eventHandlerType() ;
 
     AlfEventHandlerExecutionPhase eventExecutionPhase() ;
-
-
+	
+	//From MAlfEffectObserver
+    void HandleEffectCallback(TInt aType, TInt aHandle, TInt aStatus);
 private:
     /*
      * Constructor 
@@ -203,21 +194,21 @@ private:
     
     /*
     * Hide the UI off
-    * @param asliderstatus:When we start zooming using the slider widget,for continous zooming from the 
+    * @param aHideSlider:When we start zooming using the slider widget,for continous zooming from the 
     * fullscreen view to zoom control, we need to have the slider visible so in this case we shouldnt 
     * be hiding the slider so pass EFalse,else case asliderstatus = ETrue
     */     
-    void HideUi(TBool aSliderStatus);
+    void HideUi(TBool aHideSlider);
     
     /*
     * Sets the UI state
     */     
-    void SetUiSate (NGlxNFullScreenUIState::TUiState  aState);
+    void SetUiState (TUiState  aState);
     
     /*
     * returns the Ui state
     */     
-    NGlxNFullScreenUIState::TUiState GetUiSate();
+    TUiState GetUiState();
     
     /*
     * Call back function for the CPeriodic
@@ -282,7 +273,7 @@ private:
     /**
      * Disable/enable the fullscreen toolbar
      */
-    void EnableFSToolbarL(TBool aEnable);
+    void EnableFSToolbar(TBool aEnable);
 
 private:
     /** Softkey resource id's */
@@ -313,7 +304,7 @@ private:
     CGlxZoomControl* iZoomControl;
     
     // Holds the state of the Ui in Fullscreen
-    NGlxNFullScreenUIState::TUiState iUiState;
+    TUiState iUiState;
 
     // used to turn the Ui off,if the screen is inactive for 10 sec
     CPeriodic* iTimer;
@@ -341,6 +332,8 @@ private:
 	TSize iGridIconSize; // grid icon size
     TBool iIsDialogLaunched;
     TBool iIsMMCRemoved;
+	CAlfEffectObserver* iAlfEffectObs;
+	TInt iEffectHandle;
     };
 
 #endif

@@ -223,6 +223,12 @@ MCoeMessageObserver::TMessageResponse CGlxAppUi::HandleMessageL(
             HandleActivationMessageL(aMessageParameters);           
             break;
         }
+    
+    //Safely we can call Destroy screen here, as there can be already 
+    //photos in background and bringing it to foreground does not 
+    //give the ViewActivate( ) callback to view.
+    iUiUtility->DestroyScreenClearer();
+    
     return response;
     }
 
@@ -246,6 +252,18 @@ TBool CGlxAppUi::ProcessCommandParametersL(TApaCommand aCommand,
         CleanupStack::PopAndDestroy( newState );
         }
 
+    //Start a timer to check for thr IAD update after 60 Secs.
+    //Only when any view is launched in photos.
+    if(!iPeriodic)
+        {
+        iPeriodic = CPeriodic::NewL(CActive::EPriorityLow);
+        }    
+    if ( !iPeriodic->IsActive() )
+        {
+        iPeriodic->Start( KPeriodicStartDelay, KMaxTInt, 
+                TCallBack( &PeriodicCallback, static_cast<TAny*>(this) ) );
+        }
+    
     if(0 == aTail.CompareC(KNullDesC8))
         {
       	return ETrue;
@@ -469,23 +487,19 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
     CleanupClosePushL(stream);
     stream >> msgUid;
     
-    //Start a timer to check for thr IAD update after 30 Secs.
-    if(!iPeriodic)
-        {
-        iPeriodic = CPeriodic::NewL(CActive::EPriorityLow);
-        }    
-    if ( !iPeriodic->IsActive() )
-        {
-        iPeriodic->Start( KPeriodicStartDelay, KMaxTInt, 
-                TCallBack( &PeriodicCallback, static_cast<TAny*>(this) ) );
-        }
-    
     switch ( msgUid.iUid )
         {
         case KGlxActivationCmdShowLastModified:
         case KGlxActivationCameraAlbum:
         case KGlxActivationCmdShowAll:
             {
+            GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: Creating Screen Clearer");
+            iUiUtility->DisplayScreenClearerL();
+            HBufC8* activationParam = HBufC8::NewLC(KMaxUidName);
+            activationParam->Des().AppendNum(KGlxActivationCmdShowAll);
+            SetActivationParamL(*activationParam);
+            CleanupStack::PopAndDestroy(activationParam);
+            
             // Go to All grid view
             GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: All Grid View");
             // Send the command to reset the view
@@ -751,9 +765,6 @@ void CGlxAppUi::ClosePhotosL()
 	//Temparory fix provided for Kern Exec 3 bug
 	//UPnP Stop Showin is explicitly called when exiting the gallery
 	GlxUpnpRenderer:: StopShowingL();
-
-	iUiUtility->SetExitingState(ETrue);         
-	GLX_LOG_INFO("CGlxAppUi::HandleWsEventL: Exit() for C key being Called");	
-
+	iUiUtility->SetExitingState(ETrue);
     }
 //OOM

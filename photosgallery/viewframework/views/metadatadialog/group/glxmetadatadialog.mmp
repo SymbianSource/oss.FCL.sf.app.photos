@@ -37,7 +37,6 @@ SOURCEPATH		../src
 SOURCE			glxmetadatadialog.cpp
 SOURCE			glxmetadatacontainer.cpp
 SOURCE			glxmetadataviewutility.cpp
-SOURCE			glxresourceutilities.cpp
 SOURCE			glxmetadatacommandhandler.cpp
 SOURCE                  glximgvwrmetadatadialog.cpp
 SOURCE                  glximgvwrmetadatacontainer.cpp

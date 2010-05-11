@@ -130,6 +130,11 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
     {
     TRACER ("CGlxMediaListViewBase::DoViewActivateL()");
     iUiUtility->SetAppOrientationL( EGlxOrientationDefault );	
+    // current navigational state
+    CMPXCollectionPath* navigationalState = 
+        iCollectionUtility->Collection().PathL();
+    CleanupStack::PushL( navigationalState );
+    
     if ( iMediaList )
         {
         // may need to refresh the media list if it has got out of sync
@@ -139,9 +144,6 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
         // could contain out of date items
         CMPXCollectionPath* path = iMediaList->PathLC();
         // current navigational state
-        CMPXCollectionPath* navigationalState = 
-            iCollectionUtility->Collection().PathL();
-        CleanupStack::PushL( navigationalState );
         // current node id in UI Hierarchy
         TMPXItemId navStateNodeId = 
             navigationalState->Id( navigationalState->Levels() - 2 );
@@ -154,7 +156,6 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
             // for it to be recreated later on
             CloseMediaList();
             }
-        CleanupStack::PopAndDestroy( navigationalState );
         CleanupStack::PopAndDestroy( path );        
         }
     
@@ -166,8 +167,6 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
     __ASSERT_ALWAYS(iMediaList, Panic(EGlxPanicNullMediaList));
 
     
-    CMPXCollectionPath* navigationalState = iCollectionUtility->Collection().PathL();
-    CleanupStack::PushL( navigationalState );
     if (navigationalState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
         {
         // As image viewer is direct fullscreen view, 
@@ -189,14 +188,11 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
         iTitleFetcher = CGlxTitleFetcher::NewL(*this, path);
         CleanupStack::PopAndDestroy(path);
         }
-    CleanupStack::PopAndDestroy( navigationalState );
    
     //Allow the MskController to observe medialist everytime a view with a valid
     //medialist becomes active
     if( iCbaControl && Cba()&& iEnableMidddleSoftkey )
         {
-        CMPXCollectionPath* navigationalState = iCollectionUtility->Collection().PathL();
-        CleanupStack::PushL(navigationalState);
         iCbaControl->AddToObserverL(*iMediaList,Cba()); 
         if(!(1 == navigationalState->Levels())) // Checking for the main list view
           {
@@ -206,8 +202,9 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
             {
             iCbaControl->SetMainStatusL();
             }
-        CleanupStack::PopAndDestroy(navigationalState);
         }
+    
+    CleanupStack::PopAndDestroy( navigationalState );
     
     DoMLViewActivateL(aPrevViewId, aCustomMessageId, aCustomMessage);
     //Allow the toolbarController to observe medialist everytime a view with a valid

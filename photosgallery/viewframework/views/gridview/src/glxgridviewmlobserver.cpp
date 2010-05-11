@@ -494,6 +494,7 @@ void CGlxGridViewMLObserver::RefreshScreen(TInt aItemIndex,
                                       const RArray<TMPXAttribute>& aAttributes)
     {
     TRACER("CGlxGridViewMLObserver::RefreshScreen()");
+    GLX_DEBUG2("CGlxGridViewMLObserver::RefreshScreen(%d)", aItemIndex);
     TInt mediaCount = iMediaList.Count();
     TInt firstIndex = iHgGrid->FirstIndexOnScreen();
     firstIndex = (firstIndex<0 ? 0 : firstIndex);
@@ -501,7 +502,8 @@ void CGlxGridViewMLObserver::RefreshScreen(TInt aItemIndex,
     lastOnScreen = (lastOnScreen >mediaCount-1? mediaCount-1:lastOnScreen);
     if (mediaCount < iItemsPerPage || aItemIndex == firstIndex)
         {
-        if (aItemIndex == firstIndex && HasRelevantThumbnail(firstIndex))
+        if (aItemIndex == firstIndex && HasRelevantThumbnail(firstIndex)
+                && HasRelevantThumbnail(lastOnScreen))
             {
             GLX_DEBUG2("## GridMLObserver::HandleAttributesAvailableL()"
                      " RefreshScreen - firstIndex(%d)", firstIndex);
@@ -509,7 +511,8 @@ void CGlxGridViewMLObserver::RefreshScreen(TInt aItemIndex,
             }
         else if (aItemIndex > firstIndex && aItemIndex <= lastOnScreen)
             {
-            if ( HasRelevantThumbnail(lastOnScreen) )
+            if (HasRelevantThumbnail(lastOnScreen) && HasRelevantThumbnail(
+                    firstIndex))
                 {
                 GLX_DEBUG2("GridMLObserver::HandleAttributesAvailableL()"
                         " RefreshScreen - aItemIndex(%d)", aItemIndex);					

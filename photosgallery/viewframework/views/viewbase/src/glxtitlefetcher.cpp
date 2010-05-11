@@ -57,7 +57,10 @@ void CGlxTitleFetcher::ConstructL()
     iPathId = iPath->Id();
     // Go back another level from which to create a media list containing 
     // this path
-    iPath->Back();
+    if(iPath->Levels() > 0)
+    	{
+		iPath->Back();
+    	}
     
     iBackMediaList = MGlxMediaList::InstanceL(*iPath);
     

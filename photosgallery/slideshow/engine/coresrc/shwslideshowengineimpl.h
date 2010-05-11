@@ -107,6 +107,8 @@ NONSHARABLE_CLASS( CShwSlideshowEngineImpl )
 		void VolumeUpL();
 		/// @ref CShwSlideshowEngine::VolumeDownL
 		void VolumeDownL();
+	    /// @ref CShwSlideshowEngine::GetMusicVolumeL
+	    void GetMusicVolumeL();
 
 	public: // From MShwEventObserver
 

@@ -53,7 +53,8 @@ CGlxMainFullScreenViewPlugin::CGlxMainFullScreenViewPlugin()
     TRACER("CGlxMainFullScreenViewPlugin::CGlxMainFullScreenViewPlugin()");
     iResourceIds.iMenuId = R_GLX_FULLSCREEN_MENU;
     iResourceIds.iViewId = R_GLX_FULLSCREEN_VIEW;
-    iResourceIds.iCbaId = R_GLX_FULLSCREEN_SOFTKEYS;
+    //Load empty soft keys at initialization
+    iResourceIds.iCbaId = R_GLX_FULLSCREEN_EMPTYSOFTKEYS;
     iViewUID = KGlxMainFullScreenViewImplementationId;
     
     }

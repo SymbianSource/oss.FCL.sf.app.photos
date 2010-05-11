@@ -12,20 +12,21 @@ EXPORTS
 	_ZN19CShwSlideshowEngine11LSKPressedLEv @ 11 NONAME
 	_ZN19CShwSlideshowEngine11VolumeDownLEv @ 12 NONAME
 	_ZN19CShwSlideshowEngine13PreviousItemLEv @ 13 NONAME
-	_ZN19CShwSlideshowEngine17AvailableEffectsLER6RArrayI14TShwEffectInfoE @ 14 NONAME
-	_ZN19CShwSlideshowEngine26ToggleUiControlsVisibiltyLEv @ 15 NONAME
-	_ZN19CShwSlideshowEngine4NewLER18MShwEngineObserver @ 16 NONAME
-	_ZN19CShwSlideshowEngine6PauseLEv @ 17 NONAME
-	_ZN19CShwSlideshowEngine6StartLER7CAlfEnvR11CAlfDisplayR13MGlxMediaListR17MShwMusicObserver5TSize @ 18 NONAME
-	_ZN19CShwSlideshowEngine7ResumeLEv @ 19 NONAME
-	_ZN19CShwSlideshowEngine9NextItemLEv @ 20 NONAME
-	_ZN19CShwSlideshowEngine9VolumeUpLEv @ 21 NONAME
-	_ZN19CShwSlideshowEngineD0Ev @ 22 NONAME
-	_ZN19CShwSlideshowEngineD1Ev @ 23 NONAME
-	_ZN19CShwSlideshowEngineD2Ev @ 24 NONAME
-	_ZNK17CShwSettingsModel11TransDelayLEv @ 25 NONAME
-	_ZNK17CShwSettingsModel14MusicNamePathLER6TDes16 @ 26 NONAME
-	_ZNK17CShwSettingsModel15TransitionTypeLER4TUidRj @ 27 NONAME
-	_ZNK17CShwSettingsModel8MusicOnLEv @ 28 NONAME
-	_ZNK19CShwSlideshowEngine5StateEv @ 29 NONAME
+	_ZN19CShwSlideshowEngine15GetMusicVolumeLEv @ 14 NONAME
+	_ZN19CShwSlideshowEngine17AvailableEffectsLER6RArrayI14TShwEffectInfoE @ 15 NONAME
+	_ZN19CShwSlideshowEngine26ToggleUiControlsVisibiltyLEv @ 16 NONAME
+	_ZN19CShwSlideshowEngine4NewLER18MShwEngineObserver @ 17 NONAME
+	_ZN19CShwSlideshowEngine6PauseLEv @ 18 NONAME
+	_ZN19CShwSlideshowEngine6StartLER7CAlfEnvR11CAlfDisplayR13MGlxMediaListR17MShwMusicObserver5TSize @ 19 NONAME
+	_ZN19CShwSlideshowEngine7ResumeLEv @ 20 NONAME
+	_ZN19CShwSlideshowEngine9NextItemLEv @ 21 NONAME
+	_ZN19CShwSlideshowEngine9VolumeUpLEv @ 22 NONAME
+	_ZN19CShwSlideshowEngineD0Ev @ 23 NONAME
+	_ZN19CShwSlideshowEngineD1Ev @ 24 NONAME
+	_ZN19CShwSlideshowEngineD2Ev @ 25 NONAME
+	_ZNK17CShwSettingsModel11TransDelayLEv @ 26 NONAME
+	_ZNK17CShwSettingsModel14MusicNamePathLER6TDes16 @ 27 NONAME
+	_ZNK17CShwSettingsModel15TransitionTypeLER4TUidRj @ 28 NONAME
+	_ZNK17CShwSettingsModel8MusicOnLEv @ 29 NONAME
+	_ZNK19CShwSlideshowEngine5StateEv @ 30 NONAME
 
