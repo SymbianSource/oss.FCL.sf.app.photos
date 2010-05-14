@@ -62,9 +62,8 @@ GlxSlideShowView::~GlxSlideShowView()
 
 void GlxSlideShowView::activate()
 {
-    //To:Do error handling
     TRACER("GlxSlideShowView::activate()");
-    mWindow->setOrientation(Qt::Horizontal, false);
+    mWindow->setOrientation(Qt::Horizontal, true);  // Actually it is animation false, Hack for Bug in Media wall -todo- need to Address this ASAP
 
     //finds the widgets from the docml
     loadObjects();
@@ -72,21 +71,22 @@ void GlxSlideShowView::activate()
     connect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) ); 
     connect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
     
-    if (!mTvOutWrapper){
+    if (!mTvOutWrapper) {
         mTvOutWrapper = new GlxTvOutWrapper();
-        }
+    }
 }
 
 void GlxSlideShowView::deActivate()
 {
     TRACER("GlxSlideShowView::deActivate()");
-    mWindow->unsetOrientation(false);
-    setItemVisible(Hb::AllItems , TRUE);
+    mWindow->unsetOrientation(true);         // Actually it is animation false, Hack for Bug in Media wall -todo- need to Address this ASAP
+    
+    setItemVisible( Hb::AllItems , TRUE );
     disconnect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) );
     disconnect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
     //Delete the Items in the slide show widget
     mSlideShowWidget->cleanUp();
-    mModel = NULL;
+    
     if (mTvOutWrapper){
         delete mTvOutWrapper;
         mTvOutWrapper = NULL;
@@ -97,15 +97,19 @@ void GlxSlideShowView::setModel(QAbstractItemModel *model)
 {
     TRACER("GlxSlideShowView::setModel()");
     GLX_LOG_INFO2("GlxSlideShowView::setModel() model %u mModel %u", model, mModel);
-    if ( mModel == model ) {
-        return ;
-    }
+    if ( mModel != model ) {
+    
+    modelDestroyed();
     mModel = model;
+    connect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
+    } 
+    setModelContext();    
     mSlideShowWidget->setModel(mModel);
+    
     if (mTvOutWrapper){
         mTvOutWrapper->setModel(mModel);
         mTvOutWrapper->setImagetoHDMI();
-        }
+    }
 }
 
 void GlxSlideShowView::setModelContext()
@@ -114,12 +118,13 @@ void GlxSlideShowView::setModelContext()
     if ( mModel && mWindow ) {
         GLX_LOG_INFO1("GlxSlideShowView::setModelContext %d", mWindow->orientation() );
     
-        if ( mWindow->orientation() == Qt::Horizontal ) {
+            mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
+      /* if ( mWindow->orientation() == Qt::Horizontal ) {
             mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
         }
         else {
             mModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
-        }
+        } */
     }
 }
 
@@ -158,7 +163,14 @@ void GlxSlideShowView::indexchanged()
     if (mTvOutWrapper){
         mTvOutWrapper->setImagetoHDMI();
     }
+}
 
+void GlxSlideShowView::modelDestroyed()
+{
+    if ( mModel ) {
+        disconnect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
+        mModel = NULL; 
+    }
 }
 
 bool GlxSlideShowView::event(QEvent *event)
@@ -166,10 +178,16 @@ bool GlxSlideShowView::event(QEvent *event)
     TRACER("GlxSlideShowView::event()");
     GLX_LOG_INFO1("GlxSlideShowView::event() %d event type", event->type());
     if ( event->type() ==  QEvent::WindowActivate && mSlideShowWidget) {
+        if (mTvOutWrapper){
+        mTvOutWrapper->setToNativeMode();    
+        }
         mSlideShowWidget->startSlideShow();
     }
 
     if ( event->type() ==  QEvent::WindowDeactivate && mSlideShowWidget) {
+        if (mTvOutWrapper){
+        mTvOutWrapper->setToCloningMode();    
+        }
        mSlideShowWidget->stopSlideShow();
     }
     return HbView::event(event);

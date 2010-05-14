@@ -40,7 +40,8 @@ enum GlxContextMode
 	GlxContextPtFs,  //TB context check would be applied here . Please do not add any context between GlxContextLsFs and GlxContextPtFs
 	GlxContextLsList,
 	GlxContextPtList,
-    GlxContextSelectionList
+    GlxContextSelectionList,
+    GlxContextFavorite
 };
 
 enum GlxTBContextType
@@ -55,6 +56,9 @@ enum GlxTBContextType
 typedef enum
 {
     NO_EFFECT,
+    WAVE_EFFECT,
+    SMOOTH_FADE,
+    ZOOM_TO_FACE,
     TRANSITION_EFFECT,
     FADE_EFFECT,
     GRID_TO_FULLSCREEN,
@@ -65,6 +69,12 @@ typedef enum
     ALBUMLIST_TO_GRID,
 }GlxEffect;
 
+typedef enum
+{
+ SLOW,
+ MEDIUM,
+ FAST
+}GlxSlideShowDelay;
 typedef enum
 {
     NO_VIEW,

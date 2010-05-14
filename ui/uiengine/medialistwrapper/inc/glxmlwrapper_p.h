@@ -31,6 +31,7 @@ class MGlxMediaList;
 class CGlxMLGenericObserver;
 class CGlxThumbnailContext;
 class HbIcon;
+class QImage;
 class CGlxDefaultAttributeContext;
 class CGlxDefaultThumbnailContext;
 class CGlxDefaultListAttributeContext;
@@ -46,7 +47,7 @@ public:
      *
      * @return Pointer to newly created object. NULL if creation fails. Avoiding Leave as would be called by a QT wrapper Class
      */
-    static GlxMLWrapperPrivate* Instance(GlxMLWrapper* aMLWrapper, int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);								
+    static GlxMLWrapperPrivate* Instance(GlxMLWrapper* aMLWrapper, int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri);								
     /**
      * Destructor.
      */
@@ -100,6 +101,7 @@ public:
 	* RetrieveItemIcon()
 	*/
 	HbIcon* RetrieveItemIcon(int index, GlxTBContextType aTBContextType);
+	QImage  RetrieveItemImage(int index, GlxTBContextType aTBContextType);
 	QString RetrieveListTitle(int index);
 	QString RetrieveListSubTitle(int index);
 	QString RetrieveItemUri(int index);
@@ -107,6 +109,8 @@ public:
 	QDate   RetrieveItemDate(int index);
 	int     RetrieveItemFrameCount(int aItemIndex);
 	CFbsBitmap* RetrieveBitmap(int aItemIndex);
+	int     RetrieveListItemCount( int aItemIndex );
+	bool    isSystemItem( int aItemIndex );
 		
 private:
 
@@ -118,7 +122,7 @@ private:
     /**
      * By default Symbian 2nd phase constructor is private.
      */
-    void ConstructL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);
+    void ConstructL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri=NULL);
 	/**
      * Create an instance of Media List.
      *
@@ -126,8 +130,10 @@ private:
      */
 	void CreateMediaListL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);
 	void CreateMediaListAlbumItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);
+	void CreateMediaListFavoritesItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri);
 	void SetThumbnailContextL(GlxContextMode aContextMode);
 	void SetListContextL(GlxContextMode aContextMode);
+	void SetFavouriteContextL();
 	void CreateGridContextL();
 	void CreateLsFsContextL();
 	void CreatePtFsContextL();
@@ -135,6 +141,7 @@ private:
 	void RemoveLsFsContext();
 	void RemovePtFsContext();
 	void RemoveListContext();
+	void RemoveFavouriteContext();
 	//for the attribute filtering
 	TInt CheckTBAttributesPresenceandSanity(TInt aItemIndex,
 		const RArray<TMPXAttribute>& aAttributes, TMPXAttribute aThumbnailAttribute );
@@ -167,7 +174,8 @@ private:
 	CGlxDefaultThumbnailContext* iPtFsThumbnailContext;
 	CGlxDefaultThumbnailContext* iLsFsThumbnailContext; 
 	CGlxDefaultThumbnailContext* iFocusFsThumbnailContext;
-    CGlxThumbnailContext* iFocusGridThumbnailContext;
+	CGlxDefaultThumbnailContext* iFocusGridThumbnailContext;
+	CGlxThumbnailContext* iFilmStripThumbnailContext;
 
 	//List related contexts
 	// Fetch context for retrieving title attribute
@@ -175,14 +183,17 @@ private:
 
     // Fetch context for retrieving subtitle
     CGlxDefaultListAttributeContext* iSubtitleAttributeContext;
+
+    //to find if the image is in favorites or not
+   	CGlxDefaultAttributeContext *iFavouriteContext;	
 	
     CGlxThumbnailContext* iListThumbnailContext;
     // for thumbnail context
     TGlxFromVisibleIndexOutwardListIterator iThumbnailIterator;
 
 	// Iterators for Grid and FS
-    TGlxFromManualIndexBlockyIterator iBlockyIterator;
-    TGlxFromManualIndexBlockyIterator iBlockyIteratorForFocus;
+    TGlxScrollingDirectionIterator iBlockyIterator;
+    TGlxFromManualIndexBlockyIterator iBlockyIteratorForFilmStrip;
 
 	//Variables for checking the active contexts
 	//todo merge all these variables into 1 and have bitwise operation on them
@@ -192,5 +203,6 @@ private:
 	TBool iLsListContextActivated; //currently not used as we have not implemented the logic for 3 thumbnails
 	TBool iPtListContextActivated; 
 	TBool iSelectionListContextActivated;
+
 };
 #endif //GLXMLWRAPPER_P_H 

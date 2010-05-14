@@ -26,6 +26,8 @@
 #include <hbmainwindow.h>
 #include <hbdocumentloader.h>
 #include <QAbstractItemModel>
+#include <QGesture>
+#include <hbpangesture.h>
 
 
 //User Includes
@@ -38,12 +40,19 @@
 #include <glxtracer.h>
 
 
-GlxSlideShowWidget::GlxSlideShowWidget( QGraphicsItem *parent ) : HbScrollArea(parent), 
-                      mEffectEngine(NULL), mContinueButton(NULL), mItemIndex(1), 
-                      mSelIndex(0), mSlideTimer(NULL), mModel(NULL)
-    {
+GlxSlideShowWidget::GlxSlideShowWidget( QGraphicsItem *parent ) 
+    : HbWidget(parent), 
+      mEffectEngine(NULL), 
+      mContinueButton(NULL), 
+      mItemIndex(1), 
+      mSelIndex(0), 
+      mSlideTimer(NULL), 
+      mModel(NULL)
+{
     TRACER("GlxSlideShowWidget::GlxSlideShowWidget()");
-    }
+    grabGesture( Qt::PanGesture );
+    grabGesture( Qt::TapGesture );
+}
 
 void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
     {
@@ -286,31 +295,31 @@ void GlxSlideShowWidget::modelDestroyed()
 
 
 void GlxSlideShowWidget::orientationChanged(QRect screenRect)
-    {
+{
     TRACER("GlxSlideShowWidget::orientationChanged()");
     cancelEffect();
     setItemGeometry( screenRect);
     resetSlideShow();
-    }
+}
 
 
 void GlxSlideShowWidget::leftGesture(int value)
-    {
+{
     Q_UNUSED(value)
     TRACER("GlxSlideShowWidget::leftGesture()");
 
     int index = ( mItemIndex + 1 ) % NBR_ITEM;
     moveImage( index, mScreenRect.width(), QString("LeftMove"), "leftMoveEffectFinished");
-    }
+}
 
 void GlxSlideShowWidget::rightGesture(int value)
-    {
+{
     Q_UNUSED(value)
     TRACER ("GlxSlideShowWidget::rightGesture()");
 
     int index = mItemIndex ? mItemIndex - 1 : NBR_ITEM - 1;
     moveImage( index, -mScreenRect.width(), QString("RightMove"), "rightMoveEffectFinished"); 
-    }
+}
 
 void GlxSlideShowWidget::leftMoveEffectFinished( const HbEffect::EffectStatus &status )
     {
@@ -344,22 +353,34 @@ void GlxSlideShowWidget::rightMoveEffectFinished( const HbEffect::EffectStatus &
     emit indexchanged(); // on right swipe
     } 
 
-void GlxSlideShowWidget::mouseReleaseEvent( QGraphicsSceneMouseEvent *event)
-    {
-    Q_UNUSED( event )
-    TRACER ( "GlxSlideShowWidget::mouseReleaseEvent( ) ");
-    GLX_LOG_INFO1 ( "GlxSlideShowWidget::mouseReleaseEvent( ) is pause %d", mIsPause);
-    if ( mIsPause == false ) {
-    pauseSlideShow();
+ 
+void GlxSlideShowWidget::gestureEvent(QGestureEvent *event)
+{  
+    if( QTapGesture *gesture = static_cast<QTapGesture *>( event->gesture( Qt::TapGesture ) ) ) {        
+        if ( gesture->state() == Qt::GestureFinished ) {
+            if ( mIsPause == false ) {
+                pauseSlideShow();
+            }
+            event->accept(gesture);
+        }
     }
+      
+    if (QPanGesture *panningGesture = qobject_cast<QPanGesture*>(event->gesture(Qt::PanGesture))) {
+        HbPanGesture *hbPanGesture = qobject_cast<HbPanGesture *>(panningGesture);
+        if ( hbPanGesture ) {
+            if( hbPanGesture->state() == Qt::GestureFinished ) {
+                QPointF delta( hbPanGesture->sceneDelta() );
+                if ( delta.x() > 0 ) {
+                    rightGesture( delta.x() );
+                }
+                else {
+                    leftGesture( delta.x() );
+                }
+            }
+            event->accept(panningGesture);
+        }
     }
-
-void GlxSlideShowWidget::mousePressEvent ( QGraphicsSceneMouseEvent * event )
-    {
-    Q_UNUSED( event )
-    TRACER ( "GlxSlideShowWidget::mousePressEvent( ) ");
-    GLX_LOG_INFO1 ( "GlxSlideShowWidget::mousePressEvent( ) is pause %d", mIsPause);
-    }
+}    
 
 void GlxSlideShowWidget::startSlideShow ( )
     {

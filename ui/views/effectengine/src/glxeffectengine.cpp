@@ -23,18 +23,93 @@
 #include "glxfadeplugin.h"
 #include <QDebug>
 
+#include <xqsettingsmanager.h>
+#include <xqsettingskey.h>
+#include <QStringList>
+const TUint32 KGlxTransitionEffect     = 0x1;
+const TUint32 KGlxTransitionDelay  = 0x2;
+const TUint32 KGlxSlow  = 0x3;
+const TUint32 KGlxMeduim  = 0x4;
+const TUint32 KGlxFast  = 0x5;
+const TUint32 KGlxWaveEffect  = 0x6;
+const TUint32 KGlxFadeEffect  = 0x7;
+const TUint32 KGlxZoomToFaceEffect  = 0x8;
+const TUint32 KCRUidGallery = 0x20007194;
 GlxSlideShowSetting::GlxSlideShowSetting( int slideDelayTime, GlxEffect effect, GlxSlideShowMoveDir moveDir ) 
     : mSlideDelayTime(slideDelayTime),
       mEffect ( effect),
       mMoveDir ( moveDir)
 {
+    mSettingsManager = new XQSettingsManager();
+    mTransitionEffectCenrepKey= new XQSettingsKey(XQSettingsKey::TargetCentralRepository, KCRUidGallery , KGlxTransitionEffect);
+    mTransitionDelayCenrepKey= new XQSettingsKey(XQSettingsKey::TargetCentralRepository, KCRUidGallery , KGlxTransitionDelay);
+    mSlowCenRepKey= new XQSettingsKey(XQSettingsKey::TargetCentralRepository, KCRUidGallery ,KGlxSlow);
+    mMediumCenRepKey= new XQSettingsKey(XQSettingsKey::TargetCentralRepository, KCRUidGallery ,KGlxMeduim);
+    mFastCenRepKey= new XQSettingsKey(XQSettingsKey::TargetCentralRepository, KCRUidGallery ,KGlxFast);
 
+    mWaveEffectCenRepKey= new XQSettingsKey(XQSettingsKey::TargetCentralRepository, KCRUidGallery ,KGlxWaveEffect );
+    mFadeEffectCenRepKey= new XQSettingsKey(XQSettingsKey::TargetCentralRepository, KCRUidGallery ,KGlxFadeEffect);
+    mZoomEffectCenRepKey= new XQSettingsKey(XQSettingsKey::TargetCentralRepository, KCRUidGallery , KGlxZoomToFaceEffect );
 }
 
+GlxSlideShowSetting::~GlxSlideShowSetting( )
+{
+        delete mFastCenRepKey;
+        delete mMediumCenRepKey;
+        delete mSlowCenRepKey;
+        delete mZoomEffectCenRepKey;
+        delete mFadeEffectCenRepKey;
+        delete mWaveEffectCenRepKey;
+        delete mTransitionDelayCenrepKey;
+        delete mTransitionEffectCenrepKey;
+        delete mSettingsManager;
+}
+int GlxSlideShowSetting::slideShowDelayIndex()
+{
+    QVariant effectvalue = mSettingsManager->readItemValue(*mTransitionDelayCenrepKey);
+    return effectvalue.toInt();
+}
+void GlxSlideShowSetting::setSlideShowDelayIndex( int index )
+{
+    mSettingsManager->writeItemValue(*mTransitionDelayCenrepKey, index);
+}
+QStringList GlxSlideShowSetting::slideShowEffectList()
+{
+	if(mSettingsManager->readItemValue(*mWaveEffectCenRepKey).toInt() == WAVE_EFFECT)
+        mEffectList<<"wave";
+    if(mSettingsManager->readItemValue(*mFadeEffectCenRepKey).toInt() == SMOOTH_FADE)
+        mEffectList<<"Fade";
+    if(mSettingsManager->readItemValue(*mZoomEffectCenRepKey).toInt() == ZOOM_TO_FACE)
+        mEffectList<<"Zoom to face"; 
+    return mEffectList;
+}
+int GlxSlideShowSetting::slideShowEffectIndex()
+{
+    QVariant effectvalue = mSettingsManager->readItemValue(*mTransitionEffectCenrepKey);
+    return effectvalue.toInt();
+}
+void GlxSlideShowSetting::setslideShowEffectIndex( int index )
+{
+    mSettingsManager->writeItemValue(*mTransitionEffectCenrepKey, index);
+}
 void GlxSlideShowSetting::readSlideShowSetting()
 {
 //To:Do read from the file system
-    mSlideDelayTime = 3000;
+    QVariant effectvalue = mSettingsManager->readItemValue(*mTransitionDelayCenrepKey);
+    switch (effectvalue.toInt()) {
+               case SLOW:
+                   mSlideDelayTime = mSettingsManager->readItemValue(*mSlowCenRepKey).toInt();
+                   break;
+               case MEDIUM:
+                   mSlideDelayTime = mSettingsManager->readItemValue(*mMediumCenRepKey).toInt();
+                   break;
+               case FAST:
+                   mSlideDelayTime = mSettingsManager->readItemValue(*mFastCenRepKey).toInt();
+                   break;
+               default:
+    				mSlideDelayTime = 3000;
+                   break;
+	}
     mEffect = FADE_EFFECT;
     mMoveDir = MOVE_FORWARD;
     qDebug("GlxSlideShowSetting::readSlideShowSetting() slide delay time %d effect %d move direction %d", mSlideDelayTime, mEffect, mMoveDir);

@@ -21,7 +21,6 @@
 #define GLXMEDIAMODEL_H
 
 #include <QAbstractItemModel>
-#include <glxmlwrapper.h>
 #include <glxuistd.h>
 #include <QDateTime>
 #include <glxexternalinterfacedefs.h>
@@ -35,6 +34,7 @@
 
 class HbIcon;
 class GlxModelParm;
+class GlxMLWrapper;
 #include <QCache>
 #include <QVector>
 
@@ -90,7 +90,7 @@ protected:
 private slots:
     void updateItemIcon(int itemIndex, HbIcon* itemIcon, GlxTBContextType tbContextType);
 private:
-	Q_DECL_IMPORT GlxMLWrapper* mMLWrapper;	
+	GlxMLWrapper* mMLWrapper;	
 	QCache<int, HbIcon> itemIconCache;
 	QCache<int, HbIcon> itemFsIconCache;
 	HbIcon* m_DefaultIcon;

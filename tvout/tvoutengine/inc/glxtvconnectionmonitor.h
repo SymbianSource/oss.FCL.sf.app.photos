@@ -114,6 +114,7 @@ private:
      */      
     void IssueNotificationL();
     
+    void UpdateConnectionStatusL();
 
 private: // class member data
     

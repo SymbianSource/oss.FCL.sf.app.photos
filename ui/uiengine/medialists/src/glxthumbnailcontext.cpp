@@ -32,7 +32,7 @@
 #include "glxmedialist.h"
 #include "glxerrormanager.h"
 #include "glxthumbnailutility.h"
-#include "mglxcache.h"
+//#include "mglxcache.h"
 #include "glxlistutils.h"
 
 /**
@@ -81,7 +81,7 @@ void CGlxThumbnailContext::ConstructL()
     {
     TRACER( "CGlxThumbnailContext::ConstructL");
     
-    iCache = MGlxCache::InstanceL();
+    //iCache = MGlxCache::InstanceL();
     iResolutionUtility = CGlxResolutionUtility::InstanceL();
   //  iResolutionUtility->AddObserverL( *this );
 
@@ -136,10 +136,10 @@ EXPORT_C CGlxThumbnailContext::~CGlxThumbnailContext()
         iResolutionUtility->Close();
         }
 
-    if ( iCache )
+    /*if ( iCache )
         {
         iCache->Close();
-        }
+        }*/
     }
 
 // -----------------------------------------------------------------------------
@@ -224,10 +224,11 @@ void CGlxThumbnailContext::AllAttributesL(const MGlxMediaList* aList, TInt aList
     TBool drmValid = EFalse;
     TSize size = iDefaultSpecSize;
     const TGlxMedia& item( aList->Item( aListIndex ) );
-	if( item.GetDrmProtected(drmValid) && drmValid)
+    // DRM is Not Valid yet, can use it if its valid
+	/*if( item.GetDrmProtected(drmValid) && drmValid)
         {
         drmValid = CheckDRMStatusL( aListIndex, aList, size );	
-        }
+        }*/
 
     TLinearOrder<TMPXAttribute> orderer (&CGlxMediaList::AttributeOrder);
     // Always want high quality thumbnail
@@ -286,12 +287,12 @@ TInt CGlxThumbnailContext::AttributeRequestL(const MGlxMediaList* aList,
         GLX_DEBUG2("CGlxThumbnailContext::AttributeRequestL() listIndex=%d", listIndex);
         const TGlxMedia& item = aList->Item( listIndex );
         TSize size = iDefaultSpecSize;
-
-        TBool drmValid = EFalse;
+        // DRM is Not Valid yet, can use it if its valid
+        /*TBool drmValid = EFalse;
         if( item.GetDrmProtected(drmValid) && drmValid)
 	        {
 	        CheckDRMStatusL( listIndex, aList, size );	
-	        }
+	        }*/
 
         // Request high quality thumbnail if already have any thumbnail
         TBool quality = iHighQualityOnly
@@ -440,12 +441,12 @@ TUint CGlxThumbnailContext::GetThumbnailScoreL(TInt aListIndex, const MGlxMediaL
     if ( properties )
         {
         TSize size = iDefaultSpecSize;
-
-        TBool drmValid = EFalse;
+        // DRM is Not Valid yet, can use it if its valid
+        /*TBool drmValid = EFalse;
         if( item.GetDrmProtected(drmValid) && drmValid)
 	        {
 	        CheckDRMStatusL( aListIndex, aList, size );	
-	        }
+	        }*/
 
         // Want high quality thumbnail if already have any thumbnail
         TBool quality = iHighQualityOnly || thumbnail;

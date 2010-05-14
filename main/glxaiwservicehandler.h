@@ -34,6 +34,9 @@ class QModelIndex;
 class GlxImageViewerService;
 class GlxStateManager;
 class CGlxImageViewerManager;
+class GlxGetImageServiceNSDI;
+class GlxGetImageServiceDSDI;
+
 /**
  *  GlxAiwServiceHandler
  * 
@@ -64,11 +67,14 @@ public slots:
 private:
     GlxMediaModel *mModel;
     GlxView* mView;
-    GlxGetImageService* mService;
-	GlxImageViewerService* mImageViewerService;
 	GlxStateManager *mStateMgr;
 	GlxView* mFSView;
     HbMenu *mFetcherContextMenu;
+
+    GlxGetImageService* mFetcherService;
+    GlxGetImageServiceNSDI* mNSDIService;
+    GlxGetImageServiceDSDI* mDSDIService;
+    GlxImageViewerService* mImageViewerService;
     };
 
 /**
@@ -81,6 +87,61 @@ class GlxGetImageService : public XQServiceProvider
 public:
     GlxGetImageService( GlxAiwServiceHandler *parent = 0 );
     ~GlxGetImageService();
+    bool isActive();
+    void complete( QStringList filesList);
+    
+public slots://for QTHighway to notify provider about request
+    void fetch();
+    
+public slots://for provider to notify client
+    void fetchFailed( int errorCode );
+    
+private:
+    void doComplete( QStringList filesList);
+    
+private:
+    int mImageRequestIndex;
+    GlxAiwServiceHandler* mServiceApp;
+};
+
+/**
+ *  GlxGetImageServiceDSDI
+ *  Service provide for new service and depricated interface
+ */ 
+class GlxGetImageServiceNSDI : public XQServiceProvider
+{
+    Q_OBJECT
+public:
+    GlxGetImageServiceNSDI( GlxAiwServiceHandler *parent = 0 );
+    ~GlxGetImageServiceNSDI();
+    bool isActive();
+    void complete( QStringList filesList);
+    
+public slots://for QTHighway to notify provider about request
+    void fetch( QVariantMap filter , QVariant flag );
+    void fetch();
+    
+public slots://for provider to notify client
+    void fetchFailed( int errorCode );
+    
+private:
+    void doComplete( QStringList filesList);
+    
+private:
+    int mImageRequestIndex;
+    GlxAiwServiceHandler* mServiceApp;
+};
+
+/**
+ *  GlxGetImageServiceDSDI
+ *  Service provide for depricated service and depricated interface
+ */ 
+class GlxGetImageServiceDSDI : public XQServiceProvider
+{
+    Q_OBJECT
+public:
+    GlxGetImageServiceDSDI( GlxAiwServiceHandler *parent = 0 );
+    ~GlxGetImageServiceDSDI();
     bool isActive();
     void complete( QStringList filesList);
     

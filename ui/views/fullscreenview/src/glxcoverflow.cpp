@@ -21,24 +21,33 @@
 #include <QAbstractItemModel>
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
+#include <QGesture>
+#include <hbpangesture.h>
 
 //User Includes
 #include <glxmodelparm.h>
 #include <glxcoverflow.h>
 #include "glxviewids.h"
 
-const int KMoveX = 60;  //coverflow auto move speed
+#define GLX_COVERFLOW_SPEED 60
+#define GLX_BOUNCEBACK_SPEED 15
 
-GlxCoverFlow::GlxCoverFlow(QGraphicsItem *parent ) : HbScrollArea(parent), mSelItemIndex (0),
-              mRows(0), mSelIndex (0), mStripLen (0), mCurrentPos(0), 
-              mItemSize (QSize(0,0)), mModel ( NULL), mMoveDir(NO_MOVE), rotAngle(0) 
+GlxCoverFlow::GlxCoverFlow(QGraphicsItem *parent ) 
+     : HbWidget(parent), 
+       mSelItemIndex (0),
+       mRows(0),
+       mSelIndex (0),
+       mStripLen (0),
+       mCurrentPos(0),
+       mItemSize (QSize(0,0)),
+       mModel ( NULL),
+       mMoveDir(NO_MOVE),
+       mSpeed ( GLX_COVERFLOW_SPEED )
 {
 //TO:DO through exception
    qDebug("GlxCoverFlow::GlxCoverFlow");
-   HbEffect::add( QString("HbIconItem"), QString(":/data/transitionrotate0.fxml"), QString( "RotateImage0" ));
-   HbEffect::add( QString("HbIconItem"), QString(":/data/transitionrotate90.fxml"), QString( "RotateImage90" ));
-   HbEffect::add( QString("HbIconItem"), QString(":/data/transitionrotate180.fxml"), QString( "RotateImage180" ));
-   HbEffect::add( QString("HbIconItem"), QString(":/data/transitionrotate270.fxml"), QString( "RotateImage270" ));
+   grabGesture(Qt::PanGesture);
+   grabGesture(Qt::TapGesture);
    connect( this, SIGNAL( autoLeftMoveSignal() ), this, SLOT( autoLeftMove() ), Qt::QueuedConnection );
    connect( this, SIGNAL( autoRightMoveSignal() ), this, SLOT( autoRightMove() ), Qt::QueuedConnection );   
 }
@@ -83,66 +92,58 @@ void GlxCoverFlow::indexChanged( int index )
     qDebug("GlxCoverFlow::indexChanged index = %d mSelIndex = %d ",index, mSelIndex );
     if ( index != mSelIndex && mModel) {
         loadIconItems();
-		if(rotAngle) {
-            rotAngle = 0;
-            //HbEffect::start(mIconItem[mSelItemIndex], QString("HbIconItem"), QString("RotateImage270"), this, "rotationEffectFinished" );
-            mIconItem[mSelItemIndex]->resetTransform();
-            mIconItem[mSelItemIndex]->resize(mItemSize);
-        }
     }
 }
 
-void GlxCoverFlow::rotateImage ()  
-{
-    qDebug("GlxCoverFlow::rotateImage ");  
-	if(rotAngle == 0)
-	{
-		HbEffect::start(mIconItem[mSelItemIndex], QString("HbIconItem"), QString("RotateImage0"), this, "rotationEffectFinished" );
-	}
-	if(rotAngle == 90)
-	{
-		HbEffect::start(mIconItem[mSelItemIndex], QString("HbIconItem"), QString("RotateImage90"), this, "rotationEffectFinished" );
-	}
-	if(rotAngle == 180)
-	{
-		HbEffect::start(mIconItem[mSelItemIndex], QString("HbIconItem"), QString("RotateImage180"), this, "rotationEffectFinished" );
-	}
-	if(rotAngle == 270)
-	{
-		HbEffect::start(mIconItem[mSelItemIndex], QString("HbIconItem"), QString("RotateImage270"), this, "rotationEffectFinished" );
-	}	
-	rotAngle += 90;
-	rotAngle %= 360;	
-}
+void GlxCoverFlow::gestureEvent(QGestureEvent *event)
+{    
+ if(QTapGesture *gesture = static_cast<QTapGesture *>(event->gesture(Qt::TapGesture))) {        
+        if (gesture->state() == Qt::GestureFinished) {
+                     emit coverFlowEvent( TAP_EVENT );
+                      event->accept(gesture);
+            }
+        }
+  
+  if (QPanGesture *panningGesture = qobject_cast<QPanGesture*>(event->gesture(Qt::PanGesture))) {
+        HbPanGesture *hbPanGesture = qobject_cast<HbPanGesture *>(panningGesture);
+         if (hbPanGesture) {
+            if(hbPanGesture->state() == Qt::GestureUpdated) {
+                 QPointF delta(hbPanGesture->sceneDelta());
+                 panGesture(delta);
+                  event->accept(panningGesture);
 
-void GlxCoverFlow::rotationEffectFinished (const HbEffect::EffectStatus &status)  
-{
-    Q_UNUSED(status)
+            }
+             if(hbPanGesture->state() == Qt::GestureFinished) {
+                 switch( mMoveDir ) {
     
-    qDebug("GlxCoverFlow::rotationEffectFinished");  
-	QSize itemSize = mItemSize;
-	if((rotAngle == 90) || (rotAngle == 270)) {
-		itemSize.transpose();
-	}
-	mIconItem[mSelItemIndex]->resetTransform();
-	mIconItem[mSelItemIndex]->resize(itemSize);
-	mIconItem[mSelItemIndex]->setPos((mItemSize.width() - itemSize.width())/2, (mItemSize.height() - itemSize.height())/2 );
-	QTransform rotateTransform = mIconItem[mSelItemIndex]->transform();
-	rotateTransform.translate((mItemSize.width()/2)-((mItemSize.width() - itemSize.width())/2),(mItemSize.height()/2) - ((mItemSize.height() - itemSize.height())/2));
-	rotateTransform.rotate(rotAngle);
-	rotateTransform.translate(-((mItemSize.width()/2)-((mItemSize.width() - itemSize.width())/2)),-((mItemSize.height()/2) - ((mItemSize.height() - itemSize.height())/2)));
-	mIconItem[mSelItemIndex]->setTransform(rotateTransform);
+                        case LEFT_MOVE: 
+                            mMoveDir = NO_MOVE;
+                            emit autoLeftMoveSignal();
+                            break ;
+        
+                        case RIGHT_MOVE :
+                            mMoveDir = NO_MOVE;
+                            emit autoRightMoveSignal();
+                            break;
+        
+                        default:
+                            break;
+                    } 
+                  event->accept(panningGesture);
 
+            }
+         }
+    }
+  
 }
 
 void GlxCoverFlow::panGesture ( const QPointF & delta )  
 {
     qDebug("GlxCoverFlow::panGesture deltaX= %d", (int)delta.x());  
-    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S )
-        {
+    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S ) {
         return;
-        }
-	move((int) delta.x());    
+    }
+    move((int) delta.x());    
     if( delta.x() > 0 ) {     
         mMoveDir = RIGHT_MOVE;
     }
@@ -158,14 +159,13 @@ void GlxCoverFlow::panGesture ( const QPointF & delta )
 
 void GlxCoverFlow::leftGesture(int value)
 {
-	Q_UNUSED(value);
+    Q_UNUSED(value);
     qDebug("GlxCoverFlow::leftGesture CurrentPos= %d value %d", mCurrentPos, value); 
-    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S )
-        {
+    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S ) {
         return;
-        }
+    }
     mMoveDir = NO_MOVE;
-    mBounceBackDeltaX = mItemSize.width() >> 2;
+    mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
     emit autoLeftMoveSignal();
     if ( mUiOn == TRUE ) {
         mUiOn = FALSE;
@@ -175,14 +175,13 @@ void GlxCoverFlow::leftGesture(int value)
 
 void GlxCoverFlow::rightGesture(int value)
 {
-	Q_UNUSED(value);
+    Q_UNUSED(value);
     qDebug("GlxCoverFlow::rightGesture CurrentPos= %d value %d ", mCurrentPos, value);
-    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S )
-        {
+    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S ) {
         return;
-        }
+    }
     mMoveDir = NO_MOVE;
-    mBounceBackDeltaX = mItemSize.width() >> 2;
+    mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
     emit autoRightMoveSignal();
     if ( mUiOn == TRUE  ) {
         mUiOn = FALSE;
@@ -245,48 +244,17 @@ void GlxCoverFlow::rowsRemoved(const QModelIndex &parent, int start, int end)
     }
 }
 
-void GlxCoverFlow::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    Q_UNUSED(event);
-    qDebug("GlxCoverFlow::mousePressEvent");
-    mMoveDir = TAP_MOVE;
-}
 
-void GlxCoverFlow::mouseReleaseEvent (QGraphicsSceneMouseEvent *event) 
-{
-    Q_UNUSED(event);
-    qDebug("GlxCoverFlow::mouseReleaseEvent move dir %d", mMoveDir);
-    
-    switch( mMoveDir ) {
-    case NO_MOVE :
-    	break;
-    	
-    case TAP_MOVE :
-	    mMoveDir = NO_MOVE;
-	    emit coverFlowEvent( TAP_EVENT );
-    	break;
-    	
-    case LEFT_MOVE: 
-        mMoveDir = NO_MOVE;
-        emit autoLeftMoveSignal();
-        break ;
-        
-    case RIGHT_MOVE :
-        mMoveDir = NO_MOVE;
-        emit autoRightMoveSignal();
-        break;
-        
-    default:
-        break;
-    } 
-}
 
 void GlxCoverFlow::autoLeftMove()
 {
-    qDebug("GlxCoverFlow::autoLeftMove ");
     int width = mItemSize.width() ;
     
     qDebug("GlxCoverFlow::autoLeftMove current pos = %d mBounceBackDeltaX x = %d", mCurrentPos, mBounceBackDeltaX);
+    
+    if ( mSelIndex == ( mRows -1 )) {
+        mSpeed = GLX_BOUNCEBACK_SPEED;
+    }
     //for bounce back effect for last image ( it will do the back)
     if ( ( mCurrentPos + width ) > ( mStripLen + mBounceBackDeltaX ) && mMoveDir == NO_MOVE ) {
         mMoveDir = LEFT_MOVE;
@@ -296,7 +264,7 @@ void GlxCoverFlow::autoLeftMove()
     }
     
     int deltaX = width - mCurrentPos %  width ; 
-    int moveX = deltaX > KMoveX ? KMoveX : deltaX;
+    int moveX = deltaX > mSpeed ? mSpeed : deltaX;
     
     qDebug("GlxCoverFlow::autoLeftMove delta x = %d current pos = %d move x = %d", deltaX, mCurrentPos, moveX);
     
@@ -314,13 +282,6 @@ void GlxCoverFlow::autoLeftMove()
         }
         int selIndex = mCurrentPos / width ;
         if ( mRows == 1 || selIndex != mSelIndex ) {
-			if(rotAngle) {
-				rotAngle = 0;
-				//HbEffect::start(mIconItem[mSelItemIndex], QString("HbIconItem"), QString("RotateImage270"), this, "rotationEffectFinished" );
-				mIconItem[mSelItemIndex]->resetTransform();
-				mIconItem[mSelItemIndex]->resize(mItemSize);
-				mIconItem[mSelItemIndex]->setPos(- mItemSize.width(), 0);
-			}
             mSelIndex = selIndex;
             mSelItemIndex = ( ++mSelItemIndex ) % NBR_ICON_ITEM;
             selIndex = ( mSelItemIndex + 2 ) % NBR_ICON_ITEM;
@@ -328,8 +289,9 @@ void GlxCoverFlow::autoLeftMove()
             emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
         }
         mMoveDir = NO_MOVE;
-		mBounceBackDeltaX = 10;
-    }	
+        mBounceBackDeltaX = 10;
+        mSpeed = GLX_COVERFLOW_SPEED;
+    }   
 }
 
 void GlxCoverFlow::autoRightMove()
@@ -338,19 +300,23 @@ void GlxCoverFlow::autoRightMove()
     int width = mItemSize.width()  ;
     int diffX = mStripLen - mCurrentPos ;
     
+    //slow the speed for bounce back effect
+    if ( mSelIndex == 0 ) {
+        mSpeed = GLX_BOUNCEBACK_SPEED;
+    }
     //for bounce back effect for back image ( it will do the back)
     qDebug("GlxCoverFlow::autoRightMove diffX x = %d current pos = %d mBounceBackDeltaX x = %d", diffX, mCurrentPos, mBounceBackDeltaX);
     if ( diffX > mBounceBackDeltaX && diffX < width && mMoveDir == NO_MOVE ){
         mMoveDir = RIGHT_MOVE;
         mBounceBackDeltaX = 10;
-        autoLeftMoveSignal();        
+        autoLeftMoveSignal();  
         return ;
     }
     
-    int deltaX = mCurrentPos %  width ;	
+    int deltaX = mCurrentPos %  width ; 
     //in the case of deltaX == 0 ( right flick case ) complete image should move
     deltaX = deltaX ? deltaX : width ; 
-    int moveX = deltaX > KMoveX ? KMoveX : deltaX;
+    int moveX = deltaX > mSpeed ? mSpeed : deltaX;
     
     qDebug("GlxCoverFlow::autoRightMove delta x = %d current pos = %d move x = %d", deltaX, mCurrentPos, moveX);
     
@@ -368,14 +334,6 @@ void GlxCoverFlow::autoRightMove()
         }
         int selIndex = mCurrentPos / width ;
         if ( mRows == 1 || selIndex != mSelIndex ) {
-		    if(rotAngle) {
-				rotAngle = 0;
-				//HbEffect::start(mIconItem[mSelItemIndex], QString("HbIconItem"), QString("RotateImage270"), this, "rotationEffectFinished" );
-				mIconItem[mSelItemIndex]->resetTransform();
-				mIconItem[mSelItemIndex]->resize(mItemSize);
-				mIconItem[mSelItemIndex]->setPos(mItemSize.width(), 0);
-
-		    }
             mSelIndex = selIndex;
             mSelItemIndex = ( mSelItemIndex == 0 ) ?  NBR_ICON_ITEM -1 : --mSelItemIndex;
             selIndex = ( mSelItemIndex + 3 ) % NBR_ICON_ITEM;
@@ -383,7 +341,8 @@ void GlxCoverFlow::autoRightMove()
             emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
         }
         mMoveDir = NO_MOVE;
-		mBounceBackDeltaX = 10;
+        mBounceBackDeltaX = 10;
+        mSpeed = GLX_COVERFLOW_SPEED;
     }
 }
 
@@ -394,7 +353,7 @@ void GlxCoverFlow::move(int value)
 
     for ( qint8 i = 0; i < NBR_ICON_ITEM ; i++ ) {
         pos.setX( mIconItem[i]->pos().x() + value);
-		pos.setY(mIconItem[i]->pos().y());
+        pos.setY(mIconItem[i]->pos().y());
         mIconItem[i]->setPos(pos);
     }
     
@@ -411,13 +370,13 @@ void GlxCoverFlow::move(int value)
 void GlxCoverFlow::setRows()
 {
     qDebug("GlxCoverFlow::setRows ");
-	if (mModel) {
-	    mRows = mModel->rowCount();
-	}
-	else {
-	    mRows = 0;
-	}
-	qDebug("GlxCoverFlow::setRows number of rows = %d", mRows);
+    if (mModel) {
+        mRows = mModel->rowCount();
+    }
+    else {
+        mRows = 0;
+    }
+    qDebug("GlxCoverFlow::setRows number of rows = %d", mRows);
 }
 
 void GlxCoverFlow::setStripLen()
@@ -501,7 +460,7 @@ void GlxCoverFlow::clearCurrentModel()
 /*
     disconnect(mModel, SIGNAL(destroyed()), this, SLOT(_q_modelDestroyed()));
     disconnect(mModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
-*/	
+*/  
 }
 
 void GlxCoverFlow::initializeNewModel()
@@ -511,7 +470,7 @@ void GlxCoverFlow::initializeNewModel()
         connect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
         connect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex,int,int)));
         connect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
-    }	
+    }   
 }
 
 void GlxCoverFlow::resetCoverFlow()
@@ -550,8 +509,7 @@ void GlxCoverFlow::partiallyCreate(QAbstractItemModel *model, QSize itemSize)
     
     variant = model->data( model->index(mSelIndex, 0), GlxFsImageRole );
     if ( variant.isValid() &&  variant.canConvert<HbIcon> () ) {
-        mIconItem[2]->setIcon ( variant.value<HbIcon>() ) ;    
-        qDebug("#########################GlxCoverFlow::partiallyCreated,ICON PRES##################");
+        mIconItem[2]->setIcon ( variant.value<HbIcon>() ) ; 
     }
 }
 
@@ -560,10 +518,6 @@ GlxCoverFlow::~GlxCoverFlow()
     qDebug("GlxCoverFlow::~GlxCoverFlow model " );
     disconnect( this, SIGNAL( autoLeftMoveSignal() ), this, SLOT( autoLeftMove() ) );
     disconnect( this, SIGNAL( autoRightMoveSignal() ), this, SLOT( autoRightMove() ) );
-    HbEffect::remove( QString("HbIconItem"), QString(":/data/transitionrotate0.fxml"), QString( "RotateImage0" ));
-    HbEffect::remove( QString("HbIconItem"), QString(":/data/transitionrotate90.fxml"), QString( "RotateImage90" ));
-    HbEffect::remove( QString("HbIconItem"), QString(":/data/transitionrotate180.fxml"), QString( "RotateImage180" ));
-    HbEffect::remove( QString("HbIconItem"), QString(":/data/transitionrotate270.fxml"), QString( "RotateImage270" ));
 }
 
 
@@ -576,7 +530,7 @@ void GlxCoverFlow::ClearCoverFlow()
             delete mIconItem[i] ;
             mIconItem[i] = NULL;
         }
-    }	
+    }   
 }
 
 int GlxCoverFlow::getSubState()

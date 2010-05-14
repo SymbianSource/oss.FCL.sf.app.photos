@@ -31,7 +31,7 @@
 
 //SLIDE SHOW
 #define GLXSLIDESHOW_VIEW         "mglxslideshow"
-#define GLXSLIDESHOW_WIDGET       "mscrollArea"
+#define GLXSLIDESHOW_WIDGET       "mslideshowwidget"
 #define GLXSLIDESHOW_PATH         ":/data/slideshow.docml"
 #define GLXSLIDESHOW_PB           "mContinueButton"
 

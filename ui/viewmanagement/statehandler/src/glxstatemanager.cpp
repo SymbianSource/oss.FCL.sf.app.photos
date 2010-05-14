@@ -386,7 +386,7 @@ void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
 
 void GlxStateManager::setFullScreenContext()
 {
-    if ( mViewManager->orientation() == Qt::Horizontal ) {
+    if ( mViewManager->orientation() == Qt::Horizontal || mCurrentState->id() == GLX_SLIDESHOWVIEW_ID ) {
         mCurrentModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
     }
     else {
@@ -492,13 +492,6 @@ void GlxStateManager::eventHandler(qint32 &id)
        mViewManager->handleUserAction(mCurrentState->id(), id);
        id = EGlxCmdHandled;
        break;
-   case EGlxCmdRotate:
-       mViewManager->handleUserAction(mCurrentState->id(), id);
-	   //Disable Rotate CH mActionHandler->handleAction(id,mCollectionId);
-       id = EGlxCmdHandled;
-       break;    
-       
-
        
    case EGlxCmdSetupItem :
        emit setupItemsSignal();

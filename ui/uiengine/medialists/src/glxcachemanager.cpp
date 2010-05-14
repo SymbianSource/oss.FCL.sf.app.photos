@@ -620,7 +620,8 @@ void CGlxCacheManager::MaintainCacheL()
 						        }
 						    else
 						        {
-						        iTnEngine->SetQualityPreferenceL(CThumbnailManager::EOptimizeForQualityWithPreview);
+						        //iTnEngine->SetQualityPreferenceL(CThumbnailManager::EOptimizeForQualityWithPreview);
+						        iTnEngine->SetQualityPreferenceL(CThumbnailManager::EOptimizeForPerformance);
                                 GLX_DEBUG1("MaintainCacheL() - Fetch TN attrib - EOptimizeForQualityWithPreview");                                
                                 }
                             
@@ -707,7 +708,9 @@ void CGlxCacheManager::MaintainCacheL()
                         {
                         CGlxImageViewerManager *imageVwrMgr = CGlxImageViewerManager::InstanceL();
 						CleanupClosePushL(*imageVwrMgr);
+#ifdef _DEBUG
                         TInt mediaCnt = list->Count();
+#endif                        
                         TInt errInImage = KErrNone;
  
                         

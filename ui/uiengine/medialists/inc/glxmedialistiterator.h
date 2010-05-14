@@ -554,5 +554,64 @@ protected:
 	const MGlxMediaList* iList;
 	};
 	
+/**
+ * TGlxScrollingDirectionIterator
+ * 
+ * Ordered that returns the index of the visible window item based on ScrollDirection
+ */	
+class TGlxScrollingDirectionIterator : public MGlxMediaListIterator
+	{
+	
+public:
+    
+	 IMPORT_C ~TGlxScrollingDirectionIterator( );
+	 IMPORT_C TGlxScrollingDirectionIterator( );
+	
+	/**
+	 * Set the range offsets
+	 */
+     IMPORT_C void SetRangeOffsets(TInt aRearOffset, TInt aFrontOffset);
+    
+    // From MGlxMediaListIterator
+	virtual void SetToFirst(const MGlxMediaList* aList);
+	virtual TInt operator++(TInt);
+	virtual TBool InRange(TInt aIndex) const;
+
+private:
+    
+    enum TMovingDirection
+        {
+        EForward,
+        EBackward,
+        EIdle
+        };
+    
+	/**	
+	 * The count or ordinal of the item that is currently "selected"
+	 * This translates to how many times ++ has been called
+	 */
+	TInt iCurrentItem;
+
+	/**
+	 * Number of items within range after visible index
+	 */
+	TInt iFrontOffset;
+
+	/**
+	 * Number of items within range before visible index
+	 */
+	TInt iRearOffset;
+    
+	TInt iDefaultVisItems;
+	TMovingDirection iMovingDirection;
+	TInt iExVisindex;
+	
+protected:	
+	/**
+	 * List being traversed
+	 */
+	const MGlxMediaList* iList;
+	};
+	
 #endif // __C_GLXMEDIALISTITERATOR_H__
 

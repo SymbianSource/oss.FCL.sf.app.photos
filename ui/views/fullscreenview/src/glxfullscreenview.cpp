@@ -263,7 +263,6 @@ void GlxFullScreenView::cleanUp()
 
     if(mFullScreenToolBar) {
        mFullScreenToolBar->clearActions();
-       delete mFullScreenToolBar;
        mFullScreenToolBar = NULL;
     }
     
@@ -291,6 +290,7 @@ void GlxFullScreenView::setModel( QAbstractItemModel *model )
     OstTraceExt2( TRACE_NORMAL, GLXFULLSCREENVIEW_SETMODEL, "GlxFullScreenView::setModel; model=%x; mModel=%u", ( TUint )( model ), ( TUint ) mModel );
     
     mModel = model;     
+	setModelContext();  
     setHdmiModel(mModel);
 
     mCoverFlow->setModel(mModel);
@@ -712,25 +712,6 @@ GlxFullScreenView::~GlxFullScreenView()
     OstTraceFunctionExit0( DUP1_GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_EXIT );
 }
 
-void GlxFullScreenView::handleUserAction(qint32 commandId)
-{
-    OstTraceFunctionEntry0( GLXFULLSCREENVIEW_HANDLEUSERACTION_ENTRY );
-    
-    switch( commandId ) {
-        case EGlxCmdRotate :
-            //trigger the rotate Effect in CoverFlow
-            mCoverFlow->rotateImage();
-            break;
-            
-
-            
-        default :
-            break;
-    }
-
-    OstTraceFunctionExit0( GLXFULLSCREENVIEW_HANDLEUSERACTION_EXIT );
-}
-
 void GlxFullScreenView::imageSelectionAnimation(const QModelIndex &index)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_IMAGESELECTIONANIMATION_ENTRY );
@@ -778,3 +759,20 @@ int GlxFullScreenView::getSubState()
 	}
 	return substate;
 }
+
+bool GlxFullScreenView::event(QEvent *event)
+{
+    GLX_LOG_INFO1("GlxFullScreenView::event() %d event type", event->type());
+    if ( event->type() ==  QEvent::WindowActivate && mCoverFlow) {
+        if (mTvOutWrapper){
+        mTvOutWrapper->setToNativeMode();    
+        }
+    }
+    if ( event->type() ==  QEvent::WindowDeactivate && mCoverFlow) {
+        if (mTvOutWrapper){
+        mTvOutWrapper->setToCloningMode();    
+        }
+    }
+    return HbView::event(event);
+}
+

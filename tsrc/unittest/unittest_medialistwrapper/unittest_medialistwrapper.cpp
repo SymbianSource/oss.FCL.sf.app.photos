@@ -106,7 +106,7 @@ void TestGlxMLWrapper::testSetContextMode()
     
     // After adding grid context should get grid icon 
     mTestObject->setContextMode(GlxContextPtGrid);
-    QTest::qWait(2000);
+    QTest::qWait(10000);
     icon = mTestObject->retrieveItemIcon(itemIndex,GlxTBContextGrid);
     QVERIFY(icon != NULL);
 }

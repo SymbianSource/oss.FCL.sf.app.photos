@@ -20,7 +20,6 @@
 
 #include <QAbstractItemModel>
 #include <QCache>
-#include <glxmlwrapper.h>
 #include <glxuistd.h>
 
 #ifdef BUILD_LISTMODEL
@@ -40,6 +39,7 @@ typedef QList<GlxAlbumListParams> GlxAlbumListData;
 
 class HbIcon;
 class GlxModelParm;
+class GlxMLWrapper;
 
 class GLX_LISTMODEL_EXPORT GlxAlbumModel : public QAbstractItemModel
 {
@@ -76,7 +76,7 @@ protected:
 private slots:
      void updateItemIcon(int itemIndex, HbIcon* itemIcon, GlxTBContextType tbContextType); 
 private:
-    Q_DECL_IMPORT GlxMLWrapper* mMLWrapper;
+    GlxMLWrapper* mMLWrapper;
     GlxContextMode mContextMode;
     HbIcon* mDefaultIcon;
     QCache<int, HbIcon> itemIconCache;

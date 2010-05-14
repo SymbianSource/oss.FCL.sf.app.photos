@@ -63,6 +63,8 @@ file=ABI_DIR/BUILD_DIR/glxmedialists.dll                        SHARED_LIB_DIR/g
 file=ABI_DIR/BUILD_DIR/glxmedialistwrapper.dll              SHARED_LIB_DIR/glxmedialistwrapper.dll
 file=ABI_DIR/BUILD_DIR/glxmediamodel.dll              SHARED_LIB_DIR/glxmediamodel.dll
 file=ABI_DIR/BUILD_DIR/glxlistmodel.dll              SHARED_LIB_DIR/glxlistmodel.dll
+file=ABI_DIR/BUILD_DIR/glxmodelwrapper.dll              SHARED_LIB_DIR/glxmodelwrapper.dll
+file=ABI_DIR/BUILD_DIR/glxfavmediamodel.dll          SHARED_LIB_DIR/glxfavmediamodel.dll
 
 file=ABI_DIR/BUILD_DIR/glxstatehandler.dll              SHARED_LIB_DIR/glxstatehandler.dll
 file=ABI_DIR/BUILD_DIR/glxviewmanager.dll              SHARED_LIB_DIR/glxviewmanager.dll
@@ -73,7 +75,7 @@ file=ABI_DIR/BUILD_DIR/glxviews.dll              SHARED_LIB_DIR/glxviews.dll
 S60_APP_EXE(photos)
 data=/epoc32/data/z/private/10003a3f/import/apps/photos_reg.rsc         private/10003a3f/import/apps/photos_reg.rsc
 data=DATAZ_/APP_RESOURCE_DIR/0xE2C223D9.mif                     APP_RESOURCE_DIR/0xE2C223D9.mif  
-
+data=/epoc32/data/Z/private/10202BE9/20007194.txt		private/10202BE9/20007194.txt
 //data=/epoc32/data/z/system/install/photos_stub.sis        /system/install/photos_stub.sis
 
 #endif //__PHOTOS_IBY__

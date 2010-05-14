@@ -17,4 +17,6 @@
 TEMPLATE    = subdirs
 CONFIG += ordered
 SUBDIRS	    = mediamodel \
-              listmodel
+              listmodel \
+              modelwrapper \
+              favmediamodel

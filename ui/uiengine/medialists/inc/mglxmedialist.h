@@ -223,6 +223,11 @@ public:
      * Cancels a command on the collection
      */
     virtual void CancelCommand() = 0;
+	
+	/**
+     * Checks if  a command is active or not
+     */
+	virtual TBool IsCommandActive()= 0;
 
     /**
      * Sets a filter on the collection.  The filter will replace any existing

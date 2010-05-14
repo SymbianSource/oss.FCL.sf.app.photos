@@ -19,11 +19,13 @@
 
 #include <glxmediamodel.h>
 #include <hbicon.h>
+#include <qimage.h>
 #include <glxmodelparm.h>
 #include <QCache>
 #include <QDebug>
 #include <hal.h>
 #include <hal_data.h>
+#include <glxmlwrapper.h>
 
 #include <glxfiltergeneraldefs.h>
 
@@ -52,7 +54,7 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	qDebug("iconAvailable() connection status %d", err);
 	//itemadded.resize(mMLWrapper->getItemCount());
 	
-	itemIconCache.setMaxCost(50);
+	itemIconCache.setMaxCost(20);  //Changed While Doing Media Wall
 	itemFsIconCache.setMaxCost(5);
 	itemExternalIconCache.setMaxCost(0);
 	
@@ -95,7 +97,7 @@ void GlxMediaModel::setContextMode(GlxContextMode contextMode)
 		mContextMode = contextMode;
 		if ( mContextMode == GlxContextLsGrid || mContextMode == GlxContextPtGrid ) {
             itemIconCache.clear();
-            emit dataChanged( index( 0, 0), index( rowCount() - 1, 0) );
+            //emit dataChanged( index( 0, 0), index( rowCount() - 1, 0) );  // Not Needed for HgWidget
         }
 	}
 }
@@ -117,14 +119,17 @@ void GlxMediaModel::addExternalItems(GlxExternalData* externalItems)
 */
 void GlxMediaModel::clearExternalItems()
 {
-	beginRemoveRows(QModelIndex(), 0, externalDataCount);
-	if(mExternalItems) {
+	if(externalDataCount) {
+	    beginRemoveRows(QModelIndex(), 0, externalDataCount);	
+        if(mExternalItems) {
 		delete mExternalItems;
 		mExternalItems = NULL;
 		externalDataCount = 0;
-	}
-	itemExternalIconCache.clear();
-	endRemoveRows();
+        }
+        itemExternalIconCache.clear();
+        endRemoveRows();
+    }
+
 }
 
 int GlxMediaModel::rowCount(const QModelIndex &parent ) const
@@ -156,7 +161,20 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
         return mSubState;
     }
 
+    if ( role == GlxHgVisibilityRole ) {
+        return TRUE;
+    }
+    
+    if ( role == Qt::DisplayRole ) {
+        return QVariant();
+    }
+    
+    if ( role == GlxDefaultImage ) {
+        return m_DefaultIcon->pixmap().toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    }
+
     HbIcon* itemIcon = NULL;
+    QImage itemImage;
     int itemIndex = index.row();
     qDebug("GlxMediaModel::data buffer concept index %d role %d", index.row(), role);
     if ((!index.isValid()) || (index.row() > rowCount()-1)) {
@@ -180,11 +198,15 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
         itemIcon = GetGridIconItem(itemIndex,GlxTBContextGrid);
         if(itemIcon == NULL || itemIcon->isNull() ){
             itemIcon = m_DefaultIcon;
-        // }
         }
         return *itemIcon;
     }
 		
+    if (role == GlxQImageSmall)
+        {
+        return mMLWrapper->retrieveItemImage(itemIndex, GlxTBContextGrid);
+        }
+
     if (role == GlxFsImageRole){
         if(mContextMode == GlxContextLsFs){
             itemIcon = GetFsIconItem(itemIndex,GlxTBContextLsFs);
@@ -213,6 +235,37 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
         }
         return *itemIcon;
     }
+	
+    if (role == GlxQImageLarge)
+        {
+        if(mContextMode == GlxContextLsFs)
+            {
+            itemImage = mMLWrapper->retrieveItemImage(itemIndex, GlxTBContextLsFs);
+            }
+        else
+            {
+            itemImage = mMLWrapper->retrieveItemImage(itemIndex, GlxTBContextPtFs);
+            }
+        if(!itemImage.isNull()) 
+            {
+            return itemImage;
+            }
+        else 
+            {
+            itemImage =  mMLWrapper->retrieveItemImage(itemIndex, GlxTBContextGrid);
+            if (!itemImage.isNull()) 
+                {
+                QSize sz = ( mContextMode == GlxContextLsFs ) ? QSize ( 640, 360) : QSize ( 360, 640 );
+                itemImage = itemImage.scaled(sz,Qt::KeepAspectRatio); 
+                }
+                return itemImage;
+            }
+        }
+    
+    if (role == GlxVisualWindowIndex)
+        {
+        return mMLWrapper->getVisibleWindowIndex();
+        }
 	
     QModelIndex idx;
     if ( GlxFocusIndexRole == role ) {
@@ -268,9 +321,6 @@ HbIcon* GlxMediaModel::GetFsIconItem(int itemIndex, GlxTBContextType tbContextTy
             emit iconAvailable(itemIndex,itemIcon, tbContextType);
 		}
 		itemIcon = itemFsIconCache[itemIndex];
-		/*if(!itemIcon){
-		itemIcon = GetGridIconItem(itemIndex, GlxTBContextGrid);
-		}*/
 	}
 	return itemIcon;
 

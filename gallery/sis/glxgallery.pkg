@@ -87,6 +87,7 @@
 ;qt dlls
 "\epoc32\release\armv5\urel\glxtvoutwrapper.dll"            -"!:\sys\bin\glxtvoutwrapper.dll"
 "\epoc32\release\armv5\urel\glxmedialistwrapper.dll"            -"!:\sys\bin\glxmedialistwrapper.dll"
+"\epoc32\release\armv5\urel\glxmodelwrapper.dll"            -"!:\sys\bin\glxmodelwrapper.dll"
 "\epoc32\release\armv5\urel\glxexternalutility.dll"        -"!:\sys\bin\glxexternalutility.dll"
 "\epoc32\release\armv5\urel\glxmediamodel.dll"        -"!:\sys\bin\glxmediamodel.dll"
 "\epoc32\release\armv5\urel\glxlistmodel.dll"        -"!:\sys\bin\glxlistmodel.dll"

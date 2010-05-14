@@ -28,6 +28,10 @@
 
 #define KGlxCollectionPluginAlbumsDllUid        		0x20007196
 #define KGlxCollectionPluginAlbumsImplementationUid 0x20007197
+#define KGlxCollectionPluginFavoritesAlbumId        0x2000A77C    
+//This is Used to set the Leavel in the alibum list 
+//as favorites is first in album list
+#define KGlxCollectionFavoritesId                    1
 
 #endif  // GLXCOLLECTIONPLUGINALBUMS_HRH
 

@@ -22,13 +22,17 @@ CONFIG += hb
 
 LIBS += -lglxmediamodel.dll \
         -lglxlistmodel.dll \
+        -lglxfavmediamodel.dll \
 	-lglximagedecoderwrapper.dll \
         -lglxloggerqt.dll \
         -lshareui.dll \
         -lglxtvout.dll \
         -lglxtvoutwrapper.dll \
         -lxqserviceutil.dll \
-        -lglxlogging.dll
+        -lglxlogging.dll \
+        -lganeswidgets.dll \
+        -lglxmodelwrapper.dll \
+        -lxqsettingsmanager
 
 DEFINES += BUILD_GLXVIEWS
 
@@ -36,12 +40,15 @@ INCLUDEPATH += . ../inc \
           ../../inc \
           ../uiengine/model/mediamodel/inc \
           ../uiengine/model/listmodel/inc \
+	  ../uiengine/model/favmediamodel/inc \
           ../uiengine/medialistwrapper/inc \
           ../viewbase/inc \
           ../../commonutilities/imagedecoderwrapper/inc \
           ../../loggers/loggerqt/inc \
           ../../traces \
-          ../../tvout/tvoutwrapper/inc
+          ../../tvout/tvoutwrapper/inc \
+          ../uiengine/model/modelwrapper/inc \
+          /epoc32/include/mw/hgwidgets
 
 symbian: { 
 TARGET.UID3 = 0x200009EF
@@ -58,6 +65,7 @@ HEADERS += viewbase/inc/glxview.h \
            fullscreenview/inc/glxzoomcontrol.h  \
            detailsview/inc/glxdetailsview.h  \
            detailsview/inc/glxdetailscustomwidgets.h  \
+           detailsview/inc/glxdetailscustomicon.h \
            gridview/inc/glxgridview.h \
 					 slideshowsettingsview/inc/glxslideshowsettingsview.h \
            listview/inc/glxlistview.h \
@@ -78,6 +86,7 @@ SOURCES += viewbase/src/glxview.cpp \
            fullscreenview/src/glxzoomcontrol.cpp \
            detailsview/src/glxdetailsview.cpp \
            detailsview/src/glxdetailscustomwidgets.cpp \
+           detailsview/src/glxdetailscustomicon.cpp \
            gridview/src/glxgridview.cpp \
            slideshowsettingsview/src/glxslideshowsettingsview.cpp \
            listview/src/glxlistview.cpp \

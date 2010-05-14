@@ -49,6 +49,7 @@ public slots :
     void orientationChanged(Qt::Orientation);   
     void slideShowEventHandler( GlxSlideShowEvent e);
     void indexchanged();
+    void modelDestroyed();
     
 protected :
     bool event(QEvent *event);

@@ -78,6 +78,7 @@
 ;qt dlls
 ""-"z:\sys\bin\glxtvoutwrapper.dll"
 ""-"z:\sys\bin\glxmedialistwrapper.dll"
+""-"z:\sys\bin\glxmodelwrapper.dll"
 ""-"z:\sys\bin\glxexternalutility.dll"
 ""-"z:\sys\bin\glxmediamodel.dll"
 ""-"z:\sys\bin\glxlistmodel.dll"

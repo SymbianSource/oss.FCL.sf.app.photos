@@ -19,6 +19,8 @@
 #include <mglxmedialist.h>
 #include <glxcommandfactory.h>
 #include <glxcommandhandlerremovefrom.h>
+#include <glxcollectionpluginalbums.hrh>
+#include <glxcommandhandlers.hrh>
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
 #include "glxcommandhandlerremovefromTraces.h"
@@ -43,11 +45,22 @@ CMPXCommand* GlxCommandHandlerRemoveFrom::CreateCommandL(TInt aCommandId,
     OstTraceFunctionEntry0( GLXCOMMANDHANDLERREMOVEFROM_CREATECOMMANDL_ENTRY );
     Q_UNUSED(aCommandId);
     Q_UNUSED(aConsume);
-    CMPXCollectionPath* path = aMediaList.PathLC(
-            NGlxListDefs::EPathFocusOrSelection);
 
-    CMPXCommand* command = TGlxCommandFactory::RemoveFromContainerCommandLC(
-            *path);
+    CMPXCommand* command = NULL;
+    CMPXCollectionPath* path = aMediaList.PathLC(
+             NGlxListDefs::EPathFocusOrSelection);
+           
+    if(aCommandId == EGlxCmdRemoveFromFav)
+        {
+          // adding to the favourites
+          TGlxMediaId favId(KGlxCollectionFavoritesId);     
+          command = TGlxCommandFactory::RemoveFromContainerCommandLC(favId, *path);
+        }
+    else
+        {
+          command = TGlxCommandFactory::RemoveFromContainerCommandLC(*path);
+        }
+
     CleanupStack::Pop(command);
     CleanupStack::PopAndDestroy(path);
     OstTraceFunctionExit0( GLXCOMMANDHANDLERREMOVEFROM_CREATECOMMANDL_EXIT );

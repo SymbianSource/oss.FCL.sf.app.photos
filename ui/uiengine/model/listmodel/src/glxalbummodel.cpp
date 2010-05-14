@@ -21,6 +21,7 @@
 #include <hbicon.h>
 #include <QStringList>
 #include <QBrush>
+#include <glxmlwrapper.h>
 
 #include "glxicondefs.h" //Contains the icon names/Ids
 
@@ -142,6 +143,12 @@ QVariant GlxAlbumModel::data(const QModelIndex &index, int role) const
     case GlxFocusIndexRole :
         idx = getFocusIndex();
         return idx.row();
+        
+    case GlxListItemCount :
+        return mMLWrapper->retrieveListItemCount( getFocusIndex().row() );
+        
+    case GlxSystemItemRole :
+        return mMLWrapper->isSystemItem( getFocusIndex().row() );
            
     default :       
         return QVariant();

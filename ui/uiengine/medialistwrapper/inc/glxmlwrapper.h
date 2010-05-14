@@ -33,6 +33,7 @@
 class GlxMLWrapperPrivate;
 class HbIcon;
 class CFbsBitmap;
+class QImage;
 //constant declarations
 
 
@@ -42,7 +43,7 @@ class CFbsBitmap;
 #define GLX_MLWRAPPER_EXPORT Q_DECL_IMPORT
 #endif
 
-Q_DECLARE_METATYPE(CFbsBitmap*);
+Q_DECLARE_METATYPE(CFbsBitmap*)
 
 class GLX_MLWRAPPER_EXPORT GlxMLWrapper : public QObject
 {
@@ -51,7 +52,7 @@ public:
 	/**
 	*constructor
 	*/
-    GlxMLWrapper(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);
+    GlxMLWrapper(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri = NULL);
 	/**
 	*destructor
 	**/
@@ -68,6 +69,7 @@ public:
 	* retrieveItemIcon()
 	*/
 	HbIcon* retrieveItemIcon(int index, GlxTBContextType aTBContextType);
+	QImage retrieveItemImage(int index, GlxTBContextType aTBContextType);
     void itemsAdded(int startIndex,int endIndex);
     void itemsRemoved(int startIndex,int endIndex);
     void handleReceivedIcon(int itemIndex, GlxTBContextType tbContextType);
@@ -93,6 +95,16 @@ public:
 	 * @param1 index 
 	 */
 	QVariant RetrieveBitmap(int index);
+    /*
+     * retrieveListItemCount helps to retrive the number of images in the album
+     * @param1 index 
+     */
+	int  retrieveListItemCount(int index);
+    /*
+     * isSystemItem helps to get the system item information
+     * @param1 index 
+     */
+	bool isSystemItem( int aItemIndex );
 	
 signals:
      void updateItem(int index, GlxTBContextType tbContextType);

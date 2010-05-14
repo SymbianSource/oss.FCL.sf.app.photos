@@ -20,6 +20,7 @@
 //internal includes 
 #include "glxmlwrapper.h"
 #include "glxmlwrapper_p.h"
+#include <qimage.h>
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -27,9 +28,9 @@
 // constructor.
 // ---------------------------------------------------------------------------
 //
-GlxMLWrapper::GlxMLWrapper(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType)
+GlxMLWrapper::GlxMLWrapper(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri)
 {
-    mMLWrapperPrivate = GlxMLWrapperPrivate::Instance(this, aCollectionId, aHierarchyId, aFilterType);
+    mMLWrapperPrivate = GlxMLWrapperPrivate::Instance(this, aCollectionId, aHierarchyId, aFilterType,uri);
 }
 
 // ---------------------------------------------------------------------------
@@ -67,6 +68,11 @@ HbIcon* GlxMLWrapper::retrieveItemIcon(int index, GlxTBContextType aTBContextTyp
 {
 	return (mMLWrapperPrivate->RetrieveItemIcon(index,aTBContextType));
 
+}
+
+QImage GlxMLWrapper::retrieveItemImage(int index, GlxTBContextType aTBContextType)
+{
+    return (mMLWrapperPrivate->RetrieveItemImage(index,aTBContextType));
 }
 
 // ---------------------------------------------------------------------------
@@ -118,6 +124,16 @@ QVariant GlxMLWrapper::RetrieveBitmap(int index)
     QVariant var;
     var.setValue(mMLWrapperPrivate->RetrieveBitmap(index));
     return var;
+}
+
+int GlxMLWrapper::retrieveListItemCount(int index)
+{
+    return mMLWrapperPrivate->RetrieveListItemCount( index ) ;
+}
+
+bool GlxMLWrapper::isSystemItem( int aItemIndex )
+{
+    return mMLWrapperPrivate->isSystemItem( aItemIndex );   
 }
 
 // ---------------------------------------------------------------------------

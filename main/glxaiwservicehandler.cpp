@@ -24,8 +24,8 @@
 
 #include <QtDebug>
 #include <Qt>
-#include <qstringlist.h>
-#include <qmessagebox.h>
+#include <QDir>
+#include <QStringList>
 
 #include <glxmediamodel.h>
 #include <glxviewsfactory.h>
@@ -41,16 +41,34 @@
 #include <glximageviewermanager.h>
 #include <glxexternalutility.h>
 #include "glxlocalisationstrings.h"
+#include <xqaiwdeclplat.h>
+
+#define IMAGE_FETCHER_SERVICE_NAME QLatin1String("photos.com.nokia.symbian.IImageFetch")
+#define IMAGE_FETCHER_SERVICE_DEPINTERFACE_NAME QLatin1String("photos.Image")
+#define IMAGE_FETCHER_DEPSERVICE_DEPINTERFACE_NAME QLatin1String("com.nokia.services.media.Image")
+#define FILE_VIEWER_SERVICE_NAME QLatin1String("photos.com.nokia.symbian.IFileView")
+
 
 // ----------------------------------------------------------------------------
 // GlxAiwServiceHandler()
 // ----------------------------------------------------------------------------
 //
 GlxAiwServiceHandler::GlxAiwServiceHandler() :
-    HbMainWindow(), mModel(NULL), mView(NULL), mService(NULL),
-            mStateMgr(NULL),mFSView(NULL),mFetcherContextMenu(NULL)
+    HbMainWindow(), 
+    mModel(NULL),
+    mView(NULL),
+    mStateMgr(NULL),
+    mFSView(NULL),
+    mFetcherContextMenu(NULL),
+    mFetcherService(NULL),
+    mNSDIService(NULL),
+    mDSDIService(NULL),
+    mImageViewerService(NULL)
     {
-    mService = new GlxGetImageService(this);
+    mFetcherService = new GlxGetImageService(this);
+    mNSDIService = new GlxGetImageServiceNSDI(this);
+    mDSDIService = new GlxGetImageServiceDSDI(this);
+    
     mImageViewerService = new GlxImageViewerService(this);
 
 #ifdef _DEBUG
@@ -75,10 +93,14 @@ GlxAiwServiceHandler::~GlxAiwServiceHandler()
         {
         removeView(mView);
         }
+    delete mStateMgr;
     delete mView;
 	delete mFSView;
     delete mModel;
-    delete mService;
+    delete mFetcherService;
+    delete mNSDIService;
+    delete mDSDIService;
+    delete mImageViewerService;
     }
 
 void GlxAiwServiceHandler::handleClientDisconnect()
@@ -94,16 +116,40 @@ void GlxAiwServiceHandler::handleClientDisconnect()
 void GlxAiwServiceHandler::itemSelected(const QModelIndex & index)
     {
     qDebug() << "GlxFetcher::itemSelected";
-    if (mService->isActive())
+    
+    if (mFetcherService->isActive())
         {
-        qDebug() << "GlxFetcher::itemSelected :: SERVICE ACTIVE";
+        qDebug() << "GlxFetcher::itemSelected mFetcherService->isActive()";
         QVariant variant = mModel->data(index, GlxUriRole);
         if (variant.isValid())
             {
             QString itemPath = variant.value<QString> ();
-            qDebug() << "GlxFetcher::itemSelected :: VALID URI -->" << itemPath;
             QStringList list = (QStringList() << itemPath);
-            mService->complete(list);
+            mFetcherService->complete(list);
+            }
+        }
+    
+    if (mNSDIService->isActive())
+        {
+    qDebug() << "GlxFetcher::itemSelected mNSDIService->isActive()";
+        QVariant variant = mModel->data(index, GlxUriRole);
+        if (variant.isValid())
+            {
+            QString itemPath = variant.value<QString> ();
+            QStringList list = (QStringList() << itemPath);
+            mNSDIService->complete(list);
+            }
+        }
+    
+    if (mDSDIService->isActive())
+        {
+    qDebug() << "GlxFetcher::itemSelected mDSDIService->isActive()";
+        QVariant variant = mModel->data(index, GlxUriRole);
+        if (variant.isValid())
+            {
+            QString itemPath = variant.value<QString> ();
+            QStringList list = (QStringList() << itemPath);
+            mDSDIService->complete(list);
             }
         }
     }	
@@ -112,6 +158,7 @@ void GlxAiwServiceHandler::itemSelected(const QModelIndex & index)
 
 void GlxAiwServiceHandler::launchFetcher()
     {
+    qDebug() << "GlxAiwServiceHandler::launchFetcher START";
     HbStyleLoader::registerFilePath(":/data/photos.css");
     GlxModelParm modelParm(KGlxCollectionPluginAllImplementationUid, 0);
     mModel = new GlxMediaModel(modelParm);
@@ -133,6 +180,7 @@ void GlxAiwServiceHandler::launchFetcher()
 	connect ( mView, SIGNAL(itemSpecificMenuTriggered(qint32,QPointF ) ),
 			this, SLOT( itemSpecificMenuTriggered(qint32,QPointF ) ),
 			Qt::QueuedConnection );
+	qDebug() << "GlxAiwServiceHandler::launchFetcher END";
     }
 
 void GlxAiwServiceHandler::itemSpecificMenuTriggered(qint32 viewId,QPointF pos)
@@ -202,8 +250,7 @@ void GlxAiwServiceHandler::launchImageViewer()
 // ----------------------------------------------------------------------------
 //
 GlxGetImageService::GlxGetImageService(GlxAiwServiceHandler* parent) :
-            XQServiceProvider(
-                    QLatin1String("com.nokia.services.media.Image"), parent),
+            XQServiceProvider(IMAGE_FETCHER_SERVICE_NAME, parent),
             mServiceApp(parent)
     {
     mImageRequestIndex = -1;
@@ -267,7 +314,173 @@ bool GlxGetImageService::isActive()
 // fetch()
 // ----------------------------------------------------------------------------
 //
-void GlxGetImageService::fetch(QVariantMap filter, QVariant flag)
+void GlxGetImageService::fetch()
+    {
+    mImageRequestIndex = setCurrentRequestAsync();
+    mServiceApp->launchFetcher();
+    }
+
+// ----------------------------------------------------------------------------
+// GlxGetImageService()
+// ----------------------------------------------------------------------------
+//
+GlxGetImageServiceNSDI::GlxGetImageServiceNSDI(GlxAiwServiceHandler* parent) :
+            XQServiceProvider(IMAGE_FETCHER_SERVICE_DEPINTERFACE_NAME, parent),
+            mServiceApp(parent)
+    {
+    mImageRequestIndex = -1;
+    publishAll();
+    connect(this, SIGNAL(clientDisconnected()), mServiceApp,
+            SLOT(handleClientDisconnect()));
+    }
+
+// ----------------------------------------------------------------------------
+// ~GlxGetImageService()
+// ----------------------------------------------------------------------------
+//
+GlxGetImageServiceNSDI::~GlxGetImageServiceNSDI()
+    {
+    }
+
+// ----------------------------------------------------------------------------
+// fetchFailed()
+// ----------------------------------------------------------------------------
+//
+void GlxGetImageServiceNSDI::fetchFailed(int errorCode)
+    {
+    QStringList filesList;
+    filesList.insert(0, QString::number(errorCode));//result
+    doComplete(filesList);
+    }
+
+// ----------------------------------------------------------------------------
+// complete()
+// ----------------------------------------------------------------------------
+//
+void GlxGetImageServiceNSDI::complete(QStringList filesList)
+    {
+    doComplete(filesList);
+    }
+
+// ----------------------------------------------------------------------------
+// doComplete()
+// ----------------------------------------------------------------------------
+//
+void GlxGetImageServiceNSDI::doComplete(QStringList filesList)
+    {
+    if (isActive())
+        {
+        completeRequest(mImageRequestIndex, filesList);
+        mImageRequestIndex = -1;
+        connect(this, SIGNAL(returnValueDelivered()), qApp, SLOT(quit()));
+        }
+    }
+
+// ----------------------------------------------------------------------------
+// isActive()
+// ----------------------------------------------------------------------------
+//
+bool GlxGetImageServiceNSDI::isActive()
+    {
+    return mImageRequestIndex > -1;
+    }
+
+// ----------------------------------------------------------------------------
+// fetch()
+// ----------------------------------------------------------------------------
+//
+void GlxGetImageServiceNSDI::fetch(QVariantMap filter, QVariant flag)
+    {
+    qDebug() << "GlxGetImageServiceNSDI::fetch WITH PARAMETER START";
+    Q_UNUSED(filter)
+    Q_UNUSED(flag)
+    fetch();
+    qDebug() << "GlxGetImageServiceNSDI::fetch WITH PARAMETER END";
+    }
+
+// ----------------------------------------------------------------------------
+// fetch()
+// ----------------------------------------------------------------------------
+//
+void GlxGetImageServiceNSDI::fetch()
+    {
+    qDebug() << "GlxGetImageServiceNSDI::fetch START";
+    mImageRequestIndex = setCurrentRequestAsync();
+    mServiceApp->launchFetcher();
+    qDebug() << "GlxGetImageServiceNSDI::fetch END";
+    }
+
+//==============================================================================//
+// ----------------------------------------------------------------------------
+// GlxGetImageService()
+// ----------------------------------------------------------------------------
+//
+GlxGetImageServiceDSDI::GlxGetImageServiceDSDI(GlxAiwServiceHandler* parent) :
+            XQServiceProvider(IMAGE_FETCHER_DEPSERVICE_DEPINTERFACE_NAME, parent),
+            mServiceApp(parent)
+    {
+    mImageRequestIndex = -1;
+    publishAll();
+    connect(this, SIGNAL(clientDisconnected()), mServiceApp,
+            SLOT(handleClientDisconnect()));
+    }
+
+// ----------------------------------------------------------------------------
+// ~GlxGetImageService()
+// ----------------------------------------------------------------------------
+//
+GlxGetImageServiceDSDI::~GlxGetImageServiceDSDI()
+    {
+    }
+
+// ----------------------------------------------------------------------------
+// fetchFailed()
+// ----------------------------------------------------------------------------
+//
+void GlxGetImageServiceDSDI::fetchFailed(int errorCode)
+    {
+    QStringList filesList;
+    filesList.insert(0, QString::number(errorCode));//result
+    doComplete(filesList);
+    }
+
+// ----------------------------------------------------------------------------
+// complete()
+// ----------------------------------------------------------------------------
+//
+void GlxGetImageServiceDSDI::complete(QStringList filesList)
+    {
+    doComplete(filesList);
+    }
+
+// ----------------------------------------------------------------------------
+// doComplete()
+// ----------------------------------------------------------------------------
+//
+void GlxGetImageServiceDSDI::doComplete(QStringList filesList)
+    {
+    if (isActive())
+        {
+        completeRequest(mImageRequestIndex, filesList);
+        mImageRequestIndex = -1;
+        connect(this, SIGNAL(returnValueDelivered()), qApp, SLOT(quit()));
+        }
+    }
+
+// ----------------------------------------------------------------------------
+// isActive()
+// ----------------------------------------------------------------------------
+//
+bool GlxGetImageServiceDSDI::isActive()
+    {
+    return mImageRequestIndex > -1;
+    }
+
+// ----------------------------------------------------------------------------
+// fetch()
+// ----------------------------------------------------------------------------
+//
+void GlxGetImageServiceDSDI::fetch(QVariantMap filter, QVariant flag)
     {
     Q_UNUSED(filter)
     Q_UNUSED(flag)
@@ -278,8 +491,7 @@ void GlxGetImageService::fetch(QVariantMap filter, QVariant flag)
 // ----------GlxImageViewerService---------------
 
 GlxImageViewerService::GlxImageViewerService(GlxAiwServiceHandler* parent) :
-    XQServiceProvider(QLatin1String(
-            "com.nokia.services.media.com.nokia.symbian.IFileView"), parent),
+    XQServiceProvider(FILE_VIEWER_SERVICE_NAME, parent),
             mServiceApp(parent), mAsyncReqId(-1), mAsyncRequest(false),
             mImageViewerInstance(NULL)
 
@@ -312,8 +524,8 @@ bool GlxImageViewerService::view(QString file)
         {
         mImageViewerInstance = CGlxImageViewerManager::InstanceL();
         }
-    file.replace(QString("/"), QString("\\"));
-    TPtrC16 str(reinterpret_cast<const TUint16*> (file.utf16()));
+    QString filepath(QDir::toNativeSeparators(file.at(0)));
+    TPtrC16 str(reinterpret_cast<const TUint16*> (filepath.utf16()));
     HBufC* uri = str.Alloc();
 
     mImageViewerInstance->SetImageUriL(*uri);

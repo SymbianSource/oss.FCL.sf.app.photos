@@ -32,6 +32,9 @@
 #include <QList>
 #include "glxuistd.h"
 
+class XQSettingsKey;
+class XQSettingsManager;
+class QStringList;
 typedef enum 
 {
     NO_MOVE,
@@ -47,10 +50,29 @@ class GlxSlideShowSetting
 {
 public :
     GlxSlideShowSetting(int slideDelayTime = 0, GlxEffect effect = NO_EFFECT, GlxSlideShowMoveDir moveDir = NO_MOVE);
+    ~GlxSlideShowSetting();
     int slideDelayTime ( ) { return mSlideDelayTime; }
     GlxEffect effect() { return mEffect ; }
     void setEffect(GlxEffect effect) { mEffect = effect ;}
     GlxSlideShowMoveDir slideShowMoveDir() { return mMoveDir; }
+    /* Returns the index to the selected transition effect
+    This value is fetched from Central repository */
+    int slideShowEffectIndex() ;
+    /*SlideShowSettingsView will call this API to set the index of the transition effect chosen. 
+    This data will be written to the Central Repository*/
+     void setslideShowEffectIndex( int index );
+    
+    /* Returns the index to the selected transition delay /
+    This value is fetched from Central repository */
+    int slideShowDelayIndex();
+    
+    /*SlideShowSettingsView will call this API to set the index of the transition delay chosen. 
+    This data will be written to the Central Repository*/
+    void setSlideShowDelayIndex( int index );
+    
+    /*This will return the list of effects as available in the central repository */
+    QStringList slideShowEffectList();
+ 
 /*
  * This funtion read the user setting store in a file system.
  * 
@@ -60,7 +82,18 @@ public :
 private :
     int mSlideDelayTime; //user set time interval in between showing slide
     GlxEffect mEffect;         //user defined effect, To:Do It is either some integer value or some enum
+    GlxSlideShowDelay mDelay;
     GlxSlideShowMoveDir mMoveDir;	//user defined slide move direction
+    QStringList mEffectList;
+    XQSettingsManager *mSettingsManager;
+    XQSettingsKey *mTransitionEffectCenrepKey;
+    XQSettingsKey *mTransitionDelayCenrepKey;
+    XQSettingsKey *mWaveEffectCenRepKey;
+    XQSettingsKey *mFadeEffectCenRepKey;
+    XQSettingsKey *mZoomEffectCenRepKey;
+    XQSettingsKey *mSlowCenRepKey;
+    XQSettingsKey *mMediumCenRepKey;
+    XQSettingsKey *mFastCenRepKey;
 };
 
 /*
