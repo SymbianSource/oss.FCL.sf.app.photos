@@ -46,7 +46,7 @@
 
 //#define GLXPERFORMANCE_LOG  
 #include <glxperformancemacro.h>
-
+#include "glxtitlefetcher.h"
 //constant declaration
 const TInt KTBAttributeAvailable(1);
 const TInt KTBAttributeUnavailable(0);
@@ -103,7 +103,9 @@ GlxMLWrapperPrivate::GlxMLWrapperPrivate(GlxMLWrapper* aMLWrapper): iMLWrapper(a
     iFocusGridThumbnailContext = NULL;
     iFocusFsThumbnailContext = NULL;
     iFilmStripThumbnailContext = NULL;
-    iFavouriteContext = NULL;    
+    iFavouriteContext = NULL;
+    iTitleFetcher = NULL;
+    iViewTitle = QString();
     }
 
 // ---------------------------------------------------------------------------
@@ -318,7 +320,11 @@ void GlxMLWrapperPrivate::CreateGridContextL()
 	    iMediaList->AddContextL(iGridThumbnailContext, KGlxFetchContextPriorityNormal );
 		iGridContextActivated = ETrue;
 		}
-    
+
+	CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathParent );
+	iTitleFetcher = CGlxTitleFetcher::NewL(*this, path);
+	CleanupStack::PopAndDestroy(path);
+
 	}
 
 // ---------------------------------------------------------------------------
@@ -428,6 +434,8 @@ void GlxMLWrapperPrivate::RemoveGridContext()
 		iGridThumbnailContext = NULL;
 		iGridContextActivated = EFalse;
 		}
+	delete iTitleFetcher;
+	iTitleFetcher = NULL;
 	}
 
 // ---------------------------------------------------------------------------
@@ -617,6 +625,8 @@ void GlxMLWrapperPrivate::CreateMediaListFavoritesItemL(int aCollectionId, int a
     {
     TRACER("GlxMLWrapperPrivate::CreateMediaListFavoritesItemL");
     Q_UNUSED(aHierarchyId); 
+    Q_UNUSED(aCollectionId); 
+    Q_UNUSED(aFilterType); 
     // Create path to the list of images and videos
     CMPXCollectionPath* path = CMPXCollectionPath::NewL();
     CleanupStack::PushL( path );
@@ -749,7 +759,18 @@ QImage GlxMLWrapperPrivate::RetrieveItemImage(int aItemIndex, GlxTBContextType a
         }
     else if( tnError ) 
         {
-        return QImage(GLXICON_CORRUPT);
+        if(iCorruptImage.isNull())
+            {
+            HbIcon *icon = new HbIcon(GLXICON_CORRUPT);
+            if(!icon->isNull())
+                {
+                // this image Creation is Slow. 
+                // But what to do, Q class's Does not undersatnd our Localised File names
+                iCorruptImage = icon->pixmap().toImage();
+                }
+            delete icon;
+            }
+        return iCorruptImage;
         }
 
      return QImage();
@@ -928,6 +949,18 @@ void GlxMLWrapperPrivate::HandleItemRemovedL( TInt aStartIndex, TInt aEndIndex, 
     {
 	Q_UNUSED(aList);
 	iMLWrapper->itemsRemoved(aStartIndex,aEndIndex);
+	TInt mediaCount = aList->Count();
+    if (mediaCount <=0)
+        {
+        if(iMediaList->VisibleWindowIndex() > iMediaList->Count())
+            {
+            iMediaList->SetVisibleWindowIndexL(0);
+            }               
+        }
+    else if (iMediaList->VisibleWindowIndex() > iMediaList->Count())
+        {
+        iMediaList->SetVisibleWindowIndexL(iMediaList->Count()-1);
+        }
 	}
 // ---------------------------------------------------------------------------
 // HandleAttributesAvailableL
@@ -1119,6 +1152,7 @@ Q_UNUSED(aList);
 //
 void GlxMLWrapperPrivate::HandleError( TInt aError )
 	{
+	Q_UNUSED(aError);
     GLX_LOG_INFO1("GlxMLWrapperPrivate::HandleError Error %d", aError);	
 	
     for ( TInt i = 0; i < iMediaList->Count(); i++ )
@@ -1160,6 +1194,12 @@ void GlxMLWrapperPrivate::HandleItemModifiedL( const RArray<TInt>& aItemIndexes,
 {
 	Q_UNUSED(aItemIndexes);
 	Q_UNUSED(aList);
+}
+
+void GlxMLWrapperPrivate::HandlePopulatedL(MGlxMediaList* aList)
+{
+    Q_UNUSED(aList);
+    iMLWrapper->handlepopulated();
 }
 
 // ---------------------------------------------------------------------------
@@ -1243,3 +1283,27 @@ HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap, TInt
      {
      iMediaList->SetVisibleWindowIndexL(aItemIndex);
      }
+
+// -----------------------------------------------------------------------------
+// HandleTitleAvailableL
+// -----------------------------------------------------------------------------
+//	
+void GlxMLWrapperPrivate::HandleTitleAvailableL(
+        const TDesC& aTitle)
+    {
+    iViewTitle = QString::fromUtf16(aTitle.Ptr(), aTitle.Length());	
+	iMLWrapper->handleTitleAvailable(iViewTitle);
+    RDebug::Print(_L("GlxPhotos: GlxMLWrapperPrivate : TITLE =-%S"),&aTitle);
+	}
+
+QString GlxMLWrapperPrivate::RetrieveViewTitle()
+    {
+    return iViewTitle;
+    }
+	 
+bool GlxMLWrapperPrivate::IsPopulated()
+    {
+    return iMediaList->IsPopulated();
+    }
+
+	 

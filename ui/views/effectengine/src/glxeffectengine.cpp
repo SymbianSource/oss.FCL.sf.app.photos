@@ -76,7 +76,7 @@ void GlxSlideShowSetting::setSlideShowDelayIndex( int index )
 QStringList GlxSlideShowSetting::slideShowEffectList()
 {
 	if(mSettingsManager->readItemValue(*mWaveEffectCenRepKey).toInt() == WAVE_EFFECT)
-        mEffectList<<"wave";
+        mEffectList<<"Flip";
     if(mSettingsManager->readItemValue(*mFadeEffectCenRepKey).toInt() == SMOOTH_FADE)
         mEffectList<<"Fade";
     if(mSettingsManager->readItemValue(*mZoomEffectCenRepKey).toInt() == ZOOM_TO_FACE)
@@ -90,6 +90,7 @@ int GlxSlideShowSetting::slideShowEffectIndex()
 }
 void GlxSlideShowSetting::setslideShowEffectIndex( int index )
 {
+    mEffect = ( GlxEffect ) ( index + 1 ) ;
     mSettingsManager->writeItemValue(*mTransitionEffectCenrepKey, index);
 }
 void GlxSlideShowSetting::readSlideShowSetting()
@@ -110,7 +111,7 @@ void GlxSlideShowSetting::readSlideShowSetting()
     				mSlideDelayTime = 3000;
                    break;
 	}
-    mEffect = FADE_EFFECT;
+    mEffect = ( GlxEffect ) ( mSettingsManager->readItemValue(*mTransitionEffectCenrepKey).toInt() + 1 )  ; 
     mMoveDir = MOVE_FORWARD;
     qDebug("GlxSlideShowSetting::readSlideShowSetting() slide delay time %d effect %d move direction %d", mSlideDelayTime, mEffect, mMoveDir);
 }
@@ -387,20 +388,25 @@ void GlxSlideShowEffectEngine::effectPluginResolver()
     mEffectPlugin = NULL;
     
     switch ( mSlideShowSetting.effect() ) {
-    case TRANSITION_EFFECT :
+    case WAVE_EFFECT :
+        mEffectPlugin = new GlxForwardTransitionPlugin();
+        break ;
+        
+    /*case TRANSITION_EFFECT :
         if ( slideShowMoveDir() == MOVE_FORWARD ) {
             mEffectPlugin = new GlxForwardTransitionPlugin();
         }
         else {
             mEffectPlugin = new GlxBackwardTransitionPlugin();
         }
-        break;
+        break;*/
         
-    case FADE_EFFECT :
+    case SMOOTH_FADE :
         mEffectPlugin = new GlxFadePlugin();
         break;
         
     default :
+        mEffectPlugin = new GlxFadePlugin();
         break;        
     }
 }

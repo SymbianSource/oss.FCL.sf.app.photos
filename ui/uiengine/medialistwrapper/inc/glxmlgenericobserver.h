@@ -61,6 +61,7 @@ public: // from MGlxMediaListObserver
         MGlxMediaList* aList );
     void HandleMediaL( TInt aListIndex, MGlxMediaList* aList );
     void HandleItemModifiedL( const RArray<TInt>& aItemIndexes, MGlxMediaList* aList );
+    void HandlePopulatedL(MGlxMediaList* aList);
 
 private:
 

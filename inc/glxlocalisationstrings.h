@@ -106,5 +106,6 @@
 
 #define GLX_MENU_OPEN                hbTrId("txt_common_menu_open")
 
+#define GLX_BUTTON_HIDE              hbTrId("txt_common_button_hide")
 
 #endif /* GLXLOCALISATIONSTRINGS_H_ */

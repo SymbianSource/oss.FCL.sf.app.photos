@@ -31,6 +31,7 @@ class GlxMediaModel;
 class GlxAlbumModel;
 class QAbstractItemModel;
 class GlxActionHandler;
+class GlxTNObserver;
 
 #ifdef BUILD_STATEMANAGER
 #define GLX_STATEMANAGER_EXPORT Q_DECL_EXPORT
@@ -62,6 +63,7 @@ public slots:
     void launchApplication();
     void actionTriggered(qint32 id);
     void setupItems();
+    void updateTNProgress( int count);
 
 public :
 /*
@@ -92,6 +94,11 @@ public :
  * It will delete the current model
  */      
     void removeCurrentModel();
+    
+/*
+ * It will delete the all model used by state manager
+ */
+    void cleanAllModel();
     
 
 private:
@@ -126,6 +133,7 @@ private:
     QAbstractItemModel  *mCurrentModel;         // no owner ship
     GlxState            *mCurrentState;		
     GlxActionHandler    *mActionHandler;
+    GlxTNObserver       *mTNObserver;
     int                 mCollectionId;
 };
 

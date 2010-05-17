@@ -24,13 +24,14 @@
 
 GlxCommandHandlerSend::GlxCommandHandlerSend()
     {
-
+     mSendUiDialog = new ShareUi();      
     }
 
 
 GlxCommandHandlerSend::~GlxCommandHandlerSend()
     {
-   
+     delete mSendUiDialog;
+     mSendUiDialog =NULL;
     }
 
 void GlxCommandHandlerSend::doHandleUserAction(GlxMediaModel* model,QList<QModelIndex> indexList) const
@@ -51,8 +52,7 @@ void GlxCommandHandlerSend::doHandleUserAction(GlxMediaModel* model,QList<QModel
         imagePath = (model->data(indexList[i],GlxUriRole)).value<QString>();
         fileList.append(QVariant(imagePath));        
         } 
-    }
-    ShareUi dialog;                               
-    dialog.init(fileList,true);
+    }                              
+    mSendUiDialog->init(fileList,true);
 }
 

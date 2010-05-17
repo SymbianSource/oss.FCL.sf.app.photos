@@ -112,6 +112,7 @@ private:
     
     bool       iHdmiConnected;                          // To check if the HDMI is connected
     bool       isImageSetToHdmi;                        // to check if the image is set to HDMI
+    bool       iIsPhotosInForeground;                   // to check if the Photos is on foreground
     };
 
 #endif //GLXTVOUTWRAPPERPRIVATE_P_H 

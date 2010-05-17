@@ -42,7 +42,9 @@ enum
     GlxFavorites,                       //to get the image is in favorites folder or not
     GlxQImageSmall,                     //To Get Grid Thumbnail as QImage
     GlxQImageLarge,                     //To Get FullScreen Thumbnail as QImage
-    GlxDefaultImage                     //To Get Default Thumbnail 
+    GlxDefaultImage,					//To Get Default Thumbnail 
+    GlxViewTitle,
+    GlxPopulated
 };
 
 

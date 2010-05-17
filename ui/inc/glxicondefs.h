@@ -28,8 +28,8 @@
 #define GLXICON_USEIMAGE    "qtg_small_ovi"
 
 //GRID TOOLBAR
-#define GLXICON_ALL     "qtg_mono_photos_all"
-#define GLXICON_ALBUMS  "qtg_mono_albums"
+#define GLXICON_ALL     "qtg_mono_photos"
+#define GLXICON_ALBUMS  "qtg_mono_photo_albums"
 #define GLXICON_CAMERA  "qtg_mono_camera"
 #define GLXICON_OVI     "qtg_small_ovi"
 
@@ -44,5 +44,7 @@
 
 #define GLXICON_ADD_TO_FAV  "qtg_graf_ratingslider_rated"
 #define GLXICON_REMOVE_FAV  "qtg_graf_ratingslider_unrated"
+
+#define GLXICON_WALL_UI_ON   "qtg_mono_back"
 
 #endif /* GLXICONDEFS_H */

@@ -25,6 +25,7 @@
 #include <glxdetailstate.h>
 #include <glxslideshowsettingsstate.h>
 #include <glxslideshowstate.h>
+#include <glxtnobserver.h>
 #include <glxmodelparm.h>
 #include <glxcollectionpluginall.hrh>
 #include <glxcollectionplugincamera.hrh>
@@ -43,15 +44,26 @@
 #include <hbnotificationdialog.h>
 #include <QProcess>
 
-GlxStateManager::GlxStateManager() : mAllMediaModel(NULL), mAlbumGridMediaModel(NULL),
-            mAlbumMediaModel(NULL),mImageviewerMediaModel(NULL), mCurrentModel (NULL), mCurrentState (NULL), mActionHandler (NULL)
+
+GlxStateManager::GlxStateManager() 
+    : mAllMediaModel( NULL ), 
+      mAlbumGridMediaModel( NULL ),
+      mAlbumMediaModel( NULL ),
+      mImageviewerMediaModel( NULL ), 
+      mCurrentModel( NULL ), 
+      mCurrentState( NULL ), 
+      mActionHandler( NULL ),
+      mTNObserver ( NULL )
 {
     qDebug("GlxStateManager::GlxStateManager");
     PERFORMANCE_ADV ( d1, "view manager creation time") {
         mViewManager = new GlxViewManager();
     }
+    mTNObserver = new GlxTNObserver();
+    
     connect ( this, SIGNAL( setupItemsSignal() ), this, SLOT( setupItems() ), Qt::QueuedConnection );
-    connect ( mViewManager, SIGNAL(actionTriggered(qint32 )), this, SLOT(actionTriggered(qint32 )), Qt::QueuedConnection );
+    connect ( mViewManager, SIGNAL(actionTriggered( qint32 )), this, SLOT(actionTriggered( qint32 )), Qt::QueuedConnection );
+    connect ( mTNObserver, SIGNAL( leftTNCount( int ) ), this, SLOT( updateTNProgress( int ) ) );
 	//TO:DO TBD through exception when it is null
 }
 
@@ -87,19 +99,22 @@ bool GlxStateManager::executeCommand(qint32 commandId)
 
 void GlxStateManager::launchApplication()
 {
-   qDebug("GlxStateManager::launchApplication");   
-   //To:Do use it in future once performance code is removed nextState(GLX_GRIDVIEW_ID, ALL_ITEM_S)
-   
-   mCurrentState = createState(GLX_GRIDVIEW_ID);
-   mCurrentState->setState(ALL_ITEM_S);
-   
-   PERFORMANCE_ADV ( d1, "Media model creation time" ) {
-       createModel(GLX_GRIDVIEW_ID);
-   }
-   
-   PERFORMANCE_ADV ( d2, "Grid View Launch time" ) {
-       mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
-   }   
+    qDebug("GlxStateManager::launchApplication");   
+       
+    //To:Do use it in future once performance code is removed nextState(GLX_GRIDVIEW_ID, ALL_ITEM_S)
+    mCurrentState = createState( GLX_GRIDVIEW_ID );
+    mCurrentState->setState( ALL_ITEM_S );
+       
+    if ( mTNObserver->getTNLeftCount() > 0 ) {
+        mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
+        mViewManager->launchProgressDialog( mTNObserver->getTNLeftCount() );
+    }
+    else {
+        createModel( GLX_GRIDVIEW_ID );
+        mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
+    }
+    
+    mTNObserver->startTNObserving() ; 
 }
 
 void GlxStateManager::launchFromExternal()
@@ -130,6 +145,22 @@ void GlxStateManager::setupItems()
     connect ( mViewManager, SIGNAL(externalCommand(int )), this, SIGNAL(externalCommand(int )) );
     mViewManager->setupItems();
     mViewManager->updateToolBarIcon(GLX_ALL_ACTION_ID);
+}
+
+void GlxStateManager::updateTNProgress( int count)
+{
+    if (  mCurrentState->id() != GLX_GRIDVIEW_ID  && count > 0) {
+         goBack( GLX_GRIDVIEW_ID, ALL_ITEM_S ) ;
+    }
+    if ( mCurrentModel && count > 0) {
+         cleanAllModel();   
+         mViewManager->launchProgressDialog ( count ) ;
+    }
+    if ( count == 0 ) {
+        createModel( mCurrentState->id() );
+        mViewManager->setModel( mCurrentModel );
+    }
+    mViewManager->updateProgressDialog( count );
 }
 
 void GlxStateManager::nextState(qint32 state, int internalState)
@@ -189,12 +220,15 @@ void GlxStateManager::goBack(qint32 stateId, int internalState)
     qDebug("GlxStateManager::goBack()");
     GlxState *state = mCurrentState;
     
-    do {
+    while ( mCurrentState ) {
+        if ( mCurrentState->id() == stateId  && mCurrentState->state() == internalState ) {
+            break ;           
+        }
+        
         mCurrentState = mCurrentState->previousState(); // set pervious state to the current state
         delete state; //delete the current state
-        state = mCurrentState;
+        state = mCurrentState;    
     }
-    while ( mCurrentState && mCurrentState->id() != stateId ); //check, cuurent state is a new state
     
     //case when new state is not hierarchy then create a new state
     if ( mCurrentState == NULL ) {
@@ -255,6 +289,19 @@ void GlxStateManager::removeCurrentModel()
     	qDebug("GlxStateManager::removeCurrentModel() do nothing");
     	//do nothing
     }
+}
+
+void GlxStateManager::cleanAllModel()
+{
+    delete mAllMediaModel ;
+    mAllMediaModel = NULL ;
+    delete mAlbumMediaModel ; 
+    mAlbumMediaModel = NULL ;
+    delete mAlbumGridMediaModel ;
+    mAlbumGridMediaModel = NULL ;
+    delete mImageviewerMediaModel ;
+    mImageviewerMediaModel = NULL ;
+    mCurrentModel = NULL ;
 }
 
 GlxState * GlxStateManager::createState(qint32 stateId)
@@ -436,16 +483,23 @@ void GlxStateManager::eventHandler(qint32 &id)
         nextState(GLX_SLIDESHOWSETTINGSVIEW_ID,-1 );
         id = EGlxCmdHandled;
         break;
+        
     case EGlxCmdDetailsOpen:
         qDebug("GlxStateManager::eventHandler EGlxCmdDetailsOpen");
         nextState( GLX_DETAILSVIEW_ID, -1 );
         id = EGlxCmdHandled;
         break;
         
-    case EGlxCmdEmptyData :
-        goBack(GLX_GRIDVIEW_ID, NO_GRID_S);
+    case EGlxCmdEmptyData : {
+        GlxState *tmpState = mCurrentState ;
+        while ( tmpState->id() != GLX_GRIDVIEW_ID ) {
+            tmpState = tmpState->previousState() ;
+        }
+        
+        goBack( GLX_GRIDVIEW_ID, tmpState->state() );
         id = EGlxCmdHandled;
         break;
+    }
     	
     case EGlxCmdBack :
     	previousState();
@@ -517,25 +571,26 @@ void GlxStateManager::exitApplication()
 GlxStateManager::~GlxStateManager()
 {
     qDebug("GlxStateManager::~GlxStateManager");
-    delete mAllMediaModel;
-    delete mAlbumMediaModel;
-    delete mAlbumGridMediaModel;
-	
+    cleanAllModel();
     delete mActionHandler;
     qDebug("GlxStateManager::~GlxStateManager delete Model");
     
     disconnect ( mViewManager, SIGNAL(actionTriggered(qint32 )), this, SLOT(actionTriggered(qint32 )) );
     disconnect ( mViewManager, SIGNAL(externalCommand(int )), this, SIGNAL(externalCommand(int )) );
+    disconnect ( mTNObserver, SIGNAL( leftTNCount( int ) ), this, SLOT( updateTNProgress( int ) ) );
+    disconnect ( this, SIGNAL( setupItemsSignal() ), this, SLOT( setupItems() ) );
+    
+    delete mTNObserver;
     delete mViewManager; 
     qDebug("GlxStateManager::~GlxStateManager delete view manager");
-    delete mImageviewerMediaModel;
+    
     GlxState *tmp;   
     while (mCurrentState) {
         tmp = mCurrentState;
         mCurrentState = mCurrentState->previousState();
         delete tmp;        
     }
-    disconnect ( this, SIGNAL( setupItemsSignal() ), this, SLOT( setupItems() ) );
+    
     qDebug("GlxStateManager::~GlxStateManager Exit");
 }
 

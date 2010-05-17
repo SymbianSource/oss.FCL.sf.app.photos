@@ -24,6 +24,7 @@ INCLUDEPATH += . ../../inc \
 			
 CONFIG += hb
 LIBS +=  -lglxtvout.dll \
+		-lglxlogging.dll \
 
 DEFINES += BUILD_TVOUTWRAPPER
 

@@ -29,6 +29,7 @@
 #include "glxcoverflow.h"
 #include "glxslideshowwidget.h"
 #include "glxslideshowview.h"
+#include "glxzoomwidget.h"
 
 //----------------------------------------------------------------------------------------
 // createObject:creates the custom widget and views of fullscreen view
@@ -53,6 +54,14 @@ QObject* GlxFullscreenViewDocLoader::createObject(const QString &type, const QSt
         qDebug() << "GlxFullscreenViewDocLoader::createObject:CoverFLOW -->";
 
         QObject *object = new GlxCoverFlow();
+        object->setObjectName(name);
+        return object;
+        }
+       
+       if (GLXFULLSCREENZOOMWIDGET == name) 
+        {
+        qDebug() << "GlxFullscreenViewDocLoader::createObject:ZOOM -->";
+        QObject *object = new GlxZoomWidget();
         object->setObjectName(name);
         return object;
         }

@@ -26,6 +26,9 @@
 #include <qdatetime.h>
 #include "glxmedialistiterator.h"
 #include "glxmlwrapper.h"
+#include <qimage>
+#include "mglxtitlefetcherobserver.h"
+
 //Forward Declarations
 class MGlxMediaList;
 class CGlxMLGenericObserver;
@@ -35,10 +38,10 @@ class QImage;
 class CGlxDefaultAttributeContext;
 class CGlxDefaultThumbnailContext;
 class CGlxDefaultListAttributeContext;
-
+class CGlxTitleFetcher;
 //to use first call GlxMLWrapperPrivate::Instance then set the mode by calling GlxMLWrapperPrivate::SetContextMode()
 //CLASS Declaration
-class GlxMLWrapperPrivate : public QObject
+class GlxMLWrapperPrivate : public QObject,public MGlxTitleFetcherObserver
 {
     
 public:
@@ -83,6 +86,10 @@ public:
 	 */
 	 void SetVisibleWindowIndex(int aItemIndex);
 
+public:
+	 // From MGlxTitleFetcherObserver
+    IMPORT_C void HandleTitleAvailableL(const TDesC& aTitle);
+
 public: 
     void HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
     void HandleItemRemovedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList*/* aList */);
@@ -95,6 +102,7 @@ public:
   //todo remove comment  void HandleCommandCompleteL( CMPXCommand* aCommandResult, TInt aError,MGlxMediaList* aList );
     void HandleMediaL( TInt aListIndex, MGlxMediaList* aList );
     void HandleItemModifiedL( const RArray<TInt>& aItemIndexes, MGlxMediaList* aList );
+    void HandlePopulatedL(MGlxMediaList* aList);
 
 public:
 	/**
@@ -111,6 +119,8 @@ public:
 	CFbsBitmap* RetrieveBitmap(int aItemIndex);
 	int     RetrieveListItemCount( int aItemIndex );
 	bool    isSystemItem( int aItemIndex );
+	QString RetrieveViewTitle();
+	bool IsPopulated();
 		
 private:
 
@@ -203,6 +213,9 @@ private:
 	TBool iLsListContextActivated; //currently not used as we have not implemented the logic for 3 thumbnails
 	TBool iPtListContextActivated; 
 	TBool iSelectionListContextActivated;
+	CGlxTitleFetcher* iTitleFetcher;
+	QImage iCorruptImage;
+	QString iViewTitle;
 
 };
 #endif //GLXMLWRAPPER_P_H 

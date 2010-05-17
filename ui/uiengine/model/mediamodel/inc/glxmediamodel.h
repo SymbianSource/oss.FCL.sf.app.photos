@@ -64,6 +64,10 @@ public :
 	* for checking if the item is editab
 	*/
 
+signals :
+	void albumTitleAvailable(QString aTitle);
+	void populated();
+
 private:
 	HbIcon* GetGridIconItem(int itemIndex, GlxTBContextType tbContextType) const;
 	HbIcon* GetFsIconItem(int itemIndex,GlxTBContextType tbContextType)const;
@@ -85,6 +89,8 @@ public slots:
 	void itemsAdded(int startIndex, int endIndex);
 	void itemsRemoved(int startIndex, int endIndex);
 	void itemCorrupted(int itemIndex);
+	void albumTitleUpdated(QString aTitle);
+	void modelpopulated();
 protected:
 	
 private slots:

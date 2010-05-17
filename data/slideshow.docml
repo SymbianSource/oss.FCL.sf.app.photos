@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hbdocument version="0.9">
+<hbdocument version="1.0">
     <widget name="mglxslideshow" type="HbView">
         <widget name="content" role="HbView:widget" type="HbWidget">
             <widget name="mslideshowwidget" type="HbWidget">
-                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                <enums name="scrollDirections" value="Horizontal"/>
                 <real name="z" value="14"/>
                 <sizehint height="95.52239un" type="PREFERRED" width="53.73134un"/>
+                <string name="alignment" value="AlignVCenter|AlignHCenter"/>
+                <string name="scrollDirections" value="Horizontal"/>
             </widget>
             <widget name="mContinueButton" type="HbPushButton">
                 <real name="z" value="10"/>
@@ -29,6 +29,7 @@
         <string name="title" value="Photos"/>
         <bool name="contentFullScreen" value="TRUE"/>
         <real name="z" value="10"/>
+        <enums name="titleBarFlags" value="TitleBarHidden|TitleBarTransparent"/>
     </widget>
     <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>

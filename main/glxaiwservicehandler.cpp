@@ -164,10 +164,10 @@ void GlxAiwServiceHandler::launchFetcher()
     mModel = new GlxMediaModel(modelParm);
 
     if ( this->orientation() == Qt::Horizontal ) {
-        mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
+        mModel->setData(QModelIndex(), (int)GlxContextLsGrid, GlxContextRole );
     }
     else {
-        mModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
+        mModel->setData(QModelIndex(), (int)GlxContextPtGrid, GlxContextRole );
     }    
 
     mView = GlxViewsFactory::createView(GLX_GRIDVIEW_ID, this);
@@ -204,6 +204,12 @@ void GlxAiwServiceHandler::closeContextMenu()
 	
 void GlxAiwServiceHandler::openFSView()
 	{
+    if ( this->orientation() == Qt::Horizontal ) {
+        mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
+    }
+    else {
+        mModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
+    }    
     HbAction* selectAction = new HbAction(GLX_BUTTON_SELECT);
 	connect(selectAction, SIGNAL(triggered()), this, SLOT(handleFSSelect()));
     HbToolBar* toolBar = new HbToolBar();
@@ -524,7 +530,7 @@ bool GlxImageViewerService::view(QString file)
         {
         mImageViewerInstance = CGlxImageViewerManager::InstanceL();
         }
-    QString filepath(QDir::toNativeSeparators(file.at(0)));
+    QString filepath(QDir::toNativeSeparators(file));
     TPtrC16 str(reinterpret_cast<const TUint16*> (filepath.utf16()));
     HBufC* uri = str.Alloc();
 

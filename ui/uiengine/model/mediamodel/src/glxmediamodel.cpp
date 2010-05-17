@@ -52,6 +52,9 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	qDebug("updateItem() connection status %d", err);
 	err = connect(this, SIGNAL(iconAvailable(int, HbIcon*, GlxTBContextType)), this, SLOT(updateItemIcon(int, HbIcon*, GlxTBContextType)));
 	qDebug("iconAvailable() connection status %d", err);
+	err = connect( mMLWrapper, SIGNAL(updateAlbumTitle(QString)), this, SLOT(albumTitleUpdated(QString)));
+	qDebug("updateAlbumTitle() connection status %d", err);
+	err = connect(mMLWrapper, SIGNAL(populated()), this, SLOT(modelpopulated()));
 	//itemadded.resize(mMLWrapper->getItemCount());
 	
 	itemIconCache.setMaxCost(20);  //Changed While Doing Media Wall
@@ -85,6 +88,8 @@ GlxMediaModel::~GlxMediaModel()
 	err = disconnect(mMLWrapper, SIGNAL(insertItems(int, int)), this, SLOT(itemsAdded(int, int)));
 	err = disconnect(mMLWrapper, SIGNAL(removeItems(int, int)), this, SLOT(itemsRemoved(int, int)));
 	err = disconnect(this, SIGNAL(iconAvailable(int, HbIcon*, GlxTBContextType)), this, SLOT(updateItemIcon(int, HbIcon*, GlxTBContextType)));
+	err = disconnect(mMLWrapper, SIGNAL(updateAlbumTitle(QString)), this, SLOT(albumTitleUpdated(QString)));	    
+	err = disconnect(mMLWrapper, SIGNAL(populated()), this, SLOT(modelpopulated()));
     delete mMLWrapper;
 
 }
@@ -157,6 +162,15 @@ QModelIndex GlxMediaModel::parent(const QModelIndex &child) const
 //todo refactor this whole function ... too many return statements are not good
 QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
 {
+    if (role == GlxViewTitle)
+        {
+        return mMLWrapper->retrieveViewTitle();
+        }
+
+    if(role == GlxPopulated) {
+        return mMLWrapper->IsPopulated();
+    }
+
     if ( role == GlxSubStateRole ) {
         return mSubState;
     }
@@ -170,7 +184,15 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
     }
     
     if ( role == GlxDefaultImage ) {
+        if(!m_DefaultIcon->isNull()) {
+            // this image Creation is Slow. 
+            // But what to do, Q class's Does not undersatnd our Localised File names
         return m_DefaultIcon->pixmap().toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    }
+        else {
+            return QImage();
+        }
+            
     }
 
     HbIcon* itemIcon = NULL;
@@ -359,6 +381,11 @@ void GlxMediaModel::itemCorrupted(int itemIndex)
 	emit dataChanged(index(itemIndex+externalDataCount,0),index(itemIndex+externalDataCount,0));	
 }
 
+void GlxMediaModel::modelpopulated()
+{
+    emit populated();
+}
+
 void GlxMediaModel::itemsAdded(int startIndex, int endIndex)
 {
 	qDebug("GlxMediaModel::itemsAdded %d %d", startIndex, endIndex);
@@ -401,6 +428,10 @@ void GlxMediaModel::updateItemIcon(int itemIndex, HbIcon* itemIcon, GlxTBContext
 	}
 }
 
+void GlxMediaModel::albumTitleUpdated(QString aTitle)
+{
+    emit albumTitleAvailable(aTitle);
+}
 
 void GlxMediaModel::setFocusIndex(const QModelIndex &index)
 {

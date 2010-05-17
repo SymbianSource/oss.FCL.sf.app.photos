@@ -29,6 +29,7 @@
 #include <QAbstractItemModel>
 #include <hbabstractviewitem.h>
 #include <hbiconitem.h>
+#include <QCoreApplication>
 
 //User Includes
 #include "glxlog.h"
@@ -42,7 +43,7 @@
 #include "glxtvoutwrapper.h"
 #include "glxfullscreenview.h" 
 #include "glxcommandhandlers.hrh"
-//#include "glxzoomwidget.h"
+#include "glxzoomwidget.h"
 
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
@@ -65,6 +66,7 @@ GlxFullScreenView::GlxFullScreenView(HbMainWindow *window,HbDocumentLoader *DocL
 	mFlipAction(NULL),
 	mSendAction(NULL),
 	mDeleteAction(NULL),
+	mZoomWidget(NULL),
 	mUseImageAction(NULL)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_ENTRY );
@@ -95,7 +97,9 @@ void GlxFullScreenView::initializeView(QAbstractItemModel *model)
     // to make the widget light weight in order to make
     // transition smooth 
     mCoverFlow->partiallyCreate( model, screenSize());
-    setItemVisible(Hb::AllItems, FALSE) ;
+	
+    setStatusBarVisible(FALSE);
+    setTitleBarVisible(FALSE);
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_INITIALIZEVIEW_EXIT );
 }
@@ -107,6 +111,8 @@ void GlxFullScreenView::loadWidgets()
     //Load the Coverflow and image strip widget    
     mCoverFlow = qobject_cast<GlxCoverFlow*> (mDocLoader->findWidget(GLXFULLSCREEN_COVERFLOW));
 
+	 mZoomWidget  =  qobject_cast<GlxZoomWidget*> (mDocLoader->findWidget(GLXFULLSCREENZOOMWIDGET));
+	 mCoverFlow->setMultitouchFilter(mZoomWidget);
     //initialise the cover flow for basic connections and the rest
     mCoverFlow->setCoverFlow();
 
@@ -174,12 +180,16 @@ void GlxFullScreenView::activate()
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_ACTIVATE_ENTRY );    
 
-    setItemVisible(Hb::AllItems, FALSE) ;
+    setStatusBarVisible(FALSE);
+    setTitleBarVisible(FALSE);
+	
 
 //for zoom might not be required after wk15 release
 	mWindow->viewport()->setAttribute(Qt::WA_AcceptTouchEvents,true); 
 	mWindow->viewport()->grabGesture(Qt::PinchGesture);
 	
+	QCoreApplication::instance()->installEventFilter(this);
+
     if(!mCoverFlow){
         loadWidgets();  //retrives the widgets
     }
@@ -236,7 +246,7 @@ void GlxFullScreenView::deActivate()
     
 	//Clean up the rest of the resources allocated
     cleanUp();
-
+    QCoreApplication::instance()->removeEventFilter(this);
     //deletes the iconitems in the coverflow   
     mCoverFlow->ClearCoverFlow();
 
@@ -270,6 +280,11 @@ void GlxFullScreenView::cleanUp()
         delete mTvOutWrapper;
         mTvOutWrapper = NULL;
     }
+    if(mZoomWidget)
+    {
+        mZoomWidget->cleanUp();
+
+    }
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_CLEANUP_EXIT );
 }
 
@@ -292,7 +307,7 @@ void GlxFullScreenView::setModel( QAbstractItemModel *model )
     mModel = model;     
 	setModelContext();  
     setHdmiModel(mModel);
-
+	mZoomWidget->setModel(mModel);  
     mCoverFlow->setModel(mModel);
     setImageStripModel();
     if(getSubState() == IMAGEVIEWER_S)
@@ -300,7 +315,8 @@ void GlxFullScreenView::setModel( QAbstractItemModel *model )
         setTitle("Image Viewer");
         }
 	else if(getSubState() == FETCHER_S){
-		setItemVisible(Hb::AllItems, TRUE) ;
+		setStatusBarVisible(TRUE);
+        setTitleBarVisible(TRUE);
 	}
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_SETMODEL_EXIT );
 }
@@ -365,7 +381,9 @@ void GlxFullScreenView::activateUI()
         }
         
         mFullScreenToolBar->show();
-        setItemVisible(Hb::AllItems, TRUE) ;
+		setStatusBarVisible(TRUE);
+        setTitleBarVisible(TRUE);
+       
 
         if ( mImageStrip && getSubState() != IMAGEVIEWER_S) {
             mImageStrip->show(); 
@@ -395,7 +413,8 @@ void GlxFullScreenView::hideUi()
     
     mUiOff = TRUE;
 	if ( getSubState() != FETCHER_S ) {
-		setItemVisible(Hb::AllItems, FALSE) ;
+		setStatusBarVisible(FALSE);
+        setTitleBarVisible(FALSE);
 	}
     if ( mImageStrip && ( getSubState() != IMAGEVIEWER_S && getSubState() != FETCHER_S )) {
         HbEffect::start(mImageStrip, QString("HbGridView"), QString("TapHide"), this, "effectFinished" );
@@ -421,7 +440,8 @@ void GlxFullScreenView::changeSelectedIndex(const QModelIndex &index)
        }
        return;
     }         
-    mModel->setData( index, index.row(), GlxFocusIndexRole );    
+    mModel->setData( index, index.row(), GlxFocusIndexRole );  
+	mZoomWidget->indexChanged(index.row());  
     if (mTvOutWrapper){
     // for the image changed on swipe
     mTvOutWrapper->setImagetoHDMI();
@@ -439,6 +459,7 @@ void GlxFullScreenView::indexChanged(const QModelIndex &index)
        return;
     }         
     mModel->setData( index, index.row(), GlxFocusIndexRole );
+	mZoomWidget->indexChanged(index.row());
     mCoverFlow->indexChanged(index.row());
     mImageStrip->scrollTo(index, HbGridView::EnsureVisible );
     if (mTvOutWrapper){
@@ -587,7 +608,9 @@ void GlxFullScreenView::setLayout()
     QSize sz = screenSize();
 
     mCoverFlow->setItemSize(sz);
- 	OstTraceFunctionExit0( GLXFULLSCREENVIEW_SETLAYOUT_EXIT );
+ 	mZoomWidget->setWindowSize(sz);
+
+    OstTraceFunctionExit0( GLXFULLSCREENVIEW_SETLAYOUT_EXIT );
 }
 
 void GlxFullScreenView::addConnection()
@@ -611,6 +634,11 @@ void GlxFullScreenView::addConnection()
         connect(mUiOffTimer, SIGNAL(timeout()), this, SLOT(hideUi()));
     }
     
+    if(mCoverFlow && mZoomWidget) {
+		connect(mZoomWidget,SIGNAL( pinchGestureReceived(int) ), mCoverFlow, SLOT( zoomStarted(int) ) );
+		connect(mZoomWidget,SIGNAL( zoomWidgetMovedBackground(int) ), mCoverFlow, SLOT( zoomFinished(int) ) );
+	}
+
     connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
 
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_ADDCONNECTION_EXIT );
@@ -657,6 +685,10 @@ void GlxFullScreenView::removeConnection()
     if(mUseImageAction) {
         disconnect(mUseImageAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );  
     }
+	if(mCoverFlow && mZoomWidget) {
+		disconnect(mZoomWidget,SIGNAL( pinchGestureReceived(int) ), mCoverFlow, SLOT( zoomStarted(int) ) );
+		disconnect(mZoomWidget,SIGNAL( zoomWidgetMovedBackground(int) ), mCoverFlow, SLOT( zoomFinished(int) ) );
+	}
     
 	disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
 
@@ -683,22 +715,10 @@ GlxFullScreenView::~GlxFullScreenView()
 	cleanUp();
 	
 	delete mIconItem ;
-	mIconItem = NULL;
-    
-	if(mImageStrip) {
-        delete mImageStrip;
-        mImageStrip = NULL;
-    }
-
-    if(mFullScreenToolBar) {
-        delete mFullScreenToolBar;
-        mFullScreenToolBar = NULL;
-    }
-
-    if(mCoverFlow) {
-        delete mCoverFlow;
-        mCoverFlow = NULL;
-    }
+    delete mImageStrip;
+    delete mFullScreenToolBar;
+    delete mCoverFlow;
+    delete mZoomWidget;
 
     if(mDocLoader != NULL) {
         mDocLoader->reset();
@@ -760,19 +780,17 @@ int GlxFullScreenView::getSubState()
 	return substate;
 }
 
-bool GlxFullScreenView::event(QEvent *event)
+bool GlxFullScreenView::eventFilter(QObject *obj, QEvent *ev)
 {
-    GLX_LOG_INFO1("GlxFullScreenView::event() %d event type", event->type());
-    if ( event->type() ==  QEvent::WindowActivate && mCoverFlow) {
-        if (mTvOutWrapper){
+    GLX_LOG_INFO1("GlxFullScreenView::event() %d event type", ev->type());
+    if ( ev->type() ==  QEvent::ApplicationActivate && mTvOutWrapper) {
+        GLX_LOG_INFO("GlxFullScreenView::event() shift to native - CGlxHdmi");
         mTvOutWrapper->setToNativeMode();    
-        }
     }
-    if ( event->type() ==  QEvent::WindowDeactivate && mCoverFlow) {
-        if (mTvOutWrapper){
+    if ( ev->type() ==  QEvent::ApplicationDeactivate && mTvOutWrapper) {
+        GLX_LOG_INFO("GlxFullScreenView::event() shift to Clone - CGlxHdmi");
         mTvOutWrapper->setToCloningMode();    
-        }
     }
-    return HbView::event(event);
+    return HbView::eventFilter(obj,ev);
 }
 

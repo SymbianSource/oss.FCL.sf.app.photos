@@ -41,7 +41,8 @@ TARGET.EPOCALLOWDLLDATA = 1
 }
 # Input
 HEADERS += inc/glxviewmanager.h \
-           inc/glxmenumanager.h 
+           inc/glxmenumanager.h \
+	   inc/glxmainwindoweventfilter.h
 SOURCES += src/glxviewmanager.cpp\
            src/glxmenumanager.cpp 
 
