@@ -22,11 +22,14 @@
 #include <mglxuicommandhandler.h>
 #include <gesturehelper.h>
 #include <gestureobserver.h>
+#include <glximageviewermanager.h>
 #include <alf/alfcompositionutility.h>
+
 #include "glxfullscreenview.h"
 #include "glxfullscreenbindingsetfactory.h"
 #include "glxfullscreenview.hrh"
 #include "glxmmcnotifier.h"
+#include "glxtv.h"
 
 //Gesture Helper namespace 
 namespace GestureHelper
@@ -68,7 +71,8 @@ NONSHARABLE_CLASS (CGlxFullScreenViewImp): public CGlxFullScreenView,
                                             public IAlfWidgetEventHandler,
  											public MGlxUiCommandHandler,
 			                                public MStorageNotifierObserver,
-			                                public CAlfEffectObserver::MAlfEffectObserver
+			                                public CAlfEffectObserver::MAlfEffectObserver,
+											public MGlxTvObserver
     {
 public:    
     /**
@@ -274,6 +278,27 @@ private:
      * Disable/enable the fullscreen toolbar
      */
     void EnableFSToolbar(TBool aEnable);
+    
+	/**
+     * Create Image Viewer manager Instance
+     */
+    void CreateImageViewerInstanceL();
+    
+    /**
+     * Delete Image Viewer manager Instance
+     */
+    void DeleteImageViewerInstance();
+	
+	/*
+	 * Get the HDMI cable insert/removal notification.
+     */
+	void HandleTvStatusChangedL( TTvChangeType aChangeType );
+
+    /**
+     * Checks if the slider to be show for the focus index
+     */
+    TBool CheckIfSliderToBeShownL();
+
 
 private:
     /** Softkey resource id's */
@@ -334,6 +359,11 @@ private:
     TBool iIsMMCRemoved;
 	CAlfEffectObserver* iAlfEffectObs;
 	TInt iEffectHandle;
+    // For image viewer, not own
+    CGlxImageViewerManager* iImageViewerInstance;
+	CGlxTv*  iGlxTvOut;
+	TInt iHdmiWidth;
+	TInt iHdmiHeight;
     };
 
 #endif

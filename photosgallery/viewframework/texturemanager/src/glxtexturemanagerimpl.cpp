@@ -1071,8 +1071,16 @@ TMPXAttribute CGlxTextureManagerImpl::SelectAttributeL( TSize& aSize,
 
         //Since uri can be either focused or unfocused item
         //better call ItemRightsValidityCheckL which doesn't modify lastconsumedUri.
-        drmInvalid = !iDrmUtility->ItemRightsValidityCheckL(uri, checkViewRights);
-
+        CreateImageViewerInstanceL();
+        if(iImageViewerInstance->IsPrivate())
+            {
+            drmInvalid = !iDrmUtility->ItemRightsValidityCheckL(iImageViewerInstance->ImageFileHandle(), checkViewRights);
+            }
+        else
+            {
+            drmInvalid = !iDrmUtility->ItemRightsValidityCheckL(uri, checkViewRights);
+            }
+        DeleteImageViewerInstance();
         CGlxMedia* properties = const_cast<CGlxMedia*>(aMedia.Properties());
         if( !drmInvalid )
             {
@@ -1302,4 +1310,28 @@ TBool CGlxTextureManagerImpl::GetAnimatedGifThumbnailIndex( TSize aSize,
             }
         }
     return ETrue;
+    }
+
+// -----------------------------------------------------------------------------
+// CreateImageViewerInstanceL
+// -----------------------------------------------------------------------------
+//
+void CGlxTextureManagerImpl::CreateImageViewerInstanceL()
+    {
+    TRACER("CGlxTextureManagerImpl::CreateImageViewerInstanceL");
+    iImageViewerInstance = CGlxImageViewerManager::InstanceL();    
+    __ASSERT_ALWAYS(iImageViewerInstance, Panic(EGlxPanicNullPointer));
+    }
+
+// -----------------------------------------------------------------------------
+// DeleteImageViewerInstance
+// -----------------------------------------------------------------------------
+//
+void CGlxTextureManagerImpl::DeleteImageViewerInstance()
+    {
+    TRACER("CGlxTextureManagerImpl::DeleteImageViewerInstance");
+    if ( iImageViewerInstance )
+        {
+        iImageViewerInstance->DeleteInstance();
+        }
     }

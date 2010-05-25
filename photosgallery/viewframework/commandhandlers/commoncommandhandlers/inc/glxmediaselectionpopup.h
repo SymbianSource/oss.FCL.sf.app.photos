@@ -91,6 +91,17 @@ public:
      */
     TBool MultiSelectionEnabled();
     
+    /**
+	  * Returns ETrue if a static item is selected
+	  * otherwise EFalse.
+	  */
+    TBool IsStaticItemSelected();
+    
+    /**
+     * Save the status whether selected item is static.
+     */
+    void SetStaticItemSelected(TBool aSelected);
+    
 public: // from MDesCArray 
 	/** See @ref MDesCArray::MdcaCount */
     IMPORT_C TInt MdcaCount() const;
@@ -116,54 +127,42 @@ private:
      * returns 0.
      */
     TBool iEnabled;
+    
+    /**
+	 * Indicates if a static item is selected.
+	 */
+	TBool iStaticItemSelected;
 	};
 
 /**
- * CGlxSingleGraphicPopupMenuStyleListBox
+ * CGlxSingleGraphicPopupMenuStyleList
  * 
- * Adds behaviour to CAknSingleGraphicPopupMenuStyleListBox:
- * If the currently selected item has a TMPXGeneralCateroy
- * equal to EMPXCommand, item selection will be disabled; Pressing
- * the OK key will result in the item being actioned. 
+ * Adds behaviour to CAknPopupList:
+ * If the currently selected item is user-defined item,
+ * the item is marked & 'OK' key is shown; Pressing
+ * the OK key will result in the item being actioned.
  * 
- * This is achieved by disabling multiple selection if the OK is
- * pressed when the currently selected item has TMPXGeneralCateroy equal
- * to EMPXCommand.
+ * Else on selecting static item, the input text dialog is shown
+ * with default media name, to create a new media.
  * 
- * @internal reviewed 06/06/2007 by Dave Schofield
  */
-NONSHARABLE_CLASS( CGlxSingleGraphicPopupMenuStyleListBox )
-   : public CAknSingleGraphicPopupMenuStyleListBox,
-   	 public MEikListBoxObserver 					
+NONSHARABLE_CLASS( CGlxSingleGraphicPopupMenuStyleList )
+   : public CAknPopupList
     {
-public: // new    
-    /**
-     * Determines if a particular item is visible.
-     * @param aItemIndex index of the item
-     * @return ETrue if the item is visible, else EFalse
-     */
-    TBool IsVisible(TInt aItemIndex);
-    
-     /**
-     * Populates iPopupList with the parameter passed.
-     * @param aPopupList Pointer to CAknPopupList object
-     */
-     void SetPopupList(CAknPopupList* aPopupList);
-    
-public: // from CCoeControl
-    /** See @ref CCoeControl::OfferKeyEventL */
-    IMPORT_C TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
-    //From MEikListBoxObserver
+public: // new
+	
+	/**
+	 * Two phase constructor
+	 */
+	static CGlxSingleGraphicPopupMenuStyleList* NewL( 
+	   CEikListBox* aListBox, 
+	   TInt aCbaResource,
+	   AknPopupLayouts::TAknPopupLayouts aType = AknPopupLayouts::EMenuWindow);
+
+public: 
+	//From CAknPopupList
 	void HandleListBoxEventL (CEikListBox *aListBox, TListBoxEvent aEventType) ;
- 	void HandlePointerEventL(const TPointerEvent& aPointerEvent) ;
-
-private:
-
-	 /**
-     *  The popup list. (Owned)
-     */
-    CAknPopupList* iPopupList;
-    
+	void HandlePointerEventL(const TPointerEvent& aPointerEvent);
     };
     
 /**
@@ -306,11 +305,17 @@ private:
     void FetchTitlesL();
 
     /**
-     * Instantiates the CAknPopupList and
-     * CGlxSingleGraphicPopupMenuStyleListBox
+     * Instantiates the CGlxSingleGraphicPopupMenuStyleList and
+     * CAknSingleGraphicPopupMenuStyleListBox
      * @param aMultiSelection Create a multi selection dialog.
      */
     void ConstructPopupListL(TBool aMultiSelection);
+    
+    /**
+     * Retruns ETrue, if item index (i.e 'aIndex') 
+     * lies between TOP & BOTTOM item.
+     */
+    TBool IsListBoxItemVisible(TInt aIndex);
     
 private:
 	/**
@@ -321,12 +326,12 @@ private:
     /**
      *  The list box used by popup. (Owned)
      */
-    CGlxSingleGraphicPopupMenuStyleListBox* iListBox;
+    CAknSingleGraphicPopupMenuStyleListBox* iListBox;
     
     /**
      *  The popup list. (Owned)
      */
-    CAknPopupList* iPopupList;
+    CGlxSingleGraphicPopupMenuStyleList* iPopupList;
     
     /**
      * Resource offset

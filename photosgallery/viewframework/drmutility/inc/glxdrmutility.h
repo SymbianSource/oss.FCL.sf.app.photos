@@ -29,7 +29,7 @@
 // INCLUDES
 
 #include <e32base.h>
-
+#include <f32file.h>
 // FORWARD DECLARATIONS
 
 class CDRMHelper;
@@ -90,6 +90,16 @@ public:
      * @return ETrue if valid rights exist for the media item.
      */
     IMPORT_C TBool ItemRightsValidityCheckL(const TDesC& aUri, TBool aCheckViewRights);
+    
+    /**
+     * Check whether DRM rights are valid for specified item
+     * is called before right is consumed and for all items (focused or unfocused).
+     * 
+     * @param filehandle of the media item.
+     * @param aCheckViewRights, check view rights if true, play if false
+     * @return ETrue if valid rights exist for the media item.
+     */
+    IMPORT_C TBool ItemRightsValidityCheckL(RFile& aFileHandle, TBool aCheckViewRights);
 
     /**
      * Check whether DRM rights are valid for specified item
@@ -104,6 +114,18 @@ public:
     IMPORT_C TBool DisplayItemRightsCheckL(const TDesC& aUri, TBool aCheckViewRights);
     
     /**
+     * Check whether DRM rights are valid for specified item
+     * If the rights were just consumed, then allow to display
+     * Otherwise, obtain current rights
+     * is called after right is consumed and for only focused/displayed item.
+     * 
+     * @param filehandle of the media item.
+     * @param aCheckViewRights, check view rights if true, play if false
+     * @return ETrue if valid rights exist for the media item.
+     */
+    IMPORT_C TBool DisplayItemRightsCheckL(RFile& aFileHandle, TBool aCheckViewRights);
+    
+    /**
       * Consume rights for specified item
       * Caches item so that a client has right to display the item
       *
@@ -111,6 +133,15 @@ public:
       * @return ETrue to no error in rights consumption
       */
     IMPORT_C TBool ConsumeRightsL(const TDesC& aUri);
+    
+    /**
+      * Consume rights for specified item
+      * Caches item so that a client has right to display the item
+      *
+      * @param  Filehandle for item
+      * @return ETrue to no error in rights consumption
+      */
+    IMPORT_C TBool ConsumeRightsL(RFile& aFileHandle);
 
     /**
      * Clears Last Consumed Uri
@@ -153,6 +184,12 @@ public:
     IMPORT_C void ShowDRMDetailsPaneL(const TDesC& aUri);
     
     /**
+     * Show DRM details for specified item.
+     * @param Filehandle of the media item.
+     */
+    IMPORT_C void ShowDRMDetailsPaneL(RFile& aFileHandle);
+    
+    /**
       * Ask DRM manager if file is forward locked
       */
     IMPORT_C TBool IsForwardLockedL(const TDesC& aUri);
@@ -162,6 +199,12 @@ public:
       * @param aUri URI of the media item.
       */
     IMPORT_C void ShowRightsInfoL(const TDesC& aUri);
+    
+    /**
+      * Show rights info
+      * @param filehandle of the media item.
+      */
+    IMPORT_C void ShowRightsInfoL(RFile& aFileHandle);
     
     /**
       * Get size of thumbnail to be requested for DRM invalid item

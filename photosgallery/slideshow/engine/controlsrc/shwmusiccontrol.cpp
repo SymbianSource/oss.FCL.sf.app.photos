@@ -57,7 +57,6 @@ CShwMusicControl* CShwMusicControl::NewL(
     MShwMusicObserver& aMusicObsvr, const TDesC& aFilePath )
     {
     TRACER(" CShwMusicControl::NewL");
-    GLX_LOG_INFO( "CShwMusicControl::NewL" );
     CShwMusicControl* self = 
         new( ELeave ) CShwMusicControl( aMusicObsvr, aFilePath );
     CleanupStack::PushL( self );
@@ -72,7 +71,6 @@ CShwMusicControl* CShwMusicControl::NewL(
 CShwMusicControl::~CShwMusicControl()
     {
     TRACER(" CShwMusicControl::~CShwMusicControl");
-    GLX_LOG_INFO( "CShwMusicControl::~CShwMusicControl" );
     if( iPlaybackUtility )
         {
         //The Code Scanner Error is not corrected here in the case of
@@ -96,7 +94,6 @@ CShwMusicControl::~CShwMusicControl()
 void CShwMusicControl::ConstructL()
     {
     TRACER("CShwMusicControl::ConstructL");
-    GLX_LOG_INFO("CShwMusicControl::ConstructL");
     // need to specify the mode and observer, without these we get a crash
     iPlaybackUtility = MMPXPlaybackUtility::NewL( KPbModeNewPlayer, this );
     // music playback is sacrificed if MPX fails
@@ -113,7 +110,6 @@ void CShwMusicControl::ConstructL()
 void CShwMusicControl::InitPlayerL()
     {
     TRACER("CShwMusicControl::InitPlayerL");
-    GLX_LOG_INFO( "CShwMusicControl::InitPlayerL" );
     RFs fs;
     User::LeaveIfError( fs.Connect() );
     CleanupClosePushL( fs );
@@ -150,7 +146,6 @@ void CShwMusicControl::InitPlayerL()
 void CShwMusicControl::VolumeL()
     {
     TRACER("CShwMusicControl::VolumeL");
-    GLX_LOG_INFO( "CShwMusicControl::VolumeL" );
     // Retrieve the volume - Volume indicator is shown upon slideshow start and
     // when the volume is changed
     if (iMaxVolume == KErrNotFound)
@@ -158,6 +153,7 @@ void CShwMusicControl::VolumeL()
         iPlaybackUtility->ValueL( *this, EPbPropertyMaxVolume );	
         }
     iPlaybackUtility->ValueL( *this, EPbPropertyVolume );
+    iPlaybackUtility->ValueL( *this, EPbPropertyMute );
     }
 
 // -----------------------------------------------------------------------------
@@ -166,7 +162,6 @@ void CShwMusicControl::VolumeL()
 void CShwMusicControl::NotifyL( MShwEvent* aEvent )
     {
     TRACER("CShwMusicControl::NotifyL");
-    GLX_LOG_INFO( "CShwMusicControl::NotifyL" );
     // only handle events if music initialisation succeeded
     if( iState == EMusicOn )
         {
@@ -193,7 +188,6 @@ void CShwMusicControl::HandlePropertyL( TMPXPlaybackProperty aProperty,
                                         TInt aError )
     {
     TRACER("CShwMusicControl::HandlePropertyL");
-    GLX_LOG_INFO( "CShwMusicControl::HandlePropertyL" );
 
     // leave if there was an error
     User::LeaveIfError( aError );
@@ -201,10 +195,12 @@ void CShwMusicControl::HandlePropertyL( TMPXPlaybackProperty aProperty,
     // handle max volume and volume, ignore other properties
     if( EPbPropertyMaxVolume == aProperty )
         {
+        GLX_LOG_INFO("EPbPropertyMaxVolume = aProperty");
         iMaxVolume = aValue;
         }
     else if( EPbPropertyVolume == aProperty )
         {
+        GLX_LOG_INFO1("EPbPropertyVolume = aProperty - aValue: %d",aValue);
         // set the current volume
         iCurrentVolume = aValue;
         // call observer only when max volume is also known
@@ -213,6 +209,19 @@ void CShwMusicControl::HandlePropertyL( TMPXPlaybackProperty aProperty,
         	{
         	iMusicObsvr.MusicVolumeL( iCurrentVolume, iMaxVolume );
         	}
+        }
+    else if( EPbPropertyMute == aProperty)
+        {
+        GLX_LOG_INFO1("EPbPropertyMute = aProperty - aValue: %d",aValue);
+        //Ref: TMPXPlaybackProperty - EPbPropertyMute - aValue 0(normal), 1(muted)
+        if(aValue == 1)
+            {
+            iCurrentVolume = 0;
+            if( iMaxVolume != KErrNotFound )
+                {                
+                iMusicObsvr.MusicVolumeL( iCurrentVolume, iMaxVolume );
+                }
+            }
         }
     }
 
@@ -265,7 +274,6 @@ void CShwMusicControl::HandlePlaybackMessageL(
 void CShwMusicControl::HandlePlaybackMessage(const CMPXMessage& aMsg)
     {
     TRACER("CShwMusicControl::HandlePlaybackMessage");
-    GLX_LOG_ENTRY_EXIT( "CShwMusicControl::HandlePlaybackMessageL()" );
     
     switch(*aMsg.Value<TMPXPlaybackMessage::TEvent>( KMPXMessageGeneralEvent ))
         {
@@ -307,7 +315,6 @@ void CShwMusicControl::HandlePlaybackMessage(const CMPXMessage& aMsg)
 void CShwMusicControl::HandleEventL( MShwEvent* aEvent )
     {
     TRACER("CShwMusicControl::HandleEventL( MShwEvent* aEvent )");
-    GLX_LOG_INFO( "CShwTimerControl::HandleEventL" );
     // we got an event, was it start
     if( dynamic_cast< TShwEventStart* >( aEvent ) )
         {

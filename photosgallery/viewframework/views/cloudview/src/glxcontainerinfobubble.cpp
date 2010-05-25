@@ -341,12 +341,12 @@ TBool CGlxContainerInfoBubble::GetMediaThumbNailL(const TGlxMedia& aMedia,
     
         	
 // ---------------------------------------------------------------------------
-// TimerComplete()
+// TimerCompleteL()
 // ---------------------------------------------------------------------------
 //
-void CGlxContainerInfoBubble::TimerComplete()
+void CGlxContainerInfoBubble::TimerCompleteL()
 	{
-	TRACER("GLX_CLOUD::CGlxContainerInfoBubble::TimerComplete");
+	TRACER("GLX_CLOUD::CGlxContainerInfoBubble::TimerCompleteL");
 	iTimerComplete =ETrue;
 	TRAP_IGNORE (ShowNowL ());
 	}

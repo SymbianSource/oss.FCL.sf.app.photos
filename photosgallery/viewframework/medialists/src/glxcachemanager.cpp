@@ -42,6 +42,7 @@
 #include <aknViewAppUi.h>
 #include <caf/content.h>
 #include <caf/attributeset.h>
+#include <caf/caferr.h>
 #include <DRMHelper.h>
 
 #ifdef USE_S60_TNM
@@ -812,16 +813,29 @@ void CGlxCacheManager::MaintainCacheL()
                                 time.HomeTime();
                                 if (errInImage == KErrNone)
                                     {
-                                    RFs fs;
-                                    CleanupClosePushL(fs);
-                                    TInt err = fs.Connect();
-                                    if (err == KErrNone)
+                                    if (iImageViewerInstance->IsPrivate())
                                         {
-                                        TEntry entry;
-                                        fs.Entry(fileName, entry);
-                                        time = entry.iModified;
+                                        RFile64 & imageHandle =
+                                                        iImageViewerInstance->ImageFileHandle();
+                                        if (imageHandle.SubSessionHandle()
+                                                != KNullHandle)
+                                            {
+                                            imageHandle.Modified(time);
+                                            }
                                         }
-                                    CleanupStack::PopAndDestroy(&fs);
+                                    else
+                                        {
+                                        RFs fs;
+                                        CleanupClosePushL(fs);
+                                        TInt err = fs.Connect();
+                                        if (err == KErrNone)
+                                            {
+                                            TEntry entry;
+                                            fs.Entry(fileName, entry);
+                                            time = entry.iModified;
+                                            }
+                                        CleanupStack::PopAndDestroy(&fs);
+                                        }
                                     }
                                 iMPXMedia->SetTObjectValueL(attrib,
                                         time.Int64());
@@ -926,19 +940,35 @@ void CGlxCacheManager::MaintainCacheL()
                                     protection = iReader->GetDRMRightsL
                                     (ContentAccess::EIsProtected);
                                     }
-                                iMPXMedia->SetTObjectValueL(KMPXMediaDrmProtected, protection);
+                                else if (errInImage == KErrCANoRights
+                                        || errInImage == KErrCAPendingRights
+                                        || errInImage == KErrCACorruptRights)
+                                    {
+                                    protection = ETrue;
+                                    }
+                                iMPXMedia->SetTObjectValueL(
+                                        KMPXMediaDrmProtected, protection);
                                 }
                             else if ( iRequestedAttrs[i] == KGlxMediaGeneralDRMRightsValid )
                                 {
                                 TInt rightsValid = EGlxDrmRightsValidityUnknown;
                                 if(errInImage == KErrNone)
                                     {
-                                    TBool canView = iReader->GetDRMRightsL(ContentAccess::ECanView);
-                                    rightsValid = canView ? 
-                                        EGlxDrmRightsValid : EGlxDrmRightsInvalid;
+                                    TBool canView = iReader->GetDRMRightsL(
+                                            ContentAccess::ECanView);
+                                    rightsValid
+                                            = canView
+                                                      ? EGlxDrmRightsValid
+                                                         : EGlxDrmRightsInvalid;
                                     }
-                                iMPXMedia->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid,
-                                        rightsValid); 
+                                else if (errInImage == KErrCANoRights
+                                        || errInImage == KErrCACorruptRights)
+                                    {
+                                    rightsValid = EGlxDrmRightsInvalid;
+                                    }
+                                iMPXMedia->SetTObjectValueL(
+                                        KGlxMediaGeneralDRMRightsValid,
+                                        rightsValid);
                                 }
                             else if ( iRequestedAttrs[i] == KMPXMediaGeneralCount )
                                 {

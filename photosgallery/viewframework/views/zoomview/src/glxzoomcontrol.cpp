@@ -978,7 +978,7 @@ void CGlxZoomControl::HandleTvStatusChangedL( TTvChangeType aChangeType )
 //  
 EXPORT_C TUiState CGlxZoomControl::ZoomUiState()    
     {
-    TRACER("CGlxFullScreenViewImp::GetUiState");
+    TRACER("CGlxZoomControl::ZoomUiState");
     return iEventHandler->ZoomUiState();
     }
 //  End of File

@@ -94,5 +94,6 @@ LIBRARY					glxcommon.lib
 LIBRARY					flogger.lib
 LIBRARY					exiflib.lib                     //For CExifModify
 LIBRARY			avkon.lib eikcore.lib  // For AknUtils.h
+LIBRARY                 glximageviewermanager.lib
 // End of File
  

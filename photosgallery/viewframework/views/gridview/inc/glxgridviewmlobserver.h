@@ -110,6 +110,12 @@ private:
      * @param aError The error based on which the error note is to be shown. 
      */
 	void DisplayErrorNoteL(TInt aError);
+
+    /**
+     * SetDefaultIconL - Sets the default icon for grid.
+     * @param aTransparent - ETrue to set transparent icon; EFalse to set default icon. 
+     */
+    void SetDefaultIconL(TBool aTransparent);
     
 private:
 
@@ -123,9 +129,15 @@ private:
 	
     TSize iGridIconSize;
     
+    // The Resource file name from which icons to be read
+    TFileName iIconsFileName;  
+    
     //No of visible items in a page/view
     TInt  iItemsPerPage;
 
+    //Flag to indicate the grid default icon set status
+    TBool iIsDefaultIconSet;
+    
     // Variable to check if the error in disk (e.g disk error) has been shown to the user.  
     // If a disk is full the user should not be intimated everytime over and over again.
     TInt  iDiskErrorIntimated;

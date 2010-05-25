@@ -103,6 +103,7 @@ void CGlxImageReader::ConstructL()
         if ( &(iImgViewerMgr->ImageFileHandle()) )
             {
             TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(iImgViewerMgr->ImageFileHandle(), ContentAccess::EPeek));
+            GLX_DEBUG2("CGlxImageReader::ConstructL() FH:errInImage=%d", errInImage);
             }
         }
     else
@@ -110,11 +111,13 @@ void CGlxImageReader::ConstructL()
         if ( iImgViewerMgr->ImageUri() )
             {
             TRAP(errInImage,iImageDecoder = CImageDecoder::FileNewL(CCoeEnv::Static()->FsSession(), iImgViewerMgr->ImageUri()->Des()));
+            GLX_DEBUG2("CGlxImageReader::ConstructL() FN:errInImage=%d", errInImage);
             }
         }
     
     if (errInImage != KErrNone)
         {
+        GLX_DEBUG2("CGlxImageReader::ConstructL() LEAVE(%d)", errInImage);
         User::Leave(errInImage);
         }
     }
@@ -147,7 +150,7 @@ TInt CGlxImageReader::GetDRMRightsL(TInt aAttribute)
     __ASSERT_ALWAYS(content, Panic(EGlxPanicNullPointer));
     error = content->GetAttribute(aAttribute, value);
     CleanupStack::PopAndDestroy( content );
-    GLX_DEBUG2("CGlxImageReader::GetDRMRightsL value=%d", value);
+    
     if(error != KErrNone)
 	    {
 	    switch	( aAttribute )
@@ -162,6 +165,8 @@ TInt CGlxImageReader::GetDRMRightsL(TInt aAttribute)
 		    	value = EFalse;
 			}
 	    }
+    GLX_DEBUG2("CGlxImageReader::GetDRMRightsL error =%d", error);
+    GLX_DEBUG2("CGlxImageReader::GetDRMRightsL value=%d", value);
     return value;
     }
 

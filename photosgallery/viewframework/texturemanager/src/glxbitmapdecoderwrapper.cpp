@@ -32,6 +32,7 @@
 namespace
 {
 const TInt KGlxDecodingThreshold = 3000000;
+const TInt KGlxDecodingThresholdDimension = 2000;
 
 
 // Photos low_ram_threshold [8.637 MB] as in oomconfig.xml
@@ -113,19 +114,23 @@ void CGlxBitmapDecoderWrapper::DoDecodeImageL(const TDesC & aSourceFileName,TInt
         delete iImageDecoder;
         iImageDecoder = NULL;
         }
+    
+    CImageDecoder::TOptions options = (CImageDecoder::TOptions)
+            ( CImageDecoder::EOptionNoDither | CImageDecoder::EOptionAlwaysThread );
+
     // Use extended JPEG decoder
     TRAPD( err, iImageDecoder = CExtJpegDecoder::FileNewL(
-            CExtJpegDecoder::EHwImplementation, iFs, aSourceFileName, CImageDecoder::EOptionNone ) );
+            CExtJpegDecoder::EHwImplementation, iFs, aSourceFileName, options  ) );
     if ( KErrNone != err )
         {
         GLX_LOG_INFO( "DoDecodeImageL:: ESwImplementation" );
         TRAP(err,iImageDecoder = CExtJpegDecoder::FileNewL(
-                CExtJpegDecoder::ESwImplementation, iFs, aSourceFileName, CImageDecoder::EOptionNone ) );
+                CExtJpegDecoder::ESwImplementation, iFs, aSourceFileName, options  ) );
         if ( KErrNone != err )
             {
             GLX_LOG_INFO( "DoDecodeImageL:: CImageDecoder" );
             // Not a JPEG - use standard decoder
-            iImageDecoder = CImageDecoder::FileNewL( iFs, aSourceFileName, CImageDecoder::EOptionNone );
+            iImageDecoder = CImageDecoder::FileNewL( iFs, aSourceFileName, options  );
             isExtDecoderUsed = EFalse;
             }
         }
@@ -182,17 +187,28 @@ void CGlxBitmapDecoderWrapper::DecodeImageL()
     {
     TRACER("CGlxBitmapDecoderWrapper:: DecodeImageL ");
     TReal32 mFactor = 1;
+    TReal32 mFactor1 = 1;
+    TReal32 mFactor2 = 1;
     //Set Size according to level and state
     TReal32 width = iOriginalSize.iWidth;
     TReal32 height = iOriginalSize.iHeight;
     GLX_LOG_INFO1("DecodeImageL:width=%f", width);
     GLX_LOG_INFO1("DecodeImageL:height=%f",height);
-
     
     if ( KGlxDecodingThreshold < (width * height))
         {
-        mFactor = TReal32(KGlxDecodingThreshold) / (width*height);
+        mFactor1 = TReal32(KGlxDecodingThreshold) / (width*height);
+        GLX_LOG_INFO1("mFactor1 =%f",mFactor1);
         }
+    
+    if ( KGlxDecodingThresholdDimension < width || KGlxDecodingThresholdDimension < height)
+        {
+        mFactor2 = TReal32(KGlxDecodingThresholdDimension) / Max(width, height);
+        GLX_LOG_INFO1("mFactor2 =%f",mFactor2);
+        }
+
+    mFactor = Min(mFactor1 , mFactor2);
+    GLX_LOG_INFO1("Final mFactor =%f",mFactor);
 
     // create the destination bitmap
     if(!iBitmap)

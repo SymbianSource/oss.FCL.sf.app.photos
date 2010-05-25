@@ -222,7 +222,6 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
     // centerTranslationfactor is the vector representation of that amount. 
     if (NULL != apZoomFocus)
         {
-		// Offcenter Zooming will be enabled later on.
         centerTranslationfactor.iX = (((apZoomFocus->iX - halfScreenWidth) * newZoomRatio)/oldZoomRatio) + (halfScreenWidth - apZoomFocus->iX);         
         centerTranslationfactor.iY = (((apZoomFocus->iY - halfScreenHeight) * newZoomRatio)/oldZoomRatio) + (halfScreenHeight - apZoomFocus->iY);
         }
@@ -392,7 +391,7 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
 // UpdatePanFactor: Calculates the Pan Factor based on time the key was pressed
 //-------------------------------------------------------------------------------------
 //
-void TGlxZoomAndPanMathsEngine::UpdatePanFactor(TTime& /*aPanTime*/)
+void TGlxZoomAndPanMathsEngine::UpdatePanFactor()
     {
     TRACER("void TGlxZoomAndPanMathsEngine::UpdatePanFactor()");
     
@@ -491,7 +490,13 @@ void TGlxZoomAndPanMathsEngine::OrientationChanged(const TRect& aNewScreenRect)
     {
     TRACER("void TGlxZoomAndPanMathsEngine::OrientationChanged()");
     iScreenSize.iWidth          = aNewScreenRect.Width();    
-    iScreenSize.iHeight         = aNewScreenRect.Height();    
+    iScreenSize.iHeight         = aNewScreenRect.Height();
+	
+    //Choose the minimum of the below.
+    TReal32 imageWidthRatio  = ((TReal32)iScreenSize.iWidth  / iActualImageSize.iWidth  )*100.0F;
+    TReal32 imageHeightRatio = ((TReal32)iScreenSize.iHeight / iActualImageSize.iHeight )*100.0F;
+	iMinZoomRatio = Min(imageWidthRatio, imageHeightRatio);
+    GLX_LOG_INFO1("NewZoomRatio: New minimum Zoom Ratio = %d", TInt(iMinZoomRatio));		
     }
 
 //-------------------------------------------------------------------------------------
@@ -516,7 +521,7 @@ TSize TGlxZoomAndPanMathsEngine::ScreenSize()
     }
 
 //-------------------------------------------------------------------------------------
-// ImageVirtualSize: retrieves the screen size .    
+// SetupPanOperation: Starts the Pan operations from the maths Engine's pont of view.    
 //-------------------------------------------------------------------------------------
 //
 void TGlxZoomAndPanMathsEngine::SetupPanOperation()
@@ -525,8 +530,22 @@ void TGlxZoomAndPanMathsEngine::SetupPanOperation()
     iContinuousPanOperations = 0 ; 
     }
 
+//-------------------------------------------------------------------------------------
+// LastPanOffset: retrieves the last pan Offset.    
+//-------------------------------------------------------------------------------------
+//
 TPoint TGlxZoomAndPanMathsEngine::LastPanOffset()
     {
     TRACER("TGlxZoomAndPanMathsEngine::LastPanOffset()");
     return iLastPanOffset;
+    }
+
+//-------------------------------------------------------------------------------------
+// MinimumZoomRatio: Retrieves the minimum Zoom threshold.    
+//-------------------------------------------------------------------------------------
+//
+TInt TGlxZoomAndPanMathsEngine::MinimumZoomRatio()
+    {
+    TRACER("TGlxZoomAndPanMathsEngine::MinimumZoomRatio");
+	return iMinZoomRatio;
     }

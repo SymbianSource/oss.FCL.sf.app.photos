@@ -253,7 +253,6 @@ void CGlxZoomPanEventHandler::StartPanTimer()
 
     //After Panning in one direction for a long time by holding the key and 
     //then if panning is started in another direction,the panning will be done in more pixels.
-    iPanTime.HomeTime();
     
     GLX_LOG_INFO("CGlxZoomPanEventHandler::StartPanTimer: Cancelling timers ");
 
@@ -830,7 +829,7 @@ void CGlxZoomPanEventHandler::DoPan()
         CancelZoomPanTimer();
         }
     
-    iMathsEngine.UpdatePanFactor(iPanTime);
+    iMathsEngine.UpdatePanFactor();
     }
 
 
@@ -842,8 +841,8 @@ void CGlxZoomPanEventHandler::OrientationChanged(const TRect& aNewScreenRect)
     {
     TRACER("CGlxZoomPanEventHandler::OrientationChanged ");
     
-    iMathsEngine.OrientationChanged(aNewScreenRect); // Needs to be called before Call to Zoom() inorder to Update the iScreenSize.
-    
+    iMathsEngine.OrientationChanged(aNewScreenRect);
+    iMinZoomRatio = iMathsEngine.MinimumZoomRatio(); 
     Zoom(0, 0, iZoomMode) ;
     }
 
@@ -1123,18 +1122,18 @@ void CGlxZoomPanEventHandler::Zoom(TInt aExpectedZoomLevel, TInt aRelativeZoomFa
             &atZoomThreshold,
             aZoomFocus, 
             aRelativeZoomFactor);
-    
-    iZoomEventHandler.HandleViewPortParametersChanged(viewPortTopLeft, 0, 
-            &viewPortDimension, iZoomRatio);
-    
+
     if( atZoomThreshold )
         {
         CancelZoomPanTimer();
         if (iZoomRatio <= iMinZoomRatio)
             {
             CallZoomOutL();
+            return;
             }
         }
+    iZoomEventHandler.HandleViewPortParametersChanged(viewPortTopLeft, 0, 
+            &viewPortDimension, iZoomRatio);
     }
 
 // -----------------------------------------------------------------------------

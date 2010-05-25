@@ -25,6 +25,7 @@
 #include <e32base.h>                  // Container Base Class
 #include <mul/mulvarianttype.h>       // Observer interface used to be notified when texture content changes
 #include "mglxtextureobserver.h"      // Observer interface used to be notified when texture content changes
+#include <glximageviewermanager.h>
 
 class TGlxMedia;                      // Reference to a media item in the item pool.
 class CGlxUiUtility;                  // Alf utils ; lib glxalfutils.lib
@@ -82,12 +83,24 @@ private:
      */     
      TBool HasRelevantThumbnail(const TGlxMedia& aMedia, 
                                      const TSize& aSize);
+     /**
+      * Create Image Viewer manager Instance
+      */
+     void CreateImageViewerInstanceL();
+     
+     /**
+      * Delete Image Viewer manager Instance
+      */
+     void DeleteImageViewerInstance();
+
         
 private:
     int mTextureId;
     CGlxUiUtility* iUiUtility;
     /** Poniter to instance of DRM utility (owned) */
     CGlxDRMUtility* iDrmUtility; 
+    /** For image viewer, not own */
+    CGlxImageViewerManager* iImageViewerInstance;
     };  
 
 /**

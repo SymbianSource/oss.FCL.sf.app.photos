@@ -103,4 +103,5 @@ LIBRARY			eikdlg.lib						//for eik dialog
 LIBRARY			lbs.lib
 LIBRARY			exiflib.lib                     //For CExifModify
 LIBRARY         	caf.lib							//For ContentAccess
+LIBRARY			glximageviewermanager.lib
 // End of File

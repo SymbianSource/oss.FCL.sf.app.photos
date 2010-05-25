@@ -177,13 +177,8 @@ private:
 	// Medialist observer for Grid view
 	CGlxGridViewMLObserver* iGlxGridMLObserver;
 
-	/// Active media list registry stores the pointer to the active media list
-	/// Allows UPnP to know when list has changed
-	CGlxActiveMediaListRegistry* iActiveMediaListRegistry;
-
 	// Thumbnail context
 	CGlxThumbnailContext* iThumbnailContext;
-
 
 	// Iterators for Grid and FS
 	TGlxFromManualIndexBlockyIterator iBlockyIterator;
@@ -191,6 +186,12 @@ private:
 	// Grid Icon size from FS view
 	TSize iGridIconSize;
 
+    // Hg Grid preferred image size
+	TSize iHgGridImageSize;
+
+    // The Resource file name from which icons to be read
+    TFileName iIconsFileName;  
+	   
 	// Bool to check backward navigation
 	TBool iBackwardActivation;
 

@@ -46,10 +46,6 @@
 
 const TInt KGlxToolbarButtonUnLatched = 0;              // Toolbar mark button's unlatched state defined in the rss file
 
-//Video playback view uid
-#define KMPXVIDEOPLAYBACKVIEWUID 0x200159B4
-const TUid KVideoPlayBackUid = TUid::Uid(KMPXVIDEOPLAYBACKVIEWUID);
-
 // ======== MEMBER FUNCTIONS ========
 
 // ---------------------------------------------------------------------------
@@ -179,18 +175,12 @@ void CGlxGridViewImp::DoMLViewActivateL(
         iToolbar = CAknToolbar::NewL(R_GLX_GRID_VIEW_TOOLBAR);
         SetGridToolBar(iToolbar);
         SetToolbarObserver(this);
-        TBool visibility = iUiUtility->ViewNavigationDirection()
-                == EGlxNavigationBackwards ? ETrue : EFalse;
-        if (aPrevViewId.iViewUid == KVideoPlayBackUid)
-            {
-            GLX_DEBUG1( "CGlxGridViewImp::DoMLViewActivateL() "
-                    "- Coming from video playback!");        
-            visibility = ETrue;
-            }
-        iToolbar->SetToolbarVisibility(visibility);
+        //Make the toolbar visible only when the medialist is populated
+        iToolbar->SetToolbarVisibility(iMediaList->IsPopulated());
         }
-	//Create HG Grid, medialist observer, FS thumbnailcontext
-	iGlxGridViewContainer = CGlxGridViewContainer::NewL(iMediaList,iUiUtility,*this,iToolbar);
+	//Create gridview container
+	iGlxGridViewContainer = CGlxGridViewContainer::NewL(iMediaList,
+            iUiUtility, *this, iToolbar);
 	iEikonEnv->AppUi()->AddToStackL(*this,iGlxGridViewContainer);
 	iUiUtility->DestroyScreenClearer();
 	}

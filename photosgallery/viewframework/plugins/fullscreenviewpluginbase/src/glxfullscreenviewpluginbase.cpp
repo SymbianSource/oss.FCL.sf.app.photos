@@ -40,7 +40,6 @@
 #include <mpxmediageneraldefs.h>
 #include <mpxcollectionutility.h>
 #include <mpxcollectionpath.h>
-#include <glxcommandhandlervideoplayback.h>
 #include <glxcommandhandlerupload.h>
 #include <glxcommandhandlermoreinfo.h>
 #include <glxtracer.h>
@@ -208,15 +207,7 @@ EXPORT_C void CGlxFullScreenViewPluginBase::AddCommandHandlersL()
 			iFullScreenView, iResourceIds.iMenuId, uiutilitiesrscfile));
 	// End of AIW service handlers                            
 
-
-	//Fix for error ID EVTY-7M87LF
-	//@ Registration of Video Playback Command handler has to before UPnP.
-	//@ else UPnP will not get play command once video playback command is consumed.
-	GLX_LOG_INFO("Adding CGlxCommandHandlerVideoPlayback");
-	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerVideoPlayback::NewL(
-			iFullScreenView));
-
-	//Toolbar commands for all Fullscreen views. May also be present in Options menu.
+    //Toolbar commands for all Fullscreen views. May also be present in Options menu.
 	GLX_LOG_INFO("Adding CGlxCommandHandlerSend");
 	iFullScreenView->AddCommandHandlerL(CGlxCommandHandlerSend::NewL(
 			iFullScreenView, ETrue, uiutilitiesrscfile));

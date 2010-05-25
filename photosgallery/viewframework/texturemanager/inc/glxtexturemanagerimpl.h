@@ -33,7 +33,7 @@
 #include <mglxresolutionchangeobserver.h>
 #include "glxbitmapdecoderwrapper.h"
 #include <glxmediaid.h>
-
+#include <glximageviewermanager.h>
 #include <imageconversion.h>
 #include <bitmaptransforms.h>
 #include <mglxcacheobserver.h>
@@ -248,6 +248,16 @@ private:
         TMPXAttribute& aThumbnailAttribute );
 
     /**
+     * Create Image Viewer manager Instance
+     */
+    void CreateImageViewerInstanceL();
+    
+    /**
+     * Delete Image Viewer manager Instance
+     */
+    void DeleteImageViewerInstance();
+    
+    /**
      * TGlxIcon
      * Values associated with a bitmap/svg icon
      */
@@ -419,7 +429,8 @@ private:
     // Temporary storage class used between call to create a texture and the 
     //callback from alf to ProvideBitmap 
     TGlxProvideBitmapHolder iProvideBitmapHolder;
-    
+    // For image viewer, not own
+    CGlxImageViewerManager* iImageViewerInstance;
     };
 
 #endif // C_GLXTEXTUREMANAGERIMPL_H

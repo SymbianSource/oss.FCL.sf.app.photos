@@ -78,7 +78,7 @@ EXPORT_C void CGlxHdmiController::SetImageL(const TDesC& aImageFile, CFbsBitmap*
         }
     if (iGlxTvOut->IsHDMIConnected())
         {
-        iPhotosForeground = ETrue;         // the image should be in posting mode
+        iIsPhotosInForeground = ETrue;         // the image should be in posting mode
         GLX_LOG_INFO("CGlxHdmiController::SetImageL() - 2");
         // do not close the surface , use the same surface instead.
         // Call a function to pass imagefile
@@ -145,7 +145,7 @@ EXPORT_C void CGlxHdmiController::DeactivateZoom()
 EXPORT_C void CGlxHdmiController::ShiftToCloningMode()
     {
     TRACER("CGlxHdmiController::ShiftToCloningMode()");
-    iPhotosForeground = EFalse;
+    iIsPhotosInForeground = EFalse;
     // Shift to cloning only if HDMI is connected and surfaceupdater available.
     if (iGlxTvOut->IsHDMIConnected() && iSurfaceUpdater)
         {
@@ -159,7 +159,7 @@ EXPORT_C void CGlxHdmiController::ShiftToCloningMode()
 EXPORT_C void CGlxHdmiController::ShiftToPostingMode()
     {
     TRACER("CGlxHdmiController::ShiftToPostingMode()");
-    iPhotosForeground = ETrue;
+    iIsPhotosInForeground = ETrue;
     if (iGlxTvOut->IsHDMIConnected())
         {
         if (!iSurfaceUpdater)
@@ -199,7 +199,7 @@ EXPORT_C TBool CGlxHdmiController::IsHDMIConnected()
 CGlxHdmiController::CGlxHdmiController():
             iFsBitmap(NULL),
             iStoredImagePath(NULL),
-            iPhotosForeground(EFalse)
+            iIsPhotosInForeground(EFalse)
     {
     TRACER("CGlxHdmiController::CGlxHdmiController()");
     // Implement nothing here
@@ -299,7 +299,7 @@ void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
             // meaning we shouldnt destroy HDMI and neither have to create surface updater.
             return;
             }
-        else if ( iGlxTvOut->IsHDMIConnected() && iIsImageSupported && iPhotosForeground)
+        else if ( iGlxTvOut->IsHDMIConnected() && iIsImageSupported && iIsPhotosInForeground)
             {
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Connected");
             // Calling SetImageL() with appropriate parameters
@@ -308,7 +308,7 @@ void CGlxHdmiController::HandleTvStatusChangedL( TTvChangeType aChangeType )
         else
             {
             GLX_LOG_INFO3("CGlxHdmiController::HandleTvStatusChangedL() iIsImageSupported=%d, iGlxTvOut->IsHDMIConnected()=%d, iIsPostingMode=%d", 
-                    iIsImageSupported,iGlxTvOut->IsHDMIConnected(),iPhotosForeground);
+                    iIsImageSupported,iGlxTvOut->IsHDMIConnected(),iIsPhotosInForeground);
             // if it gets disconnected, destroy the surface 
             GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI Not Connected");
             DestroySurfaceUpdater();

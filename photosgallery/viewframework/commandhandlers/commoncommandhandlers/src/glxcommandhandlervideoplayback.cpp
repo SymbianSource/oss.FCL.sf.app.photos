@@ -47,12 +47,19 @@
 #include <mpxmessage2.h> 
 #include <mpxplaybackmessage.h> 
 #include <mpxmessagegeneraldefs.h> 
-
+#include <glxgallery.hrh>
 /**
  * @internal reviewed 11/06/2007 by Alex Birkett
  */
 
 const TUid KVideoHelixPlaybackPluginUid = { 0x10282551 };
+
+/**
+ * Periodic interval for late construction.
+ * GridView construction would take about 2 sec,
+ * hence this can happen only after 2 secs 
+ */
+const TTimeIntervalMicroSeconds32 KPeriodicInterval  = 2000000; // 2 sec
 
 #include "glxcommandfactory.h"
 
@@ -90,12 +97,16 @@ CGlxCommandHandlerVideoPlayback::CGlxCommandHandlerVideoPlayback(MGlxMediaListPr
 void CGlxCommandHandlerVideoPlayback::ConstructL()
     {
     iUiUtility = CGlxUiUtility::UtilityL();
-    
      
     iViewUtility = MMPXViewUtility::UtilityL(); 
 
+    //Start construct timer for late initialization of "MMPXPlaybackUtility"
+    TCallBack callback(
+            CGlxCommandHandlerVideoPlayback::LateConstructCallback, this);
+    iPbUtilityConstructTimer = CPeriodic::NewL(CActive::EPriorityIdle);
+    iPbUtilityConstructTimer->Start(KPeriodicInterval, 0, callback);
+    
    	// Add supported commands
-   	
    	// Play videoplayback
    	TCommandInfo info(EGlxCmdPlay);
 	// filter out everything except videos
@@ -122,6 +133,12 @@ EXPORT_C CGlxCommandHandlerVideoPlayback::~CGlxCommandHandlerVideoPlayback()
         iViewUtility->Close(); 
         } 
 
+    if (iPbUtilityConstructTimer)
+        {
+        iPbUtilityConstructTimer->Cancel();
+        delete iPbUtilityConstructTimer;
+        }
+    
     if ( iPlaybackUtility ) 
         { 
         TRAP_IGNORE( iPlaybackUtility->CommandL( EPbCmdClose ) ); 
@@ -188,46 +205,43 @@ void CGlxCommandHandlerVideoPlayback::ActivateViewL()
 	// get the focused item from the media list
 	MGlxMediaList& mediaList = MediaList();
 
-    CGlxDefaultAttributeContext* attributeContext = CGlxDefaultAttributeContext::NewL();
+    CGlxDefaultAttributeContext* attributeContext =
+            CGlxDefaultAttributeContext::NewL();
     CleanupStack::PushL(attributeContext);
-    attributeContext->AddAttributeL(KMPXMediaGeneralUri);
-    attributeContext->AddAttributeL(KMPXMediaGeneralTitle);
-    attributeContext->AddAttributeL(KMPXMediaGeneralCategory);
-    mediaList.AddContextL(attributeContext, KGlxFetchContextPriorityBlocking);
-    
-    // TGlxContextRemover will remove the context when it goes out of scope
-    // Used here to avoid a trap and still have safe cleanup   
-    TGlxFetchContextRemover contextRemover (attributeContext, mediaList);    
-	CleanupClosePushL( contextRemover );
-	User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext, mediaList));
-	// context off the list
-    CleanupStack::PopAndDestroy( &contextRemover );	
-	
-	TInt index = mediaList.FocusIndex();
-	TGlxMedia  item = mediaList.Item(index);
-	const CGlxMedia* media = item.Properties();
-	if(media)
-		{
-        if(media->IsSupported(KMPXMediaGeneralUri))
-            {
-            if (!iPlaybackUtility)
-                {
-                GLX_LOG_INFO( "CmdHandler VideoPlayback - SelectPlayerL(+)" );
-                const TUid playbackMode = { 0x200009EE };  // photos UID
-                iPlaybackUtility = MMPXPlaybackUtility::UtilityL(EMPXCategoryVideo, playbackMode );
-                MMPXPlayerManager& manager = iPlaybackUtility->PlayerManager();
-                manager.SelectPlayerL( KVideoHelixPlaybackPluginUid );
-                iPlaybackUtility->AddObserverL( *this ); 
-                GLX_LOG_INFO( "CmdHandler VideoPlayback - SelectPlayerL(-)" );
-                }
-            // MPX playbackutility instead of VIA Player 
-            const TDesC& filename = media->ValueText(KMPXMediaGeneralUri); 
-            // Causes callback to HandlePlaybackMessage() 
-            iPlaybackUtility->InitL(filename); 
-            }
+
+    TInt focusIndex = mediaList.FocusIndex();
+    const TGlxMedia& mediaItem = mediaList.Item(focusIndex);
+    //If Item's uri is not present, only then retrieve 'uri'
+    if (!mediaItem.Uri().Length())
+        {
+        //Blocking call to retrieve Item Uri
+        attributeContext->AddAttributeL(KMPXMediaGeneralUri);
+        mediaList.AddContextL(attributeContext,
+                KGlxFetchContextPriorityBlocking);
+
+        // TGlxContextRemover will remove the context when it goes out of scope
+        // Used here to avoid a trap and still have safe cleanup   
+        TGlxFetchContextRemover contextRemover(attributeContext, mediaList);
+        CleanupClosePushL(contextRemover);
+
+        User::LeaveIfError(GlxAttributeRetriever::RetrieveL(
+                *attributeContext, mediaList));
+        // context off the list
+        CleanupStack::PopAndDestroy(&contextRemover);
         }
+
+    //Check if 'MPXPlaybackUtility' is already constructed
+    if (!iPlaybackUtility)
+        {
+        PlaybackUtilityL();
+        }
+    // MPX playbackutility instead of VIA Player 	
+    // Causes callback to HandlePlaybackMessage() 
+    iPlaybackUtility->InitL(mediaItem.Uri());
+
     CleanupStack::PopAndDestroy(attributeContext);
     }
+
 // -----------------------------------------------------------------------------
 // DoActivateL - Activate this command handler
 // -----------------------------------------------------------------------------
@@ -462,3 +476,40 @@ void CGlxCommandHandlerVideoPlayback::HandlePlaybackPlayerChangedL()
     CleanupStack::PopAndDestroy( &array ); 
     } 
 
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerVideoPlayback::LateConstructCallback
+// -----------------------------------------------------------------------------
+TInt CGlxCommandHandlerVideoPlayback::LateConstructCallback(TAny* aPtr)
+    {
+    TRACER("CGlxCommandHandlerVideoPlayback::LateConstructCallback");
+    static_cast<CGlxCommandHandlerVideoPlayback*>(aPtr)->DoLateConstruct();
+    return KErrNone;
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerVideoPlayback::DoLateConstruct
+// -----------------------------------------------------------------------------
+void CGlxCommandHandlerVideoPlayback::DoLateConstruct()
+    {
+    TRACER("CGlxCommandHandlerVideoPlayback::DoLateConstruct");
+    //Cancel the periodic timer
+    iPbUtilityConstructTimer->Cancel();
+    //Start 'MMPXPlaybackUtility' construction
+    TRAP_IGNORE( PlaybackUtilityL());
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxCommandHandlerVideoPlayback::PlaybackUtilityL
+// -----------------------------------------------------------------------------
+void CGlxCommandHandlerVideoPlayback::PlaybackUtilityL()
+    {
+    TRACER("CGlxCommandHandlerVideoPlayback::PlaybackUtilityL");
+    if (!iPlaybackUtility)
+        {
+        iPlaybackUtility = MMPXPlaybackUtility::UtilityL(EMPXCategoryVideo,
+				TUid::Uid(KGlxGalleryApplicationUid) ); //use photos UID
+        MMPXPlayerManager& manager = iPlaybackUtility->PlayerManager();
+        manager.SelectPlayerL(KVideoHelixPlaybackPluginUid);
+        iPlaybackUtility->AddObserverL(*this);
+        }
+    }

@@ -71,7 +71,8 @@ CGlxTvConnectionMonitor::~CGlxTvConnectionMonitor()
 CGlxTvConnectionMonitor::CGlxTvConnectionMonitor(
 		MGlxTvConnectionObserver& aConnectionObserver) :
 	CActive(EPriorityStandard), iConnectionObserver(aConnectionObserver),
-			iTvOutConnectionState(EFalse), iHDMIConnectionState(EFalse)
+			iTvOutConnectionState(EFalse), iHDMIConnectionState(EFalse),
+			iHeadSetConnectionState(EFalse)
 
 	{
 	TRACER("CGlxTvConnectionMonitor");
@@ -182,17 +183,31 @@ void CGlxTvConnectionMonitor::IssueNotificationL()
 	TRACER("CGlxTvConnectionMonitor::IssueNotificationL");
 	TBool previousTvState = iTvOutConnectionState;
 	TBool previousHDMIState = iHDMIConnectionState;
-
+	TBool previousHeadSetState = iHeadSetConnectionState;
+	TTvChangeType changeType = EDisconnected;
+	
 	// Update the connection status
 	UpdateConnectionStatusL();
 
 	// trigger tvstatus change only when there is actually a change the in the connection and not 
 	// for spurious events
-	if (previousTvState != iTvOutConnectionState || previousHDMIState
-			!= iHDMIConnectionState)
+	if (previousTvState != iTvOutConnectionState)
 		{
-		GLX_LOG_INFO("CGlxTvConnectionMonitor::IssueNotificationL - Connection Altered");
-		iConnectionObserver.HandleTvConnectionStatusChangedL();
+		changeType = iTvOutConnectionState == EFalse ? EDisconnected : ETvConnectionChanged;
+		GLX_LOG_INFO1("CGlxTvConnectionMonitor::IssueNotificationL - TVOut Connection Changed %d", changeType);
+		iConnectionObserver.HandleTvConnectionStatusChangedL(changeType);	
+		}
+	else if (previousHDMIState != iHDMIConnectionState)
+		{
+		changeType = iHDMIConnectionState == EFalse ? EDisconnected : ETvConnectionChanged;
+		GLX_LOG_INFO1("CGlxTvConnectionMonitor::IssueNotificationL - HDMI Connection Changed %d", changeType);
+		iConnectionObserver.HandleTvConnectionStatusChangedL(changeType);	
+		}
+	else if (previousHeadSetState != iHeadSetConnectionState)
+		{
+		changeType = iHeadSetConnectionState == EFalse ? EDisconnected : ETvConnectionChanged;
+		GLX_LOG_INFO1("CGlxTvConnectionMonitor::IssueNotificationL - Headset Connection Changed %d", changeType);
+		iConnectionObserver.HandleTvConnectionStatusChangedL(changeType);	
 		}
 	}
 
@@ -202,67 +217,74 @@ void CGlxTvConnectionMonitor::IssueNotificationL()
 //
 void CGlxTvConnectionMonitor::UpdateConnectionStatusL()
     {
-    TRACER("CGlxTvConnectionMonitor::UpdateConnectionStatusL()");
+	TRACER("CGlxTvConnectionMonitor::UpdateConnectionStatusL()");
 
-    GLX_LOG_INFO2("CGlxTvConnectionMonitor::UpdateConnectionStatusL previousTvState = %d , previousHDMIState = %d",
-            iTvOutConnectionState,iHDMIConnectionState);
+	GLX_LOG_INFO2("CGlxTvConnectionMonitor::UpdateConnectionStatusL previousTvState = %d , previousHDMIState = %d",
+			iTvOutConnectionState,iHDMIConnectionState);
 
-    // reset the states
-    iHDMIConnectionState = EFalse;
-    iTvOutConnectionState = EFalse;
+	// reset the states
+	iHDMIConnectionState = EFalse;
+	iTvOutConnectionState = EFalse;
+	iHeadSetConnectionState = EFalse;
 
-    //gets the TV status in to the iCurrentAccArray and haves the Latest Accesory in 0-index
-    User::LeaveIfError(iTvAccCon.GetAccessoryConnectionStatus(iCurrentAccArray));
+	//gets the TV status in to the iCurrentAccArray and haves the Latest Accesory in 0-index
+	User::LeaveIfError(iTvAccCon.GetAccessoryConnectionStatus(iCurrentAccArray));
 
-    CAccPolSubblockNameArray* nameArray = CAccPolSubblockNameArray::NewL();
-    CleanupStack::PushL(nameArray);
+	CAccPolSubblockNameArray* nameArray = CAccPolSubblockNameArray::NewL();
+	CleanupStack::PushL(nameArray);
 
-    //  Get the number of currently connected accessories
-    //  Loop through each connected accessory looking for
-    //  the desired capabilities
-    //
-    const TInt count = iCurrentAccArray.Count();
-    GLX_LOG_INFO1("CGlxTvConnectionMonitor::UpdateConnectionStatusL current count value is %d",count);
-    for (TInt index = 0; index < count; index++)
-        {
-        const TAccPolGenericID genId = iCurrentAccArray.GetGenericIDL(index);
-        //  Check if this connected accessory supports TV-Out capabality.
-        GLX_LOG_INFO1("CGlxTvConnectionMonitor::UpdateConnectionStatusL current index value is %d",index);
-        GLX_LOG_INFO("CGlxTvConnectionMonitor::UpdateConnectionStatusL Video Accessory Supported");
-        TAccPolNameRecord nameRecord;
-        nameRecord.SetNameL(KAccVideoOut);
+	//  Get the number of currently connected accessories
+	//  Loop through each connected accessory looking for
+	//  the desired capabilities
+	//
+	const TInt count = iCurrentAccArray.Count();
+	GLX_LOG_INFO1("CGlxTvConnectionMonitor::UpdateConnectionStatusL current count value is %d",count);
+	for (TInt index = 0; index < count; index++)
+		{
+		const TAccPolGenericID genId = iCurrentAccArray.GetGenericIDL(index);
+		//  Check if this connected accessory supports TV-Out capabality.
+		GLX_LOG_INFO1("CGlxTvConnectionMonitor::UpdateConnectionStatusL current index value is %d",index);
+		GLX_LOG_INFO("CGlxTvConnectionMonitor::UpdateConnectionStatusL Video Accessory Supported");
+		TAccPolNameRecord nameRecord;
+		nameRecord.SetNameL(KAccVideoOut);
 
-        if (genId.DeviceTypeCaps( KDTAVDevice ) &&
-                genId.PhysicalConnectionCaps( KPCHDMI ))
-            {
-            TAccValueTypeTInt value;
-            TInt err = iTvAccCon.GetValueL(genId, nameRecord, value);
-            if (err ==KErrNone)
-                {
-                if (value.iValue == EAccVideoOutEHDMI)
-                    {
-                    GLX_LOG_INFO("CGlxTvConnectionMonitor::UpdateConnectionStatusL HDMI is connected");
-                    iHDMIConnectionState = ETrue;
-                    }
-                }
-            }
-        else if (genId.DeviceTypeCaps( KDTAVDevice ) &&
-                genId.PhysicalConnectionCaps( KPCWired ))
-            {
-            TAccValueTypeTInt value;
-            TInt err = iTvAccCon.GetValueL(genId, nameRecord, value);
-            if (err ==KErrNone)
-                {
-                if (value.iValue == EAccVideoOutCVideo)
-                    {
-                    GLX_LOG_INFO("CGlxTvConnectionMonitor::UpdateConnectionStatusL Tv is connected");
-                    iTvOutConnectionState = ETrue;
-                    }
-                }
-            }
-        }
-    CleanupStack::PopAndDestroy(nameArray);
+		if (genId.DeviceTypeCaps(KDTAVDevice) && genId.PhysicalConnectionCaps(
+				KPCHDMI))
+			{
+			TAccValueTypeTInt value;
+			TInt err = iTvAccCon.GetValueL(genId, nameRecord, value);
+			if (err == KErrNone)
+				{
+				if (value.iValue == EAccVideoOutEHDMI)
+					{
+					GLX_LOG_INFO("CGlxTvConnectionMonitor::UpdateConnectionStatusL HDMI is connected");
+					iHDMIConnectionState = ETrue;
+					}
+				}
+			}
+		else if (genId.DeviceTypeCaps(KDTAVDevice)
+				&& genId.PhysicalConnectionCaps(KPCWired))
+			{
+			TAccValueTypeTInt value;
+			TInt err = iTvAccCon.GetValueL(genId, nameRecord, value);
+			if (err == KErrNone)
+				{
+				if (value.iValue == EAccVideoOutCVideo)
+					{
+					GLX_LOG_INFO("CGlxTvConnectionMonitor::UpdateConnectionStatusL Tv is connected");
+					iTvOutConnectionState = ETrue;
+					}
+				}
+			}
+		else if (genId.DeviceTypeCaps(KDTHeadset)
+				&& genId.PhysicalConnectionCaps(KPCWired))
+			{
+			GLX_LOG_INFO("CGlxTvConnectionMonitor::UpdateConnectionStatusL HeadSet connect");
+			iHeadSetConnectionState = ETrue;
+			}
+		}
+	CleanupStack::PopAndDestroy(nameArray);
 
-    GLX_LOG_INFO2("CGlxTvConnectionMonitor::UpdateConnectionStatusL CurrentTvState = %d , CurrentHDMIState = %d",
-            iTvOutConnectionState,iHDMIConnectionState);
-    }
+	GLX_LOG_INFO2("CGlxTvConnectionMonitor::UpdateConnectionStatusL CurrentTvState = %d , CurrentHDMIState = %d",
+			iTvOutConnectionState,iHDMIConnectionState);
+	}

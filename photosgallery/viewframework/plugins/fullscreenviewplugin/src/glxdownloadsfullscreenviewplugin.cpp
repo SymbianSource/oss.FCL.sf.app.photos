@@ -46,6 +46,7 @@
 
 #include <glxfullscreenviewdata.rsg>
 #include <glxicons.mbg> // icons 
+#include <glxcommandhandlervideoplayback.h>
 
 _LIT(KGlxFullScreenResource,"glxfullscreenviewdata.rsc");
 
@@ -110,6 +111,13 @@ CGlxDownloadsFullScreenViewPlugin::~CGlxDownloadsFullScreenViewPlugin()
 void CGlxDownloadsFullScreenViewPlugin::AddCommandHandlersL()
     {
     GLX_LOG_ENTRY_EXIT_LEAVE_L("CGlxDownloadsFullScreenViewPlugin::AddCommandHandlersL()");
+    
+    //Fix for error ID EVTY-7M87LF
+	//@ Registration of Video Playback Command handler has to before UPnP.
+	//@ else UPnP will not get play command once video playback command is consumed.
+	iFullScreenView->AddCommandHandlerL(
+			CGlxCommandHandlerVideoPlayback::NewL(iFullScreenView));
+	
     CGlxFullScreenViewPluginBase::AddCommandHandlersL();
     
     TGlxHelpContext helpInfo;

@@ -237,8 +237,17 @@ void CGlxImgVwrMetadataContainer::HandleListBoxEventL(CEikListBox*  /*aListBox*/
             GLX_LOG_INFO("CGlxImgVwrMetadataContainer::Licence item");         
             CGlxDRMUtility* drmUtility = CGlxDRMUtility::InstanceL();
             CleanupClosePushL(*drmUtility);
-            drmUtility->ShowDRMDetailsPaneL(iItemMediaList->Item(0).Uri());
+            CreateImageViewerInstanceL();
+            if(iImageViewerInstance->IsPrivate())
+                {
+                drmUtility->ShowDRMDetailsPaneL(iImageViewerInstance->ImageFileHandle());
+                }
+            else
+                {
+                drmUtility->ShowDRMDetailsPaneL(iItemMediaList->Item(0).Uri());
+                }
             CleanupStack::PopAndDestroy(drmUtility);
+            DeleteImageViewerInstance();
             }
         }
     }
@@ -735,6 +744,30 @@ TBool CGlxImgVwrMetadataContainer::IsLicenseItem()
         }
     return ETrue;
     }
- 
+
+// -----------------------------------------------------------------------------
+// CreateImageViewerInstanceL
+// -----------------------------------------------------------------------------
+//
+void CGlxImgVwrMetadataContainer::CreateImageViewerInstanceL()
+    {
+    TRACER("CGlxImgVwrMetadataContainer::CreateImageViewerInstanceL");
+    iImageViewerInstance = CGlxImageViewerManager::InstanceL();    
+    __ASSERT_ALWAYS(iImageViewerInstance, Panic(EGlxPanicNullPointer));
+    }
+
+// -----------------------------------------------------------------------------
+// DeleteImageViewerInstance
+// -----------------------------------------------------------------------------
+//
+void CGlxImgVwrMetadataContainer::DeleteImageViewerInstance()
+    {
+    TRACER("CGlxImgVwrMetadataContainer::DeleteImageViewerInstance");
+    if ( iImageViewerInstance )
+        {
+        iImageViewerInstance->DeleteInstance();
+        }
+    }
+
 
 //End of file

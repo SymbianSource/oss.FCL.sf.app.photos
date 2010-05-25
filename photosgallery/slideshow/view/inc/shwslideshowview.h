@@ -427,6 +427,9 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
 	//to check if slideshow is paused in BG 
 	//and after that we are bringing to foreground
 	TBool iPrevNotInBackground;
+
+	TInt iHdmiWidth;
+    TInt iHdmiHeight;
     };
 
 #endif  // C_SHWSLIDESHOWVIEW_H

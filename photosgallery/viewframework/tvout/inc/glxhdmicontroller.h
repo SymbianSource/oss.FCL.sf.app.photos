@@ -128,7 +128,7 @@ private:
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;
     TBool   iIsImageSupported;          // Flag to see if Image is supported
-    TBool   iPhotosForeground;             // Flag for determining if the image needs to be in posting mode
+    TBool   iIsPhotosInForeground;          // Flag for determine if Photos is in foreground
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

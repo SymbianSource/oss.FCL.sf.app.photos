@@ -250,11 +250,16 @@ TInt CShwSlideshowView::StartEngineL()
 	       	SetListFocusL();
 	       	// Need to take latest screen size as layout has changed
 	       	TRect currentScreen;
-	       	TSize screenSize;
 	       	AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EScreen,currentScreen);
-	       	screenSize = currentScreen.Size();
+	       	iScrnSize = currentScreen.Size();
+
+	       	iHdmiWidth = (iScrnSize.iWidth > iScrnSize.iHeight ?
+                                iScrnSize.iWidth :iScrnSize.iHeight);
+	        iHdmiHeight = (iScrnSize.iWidth < iScrnSize.iHeight ?
+                                iScrnSize.iWidth :iScrnSize.iHeight);
+
 	    	iEngine->StartL( 
-	    	    *iEnv, *iDisplay, *iFilteredList, *this, screenSize );
+	    	    *iEnv, *iDisplay, *iFilteredList, *this, iScrnSize );
 	        }
         }  
     // return value needed as this is a TCallBack
@@ -329,7 +334,6 @@ void CShwSlideshowView::ConstructL()
     
 	iEnv = iUiUtility->Env();
    	iDisplay = iUiUtility->Display();
-   	iScrnSize = iUiUtility->DisplaySize();
    	iGridIconSize = iUiUtility->GetGridIconSize();
    	
     // Construct the volume control
@@ -495,8 +499,7 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
     iUiUtility->Display()->SetVisibleArea(TRect(TPoint(0,0),AlfUtil::ScreenSize()));
 	// We will require to act on events ONLY when the view is active.
 	// So listen to them only when the view is active.
-    iShwGestureControl->AddObserver(this);
-
+    iShwGestureControl->AddObserver(this);    
     }
 
 // -----------------------------------------------------------------------------
@@ -1244,45 +1247,45 @@ void CShwSlideshowView::ShowShwFurnitureL()
 // -----------------------------------------------------------------------------
 //
 void CShwSlideshowView::ProcessCommandL(TInt aCommandId)
-	{
-	TRACER("CShwSlideshowView::ProcessCommandL");
-	GLX_LOG_INFO( "CShwSlideshowView::ProcessCommandL" );
-	switch(aCommandId)
-		{
+    {
+    TRACER("CShwSlideshowView::ProcessCommandL");
+    GLX_LOG_INFO( "CShwSlideshowView::ProcessCommandL" );
+    switch(aCommandId)
+        {
         case EShwSlideshowCmdEnd:
-        	{
-        	iShwState = EShwExiting;
-        	aCommandId = EAknSoftkeyBack;
-        	iDisplay->Roster().Hide( *iGestureControlGroup );        
-        	break;
-        	}
-        //When user presses MSK or LSK this cmd will Generated
+            {
+            iShwState = EShwExiting;
+            aCommandId = EAknSoftkeyBack;
+            iDisplay->Roster().Hide( *iGestureControlGroup );        
+            break;
+            }
+            //When user presses MSK or LSK this cmd will Generated
         case EShwSlideshowCmdPause:
-		case EShwSlideshowCmdContinue:
-			{
-					// If MSK preesed to toggle visibility of softekey
-					if(iMSKPressed)
-		                {
-		                iMSKPressed = EFalse;
-		                }            
-		            else if(iLSKPressed)
-		                {
-		                iLSKPressed = EFalse;// Already Handlled
-		                }
-		            else
-		                {
-		                iPauseHandler->UserToggledPauseL();
-		                }
-		            break;  
-					}
+        case EShwSlideshowCmdContinue:
+            {
+            // If MSK preesed to toggle visibility of softekey
+            if(iMSKPressed)
+                {
+                iMSKPressed = EFalse;
+                }            
+            else if(iLSKPressed)
+                {
+                iLSKPressed = EFalse;// Already Handlled
+                }
+            else
+                {
+                iPauseHandler->UserToggledPauseL();
+                }
+            break;  
+            }
 
         default:
-        	{
-        	break;
-        	}
-		}
-	CGlxViewBase::ProcessCommandL(aCommandId);
-	}
+            {
+            break;
+            }
+        }
+    CGlxViewBase::ProcessCommandL(aCommandId);
+    }
 // ----------------------------------------------------------------------------- 
 // Set the image to external display - HDMI
 // -----------------------------------------------------------------------------
@@ -1360,10 +1363,13 @@ void CShwSlideshowView::SetItemToHDMIL()
                 GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Setting Null Bitmap");
                 TFileName resFile(KDC_APP_BITMAP_DIR);
                 resFile.Append(KGlxIconsFilename);
-                CFbsBitmap* defaultBitmap = new (ELeave) CFbsBitmap;
-                CleanupStack::PushL(defaultBitmap);
-                defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                CFbsBitmap* defaultBitmap = AknIconUtils::CreateIconL(resFile,
                         EMbmGlxiconsQgn_prop_image_notcreated);
+                CleanupStack::PushL(defaultBitmap);
+                
+                // always need to setsize on the raw bitmap for it to be visible
+                AknIconUtils::SetSize(defaultBitmap, TSize(iHdmiWidth,iHdmiHeight),EAspectRatioPreserved);
+                
                 GLX_LOG_INFO2("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Default Size width=%d, height=%d", 
                         defaultBitmap->SizeInPixels().iWidth, defaultBitmap->SizeInPixels().iHeight);
                 iHdmiController->SetImageL(item.Uri(),defaultBitmap);
@@ -1455,19 +1461,17 @@ void CShwSlideshowView::HandleMMCRemovalL()
 //
 void CShwSlideshowView::HandleTvStatusChangedL(TTvChangeType aChangeType )
 	{
-	TRACER("CShwSlideshowView::HandleTvConnectionStatusChangedL");
-    // This is a common function for both HDMI and TV-out status changes 
-    // (see CGlxTv::HandleTvConnectionStatusChangedL)
-    if ((aChangeType == ETvConnectionChanged)
-            && (!iTvConnection->IsHDMIConnected()
-                   	&& !iTvConnection->IsConnected()))
-	         {
-                 GLX_LOG_INFO("CShwSlideshowView::HandleTvConnectionStatusChangedL- Acessory Not Connected");
-	         //Issue pause command if not already paused
-                 if (!iPauseHandler->IsSlideShowEngineStatePaused())
-                    {
-	              ProcessCommandL(EShwSlideshowCmdPause);
-	            }
+	TRACER("CShwSlideshowView::HandleTvStatusChangedL");
+	// This is a common function for both HDMI ,TV-out and Headset disconnected.  
+	// (see CGlxTv::HandleTvConnectionStatusChangedL)
+	if (aChangeType == EDisconnected)
+		{
+		GLX_LOG_INFO("CShwSlideshowView::HandleTvStatusChangedL- Acessory Not Connected");
+		//Issue pause command if not already paused
+		if (!iPauseHandler->IsSlideShowEngineStatePaused())
+			{
+			ProcessCommandL(EShwSlideshowCmdPause);
+			}
 		}
-	}
 
+	}

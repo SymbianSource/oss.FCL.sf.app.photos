@@ -55,7 +55,8 @@
 #include <gfxtranseffect/gfxtranseffect.h>  // For transition effects
 #include "glxgfxtranseffect.h"  // For transition effects
 
-const TInt KListDataWindowSize(16);
+const TInt KListDataWindowSize(8); // Visible page
+const TInt KListNonVisibleDataWindowSize(32); // Visible page + 3 pages
 const TInt KNoOfPages(4);
 const TInt KGlxCollectionRootLevel = 1;
 
@@ -226,10 +227,11 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
 	GlxSetAppState::SetState(EGlxInListView);
 
     // Separate contexts so that some attributes are loaded before others
-    iThumbnailIterator.SetRangeOffsets(KListDataWindowSize,
-            KListDataWindowSize);
-    iTitleAttributeContext = new (ELeave) CGlxAttributeContext(
-            &iThumbnailIterator);
+    // No need to fetch the rear pages as we do not support looping	
+    iThumbnailIterator.SetRangeOffsets(0, KListDataWindowSize);
+
+    iTitleAttributeContext = CGlxDefaultAttributeContext::NewL();
+    iTitleAttributeContext->SetRangeOffsets(0, KMaxTInt);
     iTitleAttributeContext->AddAttributeL(KMPXMediaGeneralTitle);
 
     iSubtitleAttributeContext = new (ELeave) CGlxAttributeContext(
@@ -238,9 +240,42 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
             KGlxMediaCollectionPluginSpecificSubTitle);
 
     iMediaList->AddContextL(iTitleAttributeContext, KMaxTInt);
-    iMediaList->AddContextL(iSubtitleAttributeContext, KMaxTInt);
+    iMediaList->AddContextL(iSubtitleAttributeContext, KGlxFetchContextPriorityNormal);
     if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
         {
+        iOtherAttribsContext = new (ELeave) CGlxAttributeContext(
+                &iThumbnailIterator);
+        iOtherAttribsContext->AddAttributeL(KMPXMediaGeneralCount);
+
+        iNonVisibleThumbnailIterator.SetRangeOffsets(0, KListNonVisibleDataWindowSize);
+        iNonVisibleSubtitleAttributeContext
+                = new (ELeave) CGlxAttributeContext(
+                        &iNonVisibleThumbnailIterator);
+        iNonVisibleSubtitleAttributeContext->AddAttributeL(
+                KGlxMediaCollectionPluginSpecificSubTitle);
+        iMediaList->AddContextL(iNonVisibleSubtitleAttributeContext,
+                KGlxFetchContextPriorityLow);
+        iNonVisibleOtherAttribsContext = new (ELeave) CGlxAttributeContext(
+                &iNonVisibleThumbnailIterator);
+        iNonVisibleOtherAttribsContext->AddAttributeL(KMPXMediaGeneralCount);
+
+        CMPXCollectionPath* path = iMediaList->PathLC(
+                NGlxListDefs::EPathParent);
+        if (path->Id(0) == KGlxCollectionPluginAlbumsImplementationUid)
+            {
+            iOtherAttribsContext->AddAttributeL(KGlxMediaGeneralSystemItem);
+            iOtherAttribsContext->AddAttributeL(
+                    KGlxMediaGeneralSlideshowableContent);
+
+            iNonVisibleOtherAttribsContext->AddAttributeL(
+                    KGlxMediaGeneralSystemItem);
+            iNonVisibleOtherAttribsContext->AddAttributeL(
+                    KGlxMediaGeneralSlideshowableContent);
+            }
+        CleanupStack::PopAndDestroy(path);
+
+        iMediaList->AddContextL(iOtherAttribsContext,
+                KGlxFetchContextPriorityNormal);
         iThumbnailContext = new (ELeave) CGlxAttributeContext(
                 &iThumbnailIterator);
         TMPXAttribute tnAttr(KGlxMediaIdThumbnail,
@@ -251,6 +286,16 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
         iThumbnailContext->AddAttributeL(tnAttr);
         iMediaList->AddContextL(iThumbnailContext,
                 KGlxFetchContextPriorityNormal);
+
+        iMediaList->AddContextL(iNonVisibleOtherAttribsContext,
+                KGlxFetchContextPriorityLow);
+        iNonVisibleThumbnailContext = new (ELeave) CGlxAttributeContext(
+                &iNonVisibleThumbnailIterator);
+        iNonVisibleThumbnailContext->SetDefaultSpec(iGridIconSize.iWidth,
+                iGridIconSize.iHeight);
+        iNonVisibleThumbnailContext->AddAttributeL(tnAttr);
+        iMediaList->AddContextL(iNonVisibleThumbnailContext,
+                KGlxFetchContextPriorityLow);
         }
 
     iMediaList->AddMediaListObserverL(this);
@@ -258,10 +303,10 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
     iBgContext = CAknsBasicBackgroundControlContext::NewL( 
             KAknsIIDQsnBgScreen,apRect,ETrue);
     
-    if(iUiUtility->ViewNavigationDirection() == EGlxNavigationBackwards )
-        {
-        iBackwardNavigation = ETrue;
-        }
+    iBackwardNavigation = (iUiUtility->ViewNavigationDirection()
+            == EGlxNavigationBackwards);
+    GLX_LOG_INFO1("CGlxListViewImp::DoMLViewActivateL() - "
+            "iBackwardNavigation(%d)", iBackwardNavigation);
 
     iPreviewTNBinding = CGlxPreviewThumbnailBinding::NewL(*this);
     CreateListL();
@@ -302,19 +347,7 @@ void CGlxListViewImp::DoMLViewDeactivate()
        iTitletext = titlePane->Text()->AllocL());
        }
 
-    iMediaList->RemoveContext( iTitleAttributeContext );
-   	delete iTitleAttributeContext;
-   	iTitleAttributeContext = NULL;
-
-    iMediaList->RemoveContext( iSubtitleAttributeContext );
-   	delete iSubtitleAttributeContext;
-   	iSubtitleAttributeContext = NULL;
-    if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
-        {
-        iMediaList->RemoveContext(iThumbnailContext);
-        delete iThumbnailContext;
-        iThumbnailContext = NULL;
-        }   
+    RemoveContext();
 	iMediaList->RemoveMediaListObserver( this );
 	delete iPreviewTNBinding;
 	iPreviewTNBinding = NULL;
@@ -328,6 +361,67 @@ void CGlxListViewImp::DoMLViewDeactivate()
 	delete iMMCNotifier;
 	iMMCNotifier = NULL;
 	}
+
+// ---------------------------------------------------------------------------
+// RemoveContext
+// ---------------------------------------------------------------------------
+//
+void CGlxListViewImp::RemoveContext()
+    {
+    TRACER("CGlxListViewImp::DoMLViewDeactivate");
+
+    if (iTitleAttributeContext)
+        {
+        iMediaList->RemoveContext(iTitleAttributeContext);
+        delete iTitleAttributeContext;
+        iTitleAttributeContext = NULL;
+        }
+
+    if (iSubtitleAttributeContext)
+        {
+        iMediaList->RemoveContext(iSubtitleAttributeContext);
+        delete iSubtitleAttributeContext;
+        iSubtitleAttributeContext = NULL;
+        }
+
+    if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
+        {
+        if (iOtherAttribsContext)
+            {
+            iMediaList->RemoveContext(iOtherAttribsContext);
+            delete iOtherAttribsContext;
+            iOtherAttribsContext = NULL;
+            }
+
+        if (iThumbnailContext)
+            {
+            iMediaList->RemoveContext(iThumbnailContext);
+            delete iThumbnailContext;
+            iThumbnailContext = NULL;
+            }
+
+        if (iNonVisibleSubtitleAttributeContext)
+            {
+            iMediaList->RemoveContext(iNonVisibleSubtitleAttributeContext);
+            delete iNonVisibleSubtitleAttributeContext;
+            iNonVisibleSubtitleAttributeContext = NULL;
+            }
+
+        if (iNonVisibleOtherAttribsContext)
+            {
+            iMediaList->RemoveContext(iNonVisibleOtherAttribsContext);
+            delete iNonVisibleOtherAttribsContext;
+            iNonVisibleOtherAttribsContext = NULL;
+            }
+
+        if (iNonVisibleThumbnailContext)
+            {
+            iMediaList->RemoveContext(iNonVisibleThumbnailContext);
+            delete iNonVisibleThumbnailContext;
+            iNonVisibleThumbnailContext = NULL;
+            }
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // Destroys the Widget
@@ -456,7 +550,6 @@ void CGlxListViewImp::RequestL(TInt aRequestStart, TInt aRequestEnd)
         UpdatePreviewL(i);
         }
     
-    iList->RefreshScreen(visIndex);
     if(iMediaList->IdSpaceId(0) == KGlxIdSpaceIdRoot)
         {
         if ( visIndex != iLastFocusedIndex && !iPopulateListTNs)
@@ -518,6 +611,7 @@ void CGlxListViewImp::HandleOpenL( TInt aIndex )
     if (iNextViewActivationEnabled && (aIndex >= 0 && aIndex
             < iMediaList->Count()) && (iUiUtility->GetItemsLeftCount() == 0))
         {
+        iMediaList->CancelPreviousRequests();
         //Delete the PreviewTNMBinding as in forward navigation
         //we do not get the medialist callback.
         delete iPreviewTNBinding;
@@ -530,38 +624,19 @@ void CGlxListViewImp::HandleOpenL( TInt aIndex )
 		//Navigate to the next view
         iUiUtility->SetViewNavigationDirection(EGlxNavigationForwards);
         GLX_LOG_INFO("CGlxListViewImp::HandleOpenL()- EGlxNavigationForwards!");
-
         CMPXCollectionPath* path = iMediaList->PathLC(
                 NGlxListDefs::EPathFocusOrSelection);
 
         // When a collection is opened for browsing, 
         // there are two queries executed with similar filter. 
         // First query to open the collection from list / cloud view.
-        // Second one from grid view construction. To improve the grid opening
-        // performance, the first query will be completed with empty Id list.
-        CMPXCollectionPath* pathParent = iMediaList->PathLC(
-                NGlxListDefs::EPathParent);
-
-        if ((iMediaList->IdSpaceId(0) == KGlxIdSpaceIdRoot && path->Id(0)
-                == KGlxCollectionPluginAllImplementationUid)
-                || (pathParent->Id()
-                        == KGlxCollectionPluginMonthsImplementationUid)
-                || (pathParent->Id()
-                        == KGlxCollectionPluginAlbumsImplementationUid))
-            {
-            RArray<TMPXAttribute> attributeArray;
-            CleanupClosePushL(attributeArray);
-            attributeArray.AppendL(KGlxFilterGeneralNavigationalStateOnly);
-            iCollectionUtility->Collection().OpenL(*path,
-                    attributeArray.Array());
-            CleanupStack::PopAndDestroy(&attributeArray);
-            }
-        else
-            {
-            iCollectionUtility->Collection().OpenL(*path);
-            }
-
-        CleanupStack::PopAndDestroy(pathParent);
+        // Second one from grid/list view construction. To improve the grid/list 
+        // opening performance, the first query will be completed with empty Id list.
+        RArray<TMPXAttribute> attributeArray;
+        CleanupClosePushL(attributeArray);
+        attributeArray.AppendL(KGlxFilterGeneralNavigationalStateOnly);
+        iCollectionUtility->Collection().OpenL(*path, attributeArray.Array());
+        CleanupStack::PopAndDestroy(&attributeArray);
         CleanupStack::PopAndDestroy(path);
 	    }
     }
@@ -613,17 +688,9 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
             }
     	}
     
-    TInt firstIndex = iList->FirstIndexOnScreen();
-    TInt itemsOnScreen = iList->ItemsOnScreen();
-    TInt lastOnScreen = firstIndex + itemsOnScreen - 1;
-    if (lastOnScreen > (mediaCount - 1))
-	    {
-		lastOnScreen = mediaCount - 1;	    	
-	    }
-    
     GLX_DEBUG2("CGlxListViewImp::PreviewTNReadyL()"
-            " RefreshScreen - focusIndex(%d)", focusIndex);
-    iList->RefreshScreen(focusIndex);
+            " RefreshList(%d)", focusIndex);
+    RefreshList(focusIndex);
 	
 	if (iPopulateListTNs)
 		{
@@ -756,20 +823,21 @@ void CGlxListViewImp::CreateListL()
             HBufC* emptyText = StringLoader::LoadLC(R_LIST_EMPTY_VIEW_TEXT); 
             iList->SetEmptyTextL(*emptyText);
             CleanupStack::PopAndDestroy(emptyText);
+            
+            //While coming back to main listview
+            TGlxIdSpaceId id = iMediaList->IdSpaceId(0);
+            if((id == KGlxIdSpaceIdRoot) && (mediaCount > 0))
+                {            
+                for (TInt i = 0; i < mediaCount; i++)
+                    {
+                    SetDefaultThumbnailL(i);
+                    }
+                }            
             }		
         
 		//Fix for ESLM-7SAHPT::Clear Flag to Disable QWERTY search input in list view
 		iList->ClearFlags(CHgScroller::EHgScrollerSearchWithQWERTY ); 
 		
-		//While coming back to main listview
-		TGlxIdSpaceId id = iMediaList->IdSpaceId(0);
-		if((id == KGlxIdSpaceIdRoot) && (mediaCount > 0))
-		    {            
-            for (TInt i = 0; i < mediaCount; i++)
-                {
-                SetDefaultThumbnailL(i);
-                }
-		    }
         // Set the scrollbar type for albums list
         if (path->Id() == KGlxCollectionPluginAlbumsImplementationUid)
             {
@@ -796,7 +864,6 @@ void CGlxListViewImp::CreateListL()
             }
 		iMediaList->SetFocusL(NGlxListDefs::EAbsolute, iLastFocusedIndex);
 		iList->SetSelectedIndex(iLastFocusedIndex);
-		iList->RefreshScreen(iLastFocusedIndex);
 		}
     }
 
@@ -817,7 +884,10 @@ void CGlxListViewImp::HandleItemAddedL( TInt aStartIndex, TInt aEndIndex,
             const TGlxMedia& item = iMediaList->Item(i);                
             iList->ItemL(i).SetTitleL(item.Title());
             iList->ItemL(i).SetTextL(item.SubTitle());
-            SetDefaultThumbnailL(i);
+            if (iMediaList->IdSpaceId(0) == KGlxIdSpaceIdRoot)
+                {
+                SetDefaultThumbnailL(i);
+                }
             }            
         
         if(aStartIndex == aEndIndex )
@@ -825,10 +895,9 @@ void CGlxListViewImp::HandleItemAddedL( TInt aStartIndex, TInt aEndIndex,
             iLastFocusedIndex = aStartIndex;
             iPopulateListTNs = EFalse;
             iMediaList->SetFocusL(NGlxListDefs::EAbsolute, iLastFocusedIndex);			
+            iList->SetSelectedIndex(iLastFocusedIndex); 
+            iList->RefreshScreen(iLastFocusedIndex);
             }
-        
-        iList->SetSelectedIndex(iLastFocusedIndex);	
-        iList->RefreshScreen(iLastFocusedIndex);
         }
     }
 
@@ -874,14 +943,25 @@ void CGlxListViewImp::HandleAttributesAvailableL( TInt aItemIndex,
 	if (KErrNotFound != aAttributes.Find(titleAttrib, match))
 		{
 		iList->ItemL(aItemIndex).SetTitleL(item.Title());
-		iList->RefreshScreen(aItemIndex);
+        if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
+            {
+            iList->RefreshScreen(aItemIndex);
+            }		
 		}
 
 	if (KErrNotFound != aAttributes.Find(subTitleAttrib, match))
 		{
 		iList->ItemL(aItemIndex).SetTextL(item.SubTitle());
-		iList->RefreshScreen(aItemIndex);
-
+		
+	    if (iMediaList->IdSpaceId(0) == KGlxIdSpaceIdRoot)
+            {
+            RefreshList(aItemIndex);
+            }
+        else
+            {
+            iList->RefreshScreen(aItemIndex);
+            }
+		
 		// If there is some modified in grid/fullscreen view,
 		// HandleAttributesAvailableL will get called. Here we are setting
 		// iIsRefreshNeeded flag to ETrue		
@@ -892,10 +972,6 @@ void CGlxListViewImp::HandleAttributesAvailableL( TInt aItemIndex,
 				{
 				CleanUpL();
 				}
-			}
-		if(iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
-			{
-			UpdatePreviewL(aItemIndex);
 			}
 		// Set iPopulateListTNs to ETrue and refresh all the items in
 		// list view if subtitle is updated
@@ -912,17 +988,20 @@ void CGlxListViewImp::HandleAttributesAvailableL( TInt aItemIndex,
 			CleanupStack::PopAndDestroy(path);		            	
 			}
 		}
-    TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail,
-            GlxFullThumbnailAttributeId(ETrue, iGridIconSize.iWidth,
-                    iGridIconSize.iHeight));
-    if (KErrNotFound != aAttributes.Find(thumbnailAttribute, match))
-        {
-        if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
-            {
-            UpdatePreviewL(aItemIndex);
-            iIsRefreshNeeded = EFalse;
-            }
-        }
+
+	if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot)
+		{
+		TMPXAttribute countAttrib(KMPXMediaGeneralCount);
+		TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail,
+				GlxFullThumbnailAttributeId(ETrue, iGridIconSize.iWidth,
+						iGridIconSize.iHeight));
+		if ((KErrNotFound != aAttributes.Find(thumbnailAttribute, match))
+				|| (KErrNotFound != aAttributes.Find(countAttrib, match)))
+			{
+			iIsRefreshNeeded = EFalse;
+			UpdatePreviewL(aItemIndex);
+			}
+		}
 	}
 	
 // ----------------------------------------------------------------------------
@@ -1244,18 +1323,55 @@ void CGlxListViewImp::UpdatePreviewL(TInt aIndex)
                         iGridIconSize.iHeight));
         GLX_LOG_INFO1("CGlxListViewImp::UpdatePreviewL(aIndex = %d)", aIndex);
         const TGlxMedia& item = iMediaList->Item(aIndex);
+
+        TMPXAttribute attrCount(KMPXMediaGeneralCount);
+        TInt usageCount = 0;
+        const CGlxMedia* media = item.Properties();
+        if (media)
+            {
+            if (media->IsSupported(attrCount))
+                {
+                usageCount = media->ValueTObject<TInt> (attrCount);
+                GLX_LOG_INFO1("CGlxListViewImp::UpdatePreviewL() - UsageCount(%d)", usageCount);
+                }
+            }
+
         const CGlxThumbnailAttribute* value = item.ThumbnailAttribute(
                 thumbnailAttribute);
-        if (value)
+        if (usageCount && value)
             {
             CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
             CleanupStack::PushL(bitmap);
             iPreviewTNBinding->ScaleBitmapToListSizeL(value->iBitmap, bitmap);
             iList->ItemL(aIndex).SetIcon(CGulIcon::NewL(bitmap));
-            iList->RefreshScreen(aIndex);
             CleanupStack::Pop(bitmap);
+            iList->RefreshScreen(aIndex);
             }
         }
     }
 
+// ----------------------------------------------------------------------------
+// RefreshList
+// ----------------------------------------------------------------------------
+//  
+void CGlxListViewImp::RefreshList(TInt aIndex)
+    {
+    TRACER("CGlxListViewImp::RefreshList()");
+    GLX_DEBUG2("CGlxListViewImp::RefreshList(%d)", aIndex);	
+    __ASSERT_ALWAYS(iList, Panic(EGlxPanicNullPointer));
+    TInt firstIndex = iList->FirstIndexOnScreen();
+    TInt itemsOnScreen = iList->ItemsOnScreen();
+    TInt lastOnScreen = firstIndex + itemsOnScreen - 1;
+    TInt mediaCount = iMediaList->Count();
+    if (lastOnScreen > (mediaCount - 1))
+        {
+        lastOnScreen = mediaCount - 1;
+        }
+
+    if (aIndex == lastOnScreen)
+        {
+        GLX_DEBUG2("CGlxListViewImp::RefreshList() RefreshScreen(%d)", aIndex);
+        iList->RefreshScreen(aIndex);
+        }
+    }
 //  End of File

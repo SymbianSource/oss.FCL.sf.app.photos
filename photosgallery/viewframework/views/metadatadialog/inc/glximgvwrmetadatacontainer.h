@@ -30,7 +30,7 @@
 #include <aknsettingitemlist.h>     // for CAknSettingItem
 #include "mglxmedialistobserver.h"
 #include <glxattributecontext.h>  
-
+#include <glximageviewermanager.h>
 
 //FORWARD DECLARATION
 class MGlxMediaList;
@@ -134,6 +134,17 @@ private:
         void SetNameDescriptionL(TInt aItem);
         void SetDurationLIicenseItemVisibilityL();
         TBool IsLicenseItem();
+
+        /**
+         * Create Image Viewer manager Instance
+         */
+        void CreateImageViewerInstanceL();
+        
+        /**
+         * Delete Image Viewer manager Instance
+         */
+        void DeleteImageViewerInstance();
+
    
 private:    //data
     
@@ -148,7 +159,8 @@ private:    //data
         MGlxMediaList* iItemMediaList;
         CGlxAttributeContext* iMainListAttributecontext;
         TGlxSelectionIterator iSelectionIterator;
-        
+        // For image viewer, not own
+        CGlxImageViewerManager* iImageViewerInstance;
     };
 
 

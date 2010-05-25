@@ -194,7 +194,18 @@ private:
     * @param aError the error code to handle.
     */
    void DoHandleErrorL( TInt /*aError*/ );    
- 
+
+   /**
+   * Refresh the list
+   * @param aIndex index to be refreshed
+   */
+   void RefreshList(TInt aIndex);
+
+   /**
+   * Remove the medialist attribute context(s)
+   */
+   void RemoveContext();
+   
 public: // from MGlxMediaListObserver
     void HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
     void HandleItemRemovedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
@@ -222,21 +233,37 @@ private:    // Data
 	
 	CGlxPreviewThumbnailBinding* iPreviewTNBinding; //Own
 	
-	// Fetch context for retrieving title attribute
-	CGlxAttributeContext* iTitleAttributeContext;
+	/// Fetch context for retrieving title attribute
+	CGlxDefaultAttributeContext* iTitleAttributeContext;
 
-    // Fetch context for retrieving subtitle
+    /// Fetch context for retrieving subtitle for visible items
     CGlxAttributeContext* iSubtitleAttributeContext;
-	
+
+    /// Fetch context for retrieving other attribs for visible items
+    CGlxAttributeContext* iOtherAttribsContext;
+    
+    /// Thumbnail Attrib context for visible items
+    CGlxAttributeContext* iThumbnailContext;    
+
+    /// Thumbnail iterator for fetch context(s) for visible items
     TGlxFromFocusOutwardIterator iThumbnailIterator;
     
-	// Thumbnail Attrib context
-    CGlxAttributeContext* iThumbnailContext;	
+    /// Fetch context for retrieving subtitle for non-visible items
+    CGlxAttributeContext* iNonVisibleSubtitleAttributeContext;
 
-    /** Unique ID of this Avkon view */
+    /// Fetch context for retrieving other attribs for non-visible items
+    CGlxAttributeContext* iNonVisibleOtherAttribsContext;
+    
+    /// Thumbnail Attrib context for non-visible items
+    CGlxAttributeContext* iNonVisibleThumbnailContext;    
+
+    /// Thumbnail iterator for fetch context(s) for non-visible items
+    TGlxFromFocusOutwardIterator iNonVisibleThumbnailIterator;
+    
+    /// Unique ID of this Avkon view
     TInt iViewUid;
 
-    /** View specific resource ids */
+    /// View specific resource ids
     TListViewResourceIds iResourceIds;
 
     /// The animation being applied to the view
@@ -254,7 +281,8 @@ private:    // Data
     TInt iLastFocusedIndex;
     
     TBool iNextViewActivationEnabled;
-    // save title text 
+    
+    /// Title text 
     HBufC* iTitletext;
 
     CGlxProgressIndicator* iProgressIndicator;

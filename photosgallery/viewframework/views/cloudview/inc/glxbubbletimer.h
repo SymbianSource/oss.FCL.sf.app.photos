@@ -31,11 +31,11 @@ class MGlxTimerNotifier
 	{
 public:
 	/** 	
-	 *  @function TimerComplete
+	 *  @function TimerCompleteL
 	 *  @since S60 3.2
 	 *  Function is used to get timer notification
 	 */
-	virtual void TimerComplete() = 0;
+	virtual void TimerCompleteL() = 0;
 	};
 
 //Forward Declaration

@@ -69,7 +69,7 @@ public:
     /**
      * Virtual Function from MGlxTimernotifier
      */
-    void TimerComplete();
+    void TimerCompleteL();
 
 public:
     /**
@@ -81,7 +81,7 @@ public:
      * Hides/shows the grid layout
      * @param aOpacity - Opacity value
      */
-    void ShowItemMenu(TBool aOpacity);
+    void ShowItemMenuL(TBool aOpacity);
     /**
      * Hides/shows the grid layout
      * @return value of menu's visibility
@@ -95,6 +95,11 @@ public:
      */
     void SetViewableRect(TRect aRect);
 
+    /**
+    * Handles the Up event when moved away from stylus menu
+    */
+    void HandleUpEventL();
+    
 private:
     /**     
      *  constructor 
@@ -164,6 +169,10 @@ private:
 
     //flag for stylus menu visibility
     TBool iItemMenuVisibility;
+    
+    //Menu item selected
+    TInt iCommandId;
+    
     //Maximum text width of a menu item
     TInt iMaxTextWidth;
     };

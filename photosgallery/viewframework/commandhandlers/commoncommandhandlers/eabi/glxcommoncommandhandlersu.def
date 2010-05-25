@@ -99,12 +99,11 @@ EXPORTS
 	_ZN38CGlxCommandHandlerFilterImagesOrVideosD0Ev @ 98 NONAME
 	_ZN38CGlxCommandHandlerFilterImagesOrVideosD1Ev @ 99 NONAME
 	_ZN38CGlxCommandHandlerFilterImagesOrVideosD2Ev @ 100 NONAME
-	_ZN38CGlxSingleGraphicPopupMenuStyleListBox14OfferKeyEventLERK9TKeyEvent10TEventCode @ 101 NONAME
-	_ZNK20CGlxMediaListAdaptor9MdcaCountEv @ 102 NONAME
-	_ZNK20CGlxMediaListAdaptor9MdcaPointEi @ 103 NONAME
-	_ZNK26CGlxCommandHandlerNewMedia23BypassFiltersForExecuteEv @ 104 NONAME
-	_ZNK26CGlxCommandHandlerNewMedia8OkToExitEv @ 105 NONAME
-	_ZThn48_N26CGlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 106 NONAME
-	_ZThn4_NK20CGlxMediaListAdaptor9MdcaCountEv @ 107 NONAME
-	_ZThn4_NK20CGlxMediaListAdaptor9MdcaPointEi @ 108 NONAME
+	_ZNK20CGlxMediaListAdaptor9MdcaCountEv @ 101 NONAME
+	_ZNK20CGlxMediaListAdaptor9MdcaPointEi @ 102 NONAME
+	_ZNK26CGlxCommandHandlerNewMedia23BypassFiltersForExecuteEv @ 103 NONAME
+	_ZNK26CGlxCommandHandlerNewMedia8OkToExitEv @ 104 NONAME
+	_ZThn48_N26CGlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 105 NONAME
+	_ZThn4_NK20CGlxMediaListAdaptor9MdcaCountEv @ 106 NONAME
+	_ZThn4_NK20CGlxMediaListAdaptor9MdcaPointEi @ 107 NONAME
 

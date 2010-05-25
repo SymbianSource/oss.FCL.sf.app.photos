@@ -487,8 +487,14 @@ TInt TGlxFromIndexOutwardBlockyIterator::operator++(TInt)
     // |-------F----------------------|
     // |< jumping zone>|
 
-    TInt index = iIndexFunctor.Index();
-    __ASSERT_ALWAYS( index >= 0 && index < iList->Count(), Panic( EGlxPanicIllegalState ) );
+    TInt index = iIndexFunctor.Index();    
+    __ASSERT_DEBUG( index >= 0 && index < count, Panic( EGlxPanicIllegalState ) );
+    if (index < 0 || index >= count)
+        {
+		// Invalid index, out of bounds
+        return KErrNotFound;
+        }
+    
     index -= index % KGlxBlockyIteratorDefaultGranularity;
 
     TInt min = Min(iFrontOffset, iRearOffset);
@@ -549,7 +555,12 @@ TBool TGlxFromIndexOutwardBlockyIterator::InRange(TInt aIndex) const
         }
   
     TInt index = iIndexFunctor.Index();
-    __ASSERT_ALWAYS( index >= 0 && index < iList->Count(), Panic( EGlxPanicIllegalState ) );
+    __ASSERT_DEBUG( index >= 0 && index < count, Panic( EGlxPanicIllegalState ) );
+    if (index < 0 || index >= count)
+        {
+		// Invalid index, must be out of range
+        return EFalse;
+        }	
     index -= index % KGlxBlockyIteratorDefaultGranularity;
     TInt firstInRange = GlxListUtils::NormalizedIndex(index - iRearOffset, count);
     TInt lastInRange = GlxListUtils::NormalizedIndex(index + iFrontOffset, count);
@@ -974,7 +985,13 @@ TInt TGlxFromManualIndexBlockyIterator::operator++(TInt)
     TInt visIndex = iList->VisibleWindowIndex();
     TInt index = visIndex;
     TInt listCount = iList->Count();
-    __ASSERT_ALWAYS( index >= 0 && index <= listCount, Panic( EGlxPanicIllegalState ) );
+    __ASSERT_DEBUG( index >= 0 && index <= listCount, Panic( EGlxPanicIllegalState ) );
+    if (index < 0 || index >= listCount)
+        {
+		// Invalid index, out of bounds
+        return KErrNotFound;
+        }
+    
     //Inorder to ensure that the start of refresh of thumbnails is contained in
     //in the current visible window. We set the startIndex to center element of 
     //the current visible window.
@@ -1053,7 +1070,12 @@ TBool TGlxFromManualIndexBlockyIterator::InRange(TInt aIndex) const
         }
   
     TInt index = iList->VisibleWindowIndex();
-    __ASSERT_ALWAYS( index >= 0 && index < iList->Count(), Panic( EGlxPanicIllegalState ) );
+    __ASSERT_DEBUG( index >= 0 && index < count, Panic( EGlxPanicIllegalState ) );
+    if (index < 0 || index >= count)
+        {
+		// Invalid index, must be out of range
+        return EFalse;
+        }    
     
     TInt firstInRange = GlxListUtils::NormalizedIndex(index - iRearOffset, count);
     TInt lastInRange = GlxListUtils::NormalizedIndex(index + iFrontOffset, count);

@@ -154,6 +154,23 @@ EXPORT_C TBool CGlxDRMUtility::ItemRightsValidityCheckL( const TDesC& aUri,
     }
 
 //============================================================================
+// ItemRightsValidityCheckL
+// for checking DRM rights validity for item.
+// is called before right is consumed and for all items (focused or unfocused).
+//============================================================================
+EXPORT_C TBool CGlxDRMUtility::ItemRightsValidityCheckL( RFile& aFileHandle,
+                                                TBool aCheckViewRights )
+    {
+    TRACER("CGlxDRMUtility::ItemRightsValidityCheckL()");
+    TBool rightsValid = EFalse;
+
+    ContentAccess::CContent* content = ContentAccess::CContent::NewLC( aFileHandle );
+    TInt err( content->GetAttribute( ContentAccess::ECanView, rightsValid ) );
+    CleanupStack::PopAndDestroy( content );
+    return rightsValid;
+    }
+
+//============================================================================
 // DisplayItemRightsCheckL
 // is called after right is consumed and for only focused/displayed item.
 //============================================================================
@@ -177,6 +194,19 @@ EXPORT_C TBool CGlxDRMUtility::DisplayItemRightsCheckL( const TDesC& aUri,
     // Otherwise, check current rights for the URI of newly focused item
     return ItemRightsValidityCheckL( aUri, aCheckViewRights );
     }
+
+//============================================================================
+// DisplayItemRightsCheckL
+// is called after right is consumed and for only focused/displayed item.
+//============================================================================
+EXPORT_C TBool CGlxDRMUtility::DisplayItemRightsCheckL( RFile& aFileHandle,
+                                                    TBool aCheckViewRights )
+    {
+    TRACER("CGlxDRMUtility::DisplayItemRightsCheckL()");
+    // Otherwise, check current rights for the URI of newly focused item
+    return ItemRightsValidityCheckL( aFileHandle, aCheckViewRights );
+    }
+
 
 //============================================================================
 // ConsumeRightsL
@@ -206,6 +236,19 @@ EXPORT_C TBool CGlxDRMUtility::ConsumeRightsL(const TDesC& aUri)
 
     CleanupStack::PopAndDestroy(data);
 
+    return (err == KErrNone);
+    }
+
+
+//============================================================================
+// ConsumeRightsL
+//============================================================================    
+EXPORT_C TBool CGlxDRMUtility::ConsumeRightsL(RFile& aFileHandle)
+    {
+    TRACER("CGlxDRMUtility::ConsumeRightsL(RFile& aFileHandle)");
+    CData* data = CData::NewLC( aFileHandle, KDefaultContentObject(), EPeek );
+    TInt err = data->ExecuteIntent(ContentAccess::EView);
+    CleanupStack::PopAndDestroy( data );
     return (err == KErrNone);
     }
 
@@ -315,6 +358,21 @@ EXPORT_C void CGlxDRMUtility::ShowDRMDetailsPaneL( const TDesC& aUri )
     }
 
 //============================================================================
+// ShowDRMDetailsPane
+//============================================================================  
+EXPORT_C void CGlxDRMUtility::ShowDRMDetailsPaneL(RFile& aFileHandle)
+    {
+    TRACER("CGlxDRMUtility::ShowDRMDetailsPaneL()");
+    TRAPD( err, iDrmHelper->LaunchDetailsViewEmbeddedL( aFileHandle ) );
+    // if no rights ask user to re-activate
+    if( err == KErrCANoRights )
+        {
+        //need to check if we need to handle.
+        }
+
+    }
+
+//============================================================================
 // IsForwardLockedL
 //============================================================================  
 EXPORT_C TBool CGlxDRMUtility::IsForwardLockedL(const TDesC& aUri)
@@ -336,6 +394,15 @@ EXPORT_C void CGlxDRMUtility::ShowRightsInfoL(const TDesC& aUri)
     {
     TRACER("CGlxDRMUtility::ShowRightsInfoL()");
     iDrmHelper->CheckRightsAmountL( aUri );
+    }
+
+//============================================================================
+// ShowRightsInfoL
+//============================================================================    
+EXPORT_C void CGlxDRMUtility::ShowRightsInfoL(RFile& aFileHandle)    
+    {
+    TRACER("CGlxDRMUtility::ShowRightsInfoL(aFileHandle)");
+    iDrmHelper->CheckRightsAmountL( aFileHandle );
     }
 
 //============================================================================

@@ -178,6 +178,11 @@ TBool CGlxCommandHandlerDetails::DoExecuteL( TInt aCommandId, MGlxMediaList& aLi
 			if ( err == KErrNone )
 				{
 				TInt focusIndex = aList.FocusIndex();
+				// In Grid view, details will be shown for the selected item
+				if (aList.SelectionCount() == 1) 
+					{ 
+					focusIndex = aList.SelectedItemIndex(0); 
+					} 
 				TGlxMedia item = aList.Item(focusIndex);
 				const CGlxMedia* media = item.Properties();
 

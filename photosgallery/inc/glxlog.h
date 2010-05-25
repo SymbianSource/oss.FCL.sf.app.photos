@@ -52,7 +52,7 @@
     #define GLX_DEBUG3( s, i, j )
     #define GLX_DEBUG4( s, i, j, k )
     #define GLX_DEBUG5( s, i, j, k, l )
-
+    #define GLX_LOG_URI( s, i )
 #else
 
 // only include headers if logging is enabled
@@ -336,6 +336,16 @@
     #define GLX_DEBUG4( s, i, j, k ) GLX_LOG_INFO3( s, i, j, k )
     ///@deprecated, use GLX_LOG_INFO4 instead
     #define GLX_DEBUG5( s, i, j, k, l ) GLX_LOG_INFO4( s, i, j, k, l )
+
+    /**
+     * Logs a single line of information with two parameters
+     * Example usage:
+	 * CFoo::SetImageUriL(const TDesC& aFileName) {
+     * GLX_LOG_URI( "CFoo::SetImageUriL(%S)", &aFileName ); }
+     * @param s, the string to be inserted to the log, plain compile time string, not a descriptor
+     * @param i, the string value to be inserted to the string
+	 */
+    #define GLX_LOG_URI( s, i )    RDebug::Print( _L( s ), i )
 
     /**
      * TRAP instrumentation for Leave

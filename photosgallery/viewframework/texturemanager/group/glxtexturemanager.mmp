@@ -65,8 +65,9 @@ LIBRARY		glxuiutilities.lib
 LIBRARY    	imageconversion.lib 
 LIBRARY  	bitmaptransforms.lib 
 LIBRARY         iclextjpegapi.lib
-LIBRARY efsrv.lib
-LIBRARY hal.lib              // HAL, HALData
+LIBRARY         efsrv.lib
+LIBRARY         hal.lib              // HAL, HALData
 LIBRARY         exiflib.lib
 LIBRARY         oommonitor.lib       // For Requesting RAM
+LIBRARY         glximageviewermanager.lib
 // End of File

@@ -110,6 +110,7 @@ void CGlxImageViewerManager::ConstructL()
 EXPORT_C void CGlxImageViewerManager::SetImageUriL(const TDesC& aFileName)
     {
     TRACER("void CGlxImageViewerManager::SetImageUriL()");    
+    GLX_LOG_URI("CGlxImageViewerManager::SetImageUriL(%S)", &aFileName);
     if ( iImageUri )
         {
         delete iImageUri;

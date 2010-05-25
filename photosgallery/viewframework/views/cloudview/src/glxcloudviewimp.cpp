@@ -453,7 +453,7 @@ void CGlxCloudViewImp::ViewDynInitMenuPaneL(TInt aMenuId, CEikMenuPane* /*aMenuP
     TRACER("GLX_CLOUD::CGlxCloudViewImp::ViewDynInitMenuPaneL");
     if( aMenuId == R_TAGSBROWSER_MENU)
         {
-        iCloudControl->ShowContextItemMenu(EFalse);
+        iCloudControl->ShowContextItemMenuL(EFalse);
         }
     }
 

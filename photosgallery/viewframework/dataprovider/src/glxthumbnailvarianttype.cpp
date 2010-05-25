@@ -129,47 +129,71 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
     //URI length could be zero for Media Id based Thumbnail fetch
     else if ( fsTnmAvailable ) 
 	    {
-	    GLX_DEBUG1("GlxThumbnailVariantType::CreateThumbnailTextureL");
-	    TMPXGeneralCategory cat = aMedia.Category();
-	    //Check if media is DRM rights protected
-	    if(drm)
+        GLX_DEBUG1("GlxThumbnailVariantType::CreateThumbnailTextureL");
+        TMPXGeneralCategory cat = aMedia.Category();
+        //Check if media is DRM rights protected
+        if (drm)
             {
+            TBool privatePath = EFalse;
+            CreateImageViewerInstanceL();
+            if (iImageViewerInstance->IsPrivate())
+                {
+                privatePath = ETrue;
+                }
 
             //call 'DisplayItemRightsCheckL' only for focused item
-            if(aIsFocused)
-            	{
-            	expired = !iDrmUtility->DisplayItemRightsCheckL(uri, (cat == EMPXImage));
-            	}
+            if (aIsFocused)
+                {
+                if (privatePath)
+                    {
+                    expired = !iDrmUtility->DisplayItemRightsCheckL
+                                        (iImageViewerInstance->ImageFileHandle(),(cat == EMPXImage));
+                    }
+                else
+                    {
+                    expired = !iDrmUtility->DisplayItemRightsCheckL(uri, (cat == EMPXImage));
+                    }
+                }
             else
-            	{
-            	//call 'ItemRightsValidityCheckL' for validity check of non-focused item
-            	expired = !iDrmUtility->ItemRightsValidityCheckL(uri, (cat == EMPXImage));
-            	}
-
+                {
+                if (privatePath)
+                    {
+                    expired = !iDrmUtility->ItemRightsValidityCheckL(
+                            iImageViewerInstance->ImageFileHandle(), (cat
+                                    == EMPXImage));
+                    }
+                else
+                    {
+                    //call 'ItemRightsValidityCheckL' for validity check of non-focused item
+                    expired = !iDrmUtility->ItemRightsValidityCheckL(uri,
+                            (cat == EMPXImage));
+                    }
+                }
+            DeleteImageViewerInstance();
             //Check If DRM rights have expired.
-            if( expired )
+            if (expired)
                 {
                 TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL(
-                                                                    EMbmGlxiconsQgn_prop_image_notcreated, resFile, defaultSize ).Id() );
+                                EMbmGlxiconsQgn_prop_image_notcreated, resFile, defaultSize ).Id() );
                 }
             else
                 {
-                if ( isValid == EGlxDrmRightsValid)
-					{
-					// Fix for EABI-7RL9DD
-					// Replaced defaultSize with aSize
-					TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL(
-													aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
-					}
+                if (isValid == EGlxDrmRightsValid)
+                    {
+                    // Fix for EABI-7RL9DD
+                    // Replaced defaultSize with aSize
+                    TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL(
+                                    aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
+                    }
 
                 }
-            } 
-		else
-		    {
-			TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL( 
-				aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
-		    }
-	    }
+            }
+        else
+            {
+            TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL(
+                            aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
+            }
+        }
     else if ( aMedia.GetIconInfo(icon) )
 	    {  
 	    GLX_DEBUG1("GlxThumbnailVariantType::CreateIconTextureL");
@@ -397,6 +421,30 @@ TBool GlxThumbnailVariantType::HasRelevantThumbnail(const TGlxMedia& aMedia,
         return ETrue;
         }
     return EFalse;
+    }
+	
+// -----------------------------------------------------------------------------
+// CreateImageViewerInstanceL
+// -----------------------------------------------------------------------------
+//
+void GlxThumbnailVariantType::CreateImageViewerInstanceL()
+    {
+    TRACER("GlxThumbnailVariantType::CreateImageViewerInstanceL");
+    iImageViewerInstance = CGlxImageViewerManager::InstanceL();    
+    __ASSERT_ALWAYS(iImageViewerInstance, Panic(EGlxPanicNullPointer));
+    }
+
+// -----------------------------------------------------------------------------
+// DeleteImageViewerInstance
+// -----------------------------------------------------------------------------
+//
+void GlxThumbnailVariantType::DeleteImageViewerInstance()
+    {
+    TRACER("GlxThumbnailVariantType::DeleteImageViewerInstance");
+    if ( iImageViewerInstance )
+        {
+        iImageViewerInstance->DeleteInstance();
+        }
     }
 
 // ----------------------------------------------------------------------------

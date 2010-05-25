@@ -192,13 +192,13 @@ public:
      * Hides/shows the grid layout
      * @param aShow - Show value
      */
-    void ShowContextItemMenu(TBool aShow);
+    void ShowContextItemMenuL(TBool aShow);
     
 public://MGlxTimernotifier
     /**
      * Virtual Function from MGlxTimernotifier
      */
-    void TimerComplete();
+    void TimerCompleteL();
     
 private:
 	/** 	

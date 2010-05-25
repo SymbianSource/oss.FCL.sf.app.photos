@@ -41,6 +41,7 @@
 #include "glxfullscreenview.h"
 
 #include <glxcommandhandlers.hrh>
+#include <glxcommandhandlervideoplayback.h>
 
 _LIT(KGlxFullScreenResource,"glxfullscreenviewdata.rsc");
 
@@ -97,6 +98,12 @@ CGlxMonthsFullScreenViewPlugin::~CGlxMonthsFullScreenViewPlugin()
 //    
 void CGlxMonthsFullScreenViewPlugin::AddCommandHandlersL()
     {
+	//Fix for error ID EVTY-7M87LF
+	//@ Registration of Video Playback Command handler has to before UPnP.
+	//@ else UPnP will not get play command once video playback command is consumed.
+	iFullScreenView->AddCommandHandlerL(
+			CGlxCommandHandlerVideoPlayback::NewL(iFullScreenView));
+		
     CGlxFullScreenViewPluginBase::AddCommandHandlersL();
     
     TGlxHelpContext helpInfo;

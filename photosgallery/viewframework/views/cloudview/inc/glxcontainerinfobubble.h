@@ -74,7 +74,7 @@ public:
 	/**
 	 * Virtual Function from MGlxTimernotifier
 	 */
-	void TimerComplete();
+	void TimerCompleteL();
 
 	/**
 	 * Destructor

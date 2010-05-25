@@ -19,6 +19,7 @@
 #include <alf/alflayout.h>
 #include <alf/alfgridlayout.h> // For CAlfGridLayout
 #include <alf/alfborderbrush.h> // For CAlfBorderBrush
+#include <alf/alfroster.h> // For CalfRoster
 #include <alf/alfanchorlayout.h>
 #include <alf/alftextvisual.h>
 #include <alf/alfimagevisual.h>
@@ -65,7 +66,7 @@ const TPoint KDummyPoint(500, 500);
 //6 Seconds delay for menu control visibility on screen 
 const TInt KTimerDelay = 6000000;
 //Control complete height
-const TInt KGridHeight = KReqHeightPerMenuItem * KNumofMenuItems;
+const TInt KGridHeight = ((KReqHeightPerMenuItem * KNumofMenuItems) + (KMinimalGap * (KNumofMenuItems + 1)));
 //Text size for menu items
 const TInt KTextSizeInPixels = 20;
 //X shrink factor for stylus menu border to be drawn/visible
@@ -73,7 +74,7 @@ const TInt KShrinkXCoord = 5;
 //Y shrink factor for stylus menu border to be drawn/visible
 const TInt KShrinkYCoord = 5;
 //Padding value for Minimum width for control
-const TInt KWidthPadding = 20;
+const TInt KWidthPadding = 30;
 //Padding value for Minimum spacing for line separators
 const TInt KLinePadding = 5;
 //Context menu separator line thickness value
@@ -116,7 +117,7 @@ CGlxTagsContextMenuControl* CGlxTagsContextMenuControl::NewLC(
 //
 CGlxTagsContextMenuControl::CGlxTagsContextMenuControl(
         MGlxItemMenuObserver& aItemMenuObserver) :
-    iItemMenuObserver(aItemMenuObserver)
+    iItemMenuObserver(aItemMenuObserver), iCommandId(KErrNotFound)
     {
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::CGlxTagsContextMenuControl");
     //Nothing more to do for now
@@ -142,11 +143,14 @@ void CGlxTagsContextMenuControl::ConstructL()
     // Create a new 3x1 grid layout visual.
     iGrid = CAlfGridLayout::AddNewL(*this, KNoOfColumns, KNumofMenuItems,
             iMainVisual);//columns, rows
-
+    iGrid->SetFlag(EAlfVisualFlagManualLayout);
     //Finally create the menu list that will appear in screen
     CreateMenuListL(CreateFontL());
     CalculateMaxWidth();
     iMainVisual->SetSize(TSize(KWidthPadding + iMaxTextWidth, KGridHeight));
+    iGrid->SetInnerPadding(TPoint(KLinePadding,KLinePadding));
+    const TRect gridSize(TPoint(KLinePadding,KLinePadding),TSize(KTextSizeInPixels + iMaxTextWidth, KGridHeight - 10));
+    iGrid->SetRect(TAlfRealRect(gridSize));
     
     iMainVisual->EnableBrushesL(ETrue);
 
@@ -163,7 +167,7 @@ void CGlxTagsContextMenuControl::ConstructL()
     CleanupStack::Pop(frameBrush);
 
     DrawLineSeparatorsL();
-	ShowItemMenu(EFalse);
+	ShowItemMenuL(EFalse);
     }
 // --------------------------------------------------------------------------- 
 // ~CGlxTagsContextMenuControl()
@@ -296,12 +300,12 @@ void CGlxTagsContextMenuControl::SetDisplay(const TPoint& aPoint)
     }
 
 // --------------------------------------------------------------------------- 
-// ShowItemMenu()
+// ShowItemMenuL()
 // --------------------------------------------------------------------------- 
 //
-void CGlxTagsContextMenuControl::ShowItemMenu (TBool aShow)
+void CGlxTagsContextMenuControl::ShowItemMenuL(TBool aShow)
     {
-    TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::ShowItemMenu");
+    TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::ShowItemMenuL");
     if(aShow)
         {
         iMainVisual->SetOpacity(KOpacityOpaque);    
@@ -310,6 +314,9 @@ void CGlxTagsContextMenuControl::ShowItemMenu (TBool aShow)
     else
         {
         iMainVisual->SetOpacity(KOpacityTransparent);
+        iRenameTextVisual->EnableBrushesL(EFalse);
+        iDeleteTextVisual->EnableBrushesL(EFalse);
+        iSlideshowTextVisual->EnableBrushesL(EFalse);
         iItemMenuVisibility = EFalse;
         iMainVisual->SetPos(TAlfRealPoint(KDummyPoint));
         }
@@ -333,42 +340,99 @@ TBool CGlxTagsContextMenuControl::OfferEventL(const TAlfEvent& aEvent)
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::OfferEventL");
     TBool consumed = EFalse;
 
-    if(iItemMenuVisibility && aEvent.IsPointerEvent() && aEvent.PointerDown() )
+    if (aEvent.IsPointerEvent() && iItemMenuVisibility )
         {
-        CAlfVisual* onVisual = aEvent.Visual();
-        TInt cmdId = KErrNotFound;
-        if(AlfUtil::TagMatches(onVisual->Tag(), KTagSlideshow))
+        if (aEvent.PointerDown())
             {
-            cmdId = EGlxCmdSlideshowPlay;
-            }
-        else if(AlfUtil::TagMatches(onVisual->Tag(), KTagDelete))
+            iCommandId = KErrNotFound;
+            Display()->Roster().SetPointerEventObservers(
+                    EAlfPointerEventReportDrag
+                            + EAlfPointerEventReportLongTap
+                            + EAlfPointerEventReportUnhandled, *this);
+            if (iItemMenuVisibility)
+                {
+                CAlfVisual* onVisual = aEvent.Visual();
+                CAlfFrameBrush* brush = CAlfFrameBrush::NewLC(*iAlfEnv,
+                        KAknsIIDQsnFrList);
+                TRect textVisualRect = TRect(TPoint(
+                        iSlideshowTextVisual->Pos().IntValueNow()), TSize(
+                        iSlideshowTextVisual->Size().ValueNow().AsSize()));
+                TRect innerRect(textVisualRect);
+                innerRect.Shrink(KShrinkXCoord, KShrinkYCoord);
+                brush->SetFrameRectsL(innerRect, textVisualRect);
+                iTimer->Cancel(); //cancels any outstanding requests
+                if (AlfUtil::TagMatches(onVisual->Tag(), KTagSlideshow))
+                    {
+                    iSlideshowTextVisual->EnableBrushesL(ETrue);
+                    iSlideshowTextVisual->Brushes()->AppendL(brush,
+                            EAlfHasOwnership);
+
+                    iCommandId = EGlxCmdSlideshowPlay;
+                    }
+                else if (AlfUtil::TagMatches(onVisual->Tag(), KTagDelete))
+                    {
+                    iDeleteTextVisual->EnableBrushesL(ETrue);
+                    iDeleteTextVisual->Brushes()->AppendL(brush,
+                            EAlfHasOwnership);
+
+                    iCommandId = EGlxCmdDelete;
+                    }
+                else if (AlfUtil::TagMatches(onVisual->Tag(), KTagRename))
+                    {
+                    iRenameTextVisual->EnableBrushesL(ETrue);
+                    iRenameTextVisual->Brushes()->AppendL(brush,
+                            EAlfHasOwnership);
+
+                    iCommandId = EGlxCmdRename;
+                    }
+                consumed = ETrue;
+                CleanupStack::Pop(brush);
+                }//End of iItemMenuVisibility check
+            }//End of Pointer down event 
+        else if (aEvent.PointerUp())
             {
-            cmdId = EGlxCmdDelete;
-            }
-        else if(AlfUtil::TagMatches(onVisual->Tag(), KTagRename))
-            {
-            cmdId = EGlxCmdRename;
-            }
-        
-        if(cmdId >= 0)
-            {
-            ShowItemMenu(EFalse);
-            iItemMenuObserver.HandleGridMenuListL(cmdId);
+            if (iCommandId >= 0)
+                {
+                TBool eventInsideControl = HitTest(
+                        aEvent.PointerEvent().iParentPosition);
+                //If Up event is received only within Menu control, handle the command
+                if (eventInsideControl)
+                    {
+                    ShowItemMenuL(EFalse);
+
+                    iItemMenuObserver.HandleGridMenuListL(iCommandId);
+                    iCommandId = KErrNotFound;
+                    }
+                else
+                    {
+                    HandleUpEventL();
+                    }
+                }
             consumed = ETrue;
             }
+        else if (aEvent.PointerEvent().EDrag)
+            {
+            TBool eventInsideControl = HitTest(
+                    aEvent.PointerEvent().iParentPosition);
+            if (!eventInsideControl)
+                {
+                HandleUpEventL();
+                }
+            consumed = ETrue;
+            }
+        consumed = ETrue;
         }
-    
     return consumed;
     }
 
 // ---------------------------------------------------------------------------
-// TimerComplete()
+// TimerCompleteL()
 // ---------------------------------------------------------------------------
 //
-void CGlxTagsContextMenuControl::TimerComplete()
+void CGlxTagsContextMenuControl::TimerCompleteL()
     {
-    TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::TimerComplete");
-    ShowItemMenu(EFalse);
+    TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::TimerCompleteL");
+    ShowItemMenuL(EFalse);
     }
 
 // --------------------------------------------------------------------------- 
@@ -402,6 +466,23 @@ void CGlxTagsContextMenuControl::CalculateMaxWidth()
 
     }
 // --------------------------------------------------------------------------- 
+// HandleUpEventL()
+// --------------------------------------------------------------------------- 
+//
+void CGlxTagsContextMenuControl::HandleUpEventL()
+    {
+    TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::HandleUpEventL");
+    if(iCommandId >=0 && iItemMenuVisibility)
+        {
+        iCommandId = KErrNotFound;
+        
+        iRenameTextVisual->EnableBrushesL(EFalse);
+        iDeleteTextVisual->EnableBrushesL(EFalse);
+        iSlideshowTextVisual->EnableBrushesL(EFalse);
+
+        iTimer->SetDelay(KTimerDelay);
+        }
+    }
 // --------------------------------------------------------------------------- 
 // DrawLineSeparatorsL()
 // --------------------------------------------------------------------------- 
@@ -417,13 +498,12 @@ void CGlxTagsContextMenuControl::DrawLineSeparatorsL()
     for (TInt i = 1; i < KNumofMenuItems; i++)
         {
         CAlfCurvePath* curvePath = CAlfCurvePath::NewLC(*iAlfEnv);
-        curvePath->AppendArcL(
-                TPoint(KLinePadding, KReqHeightPerMenuItem * i), TSize(), 0,
-                0, 0);
-        curvePath->AppendLineL(
-                TPoint(KLinePadding, KReqHeightPerMenuItem * i), TPoint(
-                        iMainVisual->DisplayRect().Width() - KLinePadding,
-                        KReqHeightPerMenuItem * i), 0);
+        curvePath->AppendArcL(TPoint(KLinePadding, ((KReqHeightPerMenuItem
+                * i) + (KLinePadding * i + 2))), TSize(), 0, 0, 0);
+        curvePath->AppendLineL(TPoint(KLinePadding, ((KReqHeightPerMenuItem
+                * i) + (KLinePadding * i + 2))), TPoint(
+                iMainVisual->DisplayRect().Width() - KLinePadding,
+                ((KReqHeightPerMenuItem * i) + (KLinePadding * i + 2))), 0);
 
         CAlfLineVisual* line = CAlfLineVisual::AddNewL(*this, iMainVisual);
         line->SetPath(curvePath, EAlfHasOwnership);

@@ -103,7 +103,7 @@ void CGlxBubbleTimer::SetDelay(TTimeIntervalMicroSeconds32 aDelay)
 void CGlxBubbleTimer::RunL()
 	{
 	TRACER("GLX_CLOUD::CGlxBubbleTimer::RunL");
-	iNotifier->TimerComplete (); //notify that timer is over
+	iNotifier->TimerCompleteL(); //notify that timer is over
 	}
 
 // ---------------------------------------------------------------------------

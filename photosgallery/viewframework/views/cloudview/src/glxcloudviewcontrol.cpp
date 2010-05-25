@@ -226,7 +226,7 @@ void CGlxCloudViewControl::VisualLayoutUpdated(CAlfVisual &/* aVisual*/)
 	//If the grid is already shown , disable it
     if(iTagsContextMenuControl->ItemMenuVisibility())
        {
-       iTagsContextMenuControl->ShowItemMenu(EFalse);
+       iTagsContextMenuControl->ShowItemMenuL(EFalse);
        }
     TRect rect;
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
@@ -1432,7 +1432,7 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
         if(iTagsContextMenuControl->ItemMenuVisibility())
            {
            iDownEventReceived = ETrue;
-           iTagsContextMenuControl->ShowItemMenu(EFalse);
+           iTagsContextMenuControl->ShowItemMenuL(EFalse);
            return ETrue;
            }
         if(tappedvisual)
@@ -1967,13 +1967,13 @@ TBool CGlxCloudViewControl::IsLandscape()
         }
     }
 // ---------------------------------------------------------------------------
-// TimerComplete()
+// TimerCompleteL()
 // ---------------------------------------------------------------------------
 //
-void CGlxCloudViewControl::TimerComplete()
+void CGlxCloudViewControl::TimerCompleteL()
     {
     iTimerComplete = ETrue;
-    iTagsContextMenuControl->ShowItemMenu(EFalse);
+    iTagsContextMenuControl->ShowItemMenuL(EFalse);
 
     CAlfVisual& visual = iLayout->Visual( iMediaList.FocusIndex() );
     TRect focussedItemRect = visual.DisplayRect();
@@ -1989,17 +1989,17 @@ void CGlxCloudViewControl::TimerComplete()
     if(!iPhysicsStarted)//only if physics hasnt started
         {
         iTagsContextMenuControl->SetViewableRect(rect);
-        iTagsContextMenuControl->ShowItemMenu(ETrue);
+        iTagsContextMenuControl->ShowItemMenuL(ETrue);
         iTagsContextMenuControl->SetDisplay(midpoint);
         }
    }
 // ---------------------------------------------------------------------------
-// ShowContextItemMenu()
+// ShowContextItemMenuL()
 // ---------------------------------------------------------------------------
 //
-void CGlxCloudViewControl::ShowContextItemMenu(TBool aShow)
+void CGlxCloudViewControl::ShowContextItemMenuL(TBool aShow)
     {
-    iTagsContextMenuControl->ShowItemMenu(aShow);
+    iTagsContextMenuControl->ShowItemMenuL(aShow);
     if(!aShow)
         {
         iViewPortLayout->UpdateChildrenLayout(0);

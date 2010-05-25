@@ -86,6 +86,7 @@ const TInt KGlxMaxBigImageZoomLevel   =100;
 const TInt KGlxMinSmallImageZoomLevel =100;
 const TInt KGlxNeutralPinchPosition   =100;
 const TInt KGlxSliderTickValue        =5;
+
 /**
  * Start Delay for the periodic timer, in microseconds
  */
@@ -199,6 +200,7 @@ void  CGlxFullScreenViewImp::ConstructL(
 		{
 		iPeriodic = CPeriodic::NewL(CActive::EPriorityStandard);
 		}
+	iGlxTvOut = CGlxTv::NewL(*this);
     }
 
 // ---------------------------------------------------------------------------
@@ -212,19 +214,31 @@ CGlxFullScreenViewImp::~CGlxFullScreenViewImp()
         {
         delete iAlfEffectObs;
         }
-    delete iMMCNotifier;
-    iMMCNotifier = NULL;
-    
-	delete iMediaListMulModelProvider;   
-    if(iTimer->IsActive())
-	    {
-	    iTimer->Cancel();
-	    }
-	delete iTimer;   
+    if(iMMCNotifier)
+        {
+        delete iMMCNotifier;
+        iMMCNotifier = NULL;
+        }
+    if(iMediaListMulModelProvider)
+        {
+        delete iMediaListMulModelProvider;
+        }
+    if(iTimer)
+        {
+        if(iTimer->IsActive())
+            {
+            iTimer->Cancel();
+            }
+        delete iTimer;
+        }
 	if(iZoomButtonGroup)
         {
         AppUi()->RemoveFromStack( iZoomButtonGroup );
         delete iZoomButtonGroup;
+        }
+	if(iGlxTvOut)
+        {
+        delete iGlxTvOut;
         }
     if(iActiveMediaListRegistry)
         {
@@ -326,6 +340,7 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
     if(naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
         {
         iImgViewerMode = ETrue;
+        CreateImageViewerInstanceL();
         }
     //destroy and close navistate and navipath
     CleanupStack::PopAndDestroy( naviState );
@@ -333,6 +348,9 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
 
     iScrnSize = iUiUtility->DisplaySize();
     iGridIconSize = iUiUtility->GetGridIconSize();
+
+    iHdmiWidth = (iScrnSize.iWidth > iScrnSize.iHeight ?iScrnSize.iWidth :iScrnSize.iHeight);
+    iHdmiHeight = (iScrnSize.iWidth < iScrnSize.iHeight ?iScrnSize.iWidth :iScrnSize.iHeight);
 
     //Create hdmicontroller when it is only launched from fullscreen.  
     //From filemanager show only clone mode.
@@ -488,26 +506,17 @@ void CGlxFullScreenViewImp::CreateSliderWidgetL()
 void  CGlxFullScreenViewImp::ShowUiL(TBool aStartTimer)
     {
     TRACER("CGlxFullScreenViewImp::ShowUiL");
-
-    TInt index = iMediaList->FocusIndex();
-    const TGlxMedia& item = iMediaList->Item(index);
-    TInt error = GlxErrorManager::HasAttributeErrorL(item.Properties(), KGlxMediaIdThumbnail);
-       
-    TBool isDrmRightsValid = ETrue;
-	if(item.IsDrmProtected())
-		{
-		//Since it is always for the focused item - use DisplayItemRightsCheckL instead of ItemRightsValidityCheckL
-		isDrmRightsValid = iDrmUtility->DisplayItemRightsCheckL(item.Uri(),
-				(item.Category() == EMPXImage));
-		}
-	
-    // Display slider only for non corrupted images and items with valid DRM license
-    if (error == KErrNone && item.Category() == EMPXImage && isDrmRightsValid)
+	if(CheckIfSliderToBeShownL())
         {
         //To set the Slider values.
         SetSliderLevel();
         //show the slider
         iSliderWidget->ShowWidget(ETrue);
+        }
+    else
+        {
+        //hide slider if UI is needed to be on and HDMI is Connected
+        iSliderWidget->ShowWidget(EFalse);
         }
     
     if (iCoverFlowWidget)
@@ -686,6 +695,18 @@ void CGlxFullScreenViewImp::ActivateFullScreenL()
 void CGlxFullScreenViewImp::ActivateZoomControlL(TZoomStartMode aStartMode, TPoint* apZoomFocus)
     {
     TRACER("CGlxFullScreenViewImp::ActivateZoomControlL");
+    /*
+     * We will not do any zoom while HDMI is connected.
+     * This is as part of HDMI improvements.
+     */
+    if (!iImgViewerMode && iHdmiController 
+				&& iHdmiController->IsHDMIConnected())
+        {
+        // Hide zoom slider in HDMI mode as Zoom is disable.
+        // Let the other screen furnitures intact.
+        iSliderWidget->ShowWidget( EFalse);
+        return;
+        }
     TInt focus = iMediaList->FocusIndex();
     TGlxMedia item = iMediaList->Item( focus );
     TInt error = GlxErrorManager::HasAttributeErrorL(item.Properties() , KGlxMediaIdThumbnail);
@@ -694,10 +715,20 @@ void CGlxFullScreenViewImp::ActivateZoomControlL(TZoomStartMode aStartMode, TPoi
     TBool isDrmRightsValid = ETrue;
     if(item.IsDrmProtected())
     	{
-    	 //DRM Rights validity check for displayed item
-    	isDrmRightsValid = iDrmUtility->DisplayItemRightsCheckL(item.Uri(),
-				(item.Category() == EMPXImage));
-    	}
+        if (iImgViewerMode && iImageViewerInstance->IsPrivate())
+            {
+            isDrmRightsValid = iDrmUtility->DisplayItemRightsCheckL(
+                    iImageViewerInstance->ImageFileHandle(), (item.Category()
+                            == EMPXImage));
+            }
+        else
+            {
+            //Since it is always for the focused item - use DisplayItemRightsCheckL 
+            //instead of ItemRightsValidityCheckL
+            isDrmRightsValid = iDrmUtility->DisplayItemRightsCheckL(
+                    item.Uri(), (item.Category() == EMPXImage));
+            }
+        }
     // Activate Zoom if the item is an image and its DRM rights is not expired
     if(KErrNone == error && (EMPXImage == item.Category()) && isDrmRightsValid)
         {
@@ -799,12 +830,22 @@ void CGlxFullScreenViewImp::DoMLViewDeactivate()
         EnableFSToolbar(EFalse);
         
         //Setting Soft key to EmptySoftKeys would cause crash
-		//When Fullscreen is opened from ImageViewer. 
-        //So Set Soft Keys to empty only when not in Image Viewer mode.
-		CEikButtonGroupContainer* cba = Cba();
-		TRAP_IGNORE( cba->SetCommandSetL( R_GLX_FULLSCREEN_EMPTYSOFTKEYS ) );
-		cba->DrawNow();
+		//When Fullscreen is opened from ImageViewer.
+        //And also, when Photos exits from FullScreen View.
+        //So Set Soft Keys to empty only when not in Image Viewer mode 
+        //& Photos is not exiting.
+		if( !iUiUtility->IsExitingState() )
+			{
+			CEikButtonGroupContainer* cba = Cba();
+			TRAP_IGNORE( cba->SetCommandSetL( R_GLX_FULLSCREEN_EMPTYSOFTKEYS ) );
+			cba->DrawNow();
+			}
+        
         }
+	else
+		{
+		DeleteImageViewerInstance();
+		}
     
     HideUi(ETrue); 
 	// In Order to hide the softkeys immediately. The above statement does not do that as soon as we need. 
@@ -1063,15 +1104,12 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 {
                 SetItemToHDMIL();
                 TInt focusIndex = iMediaList->FocusIndex();
-                if (focusIndex != KErrNotFound
-                        && EUiOn == GetUiState()
-                        && iMediaList->Item(focusIndex).Category()
-                                == EMPXVideo)
+                if (focusIndex != KErrNotFound && EUiOn == GetUiState())
                     {
-                    // hide the slider
+                    // show/hide the slider
                     if (iSliderWidget)
                         {
-                        iSliderWidget->ShowWidget(EFalse);
+                        iSliderWidget->ShowWidget(CheckIfSliderToBeShownL());
                         }
                     }
                 return EEventConsumed;
@@ -1169,6 +1207,8 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
 		case EGlxCmdFullScreenBack:
 		    SetSliderLevel();
 		    DeactivateZoomControlL();
+			//Show the screen furniture when we press back from zoom
+		    ShowUiL(ETrue);
 		    consumed = ETrue;
 		    break;
 		case EGlxCmdRenameCompleted:
@@ -1396,9 +1436,22 @@ void CGlxFullScreenViewImp::ShowDrmExpiryNoteL()
         
         //check if any Error message is to be displayed
         TMPXGeneralCategory cat = media.Category();
-        TBool checkViewRights = (cat == EMPXImage);
-        if (iDrmUtility->ItemRightsValidityCheckL(media.Uri(),
-                checkViewRights) && tnError != KErrNone)
+        TBool checkViewRights = ETrue;
+        
+        if(iImgViewerMode && iImageViewerInstance->IsPrivate())
+            {
+            checkViewRights = iDrmUtility->ItemRightsValidityCheckL(
+                    iImageViewerInstance->ImageFileHandle(),
+                    (media.Category() == EMPXImage));
+            }
+        else
+            {
+            //Since it is always for the focused item - use DisplayItemRightsCheckL instead of ItemRightsValidityCheckL
+            checkViewRights = iDrmUtility->ItemRightsValidityCheckL(
+                    media.Uri(), (media.Category() == EMPXImage));
+            }
+        
+        if (checkViewRights && tnError != KErrNone)
             {
             if (iPeriodic->IsActive())
                 {
@@ -1434,7 +1487,18 @@ void CGlxFullScreenViewImp::ConsumeDRMRightsL(const TGlxMedia& aMedia)
     if (uri.Length() > 0)
         {
         // check if rights have expired
-        TBool expired = !iDrmUtility->ItemRightsValidityCheckL(uri, ETrue);
+        TBool expired = EFalse;
+        if (iImgViewerMode && iImageViewerInstance->IsPrivate())
+            {
+            expired = !iDrmUtility->ItemRightsValidityCheckL(
+                    iImageViewerInstance->ImageFileHandle(),
+                    ETrue);
+            }
+        else
+            {
+            expired = !iDrmUtility->ItemRightsValidityCheckL(uri, ETrue);
+            }
+
         if (expired)
             {
             if (iPeriodic->IsActive())
@@ -1442,7 +1506,14 @@ void CGlxFullScreenViewImp::ConsumeDRMRightsL(const TGlxMedia& aMedia)
                 iPeriodic->Cancel();
                 }
             iBusyIcon->ShowBusyIconL(EFalse);
-            iDrmUtility->ShowRightsInfoL(uri);
+            if(iImgViewerMode && iImageViewerInstance->IsPrivate())
+                {
+                iDrmUtility->ShowRightsInfoL(iImageViewerInstance->ImageFileHandle());
+                }
+            else
+                {
+                iDrmUtility->ShowRightsInfoL(uri);
+                }
             return;
             }
 
@@ -1465,7 +1536,14 @@ void CGlxFullScreenViewImp::ConsumeDRMRightsL(const TGlxMedia& aMedia)
                 }
             GLX_LOG_INFO("CGlxFullScreenViewImp::ConsumeDRMRightsL()"
                     "- ConsumeRights");
-            iDrmUtility->ConsumeRightsL(uri);
+            if(iImgViewerMode && iImageViewerInstance->IsPrivate())
+                {
+                iDrmUtility->ConsumeRightsL(iImageViewerInstance->ImageFileHandle());
+                }
+            else
+                {
+                iDrmUtility->ConsumeRightsL(uri);
+                }
             }
         }
     }
@@ -1557,7 +1635,7 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
     TRACER("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi");
 
     TInt focusIndex = iMediaList->FocusIndex();
-
+    
     // If we dont know what item we are focussing on 
     // or if out medialist is empty
     // or if HDMI is not connected 
@@ -1567,7 +1645,7 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
             || (0 == iMediaList->Count())
             || (NULL == iHdmiController)) 
         {
-        GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - Cant Set Image To HDMI");
+        GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi- Cant Set Image To HDMI");
         return;
         }
     
@@ -1627,10 +1705,13 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
                 GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Setting Default Bitmap");
                 TFileName resFile(KDC_APP_BITMAP_DIR);
                 resFile.Append(KGlxIconsFilename);
-                CFbsBitmap* defaultBitmap = new (ELeave) CFbsBitmap;
-                CleanupStack::PushL(defaultBitmap);
-                defaultBitmap = AknIconUtils::CreateIconL(resFile,
+                CFbsBitmap* defaultBitmap = AknIconUtils::CreateIconL(resFile,
                         EMbmGlxiconsQgn_prop_image_notcreated);
+                CleanupStack::PushL(defaultBitmap);
+                
+                // always need to setsize on the raw bitmap for it to be visible
+                AknIconUtils::SetSize(defaultBitmap, TSize(iHdmiWidth,iHdmiHeight),EAspectRatioPreserved);
+
                 GLX_LOG_INFO2("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Default Size width=%d, height=%d", 
                         defaultBitmap->SizeInPixels().iWidth, defaultBitmap->SizeInPixels().iHeight);
                 iHdmiController->SetImageL(item.Uri(),defaultBitmap);
@@ -1640,7 +1721,7 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
         }
     else
         {
-        GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - Unsupported Item");
+        GLX_LOG_INFO("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Unsupported Item");
         //Set the external display to cloning mode if
         //the current item is something we dont support 
         //(e.g. video, corrupted item, item with invalid DRM)
@@ -1732,4 +1813,85 @@ void CGlxFullScreenViewImp::HandleEffectCallback(TInt aType, TInt aHandle,
                 (iCoverFlowWidget->ContainerLayout()).SetEffectL(
                                                      KTfxResourceNoEffect));
         }
+    }
+
+// -----------------------------------------------------------------------------
+// CreateImageViewerInstanceL
+// -----------------------------------------------------------------------------
+//
+void CGlxFullScreenViewImp::CreateImageViewerInstanceL()
+    {
+    TRACER("CGlxFullScreenViewImp::CreateImageViewerInstanceL");
+    iImageViewerInstance = CGlxImageViewerManager::InstanceL();    
+    __ASSERT_ALWAYS(iImageViewerInstance, Panic(EGlxPanicNullPointer));
+    }
+
+// -----------------------------------------------------------------------------
+// DeleteImageViewerInstance
+// -----------------------------------------------------------------------------
+//
+void CGlxFullScreenViewImp::DeleteImageViewerInstance()
+    {
+    TRACER("CGlxFullScreenViewImp::DeleteImageViewerInstance");
+    if ( iImageViewerInstance )
+        {
+        iImageViewerInstance->DeleteInstance();
+        }
+    }
+	
+// -----------------------------------------------------------------------------
+// HandleTvStatusChangedL 
+// -----------------------------------------------------------------------------
+void CGlxFullScreenViewImp::HandleTvStatusChangedL( TTvChangeType aChangeType )
+    {
+    TRACER("CGlxFullScreenViewImp::HandleTvStatusChangedL()");
+    // Hide UI furnitures when HDMI cable is connected/Disconnected
+    // irrespective of UI state on/off.
+    if (aChangeType == ETvConnectionChanged)
+        {
+        HideUi(ETrue);
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// CheckIfSliderToBeShownL
+// ---------------------------------------------------------------------------
+TBool CGlxFullScreenViewImp::CheckIfSliderToBeShownL()
+    {
+    TRACER("CGlxFullScreenViewImp::CheckIfSliderToBeShownL()");
+
+    TInt index = iMediaList->FocusIndex();
+    const TGlxMedia& item = iMediaList->Item(index);
+    TInt error = GlxErrorManager::HasAttributeErrorL(item.Properties(), KGlxMediaIdThumbnail);
+       
+    TBool isDrmRightsValid = ETrue;
+	if(item.IsDrmProtected())
+		{
+        if (iImgViewerMode && iImageViewerInstance->IsPrivate())
+            {
+            isDrmRightsValid = iDrmUtility->DisplayItemRightsCheckL(
+                    iImageViewerInstance->ImageFileHandle(), (item.Category()
+                            == EMPXImage));
+            }
+        else
+            {
+            //Since it is always for the focused item - use DisplayItemRightsCheckL instead of ItemRightsValidityCheckL
+            isDrmRightsValid = iDrmUtility->DisplayItemRightsCheckL(
+                    item.Uri(), (item.Category() == EMPXImage));
+            }
+        }
+	
+    // Display slider only for non corrupted images and items with valid DRM license
+	if (iHdmiController
+                && iHdmiController->IsHDMIConnected())
+        {
+        //hide slider if UI is needed to be on and HDMI is Connected
+		return EFalse;
+        }
+    else if(error == KErrNone && item.Category() == EMPXImage
+            && isDrmRightsValid )
+        {
+        return ETrue;
+        }
+    return EFalse;
     }

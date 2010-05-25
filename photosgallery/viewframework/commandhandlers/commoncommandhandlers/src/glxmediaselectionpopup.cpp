@@ -67,7 +67,8 @@ const TInt KNewItemId = 12345;
 //   
 EXPORT_C CGlxMediaListAdaptor::CGlxMediaListAdaptor(
         const MGlxMediaList* aMediaList, TBool aMultiSelection) :
-    iMediaList(aMediaList), iMultiSelection(aMultiSelection)
+    iMediaList(aMediaList), iMultiSelection(aMultiSelection),
+			iStaticItemSelected(EFalse)
     {
     }
 
@@ -153,174 +154,158 @@ EXPORT_C TPtrC CGlxMediaListAdaptor::MdcaPoint(TInt aIndex) const
     }
 
 // ---------------------------------------------------------------------------
-// CGlxSingleGraphicPopupMenuStyleListBox::IsVisible
+// CGlxMediaListAdaptor::IsStaticItemSelected
 // ---------------------------------------------------------------------------
-// 
-TBool CGlxSingleGraphicPopupMenuStyleListBox::IsVisible(TInt aItemIndex)
+TBool CGlxMediaListAdaptor::IsStaticItemSelected()
+	{
+	TRACER("CGlxMediaListAdaptor::IsStaticItemSelected");
+	return iStaticItemSelected;
+	}
+
+// ---------------------------------------------------------------------------
+// CGlxMediaListAdaptor::SetStaticItemSelected
+// ---------------------------------------------------------------------------
+void CGlxMediaListAdaptor::SetStaticItemSelected(TBool aSelected)
+	{
+	TRACER("CGlxMediaListAdaptor::SetStaticItemSelected");
+	iStaticItemSelected = aSelected;
+	}
+
+//---------------------------------------------------------------------------
+// CGlxSingleGraphicPopupMenuStyleList::NewL
+//---------------------------------------------------------------------------
+CGlxSingleGraphicPopupMenuStyleList* CGlxSingleGraphicPopupMenuStyleList::NewL(
+		CEikListBox* aListBox, TInt aCbaResource,
+		AknPopupLayouts::TAknPopupLayouts aType)
+	{
+	TRACER("CGlxSingleGraphicPopupMenuStyleList::NewL");
+
+	CGlxSingleGraphicPopupMenuStyleList* self =
+		new (ELeave) CGlxSingleGraphicPopupMenuStyleList;
+	CleanupStack::PushL(self);
+	self->ConstructL(aListBox, aCbaResource, aType);
+	CleanupStack::Pop(self);
+	return self;
+	}
+
+// ---------------------------------------------------------------------------
+// CGlxSingleGraphicPopupMenuStyleList::HandleListBoxEventL()
+// ---------------------------------------------------------------------------
+//
+void CGlxSingleGraphicPopupMenuStyleList::HandleListBoxEventL(
+		CEikListBox *aListBox, TListBoxEvent aEventType)
     {
-    TRACER("CGlxSingleGraphicPopupMenuStyleListBox::IsVisible");
-    return (TopItemIndex() <= aItemIndex && aItemIndex <= BottomItemIndex());
-    }
+    TRACER("CGlxSingleGraphicPopupMenuStyleList::HandleListBoxEventL");
 
-// ---------------------------------------------------------------------------
-// CGlxSingleGraphicPopupMenuStyleListBox::OfferKeyEventL()
-// ---------------------------------------------------------------------------
-//   
-EXPORT_C TKeyResponse CGlxSingleGraphicPopupMenuStyleListBox::OfferKeyEventL(
-        const TKeyEvent& aKeyEvent, TEventCode aType)
-    {
-    TRACER("CGlxSingleGraphicPopupMenuStyleListBox::OfferKeyEventL");
-    __ASSERT_DEBUG(dynamic_cast< CGlxMediaListAdaptor*>(Model()->ItemTextArray()), Panic(EGlxPanicCastFailed));
+    CAknSingleGraphicPopupMenuStyleListBox* listBox =
+			static_cast<CAknSingleGraphicPopupMenuStyleListBox*> (aListBox);
 
-    if (aKeyEvent.iCode == EKeyOK && iView)
-        {
-        CGlxMediaListAdaptor* mediaListAdaptor =
-                static_cast<CGlxMediaListAdaptor*> (Model()->ItemTextArray());
+    CGlxMediaListAdaptor
+			* mediaListAdaptor =
+					static_cast<CGlxMediaListAdaptor*> (listBox->Model()->ItemTextArray());
 
-        if (mediaListAdaptor->MultiSelectionEnabled()
-                && View()->CurrentItemIndex() >= 0)
-            {
-            const TGlxMedia& item = mediaListAdaptor->MediaList()->Item(
-                    View()->CurrentItemIndex());
-            // Reset the observer to populist
-            SetListBoxObserver(iPopupList);
-            if (item.IsStatic())
-                {
-                iListBoxFlags &= (~EMultipleSelection); // turn off multiple selection
-                }
-            else
-                {
-                iListBoxFlags |= EMultipleSelection; // turn on multiple selection
-                }
-            }
-        }
+    TBool staticItemSelected = EFalse;
+    TInt currItemIndx = listBox->View()->CurrentItemIndex();
 
-    return CAknSingleGraphicPopupMenuStyleListBox::OfferKeyEventL(aKeyEvent,
-            aType);
-    }
-
-// ---------------------------------------------------------------------------
-// CGlxSingleGraphicPopupMenuStyleListBox::HandleListBoxEventL()
-// ---------------------------------------------------------------------------
-// 
-void CGlxSingleGraphicPopupMenuStyleListBox::HandleListBoxEventL(
-        CEikListBox *aListBox, TListBoxEvent aEventType)
-    {
-    TRACER("CGlxSingleGraphicPopupMenuStyleListBox::HandleListBoxEventL");
     switch (aEventType)
         {
         case EEventItemClicked:
         case EEventItemSingleClicked:
             {
-            CGlxMediaListAdaptor
-                    * mediaListAdaptor =
-                            static_cast<CGlxMediaListAdaptor*> (Model()->ItemTextArray());
-            if (mediaListAdaptor->MultiSelectionEnabled()
-                    && View()->CurrentItemIndex() >= 0)
+
+            if (mediaListAdaptor->MultiSelectionEnabled() && currItemIndx >= 0)
                 {
                 const TGlxMedia& item = mediaListAdaptor->MediaList()->Item(
-                        View()->CurrentItemIndex());
-                if (item.IsStatic())
-                    {
-                    // when the user marks a non-static item and then clicks on
-                    // a static item without moving highlight, the control comes here.
-                    iListBoxFlags &= (~EMultipleSelection); // turn off multiple selection
-                    }
-                else
-                    {
-                    iListBoxFlags |= EMultipleSelection; // turn on multiple selection
+						currItemIndx);
 
-                    TBool isMarked = View()->ItemIsSelected(
-                            View()->CurrentItemIndex());
-                    (isMarked == (TBool) ETrue)
-                                                ? (View()->DeselectItem(
-                                                       View()->CurrentItemIndex()))
-                                                   : (View()->SelectItemL(
-                                                           View()->CurrentItemIndex()));
+                //Check if media item is user-defined or static
+                staticItemSelected = item.IsStatic();
+                mediaListAdaptor->SetStaticItemSelected(staticItemSelected);
+                if (!staticItemSelected)
+                    {
+					//Mark or UnMark the user-defined item
+                    TBool isMarked = listBox->View()->ItemIsSelected(currItemIndx);
+                    (isMarked == (TBool) ETrue) ? (listBox->View()->DeselectItem(
+							currItemIndx))
+							: (listBox->View()->SelectItemL(currItemIndx));
                     }
+
+                //Show Command Set based on selected items
+                TInt selectCount = listBox->View()->SelectionIndexes()->Count();
+				CEikButtonGroupContainer* cbaContainer = ButtonGroupContainer();
+				//Show 'OK' only if a static item or more than
+				//1 user-defined item is selected
+				if(staticItemSelected || selectCount)
+					{
+					cbaContainer->SetCommandSetL(R_GLX_SOFTKEYS_OK_CANCEL);
+					}
+				else
+					{
+					cbaContainer->SetCommandSetL(R_AVKON_SOFTKEYS_CANCEL);
+					}
+				cbaContainer->DrawDeferred();
+
                 }
-            aListBox->DrawDeferred();
+            listBox->DrawDeferred();
+
+            //Forward for default processing, if static item is selected(i.e. For Tags)
+			//or if List Box's Multiple selection is Disabled(i.e. For Albums)
+			if (staticItemSelected
+					|| (!mediaListAdaptor->MultiSelectionEnabled()))
+				{
+				CAknPopupList::HandleListBoxEventL( aListBox, aEventType);
+				}
+
+			//After Scrolling, then Select "New Tag" i.e Static item is selected
+			if (staticItemSelected)
+				{
+				ProcessCommandL(EAknSoftkeyOk);
+				}
+
             break;
             }
         default:
-            break;
+        	{
+        	CAknPopupList::HandleListBoxEventL( aListBox, aEventType);
+        	break;
+        	}
         }
     }
 
 // ---------------------------------------------------------------------------
-// CGlxSingleGraphicPopupMenuStyleListBox::HandlePointerEventL()
+// CGlxSingleGraphicPopupMenuStyleList::HandlePointerEventL()
 // ---------------------------------------------------------------------------
-//  
-void CGlxSingleGraphicPopupMenuStyleListBox::HandlePointerEventL(
-        const TPointerEvent& aPointerEvent)
+//
+void CGlxSingleGraphicPopupMenuStyleList::HandlePointerEventL(
+		const TPointerEvent& aPointerEvent)
     {
-    TRACER("CGlxSingleGraphicPopupMenuStyleListBox::HandlePointerEventL");
-    CGlxMediaListAdaptor* mediaListAdaptor =
-            static_cast<CGlxMediaListAdaptor*> (Model()->ItemTextArray());
-    if (mediaListAdaptor->MultiSelectionEnabled())
-        {
-        // Need to handle the case when the highlight is on one item
-        // and the user clicks on another media item. The notification 
-        // of changed item index is received very late. In order to
-        // handle this, checking if the index has changed.
-        TInt changedItemIndex = -1;
-        TInt itemIndex = View()->CurrentItemIndex();
-        TBool isItemChanged = View()->XYPosToItemIndex(
-                aPointerEvent.iPosition, changedItemIndex);
-        if (isItemChanged)
-            {
-            itemIndex = changedItemIndex;
-            }
-        const TGlxMedia& item =
-                mediaListAdaptor->MediaList()->Item(itemIndex);
-        if (item.IsStatic())
-            {
-            // A static item is not markable. Turn off multiple selection
-            // Set the listbox observer to default that is CAknPopupList 
-            // object, which will process it further.
-            iListBoxFlags &= (~EMultipleSelection);
-            SetListBoxObserver(iPopupList);
-            }
-        else
-            {
-            // Markable object. The event is handled in HandleListBoxEventL()
-            // Set the listbox observer to the current object.
-            SetListBoxObserver(this);
-            }
+	TRACER("CGlxSingleGraphicPopupMenuStyleList::HandlePointerEventL");
 
-        CAknSingleGraphicPopupMenuStyleListBox::HandlePointerEventL(
-                aPointerEvent);
+    CAknSingleGraphicPopupMenuStyleListBox* listBox =
+			static_cast<CAknSingleGraphicPopupMenuStyleListBox*> (ListBox());
+	CGlxMediaListAdaptor
+			* mediaListAdaptor =
+					static_cast<CGlxMediaListAdaptor*> (listBox->Model()->ItemTextArray());
 
-        const CListBoxView::CSelectionIndexArray* selectionIndices =
-                View()->SelectionIndexes();
-        CEikButtonGroupContainer* cbaContainer =
-                iPopupList->ButtonGroupContainer();
-        if (selectionIndices->Count() || item.IsStatic())
-            {
-            cbaContainer->SetCommandSetL(R_GLX_SOFTKEYS_OK_CANCEL);
-            }
-        else
-            {
-            cbaContainer->SetCommandSetL(R_AVKON_SOFTKEYS_CANCEL);
-            }
-        cbaContainer->DrawDeferred();
+	//Check for MultipleSelection is Disbaled
+    if ( !(mediaListAdaptor->MultiSelectionEnabled()) )
+    	{
+		//checking if the index has changed & has valid item available
+		TInt changedItemIndex = KErrNotFound;
+        TBool isItemAvailable = listBox->View()->XYPosToItemIndex(
+				aPointerEvent.iPosition, changedItemIndex);
+        if(isItemAvailable)
+			{
+			//Check if Selected item is static
+			const TGlxMedia& item = mediaListAdaptor->MediaList()->Item(
+					changedItemIndex);
+			mediaListAdaptor->SetStaticItemSelected( item.IsStatic() );
+			}
         }
-    else
-        {
-        CAknSingleGraphicPopupMenuStyleListBox::HandlePointerEventL(
-                aPointerEvent);
-        }
-    }
 
-// ---------------------------------------------------------------------------
-// CGlxSingleGraphicPopupMenuStyleListBox::SetPopupList()
-// ---------------------------------------------------------------------------
-// 
-void CGlxSingleGraphicPopupMenuStyleListBox::SetPopupList(
-        CAknPopupList* aPopupList)
-    {
-    TRACER("CGlxSingleGraphicPopupMenuStyleListBox::SetPopupList");
-    iPopupList = aPopupList;
+    //Forward for default processing
+    CAknPopupList::HandlePointerEventL( aPointerEvent);
+
     }
 
 // ---------------------------------------------------------------------------
@@ -411,11 +396,13 @@ EXPORT_C CMPXCollectionPath* CGlxMediaSelectionPopup::ExecuteLD(
     if (aAccepted)
         {
 
-        if (iMediaList->Item(iListBox->CurrentItemIndex()).IsStatic())
+		//Check if a static item is selected
+		if (iMediaListAdaptor->IsStaticItemSelected())
             {
 			TFileName uiutilitiesrscfile;
-			uiutilitiesrscfile.Append(CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
-			CGlxCommandHandlerNewMedia* commandHandlerNewMedia =
+			uiutilitiesrscfile.Append(
+					CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+            CGlxCommandHandlerNewMedia* commandHandlerNewMedia =
 			CGlxCommandHandlerNewMedia::NewL(this,uiutilitiesrscfile);
             TGlxMediaId newMediaId;
             TInt error = commandHandlerNewMedia->ExecuteLD(newMediaId);
@@ -595,7 +582,7 @@ void CGlxMediaSelectionPopup::HandleItemModifiedL(
         {
         for (TInt i = 0; i < aItemIndexes.Count(); i++)
             {
-            if (iListBox->IsVisible(aItemIndexes[i]))
+            if (IsListBoxItemVisible(aItemIndexes[i]))
                 {
                 iListBox->RedrawItem(aItemIndexes[i]);
                 }
@@ -618,8 +605,8 @@ void CGlxMediaSelectionPopup::HandleAttributesAvailableL(TInt aItemIndex,
             iListBox->HandleItemAdditionL();
             iHandleItemAdditionRequired = EFalse;
             }
-        if (iListBox->IsVisible(aItemIndex))
-            {
+        if (IsListBoxItemVisible(aItemIndex))
+			{
             iListBox->RedrawItem(aItemIndex);
             }
         }
@@ -841,10 +828,10 @@ void CGlxMediaSelectionPopup::ConstructPopupListL(TBool aMultiSelection)
     {
     TRACER("CGlxMediaSelectionPopup::ConstructPopupListL");
     // create the list box
-    iListBox = new (ELeave) CGlxSingleGraphicPopupMenuStyleListBox;
+    iListBox = new (ELeave) CAknSingleGraphicPopupMenuStyleListBox;
 
     // create the popup list
-    iPopupList = CAknPopupList::NewL(iListBox, R_AVKON_SOFTKEYS_CANCEL);
+    iPopupList = CGlxSingleGraphicPopupMenuStyleList::NewL( iListBox, R_AVKON_SOFTKEYS_CANCEL) ;
 
     // set the title of the popup
     __ASSERT_DEBUG(iSelectMediaPopupTitle, Panic(EGlxPanicNullPointer));
@@ -853,7 +840,7 @@ void CGlxMediaSelectionPopup::ConstructPopupListL(TBool aMultiSelection)
 
     iListBox ->ConstructL(iPopupList,
             aMultiSelection
-                            ? EAknListBoxMultiselectionList
+                            ?  EAknListBoxMultiselectionList
                                : EAknListBoxMenuList);
     iListBox->CreateScrollBarFrameL();
     iListBox->ScrollBarFrame()->SetScrollBarVisibilityL(
@@ -863,7 +850,16 @@ void CGlxMediaSelectionPopup::ConstructPopupListL(TBool aMultiSelection)
     iListBox->View()->CalcBottomItemIndex();
     iListBox->Model()->SetOwnershipType(ELbmDoesNotOwnItemArray);
 
-    // Store the pointer of AknPopupList
-    iListBox->SetPopupList(iPopupList);
+    //set 'iPopupList' as List Box observer
+    iListBox->SetListBoxObserver(iPopupList);
     }
 
+//-----------------------------------------------------------------------------
+// CGlxMediaSelectionPopup::IsListBoxItemVisible
+//-----------------------------------------------------------------------------
+TBool CGlxMediaSelectionPopup::IsListBoxItemVisible(TInt aIndex)
+	{
+	TRACER("CGlxMediaSelectionPopup::IsListBoxItemVisible");
+	return iListBox && (iListBox->TopItemIndex() <= aIndex &&
+			aIndex <= iListBox->BottomItemIndex());
+	}
