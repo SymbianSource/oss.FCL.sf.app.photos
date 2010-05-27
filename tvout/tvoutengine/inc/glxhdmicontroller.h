@@ -19,17 +19,14 @@
 #define GLXHDMICONTROLLER_H_
 
 // Internal includes
-#include <mglxtvobserver.h>     // for inteface MGlxTvObserver
 
 class CGlxHdmiContainer;
 class CGlxHdmiSurfaceUpdater;
-class CGlxTv;
 
 /*
  * This class will be called from FS and Slideshow for its requirements 
  */
-class CGlxHdmiController : public CBase,
-                            public MGlxTvObserver              // for TV Out
+class CGlxHdmiController : public CBase
     {
 public:
     /*
@@ -73,14 +70,6 @@ public:
      * ShiftToPostingMode
      */
     IMPORT_C void ShiftToPostingMode();
-
-    /*
-     * Tells if HDMi is Connected.
-     */
-    IMPORT_C TBool IsHDMIConnected();
-
-private:// From MGlxTvObserver
-    void HandleTvStatusChangedL ( TTvChangeType aChangeType );
 
 private:
     /*
@@ -126,9 +115,7 @@ private:
     
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
-    CGlxTv*  iGlxTvOut;
     TBool   iIsImageSupported;          // Flag to see if Image is supported
-    TBool   iIsPostingMode;             // Flag for determining if the image needs to be in posting mode
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

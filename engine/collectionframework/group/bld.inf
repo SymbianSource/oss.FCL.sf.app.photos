@@ -80,20 +80,11 @@ PRJ_MMPFILES
 ../datasource/manager/group/glxdatasourcemanager.mmp
 ../plugins/glxcollectionpluginall/group/glxcollectionpluginall.mmp
 ../plugins/glxcollectionpluginalbums/group/glxcollectionpluginalbums.mmp
-//../plugins/glxcollectionplugincamera/group/glxcollectionplugincamera.mmp
+../plugins/glxcollectionplugincamera/group/glxcollectionplugincamera.mmp
 ../plugins/glxcollectionplugindownloads/group/glxcollectionplugindownloads.mmp
 ../plugins/glxcollectionpluginmonths/group/glxcollectionpluginmonths.mmp
 ../plugins/glxcollectionpluginimageviewer/group/glxcollectionpluginimageviewer.mmp
 
 #include "../plugins/group/bld.inf"
 #include "../datasource/plugins/group/bld.inf"
-
-PRJ_TESTMMPFILES
-
-// Alex Birkett 16/01/2008 The following plugins will prevent gallery starting up because they don't return the 
-// KMPXMediaColDetailSpaceId attribute (the ID space ID). Build them at your own risk!
-// ../plugins/Test/albumcollectionplugin/group/glxalbumcollectionplugin.mmp
-// ../plugins/Test/glxtestcollectionplugin/group/glxtestcollectionplugin.mmp
-// ../plugins/Test/glxmedialiststestcollectionplugin/group/glxmedialiststestcollectionplugin.mmp
-
 

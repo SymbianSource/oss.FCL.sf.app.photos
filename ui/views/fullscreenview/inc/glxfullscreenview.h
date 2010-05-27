@@ -37,8 +37,7 @@ class QAbstractItemModel;
 class HbIconItem;
 
 //User Defined forward declartion
-class GlxZoomSlider;
-class GlxZoomControl;
+class GlxZoomWidget;
 class GlxTvOutWrapper;
 
 class GlxFullScreenView : public GlxView
@@ -86,8 +85,7 @@ public slots:
     void handleToolBarAction();
 
 protected :
-    bool event(QEvent *event);
-
+    bool eventFilter(QObject *obj, QEvent *ev);
 private:
     
     /*
@@ -126,9 +124,7 @@ private:
     HbAction            *mUseImageAction;
 
     //for Zoom
-    HbPushButton        *mZmPushButton;
-    GlxZoomSlider       *mZoomSlider;
-    GlxZoomControl      *mZoomControl;
+	GlxZoomWidget		*mZoomWidget;
     HbDocumentLoader    *mDocLoader;
   
     bool                mUiOff;        // to check the current status of ui on / off

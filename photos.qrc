@@ -25,5 +25,15 @@
         <file>data/listview.docml</file>
         <file>data/fullscreen.docml</file>
         <file>data/slideshow.docml</file>
-	    </qresource>
+        <file>data/Image1.jpg</file>
+        <file>data/Image2.jpg</file>
+        <file>data/Image3.jpg</file>
+        <file>data/Image4.jpg</file>
+        <file>data/Image5.jpg</file>
+        <file>data/Image6.jpg</file>
+        <file>data/Image7.jpg</file>
+        <file>data/Image8.jpg</file>
+        <file>data/Image9.jpg</file>
+        <file>data/Image10.jpg</file>
+    </qresource>
 </RCC>

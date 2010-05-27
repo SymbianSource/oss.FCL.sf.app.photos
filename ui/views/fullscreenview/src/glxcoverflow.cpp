@@ -42,7 +42,9 @@ GlxCoverFlow::GlxCoverFlow(QGraphicsItem *parent )
        mItemSize (QSize(0,0)),
        mModel ( NULL),
        mMoveDir(NO_MOVE),
-       mSpeed ( GLX_COVERFLOW_SPEED )
+       mSpeed ( GLX_COVERFLOW_SPEED ),
+	   mZoomOn(false),
+	   mMultitouchFilter(NULL)
 {
 //TO:DO through exception
    qDebug("GlxCoverFlow::GlxCoverFlow");
@@ -52,11 +54,17 @@ GlxCoverFlow::GlxCoverFlow(QGraphicsItem *parent )
    connect( this, SIGNAL( autoRightMoveSignal() ), this, SLOT( autoRightMove() ), Qt::QueuedConnection );   
 }
 
+void GlxCoverFlow::setMultitouchFilter(QGraphicsItem* mtFilter)
+{
+	mMultitouchFilter = mtFilter;
+}
 void GlxCoverFlow::setCoverFlow()
 {
     qDebug("GlxCoverFlow::setCoverFlow");
     for ( qint8 i = 0; i < NBR_ICON_ITEM ; i++ ) {
         mIconItem[i] = new HbIconItem(this);
+        mIconItem[i]->grabGesture(Qt::PinchGesture, Qt::ReceivePartialGestures);
+        mIconItem[i]->installSceneEventFilter(mMultitouchFilter);
         mIconItem[i]->setBrush(QBrush(Qt::black));
         mIconItem[i]->setSize(QSize(0,0));
     }
@@ -286,7 +294,9 @@ void GlxCoverFlow::autoLeftMove()
             mSelItemIndex = ( ++mSelItemIndex ) % NBR_ICON_ITEM;
             selIndex = ( mSelItemIndex + 2 ) % NBR_ICON_ITEM;
             updateIconItem( mSelIndex + 2, selIndex, width * 2 ) ;
+			if(!mZoomOn) {
             emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
+			}
         }
         mMoveDir = NO_MOVE;
         mBounceBackDeltaX = 10;
@@ -338,7 +348,9 @@ void GlxCoverFlow::autoRightMove()
             mSelItemIndex = ( mSelItemIndex == 0 ) ?  NBR_ICON_ITEM -1 : --mSelItemIndex;
             selIndex = ( mSelItemIndex + 3 ) % NBR_ICON_ITEM;
             updateIconItem( mSelIndex - 2, selIndex, - width * 2 ) ;
+			if(!mZoomOn) {
             emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
+			}
         }
         mMoveDir = NO_MOVE;
         mBounceBackDeltaX = 10;
@@ -541,4 +553,14 @@ int GlxCoverFlow::getSubState()
         substate = variant.value<int>();
     }
     return substate;
+}
+void GlxCoverFlow::zoomStarted(int index)
+{
+	mZoomOn = true;	
+}
+void GlxCoverFlow::zoomFinished(int index)
+{ 
+	mZoomOn = false;
+	indexChanged(index);
+
 }

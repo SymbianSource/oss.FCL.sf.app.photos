@@ -20,8 +20,8 @@
 
 GlxFadePlugin::GlxFadePlugin() : mItem(NULL)
 {
-    mEffectFileList.append(QString(":/data/view_flip_hide.fxml"));
-    mEffectFileList.append(QString(":/data/view_flip_show.fxml"));
+    mEffectFileList.append(QString(":/data/opacity_deactivate.fxml"));
+    mEffectFileList.append(QString(":/data/opacity_activate.fxml"));
 }
 
 void GlxFadePlugin::setUpItems( QList< QGraphicsItem * > &  items )
@@ -30,16 +30,16 @@ void GlxFadePlugin::setUpItems( QList< QGraphicsItem * > &  items )
         return;
     
     mItem = items.at(1);
-    mItem->hide();
+    //mItem->hide();
     mItem->setPos(0,0);
     items.at(0)->setPos(0,0);
 }
 
 bool GlxFadePlugin::isAnimationLater(int index) 
 {
-    if ( index == 1) {
+    /*if ( index == 1) {
         return true;
-    }
+    }*/
     return false;
 }
 

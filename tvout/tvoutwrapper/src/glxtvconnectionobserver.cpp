@@ -19,12 +19,15 @@
 #include "glxtvconnectionobserver.h"
 #include "glxtvoutwrapper_p.h"
 
+#include <glxtracer.h>
+#include <glxlog.h>
 
 // -----------------------------------------------------------------------------
 // NewL
 // -----------------------------------------------------------------------------
 CGlxConnectionObserver* CGlxConnectionObserver::NewL(GlxTvOutWrapperPrivate* aTvWrapperPrivate)
     {
+    TRACER("CGlxConnectionObserver::NewL()");
     CGlxConnectionObserver* self = new (ELeave)CGlxConnectionObserver(aTvWrapperPrivate);
     self->ConstructL();
     return self;
@@ -35,6 +38,7 @@ CGlxConnectionObserver* CGlxConnectionObserver::NewL(GlxTvOutWrapperPrivate* aTv
 // -----------------------------------------------------------------------------
 void CGlxConnectionObserver::ConstructL()
     {
+    TRACER("CGlxConnectionObserver::ConstructL()");
     iGlxTvOut = CGlxTv::NewL(*this);    
     }
 
@@ -44,6 +48,7 @@ void CGlxConnectionObserver::ConstructL()
 CGlxConnectionObserver::CGlxConnectionObserver(GlxTvOutWrapperPrivate* aTvWrapperPrivate):
             iTvWrapperPrivate(aTvWrapperPrivate)
     {
+    TRACER("CGlxConnectionObserver::CGlxConnectionObserver()");
     // ctor
     }
 
@@ -52,6 +57,7 @@ CGlxConnectionObserver::CGlxConnectionObserver(GlxTvOutWrapperPrivate* aTvWrappe
 // -----------------------------------------------------------------------------
 CGlxConnectionObserver::~CGlxConnectionObserver()
     {
+    TRACER("CGlxConnectionObserver::~CGlxConnectionObserver()");
     if (iGlxTvOut){
         delete iGlxTvOut;
         iGlxTvOut = NULL;
@@ -63,14 +69,25 @@ CGlxConnectionObserver::~CGlxConnectionObserver()
 // -----------------------------------------------------------------------------
 void CGlxConnectionObserver::HandleTvStatusChangedL(TTvChangeType aChangeType)
     {
+    TRACER("CGlxConnectionObserver::HandleTvStatusChangedL()");
     if ( aChangeType == ETvConnectionChanged ){
-        if ( iGlxTvOut->IsHDMIConnected() ){
+        if ( iGlxTvOut->IsHDMIConnected() )
+            {
+            GLX_LOG_INFO("CGlxHdmiController::HandleTvStatusChangedL() - HDMI and TV Connected");
             iTvWrapperPrivate->HandleConnectionChange(ETrue);
-            // emit HDMI connected signal
             }
         else{
+            GLX_LOG_INFO("CGlxConnectionObserver::HandleTvStatusChangedL() - DisConnected");
             iTvWrapperPrivate->HandleConnectionChange(EFalse);
-            // emit HDMI disconnected
             }
         }
+    }
+
+// -----------------------------------------------------------------------------
+// IsHdmiConnected
+// -----------------------------------------------------------------------------
+TBool CGlxConnectionObserver::IsHdmiConnected()
+    {
+    TRACER("CGlxConnectionObserver::IsHdmiConnected()");
+    return iGlxTvOut->IsHDMIConnected();
     }

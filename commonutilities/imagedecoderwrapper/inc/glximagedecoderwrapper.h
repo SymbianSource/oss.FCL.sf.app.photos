@@ -35,7 +35,7 @@ public:
 	*/
 	GlxImageDecoderWrapper();
 	~GlxImageDecoderWrapper();
-	void decodeImage(QString sourcePath);
+	QSizeF decodeImage(QString sourcePath);
 	QPixmap getPixmap();
 	void resetDecoder();
 	void decodedImageAvailable();

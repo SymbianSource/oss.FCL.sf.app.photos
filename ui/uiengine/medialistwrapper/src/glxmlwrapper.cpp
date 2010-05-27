@@ -119,6 +119,21 @@ int GlxMLWrapper::retrieveItemFrameCount(int index)
     return (mMLWrapperPrivate->RetrieveItemFrameCount(index));
 }
 
+QString GlxMLWrapper::retrieveViewTitle()
+{
+    return (mMLWrapperPrivate->RetrieveViewTitle());
+}
+
+void GlxMLWrapper::handlepopulated()
+{
+    emit populated();
+}
+
+bool GlxMLWrapper::IsPopulated()
+{
+    return mMLWrapperPrivate->IsPopulated();
+}
+
 QVariant GlxMLWrapper::RetrieveBitmap(int index)
 {
     QVariant var;
@@ -238,4 +253,12 @@ void GlxMLWrapper::handleGeneralError(int aError)
 	Q_UNUSED(aError);
 }
 
+// ---------------------------------------------------------------------------
+// handleTitleAvailable.
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapper::handleTitleAvailable(QString aTitle)
+{
+    emit updateAlbumTitle(aTitle);
+}
 

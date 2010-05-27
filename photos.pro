@@ -24,11 +24,13 @@ DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 CONFIG += ordered
 SUBDIRS	    = group \
               loggers \
-	      commonutilities \
-	      tvout\tvoutwrapper \
-	      ui \
-              main
+			  commonutilities \
+			  tvout\tvoutwrapper \
+			  ui \
+              main \
+			  gallery
               
 BLD_INF_RULES.prj_exports += "$${LITERAL_HASH}include <platform_paths.hrh>" \
         "rom/photos.iby   CORE_APP_LAYER_IBY_EXPORT_PATH(photos.iby)" \
         "rom/photos_resources.iby   LANGUAGE_APP_LAYER_IBY_EXPORT_PATH(photos_resources.iby)" \
+		"gallery/sis/photos_stub.sis /epoc32/data/z/system/install/photos_stub.sis" \

@@ -27,9 +27,25 @@ public :
     GlxForwardTransitionPlugin();
     ~GlxForwardTransitionPlugin();
     QList <QString > getEffectFileList() { return mEffectFileList; }
+    
+    /*
+     * setup the item postion and set the mItem value
+     */
+        void setUpItems( QList< QGraphicsItem * > &  items );
+    /*
+     * second animation will be run later
+     */    
+    bool isAnimationLater(int index) ;
+    
+    QGraphicsItem * animationItem() 
+    { 
+        mItem->show();
+        return mItem ; 
+    }
 	
 private :
     QList <QString > mEffectFileList;
+    QGraphicsItem *mItem;
 };
 
 #endif /*GLXFORWARDTRANSITIONPLUGIN_H*/

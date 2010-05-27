@@ -21,6 +21,7 @@
 #include "glxmodelcommandhandler.h"
 #include <QList>
 #include <QString>
+class ShareUi;
 
 
 #ifdef BUILD_COMMONCOMMANDHANDLERS
@@ -36,5 +37,7 @@ public:
     GlxCommandHandlerSend();
     ~GlxCommandHandlerSend();    
     void doHandleUserAction(GlxMediaModel* model,QList<QModelIndex> indexList)const ;  
+private:
+    ShareUi *mSendUiDialog;
 	};
 #endif // GLXCOMMANDHANDLERSEND_H

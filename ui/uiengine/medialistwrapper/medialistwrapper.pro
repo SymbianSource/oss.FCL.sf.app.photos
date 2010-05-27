@@ -44,10 +44,11 @@ TARGET.CAPABILITY = ALL -TCB
 TARGET.EPOCALLOWDLLDATA = 1
 }	
 # Input
-HEADERS += inc/glxmlgenericobserver.h inc/glxmlwrapper.h inc/glxmlwrapper_p.h inc/glxattributeretriever.h
+HEADERS += inc/glxmlgenericobserver.h inc/glxmlwrapper.h inc/glxmlwrapper_p.h inc/glxattributeretriever.h inc/glxtitlefetcher.h
 SOURCES += src/glxmlgenericobserver.cpp \
            src/glxmlwrapper.cpp \
            src/glxmlwrapper_p.cpp \
-	   src/glxattributeretriever.cpp
+	       src/glxattributeretriever.cpp \
+		   src/glxtitlefetcher.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT

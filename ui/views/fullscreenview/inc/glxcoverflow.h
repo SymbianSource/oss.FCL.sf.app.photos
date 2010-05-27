@@ -62,8 +62,11 @@ public :
     void partiallyCreate(QAbstractItemModel *model, QSize itemSize);
 	void setCoverFlow();
     void ClearCoverFlow();
+	void setMultitouchFilter(QGraphicsItem* multitouchFilter);
 		    
 public slots:
+	void zoomStarted(int index);
+	void zoomFinished(int index);
 
 signals :
     void coverFlowEvent(GlxCoverFlowEvent e);
@@ -116,6 +119,8 @@ private:
     QAbstractItemModel *mModel;
     GlxUserMove mMoveDir;
     int mSpeed;        
+	bool mZoomOn;
+	QGraphicsItem* mMultitouchFilter;
 };
 
 #endif /* GLXCOVERFLOW_H_ */

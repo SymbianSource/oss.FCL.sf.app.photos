@@ -61,8 +61,7 @@ TARGET.CAPABILITY = ALL -TCB
 HEADERS += viewbase/inc/glxview.h \
            fullscreenview/inc/glxcoverflow.h \
            fullscreenview/inc/glxfullscreenview.h \
-           fullscreenview/inc/glxzoomslider.h  \
-           fullscreenview/inc/glxzoomcontrol.h  \
+	   fullscreenview/inc/glxzoomwidget.h \
            detailsview/inc/glxdetailsview.h  \
            detailsview/inc/glxdetailscustomwidgets.h  \
            detailsview/inc/glxdetailscustomicon.h \
@@ -82,9 +81,8 @@ HEADERS += viewbase/inc/glxview.h \
 SOURCES += viewbase/src/glxview.cpp \
            fullscreenview/src/glxcoverflow.cpp \
            fullscreenview/src/glxfullscreenview.cpp \
-           fullscreenview/src/glxzoomslider.cpp \
-           fullscreenview/src/glxzoomcontrol.cpp \
-           detailsview/src/glxdetailsview.cpp \
+	   fullscreenview/src/glxzoomwidget.cpp \
+	   detailsview/src/glxdetailsview.cpp \
            detailsview/src/glxdetailscustomwidgets.cpp \
            detailsview/src/glxdetailscustomicon.cpp \
            gridview/src/glxgridview.cpp \

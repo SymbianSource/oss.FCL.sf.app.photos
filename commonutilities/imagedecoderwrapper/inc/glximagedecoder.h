@@ -25,13 +25,13 @@
 class GlxImageDecoderWrapper;
 class CImageDecoder;
 class CFbsBitmap;
-
+const TReal KTargetSize = 1000000;
 class CGlxImageDecoder : public CActive
 {
 public:
 	static CGlxImageDecoder* NewL(GlxImageDecoderWrapper* decoderWrapper);
 	~CGlxImageDecoder();
-    void DecodeImageL(QString aSourceFileName);
+    QSizeF DecodeImageL(QString aSourceFileName);
 	QPixmap GetPixmap();
 	void ResetDecoder();
 public:    

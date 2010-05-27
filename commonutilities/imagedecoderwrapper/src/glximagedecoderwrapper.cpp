@@ -43,9 +43,9 @@ GlxImageDecoderWrapper::~GlxImageDecoderWrapper()
 // decodeImage.
 // ---------------------------------------------------------------------------
 //
-void GlxImageDecoderWrapper::decodeImage(QString sourcePath)
+QSizeF GlxImageDecoderWrapper::decodeImage(QString sourcePath)
 {
-	imageDecoder->DecodeImageL(sourcePath);
+	return imageDecoder->DecodeImageL(sourcePath);
 }
 
 QPixmap GlxImageDecoderWrapper::getPixmap()

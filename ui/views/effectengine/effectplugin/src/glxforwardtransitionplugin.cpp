@@ -20,8 +20,27 @@
 
 GlxForwardTransitionPlugin::GlxForwardTransitionPlugin()
 {
-    mEffectFileList.append(QString(":/data/transtionforward.fxml"));
-    mEffectFileList.append(QString(":/data/transtion.fxml"));
+    mEffectFileList.append(QString(":/data/view_flip_hide.fxml"));
+    mEffectFileList.append(QString(":/data/view_flip_show.fxml"));
+}
+
+void GlxForwardTransitionPlugin::setUpItems( QList< QGraphicsItem * > &  items )
+{
+    if ( items.count() < 2 ) 
+        return;
+    
+    mItem = items.at(1);
+    mItem->hide();
+    mItem->setPos(0,0);
+    items.at(0)->setPos(0,0);
+}
+
+bool GlxForwardTransitionPlugin::isAnimationLater(int index) 
+{
+    if ( index == 1) {
+        return true;
+    }
+    return false;
 }
 
 GlxForwardTransitionPlugin::~GlxForwardTransitionPlugin()

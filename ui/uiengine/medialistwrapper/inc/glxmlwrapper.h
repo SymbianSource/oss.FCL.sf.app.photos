@@ -89,7 +89,9 @@ public:
 	QSize retrieveItemDimension(int index);
 	QDate retrieveItemDate(int index);
 	int retrieveItemFrameCount(int index);
-	
+	QString retrieveViewTitle();
+	void handlepopulated();	
+	bool IsPopulated();
 	/*
 	 * retriveBitmap helps to retrive the bitmap
 	 * @param1 index 
@@ -105,12 +107,15 @@ public:
      * @param1 index 
      */
 	bool isSystemItem( int aItemIndex );
+	void handleTitleAvailable(QString aTitle);
 	
 signals:
      void updateItem(int index, GlxTBContextType tbContextType);
 	 void insertItems(int startIndex,int endIndex);
 	 void removeItems(int startIndex,int endIndex);
 	 void itemCorrupted(int itemIndex);
+	 void updateAlbumTitle(QString aTitle);
+	 void populated();
 
 private:
 	GlxMLWrapperPrivate* mMLWrapperPrivate;

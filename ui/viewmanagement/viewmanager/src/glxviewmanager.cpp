@@ -35,6 +35,9 @@
 #include <hbmenu.h>
 #include <QDebug>
 #include <hbstyleloader.h>
+#include <hbprogressdialog.h>
+#include <QItemSelectionModel>
+#include <glxmainwindoweventfilter.h>
 
 
 GlxViewManager::GlxViewManager() 
@@ -42,9 +45,10 @@ GlxViewManager::GlxViewManager()
       mMenuManager( NULL ), 
       mEffectEngine( NULL ), 
       mViewToolBar( NULL ), 
-      mMarkingToolBar( NULL ),      
+      mMarkingToolBar( NULL ), 
       mMenu( NULL ),
-      mSelectionModel ( NULL )
+      mSelectionModel ( NULL ),
+      mProgressDialog( NULL )
 {
     qDebug("GlxViewManager::GlxViewManager() ");
     PERFORMANCE_ADV ( viewMgrD1, "main window creation time" ) {
@@ -54,12 +58,16 @@ GlxViewManager::GlxViewManager()
             mMainWindow = new HbMainWindow();
         }
 		//Without this Zoom Does not work
+
+		mWindowEventFilter = new GlxMainWindowEventFilter;
+		mMainWindow->scene()->installEventFilter(mWindowEventFilter);
+		mMainWindow->viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
 		mMainWindow->viewport()->grabGesture(Qt::PinchGesture);
     }
     HbStyleLoader::registerFilePath(":/data/photos.css");
 }
 
-void GlxViewManager::setupItems(int subState)
+void GlxViewManager::setupItems( )
 {
     mMenuManager = new GlxMenuManager(mMainWindow);
     addBackSoftKeyAction(); 
@@ -185,6 +193,83 @@ void GlxViewManager::launchView (qint32 id, QAbstractItemModel *model, GlxEffect
     }    
 }
 
+void GlxViewManager::launchProgressDialog( int maxValue )
+{
+    if ( maxValue <= 0 ) {
+        return;
+    }
+    if ( mProgressDialog == NULL ) {
+        mProgressDialog = new HbProgressDialog( HbProgressDialog::ProgressDialog );
+        mProgressDialog->actions().at(0)->disconnect( SIGNAL( triggered() ) );
+        connect ( mProgressDialog->actions().at(0), SIGNAL( triggered() ), this, SLOT( hideProgressDialog() ) );
+        mProgressDialog->setMinimum( 0 );
+    }
+    mProgressDialog->setMaximum( maxValue );
+    mProgressDialog->setProgressValue( 0 );
+    mProgressDialog->setModal( true );
+    mProgressDialog->actions().at(0)->setText( GLX_BUTTON_HIDE );
+    mProgressDialog->open();
+}
+
+void GlxViewManager::hideProgressDialog( )
+{
+    mMainWindow->lower();
+}
+
+void GlxViewManager::updateProgressDialog( int currentValue)
+{
+    static int i = 0;
+    HbIcon icon;
+    User::ResetInactivityTime();  
+
+    //To:Do temp code remove later
+    if ( mProgressDialog ) {
+        i = ++i % 10;
+        switch ( i ) {
+        case 0 :
+            icon = HbIcon( QString(":/data/Image1.jpg") );
+            break;
+        case 1 :
+            icon = HbIcon( QString(":/data/Image2.jpg") );
+            break;
+        case 2 :
+            icon = HbIcon( QString(":/data/Image3.jpg") );
+            break;
+        case 3 :
+            icon = HbIcon( QString(":/data/Image4.jpg") );
+            break;
+        case 4 :
+            icon = HbIcon( QString(":/data/Image5.jpg") );
+            break;
+        case 5 :
+            icon = HbIcon( QString(":/data/Image6.jpg") );
+            break;
+        case 6 :
+            icon = HbIcon( QString(":/data/Image7.jpg") );
+            break;
+        case 7 :
+            icon = HbIcon( QString(":/data/Image8.jpg") );
+            break;
+        case 8 :
+            icon = HbIcon( QString(":/data/Image9.jpg") );
+            break;
+        case 9 :
+            icon = HbIcon( QString(":/data/Image10.jpg") );
+            break;            
+        }
+        
+        int max = mProgressDialog->maximum() ;
+        if ( currentValue > max ) {
+            mProgressDialog->setMaximum( currentValue );
+            max = currentValue ;
+        }
+        int value = max - currentValue;
+        mProgressDialog->setProgressValue( value );
+        mProgressDialog->setIcon(icon);
+        mProgressDialog->setText( QString( " %1 / %2").arg( value ).arg( max ) );
+    }
+}
+
 //to be called only when the photos plugin was activated by external means
 void GlxViewManager::deactivateCurrentView()
 {
@@ -226,13 +311,14 @@ void GlxViewManager::checkMarked()
     QModelIndexList selectedModelIndex = mSelectionModel->selectedIndexes();
     for ( int i = 0 ; i <  mMarkingActionList.count(); i++) {
         if( mMarkingActionList.at(i)->data()==EGlxCmdSelect) {
-       		bool noSelection=selectedModelIndex.empty();
-          mMarkingActionList.at(i)->setDisabled(noSelection);
-          mMenuManager->disableAction(mView->menu(),noSelection);
-        	break;
+       	    bool noSelection=selectedModelIndex.empty();
+            mMarkingActionList.at(i)->setDisabled(noSelection);
+            mMenuManager->disableAction(mView->menu(),noSelection);
+            break;
         }
     }
 }
+
 void GlxViewManager::enterMarkingMode(qint32 viewId)
 {
     GlxView *view = findView ( viewId );
@@ -300,6 +386,17 @@ QItemSelectionModel *  GlxViewManager::getSelectionModel(qint32 viewId)
         return view->getSelectionModel();
     }
     return NULL;
+}
+
+void GlxViewManager::setModel( QAbstractItemModel *model )
+{
+    if ( mView ) {
+        mView->setModel( model ) ;
+    }
+    
+    if ( mMenuManager ) {
+        mMenuManager->setModel( model );
+    }    
 }
 
 GlxView * GlxViewManager::resolveView(qint32 id)
@@ -545,7 +642,7 @@ GlxViewManager::~GlxViewManager()
     delete mViewToolBar;
     delete mMarkingToolBar;
     delete mMenu;
-             
+    delete mProgressDialog;
     if ( mEffectEngine ) {
         mEffectEngine->deregistertransitionEffect();
         delete mEffectEngine;
@@ -555,6 +652,7 @@ GlxViewManager::~GlxViewManager()
         qDebug("GlxViewManager::~GlxViewManager remove view");
         delete mMainWindow;
     }
+    delete mWindowEventFilter;
     
     qDebug("GlxViewManager::~GlxViewManager Exit");
 }

@@ -48,6 +48,7 @@ SOURCE          glxfilterfactory.cpp
 SOURCE          glxresourceutilities.cpp
 SOURCE          glxsettingsmodel.cpp
 SOURCE          glxsingletonstore.cpp
+SOURCE          glxtnmonitor.cpp
 
 LIBRARY         bafl.lib
 LIBRARY         centralrepository.lib

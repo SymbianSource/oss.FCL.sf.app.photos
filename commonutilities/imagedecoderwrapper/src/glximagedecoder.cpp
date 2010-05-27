@@ -21,6 +21,7 @@
 #include <bitmaptransforms.h>
 #include <imageconversion.h>
 #include <IclExtJpegApi.h>  // For CExtJpegDecoder
+#include <e32math.h>
 
 
 // ---------------------------------------------------------------------------
@@ -78,7 +79,7 @@ void CGlxImageDecoder::ConstructL(GlxImageDecoderWrapper* decoderWrapper)
 // ---------------------------------------------------------------------------
 // DoDecodeImageL
 // ---------------------------------------------------------------------------	
-void CGlxImageDecoder::DecodeImageL(QString aSourceFileName)
+QSizeF CGlxImageDecoder::DecodeImageL(QString aSourceFileName)
 {
 	//convert the argument to Symbian Format
 	TPtrC16 sourceFileName(reinterpret_cast<const TUint16*>(aSourceFileName.utf16()));
@@ -88,20 +89,33 @@ void CGlxImageDecoder::DecodeImageL(QString aSourceFileName)
         delete iImageDecoder;
         iImageDecoder = NULL;
         }
-	/*TRAPD( err, iImageDecoder = CExtJpegDecoder::FileNewL(
-            CExtJpegDecoder::EHwImplementation, iFs, sourceFileName, CImageDecoder::EOptionNone ) );
+	TRAPD( err, iImageDecoder = CExtJpegDecoder::FileNewL(
+            CExtJpegDecoder::EHwImplementation, iFs, sourceFileName, CImageDecoder::EOptionAutoRotate ) );
     if ( KErrNone != err )
         {
         TRAP(err,iImageDecoder = CExtJpegDecoder::FileNewL(
-                CExtJpegDecoder::ESwImplementation, iFs, sourceFileName, CImageDecoder::EOptionNone ) );
+                CExtJpegDecoder::ESwImplementation, iFs, sourceFileName, CImageDecoder::EOptionAutoRotate ) );
         if ( KErrNone != err )
             {
             // Not a JPEG - use standard decoder
-            iImageDecoder = CImageDecoder::FileNewL( iFs, sourceFileName, CImageDecoder::EOptionNone );
+            iImageDecoder = CImageDecoder::FileNewL( iFs, sourceFileName, CImageDecoder::EOptionAutoRotate );
             }
-        }*/
-	iImageDecoder = CImageDecoder::FileNewL( iFs, sourceFileName, CImageDecoder::EOptionNone );
+        }
 	TSize imageSize = iImageDecoder->FrameInfo().iOverallSizeInPixels;
+	//limit size to 1MP
+	TSize decodeSize = imageSize;
+	TReal pixelsInImage = imageSize.iWidth*imageSize.iHeight;
+	if(pixelsInImage > KTargetSize)
+	{
+		TReal compressionFactor = 1;
+		TInt err = Math::Sqrt(compressionFactor, (KTargetSize/pixelsInImage) );
+		if(err != KErrNone) 
+		{
+			compressionFactor = .1;
+		}
+
+		decodeSize = TSize(imageSize.iWidth * compressionFactor, imageSize.iHeight * compressionFactor);
+	}
 	//clear the existing Bitmap
 	if(iBitmap)
 	{
@@ -112,10 +126,11 @@ void CGlxImageDecoder::DecodeImageL(QString aSourceFileName)
     if(!iBitmap)
         {
         iBitmap = new (ELeave) CFbsBitmap();
-        iBitmap->Create( imageSize,EColor64K);
+        iBitmap->Create( decodeSize,EColor64K);
         iImageDecoder->Convert( &iStatus, *iBitmap );
 		SetActive();
 		}
+	return QSizeF(decodeSize.iWidth,decodeSize.iHeight) ;
 }
 // ---------------------------------------------------------------------------
 // RunL
@@ -126,10 +141,10 @@ void CGlxImageDecoder::RunL()
     if( iStatus == KErrNone )
         {   
         iDecoderWrapper->decodedImageAvailable();
-        delete iImageDecoder;
-        iImageDecoder = NULL;
-		iFs.Close();
         }	
+     delete iImageDecoder;
+     iImageDecoder = NULL;
+     iFs.Close();
     }
 
 // ---------------------------------------------------------------------------

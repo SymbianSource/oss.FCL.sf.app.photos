@@ -19,6 +19,7 @@
 //Includes
 #include <QEvent>
 #include <QDebug>
+#include <QCoreApplication>
 #include <hbmainwindow.h>
 #include <hbdocumentloader.h>
 
@@ -67,9 +68,12 @@ void GlxSlideShowView::activate()
 
     //finds the widgets from the docml
     loadObjects();
-    setItemVisible(Hb::AllItems, false) ;
+    setTitleBarVisible(FALSE);
+    setStatusBarVisible(FALSE);
     connect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) ); 
     connect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
+    
+    QCoreApplication::instance()->installEventFilter(this);
     
     if (!mTvOutWrapper) {
         mTvOutWrapper = new GlxTvOutWrapper();
@@ -81,12 +85,17 @@ void GlxSlideShowView::deActivate()
     TRACER("GlxSlideShowView::deActivate()");
     mWindow->unsetOrientation(true);         // Actually it is animation false, Hack for Bug in Media wall -todo- need to Address this ASAP
     
-    setItemVisible( Hb::AllItems , TRUE );
+    setStatusBarVisible(TRUE);
+    setTitleBarVisible(TRUE);
+    
+                
     disconnect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) );
     disconnect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
     //Delete the Items in the slide show widget
     mSlideShowWidget->cleanUp();
     
+    QCoreApplication::instance()->removeEventFilter(this);
+
     if (mTvOutWrapper){
         delete mTvOutWrapper;
         mTvOutWrapper = NULL;
@@ -141,11 +150,13 @@ void GlxSlideShowView::slideShowEventHandler( GlxSlideShowEvent e)
     GLX_LOG_INFO1("GlxSlideShowView::slideShowEventHandler() event %d", e);
     switch ( e ) {
         case UI_ON_EVENT :
-            setItemVisible(Hb::AllItems, TRUE) ;
+            setTitleBarVisible(TRUE);
+            setStatusBarVisible(TRUE);
             break;
 
         case UI_OFF_EVENT :
-            setItemVisible(Hb::AllItems, false) ;
+            setTitleBarVisible(FALSE);
+            setStatusBarVisible(FALSE);
             break;
 
         case EMPTY_DATA_EVENT :
@@ -173,24 +184,25 @@ void GlxSlideShowView::modelDestroyed()
     }
 }
 
-bool GlxSlideShowView::event(QEvent *event)
+bool GlxSlideShowView::eventFilter(QObject *obj, QEvent *event)
 {
     TRACER("GlxSlideShowView::event()");
     GLX_LOG_INFO1("GlxSlideShowView::event() %d event type", event->type());
-    if ( event->type() ==  QEvent::WindowActivate && mSlideShowWidget) {
+    if ( event->type() ==  QEvent::ApplicationActivate && mSlideShowWidget) {
         if (mTvOutWrapper){
+        GLX_LOG_INFO("GlxSlideShowView::event() shift to native - CGlxHdmi");
         mTvOutWrapper->setToNativeMode();    
         }
         mSlideShowWidget->startSlideShow();
     }
-
-    if ( event->type() ==  QEvent::WindowDeactivate && mSlideShowWidget) {
+    if ( event->type() ==  QEvent::ApplicationDeactivate && mSlideShowWidget) {
         if (mTvOutWrapper){
+        GLX_LOG_INFO("GlxSlideShowView::event() shift to Clone - CGlxHdmi");
         mTvOutWrapper->setToCloningMode();    
         }
        mSlideShowWidget->stopSlideShow();
     }
-    return HbView::event(event);
+    return HbView::eventFilter(obj,event);
 }
 
 void GlxSlideShowView::loadObjects()

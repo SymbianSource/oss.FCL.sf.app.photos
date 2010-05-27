@@ -27,6 +27,7 @@
 #define GLXFULLSCREEN_TOOLBAR     "toolBar"
 #define GLXFULLSCREENLSSECTION    "landscape"
 #define GLXFULLSCREENPTSECTION    "portrait"
+#define GLXFULLSCREENZOOMWIDGET   "glxZoomWidget"
 #define GLXFULLSCREENDOCMLPATH    ":/data/fullscreen.docml"
 
 //SLIDE SHOW

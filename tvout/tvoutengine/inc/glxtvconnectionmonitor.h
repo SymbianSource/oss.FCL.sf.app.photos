@@ -88,49 +88,52 @@ public: // class member functions
 private: // From CActive
     /**
      * @ref CActive::RunL
-     */	
+     */
 	void RunL();
-	
+
     /**
      * @ref CActive::DoCancel
-     */	
+     */
 	void DoCancel();
-    
+
     /**
      * @ref CActive::RunError
-     */    
-    TInt RunError( TInt aError );    
-    
-    
+     */
+    TInt RunError( TInt aError );
+
+
 private:
 
     /**
-     * Requests TV on/off events 
-     */        
+     * Requests TV on/off events
+     */
     void IssueRequest();
 
     /**
      * Sends notification to observers when TV Out cable is connected
-     */      
+     */
     void IssueNotificationL();
-    
-    void UpdateConnectionStatusL();
+
+    /**
+	 * Updates the ConnectionState of Tv Out and HDMI
+	 */
+	void UpdateConnectionStatusL();
 
 private: // class member data
-    
+
     // Not owned: TV connection observer
     MGlxTvConnectionObserver& iConnectionObserver;
 
-    // TVout The Connection state 
-    TBool iTvOutConnectionState;
-    
-    // TVout The Connection state 
-    TBool iHDMIConnectionState;
+    // TVout The Connection state
+    TBool iIsTvOutConnected;
+
+    // TVout The Connection state
+    TBool iIsHDMIConnected;
 
     // The (external device) Accessory Server
     RAccessoryServer iTvAccServer;
-    
-    // Accessory mode 
+
+    // Accessory mode
     RAccessoryMode iTvAccMode;
 
     // Accessory Connection - details the type of accessory
