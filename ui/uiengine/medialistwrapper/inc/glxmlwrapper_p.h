@@ -26,7 +26,7 @@
 #include <qdatetime.h>
 #include "glxmedialistiterator.h"
 #include "glxmlwrapper.h"
-#include <qimage>
+#include <QImage>
 #include "mglxtitlefetcherobserver.h"
 
 //Forward Declarations

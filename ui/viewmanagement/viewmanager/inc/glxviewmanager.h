@@ -34,7 +34,7 @@ class HbToolBar;
 class HbAction;
 class QItemSelectionModel;
 class HbMenu;
-class GlxSlideShowEffectEngine;
+class GlxEffectEngine;
 class HbProgressDialog;
 class GlxMainWindowEventFilter;
 
@@ -200,7 +200,7 @@ private:
     HbMainWindow     *mMainWindow; //main window pointer, It have ownership only if 
     HbAction         *mBackAction; // For back soft key
     GlxMenuManager   *mMenuManager; //Pointer of menu manger to add the menu in the view 
-    GlxSlideShowEffectEngine *mEffectEngine; //To run the animation in between view transition
+    GlxEffectEngine  *mEffectEngine; //To run the animation in between view transition
     QList<HbAction *>  mActionList; //Tool bar action list
     QList<HbAction *>  mMarkingActionList; //marking mode tool bar action list
     HbToolBar          *mViewToolBar; //view tool bar

@@ -36,23 +36,23 @@ GlxCommandHandlerSend::~GlxCommandHandlerSend()
 
 void GlxCommandHandlerSend::doHandleUserAction(GlxMediaModel* model,QList<QModelIndex> indexList) const
 {
-   QList <QVariant> fileList;
-   QString imagePath ;
+  QStringList fileList;   
+  QString imagePath ;
    //The Index list is NULL, when the item is selected to be sent from contect menu 
    // and fullscreen view,so that inturn is sending the focused item
     if(indexList.count() == 0)
         {
         imagePath = (model->data(model->index(model->data(model->index(0,0),GlxFocusIndexRole).value<int>(),0),GlxUriRole)).value<QString>();
-        fileList.append(QVariant(imagePath));
+        fileList.append(imagePath);
         }
     else
     {
     for ( int i = 0; i < indexList.count(); i++)
         {        
         imagePath = (model->data(indexList[i],GlxUriRole)).value<QString>();
-        fileList.append(QVariant(imagePath));        
+        fileList.append(imagePath);
         } 
     }                              
-    mSendUiDialog->init(fileList,true);
+    mSendUiDialog->send(fileList,true);    
 }
 

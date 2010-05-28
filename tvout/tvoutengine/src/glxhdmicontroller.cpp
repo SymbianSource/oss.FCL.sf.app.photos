@@ -28,10 +28,10 @@
 // -----------------------------------------------------------------------------
 // NewLC
 // -----------------------------------------------------------------------------
-EXPORT_C CGlxHdmiController* CGlxHdmiController::NewL()
+EXPORT_C CGlxHdmiController* CGlxHdmiController::NewL(TBool aEfectsOn)
     {
     TRACER("CGlxHdmiController* CGlxHdmiController::NewL()");
-    CGlxHdmiController* self = new (ELeave) CGlxHdmiController();
+    CGlxHdmiController* self = new (ELeave) CGlxHdmiController(aEfectsOn);
     CleanupStack::PushL(self);
     self->ConstructL();
     CleanupStack::Pop(self);
@@ -167,12 +167,26 @@ EXPORT_C void CGlxHdmiController::ShiftToPostingMode()
         }
     }
 
+
+// -----------------------------------------------------------------------------
+// FadeSurface 
+// -----------------------------------------------------------------------------
+EXPORT_C void CGlxHdmiController::FadeSurface(TBool aFadeInOut)
+    {
+    TRACER("CGlxHdmiController::FadeSurface()");
+    if (iSurfaceUpdater)
+        {
+        iSurfaceUpdater->FadeTheSurface(aFadeInOut);
+        }
+    }
+
 // -----------------------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------------------
-CGlxHdmiController::CGlxHdmiController():
+CGlxHdmiController::CGlxHdmiController(TBool aEffectsOn):
             iFsBitmap(NULL),
-            iStoredImagePath(NULL)
+            iStoredImagePath(NULL),
+            iEffectsOn(aEffectsOn)
     {
     TRACER("CGlxHdmiController::CGlxHdmiController()");
     // Implement nothing here
@@ -229,9 +243,9 @@ void CGlxHdmiController::CreateHdmiContainerL()
 void CGlxHdmiController::CreateSurfaceUpdaterL(const TDesC& aImageFile)
     {
     TRACER("CGlxHdmiController::CreateSurfaceUpdater()");
-    RWindow* window = iHdmiContainer->GetWindow();
-    iSurfaceUpdater = CGlxHdmiSurfaceUpdater::NewL(window, aImageFile, iFsBitmap,
-                                                    iHdmiContainer);
+    iSurfaceUpdater = CGlxHdmiSurfaceUpdater::NewL(iHdmiContainer->GetWindow(), 
+                                                aImageFile, iFsBitmap,iHdmiContainer,
+                                                iEffectsOn);
     iHdmiContainer->DrawNow();
     }
 

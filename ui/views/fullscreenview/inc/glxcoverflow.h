@@ -76,8 +76,6 @@ signals :
 
 protected slots:
     void panGesture ( const QPointF & delta )  ;
-    void leftGesture (int value);
-    void rightGesture (int value) ;
     void longPressGesture(const QPointF &point) ;
     void dataChanged(QModelIndex startIndex, QModelIndex endIndex);
     void rowsInserted(const QModelIndex &parent, int start, int end);

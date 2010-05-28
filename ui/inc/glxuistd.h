@@ -56,7 +56,7 @@ enum GlxTBContextType
 typedef enum
 {
     NO_EFFECT,
-    WAVE_EFFECT,
+    FLIP_EFFECT,
     SMOOTH_FADE,
     ZOOM_TO_FACE,
     TRANSITION_EFFECT,

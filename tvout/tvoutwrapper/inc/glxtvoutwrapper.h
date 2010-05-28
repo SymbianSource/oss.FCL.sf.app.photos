@@ -47,7 +47,7 @@ public:
      * This also creates the private instance of the wrapper
      * to pass the model 
      */
-    void setModel(QAbstractItemModel* aModel);
+    void setModel(QAbstractItemModel* aModel,bool aEfectsOn = false);
     
     /*
      * Set the image on to HDMI
@@ -84,6 +84,14 @@ public:
      * Note : This function is not required if bounce back effect finishes automatically
      */
     void deactivateZoom();
+    
+    /*
+     * Fadeing of the Surface
+     * @param1 ETrue - FadeIn ( as in gaining brightness )
+     *         EFalse - FadeOut ( as in loosing brightness ) 
+     */
+    void fadeSurface(bool aFadeInOut);
+    
 private:
     GlxTvOutWrapperPrivate* mTvOutWrapperPrivate;
 };

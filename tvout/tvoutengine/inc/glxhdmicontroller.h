@@ -33,7 +33,7 @@ public:
      * NewLC 
      * @param1 - Image file path default to NULL
      */
-    IMPORT_C static CGlxHdmiController* NewL();
+    IMPORT_C static CGlxHdmiController* NewL(TBool aEfectsOn = EFalse);
 
     /*
      * Destructor
@@ -71,11 +71,18 @@ public:
      */
     IMPORT_C void ShiftToPostingMode();
 
+    /*
+     * Fadeing of the Surface
+     * @param1 ETrue - FadeIn ( as in gaining brightness )
+     *         EFalse - FadeOut ( as in loosing brightness ) 
+     */
+    IMPORT_C void FadeSurface(TBool aFadeInOut);
+    
 private:
     /*
      * Constructor
      */
-    CGlxHdmiController();
+    CGlxHdmiController(TBool aEfectsOn);
     
     /*
      * ConstructL 
@@ -116,6 +123,7 @@ private:
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     TBool   iIsImageSupported;          // Flag to see if Image is supported
+    TBool   iEffectsOn;
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

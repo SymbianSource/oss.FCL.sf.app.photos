@@ -94,4 +94,6 @@ LIBRARY         mpxcommon.lib
 LIBRARY         platformenv.lib
 LIBRARY         flogger.lib
 LIBRARY         imageconversion.lib
+LIBRARY	   	harvesterclient.lib
+
 // End of File

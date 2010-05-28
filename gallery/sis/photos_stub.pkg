@@ -98,9 +98,14 @@
 "" - "z:\sys\bin\glxlistmodel.dll"
 "" - "z:\sys\bin\glxmodelwrapper.dll"
 "" - "z:\sys\bin\glxviews.dll"
+"" - "z:\sys\bin\glxviewutilities.dll"
+"" - "z:\sys\bin\glxzoomwidget.dll"
 
 "" - "z:\private\10202BE9\20007194.txt"
 
 "" - "z:\resource\qt\translations\photos.qm"
 
 
+;splashscreen
+"" - "z:\resource\hb\splashml\photos.splashml"
+"" - "z:\resource\hb\splashml\photos.docml"

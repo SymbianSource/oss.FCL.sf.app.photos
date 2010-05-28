@@ -78,7 +78,8 @@ private:
 	 * @param aCpiAttribute CPI specific attribute to be constructed later
 	 * @param aAttributeArray modifiable list of attributes to be retrieved from data source
 	 */	 
-	void CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray);     	
+	void CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute,
+			RArray<TMPXAttribute>& aAttributeArray);
 
 	/**
 	 * Modifies the response to include all requested CPI specific attributes or Leaves.
@@ -86,7 +87,8 @@ private:
 	 * @param aResponse Data Source constructed response to which CPI specific attributes should be added (also contains any required data)
 	 * @param aCpiAttributes list of CPI specific attributes to be constructed
 	 */	 
-	void HandleCpiAttributeResponseL(CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, TArray<TGlxMediaId> aMediaIds);
+	void HandleCpiAttributeResponseL(CMPXMedia* aResponse,
+			TArray<TMPXAttribute> aCpiAttributes, TArray<TGlxMediaId> aMediaIds);
 
 	/**
 	 * Modifies the response to include all requested CPI specific attributes or Leaves.
@@ -95,7 +97,8 @@ private:
 	 * @param aCpiAttributes list of CPI specific attributes to be constructed
 	 * @param aMediaId CPI specific media Id
 	 */	 
-    void HandleCpiAttributeResponseL(CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, TGlxMediaId aMediaId);
+    void HandleCpiAttributeResponseL(CMPXMedia* aResponse,
+    		TArray<TMPXAttribute> aCpiAttributes, TGlxMediaId aMediaId);
 
 	TBool IsUpdateMessageIgnored(CMPXMessage& aMessage);
 

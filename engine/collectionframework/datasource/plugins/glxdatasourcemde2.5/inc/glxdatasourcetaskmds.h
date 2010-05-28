@@ -67,7 +67,8 @@ enum TGlxQueryType
  *  CGlxDataSourceTaskMde class 
  *  Base class for mde tasks: provides task generic functionality.
  */
-NONSHARABLE_CLASS(CGlxDataSourceTaskMde) : 	public CGlxDataSourceTask, public MMdEQueryObserver
+NONSHARABLE_CLASS(CGlxDataSourceTaskMde) : 	public CGlxDataSourceTask, 
+                                            public MMdEQueryObserver
 	{
 public:
     /**
@@ -76,8 +77,8 @@ public:
      * @param aObserver observer to be informed when task has completed.
      * @param aDataSource data source to be used by this object.
      */
-    CGlxDataSourceTaskMde(CGlxRequest* aRequest, MGlxDataSourceRequestObserver& aObserver, 
-            CGlxDataSource* aDataSource);
+    CGlxDataSourceTaskMde(CGlxRequest* aRequest, MGlxDataSourceRequestObserver& 
+            aObserver, CGlxDataSource* aDataSource);
     
     /**
      * Destructor.
@@ -142,7 +143,8 @@ protected:
      */
     CGlxDataSourceMde* DataSource();
 
-    void AddMonthFilterL(const TGlxMediaId& aContainerId, TGlxFilterProperties& aFilterProperties);
+    void AddMonthFilterL(const TGlxMediaId& aContainerId, 
+            TGlxFilterProperties& aFilterProperties);
     
     void AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProperties& aFilterProperties);
         
@@ -154,11 +156,14 @@ protected:
      * EFalse if the container is on the right side of the relation
      * 
      */	
-    void SetQueryConditionsL(CMdEQuery& aQuery, const TGlxFilterProperties& aFilterProperties, const TGlxMediaId aContainerId, CMdEObjectDef& aObjectDef);
+    void SetQueryConditionsL(CMdEQuery& aQuery, const TGlxFilterProperties& aFilterProperties, 
+            const TGlxMediaId aContainerId, CMdEObjectDef& aObjectDef);
 
-    void SetQueryFilterConditionsL(CMdELogicCondition& aLogicCondition, CMdEObjectDef& aObjectDef, const TGlxFilterProperties& aFilterProperties);
+    void SetQueryFilterConditionsL(CMdELogicCondition& aLogicCondition, CMdEObjectDef& aObjectDef,
+            const TGlxFilterProperties& aFilterProperties);
 
-    void SetSortOrderL(CMdEQuery& aQuery, CMdEObjectDef& aObjectDef, const TGlxFilterProperties& aFilterProperties);
+    void SetSortOrderL(CMdEQuery& aQuery, CMdEObjectDef& aObjectDef, 
+            const TGlxFilterProperties& aFilterProperties);
 
     /**
      * Returns the maximum number of items that a query should find.
@@ -171,7 +176,8 @@ protected:
      */
     void RemoveQuery();
 
-    void DoQueryL(CMdEObjectDef& aObjectDef, TBool aIsContent, TGlxQueryType aQueryType, TQueryResultMode aResultMode, const TGlxMediaId& aContainerId);
+    void DoQueryL(CMdEObjectDef& aObjectDef, TBool aIsContent, TGlxQueryType aQueryType,
+            TQueryResultMode aResultMode, const TGlxMediaId& aContainerId);
 
     /**
      * Adds queries for images and or videos to the query queue. The queries will return objects
@@ -181,7 +187,8 @@ protected:
      * image or video queries are required if iItemType is not set to EGlxFilterImage or 
      * EGlxFitlerVideo a query for images will be queued first followed by a query for videos.
      */
-    void QueueImageVideoObjectQueriesL(const RArray<TGlxMediaId>& aObjectIds, const TGlxFilterProperties& aFilterProperties);
+    void QueueImageVideoObjectQueriesL(const RArray<TGlxMediaId>& aObjectIds, 
+            const TGlxFilterProperties& aFilterProperties);
     
     /**
      * Adds a query for tag objects that have ids specified by aObjectIds

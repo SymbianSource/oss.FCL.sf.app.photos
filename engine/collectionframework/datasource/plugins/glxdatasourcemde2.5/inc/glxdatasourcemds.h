@@ -11,7 +11,7 @@
 *
 * Contributors:
 *
-* Description:   
+* Description: The data source mds class   
 *
 */
 
@@ -29,10 +29,18 @@
 #define _C_GLXDATASOURCEMDS_H_
 
 // INCLUDES
+#include <e32base.h>
+#include <w32std.h>
+#include <e32property.h> 
+
 #include <e32cmn.h>
 #include <f32file.h>
 
 #include <mdesession.h>
+
+#include <harvesterclient.h>
+#include <harvestereventenum.h>
+
 #include <mglxtnstorage.h>
 #include <mpxcollectionmessagedefs.h>
 
@@ -44,16 +52,104 @@
 
 #include "mthumbnailfetchrequestobserver.h"
 #endif
-
 #include "glxdatasource.h"
 
 // FORWARD DECLARATIONS
 class CGlxRequest;
-
 #ifndef USE_S60_TNM
 class CGlxtnThumbnailCreator;
 class CGlxtnThumbnailDatabase;
 #endif
+class CGlxDataSourceMde ;
+
+const TUid KHarvesterPSShutdown = { 0x200009F5 } ;
+const TInt KMdSShutdown     = 0x00000002; // values 1 = shutdown, 0 = restart, normal state
+
+static _LIT_SECURITY_POLICY_PASS(KAllowAllPolicy);
+static _LIT_SECURITY_POLICY_C1(KPowerMgmtPolicy,ECapabilityPowerMgmt);
+
+/**
+ * PSCW Listener Observer interface for signaling that MDS has Shutdown/restarted
+ */
+class MGlxMDSShutdownObserver
+    {
+public:
+
+    virtual void ShutdownNotification(TInt aShutdownState) = 0;
+    };
+
+/**
+ *  Active object for observing P&S keys
+ *
+ *  @since S60 v5.0
+ */
+class CGlxMDSShutdownObserver: public CActive
+    {
+public:
+
+    /**
+     * Two-phased constructor.
+     *
+     * @since S60 v5.0
+     * @return Instance of CGlxMDSShutdownObserver.
+     */
+    static CGlxMDSShutdownObserver* NewL( MGlxMDSShutdownObserver& aObserver, const TUid& aKeyCategory,
+                                      const TInt aPropertyKey, TBool aDefineKey);
+
+    /**
+     * Destructor
+     *
+     * @since S60 v5.0
+     */
+    virtual ~CGlxMDSShutdownObserver();
+    
+protected:
+
+    /**
+     * Handles an active object's request completion event.
+     *
+     * @since S60 v5.0
+     */
+    void RunL();
+
+    /**
+     * Implements cancellation of an outstanding request.
+     *
+     * @since S60 v5.0
+     */
+    void DoCancel();
+
+private:
+
+    /**
+     * C++ default constructor
+     *
+     * @since S60 v5.0
+     * @return Instance of CGlxMDSShutdownObserver.
+     */
+    CGlxMDSShutdownObserver( MGlxMDSShutdownObserver& aObserver, const TUid& aKeyCategory,
+                         const TInt iPropertyKey, TBool aDefineKey);
+
+    /**
+     * Symbian 2nd phase constructor can leave.
+     *
+     * @since S60 v5.0
+     */
+    void ConstructL();
+
+private:
+    
+    // not own
+    MGlxMDSShutdownObserver& iObserver;
+    
+    const TUid& iKeyCategory;
+    RProperty iProperty;
+    TInt iPropertyKey;
+    
+    TBool iDefineKey;
+};
+
+
 
 // CONSTANTS
 
@@ -68,10 +164,12 @@ class CGlxtnThumbnailDatabase;
  */
 class CGlxDataSourceMde : public CGlxDataSource,
                           public MMdESessionObserver,
+                          public MGlxMDSShutdownObserver,
                           public MMdEObjectObserver,
                           public MMdEObjectPresentObserver,
                           public MMdERelationObserver,
-                          public MMdERelationPresentObserver
+                          public MMdERelationPresentObserver,
+                          public MHarvesterEventObserver
 #ifdef USE_S60_TNM
 						, public MThumbnailManagerObserver
 #else
@@ -90,11 +188,19 @@ private:
 
 public:
     // from CGlxDataSource
-    CGlxDataSourceTask* CreateTaskL(CGlxRequest* aRequest, MGlxDataSourceRequestObserver& aObserver);
+    CGlxDataSourceTask* CreateTaskL(CGlxRequest* aRequest,
+            MGlxDataSourceRequestObserver& aObserver);
+public:
+    // from MHarvesterEventObserver
+    void HarvestingUpdated( 
+                HarvesterEventObserverType aHEObserverType, 
+                HarvesterEventState aHarvesterEventState,
+                TInt aItemsLeft );
 
 #ifdef USE_S60_TNM
 public:
-	void FetchThumbnailL(CGlxRequest* aRequest, MThumbnailFetchRequestObserver& aObserver);
+	void FetchThumbnailL(CGlxRequest* aRequest, 
+	        MThumbnailFetchRequestObserver& aObserver);
 	TInt CancelFetchThumbnail();
 #else
 private: 
@@ -161,13 +267,15 @@ private: //MMdERelationPresentObserver
 #endif
 		
 private:
-    void BackgroundThumbnailMessageL(const TGlxMediaId& aId, const TSize& aSize, TInt aError);
+    void BackgroundThumbnailMessageL(const TGlxMediaId& aId, const TSize& aSize, 
+            TInt aError);
 
     void DoSessionInitL();
 
     void AddMdEObserversL();
 
-    void ProcessUpdateArray(const RArray<TItemId>& aArray, TMPXChangeEventType aType, TBool aIsObject);
+    void ProcessUpdateArray(const RArray<TItemId>& aArray, TMPXChangeEventType aType,
+            TBool aIsObject);
 
     void ProcessItemUpdateL();
 
@@ -180,8 +288,19 @@ private:
     void TaskCompletedL();
 
     void TaskStartedL();
-
+    
+#ifdef USE_S60_TNM
+    /*
+     * This function doesnt add up any value, added to reduce compiler warnings
+     */
+    void ThumbnailReadyL( TInt aError, MThumbnailData& aThumbnail,
+        TThumbnailRequestId aId, TBool aQuality );
+#endif
+    
 public:
+
+    void CreateSession();
+    
     inline CMdESession& Session() const;
     
 #ifndef USE_S60_TNM
@@ -236,6 +355,9 @@ public:
     TBool SameMonth(const TTime& aOldDate, const TTime& aNewDate);
      
 	TBool ContainerIsLeft(CMdEObjectDef& aObjectDef);    
+	
+	// from MGlxMDSShutdownObserver
+    void ShutdownNotification(TInt aShutdownState);
 
 private:
 #ifdef USE_S60_TNM
@@ -247,10 +369,7 @@ private:
     TBool iTnRequestInProgress;
     TInt iTnHandle;
     TGlxMediaId iMediaId;
-#ifdef _DEBUG   
-	TTime iStartTime;
-	TTime iStopTime;
-#endif
+    
 #else
     CGlxtnThumbnailCreator*   iThumbnailCreator;
     CGlxtnThumbnailDatabase*  iThumbnailDatabase;
@@ -279,6 +398,8 @@ private:
     
     RArray<TTime> iMonthArray;
     RArray<TGlxMediaId> iMonthList;
+    RArray<TItemId> iAddedItems;
+    
     TTime iFirstMonth;
     TTime iLastMonth;
     
@@ -296,6 +417,16 @@ private:
     RArray<TUpdateData> iUpdateData;
 	TBool iPauseUpdate;
     TInt iDeletedCount;
+    
+    RHarvesterClient iHC;
+    TBool iHarvestingOngoing;
+
+    CGlxMDSShutdownObserver* iMDSShutdownObserver;
+
+#ifdef _DEBUG
+    TTime iStartTime;
+    TTime iStopTime;
+#endif    
     };
 
 #include "glxdatasourcemds.inl"

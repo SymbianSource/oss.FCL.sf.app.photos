@@ -18,6 +18,7 @@
 #ifndef GLXLOCALISATIONSTRINGS_H_
 #define GLXLOCALISATIONSTRINGS_H_
 
+#include "hbglobal.h"
 
 //OPTIONS MENU
 //Options list item
@@ -107,5 +108,13 @@
 #define GLX_MENU_OPEN                hbTrId("txt_common_menu_open")
 
 #define GLX_BUTTON_HIDE              hbTrId("txt_common_button_hide")
+
+#define GLX_LABEL_TRANSITION_EFFECT  hbTrId("txt_photos_setlabel_transistion_effect")
+#define GLX_VAL_SMOOTH_FADE          hbTrId("txt_photos_setlabel_transistion_effect_val_smooth")
+
+#define GLX_LABEL_TRANSITION_DELAY   hbTrId("txt_photos_setlabel_transistion_delay")
+#define GLX_VAL_SLOW                 hbTrId("txt_photos_setlabel_transistion_delay_val_slow")
+#define GLX_VAL_MEDIUM               hbTrId("txt_photos_setlabel_transistion_delay_val_medium")
+#define GLX_VAL_FAST                 hbTrId("txt_photos_setlabel_transistion_delay_val_fast")
 
 #endif /* GLXLOCALISATIONSTRINGS_H_ */

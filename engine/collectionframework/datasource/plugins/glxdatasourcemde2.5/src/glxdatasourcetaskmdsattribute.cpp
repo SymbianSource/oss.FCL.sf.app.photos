@@ -57,7 +57,7 @@
 #include <mpxmediadrmdefs.h>
 #include <mpxmediageneraldefs.h>
 #include <imageconversion.h>
-
+#include <caf/content.h>
 #include "glxdatasourcemds.h"
 #include "glxdatasourcemds.hrh"
 #include "glxdatasourcemdsutility.h"
@@ -83,7 +83,9 @@ _LIT(KPropertyDefNameLongitude, "Longitude");
 //  Constructor
 // ----------------------------------------------------------------------------
 //  
-CGlxDataSourceTaskMdeAttributeMde::CGlxDataSourceTaskMdeAttributeMde(CGlxGetRequest* aRequest, MGlxDataSourceRequestObserver& aObserver, CGlxDataSource* aDataSource)
+CGlxDataSourceTaskMdeAttributeMde::CGlxDataSourceTaskMdeAttributeMde(
+        CGlxGetRequest* aRequest,MGlxDataSourceRequestObserver& aObserver,
+            CGlxDataSource* aDataSource)
     : CGlxDataSourceTaskMde(aRequest, aObserver, aDataSource)
     {
     TRACER("CGlxDataSourceTaskMdeAttribute::CGlxDataSourceTaskMdeAttribute()")
@@ -108,16 +110,14 @@ CGlxDataSourceTaskMdeAttributeMde::~CGlxDataSourceTaskMdeAttributeMde()
 void CGlxDataSourceTaskMdeAttributeMde::ExecuteRequestL()
     {
     TRACER("CGlxDataSourceTaskMdeAttribute::ExecuteRequestL()")    
-    GLX_LOG_ENTRY_EXIT("CGlxDataSourceTaskMdeAttribute::ExecuteRequestL");
+#ifdef _DEBUG
+    iStartTime.HomeTime(); 
+#endif
  
     CGlxGetRequest* request = static_cast<CGlxGetRequest*>(iRequest);
         
     __ASSERT_DEBUG(request->MediaIds().Count() > 0, User::Invariant());
-
- 	GLX_LOG_INFO("==> CGlxDataSourceTaskMdeAttributeMde::ExecuteRequestL");
-#ifdef _DEBUG
- 	iStartTime.HomeTime(); // Get home time
-#endif
+    
     if (request->MediaIds().Count() > 1)
         {
         iMediaArray = CMPXMediaArray::NewL();
@@ -130,26 +130,8 @@ void CGlxDataSourceTaskMdeAttributeMde::ExecuteRequestL()
     	}
     else
     	{
-        
-     /*  __ASSERT_DEBUG(dynamic_cast<CGlxGetRequest*>(iRequest), Panic(EGlxPanicLogicError));
-        CGlxGetRequest* request = static_cast<CGlxGetRequest*>(iRequest);   
-        
-    	QueueImageVideoObjectQueriesL(request->MediaIds(), iFilterProperties);
-    	QueueAlbumObjectQueryL(request->MediaIds());
-        QueueTagObjectQueryL(request->MediaIds());
-        QueueMonthObjectQueryL(request->MediaIds());
-        
-	    if (LocationAttributeRequested())
-	        {
-	        QueueLocaitonQueryL();
-	        }
-	    
-    	*/
-    	
         __ASSERT_DEBUG(dynamic_cast<CGlxGetRequest*>(iRequest), Panic(EGlxPanicLogicError));
         CGlxGetRequest* request = static_cast<CGlxGetRequest*>(iRequest);   
-// Not used anywhere, commenting out this line to avoid BAD warning
-//        const RArray<TItemId>& mediaIds = reinterpret_cast<const RArray<TItemId>&>(request->MediaIds());
         
         switch(iFilterProperties.iItemType)
             {
@@ -211,6 +193,11 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleQueryCompletedL(CMdEQuery& /*aQu
             Panic(EGlxPanicLogicError);
         break;
         }  
+#ifdef _DEBUG
+    iStopTime.HomeTime(); 
+    GLX_DEBUG2("CGlxDataSourceTaskMdeAttributeMde:DoHandleQueryCompletedL() took %d us",
+                     (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif  
     }
 
 // ----------------------------------------------------------------------------
@@ -292,7 +279,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
         {
         if ( request->Attributes()[i] == KMPXMediaGeneralId )
             {
-            aEntry->SetTObjectValueL<TMPXItemId>(KMPXMediaGeneralId, (TMPXItemId)request->CollectionPluginUid().iUid);
+            aEntry->SetTObjectValueL<TMPXItemId>(KMPXMediaGeneralId, (
+                    TMPXItemId)request->CollectionPluginUid().iUid);
             }
         else if ( request->Attributes()[i] == KMPXMediaGeneralType )
             {
@@ -323,12 +311,14 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
 				{
 				case KGlxCollectionPluginCameraImplementationUid:
 					{   
-#if 0 	/// @todo AB camera album				     		
+#if 0 	/// AB camera album				     		
 					container = DataSource()->CameraAlbumId();
 					objectDef = &DataSource()->AlbumDef();
 #endif					
 					filterProperties.iItemType = EGlxFilterImage;
-					QueueObjectQueryL(*objectDef, isContent, EAttributeQuery, EQueryResultModeCount, container, request->Attributes()[i], aEntry,  filterProperties);
+					QueueObjectQueryL(*objectDef, isContent, EAttributeQuery,
+					        EQueryResultModeCount, container, 
+					        request->Attributes()[i], aEntry,  filterProperties);
 					break;                    	
 					}
 				default:
@@ -350,12 +340,14 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
 				{
 				case KGlxCollectionPluginCameraImplementationUid:
 					{   
-#if 0 	/// @todo AB camera album					     		
+#if 0 	/// AB camera album					     		
 					container = DataSource()->CameraAlbumId();
 					objectDef = &DataSource()->AlbumDef();
 #endif					
 					filterProperties.iItemType = EGlxFilterVideo;
-					QueueObjectQueryL(*objectDef, isContent, EAttributeQuery, EQueryResultModeCount, container, request->Attributes()[i], aEntry,  filterProperties);
+					QueueObjectQueryL(*objectDef, isContent, EAttributeQuery, 
+					        EQueryResultModeCount, container,
+					        request->Attributes()[i],aEntry,  filterProperties);
 					break;                    	
 					}
 				default:
@@ -366,7 +358,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
 			}
             
             
-        else if ( ( request->Attributes()[i] == KMPXMediaGeneralCount ) || ( request->Attributes()[i] == KGlxMediaCollectionInternalUsageCount ) )
+        else if ( ( request->Attributes()[i] == KMPXMediaGeneralCount ) || 
+                ( request->Attributes()[i] == KGlxMediaCollectionInternalUsageCount ) )
             {
             TGlxMediaId container = TGlxMediaId(KGlxCollectionRootId);
             CMdEObjectDef* objectDef = &DataSource()->ObjectDef();
@@ -395,39 +388,51 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
                     }
                 case KGlxCollectionPluginMonthsImplementationUid:
                     {
-					filterProperties.iOrigin = EGlxFilterOriginCamera;                    	
+					filterProperties.iOrigin = EGlxFilterOriginAll;
                     break;
                     }
-              /*  case KGlxCollectionPluginDownloadsImplementationUid:
-                    {
-                    filterProperties.iOrigin = EGlxFilterOriginDownload;
-                    break;
-                    }*/
                 default:
                     {
                     // default gallery query returns all objects as per filter
                     break;
                     }
                 }
-            QueueObjectQueryL(*objectDef, isContent, EAttributeQuery, EQueryResultModeCount, container, request->Attributes()[i], aEntry,  filterProperties);
+            QueueObjectQueryL(*objectDef, isContent, EAttributeQuery, 
+                    EQueryResultModeCount, container, request->Attributes()[i], 
+                    aEntry,  filterProperties);
             }
         else if ( request->Attributes()[i] == KMPXMediaColDetailSpaceId )
             {
-            aEntry->SetTObjectValueL(KMPXMediaColDetailSpaceId, KGlxDataSourceMdeImplementationUid);
+            aEntry->SetTObjectValueL(KMPXMediaColDetailSpaceId, 
+                    KGlxDataSourceMdeImplementationUid);
             }
         else if ( request->Attributes()[i] == KGlxMediaCollectionInternalStartDate )
             {
+            GLX_DEBUG1("CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL - KGlxMediaCollectionInternalStartDate");
             TGlxMediaId container = TGlxMediaId(KGlxCollectionRootId);
             TGlxFilterProperties filterProperties = iFilterProperties;
             filterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
             filterProperties.iSortDirection = EGlxFilterSortDirectionAscending;
-            filterProperties.iOrigin = EGlxFilterOriginCamera;
+            filterProperties.iOrigin = EGlxFilterOriginAll;
+            filterProperties.iMaxCount = 1 ;             
 
-            QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeObjectWithFreetexts,container, KGlxMediaCollectionInternalStartDate, aEntry, filterProperties);
+            QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, 
+                    EQueryResultModeItem, container, 
+                    KGlxMediaCollectionInternalStartDate, aEntry, filterProperties);
             }
         else if ( request->Attributes()[i] == KGlxMediaCollectionInternalEndDate )
             {
-            // not necessary to be requested, returned when StartDate requested
+            GLX_DEBUG1("CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL - KGlxMediaCollectionInternalEndDate");
+            TGlxMediaId container = TGlxMediaId(KGlxCollectionRootId);
+            TGlxFilterProperties filterProperties = iFilterProperties;
+            filterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
+            filterProperties.iSortDirection = EGlxFilterSortDirectionDescending;
+            filterProperties.iOrigin = EGlxFilterOriginAll;
+            filterProperties.iMaxCount = 1 ;             
+
+            QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, 
+                    EQueryResultModeItem, container, 
+                    KGlxMediaCollectionInternalEndDate, aEntry, filterProperties);
             }
         else if ( request->Attributes()[i] == KGlxMediaGeneralSlideshowableContent )
             {
@@ -456,7 +461,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
 // CGlxDataSourceTaskMdeAttribute::AddContainerAttributesL
 // ----------------------------------------------------------------------------
 //
-void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntry, CMdEObject* aContainer, CGlxDataSource::TContainerType aType)
+void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntry, 
+        CMdEObject* aContainer, CGlxDataSource::TContainerType aType)
     {
     TRACER("CGlxDataSourceTaskMdeAttribute::AddContainerAttributesL()")
     __ASSERT_DEBUG(aEntry, Panic(EGlxPanicLogicError));
@@ -464,12 +470,13 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
     __ASSERT_DEBUG(dynamic_cast<CGlxGetRequest*>(iRequest), Panic(EGlxPanicLogicError));
     CGlxGetRequest* request = static_cast<CGlxGetRequest*>(iRequest);
 
-    /// @todo check property defs are valid and type is correct
+    /// check property defs are valid and type is correct
     for ( TInt i = 0; i < request->Attributes().Count(); i++ )
         {
         if ( request->Attributes()[i] == KMPXMediaGeneralId )
             {
-            aEntry->SetTObjectValueL<TMPXItemId>(KMPXMediaGeneralId, (TMPXItemId)aContainer->Id());
+            aEntry->SetTObjectValueL<TMPXItemId>(KMPXMediaGeneralId, 
+                    (TMPXItemId)aContainer->Id());
             }
         else if ( request->Attributes()[i] == KMPXMediaGeneralType )
             {
@@ -501,7 +508,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
         else if ( request->Attributes()[i] == KMPXMediaGeneralTitle )
             {
             CMdEProperty* title;
-            CMdEPropertyDef& titleProperty = aContainer->Def().GetPropertyDefL(KPropertyDefNameTitle);
+            CMdEPropertyDef& titleProperty = aContainer->Def().GetPropertyDefL(
+                    KPropertyDefNameTitle);
             TInt titleIndex = aContainer->Property(titleProperty, title);
             if(titleIndex == KErrNotFound)
                 {
@@ -510,22 +518,26 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                 }
             else
                 {
-                aEntry->SetTextValueL(KMPXMediaGeneralTitle, static_cast<CMdETextProperty*>(title)->Value());
+                aEntry->SetTextValueL(KMPXMediaGeneralTitle, static_cast<CMdETextProperty*>
+                (title)->Value());
                 }
             switch (aType)
                 {
                 case CGlxDataSource::EContainerTypeAlbum:
                     {
                     CMdEProperty* albumType;
-                    CMdEPropertyDef& albumTypeProperty = aContainer->Def().GetPropertyDefL(KPropertyDefNameAlbumType);
+                    CMdEPropertyDef& albumTypeProperty = 
+                    aContainer->Def().GetPropertyDefL( KPropertyDefNameAlbumType);
                     TInt albumTypeIndex = aContainer->Property(albumTypeProperty, albumType);
                     if( KErrNotFound != albumTypeIndex )
                         {
-                        TUint16 albumTypeValue = static_cast<CMdEUint16Property*>(albumType)->Value();
+                        TUint16 albumTypeValue = 
+                        static_cast<CMdEUint16Property*>(albumType)->Value();
                         if ( albumTypeValue != MdeConstants::Album::EAlbumUser ) 
                             {
                             request->AppendCpiAttributeL(KMPXMediaGeneralTitle);
-                            aEntry->SetTObjectValueL(KGlxMediaCollectionInternalSystemItemType, albumTypeValue);
+                            aEntry->SetTObjectValueL(KGlxMediaCollectionInternalSystemItemType, 
+                                    albumTypeValue);
                             }
                         }
                     break;
@@ -538,14 +550,16 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                     {
                     request->AppendCpiAttributeL(KMPXMediaGeneralTitle);
                     CMdEProperty* time;
-                    CMdEPropertyDef& timeProperty = aContainer->Def().GetPropertyDefL(KPropertyDefNameCreationDate);
+                    CMdEPropertyDef& timeProperty = aContainer->Def().GetPropertyDefL(
+                            KPropertyDefNameCreationDate);
                     TInt timeIndex = aContainer->Property(timeProperty, time);
                     if( KErrNotFound == timeIndex )
                         {
                         User::Leave(KErrCorrupt);
                         }
 
-                    aEntry->SetTObjectValueL(KGlxMediaCollectionInternalStartDate, static_cast<CMdETimeProperty*>(time)->Value());
+                    aEntry->SetTObjectValueL(KGlxMediaCollectionInternalStartDate, 
+                            static_cast<CMdETimeProperty*>(time)->Value());
                     break;
                     }
                 }
@@ -553,21 +567,24 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
         else if ( request->Attributes()[i] == KMPXMediaGeneralDate )
             {
             CMdEProperty* time;
-            CMdEPropertyDef& timeProperty = aContainer->Def().GetPropertyDefL(KPropertyDefNameCreationDate);
+            CMdEPropertyDef& timeProperty = aContainer->Def().GetPropertyDefL(
+                    KPropertyDefNameCreationDate);
             TInt timeIndex = aContainer->Property(timeProperty, time);
             if( KErrNotFound == timeIndex )
                 {
                 User::Leave(KErrCorrupt);
                 }
 
-            aEntry->SetTObjectValueL(KMPXMediaGeneralDate, static_cast<CMdETimeProperty*>(time)->Value());
+            aEntry->SetTObjectValueL(KMPXMediaGeneralDate, 
+                    static_cast<CMdETimeProperty*>(time)->Value());
             }
         else if ( request->Attributes()[i] == KMPXMediaGeneralSize )
             {
             CMdEProperty* size;
-            CMdEPropertyDef& sizeProperty = aContainer->Def().GetPropertyDefL(KPropertyDefNameSize);
+            CMdEPropertyDef& sizeProperty = aContainer->Def().GetPropertyDefL(
+                    KPropertyDefNameSize);
             TInt sizeIndex = aContainer->Property(sizeProperty, size);
-            TInt sizeValue;
+            TUint sizeValue;
             if(sizeIndex == KErrNotFound)
                 {
                 sizeValue = 0;
@@ -586,7 +603,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
         else if ( request->Attributes()[i] == KMPXMediaGeneralMimeType )
             {
             CMdEProperty* mimeType;
-            CMdEPropertyDef& mimeTypeProperty = aContainer->Def().GetPropertyDefL(KPropertyDefNameItemType);
+            CMdEPropertyDef& mimeTypeProperty = aContainer->Def().GetPropertyDefL(
+                    KPropertyDefNameItemType);
             TInt mimeTypeIndex = aContainer->Property(mimeTypeProperty, mimeType);
             if( KErrNotFound == mimeTypeIndex)
                 {
@@ -594,10 +612,12 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                 }
             else
                 {
-                aEntry->SetTextValueL(KMPXMediaGeneralMimeType, static_cast<CMdETextProperty*>(mimeType)->Value());
+                aEntry->SetTextValueL(KMPXMediaGeneralMimeType,
+                        static_cast<CMdETextProperty*>(mimeType)->Value());
                 }
             }
-        else if ( ( request->Attributes()[i] == KMPXMediaGeneralCount ) || ( request->Attributes()[i] == KGlxMediaCollectionInternalUsageCount ) )
+        else if ( ( request->Attributes()[i] == KMPXMediaGeneralCount ) || 
+                ( request->Attributes()[i] == KGlxMediaCollectionInternalUsageCount ) )
             {
             switch (aType)
                 {
@@ -610,10 +630,12 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                     }
                 case CGlxDataSource::EContainerTypeMonth:
                     {
-                    iFilterProperties.iOrigin = EGlxFilterOriginCamera;
+                    iFilterProperties.iOrigin = EGlxFilterOriginAll;                    
                     TGlxFilterProperties filterProperties = iFilterProperties;
                     AddMonthFilterL(aContainer, filterProperties);
-                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeCount, TGlxMediaId(KGlxCollectionRootId), request->Attributes()[i], aEntry, filterProperties);
+                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery,
+                            EQueryResultModeCount, TGlxMediaId(KGlxCollectionRootId),
+                            request->Attributes()[i], aEntry, filterProperties);
                     break;
                     }
                 }
@@ -626,13 +648,16 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                 case CGlxDataSource::EContainerTypeAlbum:
                     {
                     CMdEProperty* albumType;
-                    CMdEPropertyDef& albumTypeProperty = aContainer->Def().GetPropertyDefL(KPropertyDefNameAlbumType);
-                    TInt albumTypeIndex = aContainer->Property(albumTypeProperty, albumType);
+                    CMdEPropertyDef& albumTypeProperty = 
+                    aContainer->Def().GetPropertyDefL(   KPropertyDefNameAlbumType);
+                    TInt albumTypeIndex = aContainer->Property(albumTypeProperty,
+                            albumType);
                     if( KErrNotFound != albumTypeIndex )
                         {
-                        TInt albumTypeValue = static_cast<CMdEUint16Property*>(albumType)->Value();
-                        
-                        if( (albumTypeValue == MdeConstants::Album::EAlbumSystemCamera) || (albumTypeValue == MdeConstants::Album::EAlbumSystemFavourite ) )
+                        TInt albumTypeValue = 
+                        static_cast<CMdEUint16Property*>(albumType)->Value();
+                        if( (albumTypeValue == MdeConstants::Album::EAlbumSystemCamera) || 
+                        		(albumTypeValue == MdeConstants::Album::EAlbumSystemFavourite ) )
                             {
                             systemItem = ETrue;
                             }
@@ -663,8 +688,10 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
 					TGlxFilterProperties filterProperties = iFilterProperties;
 					AddMonthFilterL(aContainer, filterProperties);
 					filterProperties.iItemType = EGlxFilterImage;
-#if 0 	/// @todo AB camera album					
-					QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeCount, DataSource()->CameraAlbumId(), request->Attributes()[i], aEntry, filterProperties);
+#if 0 	/// AB camera album					
+					QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery,
+					        EQueryResultModeCount, DataSource()->CameraAlbumId(), 
+					        request->Attributes()[i], aEntry, filterProperties);
 #endif					
 					break;
 					}			             					
@@ -685,8 +712,10 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
 					TGlxFilterProperties filterProperties = iFilterProperties;
 					AddMonthFilterL(aContainer, filterProperties);
 					filterProperties.iItemType = EGlxFilterVideo;
-#if 0 	/// @todo AB camera album					
-					QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeCount, DataSource()->CameraAlbumId(), request->Attributes()[i], aEntry, filterProperties);
+#if 0 	/// AB camera album					
+					QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery,
+					        EQueryResultModeCount, DataSource()->CameraAlbumId(),
+					        request->Attributes()[i], aEntry, filterProperties);
 #endif					
 					break;
 					}
@@ -699,7 +728,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
 			
         else if ( request->Attributes()[i] == KMPXMediaColDetailSpaceId )
             {
-            aEntry->SetTObjectValueL(KMPXMediaColDetailSpaceId, KGlxDataSourceMdeImplementationUid);
+            aEntry->SetTObjectValueL(KMPXMediaColDetailSpaceId, 
+                    KGlxDataSourceMdeImplementationUid);
             }
         else if ( request->Attributes()[i] == KGlxMediaCollectionInternalStartDate )
             {
@@ -734,14 +764,18 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                 case CGlxDataSource::EContainerTypeAlbum:
                 case CGlxDataSource::EContainerTypeTag:
                     {
-                    QueueObjectQueryL(aContainer->Def(), ETrue, EAttributeQuery, EQueryResultModeCount, TGlxMediaId(aContainer->Id()), request->Attributes()[i], aEntry, filterProperties);
+                    QueueObjectQueryL(aContainer->Def(), ETrue, EAttributeQuery,
+                            EQueryResultModeCount, TGlxMediaId(aContainer->Id()),
+                            request->Attributes()[i], aEntry, filterProperties);
                     break;
                     }
                 case CGlxDataSource::EContainerTypeMonth:
                     {
-                    filterProperties.iOrigin = EGlxFilterOriginCamera;
+                    filterProperties.iOrigin = EGlxFilterOriginAll;               
                     AddMonthFilterL(aContainer, filterProperties);
-                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery, EQueryResultModeCount, TGlxMediaId(KGlxCollectionRootId), request->Attributes()[i], aEntry, filterProperties);
+                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery,
+                            EQueryResultModeCount, TGlxMediaId(KGlxCollectionRootId),
+                            request->Attributes()[i], aEntry, filterProperties);
                     break;
                     }
                 }
@@ -749,13 +783,15 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
         else if ( request->Attributes()[i] == KGlxMediaGeneralLastModifiedDate )
             {
             CMdEProperty* time;
-            CMdEPropertyDef& timeProperty = aContainer->Def().GetPropertyDefL(KPropertyDefNameLastModifiedDate);
+            CMdEPropertyDef& timeProperty = aContainer->Def().GetPropertyDefL(
+                    KPropertyDefNameLastModifiedDate);
             TInt timeIndex = aContainer->Property(timeProperty, time);
             if( KErrNotFound == timeIndex) 
                 {
                 User::Leave(KErrCorrupt);
                 }
-            aEntry->SetTObjectValueL(KGlxMediaGeneralLastModifiedDate, static_cast<CMdETimeProperty*>(time)->Value());
+            aEntry->SetTObjectValueL(KGlxMediaGeneralLastModifiedDate, 
+                    static_cast<CMdETimeProperty*>(time)->Value());
             }
         else if ( request->Attributes()[i] == KGlxMediaGeneralDimensions )
             {
@@ -778,7 +814,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
 // CGlxDataSourceTaskMdeAttribute::AddItemAttributesL
 // ----------------------------------------------------------------------------
 //
-void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CMdEObject* aItem, CGlxDataSource::TItemType aType)
+void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, 
+        CMdEObject* aItem, CGlxDataSource::TItemType aType)
     {
     TRACER("CGlxDataSourceTaskMdeAttribute::AddItemAttributesL()")
     __ASSERT_DEBUG(aEntry, Panic(EGlxPanicLogicError));
@@ -786,12 +823,13 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
     __ASSERT_DEBUG(dynamic_cast<CGlxGetRequest*>(iRequest), Panic(EGlxPanicLogicError));
     CGlxGetRequest* request = static_cast<CGlxGetRequest*>(iRequest);
 
-    /// @todo check property defs are valid and type is correct
+    /// check property defs are valid and type is correct
     for ( TInt i = 0; i < request->Attributes().Count(); i++ )
         {   
         if ( request->Attributes()[i] == KMPXMediaGeneralId )
             {
-            aEntry->SetTObjectValueL<TMPXItemId>(KMPXMediaGeneralId, (TMPXItemId)aItem->Id());
+            aEntry->SetTObjectValueL<TMPXItemId>(KMPXMediaGeneralId, 
+                    (TMPXItemId)aItem->Id());
             }
         else if ( request->Attributes()[i] == KMPXMediaGeneralType )
             {
@@ -819,7 +857,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
         else if ( request->Attributes()[i] == KMPXMediaGeneralTitle )
             {
             CMdEProperty* title;
-            CMdEPropertyDef& titleProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameTitle);
+            CMdEPropertyDef& titleProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameTitle);
             TInt titleIndex = aItem->Property(titleProperty, title);
             if( KErrNotFound == titleIndex )
                 {
@@ -828,35 +867,41 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
                 }
             else
                 {
-                aEntry->SetTextValueL(KMPXMediaGeneralTitle, static_cast<CMdETextProperty*>(title)->Value());
+                aEntry->SetTextValueL(KMPXMediaGeneralTitle, 
+                        static_cast<CMdETextProperty*>(title)->Value());
                 }
             }
         else if ( request->Attributes()[i] == KMPXMediaGeneralDate )
             {
             CMdEProperty* time;
-            CMdEPropertyDef& timeProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameCreationDate);
+            CMdEPropertyDef& timeProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameCreationDate);
             TInt timeIndex = aItem->Property(timeProperty, time);
             if( KErrNotFound == timeIndex) 
                 {
                 User::Leave(KErrCorrupt);
                 }
-            aEntry->SetTObjectValueL(KMPXMediaGeneralDate, static_cast<CMdETimeProperty*>(time)->Value());
+            aEntry->SetTObjectValueL(KMPXMediaGeneralDate,
+                    static_cast<CMdETimeProperty*>(time)->Value());
             }
         else if ( request->Attributes()[i] == KGlxMediaGeneralLastModifiedDate )
             {
             CMdEProperty* time;
-            CMdEPropertyDef& timeProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameLastModifiedDate);
+            CMdEPropertyDef& timeProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameLastModifiedDate);
             TInt timeIndex = aItem->Property(timeProperty, time);
             if( KErrNotFound == timeIndex) 
                 {
                 User::Leave(KErrCorrupt);
                 }
-            aEntry->SetTObjectValueL(KGlxMediaGeneralLastModifiedDate, static_cast<CMdETimeProperty*>(time)->Value());
+            aEntry->SetTObjectValueL(KGlxMediaGeneralLastModifiedDate, 
+                    static_cast<CMdETimeProperty*>(time)->Value());
             }
         else if ( request->Attributes()[i] == KMPXMediaGeneralSize )
             {
             CMdEProperty* size;
-            CMdEPropertyDef& sizeProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameSize);
+            CMdEPropertyDef& sizeProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameSize);
             TInt sizeIndex = aItem->Property(sizeProperty, size);
             User::LeaveIfError(sizeIndex);
             
@@ -870,11 +915,34 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
         else if ( request->Attributes()[i] == KMPXMediaGeneralMimeType )
             {
             CMdEProperty* mimeType;
-            CMdEPropertyDef& mimeTypeProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameItemType);
+            CMdEPropertyDef& mimeTypeProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameItemType);
             TInt mimeTypeIndex = aItem->Property(mimeTypeProperty, mimeType);
-
-            User::LeaveIfError(mimeTypeIndex); 
-            aEntry->SetTextValueL(KMPXMediaGeneralMimeType, static_cast<CMdETextProperty*>(mimeType)->Value());
+			if(mimeTypeIndex == KErrNotFound)
+				{
+				//MDS retrieves the Mimetype of the file the moment it is notified about 
+				//the new file.But in case of new downloaded video file ,MDS is notified about 
+				//it the moment download starts. As mimetype is available only after the download completes, 
+				//so MDS fails to give the mimetype of the file. But mimetype can also be retrieved 
+				//from CContent class once the download completes.
+				RBuf mimeTypeData;
+				CleanupClosePushL(mimeTypeData);
+				mimeTypeData.CreateL(KMaxFileName);
+				ContentAccess::CContent* content = ContentAccess::CContent::NewLC(aItem->Uri());				  
+				TInt err = content->GetStringAttribute(ContentAccess::EMimeType, mimeTypeData);
+				CleanupStack::PopAndDestroy(content);
+				if(err != KErrNone)
+					{
+					mimeTypeData.Copy(KNullDesC);					
+					}	
+				aEntry->SetTextValueL(KMPXMediaGeneralMimeType,mimeTypeData);
+				CleanupStack::PopAndDestroy(&mimeTypeData);									
+				}
+			else
+				{
+				aEntry->SetTextValueL(KMPXMediaGeneralMimeType, 
+                    static_cast<CMdETextProperty*>(mimeType)->Value());		
+				}				
             }
         else if ( request->Attributes()[i] == KMPXMediaGeneralDuration )
             {
@@ -885,11 +953,18 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
             else
                 {
                 CMdEProperty* duration;
-                CMdEPropertyDef& durationProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameDuration);
+                CMdEPropertyDef& durationProperty = aItem->Def().GetPropertyDefL(
+                        KPropertyDefNameDuration);
                 TInt durationIndex = aItem->Property(durationProperty, duration);
-                User::LeaveIfError(durationIndex); 
-                
-                aEntry->SetTObjectValueL(KMPXMediaGeneralDuration, static_cast<CMdEReal32Property*>(duration)->Value());
+                if(durationIndex == KErrNotFound)
+	                {	                
+	                aEntry->SetTObjectValueL(KMPXMediaGeneralDuration,0);	                        
+	                }
+                else
+	                {
+	                aEntry->SetTObjectValueL(KMPXMediaGeneralDuration,
+                        static_cast<CMdEReal32Property*>(duration)->Value());	
+	                }                
                 }
             }
         else if ( request->Attributes()[i] == KGlxMediaGeneralSystemItem)
@@ -901,11 +976,12 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
             TSize dimensions(0,0);
             
             CMdEProperty* xDim;
-            CMdEPropertyDef& xDimProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameWidth);
+            CMdEPropertyDef& xDimProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameWidth);
             TInt xDimIndex = aItem->Property(xDimProperty, xDim);
             if( KErrNotFound == xDimIndex )
                 {
-                //User::Leave(KErrCorrupt);
+                //Do nothing
                 }
             else
                 {
@@ -913,11 +989,12 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
                 }
             
             CMdEProperty* yDim;
-            CMdEPropertyDef& yDimProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameHeight);
+            CMdEPropertyDef& yDimProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameHeight);
             TInt yDimIndex = aItem->Property(yDimProperty, yDim);
             if( KErrNotFound == yDimIndex )
                 {
-                //User::Leave(KErrCorrupt);
+                //Do nothing
                 }
             else
                 {
@@ -930,7 +1007,9 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
                     // EXIF header is corrupt, must read size from file.
                     CImageDecoder* decoder = NULL;
 
-                    TRAPD(err, decoder = CImageDecoder::FileNewL( DataSource()->FileServerSession(), aItem->Uri(), CImageDecoder::EOptionNone ));
+                    TRAPD(err, decoder = CImageDecoder::FileNewL( 
+                            DataSource()->FileServerSession(), aItem->Uri(),
+                            CImageDecoder::EOptionNone ));
                     if (err == KErrNone)
                     	{
                     	dimensions = decoder->FrameInfo().iOverallSizeInPixels;
@@ -945,9 +1024,10 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
             {
             CMdEProperty* framecount;
             TInt fcount = 1;
-            //@todo AB test this
+            // AB test this
             CMdEPropertyDef* framecountProperty = NULL;
-            TRAP_IGNORE(framecountProperty = &aItem->Def().GetPropertyDefL(KPropertyDefNameFrameCount));
+            TRAP_IGNORE(framecountProperty = &aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameFrameCount));
             if( framecountProperty )
                 {
                 TInt framecountIndex = aItem->Property(*framecountProperty, framecount);
@@ -961,7 +1041,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
         else if ( request->Attributes()[i] == KMPXMediaGeneralComment )
             {
             CMdEProperty* comment;
-            CMdEPropertyDef& commentProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameComment); /// @todo using Exif Comment field for comment as spec is not clear
+            CMdEPropertyDef& commentProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameComment); /// using Exif Comment field for comment as spec is not clear
             TInt commentIndex = aItem->Property(commentProperty, comment);
             if( KErrNotFound == commentIndex)
                 {
@@ -969,13 +1050,15 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
                 }
             else
                 {
-                aEntry->SetTextValueL(KMPXMediaGeneralComment, static_cast<CMdETextProperty*>(comment)->Value());
+                aEntry->SetTextValueL(KMPXMediaGeneralComment, 
+                        static_cast<CMdETextProperty*>(comment)->Value());
                 }
             }
         else if ( request->Attributes()[i] == KMPXMediaDrmProtected )
             {
             CMdEProperty* drmProtected;
-            CMdEPropertyDef& drmProtectedProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameDRM); 
+            CMdEPropertyDef& drmProtectedProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameDRM); 
             TInt drmProtectedIndex = aItem->Property(drmProtectedProperty, drmProtected);
             if( KErrNotFound == drmProtectedIndex)
                 {
@@ -983,27 +1066,32 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
                 }
             else
                 {
-                aEntry->SetTObjectValueL(KMPXMediaDrmProtected, static_cast<CMdEBoolProperty*>(drmProtected)->Value());
+                aEntry->SetTObjectValueL(KMPXMediaDrmProtected,
+                        static_cast<CMdEBoolProperty*>(drmProtected)->Value());
                 }
             }
 		else if ( request->Attributes()[i] == KGlxMediaGeneralDRMRightsValid )            
 			{
             CMdEProperty* drmProtected;
-            CMdEPropertyDef& drmProtectedProperty = aItem->Def().GetPropertyDefL(KPropertyDefNameDRM); 
+            CMdEPropertyDef& drmProtectedProperty = aItem->Def().GetPropertyDefL(
+                    KPropertyDefNameDRM); 
             TInt drmProtectedIndex = aItem->Property(drmProtectedProperty, drmProtected);
             if( KErrNotFound == drmProtectedIndex)
                 {
-                aEntry->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, EGlxDrmRightsValidityUnknown); 
+                aEntry->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid,
+                        EGlxDrmRightsValidityUnknown); 
                 }
             else
                 {
                 if( static_cast<CMdEBoolProperty*>(drmProtected)->Value() )
                     {
-                    aEntry->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, EGlxDrmRightsValidityUnknown); 
+                    aEntry->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, 
+                            EGlxDrmRightsValidityUnknown); 
                     }
                 else
                     {
-                    aEntry->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, EGlxDrmRightsValid); 
+                    aEntry->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid,
+                            EGlxDrmRightsValid); 
                     }
                 }
             }
@@ -1013,7 +1101,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
             }
         else if ( request->Attributes()[i] == KMPXMediaColDetailSpaceId )
             {
-            aEntry->SetTObjectValueL(KMPXMediaColDetailSpaceId, KGlxDataSourceMdeImplementationUid);
+            aEntry->SetTObjectValueL(KMPXMediaColDetailSpaceId, 
+                    KGlxDataSourceMdeImplementationUid);
             }
         else if ( request->Attributes()[i] == KGlxMediaGeneralSlideshowableContent )
             {
@@ -1035,25 +1124,30 @@ void CGlxDataSourceTaskMdeAttributeMde::AddItemAttributesL(CMPXMedia* aEntry, CM
 // CGlxDataSourceTaskMde::AddLocationAttributeToMediaL
 // ----------------------------------------------------------------------------
 //
-void CGlxDataSourceTaskMdeAttributeMde::AddLocationAttributeToMediaL(CMPXMedia& aMedia, const TItemId& aLocationId)
+void CGlxDataSourceTaskMdeAttributeMde::AddLocationAttributeToMediaL(
+        CMPXMedia& aMedia, const TItemId& aLocationId)
     {
     TRACER("CGlxDataSourceTaskMdeAttribute::AddLocationAttributeToMediaL()")
-    CMdEObject* location = DataSource()->Session().GetObjectL(aLocationId, DataSource()->LocationDef()); 
+    CMdEObject* location = DataSource()->Session().GetObjectL(aLocationId, 
+            DataSource()->LocationDef()); 
     if(!location)
         {
         User::Leave(KErrNotFound);
         }
     CleanupStack::PushL(location);
     CMdEProperty* longitude = NULL;
-    CMdEPropertyDef& longitudePropertyDef = location->Def().GetPropertyDefL(KPropertyDefNameLongitude);
+    CMdEPropertyDef& longitudePropertyDef = location->Def().GetPropertyDefL(
+            KPropertyDefNameLongitude);
     TInt longitudeIndex = location->Property(longitudePropertyDef, longitude);
     CMdEProperty* latitude = NULL;
-    CMdEPropertyDef& latitudePropertyDef = location->Def().GetPropertyDefL(KPropertyDefNameLatitude);
+    CMdEPropertyDef& latitudePropertyDef = location->Def().GetPropertyDefL(
+            KPropertyDefNameLatitude);
     TInt latitudeIndex = location->Property(latitudePropertyDef, latitude);
 
     if (longitudeIndex > KErrNotFound && latitudeIndex > KErrNotFound)
         {
-        TCoordinate coordinate(static_cast< CMdEReal64Property *>(latitude)->Value(),static_cast< CMdEReal64Property *>(longitude)->Value());
+        TCoordinate coordinate(static_cast< CMdEReal64Property *>(latitude)->Value(),
+                static_cast< CMdEReal64Property *>(longitude)->Value());
         aMedia.SetTObjectValueL(KGlxMediaGeneralLocation, coordinate); 
         }
     
@@ -1070,41 +1164,63 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleAttributeQueryCompletedL()
     __ASSERT_DEBUG(iQueryAttributes.Count(), Panic(EGlxPanicIllegalState));
     CMdEQuery* query =  iQueries[0];
     
-    if( query->ResultMode() == EQueryResultModeObjectWithFreetexts )
+    if( query->ResultMode() == EQueryResultModeItem )
         {
-        __ASSERT_DEBUG(( iQueryAttributes[0].iAttribute == KGlxMediaCollectionInternalStartDate ), Panic(EGlxPanicIllegalState));
-    	CMdEPropertyDef& creationDateDef = DataSource()->ObjectDef().GetPropertyDefL(KPropertyDefNameCreationDate);
+        __ASSERT_DEBUG(( iQueryAttributes[0].iAttribute == 
+        KGlxMediaCollectionInternalStartDate || iQueryAttributes[0].iAttribute == 
+        KGlxMediaCollectionInternalEndDate), Panic(EGlxPanicIllegalState));
+    	CMdEPropertyDef& creationDateDef = DataSource()->ObjectDef().GetPropertyDefL(
+    	        KPropertyDefNameCreationDate);
         if (creationDateDef.PropertyType() != EPropertyTime)
         	{
         	User::Leave(KErrCorrupt);
         	}
         TTime startMonth(0);	
         TTime endMonth(0);	
+        GLX_DEBUG2("CGlxDataSourceTaskMdeAttributeMde::DoHandleAttributeQueryCompletedL iQueries[0]->Count()=%d", iQueries[0]->Count());    
+        TInt timeIndex(0) ;
         if(iQueries[0]->Count() )
             {
-            CMdEProperty* startTime;
-            CMdEObject& startObject = (CMdEObject&)query->ResultItem(0);
-            TInt timeIndex = startObject.Property(creationDateDef, startTime);
-            if( KErrNotFound == timeIndex )
-                {
-                User::Leave(KErrCorrupt);
-                }
-            startMonth = static_cast<CMdETimeProperty*>(startTime)->Value();
-            CMdEProperty* endTime;
-            CMdEObject& endObject = (CMdEObject&)query->ResultItem(query->Count()-1);
-            timeIndex = endObject.Property(creationDateDef, endTime);
-            if( KErrNotFound == timeIndex )
-                {
-                User::Leave(KErrCorrupt);
-                }
-            endMonth = static_cast<CMdETimeProperty*>(endTime)->Value();
+            GLX_DEBUG2("CGlxDataSourceTaskMdeAttributeMde::DoHandleAttributeQueryCompletedL query->Count()=%d", query->Count());    
+            if(iQueryAttributes[0].iAttribute == KGlxMediaCollectionInternalStartDate)
+            	{
+                CMdEProperty* startTime;
+                CMdEObject& startObject = (CMdEObject&)query->ResultItem(0);
+                TInt timeIndex = startObject.Property(creationDateDef, startTime);
+                if( KErrNotFound == timeIndex )
+                    {
+                    User::Leave(KErrCorrupt);
+                    }
+                startMonth = static_cast<CMdETimeProperty*>(startTime)->Value();
+                iQueryAttributes[0].iMedia->SetTObjectValueL(
+                        KGlxMediaCollectionInternalStartDate, startMonth);
+            	}
+            else if(iQueryAttributes[0].iAttribute == KGlxMediaCollectionInternalEndDate)
+            	{
+                CMdEProperty* endTime;
+                CMdEObject& endObject = (CMdEObject&)query->ResultItem(0);
+                timeIndex = endObject.Property(creationDateDef, endTime);
+                if( KErrNotFound == timeIndex )
+                    {
+                    User::Leave(KErrCorrupt);
+                    }
+                endMonth = static_cast<CMdETimeProperty*>(endTime)->Value();
+                iQueryAttributes[0].iMedia->SetTObjectValueL(
+                        KGlxMediaCollectionInternalEndDate, endMonth);
+            	}
             }
-        iQueryAttributes[0].iMedia->SetTObjectValueL(KGlxMediaCollectionInternalStartDate, startMonth);
-        iQueryAttributes[0].iMedia->SetTObjectValueL(KGlxMediaCollectionInternalEndDate, endMonth);
+        else
+            {
+            iQueryAttributes[0].iMedia->SetTObjectValueL(
+                    KGlxMediaCollectionInternalStartDate, startMonth);
+            iQueryAttributes[0].iMedia->SetTObjectValueL(
+                    KGlxMediaCollectionInternalEndDate, endMonth);
+            }
         }
     else if( EQueryResultModeCount == query->ResultMode() )
         {
-        iQueryAttributes[0].iMedia->SetTObjectValueL(iQueryAttributes[0].iAttribute, query->Count());
+        iQueryAttributes[0].iMedia->SetTObjectValueL(
+                iQueryAttributes[0].iAttribute, query->Count());
         }
     else
         {
@@ -1124,7 +1240,8 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleLocationQueryCompletedL()
     
     for (TInt queryResultsPos = 0; queryResultsPos < queryResultsCount; queryResultsPos++)
         {
-        CMdERelation& relation = static_cast<CMdERelation&>(iQueries[0]->ResultItem(queryResultsPos));
+        CMdERelation& relation = static_cast<CMdERelation&>(
+                iQueries[0]->ResultItem(queryResultsPos));
         CMPXMedia* targetMedia = NULL;
         if (iMediaArray)
             {
@@ -1165,14 +1282,9 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL()
 	CMdEQuery* query = iQueries[0];
 	
     TInt queryResultsCount = query->Count();
-   	GLX_LOG_INFO1("==> CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL - queryResultsCount=%d", queryResultsCount);
-#ifdef _DEBUG
-    iStopTime.HomeTime(); // Get home time
-   	if (queryResultsCount)
-   		{
-   		GLX_LOG_INFO1("==> CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL took <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
-   		}
-#endif
+    GLX_DEBUG2("CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL()"
+            " queryResultsCount=%d", queryResultsCount);
+    
     if( ( queryResultsCount == 1 ) && ( !iMediaArray ) )
         {
         CMdEObject& object = static_cast<CMdEObject&>(query->ResultItem(0));
@@ -1188,10 +1300,11 @@ void CGlxDataSourceTaskMdeAttributeMde::DoHandleImageVideoQueryCompletedL()
         for (TInt i = 0; i < queryResultsCount; i++)
             {
             CMdEObject& object = static_cast<CMdEObject&>(query->ResultItem(i));
+            
             CMPXMedia* entry = CMPXMedia::NewL();
             CleanupStack::PushL(entry);
-            iMediaArray->AppendL(*entry);
-            CleanupStack::PopAndDestroy(entry);
+            iMediaArray->AppendL(entry);
+            CleanupStack::Pop(entry);
             AddAttributesL(object, (*iMediaArray)[iMediaArray->Count() - 1]);
             }
         }    
@@ -1207,11 +1320,14 @@ void CGlxDataSourceTaskMdeAttributeMde::QueueLocaitonQueryL()
     __ASSERT_DEBUG(dynamic_cast<CGlxGetRequest*>(iRequest), Panic(EGlxPanicLogicError));
     CGlxGetRequest* request = static_cast<CGlxGetRequest*>(iRequest);
         
-    CMdEQuery* query = DataSource()->Session().NewRelationQueryL(*DataSource()->NamespaceDef(), this); 
+    CMdEQuery* query = DataSource()->Session().NewRelationQueryL(
+            *DataSource()->NamespaceDef(), this); 
     CleanupStack::PushL(query);
     
     CMdELogicCondition& rootCondition = query->Conditions();
-    CMdERelationCondition& containerRelationCondition = rootCondition.AddRelationConditionL(DataSource()->ContainsLocationDef(), ERelationConditionSideRight);
+    CMdERelationCondition& containerRelationCondition = 
+    rootCondition.AddRelationConditionL(DataSource()->ContainsLocationDef(),
+            ERelationConditionSideRight);
     CMdELogicCondition& itemLogicCondition  = containerRelationCondition.LeftL();
     CMdELogicCondition&  locationLogicCondition = containerRelationCondition.RightL();
     locationLogicCondition.AddObjectConditionL(DataSource()->LocationDef());
@@ -1290,8 +1406,10 @@ TBool CGlxDataSourceTaskMdeAttributeMde::LocationAttributeRequested()
 // CGlxDataSourceTask::QueueObjectQueryL
 // ----------------------------------------------------------------------------
 //  
-void CGlxDataSourceTaskMdeAttributeMde::QueueObjectQueryL(CMdEObjectDef& aObjectDef, TBool aIsContent, TGlxQueryType aQueryType, 
-        TQueryResultMode aResultMode, const TGlxMediaId& aContainerId, TMPXAttribute aAttribute, CMPXMedia* aEntry, 
+void CGlxDataSourceTaskMdeAttributeMde::QueueObjectQueryL(CMdEObjectDef& aObjectDef,
+        TBool aIsContent, TGlxQueryType aQueryType, 
+        TQueryResultMode aResultMode, const TGlxMediaId& aContainerId, 
+        TMPXAttribute aAttribute, CMPXMedia* aEntry, 
         const TGlxFilterProperties& aFilterProperties)
     {
     TRACER("CGlxDataSourceTaskMdeAttribute::QueueObjectQueryL()")   
@@ -1318,10 +1436,11 @@ void CGlxDataSourceTaskMdeAttributeMde::QueueObjectQueryL(CMdEObjectDef& aObject
             }
         }
 
-    CMdEQuery* query = DataSource()->Session().NewObjectQueryL(*DataSource()->NamespaceDef(), *queryBaseObject, this);
+    CMdEQuery* query = DataSource()->Session().NewObjectQueryL(*DataSource()->NamespaceDef(), 
+            *queryBaseObject, this);
     CleanupStack::PushL(query);
-    SetQueryConditionsL(*query, aFilterProperties, aContainerId, aObjectDef);
     query->SetResultMode(aResultMode);
+    SetQueryConditionsL(*query, aFilterProperties, aContainerId, aObjectDef);
   
     iQueryAttributes.AppendL(TGlxQueryAttribute(aAttribute, aEntry, aFilterProperties));
 

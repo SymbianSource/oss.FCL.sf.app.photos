@@ -30,7 +30,7 @@ class HbView;
 class HbMainWindow;
 class HbComboBox;
 class QAbstractItemModel;
-class GlxSlideShowSetting;
+class GlxSettingInterface;
 
 class GlxSlideShowSettingsView : public GlxView
 {
@@ -47,16 +47,16 @@ private slots:
     void orientationChanged(Qt::Orientation); 
 	
 private:
-void setLayout();
+    void setLayout();
   
 private:
-	HbComboBox          *mEffect;  //Drop down box to display transition effect
+	HbComboBox          *mEffect;    //Drop down box to display transition effect
 	HbComboBox          *mDelay; 	 //Drop down box to display transition delay
-	HbMainWindow        *mWindow;  //no ownership
+	HbMainWindow        *mWindow;    //no ownership
 	HbLabel *mContextlabel;				 //Display SlideShow label
 	HbLabel *mEffectlabel;				 //Display "Transition Effect: "
-	HbLabel *mDelaylabel;					 //Display "Transition delay: "
-	GlxSlideShowSetting *mSettings;
+	HbLabel *mDelaylabel;				 //Display "Transition delay: "
+	GlxSettingInterface *mSettings;      //no ownership
 };
 
 #endif /* GLXGRIDVIEW_H_ */

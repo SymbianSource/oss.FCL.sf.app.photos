@@ -30,6 +30,7 @@
 #include <hblabel.h>
 #include <QString>
 #include <hbframeitem.h>
+#include <QCoreApplication>
 
 //User Includes
 #include "glxviewids.h"
@@ -38,6 +39,9 @@
 #include "glxcommandhandlers.hrh"
 #include "glxicondefs.h"
 #include "glxlocalisationstrings.h"
+#include "glxlog.h"
+#include "glxtracer.h"
+
 
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
@@ -90,6 +94,7 @@ void GlxGridView::activate()
         frame->graphicsItem()->setOpacity(1);
         mCountItem->setBackgroundItem(frame->graphicsItem(),-1);
     }
+    QCoreApplication::instance()->installEventFilter(this);
     OstTraceFunctionExit0( GLXGRIDVIEW_ACTIVATE_EXIT );
 }
 
@@ -97,33 +102,28 @@ void GlxGridView::deActivate()
 {
     OstTraceFunctionEntry0( GLXGRIDVIEW_DEACTIVATE_ENTRY );
     mScrolling = FALSE;
-    if (mUiOnButton)
-        {
+    if (mUiOnButton){
         mUiOnButton->hide();
-        }    
-    if(mIconItem)
-        {
+    }    
+    if(mIconItem) {
         mIconItem->hide();
         mIconItem->resetTransform();
         mIconItem->setOpacity(0);
         mIconItem->setZValue(mIconItem->zValue()-20);
-        }
-    if (mCountItem) 
-        {
+    }
+    if (mCountItem) {
         mCountItem->hide();
-        }
-    if (mAlbumName) 
-        {
+    }
+    if (mAlbumName) {
         mAlbumName->hide();
-        }
-    if(mZeroItemLabel) 
-        {
+    }
+    if(mZeroItemLabel) {
         mZeroItemLabel->hide();
-        }
-    if(mCameraButton) 
-        {
+    }
+    if(mCameraButton) {
         mCameraButton->hide();
-        }
+    }
+    QCoreApplication::instance()->removeEventFilter(this);
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationchanged(Qt::Orientation)));
     OstTraceFunctionExit0( GLXGRIDVIEW_DEACTIVATE_EXIT );
 }
@@ -416,6 +416,20 @@ void GlxGridView::populated()
     showItemCount();
 }
 
+bool GlxGridView::eventFilter(QObject *obj, QEvent *event)
+{
+    TRACER("GlxGridView::eventFilter() ");
+    GLX_LOG_INFO1("GlxGridView::eventFilter() %d event type", event->type());
+    
+    if ( event->type() ==  QEvent::ApplicationActivate ) {
+        emit actionTriggered( EGlxCmdAppForeground );
+    }
+    if ( event->type() ==  QEvent::ApplicationDeactivate ) {
+        emit actionTriggered( EGlxCmdAppBackground );
+    }
+    return HbView::eventFilter(obj,event);
+}
+
 void GlxGridView::handleUserAction(qint32 commandId)
 {
     OstTrace0( TRACE_NORMAL, GLXGRIDVIEW_HANDLEUSERACTION, "GlxGridView::handleUserAction" );
@@ -518,7 +532,7 @@ void GlxGridView::orientationchanged(Qt::Orientation orient)
 }
 void GlxGridView::hideorshowitems(Qt::Orientation orient)
 {
-    if (mWidget->selectionMode() == HgWidget::NoSelection) {
+    if (mWidget && mWidget->selectionMode() == HgWidget::NoSelection) {
         if(orient == Qt::Horizontal)
             {
 			setItemVisible(Hb::AllItems, FALSE) ;
@@ -535,7 +549,7 @@ void GlxGridView::hideorshowitems(Qt::Orientation orient)
             }
     }
 
-    if (mWidget->selectionMode() == HgWidget::MultiSelection) {
+    if (mWidget && mWidget->selectionMode() == HgWidget::MultiSelection) {
         setItemVisible(Hb::TitleBarItem, FALSE) ;
         if (mUiOnButton) {
             mUiOnButton->hide();

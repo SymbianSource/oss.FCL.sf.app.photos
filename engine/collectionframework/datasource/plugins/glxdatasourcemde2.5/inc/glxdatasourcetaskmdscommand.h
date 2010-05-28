@@ -64,7 +64,8 @@ public: // Constructors / Destructors
      * @param aObserver observer to be informed when task has completed.
      * @param aDataSource data source to be used by this object.
      */
-     CGlxDataSourceTaskMdeCommand(CGlxCommandRequest* aRequest, MGlxDataSourceRequestObserver& aObserver,
+     CGlxDataSourceTaskMdeCommand(CGlxCommandRequest* aRequest, 
+             MGlxDataSourceRequestObserver& aObserver,
              CGlxDataSource* aDataSource);
 
      /**
@@ -88,12 +89,14 @@ private: // From MGlxCommandParserCallback
      /**
      * See @ref MGlxCommandParserCallback::AddToContainerL
      */ 
-     void AddToContainerL(const RArray<TGlxMediaId>& aSourceIds, const RArray<TGlxMediaId>& aTargetContainers);
+     void AddToContainerL(const RArray<TGlxMediaId>& aSourceIds, 
+             const RArray<TGlxMediaId>& aTargetContainers);
      
      /**
       * See @ref MGlxCommandParserCallback::AddToContainerL
       */ 
-     void AddToContainerL(const TDesC& aSourceUri, const RArray<TGlxMediaId>& aTargetContainers);    
+     void AddToContainerL(const TDesC& aSourceUri, 
+             const RArray<TGlxMediaId>& aTargetContainers);    
      
      /**
       * See @ref MGlxCommandParserCallback::CopyL
@@ -108,7 +111,8 @@ private: // From MGlxCommandParserCallback
      /**
       * See @ref MGlxCommandParserCallback::RemoveFromContainerL
       */ 
-     void RemoveFromContainerL(const RArray<TGlxMediaId>& aItemIds, const TGlxMediaId& aContainerId);
+     void RemoveFromContainerL(const RArray<TGlxMediaId>& aItemIds,
+             const TGlxMediaId& aContainerId);
      
      /**
       * See @ref MGlxCommandParserCallback::DeleteL
@@ -123,12 +127,14 @@ private: // From MGlxCommandParserCallback
      /**
       * See @ref MGlxCommandParserCallback::SetDescriptionL
       */ 
-     void SetDescriptionL(const RArray<TGlxMediaId>& aItemIds, const TDesC& aDescription);
+     void SetDescriptionL(const RArray<TGlxMediaId>& aItemIds, 
+             const TDesC& aDescription);
      
      /**
       * See @ref MGlxCommandParserCallback::SetCaptureLocationL
       */ 
-     void SetCaptureLocationL(const RArray<TGlxMediaId>& aItemIds, const TCoordinate& aCoordinate);
+     void SetCaptureLocationL(const RArray<TGlxMediaId>& aItemIds, 
+             const TCoordinate& aCoordinate);
      
      /**
       * See @ref MGlxCommandParserCallback::ThumbnailCleanupL
@@ -165,7 +171,8 @@ private:
 	 * @param aDrive destination drive.
 	 * @param aFileOperation file operation to perform (either a copy or a move) 
 	 */
-	void FileOperationL(const TArray<TGlxMediaId>& aSourceIds, const TDesC& aDrive, TFileOperation aFileOperation);
+	void FileOperationL(const TArray<TGlxMediaId>& aSourceIds, 
+	        const TDesC& aDrive, TFileOperation aFileOperation);
 	
     /**
 	 * Gets the container id for a given media id.
@@ -282,6 +289,18 @@ private: // from CGlxDataSourceTask
      */	
 	
 	TInt SearchStringL(TInt aResourceId);
+	
+	/**
+	 * Timer callback to stop scheduler wait
+	 * @param aPtr Pointer to object that started the timer
+	 * @return 0 to signal that further callbacks are unnecessary, 1 otherwise
+	 */
+	static TInt SchedulerStopCallback(TAny* aPtr);
+	    
+	/**
+	 * Starts the scheduler wait timer. When complete, Scheduler is stopped
+	 */	
+	void SchedulerStopComplete();
 
 private:	
 	/**
@@ -325,6 +344,16 @@ private:
     *
     */
     CGlxStringCache* iStringCache;
+    
+    /**
+	 *  Timer that checks if scheduler wait needs to be cancelled  
+	 */
+    CPeriodic* iTimer; 
+    
+    /**
+	*  Active scheduler wait object. (Owned)
+	*/
+    CActiveSchedulerWait* iSchedulerWait;
 	};
 
 #endif //_C_GLXDATASOURCETASKMDSCOMMAND_H_

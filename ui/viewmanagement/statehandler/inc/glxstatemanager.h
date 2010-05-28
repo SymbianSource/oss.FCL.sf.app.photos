@@ -135,6 +135,7 @@ private:
     GlxActionHandler    *mActionHandler;
     GlxTNObserver       *mTNObserver;
     int                 mCollectionId;
+    bool                isProgressbarRunning;
 };
 
 

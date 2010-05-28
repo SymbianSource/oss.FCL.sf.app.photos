@@ -83,7 +83,7 @@ GlxMediaModel::~GlxMediaModel()
 	clearExternalItems();
 	err1 = HAL::Get( HALData::EMemoryRAMFree, freeMemory );
 	qDebug("####mediaModel : Memory available after cache cleanup  = %d and error is = %d ", freeMemory , err1 );
-    int err = disconnect(mMLWrapper, SIGNAL(updateIcon(int, HbIcon*)), this, SLOT(itemUpdated1(int, HbIcon*)));
+    int err = disconnect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	err = disconnect(mMLWrapper, SIGNAL(itemCorrupted(int)), this, SLOT(itemCorrupted(int)));
 	err = disconnect(mMLWrapper, SIGNAL(insertItems(int, int)), this, SLOT(itemsAdded(int, int)));
 	err = disconnect(mMLWrapper, SIGNAL(removeItems(int, int)), this, SLOT(itemsRemoved(int, int)));

@@ -11,7 +11,7 @@
 *
 * Contributors:
 *
-* Description:   
+* Description:  Inline methods for the data source MDS class
 *
 */
 

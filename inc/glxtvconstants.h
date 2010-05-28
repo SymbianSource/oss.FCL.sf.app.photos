@@ -30,7 +30,8 @@ enum TTvChangeType
     {
     ETvConnectionChanged = 0,
     ETvDisplayIsVisible,
-    ETvDisplayNotVisible
+    ETvDisplayNotVisible,
+    EDisconnected
     };
 
 /** TV size constants */

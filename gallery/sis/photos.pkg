@@ -20,7 +20,7 @@
 &EN
 
 ; Package header
-#{"photos"},(0x20000A14),1,1,0, TYPE=SA ,RU
+#{"photos"},(0x20000A14),2, 1, 0, TYPE=SA ,RU
 
 ; Localised Vendor name
 %{"Nokia, Qt"}
@@ -109,6 +109,8 @@
 "\epoc32\release\armv5\urel\glxmodelwrapper.dll"           -"!:\sys\bin\glxmodelwrapper.dll"
 "\epoc32\release\armv5\urel\glxloggerqt.dll"               -"!:\sys\bin\glxloggerqt.dll"
 "\epoc32\release\armv5\urel\glxviews.dll"                  -"!:\sys\bin\glxviews.dll"
+"\epoc32\release\armv5\urel\glxviewutilities.dll"          -"!:\sys\bin\glxviewutilities.dll"
+"\epoc32\release\armv5\urel\glxzoomwidget.dll"          -"!:\sys\bin\glxzoomwidget.dll"
 
 ;translations
 "\epoc32\data\z\resource\qt\translations\photos_en.qm"     -"!:\resource\qt\translations\photos.qm"
@@ -116,4 +118,7 @@
 ;cenrep
 "\epoc32\data\Z\private\10202BE9\20007194.txt"			   -"!:\private\10202BE9\20007194.txt"		
 
+;splash screen
+"\epoc32\data\z\resource\hb\splashml\photos.splashml"  				-"!:\resource\hb\splashml\photos.splashml"
+"\epoc32\data\z\resource\hb\splashml\photos.docml"  					-"!:\resource\hb\splashml\photos.docml"
 

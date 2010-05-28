@@ -53,7 +53,8 @@ GlxStateManager::GlxStateManager()
       mCurrentModel( NULL ), 
       mCurrentState( NULL ), 
       mActionHandler( NULL ),
-      mTNObserver ( NULL )
+      mTNObserver ( NULL ),
+      isProgressbarRunning ( false )
 {
     qDebug("GlxStateManager::GlxStateManager");
     PERFORMANCE_ADV ( d1, "view manager creation time") {
@@ -108,6 +109,7 @@ void GlxStateManager::launchApplication()
     if ( mTNObserver->getTNLeftCount() > 0 ) {
         mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
         mViewManager->launchProgressDialog( mTNObserver->getTNLeftCount() );
+		isProgressbarRunning = true ;
     }
     else {
         createModel( GLX_GRIDVIEW_ID );
@@ -148,19 +150,26 @@ void GlxStateManager::setupItems()
 }
 
 void GlxStateManager::updateTNProgress( int count)
-{
-    if (  mCurrentState->id() != GLX_GRIDVIEW_ID  && count > 0) {
+{    
+    // this is case when progress bar is not showing
+    // in the case of rename of an image or capture the single item
+    // it is also launching the progress bar, to avoid this scenario add the check of count more than 5
+    if ( mCurrentModel && count > 5 ) { 
          goBack( GLX_GRIDVIEW_ID, ALL_ITEM_S ) ;
-    }
-    if ( mCurrentModel && count > 0) {
          cleanAllModel();   
          mViewManager->launchProgressDialog ( count ) ;
+         isProgressbarRunning = true ;         
     }
-    if ( count == 0 ) {
-        createModel( mCurrentState->id() );
-        mViewManager->setModel( mCurrentModel );
+    
+    if ( isProgressbarRunning ){
+        if ( count == 0 ) {
+            createModel( mCurrentState->id() );
+            mViewManager->setModel( mCurrentModel );
+            isProgressbarRunning = false;
+        }
+        
+        mViewManager->updateProgressDialog( count );
     }
-    mViewManager->updateProgressDialog( count );
 }
 
 void GlxStateManager::nextState(qint32 state, int internalState)
@@ -218,6 +227,12 @@ void GlxStateManager::previousState()
 void GlxStateManager::goBack(qint32 stateId, int internalState)
 {
     qDebug("GlxStateManager::goBack()");
+    
+    //if current state and it internal state is same then no need to do any thing
+    if ( mCurrentState->id() == stateId  && mCurrentState->state() == internalState ) {
+        return ;
+    }
+    
     GlxState *state = mCurrentState;
     
     while ( mCurrentState ) {
@@ -549,6 +564,18 @@ void GlxStateManager::eventHandler(qint32 &id)
        
    case EGlxCmdSetupItem :
        emit setupItemsSignal();
+       break;
+       
+   case EGlxCmdAppBackground :
+       if ( isProgressbarRunning ){
+            mTNObserver->stopTNMDaemon();
+       }
+       break;
+ 
+   case EGlxCmdAppForeground :
+       if ( isProgressbarRunning ){
+            mTNObserver->startTNMDaemon();
+       }
        break;
        
     default :

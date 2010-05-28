@@ -71,6 +71,11 @@ public slots:
 
 protected :
     QVariant  itemChange (GraphicsItemChange change, const QVariant &value) ;
+    
+    /*
+     *  To emit the signal when application goes into background or come back to foreground
+     */
+    bool eventFilter(QObject *obj, QEvent *ev);    
 
 private slots:
     void indicateLongPress(const QModelIndex& index, QPointF coords);

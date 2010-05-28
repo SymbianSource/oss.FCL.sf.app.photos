@@ -84,7 +84,6 @@ public: // class member functions
      */
     TBool IsHDMIConnected() const;
 
-
 private: // From CActive
     /**
      * @ref CActive::RunL
@@ -129,6 +128,9 @@ private: // class member data
 
     // TVout The Connection state
     TBool iIsHDMIConnected;
+
+    // Headset The Connection state
+    TBool iIsHeadSetConnected;
 
     // The (external device) Accessory Server
     RAccessoryServer iTvAccServer;

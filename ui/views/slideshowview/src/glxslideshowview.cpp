@@ -91,6 +91,7 @@ void GlxSlideShowView::deActivate()
                 
     disconnect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) );
     disconnect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
+        
     //Delete the Items in the slide show widget
     mSlideShowWidget->cleanUp();
     
@@ -116,7 +117,7 @@ void GlxSlideShowView::setModel(QAbstractItemModel *model)
     mSlideShowWidget->setModel(mModel);
     
     if (mTvOutWrapper){
-        mTvOutWrapper->setModel(mModel);
+        mTvOutWrapper->setModel(mModel,true);
         mTvOutWrapper->setImagetoHDMI();
     }
 }
@@ -161,6 +162,12 @@ void GlxSlideShowView::slideShowEventHandler( GlxSlideShowEvent e)
 
         case EMPTY_DATA_EVENT :
             emit actionTriggered( EGlxCmdEmptyData );
+            break;
+            
+        case EFFECT_STARTED:
+            if (mTvOutWrapper){
+            mTvOutWrapper->fadeSurface(false);
+            }
             break;
 
         default :
