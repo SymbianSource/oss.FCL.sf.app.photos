@@ -21,7 +21,6 @@
 #include <glxfilterfactory.h>                         // For TGlxFilterFactory
 #include <glxthumbnailattributeinfo.h>
 #include <glxuiutility.h>                               // For UiUtility instance
-#include <glxcollectionpluginmonths.hrh>
 #include <glxtracer.h>
 #include <glxlog.h>
 #include <glxerrormanager.h>             // For CGlxErrormanager
@@ -209,13 +208,12 @@ TInt CGlxPreviewThumbnailBinding::IsTimeL( TAny* aSelf )
 // ----------------------------------------------------------------------------
 //    
 void CGlxPreviewThumbnailBinding::HandleItemChangedL(const CMPXCollectionPath& aPath,
-        TBool aPopulateListTNs, TBool  aIsRefreshNeeded, TBool aBackwardNavigation)
+        TBool  aIsRefreshNeeded, TBool aBackwardNavigation)
     {
     TRACER("CGlxPreviewThumbnailBinding::HandleItemChangedL");
     GLX_LOG_INFO("CGlxPreviewThumbnailBinding::HandleItemChangedL()");
     
     iTimerTicked = EFalse;
-    iPopulateListTNs = aPopulateListTNs;
     iIsRefreshNeeded = aIsRefreshNeeded;
 
     // remove and close old medialist   
@@ -257,12 +255,9 @@ void CGlxPreviewThumbnailBinding::StartTimer()
         iTimer->Cancel();
         }
         
-    if (iPopulateListTNs)
-        {
-        iTimer->Start(KThumbnailsTimeTimeDelay, KThumbnailsTimeTimeDelay,
-                TCallBack(IsTimeL, this));
-        }
-     }
+    iTimer->Start(KThumbnailsTimeTimeDelay, KThumbnailsTimeTimeDelay,
+            TCallBack(IsTimeL, this));
+    }
 
 // ----------------------------------------------------------------------------
 // StopTimer - Stop the timer
@@ -324,13 +319,7 @@ void CGlxPreviewThumbnailBinding::HandleAttributesAvailableL( TInt aItemIndex,
         if (value)
 	        {
 	        GLX_LOG_INFO("CGlxPreviewThumbnailBinding::HandleAttributesAvailableL()");
-            // sometimes we get HandleAttributesAvailableL callback after some delay
-            // when we do cache cleanup. 
-            if(!iPopulateListTNs)
-            	{
-            	iPopulateListTNs = ETrue;
-            	StartTimer();
-            	} 
+           	StartTimer();
             }
         }
     }
@@ -418,7 +407,7 @@ void CGlxPreviewThumbnailBinding::HandlePopulatedL( MGlxMediaList* /*aList*/ )
 
 	// Do cache cleanup. If iIsRefreshNeeded is set,
 	// then clean up the item at 0th index 
-	if (iPopulateListTNs && iIsRefreshNeeded)
+	if (iIsRefreshNeeded)
 		{
 		if (iMediaList && iMediaList->Count() > 0)
 			{

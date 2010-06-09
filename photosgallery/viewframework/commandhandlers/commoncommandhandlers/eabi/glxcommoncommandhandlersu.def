@@ -42,7 +42,7 @@ EXPORTS
 	_ZN24CGlxCommandHandlerUploadD0Ev @ 41 NONAME
 	_ZN24CGlxCommandHandlerUploadD1Ev @ 42 NONAME
 	_ZN24CGlxCommandHandlerUploadD2Ev @ 43 NONAME
-	_ZN25CGlxCommandHandlerAiwEdit4NewLEP21MGlxMediaListProvideri @ 44 NONAME
+	_ZN25CGlxCommandHandlerAiwEdit4NewLEP21MGlxMediaListProvider @ 44 NONAME
 	_ZN25CGlxCommandHandlerAiwEditD0Ev @ 45 NONAME
 	_ZN25CGlxCommandHandlerAiwEditD1Ev @ 46 NONAME
 	_ZN25CGlxCommandHandlerAiwEditD2Ev @ 47 NONAME
@@ -87,23 +87,21 @@ EXPORTS
 	_ZN32CGlxCommandHandlerAddToContainer26NewAddToFavCommandHandlerLEP21MGlxMediaListProvideriRK7TDesC16 @ 86 NONAME
 	_ZN32CGlxCommandHandlerAddToContainer26NewAddToTagCommandHandlerLEP21MGlxMediaListProvideriRK7TDesC16 @ 87 NONAME
 	_ZN32CGlxCommandHandlerAddToContainer28NewAddToAlbumCommandHandlerLEP21MGlxMediaListProvideriRK7TDesC16 @ 88 NONAME
-	_ZN32CGlxCommandHandlerAddToContainer37NewAddToTagSingleClickCommandHandlerLEP21MGlxMediaListProvideriRK7TDesC16 @ 89 NONAME
-	_ZN32CGlxCommandHandlerAddToContainer39NewAddToAlbumSingleClickCommandHandlerLEP21MGlxMediaListProvideriRK7TDesC16 @ 90 NONAME
-	_ZN32CGlxCommandHandlerAddToContainer4NewLEP21MGlxMediaListProvideriiRK7TDesC16 @ 91 NONAME
-	_ZN32CGlxCommandHandlerAddToContainerD0Ev @ 92 NONAME
-	_ZN32CGlxCommandHandlerAddToContainerD1Ev @ 93 NONAME
-	_ZN32CGlxCommandHandlerAddToContainerD2Ev @ 94 NONAME
-	_ZN33CGlxCommandHandlerAiwPrintPreview4NewLEP21MGlxMediaListProvideriRK7TDesC16 @ 95 NONAME
-	_ZN35CGlxCommandHandlerAiwShowMapHardKey4NewLEP21MGlxMediaListProvideri @ 96 NONAME
-	_ZN38CGlxCommandHandlerFilterImagesOrVideos4NewLEP21MGlxMediaListProvider @ 97 NONAME
-	_ZN38CGlxCommandHandlerFilterImagesOrVideosD0Ev @ 98 NONAME
-	_ZN38CGlxCommandHandlerFilterImagesOrVideosD1Ev @ 99 NONAME
-	_ZN38CGlxCommandHandlerFilterImagesOrVideosD2Ev @ 100 NONAME
-	_ZNK20CGlxMediaListAdaptor9MdcaCountEv @ 101 NONAME
-	_ZNK20CGlxMediaListAdaptor9MdcaPointEi @ 102 NONAME
-	_ZNK26CGlxCommandHandlerNewMedia23BypassFiltersForExecuteEv @ 103 NONAME
-	_ZNK26CGlxCommandHandlerNewMedia8OkToExitEv @ 104 NONAME
-	_ZThn48_N26CGlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 105 NONAME
-	_ZThn4_NK20CGlxMediaListAdaptor9MdcaCountEv @ 106 NONAME
-	_ZThn4_NK20CGlxMediaListAdaptor9MdcaPointEi @ 107 NONAME
+	_ZN32CGlxCommandHandlerAddToContainer4NewLEP21MGlxMediaListProvideriiRK7TDesC16 @ 89 NONAME
+	_ZN32CGlxCommandHandlerAddToContainerD0Ev @ 90 NONAME
+	_ZN32CGlxCommandHandlerAddToContainerD1Ev @ 91 NONAME
+	_ZN32CGlxCommandHandlerAddToContainerD2Ev @ 92 NONAME
+	_ZN33CGlxCommandHandlerAiwPrintPreview4NewLEP21MGlxMediaListProvideriRK7TDesC16 @ 93 NONAME
+	_ZN35CGlxCommandHandlerAiwShowMapHardKey4NewLEP21MGlxMediaListProvideri @ 94 NONAME
+	_ZN38CGlxCommandHandlerFilterImagesOrVideos4NewLEP21MGlxMediaListProvider @ 95 NONAME
+	_ZN38CGlxCommandHandlerFilterImagesOrVideosD0Ev @ 96 NONAME
+	_ZN38CGlxCommandHandlerFilterImagesOrVideosD1Ev @ 97 NONAME
+	_ZN38CGlxCommandHandlerFilterImagesOrVideosD2Ev @ 98 NONAME
+	_ZNK20CGlxMediaListAdaptor9MdcaCountEv @ 99 NONAME
+	_ZNK20CGlxMediaListAdaptor9MdcaPointEi @ 100 NONAME
+	_ZNK26CGlxCommandHandlerNewMedia23BypassFiltersForExecuteEv @ 101 NONAME
+	_ZNK26CGlxCommandHandlerNewMedia8OkToExitEv @ 102 NONAME
+	_ZThn48_N26CGlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 103 NONAME
+	_ZThn4_NK20CGlxMediaListAdaptor9MdcaCountEv @ 104 NONAME
+	_ZThn4_NK20CGlxMediaListAdaptor9MdcaPointEi @ 105 NONAME
 

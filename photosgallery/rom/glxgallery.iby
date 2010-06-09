@@ -69,8 +69,6 @@ ECOM_PLUGIN( glxcollectionpluginalbums.dll, glxcollectionpluginalbums.rsc )
 
 ECOM_PLUGIN( glxcollectionpluginall.dll, glxcollectionpluginall.rsc )
 
-ECOM_PLUGIN( glxcollectionpluginmonths.dll, glxcollectionpluginmonths.rsc )
-
 ECOM_PLUGIN( glxcollectionpluginimageviewer.dll, glxcollectionpluginimageviewer.rsc )
 
 file=ABI_DIR\BUILD_DIR\glxlayouts.dll                           SHARED_LIB_DIR\glxlayouts.dll  

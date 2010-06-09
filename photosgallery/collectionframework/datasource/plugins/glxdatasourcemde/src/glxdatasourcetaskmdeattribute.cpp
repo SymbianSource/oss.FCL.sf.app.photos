@@ -21,7 +21,6 @@
 #include "glxdatasourcetaskmdeattribute.h"
 
 #include <glxcollectionpluginCamera.hrh>
-#include <glxcollectionpluginDownloads.hrh>
 #include <glxcollectionpluginMonths.hrh>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginall.hrh>
@@ -379,12 +378,6 @@ void CGlxDataSourceTaskMdeAttribute::AddCollectionAttributesL(CMPXMedia* aEntry)
                     {
                     isContent = EFalse;
                     objectDef = &DataSource()->TagDef();
-                    break;
-                    }
-                case KGlxCollectionPluginMonthsImplementationUid:
-                    {
-                    container = DataSource()->CameraAlbumId();
-                    objectDef = &DataSource()->AlbumDef();
                     break;
                     }
                 default:

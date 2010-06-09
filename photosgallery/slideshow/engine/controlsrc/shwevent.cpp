@@ -147,3 +147,24 @@ SHW_DEFINE_EVENT_CLASS( TShwEventFatalError );
  * Selection key pressed for changed ui state (Hide or visible)
  */
 SHW_DEFINE_EVENT_CLASS( TShwEventToggleControlUi);
+
+/**
+ * Event for HDMI Disconnected.
+ */
+SHW_DEFINE_EVENT_CLASS( TShwEventHDMIDisConnected );
+
+/**
+ * Event for HDMI Image decoding has started.
+ */
+SHW_DEFINE_EVENT_CLASS( TShwEventHDMIImageDecodingStarted );
+
+/**
+ * Event for HDMI Image decoding has completed.
+ */
+SHW_DEFINE_EVENT_CLASS( TShwEventHDMIImageDecodingCompleted );
+
+/**
+ * Event for HDMI First Image decoding has completed.
+ */
+SHW_DEFINE_EVENT_CLASS( TShwEventHDMIFirstImageDecodingCompleted );
+

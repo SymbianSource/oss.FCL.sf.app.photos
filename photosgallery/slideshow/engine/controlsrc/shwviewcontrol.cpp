@@ -36,6 +36,7 @@ inline CShwViewControl::CShwViewControl( MGlxMediaList& aList )
 	iTransitionReadyReceived( EFalse ),
 	iReadyToAdvanceReceived( EFalse ),
 	iTimerReceived( EFalse ),
+	iHDMIDecoded(ETrue),
 	iUserNavigated( EFalse ),
 	iPaused( EFalse ),
 	iUserNavigatedWhilePaused( EFalse )
@@ -179,6 +180,25 @@ void CShwViewControl::NotifyL( MShwEvent* aEvent )
         GLX_LOG_INFO( "CShwViewControl::NotifyL - TShwEventToggleControlUi" );
         // Have to impliment if need comes
         }	 
+	else if( dynamic_cast< TShwEventHDMIDisConnected* >( aEvent ) )
+		{
+		GLX_LOG_INFO( "CShwViewControl::NotifyL - TShwEventHDMIDisConnected" );
+		iHDMIDecoded = ETrue ;
+		// check if we are ok to go to start transition
+        CheckAndSendStartTransitionL();
+		}
+	else if( dynamic_cast< TShwEventHDMIImageDecodingStarted* >( aEvent ) )
+		{
+		GLX_LOG_INFO( "CShwViewControl::NotifyL - TShwEventHDMIImageDecodingStarted" );
+		iHDMIDecoded = EFalse ; 
+		}
+	else if( dynamic_cast< TShwEventHDMIImageDecodingCompleted* >( aEvent ) )
+		{
+		GLX_LOG_INFO( "CShwViewControl::NotifyL - TShwEventHDMIImageDecodingCompleted" );
+		iHDMIDecoded = ETrue ;
+		// check if we are ok to go to start transition
+        CheckAndSendStartTransitionL();
+		}
 	}
 
 // -----------------------------------------------------------------------------
@@ -190,8 +210,8 @@ void CShwViewControl::CheckAndSendStartTransitionL()
     GLX_LOG_INFO( "CShwViewControl::CheckAndSendStartTransitionL" );
 	// check if we got timer and ready to advance and 
 	// we are not paused and there is more than one item
-	if( iTimerReceived && iReadyToAdvanceReceived && 
-	    (!iPaused) && (iList.Count() > 1) )
+	if (iTimerReceived && iReadyToAdvanceReceived && iHDMIDecoded && (!iPaused)
+			&& (iList.Count() > 1))
 	    {
         GLX_LOG_INFO( "CShwViewControl::Sending TShwEventStartTransition" );
         // reset timer and viewready flags

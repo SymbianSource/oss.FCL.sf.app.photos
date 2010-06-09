@@ -25,6 +25,7 @@
 #include "graphics/surface.h"
 #include "graphics/surfaceupdateclient.h"
 #include <graphics/surfaceconfiguration.h>
+#include "mglxhdmidecoderobserver.h" //For MGlxHDMIDecoderObserver
 
 // forward decleration
 class CGlxActiveCallBack;
@@ -41,10 +42,12 @@ class CGlxHdmiSurfaceUpdater: public CBase
     {
 public:
     /*
-     * NewL
-     */
-    static CGlxHdmiSurfaceUpdater* NewL(RWindow* aWindow, const TDesC& aImageFile, 
-            CFbsBitmap* aFsBitmap, MGlxGenCallback* aCallBack);
+	 * NewL
+	 */
+	static CGlxHdmiSurfaceUpdater* NewL(RWindow* aWindow,
+			const TDesC& aImageFile, const TDesC& aNextImageFile,
+			CFbsBitmap* aFsBitmap, MGlxGenCallback* aCallBack,
+			MGlxHDMIDecoderObserver& aDecoderObserver);
 
     /*
      * Destructor
@@ -60,7 +63,8 @@ public:
     /*
      * This updates the new image.
      */
-    void UpdateNewImageL(const TDesC& aImageFile,CFbsBitmap* aFsBitmap);
+    void UpdateNewImageL(const TDesC& aImageFile,
+            const TDesC& aNextImageFile, CFbsBitmap* aFsBitmap);
 
     /*
      * Activate Zoom 
@@ -87,14 +91,16 @@ public:
 
 private:
     /*
-     * Constructor 
-     */
-    CGlxHdmiSurfaceUpdater(RWindow* aWindow, MGlxGenCallback* aCallBack);
+	 * Constructor 
+	 */
+	CGlxHdmiSurfaceUpdater(RWindow* aWindow, MGlxGenCallback* aCallBack,
+			MGlxHDMIDecoderObserver& aDecoderObserver);
 
     /*
      * ConstructL()
      */
-    void ConstructL(CFbsBitmap* aFsBitmap,const TDesC& aImageFile);   
+    void ConstructL(CFbsBitmap* aFsBitmap, const TDesC& aImageFile,
+			const TDesC& aNextImageFile);   
 
     /*
      * Create a New surface with given size
@@ -109,7 +115,7 @@ private:
      * This fundtion wont be called , could be used if double buffering is planned in future
      * to start the second decoder AO and update the surface with a new session. 
      */
-    static TInt SurfBuffer0Ready(TAny* aObject);    
+    static TInt SurfBuffer0ReadyL(TAny* aObject);    
     
     /*
      * Call a refresh on the screen  
@@ -185,15 +191,19 @@ private:
     void ScaleDecodedBitmapL(TInt aBitmapIndex);
 
     /*
-     * InitiateHDMI
-     */
-    void InitiateHdmiL(CFbsBitmap* aFsBitmap,const TDesC& aImageFile);
+	 * Initiate HDMI
+	 */
+	void InitiateHdmiL(CFbsBitmap* aFsBitmap, const TDesC& aImageFile,
+			const TDesC& aNextImageFile);
+    
+    void DecodeNextImageL();
 
 private:
     RWindow*        iWindow;                        // window object
     CFbsBitmap*     iFsBitmap;                      // FS bitmap
     MGlxGenCallback* iCallBack;                     // callback to the HdmiContainer window
-    HBufC*          iImagePath;                     // To store the image uri path
+    HBufC*          iImagePath;                     // To store the image uri path    
+    HBufC*          iNextImagePath;                 // To store the image uri path
 
     // GCE Surface
     RSurfaceUpdateSession iSurfUpdateSession;
@@ -227,9 +237,13 @@ private:
     TBool       iBitmapReady;                       // If the bitmap is decoded and ready
     TBool       iAutoZoomOut;                       // If the UI has asked for auto zoomout
     TBool       iSurfSessionConnected;              // If surface session is connected
-	TBool iShiftToCloning;
+    TBool       iShiftToCloning;
     TBool       iShwFsThumbnail;                    // If the Fs thumbnail is to be shown before decoding HD images
     TBool       iIsNonJpeg;                         // If the item is non jpeg
+    MGlxHDMIDecoderObserver& iDecoderObserver;      // doesn't own
+    TBool       iDecodingCurrent;                   // Decoding Current Image
+    TBool       iDecodingNext;                      // Decoding Next Image
+    TBool       iDecodingNextFailed;                // Decoding Next Image
 
 #ifdef _DEBUG
     TTime iStartTime;

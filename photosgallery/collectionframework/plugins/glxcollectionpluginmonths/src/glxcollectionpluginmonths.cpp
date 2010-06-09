@@ -537,6 +537,10 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
                 	// Set the title in the response.
             		aResponse->SetTextValueL(attr, *tempTitle);
             		CleanupStack::PopAndDestroy(tempTitle);
+					
+            		// Set the count in the response.
+            		aResponse->SetTObjectValueL(KMPXMediaGeneralCount, usageCount);    
+
             		continue;
             		}
 
@@ -547,6 +551,10 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 
                     aResponse->SetTextValueL(attr, *tempTitle);
                     CleanupStack::PopAndDestroy(tempTitle);
+					
+            		// Set the count in the response.
+            		aResponse->SetTObjectValueL(KMPXMediaGeneralCount, usageCount);    
+					
                     continue;
                     }
                 else
@@ -564,6 +572,9 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
                 
                 // Set the title in the response.
                 aResponse->SetTextValueL(attr, *title);    
+
+                // Set the count in the response.
+                aResponse->SetTObjectValueL(KMPXMediaGeneralCount, usageCount);    
 
                 CleanupStack::PopAndDestroy(title);
                 CleanupStack::PopAndDestroy(tempTitle);	

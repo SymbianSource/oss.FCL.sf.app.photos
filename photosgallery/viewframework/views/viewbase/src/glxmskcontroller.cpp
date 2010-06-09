@@ -291,13 +291,6 @@ void CGlxMSKController::SetStatusL(MGlxMediaList* aList)
 			            }
 	                break;
                     }
-                case EMPXMonth:
-                    {
-                    iCba->SetCommandL(CEikButtonGroupContainer::EMiddleSoftkeyPosition,
-                            EAknCmdOpen, textopen );
-                    iCba->DrawNow();
-                    break;
-                    }
                 case EMPXAlbum:
                     {
                     iCba->SetCommandL(CEikButtonGroupContainer::EMiddleSoftkeyPosition,

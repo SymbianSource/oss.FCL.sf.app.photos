@@ -109,6 +109,8 @@ NONSHARABLE_CLASS( CShwSlideshowEngineImpl )
 		void VolumeDownL();
 	    /// @ref CShwSlideshowEngine::GetMusicVolumeL
 	    void GetMusicVolumeL();
+	    /// @ref CShwSlideshowEngine::HandleHDMIDecodingEventL
+		void HandleHDMIDecodingEventL(THdmiDecodingStatus aStatus);
 
 	public: // From MShwEventObserver
 

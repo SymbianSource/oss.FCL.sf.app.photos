@@ -181,3 +181,14 @@ EXPORT_C void CShwSlideshowEngine::LSKPressedL()
     GLX_LOG_INFO("CShwSlideshowEngine::LSKPressedL");
     this->iImpl->LSKPressedL();
     }
+
+// -----------------------------------------------------------------------------
+// HandleHDMIDecodingEvent
+// -----------------------------------------------------------------------------
+EXPORT_C void CShwSlideshowEngine::HandleHDMIDecodingEventL(
+        THdmiDecodingStatus aStatus)
+    {
+    TRACER("CShwSlideshowEngine::HandleHDMIDecodingEventL");
+    this->iImpl->HandleHDMIDecodingEventL(aStatus);
+    }
+

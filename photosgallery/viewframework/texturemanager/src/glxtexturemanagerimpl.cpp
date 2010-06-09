@@ -842,6 +842,11 @@ CAlfTexture& CGlxTextureManagerImpl::CreateAnimatedGifTextureL(
                     EAlfTextureFlagDefault,iAnimatedTnmList[thumbnailIndex].iTextureId );   
             iAnimatedTnmList[thumbnailIndex].iTexture = &newTexture ;
             }
+        // While reloading texture, Need to start animaiton with 
+        // explicit call as we stopped animation while unloading texture
+        // This is not required when creating a new texture as Alf
+        // starts animation by default on those textures.
+        (iAnimatedTnmList[thumbnailIndex].iTexture)->StartAnimation();
         return *iAnimatedTnmList[thumbnailIndex].iTexture;
         }
     
@@ -1225,13 +1230,12 @@ void CGlxTextureManagerImpl::HandleBitmapDecodedL(TInt aThumbnailIndex,CFbsBitma
 // HandleAttributesAvailableL
 // -----------------------------------------------------------------------------
 //
-void CGlxTextureManagerImpl::HandleAttributesAvailableL(const TGlxIdSpaceId& /*aIdSpaceId*/, 
-                                                const TGlxMediaId& /*aMediaId*/, 
-                                                const RArray<TMPXAttribute>& /*aAttributes*/, 
-                                                const CGlxMedia* /*aMedia*/)
-	{
-		
-	}
+void CGlxTextureManagerImpl::HandleAttributesAvailableL(
+        const TGlxIdSpaceId& /*aIdSpaceId*/, const TGlxMediaId& /*aMediaId*/,
+        const RArray<TMPXAttribute>& /*aAttributes*/, 
+        const CGlxMedia* /*aMedia*/)
+    {
+    }
 
 // -----------------------------------------------------------------------------
 // CleanupTextureCacheL
@@ -1242,8 +1246,6 @@ void CGlxTextureManagerImpl::CleanupMedia(const TGlxMediaId& aMediaId)
 	TRACER("CGlxTextureManagerImpl::CleanupMedia");
 	RemoveTexture(aMediaId, EFalse);
 	}
-
-
 
 // -----------------------------------------------------------------------------
 // ScaleGridTnmToFsL
@@ -1335,3 +1337,32 @@ void CGlxTextureManagerImpl::DeleteImageViewerInstance()
         iImageViewerInstance->DeleteInstance();
         }
     }
+
+// -----------------------------------------------------------------------------
+// AnimateMediaItem
+// -----------------------------------------------------------------------------
+//
+void CGlxTextureManagerImpl::AnimateMediaItem(const TGlxMediaId& aMediaId,
+        TBool aState)
+    {
+    TRACER("CGlxTextureManagerImpl::AnimateMediaItem");
+    TInt index = iAnimatedTnmList.Find(aMediaId,
+            &TGlxThumbnailIcon::MatchMediaId);
+    if (index != KErrNotFound)
+        {
+        if (iAnimatedTnmList[index].iTexture)
+            {
+            if (aState)
+                {
+                GLX_LOG_INFO("AnimateMediaItem - Start animation");
+                (iAnimatedTnmList[index].iTexture)->StartAnimation();
+                }
+            else
+                {
+                GLX_LOG_INFO("AnimateMediaItem - Stop animation");
+                (iAnimatedTnmList[index].iTexture)->StopAnimation();
+                }
+            }
+        }
+    }
+

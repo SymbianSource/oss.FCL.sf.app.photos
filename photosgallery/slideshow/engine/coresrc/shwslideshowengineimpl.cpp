@@ -370,3 +370,44 @@ void CShwSlideshowEngineImpl::AvailableEffectsL(
 	// This should be queried from the playback factory
 	CShwPlaybackFactory::AvailableEffectsL( aEffects );
 	}
+
+// -----------------------------------------------------------------------------
+// HandleHDMIDecodingEventL
+// -----------------------------------------------------------------------------
+void CShwSlideshowEngineImpl::HandleHDMIDecodingEventL(
+        THdmiDecodingStatus aStatus)
+    {
+    TRACER("CShwSlideshowEngineImpl::HandleHDMIDecodingEventL");
+    GLX_LOG_INFO1("CShwSlideshowEngineImpl::HandleHDMIDecodingEventL: %d",
+            aStatus);
+
+    switch (aStatus)
+        {
+        case EHdmiDecodingStarted:
+            {
+            TShwEventHDMIImageDecodingStarted decodingStarted;
+            SendEventL(&decodingStarted);
+            break;
+            }
+        case EHdmiDecodingCompleted:
+            {
+            TShwEventHDMIImageDecodingCompleted decodingCompleted;
+            SendEventL(&decodingCompleted);
+            break;
+            }
+		case EHdmiDecodingFirstCompleted:
+			{
+			TShwEventHDMIFirstImageDecodingCompleted decodingFirstCompleted;
+			SendEventL( &decodingFirstCompleted );
+			break;
+			}						
+        case EHdmiDisconnected:
+		default:
+            {
+            TShwEventHDMIDisConnected hdmiDisconnected;
+            SendEventL(&hdmiDisconnected);
+            break;
+            }
+        }
+    }
+

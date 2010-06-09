@@ -25,7 +25,6 @@
 #include "glxdatasourcetaskmdeidlist.h"
 
 #include <glxcollectionpluginCamera.hrh>
-#include <glxcollectionpluginDownloads.hrh>
 #include <glxcollectionpluginMonths.hrh>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginall.hrh>
@@ -138,13 +137,6 @@ void CGlxDataSourceTaskMdeIdList::ExecuteRequestL()
                 objectDef = &DataSource()->TagDef();
                 break;
                 }
-            case KGlxCollectionPluginMonthsImplementationUid:
-                {
-                container = DataSource()->CameraAlbumId();
-                objectDef = &DataSource()->AlbumDef();
-                resultMode = EQueryResultModeObjectWithoutFreetexts;
-                break;
-                }
             default:
                 {
                 // default gallery query returns all objects as per filter
@@ -164,13 +156,6 @@ void CGlxDataSourceTaskMdeIdList::ExecuteRequestL()
             case KGlxTagCollectionPluginImplementationUid: 
                 {
                 objectDef = &DataSource()->TagDef();
-                break;
-                }
-            case KGlxCollectionPluginMonthsImplementationUid: 
-                {
-                AddMonthFilterL(container, iFilterProperties);
-                container = DataSource()->CameraAlbumId();
-                objectDef = &DataSource()->AlbumDef();
                 break;
                 }
             default:

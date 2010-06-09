@@ -143,12 +143,7 @@ protected:
      * @return a pointer to the CGlxDataSourceMde object passed in on instantiation.
      */
     CGlxDataSourceMde* DataSource();
-
-    void AddMonthFilterL(const TGlxMediaId& aContainerId, 
-            TGlxFilterProperties& aFilterProperties);
     
-    void AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProperties& aFilterProperties);
-        
 	/**
 	 * Set query contditions by container id and filter properties.
      * @param aLogicCondition logic condition to add conditions to
@@ -204,13 +199,6 @@ protected:
      * @param aObjectIds A list of the ids of the required objects.
      */
     void QueueAlbumObjectQueryL(const RArray<TGlxMediaId>& aObjectIds);
-    
-    /**
-     * Adds a query for "month" objects that have ids specified by aObjectIds
-     * to the query queue.
-     * @param aObjectIds A list of the ids of the required objects.
-     */
-    void QueueMonthObjectQueryL(const RArray<TGlxMediaId>& aObjectIds);
     
     /**
      * Adds a query for objects of type specified by aObjectDef

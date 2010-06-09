@@ -25,8 +25,6 @@
 #include "glxmainfullscreenviewplugin.h"
 #include "glxalbumfullscreenviewplugin.h"
 #include "glxcameraalbumfullscreenviewplugin.h"
-#include "glxdownloadsfullscreenviewplugin.h"
-#include "glxmonthsfullscreenviewplugin.h"
 #include "glxtagfullscreenviewplugin.h"
 #include "glximageviewerfullscreenviewplugin.h"
 
@@ -56,14 +54,6 @@ const TImplementationProxy ImplementationTable[] =
         KGlxCameraAlbumFullScreenViewImplementationId, 
         CGlxCameraAlbumFullScreenViewPlugin::NewL ),
          
-    IMPLEMENTATION_PROXY_ENTRY( 
-        KGlxDownloadsFullScreenViewImplementationId, 
-        CGlxDownloadsFullScreenViewPlugin::NewL ), 
-        
-    IMPLEMENTATION_PROXY_ENTRY( 
-        KGlxMonthsFullScreenViewImplementationId, 
-        CGlxMonthsFullScreenViewPlugin::NewL ), 
-        
     IMPLEMENTATION_PROXY_ENTRY( 
         KGlxTagFullScreenViewPluginImplementationUid, 
         CGlxTagFullScreenViewPlugin::NewL ),

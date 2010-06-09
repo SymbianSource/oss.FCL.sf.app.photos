@@ -94,9 +94,9 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::DoExecuteL(TInt aCommandId,
 
     // Check if the selected / focused file(s)s have been deleted from
 	// another application while the confirmation note is displayed
-    if (((selectionCount > 0) && (aList.SelectionCount() == 0)) ||
-        ((selectionCount == 0) &&
-        (focusedMedia.Id() != aList.Item(aList.FocusIndex()).Id())))
+    if (((selectionCount > 0) && (aList.SelectionCount() == 0))
+			|| ((selectionCount == 0) && aList.Count() && (focusedMedia.Id()
+					!= aList.Item(aList.FocusIndex()).Id())))
 		{
 		// All the selected / focused item(s) have been deleted,
 		// do not allow the command to execute.

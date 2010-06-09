@@ -22,6 +22,7 @@
 
 #include <mpxcollectionutility.h>
 #include <glxcollectionpluginimageviewer.hrh>
+#include <glxcollectionpluginalbums.hrh>
 #include <glxcommandhandler.h>
 #include <glxassert.h>
 #include <glxgallery.hrh>
@@ -59,26 +60,24 @@ EXPORT_C void CGlxMediaListViewBase::MLViewBaseConstructL(
     iEnableMidddleSoftkey = aEnableMiddleSoftkey; 
 
     iSelectionIterator.SetRange(KMaxTInt);
-    iPreloadContextForCommandHandlers  = new (ELeave) CGlxAttributeContext(&iSelectionIterator);
-    
-    if(aTitle.Length() > 0)
+
+    if (aTitle.Length() > 0)
         {
         iFixedTitle = aTitle.AllocL();
         }
-    
-    
-    if(iUiUtility->IsPenSupported())
+
+    if (iUiUtility->IsPenSupported())
         {
         // Responsible for controlling the ui states of toolbar
         // Create ToolbarController only for touch supported devices.
-           iToolbarControl = CGlxToolbarController::NewL();
+        iToolbarControl = CGlxToolbarController::NewL();
         }
     else
         {
         // Responsible for controlling the middle softkey if enabled.
         // Create Middle Softkey Controller only for non-touch devices
-            iCbaControl = CGlxMSKController::NewL();
-        }   
+        iCbaControl = CGlxMSKController::NewL();
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -96,7 +95,10 @@ EXPORT_C CGlxMediaListViewBase::~CGlxMediaListViewBase()
 
     delete iFixedTitle;
     delete iTitleFetcher;
-    delete iPreloadContextForCommandHandlers;
+    if (iPreloadContextForCommandHandlers)
+        {
+        delete iPreloadContextForCommandHandlers;
+        }
         
     if( iCbaControl )
         {
@@ -161,8 +163,24 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
     
     if (!iMediaList && iMediaListFactory)
         {
-        iMediaList = &iMediaListFactory->CreateMediaListL(*iCollectionUtility);
-    	iMediaList->AddContextL(iPreloadContextForCommandHandlers, 0);
+        iMediaList
+                = &iMediaListFactory->CreateMediaListL(*iCollectionUtility);
+
+        if ((navigationalState->Id() != TMPXItemId(
+                KGlxCollectionPluginAlbumsImplementationUid))
+                && (navigationalState->Id() != TMPXItemId(
+                        KGlxCollectionPluginAlbumsImplementationUid)))
+            {
+            iPreloadContextForCommandHandlers
+                    = new (ELeave) CGlxAttributeContext(&iSelectionIterator);
+            TInt commandHandlerCount = iCommandHandlerList.Count();
+            for (TInt i = 0; i < commandHandlerCount; i++)
+                {
+                DoPrepareCommandHandlerL(iCommandHandlerList[i]);
+                }
+            
+            iMediaList->AddContextL(iPreloadContextForCommandHandlers, 0);
+            }
         }
     __ASSERT_ALWAYS(iMediaList, Panic(EGlxPanicNullMediaList));
 
@@ -302,11 +320,15 @@ void CGlxMediaListViewBase::FetchAttributesL(TBool aFilterUsingCommandId,
 		AddAttributesToContextL(*attributeContext, iCommandHandlerList[i], ETrue, aFilterUsingCommandId, aCommandId);
 		}
 	
+	if( EAknSoftkeyBack == aCommandId || attributeContext->AttributeCount())
+	    {
+        // Check if media attributes are already fetched.
+        // If media item is NULL, Cancel the previous pending request
+        MediaList().CancelPreviousRequests();
+        }
+	
 	if (attributeContext->AttributeCount())
 		{
-		// Check if media attributes are already fetched.
-		// If media item is NULL, Cancel the previous pending request
-		MediaList().CancelPreviousRequests();
 				
 	    MediaList().AddContextL(attributeContext, KGlxFetchContextPriorityCommandHandlerOpening );
 	    
@@ -352,9 +374,12 @@ EXPORT_C void CGlxMediaListViewBase::HandleTitleAvailableL(
 EXPORT_C void CGlxMediaListViewBase::DoPrepareCommandHandlerL(
 											CGlxCommandHandler* aCommandHandler)
 	{
-	AddAttributesToContextL(*iPreloadContextForCommandHandlers, 
-			                                            aCommandHandler, EFalse, EFalse);
-	}
+    if (iPreloadContextForCommandHandlers)
+        {
+        AddAttributesToContextL(*iPreloadContextForCommandHandlers,
+                aCommandHandler, EFalse, EFalse);
+        }
+    }
 	
 // -----------------------------------------------------------------------------
 // CGlxMediaListViewBase::CloseMediaList
@@ -364,7 +389,10 @@ void CGlxMediaListViewBase::CloseMediaList()
 	{
     if (iMediaList)
         {
-        iMediaList->RemoveContext(iPreloadContextForCommandHandlers);
+        if (iPreloadContextForCommandHandlers)
+            {
+            iMediaList->RemoveContext(iPreloadContextForCommandHandlers);
+            }
         iMediaList->Close();
         iMediaList = NULL;
         }

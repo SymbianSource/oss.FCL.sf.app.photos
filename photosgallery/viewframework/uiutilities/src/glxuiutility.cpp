@@ -70,7 +70,7 @@ const TInt KItemsleft = 0x00000008; //PS key value
  * Start Delay for the periodic timer, in microseconds
  */
 const TInt KPeriodicStartDelay = 1000000; 
-
+const TInt KIgnoreItemsLeftCount = 5;
 //Hg 
 //#include <hg/hgcontextutility.h>
 
@@ -826,15 +826,28 @@ EXPORT_C TInt CGlxUiUtility::StopTNMDaemon()
 EXPORT_C TInt CGlxUiUtility::GetItemsLeftCount()
     {
     TRACER("CGlxUiUtility::GetItemsLeftCount");
-    TInt leftVariable = 0;
-    TInt err = RProperty::Get(KTAGDPSNotification, KItemsleft, leftVariable);
-    GLX_LOG_INFO1("GetItemsLeftCount: GetItemsLeftCount %d", leftVariable);
+    TInt itemsLeftCount = 0;
+    TInt err = RProperty::Get(KTAGDPSNotification, KItemsleft, itemsLeftCount);
+    GLX_LOG_INFO1("GetItemsLeftCount: GetItemsLeftCount %d", itemsLeftCount);
+
+    // In case of error, enter in the next view. Don't block photos permanently.
+    // [Though this use case is very unlikely]
     if (err != KErrNone)
         {
         GLX_LOG_INFO1("GetItemsLeftCount: RProperty::Get errorcode %d", err);
-        leftVariable = 0;
+        itemsLeftCount = 0;
         }
-    return leftVariable;
+
+    // This case is added as per UI-Improvements.
+    // Use case: Take a pic. open photos from Menu (not "Goto photos")
+    // Progress bar SHOULD NOT be displayed.
+    if (itemsLeftCount <= KIgnoreItemsLeftCount)
+        {
+        GLX_LOG_INFO("GetItemsLeftCount( < KIgnoreItemsLeftCount )");
+        itemsLeftCount = 0;
+        }
+
+    return itemsLeftCount;
     }
 
 // -----------------------------------------------------------------------------

@@ -196,6 +196,13 @@ public:
      */
     CAlfTexture& CreateFlatColourTextureL( TRgb aColour );   
 
+   /**
+    * Animate the given media.
+    * @param aMediaId The Id of the media to be animated
+    * @param aState Animation state [ETrue to Start, EFalse to Stop]
+    */
+    void AnimateMediaItem(const TGlxMediaId& aMediaId, TBool aState);
+        
 public:  // From MGlxCacheObserver
     void HandleAttributesAvailableL(const TGlxIdSpaceId& aIdSpaceId, 
                                     const TGlxMediaId& aMediaId, 
@@ -305,16 +312,26 @@ private:
         CFbsBitmap*         iBitmap;
 		TTime				iImageDate; 
         /**
-         * Helper functor to be able to find texture from array
+         * Helper function to be able to find texture from array
          */
         static TBool MatchTexture( 
             const CAlfTexture* aTexture, 
-            const TGlxThumbnailIcon& aRhs )
+            const TGlxThumbnailIcon& aThumbData )
         	{
         	// return true if the address of the texture match
-        	return aTexture == aRhs.iTexture;
+        	return aTexture == aThumbData.iTexture;
         	}
-        };
+
+        /**
+         * Helper function to be able to find mediaid from array
+         */
+        static TBool MatchMediaId(const TGlxMediaId* aMediaId,
+                const TGlxThumbnailIcon& aThumbData)
+            {
+        	// return true if the Media Id match
+            return *aMediaId == aThumbData.iMediaId;
+            }
+         };
     /**
     * Requests the best match texture. If it already exists this method does nothing.
     * However if it doed not exist it will create it and replace the old texture

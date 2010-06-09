@@ -223,48 +223,55 @@ TInt CShwSlideshowView::ShowProgressDialogL()
 // StartEngineL
 // -----------------------------------------------------------------------------
 TInt CShwSlideshowView::StartEngineL()
-    {
-    TRACER("CShwSlideshowView::StartEngineL");
-  	GLX_LOG_INFO( "CShwSlideshowView::StartEngineL" );
-    // Check that the list has some items
-  	if( iFilteredList )
-        {
-	    TInt filteredCount = iFilteredList->Count();
-	    TInt inputlistCount = iMediaList->Count();
-	    if ( ( inputlistCount < 1 )||
-	         ( filteredCount  < 1 ) )
-	        {
-	      	GLX_LOG_INFO2( 
-	            "CShwSlideshowView::PopulateListL error, counts: %d, %d", 
-	                inputlistCount, filteredCount );
-	        iEngineStartFailed = ETrue;
-	        // need to dismiss the dialog if it's still there
-	        if( iWaitDialog )
-	            {
-	            iWaitDialog->ProcessFinishedL();
-	            }
-	        }
-	    else
-	        {
-	        // The list should now be populated, so set the focus
-	       	SetListFocusL();
-	       	// Need to take latest screen size as layout has changed
-	       	TRect currentScreen;
-	       	AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EScreen,currentScreen);
-	       	iScrnSize = currentScreen.Size();
+	{
+	TRACER("CShwSlideshowView::StartEngineL");
+	GLX_LOG_INFO( "CShwSlideshowView::StartEngineL" );
+	// Check that the list has some items
+	if (iFilteredList)
+		{
+		TInt filteredCount = iFilteredList->Count();
+		TInt inputlistCount = iMediaList->Count();
+		if ((inputlistCount < 1) || (filteredCount < 1))
+			{
+			GLX_LOG_INFO2(
+					"CShwSlideshowView::PopulateListL error, counts: %d, %d",
+					inputlistCount, filteredCount );
+			iEngineStartFailed = ETrue;
+			// need to dismiss the dialog if it's still there
+			if (iWaitDialog)
+				{
+				iWaitDialog->ProcessFinishedL();
+				}
+			}
+		else
+			{
+			// The list should now be populated, so set the focus
+			SetListFocusL();
+			// Need to take latest screen size as layout has changed
+			TRect currentScreen;
+			AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EScreen,
+					currentScreen);
+			iScrnSize = currentScreen.Size();
 
-	       	iHdmiWidth = (iScrnSize.iWidth > iScrnSize.iHeight ?
-                                iScrnSize.iWidth :iScrnSize.iHeight);
-	        iHdmiHeight = (iScrnSize.iWidth < iScrnSize.iHeight ?
-                                iScrnSize.iWidth :iScrnSize.iHeight);
-
-	    	iEngine->StartL( 
-	    	    *iEnv, *iDisplay, *iFilteredList, *this, iScrnSize );
-	        }
-        }  
-    // return value needed as this is a TCallBack
-    return KErrNone;
-    }
+			iHdmiWidth
+					= (iScrnSize.iWidth > iScrnSize.iHeight ? iScrnSize.iWidth
+							: iScrnSize.iHeight);
+			iHdmiHeight
+					= (iScrnSize.iWidth < iScrnSize.iHeight ? iScrnSize.iWidth
+							: iScrnSize.iHeight);
+			iEngine->StartL(*iEnv, *iDisplay, *iFilteredList, *this, iScrnSize);
+			if (iHdmiController == NULL || (iHdmiController
+					&& !iHdmiController->IsHDMIConnected()))
+				{
+				iEngine->HandleHDMIDecodingEventL(EHdmiDisconnected);
+				}
+			SetItemToHDMIL();
+			iHdmiActive = ETrue;
+			}
+		}
+	// return value needed as this is a TCallBack
+	return KErrNone;
+	}
 
 // -----------------------------------------------------------------------------
 // PopulateListL
@@ -451,7 +458,7 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
 
 	if(!iHdmiController)
 		{
-	    iHdmiController = CGlxHdmiController::NewL();
+	    iHdmiController = CGlxHdmiController::NewL(*this);
 		}
 	if(!iTvConnection)
 		{
@@ -753,22 +760,24 @@ void CShwSlideshowView::HandlePopulatedL( MGlxMediaList* aList )
 // ---------------------------------------------------------------------------
 //
 void CShwSlideshowView::EngineStartedL()
-    {
-    TRACER("CShwSlideshowView::EngineStartedL");
-  	GLX_LOG_INFO( "CShwSlideshowView::EngineStartedL()" );
-    
-    if ( iWaitDialog )
-        {
-        // cancel the progress bar
-        iWaitDialog->ProcessFinishedL();
-        }
-    iShwState = EShwPlay;
-    SetItemToHDMIL();
-	iHdmiActive = ETrue;
-    ReplaceCommandSetL(R_SHW_SOFTKEYS_END_PAUSE,R_SHW_SOFTKEYS_END_PAUSE);
-    ShowShwFurnitureL();
-    }
-    
+	{
+	TRACER("CShwSlideshowView::EngineStartedL");
+	GLX_LOG_INFO( "CShwSlideshowView::EngineStartedL()" );
+
+	if (iWaitDialog)
+		{
+		// cancel the progress bar
+		iWaitDialog->ProcessFinishedL();
+		}
+	if (iHdmiController)
+		{
+		iHdmiController->ShiftToPostingMode();
+		}
+	iShwState = EShwPlay;
+	ReplaceCommandSetL(R_SHW_SOFTKEYS_END_PAUSE, R_SHW_SOFTKEYS_END_PAUSE);
+	ShowShwFurnitureL();
+	}
+
 // ---------------------------------------------------------------------------
 // From MShwEngineObserver
 // Engine paused callback.
@@ -1295,6 +1304,7 @@ void CShwSlideshowView::SetItemToHDMIL()
     TRACER("CShwSlideshowView::SetImageToHDMIL() ");
 
     TInt focusIndex = iFilteredList->FocusIndex();
+    TInt nextIndex = GetNextIndex();
 
     // If we dont know what item we are focussing on 
     // or if our filtered list is empty
@@ -1311,6 +1321,9 @@ void CShwSlideshowView::SetItemToHDMIL()
     
     TGlxMedia item = iFilteredList->Item(focusIndex);
     TInt error = GlxErrorManager::HasAttributeErrorL(item.Properties(),
+        KGlxMediaIdThumbnail);
+    TGlxMedia nextItem = iFilteredList->Item(nextIndex);
+    TInt nexterror = GlxErrorManager::HasAttributeErrorL(nextItem.Properties(),
         KGlxMediaIdThumbnail);
     
     // Item will be supported by HDMI ONLY if
@@ -1334,7 +1347,14 @@ void CShwSlideshowView::SetItemToHDMIL()
             
             GLX_LOG_INFO2("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - FS Bitmap Size width=%d, height=%d", 
                     fsBitmap->SizeInPixels().iWidth, fsBitmap->SizeInPixels().iHeight);
-            iHdmiController->SetImageL(item.Uri(),fsBitmap);
+            if(nexterror == KErrNone)
+            	{
+                iHdmiController->SetImageL(item.Uri(), nextItem.Uri(), fsBitmap);            	
+            	}
+            else
+            	{
+            	iHdmiController->SetImageL(item.Uri(), KNullDesC, fsBitmap);
+            	}
             CleanupStack::PopAndDestroy(fsBitmap);
             }
         else
@@ -1355,7 +1375,14 @@ void CShwSlideshowView::SetItemToHDMIL()
                 
                 GLX_LOG_INFO2("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - gridBitmap Size width=%d, height=%d", 
                         gridBitmap->SizeInPixels().iWidth, gridBitmap->SizeInPixels().iHeight);
-                iHdmiController->SetImageL(item.Uri(),gridBitmap);
+                if(nexterror == KErrNone)
+                	{
+                	iHdmiController->SetImageL(item.Uri(), nextItem.Uri(), gridBitmap);
+                	}
+                else
+                	{
+                	iHdmiController->SetImageL(item.Uri(), KNullDesC, gridBitmap);                	
+                	}
                 CleanupStack::PopAndDestroy(gridBitmap);
                 }
             else
@@ -1372,7 +1399,15 @@ void CShwSlideshowView::SetItemToHDMIL()
                 
                 GLX_LOG_INFO2("CShwSlideshowView::SetImageToHDMIL - CGlxHdmi - Default Size width=%d, height=%d", 
                         defaultBitmap->SizeInPixels().iWidth, defaultBitmap->SizeInPixels().iHeight);
-                iHdmiController->SetImageL(item.Uri(),defaultBitmap);
+                if(nexterror == KErrNone)
+                	{
+                    iHdmiController->SetImageL(item.Uri(), nextItem.Uri(),
+							defaultBitmap);                	
+                	}
+                else
+                	{
+                    iHdmiController->SetImageL(item.Uri(), KNullDesC , defaultBitmap);                	
+                	}
                 CleanupStack::PopAndDestroy(defaultBitmap); 
                 }
             }
@@ -1382,7 +1417,7 @@ void CShwSlideshowView::SetItemToHDMIL()
         GLX_LOG_INFO("CShwSlideshowView::SetImageToHDMIL - Unsupported Item");
         //Set the external display to cloning mode if
         //the current item is something we wont support (e.g. video, corrupted item)
-        iHdmiController->ItemNotSupported();
+        iHdmiController->ShiftToCloningMode();
         }
     }
 // ---------------------------------------------------------------------------
@@ -1474,4 +1509,32 @@ void CShwSlideshowView::HandleTvStatusChangedL(TTvChangeType aChangeType )
 			}
 		}
 
+	}
+
+// ---------------------------------------------------------------------------
+// GetNextIndex
+// ---------------------------------------------------------------------------
+//
+TInt CShwSlideshowView::GetNextIndex()
+	{
+	TRACER("CShwSlideshowView::GetNextIndex");
+	TInt count = iFilteredList->Count();
+	TInt focusIndex = iFilteredList->FocusIndex();
+	TInt nextIndex = focusIndex + 1;
+	if (nextIndex > count - 1)
+		{
+		nextIndex = nextIndex - count;
+		}
+	GLX_LOG_INFO1("CShwSlideshowView::GetNextIndex-nextIndex:%d",nextIndex);
+	return nextIndex;
+	}
+
+//---------------------------------------------------------------------------
+// From MGlxHDMIDecoderObserver
+// Handle notification of HDMI Image Decoder.
+//---------------------------------------------------------------------------   
+void CShwSlideshowView::HandleHDMIDecodingEventL(THdmiDecodingStatus aStatus)
+	{
+	TRACER("CShwSlideshowView::HandleHDMIDecodingEventL()");
+	iEngine->HandleHDMIDecodingEventL(aStatus);
 	}

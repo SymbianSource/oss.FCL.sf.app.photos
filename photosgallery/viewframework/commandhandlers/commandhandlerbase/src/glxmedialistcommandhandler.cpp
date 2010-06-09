@@ -691,6 +691,11 @@ TBool CGlxMediaListCommandHandler::CheckDisabledForBrowseModeL(TInt aCommandId,
             return ETrue;
             }        
         }
+		//Hide Slideshow with one or more items marked
+    else if((!mlCount || selectionCount) && (aCommandId == EGlxCmdSlideshow))
+    	{
+		return ETrue;
+    	}
 		//If count is >0 and if its context menu item then enable them
 		//always, Since all the items are static it would not affect
 		//the normal behaviour present earlier.

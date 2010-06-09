@@ -213,20 +213,20 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
     GLX_LOG_INFO2(" Zoom(): viewPortTopLeft  Before Zoom  = [%d,%d] ", TInt(viewPortTopLeft.iX),
             TInt(viewPortTopLeft.iY)  );
     
-    TInt oldZoomRatio = iZoomRatio ;  
-    TInt newZoomRatio = NewZoomRatio(aExpectedZoomRatio, aRelativeZoomFactor, aZoomMode, aThresholdReached);
+    TReal oldZoomRatio = iZoomRatio ;  
+    TReal newZoomRatio = NewZoomRatio(aExpectedZoomRatio, aRelativeZoomFactor, aZoomMode, aThresholdReached);
 
     // we have an offcenter focus for our zoom in certain cases ( e.g pinch operation) or a double tap at an offcenter point. 
     // In such a case the zoom happens around that point. So we need to translate (move) the 
-    // center in such a way that the relative position of the zoom facus does not change. 
+    // center in such a way that the relative position of the zoom focus does not change. 
     // centerTranslationfactor is the vector representation of that amount. 
-    if (NULL != apZoomFocus)
+    if ( (NULL != apZoomFocus) )
         {
-        centerTranslationfactor.iX = (((apZoomFocus->iX - halfScreenWidth) * newZoomRatio)/oldZoomRatio) + (halfScreenWidth - apZoomFocus->iX);         
-        centerTranslationfactor.iY = (((apZoomFocus->iY - halfScreenHeight) * newZoomRatio)/oldZoomRatio) + (halfScreenHeight - apZoomFocus->iY);
+        centerTranslationfactor.iX = (((apZoomFocus->iX - halfScreenWidth   ) * newZoomRatio)/oldZoomRatio) + (halfScreenWidth  - apZoomFocus->iX);         
+        centerTranslationfactor.iY = (((apZoomFocus->iY - halfScreenHeight  ) * newZoomRatio)/oldZoomRatio) + (halfScreenHeight - apZoomFocus->iY);
         }
 
-    GLX_LOG_INFO1(" Zoom: newZoomRatio = %d.   ", newZoomRatio );
+    GLX_LOG_INFO1(" Zoom: newZoomRatio = %x.   ", newZoomRatio );
     
     TSize imageDimension = TSize(iActualImageSize);
     imageDimension.iWidth =  (imageDimension.iWidth  * newZoomRatio)/100;
@@ -249,7 +249,6 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
         iCenter.iX = (iCenter.iX * imageDimension.iWidth )/iImageVirtualSize.iWidth  ;
         iCenter.iY = (iCenter.iY * imageDimension.iHeight)/iImageVirtualSize.iHeight ;
 
-        
         //HEIGHT Calculation
         // TODO: Hive center corrections into an different function.
         // If the image might have become smaller than the screen DUE to or AFTER the above calculations
@@ -363,11 +362,9 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
                 iCenter.iX =(imageDimension.iWidth/2);
                 }
             }
-
         viewPortTopLeft.iX = iCenter.iX - halfScreenWidth;
         viewPortTopLeft.iY = iCenter.iY - halfScreenHeight;
         iImageVirtualSize = imageDimension;
-        
         }
 
     // if centerTranslationfactor exists that means we have an off center zoom, then 
@@ -413,14 +410,14 @@ void TGlxZoomAndPanMathsEngine::UpdatePanFactor()
 // NewZoomRatio: Calculates the Zoom Ratio 
 //-------------------------------------------------------------------------------------
 //
-TInt TGlxZoomAndPanMathsEngine::NewZoomRatio( 
+TReal TGlxZoomAndPanMathsEngine::NewZoomRatio( 
         TInt aExpectedZoomRatio,
         TInt aRelativeZoomFactor,
         TZoomMode aZoomMode,
         TBool *aThresholdReached)  
     {
     TRACER("TGlxZoomAndPanMathsEngine::NewZoomRatio ");
-    GLX_LOG_INFO1("NewZoomRatio: Old Zoom Ratio = %d .   ",TInt(iZoomRatio)   );
+    GLX_LOG_INFO1("NewZoomRatio: Old Zoom Ratio = %x .   ",iZoomRatio   );
     GLX_LOG_INFO1("NewZoomRatio: Expected Zoom Ratio  = %d .   ",aExpectedZoomRatio    );
     GLX_LOG_INFO1("NewZoomRatio: Relative Zoom Factor = %d .   ",aRelativeZoomFactor   );
     
@@ -442,7 +439,6 @@ TInt TGlxZoomAndPanMathsEngine::NewZoomRatio(
             {
             normalizedRelativeZoomFactor = KGlxMaxRelativeZoomPercent;
             }
-        
         iZoomRatio =  (iZoomRatio * normalizedRelativeZoomFactor)/100 ;
         }
     else
@@ -477,7 +473,7 @@ TInt TGlxZoomAndPanMathsEngine::NewZoomRatio(
             }
         }
 
-    GLX_LOG_INFO1("NewZoomRatio: New Zoom Ratio = %d.   ",TInt(iZoomRatio)   );
+    GLX_LOG_INFO1("NewZoomRatio: New Zoom Ratio = %x.   ",iZoomRatio   );
     return iZoomRatio;
     }
 

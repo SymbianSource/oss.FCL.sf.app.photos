@@ -25,8 +25,6 @@
 #include "glxdatasourcetaskmdsidlist.h"
 
 #include <glxcollectionplugincamera.hrh>
-#include <glxcollectionplugindownloads.hrh>
-#include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginall.hrh>
 #include <glxcollectionplugintags.hrh>
@@ -72,7 +70,6 @@
 const TInt KGlxCameraAlbumPromotionPosition = 0;
 const TInt KGlxfavoritesAlbumPromotionPosition = 1;
 
-_LIT(KPropertyDefNameCreationDate, "CreationDate");
 
 // ----------------------------------------------------------------------------
 //  Constructor
@@ -146,13 +143,6 @@ void CGlxDataSourceTaskMdeIdList::ExecuteRequestL()
                 objectDef = &DataSource()->TagDef();
                 break;
                 }
-            case KGlxCollectionPluginMonthsImplementationUid:
-                {
-                iFilterProperties.iOrigin = EGlxFilterOriginAll;          
-                container = TGlxMediaId(KGlxCollectionRootId);
-                resultMode = EQueryResultModeItem;
-                break;
-                }
             case KGlxCollectionPluginImageViewerImplementationUid:
                 {
                 RArray<TGlxMediaId> list;
@@ -181,13 +171,6 @@ void CGlxDataSourceTaskMdeIdList::ExecuteRequestL()
             case KGlxTagCollectionPluginImplementationUid: 
                 {
                 objectDef = &DataSource()->TagDef();
-                break;
-                }
-            case KGlxCollectionPluginMonthsImplementationUid: 
-                {
-				iFilterProperties.iOrigin = EGlxFilterOriginAll;
-                AddMonthFilterL(container, iFilterProperties);
-                container = TGlxMediaId(KGlxCollectionRootId);
                 break;
                 }
             default:
@@ -224,64 +207,13 @@ void CGlxDataSourceTaskMdeIdList::DoHandleQueryCompletedL(CMdEQuery& /*aQuery*/)
 void CGlxDataSourceTaskMdeIdList::DoHandleListQueryCompletedL()
     {
     TRACER("CGlxDataSourceTaskMdeIdList::DoHandleListQueryCompletedL()")
-    if(iQueries[0]->ResultMode() == EQueryResultModeItem)
-        {
-        DoMonthListCreationL(*iQueries[0], iFilterProperties);
-        }
-    else // only id or item supported
-        {
-
-        RArray<TGlxMediaId> localList;
-        CleanupClosePushL(localList);
-        NGlxDataSourceMdsUtility::CopyItemIdArrayL(localList,iQueries[0]->ResultIds());
-        PostFilterL(localList, iFilterProperties);
-        CleanupStack::PopAndDestroy(&localList);
-        }
+    RArray<TGlxMediaId> localList;
+    CleanupClosePushL(localList);
+    NGlxDataSourceMdsUtility::CopyItemIdArrayL(localList,
+            iQueries[0]->ResultIds());
+    PostFilterL(localList, iFilterProperties);
+    CleanupStack::PopAndDestroy(&localList);
     }     
-
-// ----------------------------------------------------------------------------
-// CGlxDataSourceTaskMdeIdList::DoMonthListCreationL
-// ----------------------------------------------------------------------------
-//      
-void CGlxDataSourceTaskMdeIdList::DoMonthListCreationL(CMdEQuery& aQuery,
-                                  const TGlxFilterProperties& aFilterProperties)
-    {
-    TRACER("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL()")
-    CMdEProperty* time;
-    CMdEPropertyDef& creationDateDef = DataSource()->ObjectDef().GetPropertyDefL(KPropertyDefNameCreationDate);
-    if (creationDateDef.PropertyType() != EPropertyTime)
-        {
-        User::Leave(KErrCorrupt);
-        }
-    RArray<TGlxMediaId> monthList;
-    CleanupClosePushL(monthList);
-    TTime lastMonth;
-    TTime currentMonth;
-    TInt count = aQuery.Count();
-    GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL count=%d", count);    
-    for( TInt i = 0 ; i < count ; i++ )
-        {
-        CMdEObject& object = (CMdEObject&)aQuery.ResultItem(i);
-        TInt timeIndex = object.Property(creationDateDef, time);
-        if( KErrNotFound == timeIndex )
-            {
-            User::Leave(KErrCorrupt);
-            }
-        currentMonth = static_cast<CMdETimeProperty*>(time)->Value();
-
-        // Also Checking for a Valid Month Entry Based on a Year Greater than 0000.
-        if( !DataSource()->SameMonth(lastMonth, currentMonth) && (currentMonth.DateTime().Year() > 0) )
-            {
-            const TGlxMediaId monthId = DataSource()->GetMonthIdL(currentMonth);
-            monthList.AppendL(monthId);
-            GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL monthId=%d", monthId.Value());    
-            lastMonth = currentMonth;
-            }
-        }
-    GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL monthList.Count=%d", monthList.Count());    
-    PostFilterL(monthList, aFilterProperties);
-    CleanupStack::PopAndDestroy(&monthList);
-    }
 
 // ----------------------------------------------------------------------------
 //  CGlxDataSourceTaskMdeIdList::DoPostFilterComplete
@@ -344,7 +276,7 @@ void CGlxDataSourceTaskMdeIdList::PostFilterL(const RArray<TGlxMediaId>&
 		DoPostFilterComplete(list, KErrNone);
 		}
 	else
-            {
-            DoPostFilterComplete(aFilteredList, KErrNone);
-            }
+        {
+        DoPostFilterComplete(aFilteredList, KErrNone);
+        }
     }

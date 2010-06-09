@@ -137,10 +137,6 @@ EXPORT_C void CGlxGridViewPluginBase::AddCommandHandlersL()
 			CGlxCommandHandlerAddToContainer::NewAddToAlbumCommandHandlerL(
 					iGridView, EFalse, uiutilitiesrscfile));
 
-	GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Album SingleClick");
-	iGridView->AddCommandHandlerL(
-			CGlxCommandHandlerAddToContainer::NewAddToAlbumSingleClickCommandHandlerL(
-					iGridView, EFalse, uiutilitiesrscfile));
 	GLX_LOG_INFO("Adding CGlxCommandHandlerDetails");
 	iGridView->AddCommandHandlerL(CGlxCommandHandlerDetails::NewL(iGridView,
 			uiutilitiesrscfile));
@@ -157,17 +153,9 @@ EXPORT_C void CGlxGridViewPluginBase::AddCommandHandlersL()
 			CGlxCommandHandlerAddToContainer::NewAddToTagCommandHandlerL(
 					iGridView, EFalse, uiutilitiesrscfile));
 
-	GLX_LOG_INFO("Adding CGlxCommandHandlerAddToContainer-Tag Single Click");
-	iGridView->AddCommandHandlerL(
-			CGlxCommandHandlerAddToContainer::NewAddToTagSingleClickCommandHandlerL(
-					iGridView, EFalse, uiutilitiesrscfile));
 	// The AIW service handlers 
 	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit");
 	iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::NewL(iGridView));
-
-	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwEdit-Single Click");
-	iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwEdit::NewL(iGridView,
-			ETrue));
 
 	GLX_LOG_INFO("Adding CGlxCommandHandlerAiwShareOnOvi");
 	iGridView->AddCommandHandlerL(CGlxCommandHandlerAiwShareOnOvi::NewL(

@@ -37,7 +37,6 @@ SOURCEPATH      ../src
 SOURCE          glxlistviewpluginproxy.cpp
 SOURCE          glxmainlistviewplugin.cpp
 SOURCE          glxalbumlistviewplugin.cpp
-SOURCE          glxmonthlistviewplugin.cpp
 
 START RESOURCE  ../data/20000a0b.rss
 TARGET          glxlistviewplugin.rsc

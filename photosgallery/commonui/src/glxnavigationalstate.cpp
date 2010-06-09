@@ -207,12 +207,14 @@ public:
     */
     inline void ActivatePreviousViewL()
         {
-        iViewingMode = NGlxNavigationalState::EBrowse;
-        //go back one view
-        if ( iViewUtility->ViewHistoryDepth() > 1 )
+        if (!iIsNavigating)
             {
-            iViewUtility->ActivatePreviousViewL();
-            
+            iViewingMode = NGlxNavigationalState::EBrowse;
+            //go back one view
+            if (iViewUtility->ViewHistoryDepth() > 1)
+                {
+                iViewUtility->ActivatePreviousViewL();
+                }
             }
         }
      

@@ -94,10 +94,10 @@ private:
     TBool HasRelevantThumbnail(TInt aIndex);
     
     /**
-     * RefreshScreen - Refreshes the Hg Grid based on the attributes available index 
+     * RefreshScreenL - Refreshes the Hg Grid based on the attributes available index 
      * 
      */
-    void RefreshScreen(TInt aItemIndex,const RArray<TMPXAttribute>& aAttributes);
+    void RefreshScreenL(TInt aItemIndex,const RArray<TMPXAttribute>& aAttributes);
     
     /**
      * UpdateItemsL - Update the items with the DRM/video icon and  date/time
@@ -116,6 +116,15 @@ private:
      * @param aTransparent - ETrue to set transparent icon; EFalse to set default icon. 
      */
     void SetDefaultIconL(TBool aTransparent);
+    
+    /**
+     * SetIconL - Sets the grid cell icon with the given parameters
+     * @param aItemIndex -  The grid cell index
+     * @param aBitmapId - The bitmap id
+     * @param aMaskId - The mask id
+     * @param aFlags - The indicator flags	 
+     */
+    void SetIconL(TInt aItemIndex, TInt aBitmapId, TInt aMaskId, TInt aFlags);
     
 private:
 

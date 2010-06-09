@@ -49,7 +49,6 @@ class CGlxNavigationalState;
 enum
     {
     EGlxListItemAll = 0,
-    EGlxListItemMonth,
     EGlxListItemAlbum,
     EGlxLIstItemTag    
     };
@@ -269,14 +268,10 @@ private:    // Data
     /// The animation being applied to the view
     MGlxAnimation* iViewAnimation;
     
-    TBool iPopulateListTNs;
-	
     // Flag to check if all the items in list view need to be refreshed
     TBool iIsRefreshNeeded;
 
     TBool iBackwardNavigation;
-
-    TInt iStartIndex;
 
     TInt iLastFocusedIndex;
     

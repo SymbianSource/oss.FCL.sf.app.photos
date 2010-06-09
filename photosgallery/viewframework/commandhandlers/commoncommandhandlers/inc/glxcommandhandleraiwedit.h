@@ -45,13 +45,12 @@ public:
     /**
      * Two-phase constructor
      * @param aMediaListProvider object that provides the media list
-     * @param aCommandSingleClick Flag to identify single click command
      * @return Fully constructed command handler
      * @warning ConstructL of base class is called. If ConstructL is 
      *          implemented in this class, then care must be taken to call 
      *          CGlxCommandHandlerAiwBase::ConstructL
      */
-    IMPORT_C static CGlxCommandHandlerAiwEdit* NewL(MGlxMediaListProvider* aMediaListProvider, TBool aCommandSingleClick=EFalse);        
+    IMPORT_C static CGlxCommandHandlerAiwEdit* NewL(MGlxMediaListProvider* aMediaListProvider);        
 
     /**
      * Destructor
@@ -67,9 +66,8 @@ private:
     /**
      * Constructor
      * @param aMediaListProvider object that provides the media list
-     * @param aCommandSingleClick Flag to identify single click command
      */
-    CGlxCommandHandlerAiwEdit( MGlxMediaListProvider* aMediaListProvider, TBool aCommandSingleClick);
+    CGlxCommandHandlerAiwEdit( MGlxMediaListProvider* aMediaListProvider);
     
     /*
      * return if the viewing mode is fullscreen or grid
@@ -88,11 +86,12 @@ private: // Data Members
      // Owned - AIW Service Handler
     CAiwServiceHandler* iServiceHandler;    
     
-     //Edit Supported
-    TBool iEditSupported;
+    //Is ImageEdit supported
+    TBool iIsImageEditSupported;
     
-    TBool iCommandSingleClick;
-    
+    //Is VideoEdit supported
+    TBool iIsVideoEditSupported;
+       
     // Not own
     CGlxImageViewerManager* iImageViewerInstance;
     

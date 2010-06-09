@@ -318,3 +318,15 @@ EXPORT_C void CGlxTextureManager::RemoveZoomList()
     GLX_LOG_INFO( "CGlxTextureManager::RemoveZoomList" );
     iImpl->RemoveZoomList();
     }
+
+// -----------------------------------------------------------------------------
+// AnimateMediaItem
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxTextureManager::AnimateMediaItem(
+    const TGlxMediaId& aMediaId, TBool aState)
+    {
+    TRACER("CGlxTextureManager::AnimateMediaItem");
+    iImpl->AnimateMediaItem(aMediaId, aState);
+    }
+

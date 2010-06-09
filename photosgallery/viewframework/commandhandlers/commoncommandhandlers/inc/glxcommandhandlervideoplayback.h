@@ -129,20 +129,6 @@ private:
     void DoHandlePlaybackMessageL( const CMPXMessage& aMessage ); 
  
     void HandlePlaybackPlayerChangedL(); 
-    
-    /**
-	 *  Provides the static function for the callback to 
-	 *  finish the MMPXPlaybackUtility construction
-	 *  Called by CPeriodic iConstructTimer
-	 *  @param aPtr Pointer to callback class
-	 *  @return KErrNone
-	 */
-	static TInt LateConstructCallback( TAny* aPtr );
-	
-	/**
-	 *  Called to finalize the MMPXPlaybackUtility construction.
-	 */
-	virtual void DoLateConstruct();
 	
 	/**
 	 *  Retrieves playback utility and creates it if needed
@@ -167,12 +153,7 @@ private:
     
     MMPXPlaybackUtility*   iPlaybackUtility; 
     MMPXViewUtility*       iViewUtility; 
-    
-    /**
-	 * For Late construction of 'MMPXPlaybackUtility'.
-	 */
-	CPeriodic* iPbUtilityConstructTimer;
-        
+
  	};
 
 #endif // C_GLXCOMMANDHANDLERVIDEOPLAYBACK_H

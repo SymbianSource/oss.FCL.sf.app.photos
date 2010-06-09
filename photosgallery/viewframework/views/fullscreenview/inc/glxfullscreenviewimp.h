@@ -30,6 +30,7 @@
 #include "glxfullscreenview.hrh"
 #include "glxmmcnotifier.h"
 #include "glxtv.h"
+#include "mglxhdmidecoderobserver.h" //for MGlxHDMIDecoderObserver
 
 //Gesture Helper namespace 
 namespace GestureHelper
@@ -72,7 +73,8 @@ NONSHARABLE_CLASS (CGlxFullScreenViewImp): public CGlxFullScreenView,
  											public MGlxUiCommandHandler,
 			                                public MStorageNotifierObserver,
 			                                public CAlfEffectObserver::MAlfEffectObserver,
-											public MGlxTvObserver
+											public MGlxTvObserver,
+											public MGlxHDMIDecoderObserver
     {
 public:    
     /**
@@ -141,6 +143,14 @@ public:
 	
 	//From MAlfEffectObserver
     void HandleEffectCallback(TInt aType, TInt aHandle, TInt aStatus);
+
+public:
+    //From MGlxHDMIDecoderObserver
+    /*
+     * Handle completion notification of HDMI Image Decoder.
+     */
+    void HandleHDMIDecodingEventL(THdmiDecodingStatus aStatus);
+
 private:
     /*
      * Constructor 

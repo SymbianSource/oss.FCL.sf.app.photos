@@ -65,7 +65,7 @@ USERINCLUDE		../../utils			// for Debug Utility
 SYSTEMINCLUDE   ../../../inc
 SYSTEMINCLUDE   ../../../viewframework/uiutilities/inc	// for CGlxHuiUtility
 SYSTEMINCLUDE	../../../common/inc                     // for CGlxResourceUtilities
-
+SYSTEMINCLUDE   ../../../viewframework/inc
 
 APP_LAYER_SYSTEMINCLUDE
 

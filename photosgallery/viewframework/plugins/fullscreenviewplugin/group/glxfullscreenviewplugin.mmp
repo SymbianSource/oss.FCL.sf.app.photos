@@ -39,8 +39,6 @@ SOURCEPATH      ../src
 SOURCE          glxmainfullscreenviewplugin.cpp
 SOURCE          glxalbumfullscreenviewplugin.cpp
 SOURCE          glxcameraalbumfullscreenviewplugin.cpp
-SOURCE          glxdownloadsfullscreenviewplugin.cpp
-SOURCE          glxmonthsfullscreenviewplugin.cpp
 SOURCE          glxfullscreenviewpluginproxy.cpp
 SOURCE          glxtagfullscreenviewplugin.cpp
 SOURCE	        glximageviewerfullscreenviewplugin.cpp

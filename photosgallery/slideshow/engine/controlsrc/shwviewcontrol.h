@@ -98,6 +98,8 @@ NONSHARABLE_CLASS( CShwViewControl )
 		TBool iReadyToAdvanceReceived;
 		/// Own: Flag to tell whether we received timer beat
 		TBool iTimerReceived;
+		/// Own: Flag to tell HDMI decoding is completed
+		TBool iHDMIDecoded;
 		/// Own: Flag to tell that user navigated during pause
 		TBool iUserNavigated;
 		/// Own: Flag set to ETrue when paused, EFalse when playing

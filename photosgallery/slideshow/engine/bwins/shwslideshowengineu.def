@@ -10,19 +10,20 @@ EXPORTS
 	?SaveMusicStateL@CShwSettingsModel@@QAEXH@Z @ 9 NONAME ; void CShwSettingsModel::SaveMusicStateL(int)
 	?PreviousItemL@CShwSlideshowEngine@@QAEXXZ @ 10 NONAME ; void CShwSlideshowEngine::PreviousItemL(void)
 	?VolumeDownL@CShwSlideshowEngine@@QAEXXZ @ 11 NONAME ; void CShwSlideshowEngine::VolumeDownL(void)
-	?VolumeUpL@CShwSlideshowEngine@@QAEXXZ @ 12 NONAME ; void CShwSlideshowEngine::VolumeUpL(void)
-	?SaveTransitionTypeL@CShwSettingsModel@@QAEXVTUid@@I@Z @ 13 NONAME ; void CShwSettingsModel::SaveTransitionTypeL(class TUid, unsigned int)
-	?MusicNamePathL@CShwSettingsModel@@QBEXAAVTDes16@@@Z @ 14 NONAME ; void CShwSettingsModel::MusicNamePathL(class TDes16 &) const
-	?NewL@CShwSettingsModel@@SAPAV1@XZ @ 15 NONAME ; class CShwSettingsModel * CShwSettingsModel::NewL(void)
-	?NextItemL@CShwSlideshowEngine@@QAEXXZ @ 16 NONAME ; void CShwSlideshowEngine::NextItemL(void)
-	?MusicOnL@CShwSettingsModel@@QBEHXZ @ 17 NONAME ; int CShwSettingsModel::MusicOnL(void) const
-	?TransitionTypeL@CShwSettingsModel@@QBEXAAVTUid@@AAI@Z @ 18 NONAME ; void CShwSettingsModel::TransitionTypeL(class TUid &, unsigned int &) const
-	?ResumeL@CShwSlideshowEngine@@QAEXXZ @ 19 NONAME ; void CShwSlideshowEngine::ResumeL(void)
-	?SavePlayOrderL@CShwSettingsModel@@QAEXH@Z @ 20 NONAME ; void CShwSettingsModel::SavePlayOrderL(int)
-	?SaveTransDelayL@CShwSettingsModel@@QAEXH@Z @ 21 NONAME ; void CShwSettingsModel::SaveTransDelayL(int)
-	?TransDelayL@CShwSettingsModel@@QBEHXZ @ 22 NONAME ; int CShwSettingsModel::TransDelayL(void) const
-	?GetMusicVolumeL@CShwSlideshowEngine@@QAEXXZ @ 23 NONAME ; void CShwSlideshowEngine::GetMusicVolumeL(void)
-	?PauseL@CShwSlideshowEngine@@QAEXXZ @ 24 NONAME ; void CShwSlideshowEngine::PauseL(void)
-	?ToggleUiControlsVisibiltyL@CShwSlideshowEngine@@QAEXXZ @ 25 NONAME ; void CShwSlideshowEngine::ToggleUiControlsVisibiltyL(void)
-	?NewL@CShwSlideshowEngine@@SAPAV1@AAVMShwEngineObserver@@@Z @ 26 NONAME ; class CShwSlideshowEngine * CShwSlideshowEngine::NewL(class MShwEngineObserver &)
+	?HandleHDMIDecodingEventL@CShwSlideshowEngine@@QAEXW4THdmiDecodingStatus@@@Z @ 12 NONAME ; void CShwSlideshowEngine::HandleHDMIDecodingEventL(enum THdmiDecodingStatus)
+	?VolumeUpL@CShwSlideshowEngine@@QAEXXZ @ 13 NONAME ; void CShwSlideshowEngine::VolumeUpL(void)
+	?SaveTransitionTypeL@CShwSettingsModel@@QAEXVTUid@@I@Z @ 14 NONAME ; void CShwSettingsModel::SaveTransitionTypeL(class TUid, unsigned int)
+	?MusicNamePathL@CShwSettingsModel@@QBEXAAVTDes16@@@Z @ 15 NONAME ; void CShwSettingsModel::MusicNamePathL(class TDes16 &) const
+	?NewL@CShwSettingsModel@@SAPAV1@XZ @ 16 NONAME ; class CShwSettingsModel * CShwSettingsModel::NewL(void)
+	?NextItemL@CShwSlideshowEngine@@QAEXXZ @ 17 NONAME ; void CShwSlideshowEngine::NextItemL(void)
+	?MusicOnL@CShwSettingsModel@@QBEHXZ @ 18 NONAME ; int CShwSettingsModel::MusicOnL(void) const
+	?TransitionTypeL@CShwSettingsModel@@QBEXAAVTUid@@AAI@Z @ 19 NONAME ; void CShwSettingsModel::TransitionTypeL(class TUid &, unsigned int &) const
+	?ResumeL@CShwSlideshowEngine@@QAEXXZ @ 20 NONAME ; void CShwSlideshowEngine::ResumeL(void)
+	?SavePlayOrderL@CShwSettingsModel@@QAEXH@Z @ 21 NONAME ; void CShwSettingsModel::SavePlayOrderL(int)
+	?SaveTransDelayL@CShwSettingsModel@@QAEXH@Z @ 22 NONAME ; void CShwSettingsModel::SaveTransDelayL(int)
+	?TransDelayL@CShwSettingsModel@@QBEHXZ @ 23 NONAME ; int CShwSettingsModel::TransDelayL(void) const
+	?GetMusicVolumeL@CShwSlideshowEngine@@QAEXXZ @ 24 NONAME ; void CShwSlideshowEngine::GetMusicVolumeL(void)
+	?PauseL@CShwSlideshowEngine@@QAEXXZ @ 25 NONAME ; void CShwSlideshowEngine::PauseL(void)
+	?ToggleUiControlsVisibiltyL@CShwSlideshowEngine@@QAEXXZ @ 26 NONAME ; void CShwSlideshowEngine::ToggleUiControlsVisibiltyL(void)
+	?NewL@CShwSlideshowEngine@@SAPAV1@AAVMShwEngineObserver@@@Z @ 27 NONAME ; class CShwSlideshowEngine * CShwSlideshowEngine::NewL(class MShwEngineObserver &)
 

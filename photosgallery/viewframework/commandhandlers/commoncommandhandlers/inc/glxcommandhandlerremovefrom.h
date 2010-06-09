@@ -76,9 +76,6 @@ protected: // from CGlxCommandHandler
     /** See @ref CGlxCommandHandler::DoActivateL */
     void DoActivateL(TInt /*aViewId*/);
     
-	/** See @ref CGlxCommandHandler::DoIsDisabled*/ 
-    TBool DoIsDisabled(TInt aCommandId, MGlxMediaList& aList) const;
-
 private:
     /** Second phase constructor */
 	void ConstructL(const TDesC& aFileName);

@@ -20,6 +20,7 @@
 
 // Internal includes
 #include <mglxtvobserver.h>     // for inteface MGlxTvObserver
+#include <mglxhdmidecoderobserver.h> //for MGlxHDMIDecoderObserver
 
 class CGlxHdmiContainer;
 class CGlxHdmiSurfaceUpdater;
@@ -36,7 +37,8 @@ public:
      * NewLC 
      * @param1 - Image file path default to NULL
      */
-    IMPORT_C static CGlxHdmiController* NewL();
+    IMPORT_C static CGlxHdmiController* NewL(
+            MGlxHDMIDecoderObserver& aDecoderObserver);
 
     /*
      * Destructor
@@ -44,11 +46,15 @@ public:
     IMPORT_C ~CGlxHdmiController();
     
     /*
-     * Update Image
-     * @param1 - Image file path
+     * Sets the Image to be displayed
+     * @aImageFile - Image file path
+     * @aNextImageFile - Next image file path
+     * @aFsBitmap - Bitmap to be displayed
+     * @aStore - Image info should be stored or not
      */
-    IMPORT_C void SetImageL(const TDesC& aImageFile, CFbsBitmap* aFsBitmap = NULL, 
-            TBool aStore = ETrue);
+    IMPORT_C void SetImageL(const TDesC& aImageFile, 
+            const TDesC& aNextImageFile = KNullDesC, 
+            CFbsBitmap* aFsBitmap = NULL, TBool aStore = ETrue);
 
     /*
      * To intimate that the item is not supported.  
@@ -86,7 +92,7 @@ private:
     /*
      * Constructor
      */
-    CGlxHdmiController();
+    CGlxHdmiController(MGlxHDMIDecoderObserver& aDecoderObserver);
     
     /*
      * ConstructL 
@@ -100,9 +106,11 @@ private:
     
     /*
      * Create surface updater and update background surface 
-     * @param1 - Image file     
+     * @aImageFile - Image file     
+     * @aNextImageFile - Next image file     
      */
-    void CreateSurfaceUpdaterL(const TDesC& aImageFile);
+    void CreateSurfaceUpdaterL(const TDesC& aImageFile,
+            const TDesC& aNextImageFile = KNullDesC);
     
     /*
      * To Destroy the surface updater if present
@@ -116,19 +124,23 @@ private:
 
     /*
      * Stores the Image File name
-     * @param1 - Image file
+     * @aImageFile - Image file path
+     * @aNextImageFile - Next image file path
+     * @aFsBitmap - Bitmap to be displayed
      */
-    void StoreImageInfoL(const TDesC& aImageFile, CFbsBitmap* aFsBitmap);
+    void StoreImageInfoL(const TDesC& aImageFile,
+            const TDesC& aNextImageFile, CFbsBitmap* aFsBitmap);
 
 private:
     CFbsBitmap* iFsBitmap;
     HBufC*  iStoredImagePath;
-    
+    HBufC*  iStoredNextImagePath;
     CGlxHdmiContainer*      iHdmiContainer;
     CGlxHdmiSurfaceUpdater* iSurfaceUpdater;
     CGlxTv*  iGlxTvOut;
     TBool   iIsImageSupported;          // Flag to see if Image is supported
     TBool   iIsPhotosInForeground;          // Flag for determine if Photos is in foreground
+	MGlxHDMIDecoderObserver& iDecoderObserver;
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

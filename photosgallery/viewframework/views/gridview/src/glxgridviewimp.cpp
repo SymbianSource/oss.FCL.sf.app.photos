@@ -121,7 +121,7 @@ void CGlxGridViewImp::ConstructL(MGlxMediaListFactory* aMediaListFactory,
 // ---------------------------------------------------------------------------
 //
 void CGlxGridViewImp::DoMLViewActivateL(
-		const TVwsViewId& aPrevViewId, 
+		const TVwsViewId& /*aPrevViewId*/, 
 		TUid /* aCustomMessageId */,
 		const TDesC8& aCustomMessage)
 	{

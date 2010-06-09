@@ -352,7 +352,7 @@ TInt CGlxMulVideoIconProvider::IconIdL(const TGlxMedia& aMedia) const
     {
     TRACER("CGlxMulVideoIconProvider::IconIdL");
         
-    if((aMedia.Category() == EMPXVideo) && (GlxErrorManager::HasAttributeErrorL(aMedia.Properties(), KGlxMediaIdThumbnail ) == KErrNone))
+    if(aMedia.Category() == EMPXVideo)
         {
 		if (iIsFullscreen)
             {                       	        	

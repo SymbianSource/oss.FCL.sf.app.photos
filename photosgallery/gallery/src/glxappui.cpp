@@ -38,7 +38,6 @@
 #include <glxcollectionplugincamera.hrh>
 #include <glxcollectionpluginall.hrh>
 #include <glxcollectionpluginalbums.hrh>
-#include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionplugintags.hrh>
 #include <glxcollectionpluginimageviewer.hrh>
 #include <glxcollectionplugintype.hrh>

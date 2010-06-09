@@ -26,6 +26,7 @@
 #include <e32std.h>
 #include <alf/alfdisplay.h>
 #include <alf/alfenv.h>
+#include <mglxhdmidecoderobserver.h>
 
 // Forward declarations
 class CAlfEnv;
@@ -145,6 +146,11 @@ NONSHARABLE_CLASS( CShwSlideshowEngine ) : public CBase
          * This method react when LSK Preesed
          */
         IMPORT_C void LSKPressedL();
+
+        /**
+         * This method gets called when there is an HDMI event
+         */
+        IMPORT_C void HandleHDMIDecodingEventL(THdmiDecodingStatus aStatus);
 
     private: // Implementation
 

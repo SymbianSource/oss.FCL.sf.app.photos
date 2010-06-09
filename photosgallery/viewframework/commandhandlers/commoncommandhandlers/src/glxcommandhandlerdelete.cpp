@@ -89,11 +89,6 @@ void CGlxCommandHandlerDelete::ConstructL(TBool aIsContainerList,
 	info.iMinSelectionLength = 1;
 	info.iDisallowSystemItems = aIsContainerList;
 	AddCommandL(info);
-
-	TCommandInfo singleclkinfo(EGlxCmdSingleClickDelete);
-	singleclkinfo.iMinSelectionLength = 1;
-	singleclkinfo.iDisallowSystemItems = aIsContainerList;
-	AddCommandL(singleclkinfo);
 	}
 
 // ---------------------------------------------------------------------------
@@ -246,13 +241,7 @@ TBool CGlxCommandHandlerDelete::DoIsDisabled(TInt aCommandId,
 		                                 !fullscreenViewingMode)
             {   
             return ETrue;
-            }
-        
-        if (EGlxCmdSingleClickDelete==aCommandId && 0 == aList.SelectionCount())
-            {
-            return ETrue;
-            }
-        
+            }     
         return EFalse;
         }
 //end of file

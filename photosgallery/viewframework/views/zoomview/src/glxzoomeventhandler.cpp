@@ -51,6 +51,10 @@ const TInt KGlxAnimeFrameCount          = 10        ;
 
 const TInt KGlxPanInertiaFrameInmS      = 20000     ;
 
+//Zoom Factor to keep the relative Zoom Ratio 
+//same while changing orientation.
+const TInt KGlxNeutralZoomFactor = 100;
+
 using namespace GestureHelper;
 
 // ============================ CGlxZoomPanEventHandler===============================
@@ -842,8 +846,9 @@ void CGlxZoomPanEventHandler::OrientationChanged(const TRect& aNewScreenRect)
     TRACER("CGlxZoomPanEventHandler::OrientationChanged ");
     
     iMathsEngine.OrientationChanged(aNewScreenRect);
-    iMinZoomRatio = iMathsEngine.MinimumZoomRatio(); 
-    Zoom(0, 0, iZoomMode) ;
+    iMinZoomRatio = iMathsEngine.MinimumZoomRatio();
+    //Keep the relative Zoom Ratio same while changing orientation
+    Zoom(0, KGlxNeutralZoomFactor, iZoomMode) ;
     }
 
 // -----------------------------------------------------------------------------

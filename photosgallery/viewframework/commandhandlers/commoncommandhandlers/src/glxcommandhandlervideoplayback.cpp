@@ -54,13 +54,6 @@
 
 const TUid KVideoHelixPlaybackPluginUid = { 0x10282551 };
 
-/**
- * Periodic interval for late construction.
- * GridView construction would take about 2 sec,
- * hence this can happen only after 2 secs 
- */
-const TTimeIntervalMicroSeconds32 KPeriodicInterval  = 2000000; // 2 sec
-
 #include "glxcommandfactory.h"
 
 // ---------------------------------------------------------------------------
@@ -99,12 +92,6 @@ void CGlxCommandHandlerVideoPlayback::ConstructL()
     iUiUtility = CGlxUiUtility::UtilityL();
      
     iViewUtility = MMPXViewUtility::UtilityL(); 
-
-    //Start construct timer for late initialization of "MMPXPlaybackUtility"
-    TCallBack callback(
-            CGlxCommandHandlerVideoPlayback::LateConstructCallback, this);
-    iPbUtilityConstructTimer = CPeriodic::NewL(CActive::EPriorityIdle);
-    iPbUtilityConstructTimer->Start(KPeriodicInterval, 0, callback);
     
    	// Add supported commands
    	// Play videoplayback
@@ -132,12 +119,6 @@ EXPORT_C CGlxCommandHandlerVideoPlayback::~CGlxCommandHandlerVideoPlayback()
         { 
         iViewUtility->Close(); 
         } 
-
-    if (iPbUtilityConstructTimer)
-        {
-        iPbUtilityConstructTimer->Cancel();
-        delete iPbUtilityConstructTimer;
-        }
     
     if ( iPlaybackUtility ) 
         { 
@@ -475,28 +456,6 @@ void CGlxCommandHandlerVideoPlayback::HandlePlaybackPlayerChangedL()
     iViewUtility->ActivateViewL( array ); 
     CleanupStack::PopAndDestroy( &array ); 
     } 
-
-// -----------------------------------------------------------------------------
-// CGlxCommandHandlerVideoPlayback::LateConstructCallback
-// -----------------------------------------------------------------------------
-TInt CGlxCommandHandlerVideoPlayback::LateConstructCallback(TAny* aPtr)
-    {
-    TRACER("CGlxCommandHandlerVideoPlayback::LateConstructCallback");
-    static_cast<CGlxCommandHandlerVideoPlayback*>(aPtr)->DoLateConstruct();
-    return KErrNone;
-    }
-
-// -----------------------------------------------------------------------------
-// CGlxCommandHandlerVideoPlayback::DoLateConstruct
-// -----------------------------------------------------------------------------
-void CGlxCommandHandlerVideoPlayback::DoLateConstruct()
-    {
-    TRACER("CGlxCommandHandlerVideoPlayback::DoLateConstruct");
-    //Cancel the periodic timer
-    iPbUtilityConstructTimer->Cancel();
-    //Start 'MMPXPlaybackUtility' construction
-    TRAP_IGNORE( PlaybackUtilityL());
-    }
 
 // -----------------------------------------------------------------------------
 // CGlxCommandHandlerVideoPlayback::PlaybackUtilityL

@@ -402,6 +402,11 @@ private:
      * Handles the tasks after open completes
      */
     void HandleOpenL();
+    
+    /*
+     * Reopens Medialist after callback timeout.
+     */
+    static TInt TimeOut(TAny* aSelf);
 
 private:
     /** 
@@ -512,6 +517,10 @@ private:
     
     /// VisibleWindow Index 
     TInt iVisibleWindowIndex;
+    
+    /// Periodic Timer
+    CPeriodic* iBatchOperationMonitorTimer;
+    
     };
 
 #endif // C_GLXMEDIALIST_H

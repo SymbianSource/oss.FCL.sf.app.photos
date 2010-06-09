@@ -122,9 +122,20 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
     if ( aIsFocused && frameCount > 1 && (fsTnmAvailable) )
         {
         GLX_DEBUG1("GlxThumbnailVariantType::CreateAnimatedGifTextureL");
-        TRAP( err, mTextureId = iUiUtility->GlxTextureManager().
-            CreateAnimatedGifTextureL( uri, aSize, aMedia, 
-                                       aMedia.IdSpaceId() ).Id() );
+
+        // If the image is DRM gif, we'll not animate.
+        // Only display the 1st frame. Otherwise animate for normal gif.
+        if (drm)
+            {
+            TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL(
+                            aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
+            }
+        else
+            {
+            TRAP( err, mTextureId = iUiUtility->GlxTextureManager().
+                    CreateAnimatedGifTextureL( uri, aSize, aMedia,
+                            aMedia.IdSpaceId() ).Id() );
+            }
         }
     //URI length could be zero for Media Id based Thumbnail fetch
     else if ( fsTnmAvailable ) 
@@ -199,6 +210,18 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
 	    GLX_DEBUG1("GlxThumbnailVariantType::CreateIconTextureL");
         TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL( 
     	    icon.bitmapId, resFile, defaultSize ).Id() );
+        }
+    else if (KErrNone != thumbnailError && aMedia.Category() == EMPXVideo)
+        {
+        //show larger (twice) default icon for videos, which has errors
+        TSize newSize = defaultSize;
+        newSize += defaultSize;
+        GLX_DEBUG1(
+                "GlxThumbnailVariantType::CreateThumbnailTextureL::Default (video)");
+        TRAP(err, mTextureId
+                = iUiUtility->GlxTextureManager().CreateIconTextureL(
+                        EMbmGlxiconsQgn_prop_image_notcreated, resFile,
+                        newSize).Id());
         }
     else if( drm && isValid == EGlxDrmRightsInvalid )
     	{

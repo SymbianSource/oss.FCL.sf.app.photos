@@ -44,10 +44,10 @@
 // -----------------------------------------------------------------------------
 //	
 EXPORT_C CGlxCommandHandlerAiwEdit* CGlxCommandHandlerAiwEdit::NewL(
-        MGlxMediaListProvider* aMediaListProvider, TBool aCommandSingleClick)
+        MGlxMediaListProvider* aMediaListProvider)
     {
     CGlxCommandHandlerAiwEdit* self = new (ELeave) CGlxCommandHandlerAiwEdit(
-            aMediaListProvider, aCommandSingleClick);
+            aMediaListProvider);
     CleanupStack::PushL(self);
     self->ConstructL();
     CleanupStack::Pop(self);
@@ -77,28 +77,28 @@ void CGlxCommandHandlerAiwEdit::ConstructL()
     CFeatureDiscovery* featManager = CFeatureDiscovery::NewL();
     CleanupStack::PushL(featManager);
     
-    if(featManager->IsFeatureSupportedL(KFeatureIdFfImageEditor)
-       && featManager->IsFeatureSupportedL(KFeatureIdFfVideoEditor))
+    if(featManager->IsFeatureSupportedL(KFeatureIdFfImageEditor))
+        {
+        iIsImageEditSupported = ETrue;
+        }
+    
+    if(featManager->IsFeatureSupportedL(KFeatureIdFfVideoEditor))
+        {
+        iIsVideoEditSupported = ETrue;
+        }
+      
+    if(iIsVideoEditSupported || iIsImageEditSupported)
         {
         TRAP_IGNORE(
                     {
                     iServiceHandler = CAiwServiceHandler::NewL();
                     iServiceHandler->AttachL( R_GLX_AIW_EDIT_INTEREST );
-                    iEditSupported = ETrue;
                     });
         }
     CleanupStack::PopAndDestroy(featManager);
 
-    if (iCommandSingleClick)
-        {
-        TCommandInfo info(EGlxCmdAiwSingleClickEdit);
-        AddCommandL(info);
-        }
-    else
-        {
-        TCommandInfo info(EGlxCmdAiwEdit);
-        AddCommandL(info);
-        }
+    TCommandInfo info(EGlxCmdAiwEdit);
+    AddCommandL(info);
 
     iImageViewerInstance = CGlxImageViewerManager::InstanceL();   
     
@@ -110,9 +110,8 @@ void CGlxCommandHandlerAiwEdit::ConstructL()
 // -----------------------------------------------------------------------------
 //
 CGlxCommandHandlerAiwEdit::CGlxCommandHandlerAiwEdit(
-        MGlxMediaListProvider* aMediaListProvider, TBool aCommandSingleClick) :
-    CGlxMediaListCommandHandler(aMediaListProvider), iCommandSingleClick(
-            aCommandSingleClick)
+        MGlxMediaListProvider* aMediaListProvider) :
+    CGlxMediaListCommandHandler(aMediaListProvider)
     {
     // Do Nothing
     }
@@ -137,25 +136,32 @@ void CGlxCommandHandlerAiwEdit::DynInitMenuPaneL(TInt /*aResourceId*/,
     if (aMenuPane)
         {
         MGlxMediaList& mediaList = MediaList();
-        TInt pos;
-        //If stylus menu is present, hide it for multiple selection
-        if (iCommandSingleClick && aMenuPane->MenuItemExists(
-                EGlxCmdAiwSingleClickEdit, pos)
-
-                && (((!mediaList.Count()) || (mediaList.SelectionCount() > 1))
-                        || !iEditSupported))
+        TInt pos = 0;
+        
+        TBool editSupported = EFalse;
+        TGlxSelectionIterator iterator;
+        iterator.SetToFirst(&mediaList);
+        TInt index = iterator++;
+        if ( index != KErrNotFound )
             {
-            aMenuPane->SetItemDimmed(EGlxCmdAiwSingleClickEdit, ETrue);
+            TMPXGeneralCategory cat = mediaList.Item(index).Category();
+            
+            if ( cat == EMPXImage && iIsImageEditSupported)
+                {
+                editSupported = ETrue;
+                }
+            else if ( cat == EMPXVideo && iIsVideoEditSupported)
+                {
+                editSupported = ETrue;
+                }
             }
-        //For Edit menu item present in Options CBA 
-        else if (aMenuPane->MenuItemExists(EGlxCmdAiwEdit, pos))
+        if (aMenuPane->MenuItemExists(EGlxCmdAiwEdit, pos))
             {
             // If the image path is private or view is in grid & 
-            // selection is not equal to 1, we should hide Edit menu item 
-            if ((iImageViewerInstance->IsPrivate()
-                    || (mediaList.SelectionCount() != 1
-                            && !iIsFullScreenMode))
-                    || !iEditSupported)
+            // selection is greater than 1, we should hide Edit menu item 
+            if (iImageViewerInstance->IsPrivate()
+                    || ((!mediaList.Count() || (mediaList.SelectionCount() > 1))
+                    || !editSupported))
                 {
                 aMenuPane->SetItemDimmed(EGlxCmdAiwEdit, ETrue);
                 }
@@ -171,8 +177,8 @@ TBool CGlxCommandHandlerAiwEdit::DoExecuteL(TInt aCommandId,
         MGlxMediaList& aList)
     {
     TBool handled = EFalse;
-    if (iEditSupported && (EGlxCmdAiwEdit == aCommandId
-            || EGlxCmdAiwSingleClickEdit == aCommandId))
+    if ((iIsImageEditSupported || iIsVideoEditSupported)
+                    && (EGlxCmdAiwEdit == aCommandId))
         {
         CAiwGenericParamList& inputParams = iServiceHandler->InParamListL();
 

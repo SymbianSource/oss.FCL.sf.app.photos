@@ -75,7 +75,6 @@ PRJ_MMPFILES
 ../datasource/manager/group/glxdatasourcemanager.mmp
 ../plugins/glxcollectionpluginall/group/glxcollectionpluginall.mmp
 //../plugins/glxcollectionplugincamera/group/glxcollectionplugincamera.mmp
-../plugins/glxcollectionpluginmonths/group/glxcollectionpluginmonths.mmp
 ../plugins/glxcollectionpluginalbums/group/glxcollectionpluginalbums.mmp
 ../plugins/glxcollectionpluginimageviewer/group/glxcollectionpluginimageviewer.mmp
 

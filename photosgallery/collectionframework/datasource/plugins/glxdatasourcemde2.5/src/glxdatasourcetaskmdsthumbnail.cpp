@@ -22,8 +22,6 @@
 
 #include <caf/content.h>
 #include <glxcollectionplugincamera.hrh>
-#include <glxcollectionplugindownloads.hrh>
-#include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginall.hrh>
 #include <glxcollectionplugintags.hrh>
@@ -384,14 +382,6 @@ void CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL(CGlxtnFileInfo* aInfo,
         iFilterProperties.iSortDirection = EGlxFilterSortDirectionOverrideToDescendingIfDate;
         iFilterProperties.iLastCaptureDate = ETrue;
 
-        if( CGlxDataSource::EContainerTypeMonth == containerType )
-            {
-            iFilterProperties.iOrigin = EGlxFilterOriginAll;
-            AddMonthFilterL(item, iFilterProperties);
-            container = TGlxMediaId(KGlxCollectionRootId);
-            objectDef = &DataSource()->ObjectDef();
-            }
-            
         DoQueryL(*objectDef, ETrue, EContainerFirstItemQuery,  
                 EQueryResultModeItem, container);        
         }
@@ -594,14 +584,6 @@ void CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL()
         iFilterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
         iFilterProperties.iSortDirection = EGlxFilterSortDirectionOverrideToDescendingIfDate;
         iFilterProperties.iLastCaptureDate = ETrue;
-
-        if( CGlxDataSource::EContainerTypeMonth == containerType )
-            {
-            iFilterProperties.iOrigin = EGlxFilterOriginAll;
-            AddMonthFilterL(item, iFilterProperties);
-            container = TGlxMediaId(KGlxCollectionRootId);
-            objectDef = &DataSource()->ObjectDef();
-            }
             
         DoQueryL(*objectDef, ETrue, EContainerFirstItemQuery, 
                 EQueryResultModeItem, container);        

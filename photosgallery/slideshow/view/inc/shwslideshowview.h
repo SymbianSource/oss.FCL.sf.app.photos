@@ -34,6 +34,8 @@
 #include "glxmmcnotifier.h"
 #include <mglxtvobserver.h>
 #include <glxtv.h>
+#include <mglxhdmidecoderobserver.h>
+
 // FORWARD DECLARATIONS
 class CAlfEnv;
 class CAlfDisplay;
@@ -70,7 +72,8 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
                                        public MShwTickObserver,
                                        public MShwGestureObserver,
                                        public MStorageNotifierObserver,
-                                       public MGlxTvObserver
+                                       public MGlxTvObserver,
+									   public MGlxHDMIDecoderObserver
     {
     public:
 
@@ -147,6 +150,12 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
     	 * @ref CGlxViewBase::DoViewDeactivate
     	 */	
         void DoViewDeactivate();
+
+   public://From MGlxHDMIDecoderObserver
+	   /**
+		* Handle notification of HDMI Image Decoder.
+		*/    
+	   void HandleHDMIDecodingEventL(THdmiDecodingStatus aStatus);
 
     private: // from MGlxMediaListObserver
 
@@ -327,6 +336,11 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
          * HandleMMCRemovalL.
          */
         void HandleMMCRemovalL();
+		/**
+		 * Returns the index of the next item 
+		 * for which HDMI advance decoding will be done
+		 */
+		TInt GetNextIndex();
 	public:
 	//to keep in track which of the command set is active/on top
 		enum TShwState

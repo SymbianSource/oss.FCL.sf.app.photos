@@ -47,16 +47,6 @@ public:
 					MGlxMediaListProvider* aMediaListProvider,
 					TBool aHasToolbarItem, const TDesC& aFileName);
 
-	/** 
-	 * Create add to album command handler for singleclick
-	 * @param aMediaListProvider object that provides the media list.
-     * @param aFileName resource file
-	 */
-	IMPORT_C static CGlxCommandHandlerAddToContainer
-			* NewAddToAlbumSingleClickCommandHandlerL(
-					MGlxMediaListProvider* aMediaListProvider,
-					TBool aHasToolbarItem, const TDesC& aFileName);
-
      /** 
 	 * Create add (to) tags command handler 
 	 * @param aMediaListProvider object that provides the media list.
@@ -64,16 +54,6 @@ public:
 	 */
 	IMPORT_C static CGlxCommandHandlerAddToContainer
 			* NewAddToTagCommandHandlerL(
-					MGlxMediaListProvider* aMediaListProvider,
-					TBool aHasToolbarItem, const TDesC& aFileName);
-
-     /** 
-	 * Create add (to) tags command handler for singleclick
-	 * @param aMediaListProvider object that provides the media list.
-     * @param aFileName resource file
-	 */
-	IMPORT_C static CGlxCommandHandlerAddToContainer
-			* NewAddToTagSingleClickCommandHandlerL(
 					MGlxMediaListProvider* aMediaListProvider,
 					TBool aHasToolbarItem, const TDesC& aFileName);
 

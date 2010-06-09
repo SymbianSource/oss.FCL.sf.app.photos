@@ -45,8 +45,6 @@ data=DATAZ_\resource\plugins\glxpluginalbums.rsc              resource\plugins\g
 
 data=DATAZ_\resource\plugins\glxpluginall.rsc                 resource\plugins\glxpluginall.rsc
 
-data=DATAZ_\resource\plugins\glxpluginmonths.rsc              resource\plugins\glxpluginmonths.rsc
-
 data=DATAZ_\APP_RESOURCE_DIR\glxuiutilities.rsc               APP_RESOURCE_DIR\glxuiutilities.rsc  
 
 data=DATAZ_\APP_RESOURCE_DIR\glxgridviewdata.rsc              APP_RESOURCE_DIR\glxgridviewdata.rsc

@@ -65,14 +65,8 @@ _LIT(KObjectDefNameMedia, "MediaObject");
 _LIT(KObjectDefNameObject, "Object");
 _LIT(KObjectDefNameTag, "Tag");
 _LIT(KObjectDefNameVideo, "Video");
-_LIT(KPropertyDefNameCreationDate, "CreationDate");
-_LIT(KPropertyDefNameLastModifiedDate, "LastModifiedDate");
-_LIT(KPropertyDefNameSize, "Size");
-_LIT(KPropertyDefNameTitle, "Title");
 _LIT(KRelationDefNameContains, "Contains");
 _LIT(KRelationDefNameContainsLocation, "ContainsLocation");
-
-_LIT(KObjectDefNameMonth, "MediaObject");/// @todo nasty hack remove and use base object
 
 _LIT(KGlxMdeCameraAlbumUri, "defaultalbum_captured");
 _LIT(KGlxMdeFavoritesUri, "defaultalbum_favourites");
@@ -254,8 +248,6 @@ CGlxDataSourceMde::~CGlxDataSourceMde()
     iFs.Close();
     iHC.Close();
     RFbsSession::Disconnect();
-    iMonthArray.Close();
-    iMonthList.Close();
     iUpdateData.Close();
     iAddedItems.Reset();
     iAddedItems.Close();
@@ -326,14 +318,16 @@ void CGlxDataSourceMde::HandleSessionOpened( CMdESession& aSession, TInt aError 
         HandleSessionError(aSession, aError);
         }
     TRAPD(err, DoSessionInitL());
-    if( KErrNone != err )
+    if (KErrNone == err)
+        {
+        iSessionOpen = ETrue;
+        iDataSourceReady = ETrue;
+        TryStartTask(ETrue);
+        }
+    else
         {
         HandleSessionError(aSession, err);
         }
-    
-    iSessionOpen = ETrue;
-    iDataSourceReady = ETrue;
-	TryStartTask(ETrue);
     }
     
 // ----------------------------------------------------------------------------
@@ -499,12 +493,9 @@ void CGlxDataSourceMde::DoSessionInitL()
     iMediaDef = &iNameSpaceDef->GetObjectDefL(KObjectDefNameMedia);
     iAlbumDef = &iNameSpaceDef->GetObjectDefL(KObjectDefNameAlbum);
     iTagDef = &iNameSpaceDef->GetObjectDefL(KObjectDefNameTag);
-    iMonthDef = &iNameSpaceDef->GetObjectDefL(KObjectDefNameMonth);
     iLocationDef = &iNameSpaceDef->GetObjectDefL(KObjectDefLocation);
 	
 	AddMdEObserversL();
-	
-	PrepareMonthsL();
 	}
 
 // ---------------------------------------------------------------------------
@@ -855,10 +846,6 @@ CGlxDataSource::TContainerType CGlxDataSourceMde::ContainerType(CMdEObject* aObj
 		{
 		containerType = EContainerTypeTag;
 		}
-	else if( 0 == aObject->Def().Compare(*iMonthDef) )
-	    {
-		containerType = EContainerTypeMonth;
-	    }
 
 	return containerType;
 	}
@@ -882,10 +869,6 @@ CGlxDataSource::TContainerType CGlxDataSourceMde::ContainerType(CMdEObjectDef*
 		{
 		containerType = EContainerTypeTag;
 		}
-	else if( 0 == aObjectDef->Compare(*iMonthDef) )
-	    {
-		containerType = EContainerTypeMonth;
-	    }
 
 	return containerType;
 	}
@@ -909,113 +892,7 @@ CGlxDataSource::TItemType CGlxDataSourceMde::ItemType(CMdEObject* aObject)
 		}
 	
 	return itemType;
-	}
-	
-// ---------------------------------------------------------------------------
-// PrepareMonthsL()
-// ---------------------------------------------------------------------------
-//
-void CGlxDataSourceMde::PrepareMonthsL()
-    {
-    TRACER("CGlxDataSourceMde::PrepareMonthsL()");
-    TTime month(0);
-    iFirstMonth = month;
-    }
-    
-// ---------------------------------------------------------------------------
-// GetMonthIdL()
-// ---------------------------------------------------------------------------
-//
-const TGlxMediaId CGlxDataSourceMde::GetMonthIdL(const TTime& aMonth)
-    {
-    TRACER("CGlxDataSourceMde::GetMonthIdL()");
-    TTime monthStart = iFirstMonth + aMonth.MonthsFrom(iFirstMonth);
-    const TTimeIntervalMonths KGlxOneMonth = 1;
-    const TTimeIntervalMicroSeconds KGlxOneMicrosecond = 1;
-
-    TGlxMediaId monthId;    
-    TInt monthIndex = iMonthArray.Find(monthStart);
-    if( monthIndex != KErrNotFound )
-        {
-        monthId = iMonthList[monthIndex];
-        }
-    else
-        {
-        _LIT(KGlxMonthTitleFormat, "%F%Y%M%D:");
-        const TInt KGlxMonthTitleLength = 12;
-        TBuf<KGlxMonthTitleLength> title;
-        monthStart.FormatL(title, KGlxMonthTitleFormat);
-        
-        CMdEObject* month = iSession->GetObjectL(title);
-        if( month )
-            {
-            monthId = (TGlxMediaId)month->Id();
-            iMonthArray.AppendL(monthStart);
-            iMonthList.AppendL(monthId);
-            delete month;
-            }
-        else
-            {
-            TTime monthEnd = monthStart + KGlxOneMonth - KGlxOneMicrosecond;
-            month = iSession->NewObjectLC(*iMonthDef, title); 
-            
-            // A title property def of type text is required.
-            CMdEPropertyDef& titlePropertyDef = iObjectDef->GetPropertyDefL(
-                    KPropertyDefNameTitle);
-            if (titlePropertyDef.PropertyType() != EPropertyText)
-            	{
-            	User::Leave(KErrCorrupt);
-            	}
-            // Set the object title.
-            month->AddTextPropertyL (titlePropertyDef, title);
-
-            // A size property is required.
-            CMdEPropertyDef& sizePropertyDef = iObjectDef->GetPropertyDefL(
-                    KPropertyDefNameSize);
-            if (sizePropertyDef.PropertyType() != EPropertyUint32)
-            	{
-            	User::Leave(KErrCorrupt);
-            	}
-            month->AddUint32PropertyL(sizePropertyDef,0);
-
-            
-            // A creation date property is required.
-        	CMdEPropertyDef& creationDateDef = iObjectDef->GetPropertyDefL(
-        	        KPropertyDefNameCreationDate);
-            if (creationDateDef.PropertyType() != EPropertyTime)
-            	{
-            	User::Leave(KErrCorrupt);
-            	}
-        	month->AddTimePropertyL(creationDateDef, monthStart);
-
-            // A last modified date property is required.
-        	CMdEPropertyDef& lmDateDef = iObjectDef->GetPropertyDefL(
-        	        KPropertyDefNameLastModifiedDate);
-            if (lmDateDef.PropertyType() != EPropertyTime)
-            	{
-            	User::Leave(KErrCorrupt);
-            	}
-            
-        	month->AddTimePropertyL(lmDateDef, monthEnd);
-        	
-            monthId = (TGlxMediaId)iSession->AddObjectL(*month);
-            CleanupStack::PopAndDestroy(month);
-            iMonthArray.AppendL(monthStart);
-            iMonthList.AppendL(monthId);
-            }
-        }
-    return monthId;
-    }
-    
-// ---------------------------------------------------------------------------
-// SameMonth
-// ---------------------------------------------------------------------------
-//
-TBool CGlxDataSourceMde::SameMonth(const TTime& aOldDate, const TTime& aNewDate)
-    {
-    TRACER("CGlxDataSourceMde::SameMonth(const TTime& aOldDate, const TTime& aNewDate)")
-    return ( aOldDate.MonthsFrom(iFirstMonth) == aNewDate.MonthsFrom(iFirstMonth) );
-    }
+	} 
 
 // ---------------------------------------------------------------------------
 // ContainerIsLeft

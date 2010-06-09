@@ -27,7 +27,6 @@ enum TGlxCollectionPluginPriority
     {
     // Bug Fix @ ESLM-7VWF28 :: Priority change inorder to display the " ALL " collection folder as the first collection folder in the Photos Matrix Menu
     EGlxCollectionPluginAll             = 1500,
-    EGlxCollectionPluginMonths          = 1300,
     EGlxCollectionPluginAlbums          = 1200,
     EGlxCollectionPluginTags            = 1100,
     EGlxCollectionPluginImageViewer     = 990,

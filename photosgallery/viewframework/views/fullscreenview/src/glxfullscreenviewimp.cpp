@@ -11,7 +11,7 @@
 *
 * Contributors:
 *
-* Description:    Implementation of fULL-SCREEN view
+* Description:    Implementation of FULL-SCREEN view
 *
 */
 
@@ -356,7 +356,7 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
     //From filemanager show only clone mode.
     if( !iImgViewerMode )    
         {
-        iHdmiController = CGlxHdmiController::NewL();    
+        iHdmiController = CGlxHdmiController::NewL(*this);    
         SetItemToHDMIL();
         }
     iScreenFurniture->SetActiveView(iViewUid);
@@ -757,6 +757,14 @@ void CGlxFullScreenViewImp::ActivateZoomControlL(TZoomStartMode aStartMode, TPoi
                                         item, apZoomFocus,iImgViewerMode);
                 }
             // Now to remove all textures other than the one we are focussing on.  
+            TInt frameCount = KErrNone;
+            item.GetFrameCount(frameCount);
+            // If .gif file, then only call stopanimation
+			if (frameCount > 1)
+                {
+                iUiUtility->GlxTextureManager().AnimateMediaItem(
+                        item.Id(), EFalse);
+                }
             TInt count = iMediaList->Count();
             while (count > 0)
                 {
@@ -794,7 +802,18 @@ void CGlxFullScreenViewImp::DeactivateZoomControlL()
         {        
         iZoomControl->Deactivate();
         }
-    
+    if (iMediaList->FocusIndex() != KErrNotFound)
+        {
+        TGlxMedia item = iMediaList->Item(iMediaList->FocusIndex());
+        TInt frameCount = KErrNone;
+        item.GetFrameCount(frameCount);
+		// If .gif file, then only call start animation
+        if (frameCount > 1)
+            {
+            iUiUtility->GlxTextureManager().AnimateMediaItem(
+                    item.Id(), ETrue);
+            }
+        }
     //check if the slider is already visible in zoom view.
     //if yes then do not disable the slider.
     TBool sliderInvisible = ETrue;
@@ -913,18 +932,31 @@ void CGlxFullScreenViewImp::HandleForegroundEventL(TBool aForeground)
 			{   
             iHdmiController->ShiftToCloningMode();
 			}
-        iUiUtility->GlxTextureManager().FlushTextures();
-        }
-    else
-        {
-        if (iMediaList && iMediaList->Count() && iMediaListMulModelProvider)
-            {
-            TInt focusIndex = iMediaList->FocusIndex();
-            iMediaListMulModelProvider->UpdateItems(focusIndex, 1);
-            
-            if(iHdmiController)
-				{    
-                iHdmiController->ShiftToPostingMode();
+		iUiUtility->GlxTextureManager().FlushTextures();
+		}
+	else
+		{
+		if (iMediaList)
+			{
+			/** if there is no image to show go back to the previous view */
+			if (!iMediaList->Count())
+				{
+				iUiUtility->SetViewNavigationDirection(EGlxNavigationBackwards);
+				CGlxNavigationalState* navigationalState =
+						CGlxNavigationalState::InstanceL();
+				CleanupClosePushL(*navigationalState);
+				navigationalState ->ActivatePreviousViewL();
+				CleanupStack::PopAndDestroy(navigationalState);
+				}
+			else if (iMediaListMulModelProvider)
+				{
+				TInt focusIndex = iMediaList->FocusIndex();
+				iMediaListMulModelProvider->UpdateItems(focusIndex, 1);
+
+				if (iHdmiController)
+					{
+					iHdmiController->ShiftToPostingMode();
+					}
 				}
             }
         }
@@ -1112,6 +1144,17 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                         iSliderWidget->ShowWidget(CheckIfSliderToBeShownL());
                         }
                     }
+                /** if this is the last image deleted when Photo is in foreground, go back to the previous view*/
+				if (!iMediaList->Count() && IsForeground())
+					{
+					iUiUtility->SetViewNavigationDirection(
+							EGlxNavigationBackwards);
+					CGlxNavigationalState* navigationalState =
+							CGlxNavigationalState::InstanceL();
+					CleanupClosePushL(*navigationalState);
+					navigationalState ->ActivatePreviousViewL();
+					CleanupStack::PopAndDestroy(navigationalState);
+					}
                 return EEventConsumed;
                 }
             case ETypeHighlight:
@@ -1676,7 +1719,7 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
             
             GLX_LOG_INFO2("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - FS Bitmap Size width=%d, height=%d", 
                     fsBitmap->SizeInPixels().iWidth, fsBitmap->SizeInPixels().iHeight);
-            iHdmiController->SetImageL(item.Uri(),fsBitmap);
+            iHdmiController->SetImageL(item.Uri(), KNullDesC, fsBitmap);
             CleanupStack::PopAndDestroy(fsBitmap);
             }
         else
@@ -1697,7 +1740,7 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
                 
                 GLX_LOG_INFO2("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - gridBitmap Size width=%d, height=%d", 
                         gridBitmap->SizeInPixels().iWidth, gridBitmap->SizeInPixels().iHeight);
-                iHdmiController->SetImageL(item.Uri(),gridBitmap);
+                iHdmiController->SetImageL(item.Uri(), KNullDesC, gridBitmap);
                 CleanupStack::PopAndDestroy(gridBitmap);
                 }
             else
@@ -1714,7 +1757,7 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
 
                 GLX_LOG_INFO2("CGlxFullScreenViewImp::SetImageToHDMIL - CGlxHdmi - Default Size width=%d, height=%d", 
                         defaultBitmap->SizeInPixels().iWidth, defaultBitmap->SizeInPixels().iHeight);
-                iHdmiController->SetImageL(item.Uri(),defaultBitmap);
+                iHdmiController->SetImageL(item.Uri(), KNullDesC, defaultBitmap);
                 CleanupStack::PopAndDestroy(defaultBitmap); 
                 }
             }
@@ -1807,11 +1850,12 @@ void CGlxFullScreenViewImp::HandleEffectCallback(TInt aType, TInt aHandle,
                                                  TInt /*aStatus*/)
     {
     TRACER("CGlxFullScreenViewImp::HandleEffectCallback()");
-    if (aHandle == iEffectHandle && aType == EAlfEffectComplete)
+    if (aHandle == iEffectHandle && aType == EAlfEffectComplete
+            && iCoverFlowWidget)
         {
         TRAP_IGNORE(const_cast<CAlfLayout&>
                 (iCoverFlowWidget->ContainerLayout()).SetEffectL(
-                                                     KTfxResourceNoEffect));
+                        KTfxResourceNoEffect));
         }
     }
 
@@ -1894,4 +1938,13 @@ TBool CGlxFullScreenViewImp::CheckIfSliderToBeShownL()
         return ETrue;
         }
     return EFalse;
+    }
+
+//---------------------------------------------------------------------------
+// HandleHDMIDecodingEventL
+//---------------------------------------------------------------------------   
+void CGlxFullScreenViewImp::HandleHDMIDecodingEventL(
+        THdmiDecodingStatus /*aStatus*/)
+    {
+    TRACER("CGlxFullScreenViewImp::HandleHDMIDecodingEventL()");
     }

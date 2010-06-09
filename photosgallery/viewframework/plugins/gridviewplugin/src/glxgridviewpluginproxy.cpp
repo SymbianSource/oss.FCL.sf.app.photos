@@ -25,8 +25,6 @@
 #include "glxmaingridviewplugin.h"
 #include "glxalbumgridviewplugin.h"
 #include "glxcameraalbumgridviewplugin.h"
-#include "glxdownloadsgridviewplugin.h"
-#include "glxmonthsgridviewplugin.h"
 #include "glxtaggridviewplugin.h"
 
 #if ( !defined IMPLEMENTATION_PROXY_ENTRY )
@@ -55,13 +53,6 @@ const TImplementationProxy ImplementationTable[] =
         KGlxCameraAlbumGridViewImplementationId, 
         CGlxCameraAlbumGridViewPlugin::NewL ),
          
-    IMPLEMENTATION_PROXY_ENTRY( 
-        KGlxDownloadsGridViewImplementationId, 
-        CGlxDownloadsGridViewPlugin::NewL ), 
-        
-    IMPLEMENTATION_PROXY_ENTRY( 
-        KGlxMonthsGridViewImplementationId, 
-        CGlxMonthsGridViewPlugin::NewL ), 
     IMPLEMENTATION_PROXY_ENTRY( 
         KGlxTagGridViewPluginImplementationUid, 
         CGlxTagGridViewPlugin::NewL ), 

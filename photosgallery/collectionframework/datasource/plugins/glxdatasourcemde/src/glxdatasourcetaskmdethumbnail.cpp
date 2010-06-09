@@ -22,7 +22,6 @@
 
 #include <caf/content.h>
 #include <glxcollectionpluginCamera.hrh>
-#include <glxcollectionpluginDownloads.hrh>
 #include <glxcollectionpluginMonths.hrh>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginall.hrh>

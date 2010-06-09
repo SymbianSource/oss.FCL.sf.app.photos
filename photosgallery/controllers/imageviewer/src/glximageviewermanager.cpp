@@ -23,14 +23,14 @@
 
 #include <f32file.h>
 #include <caf/manager.h>
+#include <caf/content.h>
 #include <driveinfo.h>
 #include <coeutils.h>
 
 _LIT( KPrivateFolder, "\\Private\\" );
-_LIT( KGifFileExt, ".gif" );
-_LIT( KMbmFileExt, ".mbm");
-_LIT( KTempGifFilePath, "?:\\data\\images\\200104E7.gif" );
-_LIT( KTempMbmFilePath, "?:\\data\\images\\200104E7.mbm" );
+_LIT( KGifFileMime, "image/gif" );
+_LIT( KMbmFileExt, "image/x-epoc-mbm");
+_LIT( KTempFilePath, "?:\\data\\images\\" );
     
 EXPORT_C CGlxImageViewerManager* CGlxImageViewerManager::InstanceL()
     {
@@ -120,8 +120,7 @@ EXPORT_C void CGlxImageViewerManager::SetImageUriL(const TDesC& aFileName)
         {
         User::Leave(KErrNotSupported);    
         }
-   	
-    iImageUri = aFileName.AllocL();    
+    iImageUri = aFileName.AllocL();  
     }
 
 // ---------------------------------------------------------------------------
@@ -176,19 +175,23 @@ EXPORT_C void CGlxImageViewerManager::SetImageFileHandleL(const RFile& aFileHand
         iFile = new (ELeave) RFile64;
         User::LeaveIfError(iFile->Duplicate(aFileHandle));
         iIsPrivate = ETrue;
+
+        // Better to use contentaccess as we need to deal with DRM files
+        TBuf<KMaxName> mimeBuf;
+        ContentAccess::CContent* content = ContentAccess::CContent::NewLC(
+                *iFile);
+        TInt err(content->GetStringAttribute(ContentAccess::EMimeType,
+                mimeBuf));
+        CleanupStack::PopAndDestroy(content);
+
         // Gif / MBM file from private path, hence make a local copy.
-        if (parse.Ext().Compare(KGifFileExt) == 0 || parse.Ext().Compare(
-                KMbmFileExt) == 0)
+        if (mimeBuf.Compare(KGifFileMime) == 0
+                || mimeBuf.Compare(KMbmFileExt) == 0)
             {
             TFileName ramFilePath;
-            if (parse.Ext().Compare(KGifFileExt) == 0)
-                {
-                ramFilePath.Copy(KTempGifFilePath);
-                }
-            else
-                {
-                ramFilePath.Copy(KTempMbmFilePath);
-                }
+            ramFilePath.Copy(KTempFilePath);
+            ramFilePath.Append(parse.NameAndExt());
+
             TChar drive;
             User::LeaveIfError(DriveInfo::GetDefaultDrive(
                     DriveInfo::EDefaultRam, drive));
@@ -196,7 +199,7 @@ EXPORT_C void CGlxImageViewerManager::SetImageFileHandleL(const RFile& aFileHand
             ConeUtils::EnsurePathExistsL(ramFilePath);
             if (!iManager)
                 {
-                iManager = ContentAccess::CManager::NewL();    
+                iManager = ContentAccess::CManager::NewL();
                 }
             iManager->CopyFile(*iFile, ramFilePath);
             filePath.Copy(ramFilePath);

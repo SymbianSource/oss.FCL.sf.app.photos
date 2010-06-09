@@ -91,12 +91,6 @@ enum TGlxCommandId
     EGlxCmdRemoveFromFavourites,
     KGlxCmdMnShowMap,
     EGlxCmdSave,
-    EGlxCmdSingleClickAddToAlbum,
-    EGlxCmdSingleClickAddTag,
-    EGlxCmdSingleClickDelete,
-    EGlxCmdSingleClickSend,
-    EGlxCmdAiwSingleClickEdit,
-    EGlxCmdSingleClickRemoveFrom,
     EGlxCmdRenameCompleted, 
     EGlxCmdDialogLaunched,
     EGlxCmdAiwBase = 0x6000

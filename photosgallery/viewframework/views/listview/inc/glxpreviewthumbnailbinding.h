@@ -88,8 +88,8 @@ public:
      */
       void ScaleBitmapToListSizeL(CFbsBitmap* aSrcBitmap, CFbsBitmap* aDestBitmap);
 	
-      void HandleItemChangedL(const CMPXCollectionPath& aPath,TBool aPopulateListTNs, 
-									  TBool aIsRefreshNeeded, TBool aBackwardNavigation);
+      void HandleItemChangedL(const CMPXCollectionPath& aPath, 
+              TBool aIsRefreshNeeded, TBool aBackwardNavigation);
       void StartTimer();
       void StopTimer();
       
@@ -137,10 +137,6 @@ private:
 		
 	// flag that says whether timer has expired
 	TBool iTimerTicked;
-	
-	//flag will be true, when initially the first thumbnails for all the 
-	//items in the list are populated.
-	TBool iPopulateListTNs;
 	
 	TBool iIsRefreshNeeded;
     

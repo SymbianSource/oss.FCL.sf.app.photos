@@ -19,7 +19,6 @@
 
 
 #include <ecom/registryinfo.rh>
-#include "glxcollectionplugindownloads.hrh"
 #include <photos.loc>
 #include <glxcollectionplugintype.hrh>
 #include <glxcollectionpluginpriority.hrh>

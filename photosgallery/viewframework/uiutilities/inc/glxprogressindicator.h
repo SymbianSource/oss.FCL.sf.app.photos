@@ -28,22 +28,51 @@ class CGlxUiUtility;
 class MDialogDismisedObserver
     {
 public:
-    virtual void HandleDialogDismissedL()=0;
+    virtual void HandleDialogDismissedL() = 0;
     };
 
-class CGlxProgressIndicator : public CBase,
-                                 public MProgressDialogCallback
+class CGlxProgressIndicator : public CBase, public MProgressDialogCallback
     {
 public:
-    IMPORT_C static CGlxProgressIndicator* NewL(MDialogDismisedObserver&  aGlxGridViewNotifyObserver);
+    IMPORT_C static CGlxProgressIndicator* NewL(
+            MDialogDismisedObserver& aGlxGridViewNotifyObserver);
+    
     ~CGlxProgressIndicator();
-    static CGlxProgressIndicator* NewLC(MDialogDismisedObserver&  aGlxGridViewNotifyObserver);
+
     /**
      * dismiss progress dialog when it is needed
      */
     IMPORT_C void DismissProgressDialog();
+
+    /**
+     * Show progressbar dialog
+     */
+    IMPORT_C void ShowProgressbarL();
+    
+    /**
+     * Start or stop the TN daemon
+     * @param aStatus The foreground status
+     */
+    IMPORT_C void ControlTNDaemon(TBool aStatus);
+    
+public:
+    // Callback for periodic timer, static, 
+    static TInt PeriodicCallbackL(TAny* aPtr);
+    
+    //nonstatic func called from periodic timer
+    void DisplayProgressBarL();
+    
+protected:
+    //MProgressDialogCallback
+    void DialogDismissedL(TInt aButtonId);
+
 private:
-    CGlxProgressIndicator(MDialogDismisedObserver&  aGlxGridViewNotifyObserver);
+    static CGlxProgressIndicator* NewLC(
+            MDialogDismisedObserver& aGlxGridViewNotifyObserver);
+    
+    CGlxProgressIndicator(
+                    MDialogDismisedObserver& aGlxGridViewNotifyObserver);
+    
     void ConstructL();
     
     /**
@@ -51,7 +80,8 @@ private:
      * @param aFinalValue Sets the final value of the bar
      * @param aShow hide/display the progress bar 
      */
-    void StartProgressNoteL(TInt aFinalValue ,TBool aShow);
+    void StartProgressNoteL(TInt aFinalValue, TBool aShow);
+    
     /**
      * displays the increment of progress bar
      */
@@ -62,19 +92,7 @@ private:
      * @return increment value
      */
     TInt CalculateDisplayBarIncrement();
-public:
-    // Callback for periodic timer, static, 
-    static TInt PeriodicCallbackL( TAny* aPtr );
-    
-    //nonstatic func called from periodic timer
-    void DisplayProgressBarL();
-    
-    //show progress bar
-    IMPORT_C void ShowProgressbarL();
-    
-protected://MProgressDialogCallback
-    void DialogDismissedL (TInt aButtonId);
-    
+        
 private:
     //Progress bar updation ticker
     CPeriodic* iProgressbarTicker;
@@ -87,8 +105,10 @@ private:
     
     //final count to set in progress bar
     TInt iFinalCount;
-    MDialogDismisedObserver&  iGlxGridViewNotifyObserver;
-    CGlxUiUtility* iUiUtility;
 
+    MDialogDismisedObserver& iGlxGridViewNotifyObserver;
+    
+    CGlxUiUtility* iUiUtility;
     };
+
 #endif /* GLXPROGRESSINDICATOR_H_ */

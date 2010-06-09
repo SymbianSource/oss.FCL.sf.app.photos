@@ -1028,7 +1028,7 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
             objectsForRemoval.AppendL(object.Id());
             }
 			 
-        // After every 50 items are deleted, break from the for loop 
+        // After every 10 items are deleted, break from the for loop 
         // and process other pending requests if any
         if(deleteItemCounter == KDeletedItemCount)
 			{	
@@ -1036,6 +1036,13 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
 							TCallBack( &SchedulerStopCallback, (TAny *)this ) );	
 			iSchedulerWait->Start();  
 			deleteItemCounter = 0;
+			if(objectsForRemoval.Count()>0)
+				{
+				// Inform the MdS for media items Delete Updation in batches of 10
+				DataSource()->Session().RemoveObjectsL(objectsForRemoval,
+						sucessfullyRemovedObjects);
+				objectsForRemoval.Reset();
+				}
 			}     
         deleteItemCounter++;     
         }
@@ -1044,7 +1051,7 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
     
     User::LeaveIfError(lastErr);
     
-    if (queryCount)
+    if (queryCount && objectsForRemoval.Count()>0)
     	{
     	// Some objects may have already been removed by the harvester
     	DataSource()->Session().RemoveObjectsL(objectsForRemoval, sucessfullyRemovedObjects);

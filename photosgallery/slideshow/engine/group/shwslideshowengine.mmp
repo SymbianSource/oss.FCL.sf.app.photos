@@ -57,7 +57,8 @@ SYSTEMINCLUDE ../../../viewframework/uiutilities/inc
 SYSTEMINCLUDE ../../../common/inc                              
 SYSTEMINCLUDE ../../../commonui/inc
 SYSTEMINCLUDE     ../../../gallery/loc
-
+// for mglxhdmidecoderobserver
+SYSTEMINCLUDE ../../../viewframework/inc
 
 
 SOURCEPATH ../coresrc
@@ -119,5 +120,6 @@ LIBRARY		efsrv.lib
 LIBRARY     mpxcommon.lib
 LIBRARY avkon.lib 
 LIBRARY eikcore.lib 
+LIBRARY glxtvout.lib 
 
 

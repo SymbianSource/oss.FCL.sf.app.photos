@@ -26,8 +26,6 @@
 #include "glxdatasourcetaskmds.h"
 
 #include <glxcollectionplugincamera.hrh>
-#include <glxcollectionplugindownloads.hrh>
-#include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginall.hrh>
 #include <glxcollectionplugintags.hrh>
@@ -180,66 +178,6 @@ CGlxDataSourceMde* CGlxDataSourceTaskMde::DataSource()
     }
 
 // ----------------------------------------------------------------------------
-//  CGlxDataSourceTaskMde::AddMonthFilterL
-// ----------------------------------------------------------------------------
-//     
-void CGlxDataSourceTaskMde::AddMonthFilterL(const TGlxMediaId& aContainerId,
-        TGlxFilterProperties& aFilterProperties)
-    {
-    TRACER("CGlxDataSourceTaskMde::AddMonthFilterL(const TGlxMediaId& aContainerId, TGlxFilterProperties& aFilterProperties)");
-    CMdEObject* month = DataSource()->Session().GetObjectL(aContainerId.Value());
-    if( !month )
-        {
-        User::Leave(KErrNotFound);
-        }
-    CleanupStack::PushL(month);
-    
-    AddMonthFilterL(month, aFilterProperties);
-        
-    CleanupStack::PopAndDestroy(month);
-    }
-
-
-// ----------------------------------------------------------------------------
-//  CGlxDataSourceTaskMde::AddMonthFilterL
-// ----------------------------------------------------------------------------
-//   
-void CGlxDataSourceTaskMde::AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProperties& 
-        aFilterProperties)
-    {
-    TRACER("CGlxDataSourceTaskMde::AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProperties& aFilterProperties)");
-    CMdEPropertyDef& creationDateDef = DataSource()->ObjectDef().GetPropertyDefL(
-            KPropertyDefNameCreationDate);
-    if (creationDateDef.PropertyType() != EPropertyTime)
-        {
-        User::Leave(KErrCorrupt);
-        }
-
-    CMdEPropertyDef& lmDateDef = DataSource()->ObjectDef().GetPropertyDefL(
-            KPropertyDefNameLastModifiedDate);
-    if (lmDateDef.PropertyType() != EPropertyTime)
-        {
-        User::Leave(KErrCorrupt);
-        }
-        
-    CMdEProperty* startDate;
-    TInt startDateIndex = aMonth->Property(creationDateDef, startDate);
-    if( KErrNotFound == startDateIndex) 
-        {
-        User::Leave(KErrCorrupt);
-        }
-    aFilterProperties.iStartDate = static_cast<CMdETimeProperty*>(startDate)->Value();
-     
-    CMdEProperty* endDate;
-    TInt endDateIndex = aMonth->Property(lmDateDef, endDate);
-    if( KErrNotFound == endDateIndex) 
-        {
-        User::Leave(KErrCorrupt);
-        }
-    aFilterProperties.iEndDate = static_cast<CMdETimeProperty*>(endDate)->Value();
-    }
-
-// ----------------------------------------------------------------------------
 //  CGlxDataSourceTaskMde::SetQueryConditionsL
 // ----------------------------------------------------------------------------
 //    
@@ -354,8 +292,7 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
 			}
 		else if(EGlxFilterOriginAll == aFilterProperties.iOrigin )            
 			{
-			// The Months Collection Populates All the Items, filter 
-		    // it for Images and Videos only
+			// Filter for all Images and Videos
             CMdELogicCondition& logicCondition = 
                 aLogicCondition.AddLogicConditionL(ELogicConditionOperatorOr);
             logicCondition.AddObjectConditionL( DataSource()->ImageDef() ); 
@@ -602,13 +539,6 @@ void CGlxDataSourceTaskMde::QueueAlbumObjectQueryL(const RArray<TGlxMediaId>& aO
     {
     TRACER("CGlxDataSourceTaskMde::QueueAlbumObjectQueryL()");
     QueueObjectQueryL(DataSource()->AlbumDef(), aObjectIds, EImageVideoQuery);
-    }
-
-
-void CGlxDataSourceTaskMde::QueueMonthObjectQueryL(const RArray<TGlxMediaId>& aObjectIds)
-    {
-    TRACER("CGlxDataSourceTaskMde::QueueMonthObjectQueryL()");
-    QueueObjectQueryL(DataSource()->MonthDef(), aObjectIds, EImageVideoQuery);
     }
 
 // ----------------------------------------------------------------------------

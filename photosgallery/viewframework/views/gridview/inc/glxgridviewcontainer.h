@@ -161,6 +161,14 @@ private:
 	 */
 	void HandleMMCRemovalL();
 
+    /**
+     * SetIconL - Sets the grid cell icon with the given parameters
+     * @param aItemIndex -  The grid cell index
+     * @param aBitmapId - The bitmap id
+     * @param aMaskId - The mask id
+     */
+    void SetIconL(TInt aItemIndex, TInt aBitmapId, TInt aMaskId);
+
 private:
 	//medialist
 	MGlxMediaList* iMediaList;				    // MGlxMedialist , to Create MediaList

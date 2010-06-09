@@ -23,8 +23,6 @@
 
 #include "glxmainlistviewplugin.h"
 #include "glxalbumlistviewplugin.h"
-#include "glxmonthlistviewplugin.h"
-
 #include "glxlistviewplugin.hrh"
 
 // ======== MEMBER FUNCTIONS ========
@@ -41,8 +39,6 @@ const TImplementationProxy ImplementationTable[] =
     IMPLEMENTATION_PROXY_ENTRY(
             KGlxAlbumListViewImplementationUid, CGlxAlbumListViewPlugin::NewL),
 
-    IMPLEMENTATION_PROXY_ENTRY(
-            KGlxMonthListViewImplementationUid, CGlxMonthListViewPlugin::NewL)
     };
 
 // ---------------------------------------------------------------------------

@@ -239,6 +239,13 @@ public:
        */
     IMPORT_C void FlushTextures() ;
     
+   /**
+    * Animate the given media.
+    * @param aMediaId The Id of the media to be animated
+    * @param aState Animation state [ETrue to Start, EFalse to Stop]
+    */
+    IMPORT_C void AnimateMediaItem(const TGlxMediaId& aMediaId, TBool aState);
+    
 public: // from MGlxSkinChangeObserver
 
     void HandleSkinChanged();    

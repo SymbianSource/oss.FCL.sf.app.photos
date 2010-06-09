@@ -59,7 +59,9 @@ inline CShwEffectControl::CShwEffectControl(
     iVisualList( aVisualList ),
     iMediaList( aMediaList ),
 	iEffectLoopRestarted( EFalse ),
-	iFailedThumbnailIndex( KErrNotFound )
+	iFailedThumbnailIndex( KErrNotFound ),
+	iHDMIFirstDecoded(EFalse),
+	iTNReadyReceived(EFalse)
     {
     // initialize the default layout chain
     iDefaultIconLayout.SetOpacity( KMaxOpacity, 0 );
@@ -204,6 +206,10 @@ void CShwEffectControl::NotifyL( MShwEvent* aEvent )
         dynamic_cast< TShwEventPreviousImage* >( aEvent );
     TShwEventToggleControlUi* toggleControlUiEvent = 
         dynamic_cast< TShwEventToggleControlUi* >( aEvent );
+    TShwEventHDMIDisConnected* hdmiDisConnectEvent = 
+    dynamic_cast< TShwEventHDMIDisConnected* >( aEvent );
+    TShwEventHDMIFirstImageDecodingCompleted* hdmiDecodeImageEvent = 
+    dynamic_cast< TShwEventHDMIFirstImageDecodingCompleted* >( aEvent );        
 
     // process init event
     if( init )
@@ -247,6 +253,15 @@ void CShwEffectControl::NotifyL( MShwEvent* aEvent )
         {
         HandlePreviousImageEventL();
         }
+    else if(hdmiDecodeImageEvent || hdmiDisConnectEvent)
+    	{
+    	iHDMIFirstDecoded = ETrue;
+    	if(iTNReadyReceived)
+    		{
+            TShwEventReadyToView readyToView;
+            SendEventL(&readyToView);    		
+    		}
+    	}    	
     // no other events are interesting for us
     }
 
@@ -342,10 +357,14 @@ void CShwEffectControl::HandleThumbnailLoadedL( TInt aIndex )
         {
         GLX_LOG_INFO( 
             "HandleThumbnailLoadedL - sending TShwEventReadyToView" );
+        iTNReadyReceived = ETrue;
         // its focus index so lets send ready to view
         // send ready to view event
-        TShwEventReadyToView readyToView;
-        SendEventL( &readyToView );
+        if(iHDMIFirstDecoded)
+        	{
+            TShwEventReadyToView readyToView;
+            SendEventL( &readyToView );              	
+        	}
         }
     // is it next from focus
     else if( aIndex == NextListIndex( KNavigateForwards ) )
@@ -372,6 +391,11 @@ void CShwEffectControl::HandleThumbnailLoadFailureL( TInt aIndex )
     // we need to remember this index however as we dont want to start the
     // effect for it
     iFailedThumbnailIndex = aIndex;
+    TInt focus = iVisualList.FocusIndex();
+    if (aIndex == focus)
+    	{
+        iHDMIFirstDecoded = ETrue;    	
+    	}
     HandleThumbnailLoadedL( aIndex );
     }
 

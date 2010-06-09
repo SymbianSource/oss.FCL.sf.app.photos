@@ -30,12 +30,12 @@ const TInt KPeriodicStartDelay = 500000;
 // CGlxProgressIndicator::NewL
 // ---------------------------------------------------------
 //  
-EXPORT_C CGlxProgressIndicator* CGlxProgressIndicator::NewL
-                    (MDialogDismisedObserver& aGlxGridViewNotifyObserver)
+EXPORT_C CGlxProgressIndicator* CGlxProgressIndicator::NewL(
+        MDialogDismisedObserver& aGlxGridViewNotifyObserver)
     {
     TRACER("CGlxProgressIndicator::NewL()");
-    CGlxProgressIndicator* self = CGlxProgressIndicator::NewLC
-                                                (aGlxGridViewNotifyObserver);
+    CGlxProgressIndicator* self = CGlxProgressIndicator::NewLC(
+            aGlxGridViewNotifyObserver);
     CleanupStack::Pop(self);
     return self;
     }
@@ -44,12 +44,12 @@ EXPORT_C CGlxProgressIndicator* CGlxProgressIndicator::NewL
 // CGlxProgressIndicator::NewLC
 // ---------------------------------------------------------
 //  
-CGlxProgressIndicator* CGlxProgressIndicator::NewLC
-                    (MDialogDismisedObserver& aGlxGridViewNotifyObserver)
+CGlxProgressIndicator* CGlxProgressIndicator::NewLC(
+        MDialogDismisedObserver& aGlxGridViewNotifyObserver)
     {
     TRACER("CGlxProgressIndicator::NewLC()");
-    CGlxProgressIndicator* self = new(ELeave)
-                    CGlxProgressIndicator(aGlxGridViewNotifyObserver);
+    CGlxProgressIndicator* self = new (ELeave) CGlxProgressIndicator(
+            aGlxGridViewNotifyObserver);
     CleanupStack::PushL(self);
     self->ConstructL();
     return self;
@@ -59,9 +59,9 @@ CGlxProgressIndicator* CGlxProgressIndicator::NewLC
 // CGlxProgressIndicator::CGlxProgressIndicator
 // ---------------------------------------------------------
 // 
-CGlxProgressIndicator::CGlxProgressIndicator
-          (MDialogDismisedObserver& aGlxGridViewNotifyObserver)
-                    :iGlxGridViewNotifyObserver(aGlxGridViewNotifyObserver)
+CGlxProgressIndicator::CGlxProgressIndicator(
+        MDialogDismisedObserver& aGlxGridViewNotifyObserver) :
+    iGlxGridViewNotifyObserver(aGlxGridViewNotifyObserver)
     {
     }
 
@@ -94,6 +94,9 @@ CGlxProgressIndicator::~CGlxProgressIndicator()
 void CGlxProgressIndicator::ConstructL()
     {
     TRACER("CGlxProgressIndicator::ConstructL()");
+    
+    iUiUtility = CGlxUiUtility::UtilityL();
+    
     iUiUtility->StartTNMDaemon();
 
     if (!iProgressbarTicker)
@@ -141,7 +144,7 @@ inline void CGlxProgressIndicator::DisplayProgressBarL()
 // StartProgressNoteL
 // -----------------------------------------------------------------------------
 //
-void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue,TBool aShow)
+void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue, TBool aShow)
     {
     TRACER("CGlxProgressIndicator::StartProgressNoteL()");
     TInt itemsLeft = iUiUtility->GetItemsLeftCount();
@@ -243,11 +246,10 @@ TInt CGlxProgressIndicator::CalculateDisplayBarIncrement()
 void EXPORT_C CGlxProgressIndicator::ShowProgressbarL()
     {
     TRACER("CGlxProgressIndicator::ShowProgressbarL");
-    iUiUtility->StartTNMDaemon();
     TInt itemsLeft = iUiUtility->GetItemsLeftCount();
+    GLX_DEBUG3("ShowProgressbarL itemsLeft(%d), iFinalCount(%d)", itemsLeft, 
+            iFinalCount);
 
-    GLX_LOG_INFO1("ShowProgressbar itemsLeft = %d ",itemsLeft);
-    GLX_LOG_INFO1("ShowProgressbar iFinalCount = %d ",iFinalCount);
     if (iFinalCount < itemsLeft)
         {
         /*
@@ -290,3 +292,20 @@ EXPORT_C void CGlxProgressIndicator::DismissProgressDialog()
         }
     }
 
+// -----------------------------------------------------------------------------
+// ControlTNDaemon
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxProgressIndicator::ControlTNDaemon(TBool aStatus)
+    {
+    TRACER("CGlxProgressIndicator::ControlTNDaemon");
+    GLX_DEBUG2("CGlxProgressIndicator::ControlTNDaemon(%d)", aStatus);
+    if (aStatus)
+        {
+        iUiUtility->StartTNMDaemon();
+        }
+    else
+        {
+        iUiUtility->StopTNMDaemon();
+        }
+    }

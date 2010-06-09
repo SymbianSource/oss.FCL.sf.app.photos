@@ -104,11 +104,6 @@ void CGlxCommandHandlerSend::ConstructL(const TDesC& aFileName)
 	info.iMinSelectionLength = 1;
 	info.iMaxSelectionLength = KMaxTInt;
 	AddCommandL(info);
-
-	TCommandInfo singleclickinfo(EGlxCmdSingleClickSend);
-	singleclickinfo.iMinSelectionLength = 1;
-	singleclickinfo.iMaxSelectionLength = KMaxTInt;
-	AddCommandL(singleclickinfo);
 	}	
 	
 
@@ -140,7 +135,7 @@ TBool CGlxCommandHandlerSend::DoExecuteL(TInt aCommandId,
 	{
     GLX_FUNC("CGlxCommandHandlerSend::DoExecuteL");
 	
-    if (aCommandId == EGlxCmdSend || aCommandId == EGlxCmdSingleClickSend)
+    if (aCommandId == EGlxCmdSend)
         {
         SendSelectedItemsL();
         return ETrue;
@@ -408,17 +403,10 @@ TBool CGlxCommandHandlerSend::DoIsDisabled(TInt aCommandId,
                                            MGlxMediaList& aList) const
     {
     GLX_FUNC("CGlxCommandHandlerSend::DoIsDisabled");
-    if ( (EGlxCmdSingleClickSend == aCommandId || EGlxCmdSend==aCommandId) &&
-         aList.SelectionCount() )
-        {
-        return EFalse;
-        }
-    
     if (EGlxCmdSend == aCommandId && aList.Count())
         {
         return EFalse;
-        }
-    
+        } 
     return ETrue;
     }
 

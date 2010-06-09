@@ -49,6 +49,10 @@ const TInt KModifyEventMaxWaitInterval = 3000000;
  * Maximum items count for minimum wait interval.
  */
 const TInt KMaxItemsCount = 500;
+/**
+ * Time between Callbacks to determine a batch delete operation.
+ */
+const TInt KCallbackInterval = 200000;
 
 namespace NGlxMediaList
     {
@@ -1105,8 +1109,20 @@ void CGlxMediaList::HandleCollectionMessageL(const CMPXMessage& aMessage)
 
                     // Drop through to perform sync, in case the order has changed
                     }
-                case EMPXItemInserted:
                 case EMPXItemDeleted:
+                	{
+                	GLX_LOG_INFO("CGlxMediaList::HandleCollectionMessageL() EMPXItemDeleted");
+                	if(iBatchOperationMonitorTimer && !iCommandPending)
+                		{
+						if(iBatchOperationMonitorTimer->IsActive())
+							{
+							iBatchOperationMonitorTimer->Cancel();
+							}
+						iBatchOperationMonitorTimer->Start(KCallbackInterval,KCallbackInterval,TCallBack( TimeOut,this ));
+						}
+                	break;
+                	}
+                case EMPXItemInserted:
                 default:
                     // Items have changed, determine whether to sync now
                     // or resync later if a sync is already pending after opening
@@ -1282,7 +1298,15 @@ CGlxMediaList::~CGlxMediaList()
 		{
 		iManager->HandleListDeleted( this );
 		iManager->Close();
-		}    
+		}
+	if(iBatchOperationMonitorTimer)
+		{
+		if(iBatchOperationMonitorTimer->IsActive())
+			{
+			iBatchOperationMonitorTimer->Cancel();			
+			}
+		delete iBatchOperationMonitorTimer;
+		}
     }
 
 // -----------------------------------------------------------------------------
@@ -1300,6 +1324,7 @@ void CGlxMediaList::ConstructL()
     iCountAttributes.AppendL(KGlxMediaCollectionPluginSpecificSubTitle);
     iCountAttributes.AppendL(KGlxMediaGeneralSlideshowableContent);
     iCountAttributes.AppendL(KMPXMediaGeneralCount);
+    iBatchOperationMonitorTimer = CPeriodic::NewL( CActive::EPriorityStandard );
     }
 
 // -----------------------------------------------------------------------------
@@ -1890,3 +1915,35 @@ void CGlxMediaList::CancelPreviousRequests()
     // Place a new request for the item in focus, to fetch the media attributes
     iManager->CancelPreviousRequest();
     }
+
+// ---------------------------------------------------------------------------
+// TimeOut
+// ---------------------------------------------------------------------------
+//  
+TInt CGlxMediaList::TimeOut(TAny* aSelf)
+    {
+    TRACER("CGlxMediaList::TimeOut");    
+    if(aSelf)
+        {
+		CGlxMediaList* self = static_cast <CGlxMediaList*> (aSelf);
+        if (self)
+            {
+			self->iBatchOperationMonitorTimer->Cancel();
+			// Items have changed, determine whether to sync now
+			// or resync later if a sync is already pending after opening
+			if (self->iSyncStatus == KNonePending)
+				{
+				self->ReOpenL(); // force re-opens
+				self->iSyncStatus = KSyncPending;
+				}
+			else
+				{
+				self->iSyncStatus = KResyncPending;
+				}
+			}
+        }
+    return KErrNone;
+    }
+
+
+// END OF FILE

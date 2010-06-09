@@ -239,7 +239,10 @@ NONSHARABLE_CLASS( CShwEffectControl )
 		RPointerArray<CAlfVisual> iPausedVisuals;
 		
 		TInt iFailedThumbnailIndex;
-
+		/// Own: Flag to tell if HDMI decoding is completed
+		TBool iHDMIFirstDecoded;
+		/// Own: Flag to tell if TN ready received
+		TBool iTNReadyReceived;		
 	};
 
 #endif // __CSHWEFFECTCONTROL_H__

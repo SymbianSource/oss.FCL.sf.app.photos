@@ -36,11 +36,7 @@
 #include <glxtracer.h>
 #include <glxlog.h>
 #include <glxnavigationalstate.h>
-#include <glxcollectionplugincamera.hrh>
-#include <glxcollectionplugindownloads.hrh>
 #include <glxcollectionpluginalbums.hrh>
-#include <glxcollectionpluginmonths.hrh>
-#include <glxcollectionplugintags.hrh>
 #include <glxcollectionpluginimageviewer.hrh>
 #include <glxgallery.hrh>
 

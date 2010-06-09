@@ -139,7 +139,7 @@ private:
      *  We ignore aZoommode if we have a aRelativeZoomFactor.
      *  
      */          
-    TInt NewZoomRatio( 
+    TReal NewZoomRatio( 
             TInt aExpectedZoomRatio,
             TInt aRelativeZoomFactor,
             TZoomMode aZoomMode,

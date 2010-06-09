@@ -185,5 +185,24 @@ SHW_DECLARE_EVENT_CLASS( TShwEventFatalError );
  */
 SHW_DECLARE_EVENT_CLASS( TShwEventToggleControlUi );
 
+/**
+ * Event for HDMI Disconnected.
+ */
+SHW_DECLARE_EVENT_CLASS( TShwEventHDMIDisConnected );
+
+/**
+ * Event for HDMI Image decoding has started.
+ */
+SHW_DECLARE_EVENT_CLASS( TShwEventHDMIImageDecodingStarted );
+
+/**
+ * Event for HDMI Image decoding has completed.
+ */
+SHW_DECLARE_EVENT_CLASS( TShwEventHDMIImageDecodingCompleted );
+
+/**
+ * Event for HDMI Image decoding has completed.
+ */
+SHW_DECLARE_EVENT_CLASS( TShwEventHDMIFirstImageDecodingCompleted );
 
 #endif // __SHWEVENT_H__

@@ -18,10 +18,7 @@
 
 
 #include "glxdatasourcetaskmdsattribute.h"
-
 #include <glxcollectionplugincamera.hrh>
-#include <glxcollectionplugindownloads.hrh>
-#include <glxcollectionpluginmonths.hrh>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcollectionpluginall.hrh>
 #include <glxcollectionplugintags.hrh>
@@ -156,13 +153,7 @@ void CGlxDataSourceTaskMdeAttributeMde::ExecuteRequestL()
                 QueueTagObjectQueryL(request->MediaIds());
                 break;
                 }
-            case EGlxFilterMonth:
-                {
-                QueueMonthObjectQueryL(request->MediaIds());
-                break;
-                }
             }
-        
     	}
 
     DoNextQueryL();
@@ -385,11 +376,6 @@ void CGlxDataSourceTaskMdeAttributeMde::AddCollectionAttributesL(CMPXMedia* aEnt
                     objectDef = &DataSource()->TagDef();
                     break;
                     }
-                case KGlxCollectionPluginMonthsImplementationUid:
-                    {
-					filterProperties.iOrigin = EGlxFilterOriginAll;
-                    break;
-                    }
                 default:
                     {
                     // default gallery query returns all objects as per filter
@@ -491,10 +477,6 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                 {
                 aEntry->SetTObjectValueL(KMPXMediaGeneralCategory, EMPXTag);
                 }
-            else if( CGlxDataSource::EContainerTypeMonth == aType)
-                {
-                aEntry->SetTObjectValueL(KMPXMediaGeneralCategory, EMPXMonth);
-                }
             else
                 {
                 User::Leave(KErrNotSupported);
@@ -545,22 +527,8 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                     {
                     break;
                     }
-                case CGlxDataSource::EContainerTypeMonth:
-                    {
-                    request->AppendCpiAttributeL(KMPXMediaGeneralTitle);
-                    CMdEProperty* time;
-                    CMdEPropertyDef& timeProperty = aContainer->Def().GetPropertyDefL(
-                            KPropertyDefNameCreationDate);
-                    TInt timeIndex = aContainer->Property(timeProperty, time);
-                    if( KErrNotFound == timeIndex )
-                        {
-                        User::Leave(KErrCorrupt);
-                        }
-
-                    aEntry->SetTObjectValueL(KGlxMediaCollectionInternalStartDate, 
-                            static_cast<CMdETimeProperty*>(time)->Value());
+                default:
                     break;
-                    }
                 }
             }
         else if ( request->Attributes()[i] == KMPXMediaGeneralDate )
@@ -627,16 +595,6 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                     aEntry->SetTObjectValueL(request->Attributes()[i], countTypeIndex);
                     break;
                     }
-                case CGlxDataSource::EContainerTypeMonth:
-                    {
-                    iFilterProperties.iOrigin = EGlxFilterOriginAll;                    
-                    TGlxFilterProperties filterProperties = iFilterProperties;
-                    AddMonthFilterL(aContainer, filterProperties);
-                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery,
-                            EQueryResultModeCount, TGlxMediaId(KGlxCollectionRootId),
-                            request->Attributes()[i], aEntry, filterProperties);
-                    break;
-                    }
                 }
             }
         else if ( request->Attributes()[i] == KGlxMediaGeneralSystemItem )
@@ -668,63 +626,9 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                     systemItem = EFalse;
                     break;
                     }
-                case CGlxDataSource::EContainerTypeMonth:
-                    {
-                    systemItem = ETrue;
-                    break;
-                    }
                 }
             aEntry->SetTObjectValueL(KGlxMediaGeneralSystemItem, systemItem);
             }
-            
-         //Attributes to get the Count of Images in Container                
-        else if	( request->Attributes()[i] == KGlxMediaItemTypeImage )    
-			{
-			switch (aType)
-				{
-				case CGlxDataSource::EContainerTypeMonth:
-					{
-					TGlxFilterProperties filterProperties = iFilterProperties;
-					AddMonthFilterL(aContainer, filterProperties);
-					filterProperties.iItemType = EGlxFilterImage;
-#if 0 	/// AB camera album					
-					QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery,
-					        EQueryResultModeCount, DataSource()->CameraAlbumId(), 
-					        request->Attributes()[i], aEntry, filterProperties);
-#endif					
-					break;
-					}			             					
-				default:
-					{
-					break;	
-					}
-				}
-			}           	
-		// Attributes to get the Count of Videos in Container 		
-						                   	
-         else if ( request->Attributes()[i] == KGlxMediaItemTypeVideo )    
-			{
-			switch (aType)
-				{
-				case CGlxDataSource::EContainerTypeMonth:
-					{
-					TGlxFilterProperties filterProperties = iFilterProperties;
-					AddMonthFilterL(aContainer, filterProperties);
-					filterProperties.iItemType = EGlxFilterVideo;
-#if 0 	/// AB camera album					
-					QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery,
-					        EQueryResultModeCount, DataSource()->CameraAlbumId(),
-					        request->Attributes()[i], aEntry, filterProperties);
-#endif					
-					break;
-					}
-				default:
-					{
-					break;	
-					}
-				}
-			}
-			
         else if ( request->Attributes()[i] == KMPXMediaColDetailSpaceId )
             {
             aEntry->SetTObjectValueL(KMPXMediaColDetailSpaceId, 
@@ -765,15 +669,6 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                     {
                     QueueObjectQueryL(aContainer->Def(), ETrue, EAttributeQuery,
                             EQueryResultModeCount, TGlxMediaId(aContainer->Id()),
-                            request->Attributes()[i], aEntry, filterProperties);
-                    break;
-                    }
-                case CGlxDataSource::EContainerTypeMonth:
-                    {
-                    filterProperties.iOrigin = EGlxFilterOriginAll;               
-                    AddMonthFilterL(aContainer, filterProperties);
-                    QueueObjectQueryL(DataSource()->AlbumDef(), ETrue, EAttributeQuery,
-                            EQueryResultModeCount, TGlxMediaId(KGlxCollectionRootId),
                             request->Attributes()[i], aEntry, filterProperties);
                     break;
                     }

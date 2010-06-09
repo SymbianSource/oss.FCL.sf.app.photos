@@ -39,8 +39,6 @@ SOURCEPATH      ../src
 SOURCE          glxmaingridviewplugin.cpp
 SOURCE          glxalbumgridviewplugin.cpp
 SOURCE          glxcameraalbumgridviewplugin.cpp
-SOURCE          glxdownloadsgridviewplugin.cpp
-SOURCE          glxmonthsgridviewplugin.cpp
 SOURCE          glxgridviewpluginproxy.cpp
 SOURCE          glxtaggridviewplugin.cpp
 

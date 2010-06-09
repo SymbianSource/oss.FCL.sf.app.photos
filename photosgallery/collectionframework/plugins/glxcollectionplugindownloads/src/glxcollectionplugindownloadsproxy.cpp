@@ -20,7 +20,6 @@
 
 #include <ecom/implementationproxy.h>
 #include "glxcollectionplugindownloads.h"
-#include "glxcollectionplugindownloads.hrh"
 
 #if (!defined IMPLEMENTATION_PROXY_ENTRY)
 typedef TAny* TProxyNewLPtr;

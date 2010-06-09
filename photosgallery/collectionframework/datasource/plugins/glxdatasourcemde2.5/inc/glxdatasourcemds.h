@@ -285,7 +285,6 @@ private:
 
     static TInt CreateSession(TAny* aPtr);
 
-    void PrepareMonthsL();
     void TaskCompletedL();
 
     void TaskStartedL();
@@ -329,12 +328,6 @@ public:
     inline CMdEObjectDef& MediaDef() const;
     inline CMdEObjectDef& TagDef() const;
     
-    /**
-     * Return object definition used to describe months.
-     * @return object definition used to describe months.
-     */
-    inline CMdEObjectDef& MonthDef() const;
-    
     inline CMdERelationDef& ContainsDef() const;
     
     inline CMdERelationDef& ContainsLocationDef() const;
@@ -351,10 +344,6 @@ public:
     
     TItemType ItemType(CMdEObject* aObject);
  
-    const TGlxMediaId GetMonthIdL(const TTime& aMonth);
-
-    TBool SameMonth(const TTime& aOldDate, const TTime& aNewDate);
-     
 	TBool ContainerIsLeft(CMdEObjectDef& aObjectDef);    
 	
 	// from MGlxMDSShutdownObserver
@@ -389,7 +378,6 @@ private:
     CMdEObjectDef* iAlbumDef;
     CMdEObjectDef* iMediaDef;
     CMdEObjectDef* iTagDef;
-    CMdEObjectDef* iMonthDef;
     /**
      * Location object definition.
      */
@@ -397,12 +385,7 @@ private:
     CMdERelationDef* iContainsDef;
     CMdERelationDef* iContainsLocationDef;
     
-    RArray<TTime> iMonthArray;
-    RArray<TGlxMediaId> iMonthList;
     RArray<TItemId> iAddedItems;
-    
-    TTime iFirstMonth;
-    TTime iLastMonth;
     
     CAsyncCallBack* iUpdateCallback;
     

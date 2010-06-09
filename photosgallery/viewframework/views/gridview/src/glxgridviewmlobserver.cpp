@@ -34,7 +34,6 @@
 #include <glxthumbnailattributeinfo.h>                  // KGlxMediaIdThumbnail
 #include <glxdrmutility.h>                              // DRM utility class to provide DRM-related functionality
 #include <mpxmediadrmdefs.h>                            // KMPXMediaDrmProtected
-#include <glxcollectionplugindownloads.hrh>
 #include <glxgridviewdata.rsg>                          // Gridview resource
 #include <glxgeneraluiutilities.h>
 
@@ -258,26 +257,18 @@ void CGlxGridViewMLObserver::HandleAttributesAvailableL( TInt aItemIndex,
             GLX_LOG_INFO1("### CGlxGridViewMLObserver::HandleAttributesAvailableL"
                     " speedTn-Index is %d",aItemIndex);
             }
-        else if ( KErrNone != tnError && KErrNotSupported != tnError &&
-                            KErrArgument != tnError )
+        else if (item.Category() == EMPXVideo && KErrNone != tnError)
             {
-            CFbsBitmap* bitmap = NULL;
-            CFbsBitmap* mask = NULL;
-            AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone,
-                    bitmap, mask, iIconsFileName,
-                    EMbmGlxiconsQgn_prop_image_corrupted,
-                    EMbmGlxiconsQgn_prop_image_corrupted_mask);
-            __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
-            __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
-            
-            AknIconUtils::SetSize(bitmap, setSize,
-                    EAspectRatioPreservedAndUnusedSpaceRemoved);
-            AknIconUtils::SetSize(mask, setSize,
-                    EAspectRatioPreservedAndUnusedSpaceRemoved);
-
-            iHgGrid->ItemL(aItemIndex).SetIcon(CGulIcon::NewL(bitmap, mask));
-            CleanupStack::Pop(mask);
-            CleanupStack::Pop(bitmap);
+            SetIconL(aItemIndex, EMbmGlxiconsQgn_prop_image_notcreated,
+                    EMbmGlxiconsQgn_prop_image_notcreated_mask,
+					CHgItem::EHgItemFlagsVideo);
+            }
+        else if (KErrNone != tnError && KErrNotSupported != tnError
+                && KErrArgument != tnError)
+            {
+            SetIconL(aItemIndex, EMbmGlxiconsQgn_prop_image_corrupted,
+                    EMbmGlxiconsQgn_prop_image_corrupted_mask,
+					CHgItem::EHgItemFlagsNone);
             }
         }
     
@@ -285,7 +276,7 @@ void CGlxGridViewMLObserver::HandleAttributesAvailableL( TInt aItemIndex,
     UpdateItemsL(aItemIndex,aAttributes);
     
     //Now refresh the screen based on the attributes available index
-    RefreshScreen(aItemIndex,aAttributes);
+    RefreshScreenL(aItemIndex,aAttributes);
     }
     
 // ----------------------------------------------------------------------------
@@ -348,7 +339,6 @@ void CGlxGridViewMLObserver::HandleErrorL()
     TInt bitmapId  = EMbmGlxiconsQgn_prop_image_corrupted;
     TInt maskId = EMbmGlxiconsQgn_prop_image_corrupted_mask;	
     TInt flags     = CHgItem::EHgItemFlagsNone ;
-    TSize setSize = CHgGrid::PreferredImageSize();
     
     for ( TInt i = 0; i < iMediaList.Count(); i++ )
         {
@@ -375,32 +365,56 @@ void CGlxGridViewMLObserver::HandleErrorL()
                         }
                     break;
                 default:
-                    bitmapId  = EMbmGlxiconsQgn_prop_image_corrupted;
-					maskId = EMbmGlxiconsQgn_prop_image_corrupted_mask;
-                    flags     = CHgItem::EHgItemFlagsNone ;
+                    {
+                    if (item.Category() == EMPXVideo)
+                        {
+                        bitmapId = EMbmGlxiconsQgn_prop_image_notcreated;
+                        maskId = EMbmGlxiconsQgn_prop_image_notcreated_mask;
+						flags = CHgItem::EHgItemFlagsVideo;
+                        }
+                    else
+                        {
+                        bitmapId = EMbmGlxiconsQgn_prop_image_corrupted;
+                        maskId = EMbmGlxiconsQgn_prop_image_corrupted_mask;
+                    	flags = CHgItem::EHgItemFlagsNone;
+					    }
+
+                    }
                     break;  
                 }
             
-            CFbsBitmap* bitmap = NULL;
-            CFbsBitmap* mask = NULL;
-            AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone,
-                    bitmap, mask, iIconsFileName, bitmapId, maskId);
-            __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
-            __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
-
-            AknIconUtils::SetSize(bitmap, setSize,
-                    EAspectRatioPreservedAndUnusedSpaceRemoved);
-            AknIconUtils::SetSize(mask, setSize,
-                    EAspectRatioPreservedAndUnusedSpaceRemoved);
-
-            iHgGrid->ItemL(i).SetIcon(CGulIcon::NewL(bitmap, mask), flags);
-            CleanupStack::Pop(mask); 
-            CleanupStack::Pop(bitmap); 
+            SetIconL(i, bitmapId, maskId, flags);
             }
         }
     iHgGrid->RefreshScreen(iHgGrid->FirstIndexOnScreen());    
     }
-    
+
+// ----------------------------------------------------------------------------
+// SetIconL
+// ----------------------------------------------------------------------------
+//  
+void CGlxGridViewMLObserver::SetIconL(TInt aItemIndex, TInt aBitmapId,
+        TInt aMaskId, TInt aFlags)
+    {
+    TRACER("CGlxGridViewMLObserver::SetIconL()");
+    CFbsBitmap* bitmap = NULL;
+    CFbsBitmap* mask = NULL;
+    TSize setSize = CHgGrid::PreferredImageSize();
+    AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone, bitmap,
+            mask, iIconsFileName, aBitmapId, aMaskId);
+    __ASSERT_DEBUG(bitmap, Panic(EGlxPanicNullPointer));
+    __ASSERT_DEBUG(mask, Panic(EGlxPanicNullPointer));
+
+    AknIconUtils::SetSize(bitmap, setSize,
+            EAspectRatioPreservedAndUnusedSpaceRemoved);
+    AknIconUtils::SetSize(mask, setSize,
+            EAspectRatioPreservedAndUnusedSpaceRemoved);
+
+    iHgGrid->ItemL(aItemIndex).SetIcon(CGulIcon::NewL(bitmap, mask), aFlags);
+    CleanupStack::Pop(mask);
+    CleanupStack::Pop(bitmap);
+    }
+
 // ----------------------------------------------------------------------------
 // HandleCommandCompleteL
 // ----------------------------------------------------------------------------
@@ -502,14 +516,14 @@ TBool CGlxGridViewMLObserver::HasRelevantThumbnail(TInt aIndex)
 
 
 // ----------------------------------------------------------------------------
-// RefreshScreen
+// RefreshScreenL
 // ----------------------------------------------------------------------------
 // 
-void CGlxGridViewMLObserver::RefreshScreen(TInt aItemIndex,
+void CGlxGridViewMLObserver::RefreshScreenL(TInt aItemIndex,
                                       const RArray<TMPXAttribute>& aAttributes)
     {
-    TRACER("CGlxGridViewMLObserver::RefreshScreen()");
-    GLX_DEBUG2("CGlxGridViewMLObserver::RefreshScreen(%d)", aItemIndex);
+    TRACER("CGlxGridViewMLObserver::RefreshScreenL()");
+    GLX_DEBUG2("CGlxGridViewMLObserver::RefreshScreenL(%d)", aItemIndex);
     TInt mediaCount = iMediaList.Count();
     TInt firstIndex = iHgGrid->FirstIndexOnScreen();
     firstIndex = (firstIndex<0 ? 0 : firstIndex);

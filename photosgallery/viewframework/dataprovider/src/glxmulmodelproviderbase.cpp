@@ -445,20 +445,8 @@ TInt CGlxMulModelProviderBase::FocusIndex() const
         }
     else if (UString(KCoverFlowWidget) == UString(iWidget.widgetName() ) )
         {
-        index = iModel->Highlight();
-        // Check if Model count is zero in FS view, activate back grid view.
-        if (iModel->Count() ==0)
-            {
-            // if Count is Zero, set the navigation state to 
-            // EGlxNavigationBackwards before going back to grid view
-            CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
-            CleanupClosePushL( *uiUtility );
-            uiUtility->SetViewNavigationDirection(EGlxNavigationBackwards);
-            CleanupStack::PopAndDestroy( uiUtility );
-            
-            TRAP_IGNORE( iNavigationalState->ActivatePreviousViewL() );            
-            }
-        }
+      	index = iModel->Highlight();
+	    }
     else
         {
         return KErrGeneral;
