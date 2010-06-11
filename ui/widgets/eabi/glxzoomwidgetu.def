@@ -42,4 +42,5 @@ EXPORTS
 	_ZThn8_N13GlxZoomWidget16sceneEventFilterEP13QGraphicsItemP6QEvent @ 41 NONAME
 	_ZThn8_N13GlxZoomWidgetD0Ev @ 42 NONAME
 	_ZThn8_N13GlxZoomWidgetD1Ev @ 43 NONAME
+	_ZN13GlxZoomWidget10timerEventEP11QTimerEvent @ 44 NONAME
 

@@ -40,4 +40,13 @@ HEADERS += inc/glxperformancelog.h \
            
 SOURCES += src/glxperformancelog.cpp
 
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxloggerqt.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxloggerqt.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock
+
 # Directories

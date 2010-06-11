@@ -34,8 +34,6 @@
 #include <glxattributecontext.h>
 #include <glxuistd.h>
 #include <glxlistdefs.h>
-#include <hal.h>
-#include <hal_data.h>
 #include <glxmediaid.h>
 #include <caf/caferr.h>
 //internal includes 
@@ -88,11 +86,15 @@ GlxMLWrapperPrivate* GlxMLWrapperPrivate::Instance(GlxMLWrapper* aMLWrapper,
 // might leave.
 // ---------------------------------------------------------------------------
 //
-GlxMLWrapperPrivate::GlxMLWrapperPrivate(GlxMLWrapper* aMLWrapper): iMLWrapper(aMLWrapper),
-								iGridContextActivated(EFalse), iLsFsContextActivated(EFalse),
-								iPtFsContextActivated(EFalse), iPtListContextActivated(EFalse),
-								iSelectionListContextActivated(EFalse)
-    {
+GlxMLWrapperPrivate::GlxMLWrapperPrivate(GlxMLWrapper* aMLWrapper)
+    : iMLWrapper(aMLWrapper),
+      iGridContextActivated(EFalse), 
+      iLsFsContextActivated(EFalse),
+      iPtFsContextActivated(EFalse), 
+      iPtListContextActivated(EFalse),
+      iSelectionListContextActivated(EFalse),
+	  iDetailsContextActivated(EFalse)
+{
     TRACER("GlxMLWrapperPrivate::GlxMLWrapperPrivate");
 	iGridThumbnailContext = NULL;
 	iPtFsThumbnailContext = NULL;
@@ -102,7 +104,6 @@ GlxMLWrapperPrivate::GlxMLWrapperPrivate(GlxMLWrapper* aMLWrapper): iMLWrapper(a
     iListThumbnailContext = NULL;
     iFocusGridThumbnailContext = NULL;
     iFocusFsThumbnailContext = NULL;
-    iFilmStripThumbnailContext = NULL;
     iFavouriteContext = NULL;
     iTitleFetcher = NULL;
     iViewTitle = QString();
@@ -163,9 +164,13 @@ void GlxMLWrapperPrivate::SetContextMode(GlxContextMode aContextMode)
 		{  
 		TRAP(err, SetThumbnailContextL(aContextMode) ); //todo add a trap here
 		}
-	else if(aContextMode == GlxContextFavorite)
+    else if(aContextMode == GlxContextFavorite)
+        {
+        TRAP(err,SetFavouriteContextL());
+        }
+	else if(aContextMode == GlxContextComment)
 	    {
-	    TRAP(err,SetFavouriteContextL());
+	    TRAP(err,SetDescontextL());
 	    }
 	else
 		{
@@ -176,6 +181,17 @@ void GlxMLWrapperPrivate::SetContextMode(GlxContextMode aContextMode)
 	iContextMode = aContextMode;
 	}
 
+// ---------------------------------------------------------------------------
+// RemoveContextMode
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapperPrivate::RemoveContextMode(GlxContextMode aContextMode)
+{
+  if(aContextMode == GlxContextComment) 
+      {
+       RemoveDescContext();
+      }
+}
 // ---------------------------------------------------------------------------
 // SetFavouriteContextL
 // ---------------------------------------------------------------------------
@@ -279,9 +295,9 @@ void GlxMLWrapperPrivate::SetThumbnailContextL(GlxContextMode aContextMode)
     }
 	
 	if(aContextMode == GlxContextLsFs && !iLsFsContextActivated) {
-		if(iGridContextActivated) {
-            RemoveGridContext();
-		}
+	    if(!iGridContextActivated) {
+	        CreateGridContextL();
+	    }
 		if(iPtFsContextActivated) {
 			RemovePtFsContext();
 		}
@@ -289,9 +305,9 @@ void GlxMLWrapperPrivate::SetThumbnailContextL(GlxContextMode aContextMode)
 	}
 	
 	if(aContextMode == GlxContextPtFs && !iPtFsContextActivated) {
-		if(iGridContextActivated) {
-            RemoveGridContext();
-		}
+        if(!iGridContextActivated) {
+            CreateGridContextL();
+        }
 		if(iLsFsContextActivated) {
 			RemoveLsFsContext();
 		}
@@ -358,18 +374,11 @@ void GlxMLWrapperPrivate::CreateLsFsContextL()
             iFocusGridThumbnailContext->SetDefaultSpec( KGridTNWIdth, KGridTNHeight );  //todo get these image sizes from  the layout.
             }
 
-        if(!iFilmStripThumbnailContext)
-            {
-            iFilmStripThumbnailContext = CGlxThumbnailContext::NewL( &iBlockyIteratorForFilmStrip ); // set the thumbnail context for Focus Grid
-            iFilmStripThumbnailContext->SetDefaultSpec( KGridTNWIdth, KGridTNHeight );  //todo get these image sizes from  the layout.
-            }
-
         // show static items if required
         iMediaList->SetStaticItemsEnabled(EFalse);
-        iMediaList->AddContextL(iFocusFsThumbnailContext, 8 );      // Temp will change this number  
-        iMediaList->AddContextL(iFocusGridThumbnailContext, 9 );    // Temp will change this number
-        iMediaList->AddContextL(iFilmStripThumbnailContext, 7 );    // Temp will change this number 
-        iMediaList->AddContextL(iLsFsThumbnailContext, KGlxFetchContextPriorityGridViewFullscreenVisibleThumbnail );
+        iMediaList->AddContextL(iFocusFsThumbnailContext, KGlxFetchContextPriorityNormal );      // Temp will change this number  
+        iMediaList->AddContextL(iFocusGridThumbnailContext, KGlxFetchContextPriorityNormal );    // Temp will change this number
+        iMediaList->AddContextL(iLsFsThumbnailContext, KGlxFetchContextPriorityNormal );
         iLsFsContextActivated = ETrue;
         }
     }
@@ -405,18 +414,11 @@ void GlxMLWrapperPrivate::CreatePtFsContextL()
             iFocusGridThumbnailContext->SetDefaultSpec( KGridTNWIdth, KGridTNHeight );  //todo get these image sizes from  the layout.
             }
 
-        if(!iFilmStripThumbnailContext)
-            {
-            iFilmStripThumbnailContext = CGlxThumbnailContext::NewL( &iBlockyIteratorForFilmStrip ); // set the thumbnail context for Focus Grid
-            iFilmStripThumbnailContext->SetDefaultSpec( KGridTNPTWIdth, KGridTNPTHeight );  //todo get these image sizes from  the layout.
-            }
-
         // show static items if required
         iMediaList->SetStaticItemsEnabled(EFalse);
-        iMediaList->AddContextL(iFocusFsThumbnailContext, 8 );      // Temp will change this number  
-        iMediaList->AddContextL(iFocusGridThumbnailContext, 9 );    // Temp will change this number  
-        iMediaList->AddContextL(iFilmStripThumbnailContext, 7 );    // Temp will change this number 
-        iMediaList->AddContextL(iPtFsThumbnailContext, KGlxFetchContextPriorityGridViewFullscreenVisibleThumbnail );
+        iMediaList->AddContextL(iFocusFsThumbnailContext, KGlxFetchContextPriorityNormal );      // Temp will change this number  
+        iMediaList->AddContextL(iFocusGridThumbnailContext, KGlxFetchContextPriorityNormal );    // Temp will change this number  
+        iMediaList->AddContextL(iPtFsThumbnailContext, KGlxFetchContextPriorityNormal );
         iPtFsContextActivated = ETrue;
         }
     }
@@ -463,12 +465,6 @@ void GlxMLWrapperPrivate::RemoveLsFsContext()
             delete iFocusGridThumbnailContext;
             iFocusGridThumbnailContext = NULL;
 		    }
-		if(iFilmStripThumbnailContext)
-		    {
-		    iMediaList->RemoveContext(iFilmStripThumbnailContext);
-		    delete iFilmStripThumbnailContext;
-		    iFilmStripThumbnailContext = NULL;
-		    }		    
 	    
 		iLsFsContextActivated = EFalse;
 		}
@@ -498,12 +494,6 @@ void GlxMLWrapperPrivate::RemovePtFsContext()
             iMediaList->RemoveContext(iFocusGridThumbnailContext);
             delete iFocusGridThumbnailContext;
             iFocusGridThumbnailContext = NULL;
-            }
-        if(iFilmStripThumbnailContext)
-            {
-            iMediaList->RemoveContext(iFilmStripThumbnailContext);
-            delete iFilmStripThumbnailContext;
-            iFilmStripThumbnailContext = NULL;
             }
 	        
 		iPtFsContextActivated = EFalse;
@@ -800,6 +790,18 @@ QString GlxMLWrapperPrivate::RetrieveListSubTitle(int aItemIndex)
 }
 
 // ---------------------------------------------------------------------------
+//  RetrieveListDesc
+// ---------------------------------------------------------------------------
+//
+QString GlxMLWrapperPrivate::RetrieveListDesc(int aItemIndex)
+{
+    const TGlxMedia& item = iMediaList->Item( aItemIndex );
+    const TDesC &commentstring = item.Comment();
+    QString descstring =  QString::fromUtf16(commentstring.Ptr(), commentstring.Length());
+	return  descstring;
+}
+
+// ---------------------------------------------------------------------------
 //  Retrieve number of image contained by album list
 // ---------------------------------------------------------------------------
 //
@@ -864,6 +866,18 @@ QSize GlxMLWrapperPrivate::RetrieveItemDimension(int aItemIndex)
  }
 
 // ---------------------------------------------------------------------------
+//  RetrieveItemSize
+// ---------------------------------------------------------------------------
+//
+int GlxMLWrapperPrivate::RetrieveItemSize(int aItemIndex)
+{
+    const TGlxMedia& item = iMediaList->Item( aItemIndex );
+    int itemSize ;
+    item.GetSize(itemSize);
+    return itemSize;
+ }
+
+// ---------------------------------------------------------------------------
 //  RetrieveItemDate
 // ---------------------------------------------------------------------------
 //
@@ -882,6 +896,29 @@ QDate GlxMLWrapperPrivate::RetrieveItemDate(int index)
         }
      return date;
     }
+	
+// ---------------------------------------------------------------------------
+//  RetrieveItemTime
+// ---------------------------------------------------------------------------
+//
+QTime GlxMLWrapperPrivate::RetrieveItemTime(int index)
+    {
+    GLX_LOG_INFO1("GlxMLWrapperPrivate::RetrieveItemTime %d",index);
+    const TGlxMedia& item = iMediaList->Item( index );
+    TTime TimeValue;
+    QTime time = QTime();
+    TBool returnValue =item.GetDate(TimeValue);
+    
+    if(returnValue)
+        {
+        GLX_LOG_INFO1("GlxMLWrapperPrivate::RetrieveItemDate %d",returnValue);
+        TDateTime dateTime = TimeValue.DateTime();
+        time = QTime(dateTime.Hour(),dateTime.Minute());
+        }
+     return time;
+    }
+
+
 
 // ---------------------------------------------------------------------------
 //  RetrieveFsBitmap
@@ -997,7 +1034,9 @@ void GlxMLWrapperPrivate::HandleAttributesAvailableL( TInt aItemIndex,
 	    CheckLsFsTBAttribute(aItemIndex, aAttributes);
 	if (iPtListContextActivated || iSelectionListContextActivated)
 	    CheckListAttributes(aItemIndex, aAttributes);
-	// }
+ 	if( iDetailsContextActivated && aItemIndex == iMediaList->FocusIndex() )
+ 	   CheckDetailsAttributes(aItemIndex, aAttributes);
+	
 	}
 // ---------------------------------------------------------------------------
 // CheckGridTBAttribute
@@ -1128,6 +1167,29 @@ TInt GlxMLWrapperPrivate::CheckTBAttributesPresenceandSanity( TInt aItemIndex,
 		return searchStatus;	
 
 	 }    
+
+// ---------------------------------------------------------------------------
+// CheckDetailsAttributes
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapperPrivate::CheckDetailsAttributes(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes)
+{
+    qDebug("GlxMLWrapperPrivate::CheckDetailsAttributes");
+    TBool attribPresent = EFalse;
+    TMPXAttribute titleAttrib(KMPXMediaGeneralComment);
+    TIdentityRelation< TMPXAttribute > match ( &TMPXAttribute::Match );
+
+    const TGlxMedia& item = iMediaList->Item(aItemIndex);
+
+    if (KErrNotFound != aAttributes.Find(titleAttrib, match))
+        {
+        qDebug("GlxMLWrapperPrivate::CheckDetailsAttributes TRUE");
+        attribPresent = ETrue;
+        iMLWrapper->handleDetailsItemAvailable(aItemIndex);
+        GLX_LOG_INFO1("### GlxMLWrapperPrivate::CheckDetailsAttributes title present %d",aItemIndex);
+        }     
+}
+
 // ---------------------------------------------------------------------------
 // GetItemCount
 // ---------------------------------------------------------------------------
@@ -1319,4 +1381,29 @@ bool GlxMLWrapperPrivate::IsPopulated()
     return iMediaList->IsPopulated();
     }
 
-	 
+// ---------------------------------------------------------------------------
+// SetDescontextL
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapperPrivate::SetDescontextL()
+     {
+     iDescContext = CGlxDefaultAttributeContext::NewL();
+     iDescContext->AddAttributeL( KMPXMediaGeneralComment );
+     iMediaList->AddContextL( iDescContext, KGlxFetchContextPriorityLow );
+     iDetailsContextActivated = ETrue;     
+     }
+	
+// ---------------------------------------------------------------------------
+// RemoveDescContext
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapperPrivate::RemoveDescContext()
+    {
+    if(iDescContext )
+        {
+        iMediaList->RemoveContext(iDescContext);
+        delete iDescContext;
+        iDescContext = NULL;  
+        iDetailsContextActivated = EFalse;   
+        }
+    }

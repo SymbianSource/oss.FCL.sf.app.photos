@@ -44,4 +44,14 @@ protected:
     private: //
 };
 
+//Custom Docloader to load the details  view
+class GlxDetailsViewDocLoader : public HbDocumentLoader
+{
+protected:
+    //This creates the custom widget for details
+    QObject* createObject(const QString &type, const QString &name);
+    
+    private: //
+};
+
 #endif /* GLXVIEWDOCLOADER_H */

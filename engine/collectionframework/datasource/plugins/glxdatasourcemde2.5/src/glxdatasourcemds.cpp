@@ -550,9 +550,13 @@ void CGlxDataSourceMde::HandleObjectNotification(CMdESession& /*aSession*/,
 		{
 	    for ( TInt i = 0; i < aObjectIdArray.Count(); i++ )
 	        {
-			iAddedItems.Append(aObjectIdArray[i]);
+            TInt ret = iAddedItems.Append(aObjectIdArray[i]);
+            if (ret != KErrNone)
+                {
+                GLX_DEBUG2("ENotifyAdd-iAddedItems.Append() failed i(%d)", i);
+                }
 	        }
-	    GLX_LOG_INFO1("ENotifyAdd - iAddedItems.Count()=%d", iAddedItems.Count());
+	    GLX_DEBUG2("ENotifyAdd - iAddedItems.Count()=%d", iAddedItems.Count());
 		}
     
    	if (ENotifyModify == aType)
@@ -563,25 +567,25 @@ void CGlxDataSourceMde::HandleObjectNotification(CMdESession& /*aSession*/,
 	        	{
 		        if (!iHarvestingOngoing)
 		        	{
-		        	GLX_LOG_INFO("ENotifyModify - Harvesting Completed - "
+		        	GLX_DEBUG1("ENotifyModify - Harvesting Completed - "
 		        	        "Reset iAddedItems array");
 					iAddedItems.Reset();
 					break;
 		        	}
-		        GLX_LOG_INFO("ENotifyModify - Id found in iAddedItems array, DO NOT PROCESS");
+                GLX_DEBUG1("ENotifyModify - Id found in iAddedItems array, DO NOT PROCESS");
 	        	return;
 	        	}
 	        }
         }
 
-   	GLX_LOG_INFO("ProcessUpdateArray");
+   	GLX_DEBUG1("HandleObjectNotification - ProcessUpdateArray");
 	ProcessUpdateArray(aObjectIdArray,  MPXChangeEventType(aType), ETrue);
 #ifndef USE_S60_TNM
 	if(MPXChangeEventType(aType) == EMPXItemDeleted )
 		{			
 		TInt count = aObjectIdArray.Count();
 		iDeletedCount += count;
-		GLX_LOG_INFO2("EMPXItemDeleted - aObjectIdArray.Count()=%d, iDeletedCount=%d", 
+		GLX_DEBUG3("EMPXItemDeleted - aObjectIdArray.Count()=%d, iDeletedCount=%d", 
 		        count, iDeletedCount);
 		if(iDeletedCount > KGlxThumbnailCleanupAfterDeletions)
 		    {
@@ -595,7 +599,7 @@ void CGlxDataSourceMde::HandleObjectNotification(CMdESession& /*aSession*/,
 
 	if(MPXChangeEventType(aType) == EMPXItemModified )
 	    {
-	    GLX_LOG_INFO("EMPXItemModified");
+	    GLX_DEBUG1("HandleObjectNotification - EMPXItemModified");
 	    TRAP_IGNORE(ThumbnailCreator().CleanupThumbnailsL(iThumbnailDatabase));
 		}
 #endif		

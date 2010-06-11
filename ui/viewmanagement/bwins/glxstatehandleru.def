@@ -34,4 +34,7 @@ EXPORTS
 	?exitMarkingMode@GlxStateManager@@QAEXXZ @ 33 NONAME ; void GlxStateManager::exitMarkingMode(void)
 	?removeCurrentModel@GlxStateManager@@QAEXXZ @ 34 NONAME ; void GlxStateManager::removeCurrentModel(void)
 	?createModel@GlxStateManager@@AAEXHW4NavigationDir@@@Z @ 35 NONAME ; void GlxStateManager::createModel(int, enum NavigationDir)
+	?eventFilter@GlxStateManager@@UAE_NPAVQObject@@PAVQEvent@@@Z @ 36 NONAME ; bool GlxStateManager::eventFilter(class QObject *, class QEvent *)
+	?vanishProgressDialog@GlxStateManager@@AAEXXZ @ 37 NONAME ; void GlxStateManager::vanishProgressDialog(void)
+	?launchProgressDialog@GlxStateManager@@AAEXXZ @ 38 NONAME ; void GlxStateManager::launchProgressDialog(void)
 

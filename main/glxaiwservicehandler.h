@@ -54,7 +54,7 @@ public:
      * Destructor.
      */
     ~GlxAiwServiceHandler();
-	void launchFetcher();
+	void launchFetcher(QString viewTitle);
 	void launchImageViewer();
 public slots:  
     void itemSelected(const QModelIndex &  index);    

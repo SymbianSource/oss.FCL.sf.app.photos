@@ -34,4 +34,7 @@ EXPORTS
 	_ZNK15GlxStateManager10metaObjectEv @ 33 NONAME
 	_ZTI15GlxStateManager @ 34 NONAME
 	_ZTV15GlxStateManager @ 35 NONAME
+	_ZN15GlxStateManager11eventFilterEP7QObjectP6QEvent @ 36 NONAME
+	_ZN15GlxStateManager20launchProgressDialogEv @ 37 NONAME
+	_ZN15GlxStateManager20vanishProgressDialogEv @ 38 NONAME
 

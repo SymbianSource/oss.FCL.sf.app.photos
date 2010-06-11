@@ -11,24 +11,24 @@ EXPORTS
 	?getStaticMetaObject@GlxModelWrapper@@SAABUQMetaObject@@XZ @ 10 NONAME ; struct QMetaObject const & GlxModelWrapper::getStaticMetaObject(void)
 	?index@GlxModelWrapper@@UBE?AVQModelIndex@@HHABV2@@Z @ 11 NONAME ; class QModelIndex GlxModelWrapper::index(int, int, class QModelIndex const &) const
 	?rowsAboutToBeInserted@GlxModelWrapper@@IAEXABVQModelIndex@@HH@Z @ 12 NONAME ; void GlxModelWrapper::rowsAboutToBeInserted(class QModelIndex const &, int, int)
-	?data@GlxModelWrapper@@UBE?AVQVariant@@ABVQModelIndex@@H@Z @ 13 NONAME ; class QVariant GlxModelWrapper::data(class QModelIndex const &, int) const
-	?staticMetaObject@GlxModelWrapper@@2UQMetaObject@@B @ 14 NONAME ; struct QMetaObject const GlxModelWrapper::staticMetaObject
-	?scrollingEnded@GlxModelWrapper@@QAEXXZ @ 15 NONAME ; void GlxModelWrapper::scrollingEnded(void)
-	?rowsRemoved@GlxModelWrapper@@IAEXABVQModelIndex@@HH@Z @ 16 NONAME ; void GlxModelWrapper::rowsRemoved(class QModelIndex const &, int, int)
-	?basemodelindex@GlxModelWrapper@@QBE?AVQModelIndex@@HHABV2@@Z @ 17 NONAME ; class QModelIndex GlxModelWrapper::basemodelindex(int, int, class QModelIndex const &) const
-	?columnCount@GlxModelWrapper@@UBEHABVQModelIndex@@@Z @ 18 NONAME ; int GlxModelWrapper::columnCount(class QModelIndex const &) const
-	?parent@GlxModelWrapper@@UBE?AVQModelIndex@@ABV2@@Z @ 19 NONAME ; class QModelIndex GlxModelWrapper::parent(class QModelIndex const &) const
-	?rowsInserted@GlxModelWrapper@@IAEXABVQModelIndex@@HH@Z @ 20 NONAME ; void GlxModelWrapper::rowsInserted(class QModelIndex const &, int, int)
-	?disConnectFromModel@GlxModelWrapper@@AAEXXZ @ 21 NONAME ; void GlxModelWrapper::disConnectFromModel(void)
-	?metaObject@GlxModelWrapper@@UBEPBUQMetaObject@@XZ @ 22 NONAME ; struct QMetaObject const * GlxModelWrapper::metaObject(void) const
-	??1GlxModelWrapper@@UAE@XZ @ 23 NONAME ; GlxModelWrapper::~GlxModelWrapper(void)
-	?connectToModel@GlxModelWrapper@@AAEXXZ @ 24 NONAME ; void GlxModelWrapper::connectToModel(void)
-	?setModel@GlxModelWrapper@@QAEXPAVQAbstractItemModel@@@Z @ 25 NONAME ; void GlxModelWrapper::setModel(class QAbstractItemModel *)
-	?tr@GlxModelWrapper@@SA?AVQString@@PBD0H@Z @ 26 NONAME ; class QString GlxModelWrapper::tr(char const *, char const *, int)
-	?qt_metacall@GlxModelWrapper@@UAEHW4Call@QMetaObject@@HPAPAX@Z @ 27 NONAME ; int GlxModelWrapper::qt_metacall(enum QMetaObject::Call, int, void * *)
-	?setRoles@GlxModelWrapper@@QAEXHH@Z @ 28 NONAME ; void GlxModelWrapper::setRoles(int, int)
-	?scrollingStarted@GlxModelWrapper@@QAEXXZ @ 29 NONAME ; void GlxModelWrapper::scrollingStarted(void)
-	?trUtf8@GlxModelWrapper@@SA?AVQString@@PBD0H@Z @ 30 NONAME ; class QString GlxModelWrapper::trUtf8(char const *, char const *, int)
-	?qt_metacast@GlxModelWrapper@@UAEPAXPBD@Z @ 31 NONAME ; void * GlxModelWrapper::qt_metacast(char const *)
-	?resetTheModel@GlxModelWrapper@@AAEXXZ @ 32 NONAME ; void GlxModelWrapper::resetTheModel(void)
+	?resetTheModel@GlxModelWrapper@@AAEXXZ @ 13 NONAME ; void GlxModelWrapper::resetTheModel(void)
+	?data@GlxModelWrapper@@UBE?AVQVariant@@ABVQModelIndex@@H@Z @ 14 NONAME ; class QVariant GlxModelWrapper::data(class QModelIndex const &, int) const
+	?staticMetaObject@GlxModelWrapper@@2UQMetaObject@@B @ 15 NONAME ; struct QMetaObject const GlxModelWrapper::staticMetaObject
+	?scrollingEnded@GlxModelWrapper@@QAEXXZ @ 16 NONAME ; void GlxModelWrapper::scrollingEnded(void)
+	?rowsRemoved@GlxModelWrapper@@IAEXABVQModelIndex@@HH@Z @ 17 NONAME ; void GlxModelWrapper::rowsRemoved(class QModelIndex const &, int, int)
+	?basemodelindex@GlxModelWrapper@@QBE?AVQModelIndex@@HHABV2@@Z @ 18 NONAME ; class QModelIndex GlxModelWrapper::basemodelindex(int, int, class QModelIndex const &) const
+	?columnCount@GlxModelWrapper@@UBEHABVQModelIndex@@@Z @ 19 NONAME ; int GlxModelWrapper::columnCount(class QModelIndex const &) const
+	?parent@GlxModelWrapper@@UBE?AVQModelIndex@@ABV2@@Z @ 20 NONAME ; class QModelIndex GlxModelWrapper::parent(class QModelIndex const &) const
+	?rowsInserted@GlxModelWrapper@@IAEXABVQModelIndex@@HH@Z @ 21 NONAME ; void GlxModelWrapper::rowsInserted(class QModelIndex const &, int, int)
+	?disConnectFromModel@GlxModelWrapper@@AAEXXZ @ 22 NONAME ; void GlxModelWrapper::disConnectFromModel(void)
+	?metaObject@GlxModelWrapper@@UBEPBUQMetaObject@@XZ @ 23 NONAME ; struct QMetaObject const * GlxModelWrapper::metaObject(void) const
+	??1GlxModelWrapper@@UAE@XZ @ 24 NONAME ; GlxModelWrapper::~GlxModelWrapper(void)
+	?connectToModel@GlxModelWrapper@@AAEXXZ @ 25 NONAME ; void GlxModelWrapper::connectToModel(void)
+	?setModel@GlxModelWrapper@@QAEXPAVQAbstractItemModel@@@Z @ 26 NONAME ; void GlxModelWrapper::setModel(class QAbstractItemModel *)
+	?tr@GlxModelWrapper@@SA?AVQString@@PBD0H@Z @ 27 NONAME ; class QString GlxModelWrapper::tr(char const *, char const *, int)
+	?qt_metacall@GlxModelWrapper@@UAEHW4Call@QMetaObject@@HPAPAX@Z @ 28 NONAME ; int GlxModelWrapper::qt_metacall(enum QMetaObject::Call, int, void * *)
+	?setRoles@GlxModelWrapper@@QAEXHH@Z @ 29 NONAME ; void GlxModelWrapper::setRoles(int, int)
+	?scrollingStarted@GlxModelWrapper@@QAEXXZ @ 30 NONAME ; void GlxModelWrapper::scrollingStarted(void)
+	?trUtf8@GlxModelWrapper@@SA?AVQString@@PBD0H@Z @ 31 NONAME ; class QString GlxModelWrapper::trUtf8(char const *, char const *, int)
+	?qt_metacast@GlxModelWrapper@@UAEPAXPBD@Z @ 32 NONAME ; void * GlxModelWrapper::qt_metacast(char const *)
 

@@ -21,6 +21,7 @@ DEPENDPATH += .
 INCLUDEPATH += . 
 INCLUDEPATH += ../../../commonutilities/imagedecoderwrapper/inc
 INCLUDEPATH += /epoc32/include/mw/QtTest
+INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 
 CONFIG += qtestlib \
           Hb

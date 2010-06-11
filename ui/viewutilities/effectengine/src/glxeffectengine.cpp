@@ -253,13 +253,16 @@ void GlxEffectEngine::cleanTransitionEfffect()
 {	
     qDebug("GlxSlideShowEffectEngine::cleanTrnastionEfffect()");
     
-    foreach( GlxTransitionEffectSetting *list, mTransitionEffectList) {
+    QHashIterator<GlxEffect, GlxTransitionEffectSetting *> iter( mTransitionEffectList );
+
+    while ( iter.hasNext() ) {
+        iter.next();
+        GlxTransitionEffectSetting *list =  iter.value();
         for ( int i = 0; i < list->count(); ++i ) {
             HbEffect::remove( list->itemType().at(i), list->effectFileList().at(i), list->eventType().at(i)) ;
         }
-        delete list;
+        delete list;        
     }
-    mTransitionEffectList.clear();	
-    
+    mTransitionEffectList.clear();
 }
 

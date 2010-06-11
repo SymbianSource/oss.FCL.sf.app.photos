@@ -23,9 +23,10 @@
 #include "glxmodelparm.h"
 #include "glxzoomwidget.h"
 
-GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), mModel(NULL), mMinZValue(MINZVALUE), mMaxZValue(MAXZVALUE), mImageDecodeRequestSend(false), mPinchGestureOngoing(false), mDecodedImageAvailable(false)
+GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), mModel(NULL), mMinZValue(MINZVALUE), mMaxZValue(MAXZVALUE), mImageDecodeRequestSend(false), mPinchGestureOngoing(false), mDecodedImageAvailable(false), mTimerId(0)
 {
     grabGesture(Qt::PinchGesture);
+    grabGesture(Qt::TapGesture);
     setAcceptTouchEvents(true) ;
     setFrictionEnabled(false);
     setZValue(mMinZValue);
@@ -45,7 +46,7 @@ GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), mModel
     mImageDecoder = new GlxImageDecoderWrapper;
 
 	//inititalizing the timer for animation
-	m_AnimTimeLine = new QTimeLine(1000, this);
+	m_AnimTimeLine = new QTimeLine(500, this);
 	m_AnimTimeLine->setFrameRange(0, 100);
 	connect(m_AnimTimeLine, SIGNAL(frameChanged(int)), this, SLOT(animationFrameChanged(int)));
 	connect(m_AnimTimeLine, SIGNAL(finished()), this, SLOT(animationTimeLineFinished()));
@@ -96,7 +97,10 @@ void GlxZoomWidget::indexChanged(int index)
 
 void GlxZoomWidget::cleanUp()
 {
-//    disconnect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
+    if(mModel) {
+        disconnect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
+        mModel = NULL;
+    }
     if(mImageDecoder) {
         mImageDecoder->resetDecoder();
     }
@@ -148,6 +152,20 @@ bool GlxZoomWidget::sceneEventFilter(QGraphicsItem *watched,QEvent *event)
 
 bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *event)
 {
+         if(QTapGesture *gesture = static_cast<QTapGesture *>(event->gesture(Qt::TapGesture))) {        
+            if (gesture->state() == Qt::GestureFinished) {
+                if(!mTimerId) {
+                    mTimerId = startTimer(500);
+                }
+            else {
+                killTimer(mTimerId);
+                mTimerId = 0;
+                animateZoomOut(gesture->position());
+            }
+        }
+        event->accept(gesture);
+        return true;
+    }
      if (QGesture *pinch = event->gesture(Qt::PinchGesture))  {
        QPinchGesture* pinchG = static_cast<QPinchGesture *>(pinch);
        QPinchGesture::ChangeFlags changeFlags = pinchG->changeFlags();
@@ -354,6 +372,13 @@ void GlxZoomWidget::dataChanged(QModelIndex startIndex, QModelIndex endIndex)
         //retreiveFocusedImage();
         if(!mDecodedImageAvailable)  {
         QPixmap targetPixmap(getFocusedImage());
+        mItemSize = targetPixmap.size();
+        mMaxScaleSize = mItemSize;
+        mMaxScaleSize.scale(mWindowSize*13, Qt::KeepAspectRatio);
+        mMaxScaleDecSize = mItemSize;
+        mMaxScaleDecSize.scale(mWindowSize*7, Qt::KeepAspectRatio);
+        mMinScaleSize = mItemSize* 0.7;
+        mMinDecScaleSize = mItemSize;
         mZoomItem->setPixmap(targetPixmap);
         finalizeWidgetTransform();
         }
@@ -439,7 +464,7 @@ void GlxZoomWidget::animateZoomIn(QPointF animRefPoint)
 	m_AnimRefPoint = animRefPoint;
     QSizeF requiredSize = mItemSize;
     requiredSize.scale(mWindowSize*3.5, Qt::KeepAspectRatio);
-	m_FinalAnimatedScaleFactor = requiredSize.width()*3.5/mMinScaleSize.width();
+	m_FinalAnimatedScaleFactor = requiredSize.width()/mMinDecScaleSize.width();
 	m_AnimTimeLine->setDirection(QTimeLine::Forward);
 	m_AnimTimeLine->start();
   //  zoomImage(5, m_AnimRefPoint);
@@ -448,7 +473,7 @@ void GlxZoomWidget::animateZoomIn(QPointF animRefPoint)
 void GlxZoomWidget::animateZoomOut(QPointF animRefPoint)
 {
 	m_AnimRefPoint = animRefPoint;
-	m_FinalAnimatedScaleFactor = mMinScaleSize.width()/mCurrentSize.width();
+	m_FinalAnimatedScaleFactor = mMinDecScaleSize.width()/mCurrentSize.width();
 	//m_AnimTimeLine->setDirection(QTimeLine::Backward);
 	m_AnimTimeLine->start();
 }
@@ -456,12 +481,10 @@ void GlxZoomWidget::animationFrameChanged(int frameNumber)
 {
 qreal scaleFactor = 1;
 	if(m_FinalAnimatedScaleFactor > 1) {
-	//	qreal scaleFactor = (100+ ((m_FinalAnimatedScaleFactor*100 - 100)/100)*frameNumber)/100;
-		scaleFactor = 1.0 + (((m_FinalAnimatedScaleFactor - 1)/100)*frameNumber);
+        scaleFactor = (1.0 + (((m_FinalAnimatedScaleFactor - 1)/100)*frameNumber))/(mCurrentSize.width()/mMinDecScaleSize.width());
 	}
 	if(m_FinalAnimatedScaleFactor < 1) {
-		scaleFactor = (m_FinalAnimatedScaleFactor*100+ ((100 - m_FinalAnimatedScaleFactor*100 )/100)*frameNumber)/100;
-	//	qreal scaleFactor = 1.0 + (((m_FinalAnimatedScaleFactor - 1)/100)*frameNumber)
+        scaleFactor = (m_FinalAnimatedScaleFactor+ (((1 - m_FinalAnimatedScaleFactor)/100)*frameNumber))/(mCurrentSize.width()/mMinDecScaleSize.width());
 	}
 
 	zoomImage(scaleFactor, m_AnimRefPoint);
@@ -480,3 +503,12 @@ void GlxZoomWidget::animationTimeLineFinished()
            }
 }
 
+
+void GlxZoomWidget::timerEvent(QTimerEvent *event)
+{
+    if(mTimerId == event->timerId())
+    {
+        killTimer(mTimerId);
+        mTimerId = 0;
+    }
+}

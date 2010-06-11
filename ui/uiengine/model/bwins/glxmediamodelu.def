@@ -36,4 +36,7 @@ EXPORTS
 	?index@GlxMediaModel@@UBE?AVQModelIndex@@HHABV2@@Z @ 35 NONAME ; class QModelIndex GlxMediaModel::index(int, int, class QModelIndex const &) const
 	?GetExternalIconItem@GlxMediaModel@@ABEPAVHbIcon@@HW4GlxTBContextType@@@Z @ 36 NONAME ; class HbIcon * GlxMediaModel::GetExternalIconItem(int, enum GlxTBContextType) const
 	?albumTitleAvailable@GlxMediaModel@@IAEXVQString@@@Z @ 37 NONAME ; void GlxMediaModel::albumTitleAvailable(class QString)
+	?updateDetailsView@GlxMediaModel@@IAEXXZ @ 38 NONAME ; void GlxMediaModel::updateDetailsView(void)
+	?removeContextMode@GlxMediaModel@@AAEXW4GlxContextMode@@@Z @ 39 NONAME ; void GlxMediaModel::removeContextMode(enum GlxContextMode)
+	?updateDetailItems@GlxMediaModel@@QAEXXZ @ 40 NONAME ; void GlxMediaModel::updateDetailItems(void)
 

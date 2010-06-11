@@ -97,9 +97,6 @@ void GlxFullScreenView::initializeView(QAbstractItemModel *model)
     // to make the widget light weight in order to make
     // transition smooth 
     mCoverFlow->partiallyCreate( model, screenSize());
-	
-    setStatusBarVisible(FALSE);
-    setTitleBarVisible(FALSE);
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_INITIALIZEVIEW_EXIT );
 }
@@ -184,7 +181,10 @@ void GlxFullScreenView::activate()
 
     setStatusBarVisible(FALSE);
     setTitleBarVisible(FALSE);
-	
+	//To:Do remove it later, currently it is solving the problem of status bar is not
+	//visible when tap on the screen first time
+    setStatusBarVisible(FALSE);
+    setTitleBarVisible(FALSE);  
 
 //for zoom might not be required after wk15 release
 	mWindow->viewport()->setAttribute(Qt::WA_AcceptTouchEvents,true); 
@@ -208,7 +208,7 @@ void GlxFullScreenView::activate()
      
     if (!mTvOutWrapper){
         mTvOutWrapper = new GlxTvOutWrapper();
-        }
+    }
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_ACTIVATE_EXIT );
 }
 
@@ -285,7 +285,7 @@ void GlxFullScreenView::cleanUp()
     if(mZoomWidget)
     {
         mZoomWidget->cleanUp();
-
+        mZoomWidget = NULL;
     }
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_CLEANUP_EXIT );
 }
@@ -312,10 +312,9 @@ void GlxFullScreenView::setModel( QAbstractItemModel *model )
 	mZoomWidget->setModel(mModel);  
     mCoverFlow->setModel(mModel);
     setImageStripModel();
-    if(getSubState() == IMAGEVIEWER_S)
-        {
+    if(getSubState() == IMAGEVIEWER_S) {
         setTitle("Image Viewer");
-        }
+    }
 	else if(getSubState() == FETCHER_S){
 		setStatusBarVisible(TRUE);
         setTitleBarVisible(TRUE);
@@ -324,13 +323,12 @@ void GlxFullScreenView::setModel( QAbstractItemModel *model )
 }
 
 void GlxFullScreenView::setHdmiModel(QAbstractItemModel* model)
-    {
-    if (mTvOutWrapper)
-        mTvOutWrapper->setModel(model);
-    
-    // for the first image on screen
-    mTvOutWrapper->setImagetoHDMI();
-    }
+{
+    if (mTvOutWrapper) {
+        mTvOutWrapper->setModel(model); 
+        mTvOutWrapper->setImagetoHDMI(); // for the first image on screen
+    }    
+}
 
 void GlxFullScreenView::setModelContext()
 {
@@ -435,18 +433,20 @@ void GlxFullScreenView::changeSelectedIndex(const QModelIndex &index)
     
     QVariant variant = mModel->data( mModel->index(0,0), GlxFocusIndexRole );    
     if ( variant.isValid() &&  variant.canConvert<int> () && ( index.row() == variant.value<int>() ) ) {
-       OstTraceFunctionExit0( GLXFULLSCREENVIEW_CHANGESELECTEDINDEX_EXIT );
-       if (mTvOutWrapper){
-       // for the image changed on deletion
-       mTvOutWrapper->setImagetoHDMI();
-       }
-       return;
-    }         
-    mModel->setData( index, index.row(), GlxFocusIndexRole );  
+        OstTraceFunctionExit0( GLXFULLSCREENVIEW_CHANGESELECTEDINDEX_EXIT );
+        if (mTvOutWrapper){
+            // for the image changed on deletion
+            mTvOutWrapper->setImagetoHDMI();
+        }
+        return;
+    }
+    
+    mModel->setData( index, index.row(), GlxFocusIndexRole );
+    mModel->setData( index, index.row(), GlxVisualWindowIndex );
 	mZoomWidget->indexChanged(index.row());  
     if (mTvOutWrapper){
-    // for the image changed on swipe
-    mTvOutWrapper->setImagetoHDMI();
+        // for the image changed on swipe
+        mTvOutWrapper->setImagetoHDMI();
     }
     OstTraceFunctionExit0( DUP1_GLXFULLSCREENVIEW_CHANGESELECTEDINDEX_EXIT );
 }
@@ -639,6 +639,7 @@ void GlxFullScreenView::addConnection()
     if(mCoverFlow && mZoomWidget) {
 		connect(mZoomWidget,SIGNAL( pinchGestureReceived(int) ), mCoverFlow, SLOT( zoomStarted(int) ) );
 		connect(mZoomWidget,SIGNAL( zoomWidgetMovedBackground(int) ), mCoverFlow, SLOT( zoomFinished(int) ) );
+        connect(mCoverFlow,SIGNAL( doubleTapEventReceived(QPointF) ), mZoomWidget, SLOT( animateZoomIn(QPointF) ) );
 	}
 
     connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
@@ -670,7 +671,6 @@ void GlxFullScreenView::removeConnection()
         GLX_LOG_INFO("GlxFullScreenView::removeConnection() mUiOffTimer  " );
         disconnect(mUiOffTimer, SIGNAL(timeout()), this, SLOT(hideUi()));
     }
-
             
     if(mFlipAction) {
         disconnect(mFlipAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );  

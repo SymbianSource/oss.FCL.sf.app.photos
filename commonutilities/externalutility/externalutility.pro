@@ -36,3 +36,11 @@ HEADERS += inc/glxexternalutility.h
 SOURCES += src/glxexternalutility.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxexternalutility.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxexternalutility.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock

@@ -16,7 +16,12 @@
 #*/ 
 TEMPLATE    = subdirs
 CONFIG += ordered
-SUBDIRS	    = uiengine \
+
+exportfile += "inc/glxmodelroles.h APP_LAYER_PLATFORM_EXPORT_PATH(glxmodelroles.h)"
+BLD_INF_RULES.prj_exports += exportfile
+
+SUBDIRS	    = detailscustomwidget \
+               uiengine \
               commandhandlers \
               viewutilities \
               widgets \

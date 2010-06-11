@@ -52,7 +52,9 @@ LIBS += -lglxcommandhandlerbase.dll \
         -lshareui.dll \
 	-lexiflib.dll \
 	-lfbscli.dll \
-	-lbafl.dll
+	-lbafl.dll \
+	-lefsrv.dll \
+	-lcaf.dll
 
 # Input
 HEADERS += inc/glxcommandhandlerdelete.h
@@ -63,6 +65,8 @@ HEADERS += inc/glxcommandhandlersend.h
 HEADERS += inc/glxcommandhandlerremovefrom.h
 HEADERS += inc/glxcommandhandlerrename.h
 HEADERS += inc/glxcommondialogs.h
+HEADERS += inc/glxcommandhandlercomment.h
+
 
 SOURCES += src/glxcommandhandlerdelete.cpp
 SOURCES += src/glxcommandhandleraddtocontainer.cpp
@@ -72,6 +76,16 @@ SOURCES += src/glxcommandhandlersend.cpp
 SOURCES += src/glxcommandhandlerremovefrom.cpp
 SOURCES += src/glxcommandhandlerrename.cpp
 SOURCES += src/glxcommondialogs.cpp
+SOURCES += src/glxcommandhandlercomment.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxcommoncommandhandlers.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxcommoncommandhandlers.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock
 

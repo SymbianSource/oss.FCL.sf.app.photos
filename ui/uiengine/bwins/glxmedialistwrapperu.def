@@ -48,4 +48,10 @@ EXPORTS
 	??0GlxMLWrapper@@QAE@HHW4TGlxFilterItemType@@VQString@@@Z @ 47 NONAME ; GlxMLWrapper::GlxMLWrapper(int, int, enum TGlxFilterItemType, class QString)
 	?itemsAdded@GlxMLWrapper@@QAEXHH@Z @ 48 NONAME ; void GlxMLWrapper::itemsAdded(int, int)
 	?retrieveItemIcon@GlxMLWrapper@@QAEPAVHbIcon@@HW4GlxTBContextType@@@Z @ 49 NONAME ; class HbIcon * GlxMLWrapper::retrieveItemIcon(int, enum GlxTBContextType)
+	?retrieveItemSize@GlxMLWrapper@@QAEHH@Z @ 50 NONAME ; int GlxMLWrapper::retrieveItemSize(int)
+	?retrieveItemTime@GlxMLWrapper@@QAE?AVQTime@@H@Z @ 51 NONAME ; class QTime GlxMLWrapper::retrieveItemTime(int)
+	?retrieveListDesc@GlxMLWrapper@@QAE?AVQString@@H@Z @ 52 NONAME ; class QString GlxMLWrapper::retrieveListDesc(int)
+	?removeContextMode@GlxMLWrapper@@QAEXW4GlxContextMode@@@Z @ 53 NONAME ; void GlxMLWrapper::removeContextMode(enum GlxContextMode)
+	?updateDetails@GlxMLWrapper@@IAEXXZ @ 54 NONAME ; void GlxMLWrapper::updateDetails(void)
+	?handleDetailsItemAvailable@GlxMLWrapper@@QAEXH@Z @ 55 NONAME ; void GlxMLWrapper::handleDetailsItemAvailable(int)
 

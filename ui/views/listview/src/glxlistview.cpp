@@ -43,7 +43,6 @@ GlxListView::GlxListView(HbMainWindow *window)
 {
     qDebug("GlxListView::GlxListView()");
     mDocLoader = new HbDocumentLoader();
-    setContentFullScreen( true );
 }
 
 void GlxListView::activate()
@@ -137,13 +136,13 @@ void GlxListView::loadListView()
             mView = static_cast<HbView*>(mDocLoader->findWidget(QString(GLX_LISTVIEW_VIEW)));
             mListView = static_cast<HbListView*>(mDocLoader->findWidget(QString(GLX_LISTVIEW_LIST)));
 
-            if(mListView) { 
+            if( mListView ) { 
                 //sets the widget
                 setWidget((QGraphicsWidget*) mView);
+                HbListViewItem *prototype = mListView->listItemPrototype();
+                prototype->setStretchingStyle(HbListViewItem::StretchLandscape);
             }
         }  
-        HbListViewItem *prototype = mListView->listItemPrototype();
-        prototype->setStretchingStyle(HbListViewItem::StretchLandscape);
     }
 }
 

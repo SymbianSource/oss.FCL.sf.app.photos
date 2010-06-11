@@ -73,6 +73,7 @@ signals :
     void changeSelectedIndex(const QModelIndex &index);
     void autoLeftMoveSignal();
     void autoRightMoveSignal();
+    void doubleTapEventReceived(QPointF position);
 
 protected slots:
     void panGesture ( const QPointF & delta )  ;
@@ -102,6 +103,7 @@ protected:
     //reset all the data of cover flow
     void resetCoverFlow();
     int getSubState();
+    void timerEvent(QTimerEvent *event);
 
 private:
 	HbIconItem *mIconItem[NBR_ICON_ITEM];      //at most contain only five item
@@ -119,6 +121,7 @@ private:
     int mSpeed;        
 	bool mZoomOn;
 	QGraphicsItem* mMultitouchFilter;
+    int mTimerId;
 };
 
 #endif /* GLXCOVERFLOW_H_ */

@@ -25,6 +25,7 @@
 #include <glxcommandhandlernewmedia.h>
 #include <glxcommandhandlersend.h>
 #include <glxcommandhandlerrename.h>
+#include <glxcommandhandlercomment.h>
 
 
 GlxCommandHandler* GlxCommandHandlerFactory::CreateCommandHandler(int commandId)
@@ -52,7 +53,10 @@ GlxCommandHandler* GlxCommandHandlerFactory::CreateCommandHandler(int commandId)
 
         case EGlxCmdRename: cmdHandler = new GlxCommandHandlerRename();
            break;
-
+           
+        case EGlxCmdComment: cmdHandler = new GlxCommandHandlerComment();
+                   break;
+                   
         default:
            break;
         }

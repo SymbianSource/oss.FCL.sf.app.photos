@@ -30,6 +30,8 @@
 #include "glxslideshowwidget.h"
 #include "glxslideshowview.h"
 #include "glxzoomwidget.h"
+#include "glxdetailsnamelabel.h"
+#include "glxdetailsdescriptionedit.h"
 
 //----------------------------------------------------------------------------------------
 // createObject:creates the custom widget and views of fullscreen view
@@ -97,3 +99,34 @@ QObject* GlxSlideShowViewDocLoader::createObject(const QString &type, const QStr
         }
     return HbDocumentLoader::createObject(type, name);
     }
+
+	//----------------------------------------------------------------------------------------
+// createObject:creates the custom widget and views of details view
+//----------------------------------------------------------------------------------------
+QObject* GlxDetailsViewDocLoader::createObject(const QString &type, const QString &name)
+    {
+    qDebug() <<"GlxDetailsViewDocLoader::createObject -->";
+
+
+    if (GLX_DETAILSVIEW_IMGNAME == name)
+        {
+        qDebug() << "GlxDetailsViewDocLoader::createObject:GLX_DETAILSVIEW_IMGNAME -->";
+
+        QObject *object = new GlxDetailsNameLabel();
+        object->setObjectName(name);
+        return object;
+        }
+    
+    if (GLX_DETAILSVIEW_DESCRPTIONTEXT == name)
+        {
+        qDebug() << "GlxDetailsViewDocLoader::createObject:GLX_DETAILSVIEW_DESCRPTIONTEXT -->";
+
+        QObject *object = new GlxDetailsDescriptionEdit();
+        object->setObjectName(name);
+        return object;
+        }
+    
+   
+    return HbDocumentLoader::createObject(type, name);
+    }
+
