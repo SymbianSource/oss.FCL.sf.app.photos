@@ -71,9 +71,9 @@ void GlxViewManager::setupItems( )
 {
     mMenuManager = new GlxMenuManager(mMainWindow);
     addBackSoftKeyAction(); 
-    createToolBar();
+    
     addConnection();
-    mView->addToolBar(mViewToolBar);
+    
     mMenuManager->addMenu( mView->viewId(), mView->menu() );
     mMenuManager->setModel( mModel );
 }
@@ -84,6 +84,18 @@ void GlxViewManager::launchApplication(qint32 id, QAbstractItemModel *model)
     PERFORMANCE_ADV ( viewMgrD1, "View Creation time" ) {
         mView = resolveView(id);
     }
+    createToolBar();
+    mView->addToolBar(mViewToolBar);
+    
+    /* We are showing the toolBar before activating the 
+     * view. This is done to avoid the animation effect seen otherwise 
+     * when the tool bar comes up.
+     * 
+     * If animation Effect is not removed, it leads to flickering effect 
+     * since we are creating a new tool bar..although a fake tool bar was 
+     * already created on the splashscreen
+     * 
+     */
     mView->activate();
     
     PERFORMANCE_ADV ( viewMgrD3, "Set Model time")  
@@ -145,7 +157,7 @@ void GlxViewManager::launchView (qint32 id, QAbstractItemModel *model, GlxEffect
     
     //create and registered the effect
     if ( mEffectEngine == NULL ) { 
-        mEffectEngine = new GlxSlideShowEffectEngine();
+        mEffectEngine = new GlxEffectEngine();
         mEffectEngine->registerTransitionEffect();
         connect( mEffectEngine, SIGNAL( effectFinished() ), this, SLOT( effectFinished() ) );
     }

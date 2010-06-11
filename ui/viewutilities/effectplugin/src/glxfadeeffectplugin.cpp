@@ -16,34 +16,31 @@
 */
 
 
-#include "glxfadeplugin.h"
+#include "glxfadeeffectplugin.h"
+#include "glxuistd.h"
+#include "glxlocalisationstrings.h"
 
-GlxFadePlugin::GlxFadePlugin() : mItem(NULL)
+GlxFadeEffectPlugin::GlxFadeEffectPlugin() : GlxEffectPluginBase( SMOOTH_FADE )
 {
     mEffectFileList.append(QString(":/data/opacity_deactivate.fxml"));
     mEffectFileList.append(QString(":/data/opacity_activate.fxml"));
 }
 
-void GlxFadePlugin::setUpItems( QList< QGraphicsItem * > &  items )
+void GlxFadeEffectPlugin::setUpItems( QList< QGraphicsItem * > &  items )
 {
     if ( items.count() < 2 ) 
         return;
-    
-    mItem = items.at(1);
-    //mItem->hide();
-    mItem->setPos(0,0);
+   
     items.at(0)->setPos(0,0);
+    items.at(1)->setPos(0,0);
 }
 
-bool GlxFadePlugin::isAnimationLater(int index) 
-{
-    /*if ( index == 1) {
-        return true;
-    }*/
-    return false;
+QString GlxFadeEffectPlugin::effectName() 
+{ 
+    return ( GLX_VAL_SMOOTH_FADE ) ; 
 }
 
-GlxFadePlugin::~GlxFadePlugin()
+GlxFadeEffectPlugin::~GlxFadeEffectPlugin()
 {
     mEffectFileList.clear();
 }

@@ -33,7 +33,6 @@
 #include "glxviewids.h"
 #include "glxicondefs.h" //Contains the icon names/Ids
 #include "glxmodelparm.h"
-#include "glxmediamodel.h"
 #include "glxdetailsview.h"
 #include "glxfavmediamodel.h"
 #include <glxcommandhandlers.hrh>

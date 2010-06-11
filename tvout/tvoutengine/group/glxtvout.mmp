@@ -64,6 +64,7 @@ LIBRARY         bitgdi.lib
 LIBRARY                 apgrfx.lib // 
 LIBRARY			apmime.lib // For ImageViewer mime type extraction
 LIBRARY 		glxlogging.lib
+LIBRARY		      alfdecoderserverclient.lib
 LIBRARY		AccPolicy.lib //For RAccessoryConnection status ID's	
 // Other Dependency Libraries
 #ifdef __MARM

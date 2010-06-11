@@ -64,7 +64,8 @@ public:
      * @param aObserver observer to be informed when task has completed.
      * @param aDataSource data source to be used by this object.
      */
-	CGlxDataSourceTaskMdeAttributeMde(CGlxGetRequest* aRequest, MGlxDataSourceRequestObserver& aObserver, CGlxDataSource* aDataSource);
+	CGlxDataSourceTaskMdeAttributeMde(CGlxGetRequest* aRequest, 
+	        MGlxDataSourceRequestObserver& aObserver, CGlxDataSource* aDataSource);
 	
     /**
      * Destructor.
@@ -94,9 +95,11 @@ private:
 
 	void AddCollectionAttributesL(CMPXMedia* aEntry);
 	
-	void AddContainerAttributesL(CMPXMedia* aEntry, CMdEObject* aContainer, CGlxDataSource::TContainerType aType);
+	void AddContainerAttributesL(CMPXMedia* aEntry, CMdEObject* aContainer, 
+	        CGlxDataSource::TContainerType aType);
 	
-	void AddItemAttributesL(CMPXMedia* aEntry, CMdEObject* aItem, CGlxDataSource::TItemType aType);
+	void AddItemAttributesL(CMPXMedia* aEntry, CMdEObject* aItem, 
+	        CGlxDataSource::TItemType aType);
 	
     /**
      * Add location information to a media object from MDS.
@@ -127,8 +130,10 @@ private:
      * of the object being queried is provided by the aObjectDef parameter
      *  
      */
-    void QueueObjectQueryL(CMdEObjectDef& aObjectDef, TBool aIsContent, TGlxQueryType aQueryType, TQueryResultMode aResultMode, 
-                          const TGlxMediaId& aContainerId, TMPXAttribute aAttribute, CMPXMedia* aEntry, 
+    void QueueObjectQueryL(CMdEObjectDef& aObjectDef, TBool aIsContent, 
+            TGlxQueryType aQueryType, TQueryResultMode aResultMode, 
+                          const TGlxMediaId& aContainerId, 
+                          TMPXAttribute aAttribute, CMPXMedia* aEntry, 
                           const TGlxFilterProperties& aFilterProperties);
     
 
@@ -156,10 +161,11 @@ private:
      * Attributes associated with outstanding queries
      */
     RArray< TGlxQueryAttribute > iQueryAttributes;
+    
 #ifdef _DEBUG
-	TTime iStartTime;
-	TTime iStopTime;
-#endif
+    TTime iStartTime;
+    TTime iStopTime;
+#endif    
 	};
 
 

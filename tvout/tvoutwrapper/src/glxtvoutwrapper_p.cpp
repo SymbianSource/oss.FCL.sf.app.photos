@@ -29,12 +29,12 @@
 // Static method to create the private wrapper instance 
 // -----------------------------------------------------------------------------
 GlxTvOutWrapperPrivate* GlxTvOutWrapperPrivate::Instance(GlxTvOutWrapper* aTvOutWrapper,
-        QAbstractItemModel* aModel)
+        QAbstractItemModel* aModel,bool aEfectsOn)
     {
     TRACER("GlxTvOutWrapperPrivate::Instance()");
     GlxTvOutWrapperPrivate* self = new GlxTvOutWrapperPrivate(aTvOutWrapper,aModel);
     if (self){
-        TRAPD(err,self->ConstructL());
+        TRAPD(err,self->ConstructL(aEfectsOn));
         if(err != KErrNone){
             delete self;
             self = NULL;
@@ -47,12 +47,12 @@ GlxTvOutWrapperPrivate* GlxTvOutWrapperPrivate::Instance(GlxTvOutWrapper* aTvOut
 // ConstructL
 // This creates the Connection observer and the Hdmi Controller
 // -----------------------------------------------------------------------------
-void GlxTvOutWrapperPrivate::ConstructL()
+void GlxTvOutWrapperPrivate::ConstructL(bool aEfectsOn)
     {
     TRACER("GlxTvOutWrapperPrivate::ConstructL()");
     iConnectionObserver = CGlxConnectionObserver::NewL(this);
     if (!iHdmiController) {
-        iHdmiController = CGlxHdmiController::NewL();
+        iHdmiController = CGlxHdmiController::NewL(aEfectsOn);
         iHdmiConnected = iConnectionObserver->IsHdmiConnected();
         }
     }
@@ -181,7 +181,14 @@ void GlxTvOutWrapperPrivate::SetToNativeMode()
     {
     TRACER("GlxTvOutWrapperPrivate::SetToNativeMode()");
     iIsPhotosInForeground = true;
-    if(iHdmiController && iHdmiConnected){
+    
+    if(iHdmiController && iHdmiConnected) {
+    if (!isImageSetToHdmi){
+    }
+    SetNewImage(); // this case can occur when FS image is opened and set to background
+                   // HDMI cable connected and then FS is brought to foreground
+    }
+    else{
     iHdmiController->ShiftToPostingMode();
     }
     }
@@ -214,6 +221,16 @@ void GlxTvOutWrapperPrivate::DeactivateZoom()
     {
     if(iHdmiController && iHdmiConnected){
     iHdmiController->DeactivateZoom();
+    }
+    }
+
+// -----------------------------------------------------------------------------
+// FadeSurface 
+// -----------------------------------------------------------------------------
+void GlxTvOutWrapperPrivate::FadeSurface(bool aFadeInOut)
+    {
+    if(iHdmiController && iHdmiConnected){
+    iHdmiController->FadeSurface(aFadeInOut);
     }
     }
 

@@ -16,37 +16,42 @@
 */
 
 
-#ifndef GLXFORWARDTRANSITIONPLUGIN_H
-#define GLXFORWARDTRANSITIONPLUGIN_H
+#ifndef GLXZOOMINOUTEFFECTPLUGIN_H
+#define GLXZOOMINOUTEFFECTPLUGIN_H
 
 #include "glxeffectpluginbase.h"
 
-class GlxForwardTransitionPlugin : public GlxEffectPluginBase
+class GlxZoomInOutEffectPlugin : public GlxEffectPluginBase
 {
 public :
-    GlxForwardTransitionPlugin();
-    ~GlxForwardTransitionPlugin();
-    QList <QString > getEffectFileList() { return mEffectFileList; }
+    /*
+     *  Constructor
+     */
+    GlxZoomInOutEffectPlugin();
+    
+    /*
+     *  Destructor
+     */
+    ~GlxZoomInOutEffectPlugin();
+    
+    /*
+     *  Get the flip hide and Flip Show file list
+     */
+    QList <QString > effectFileList() { return mEffectFileList; }
     
     /*
      * setup the item postion and set the mItem value
      */
-        void setUpItems( QList< QGraphicsItem * > &  items );
-    /*
-     * second animation will be run later
-     */    
-    bool isAnimationLater(int index) ;
+    void setUpItems( QList< QGraphicsItem * > &  items );
     
-    QGraphicsItem * animationItem() 
-    { 
-        mItem->show();
-        return mItem ; 
-    }
-	
+    /*
+     * get the name of the effect, use to shown in the slide show setting view
+     */
+    static QString effectName() { return QString ("ZoomInOut") ; }
+    
 private :
     QList <QString > mEffectFileList;
     QGraphicsItem *mItem;
 };
 
-#endif /*GLXFORWARDTRANSITIONPLUGIN_H*/
-
+#endif /*GLXZOOMINOUTEFFECTPLUGIN_H*/

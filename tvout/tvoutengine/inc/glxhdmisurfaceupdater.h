@@ -30,7 +30,9 @@
 class CGlxActiveCallBack;
 class CGlxHdmiDecoderAO;
 class CImageDecoder;
+class CAlfCompositionSource;
 class TSurfaceConfiguration;
+
 class MGlxGenCallback
     {
 public:
@@ -44,7 +46,7 @@ public:
      * NewL
      */
     static CGlxHdmiSurfaceUpdater* NewL(RWindow* aWindow, const TDesC& aImageFile, 
-            CFbsBitmap* aFsBitmap, MGlxGenCallback* aCallBack);
+            CFbsBitmap* aFsBitmap, MGlxGenCallback* aCallBack,TBool aEffectsOn);
 
     /*
      * Destructor
@@ -70,10 +72,6 @@ public:
      * Deactivate Zoom 
      */
     void DeactivateZoom();
-    /*
-     * Zoom in our out depending on parameter 
-     */
-    void Zoom(TBool aZoom);
 
     /*
 	ShiftToCloningMOde
@@ -85,11 +83,18 @@ public:
      */
     void ShiftToPostingMode();
 
+    /*
+     * Fadeing of the Surface
+     * @param1 ETrue - FadeIn ( as in gaining brightness )
+     *         EFalse - FadeOut ( as in loosing brightness ) 
+     */
+    void FadeTheSurface(TBool aFadeInOut);
+
 private:
     /*
      * Constructor 
      */
-    CGlxHdmiSurfaceUpdater(RWindow* aWindow, MGlxGenCallback* aCallBack);
+    CGlxHdmiSurfaceUpdater(RWindow* aWindow, MGlxGenCallback* aCallBack,TBool aEffectsOn);
 
     /*
      * ConstructL()
@@ -145,10 +150,20 @@ private:
     void CreateHdmiL(TBool aCreateSurface = ETrue);
 
     /*
+     * Zoom in our out depending on parameter 
+     */
+    void Zoom(TBool aZoom);
+
+    /*
      * This if for zoom timer timeout
      */
     static TInt TimeOut(TAny* aSelf);
-
+    
+    /*
+     * Animation time out timer
+     */
+    static TInt AnimationTimeOut(TAny* aSelf);
+    
     /*
      * ModifySurface positions of the surface to be displayed on screen
      */
@@ -189,12 +204,22 @@ private:
      */
     void InitiateHdmiL(CFbsBitmap* aFsBitmap,const TDesC& aImageFile);
 
-private:
-    RWindow*        iWindow;                        // window object
-    CFbsBitmap*     iFsBitmap;                      // FS bitmap
-    MGlxGenCallback* iCallBack;                     // callback to the HdmiContainer window
-    HBufC*          iImagePath;                     // To store the image uri path
+    /*
+     * Animate untill loop is complete 
+     */
+    void Animate();
 
+private:
+    RWindow*            iWindow;                    // window object
+    CFbsBitmap*         iFsBitmap;                  // FS bitmap
+    MGlxGenCallback*    iCallBack;                  // callback to the HdmiContainer window
+    HBufC*              iImagePath;                 // To store the image uri path
+    TBool               iEffectsOn;
+
+    TBool       iShwFsThumbnail;                    // If the Fs thumbnail is to be shown before decoding HD images
+    TBool       iIsNonJpeg;                         // If the item is non jpeg
+    TBool       iFadeIn;                            // If FadeIn or Out for only SLideshow animation
+    
     // GCE Surface
     RSurfaceUpdateSession iSurfUpdateSession;
     TSurfaceId              iSurfId;                // TSurfaceId                             
@@ -210,14 +235,18 @@ private:
     void*               iSurfBuffer;               // Surface buffer
     CGlxActiveCallBack* iSurfBufferAO;             // Surface buffer AO 
 
+    CAlfCompositionSource* ialfCompositionSurface;
+
     //ICL
     CGlxHdmiDecoderAO*  iGlxDecoderAO;              // Internal Image decoder AO              
     CImageDecoder*      iImageDecoder;              // Image Decoder
     RFs                 iFsSession;                 // RFs
 
     TPoint      iLeftCornerForZoom;                 //  
-    CPeriodic*  iTimer;                             // Timer for Zoom   
-    
+    CPeriodic*  iTimer;                             // Timer for Zoom 
+    CPeriodic*  iAnimTimer;                         // Timer for Animation
+    TInt        iAnimCounter;
+
     // Various objects to store sizes and count
     TSize       iTvScreenSize;                      // to store the Tv screen size
     TSize       iTargetBitmapSize;                  // To Store the target bitmap size to display(as per Aspect Ratio)
@@ -227,10 +256,7 @@ private:
     TBool       iBitmapReady;                       // If the bitmap is decoded and ready
     TBool       iAutoZoomOut;                       // If the UI has asked for auto zoomout
     TBool       iSurfSessionConnected;              // If surface session is connected
-	TBool iShiftToCloning;
-    TBool       iShwFsThumbnail;                    // If the Fs thumbnail is to be shown before decoding HD images
-    TBool       iIsNonJpeg;                         // If the item is non jpeg
-
+	TBool       iShiftToCloning;
 #ifdef _DEBUG
     TTime iStartTime;
     TTime iStopTime;

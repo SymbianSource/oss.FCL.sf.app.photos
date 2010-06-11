@@ -31,14 +31,17 @@ class GlxTNObserver : public QObject, public MGlxTNObserver
     Q_OBJECT
     
 public:
+    
     /*
      * constructor
      */
     GlxTNObserver();
+    
     /*
      * Call back to get the number of TN is left to create.
      */
-    void updateTNCount(int &count);     
+    void updateTNCount(int &count); 
+    
     /*
      * It will return the number of TN is left to create.
      */
@@ -48,6 +51,16 @@ public:
      * It will start the tumbnail generation montior process.
      */    
     void startTNObserving(); 
+    
+    /*
+     * To start the thumbnail generation in back ground
+     */
+    void startTNMDaemon() ;
+
+    /*
+     * To stop the thumbnail generation in back ground
+     */
+    void stopTNMDaemon() ;
     
     /*
      * Destructor

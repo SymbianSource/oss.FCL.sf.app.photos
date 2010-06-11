@@ -47,7 +47,8 @@ class CMdESession;
  *  CGlxDataSourceTaskMdeIdList class 
  *  Task to handle id list requests.
  */
-NONSHARABLE_CLASS(CGlxDataSourceTaskMdeIdList) : public CGlxDataSourceTaskMde, public MGlxtnThumbnailCreatorClient
+NONSHARABLE_CLASS(CGlxDataSourceTaskMdeIdList) : public CGlxDataSourceTaskMde,
+                                                 public MGlxtnThumbnailCreatorClient
 
 	{
 public:
@@ -57,7 +58,8 @@ public:
      * @param aObserver observer to be informed when task has completed.
      * @param aDataSource data source to be used by this object.
      */
-     CGlxDataSourceTaskMdeIdList(CGlxIdListRequest* aRequest, MGlxDataSourceRequestObserver& aObserver, CGlxDataSource* aDataSource);
+     CGlxDataSourceTaskMdeIdList(CGlxIdListRequest* aRequest, 
+             MGlxDataSourceRequestObserver& aObserver, CGlxDataSource* aDataSource);
         
      /**
       * Destructor.
@@ -118,11 +120,17 @@ private: // from CGlxDataSourceTaskMde
 private:
 	void DoHandleListQueryCompletedL();
 		
-    void DoMonthListCreationL(CMdEQuery& aQuery, const TGlxFilterProperties& aFilterProperties);
+    void DoMonthListCreationL(CMdEQuery& aQuery, const TGlxFilterProperties& 
+            aFilterProperties);
         
     void DoPostFilterComplete(const RArray<TGlxMediaId>& aIdArray, TInt aErrorCode);	
     
-    void PostFilterL(const RArray<TGlxMediaId>& aFilteredList, const TGlxFilterProperties& aFilterProperties);                                                                            
+    void PostFilterL(const RArray<TGlxMediaId>& aFilteredList,
+            const TGlxFilterProperties& aFilterProperties);                                                                            
+#ifdef _DEBUG
+    TTime iStartTime;
+    TTime iStopTime;
+#endif
 	};
 
 #endif // GLXDATASOURCETASKMDSIDLIST_H_

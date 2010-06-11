@@ -17,17 +17,18 @@
 */
 #include <QPinchGesture>
 #include <hbiconitem.h>
-#include <glxmediamodel.h>
+#include <QTimeLine>
+#include <QGesture>
 #include "glximagedecoderwrapper.h"
 #include "glxmodelparm.h"
 #include "glxzoomwidget.h"
 
-GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), mModel(NULL), mImageDecodeRequestSend(false), mPinchGestureOngoing(false), mDecodedImageAvailable(false)
+GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), mModel(NULL), mMinZValue(MINZVALUE), mMaxZValue(MAXZVALUE), mImageDecodeRequestSend(false), mPinchGestureOngoing(false), mDecodedImageAvailable(false)
 {
     grabGesture(Qt::PinchGesture);
     setAcceptTouchEvents(true) ;
     setFrictionEnabled(false);
-    setZValue(MINZVALUE);
+    setZValue(mMinZValue);
     //create the child items and background
     mZoomWidget = new QGraphicsWidget(this);
     mZoomItem = new QGraphicsPixmapItem(mZoomWidget);
@@ -42,7 +43,12 @@ GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), mModel
 
     //initializing the image decoder
     mImageDecoder = new GlxImageDecoderWrapper;
-    connect(this,SIGNAL( pinchGestureReceived(int) ), this, SLOT( sendDecodeRequest(int) ), Qt::QueuedConnection );
+
+	//inititalizing the timer for animation
+	m_AnimTimeLine = new QTimeLine(1000, this);
+	m_AnimTimeLine->setFrameRange(0, 100);
+	connect(m_AnimTimeLine, SIGNAL(frameChanged(int)), this, SLOT(animationFrameChanged(int)));
+	connect(m_AnimTimeLine, SIGNAL(finished()), this, SLOT(animationTimeLineFinished()));
 }
 
 GlxZoomWidget::~GlxZoomWidget()
@@ -88,6 +94,30 @@ void GlxZoomWidget::indexChanged(int index)
     }
 }
 
+void GlxZoomWidget::cleanUp()
+{
+//    disconnect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
+    if(mImageDecoder) {
+        mImageDecoder->resetDecoder();
+    }
+    mZoomItem->setPixmap(QPixmap());
+}
+
+void GlxZoomWidget::activate()
+{
+}
+
+void GlxZoomWidget::setMinMaxZValue(int minZvalue, int maxZvalue)
+{
+    mMinZValue = minZvalue;
+    mMaxZValue = maxZvalue;
+}
+
+void GlxZoomWidget::connectDecodeRequestToPinchEvent()
+{
+    connect(this,SIGNAL( pinchGestureReceived(int) ), this, SLOT( sendDecodeRequest(int) ), Qt::QueuedConnection );
+}
+
 bool GlxZoomWidget::sceneEvent(QEvent *event)
 {
     bool consume(false);
@@ -124,10 +154,10 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
        if (changeFlags & QPinchGesture::ScaleFactorChanged) {
             mPinchGestureOngoing = true;
             //bring the zoom widget to foreground
-            setZValue(MAXZVALUE);
+            setZValue(mMaxZValue);
             //show the black background
             mBlackBackgroundItem->setParentItem(parentItem());
-            mBlackBackgroundItem->setZValue(MAXZVALUE - 1);
+            mBlackBackgroundItem->setZValue(mMaxZValue - 1);
             mBlackBackgroundItem->show();
 
             //retreive the gesture values
@@ -160,7 +190,7 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
            if(mStepCurrentSize.width() <= mMinDecScaleSize.width()*1.3)  {
                mBlackBackgroundItem->hide();
                //push the widget back to background
-               setZValue(MINZVALUE);
+               setZValue(mMinZValue);
                emit zoomWidgetMovedBackground(mFocusIndex);
                //do not reset the transform here as it will then zoom-in the widget to decoded image size
            }
@@ -395,17 +425,58 @@ QPixmap GlxZoomWidget::getFocusedImage()
 
 
 
-void GlxZoomWidget::cleanUp()
-{
-//    disconnect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
-    if(mImageDecoder) {
-        mImageDecoder->resetDecoder();
-    }
-    mZoomItem->setPixmap(QPixmap());
-}
 
-void GlxZoomWidget::activate()
-{
-}
 
+void GlxZoomWidget::animateZoomIn(QPointF animRefPoint)
+{
+      emit pinchGestureReceived(mFocusIndex);
+            //bring the zoom widget to foreground
+            setZValue(mMaxZValue);
+            //show the black background
+            mBlackBackgroundItem->setParentItem(parentItem());
+            mBlackBackgroundItem->setZValue(mMaxZValue - 1);
+            mBlackBackgroundItem->show();
+	m_AnimRefPoint = animRefPoint;
+    QSizeF requiredSize = mItemSize;
+    requiredSize.scale(mWindowSize*3.5, Qt::KeepAspectRatio);
+	m_FinalAnimatedScaleFactor = requiredSize.width()*3.5/mMinScaleSize.width();
+	m_AnimTimeLine->setDirection(QTimeLine::Forward);
+	m_AnimTimeLine->start();
+  //  zoomImage(5, m_AnimRefPoint);
+
+}
+void GlxZoomWidget::animateZoomOut(QPointF animRefPoint)
+{
+	m_AnimRefPoint = animRefPoint;
+	m_FinalAnimatedScaleFactor = mMinScaleSize.width()/mCurrentSize.width();
+	//m_AnimTimeLine->setDirection(QTimeLine::Backward);
+	m_AnimTimeLine->start();
+}
+void GlxZoomWidget::animationFrameChanged(int frameNumber)
+{
+qreal scaleFactor = 1;
+	if(m_FinalAnimatedScaleFactor > 1) {
+	//	qreal scaleFactor = (100+ ((m_FinalAnimatedScaleFactor*100 - 100)/100)*frameNumber)/100;
+		scaleFactor = 1.0 + (((m_FinalAnimatedScaleFactor - 1)/100)*frameNumber);
+	}
+	if(m_FinalAnimatedScaleFactor < 1) {
+		scaleFactor = (m_FinalAnimatedScaleFactor*100+ ((100 - m_FinalAnimatedScaleFactor*100 )/100)*frameNumber)/100;
+	//	qreal scaleFactor = 1.0 + (((m_FinalAnimatedScaleFactor - 1)/100)*frameNumber)
+	}
+
+	zoomImage(scaleFactor, m_AnimRefPoint);
+
+}
+void GlxZoomWidget::animationTimeLineFinished()
+{
+	finalizeWidgetTransform();
+//push the Zoom widget to background when zoomed image size nears FS image
+           if(mStepCurrentSize.width() <= mMinDecScaleSize.width()*1.3)  {
+               mBlackBackgroundItem->hide();
+               //push the widget back to background
+               setZValue(mMinZValue);
+               emit zoomWidgetMovedBackground(mFocusIndex);
+               //do not reset the transform here as it will then zoom-in the widget to decoded image size
+           }
+}
 

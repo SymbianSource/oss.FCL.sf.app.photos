@@ -16,36 +16,26 @@
 */
 
 
-#include "glxforwardtransitionplugin.h"
+#include "glxzoominoutplugin.h"
+#include "glxuistd.h"
 
-GlxForwardTransitionPlugin::GlxForwardTransitionPlugin()
+GlxZoomInOutEffectPlugin::GlxZoomInOutEffectPlugin() : GlxEffectPluginBase( ZOOM_TO_FACE )
 {
-    mEffectFileList.append(QString(":/data/view_flip_hide.fxml"));
-    mEffectFileList.append(QString(":/data/view_flip_show.fxml"));
+    mEffectFileList.append(QString(":/data/zoomin.fxml"));
+    mEffectFileList.append(QString(":/data/zoomout.fxml"));
 }
 
-void GlxForwardTransitionPlugin::setUpItems( QList< QGraphicsItem * > &  items )
+void GlxZoomInOutEffectPlugin::setUpItems( QList< QGraphicsItem * > &  items )
 {
     if ( items.count() < 2 ) 
         return;
     
     mItem = items.at(1);
-    mItem->hide();
     mItem->setPos(0,0);
     items.at(0)->setPos(0,0);
 }
 
-bool GlxForwardTransitionPlugin::isAnimationLater(int index) 
-{
-    if ( index == 1) {
-        return true;
-    }
-    return false;
-}
-
-GlxForwardTransitionPlugin::~GlxForwardTransitionPlugin()
+GlxZoomInOutEffectPlugin::~GlxZoomInOutEffectPlugin()
 {
     mEffectFileList.clear();
 }
-
-

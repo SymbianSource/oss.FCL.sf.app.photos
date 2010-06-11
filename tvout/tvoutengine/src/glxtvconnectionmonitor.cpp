@@ -68,7 +68,8 @@ CGlxTvConnectionMonitor::~CGlxTvConnectionMonitor()
 CGlxTvConnectionMonitor::CGlxTvConnectionMonitor(
 		MGlxTvConnectionObserver& aConnectionObserver) :
 	CActive(EPriorityStandard), iConnectionObserver(aConnectionObserver),
-			iIsTvOutConnected(EFalse), iIsHDMIConnected(EFalse)
+			iIsTvOutConnected(EFalse), iIsHDMIConnected(EFalse),
+			iIsHeadSetConnected(EFalse)
 
 	{
 	TRACER("CGlxTvConnectionMonitor");
@@ -179,17 +180,31 @@ void CGlxTvConnectionMonitor::IssueNotificationL()
 	TRACER("CGlxTvConnectionMonitor::IssueNotificationL");
 	TBool previousTvState = iIsTvOutConnected;
 	TBool previousHDMIState = iIsHDMIConnected;
-
+	TBool previousHeadSetState = iIsHeadSetConnected;
+	TTvChangeType changeType = EDisconnected;
+	
 	// Update the connection status
 	UpdateConnectionStatusL();
 
 	// trigger tvstatus change only when there is actually a change the in the connection and not 
 	// for spurious events
-	if (previousTvState != iIsTvOutConnected || previousHDMIState
-			!= iIsHDMIConnected)
+	if (previousTvState != iIsTvOutConnected)
 		{
-		GLX_LOG_INFO("CGlxTvConnectionMonitor::IssueNotificationL - Connection Altered");
-		iConnectionObserver.HandleTvConnectionStatusChangedL();
+		changeType = iIsTvOutConnected == EFalse ? EDisconnected : ETvConnectionChanged;
+		GLX_LOG_INFO1("CGlxTvConnectionMonitor::IssueNotificationL - TVOut Connection Changed %d", changeType);
+		iConnectionObserver.HandleTvConnectionStatusChangedL(changeType);	
+		}
+	else if (previousHDMIState != iIsHDMIConnected)
+		{
+		changeType = iIsHDMIConnected == EFalse ? EDisconnected : ETvConnectionChanged;
+		GLX_LOG_INFO1("CGlxTvConnectionMonitor::IssueNotificationL - HDMI Connection Changed %d", changeType);
+		iConnectionObserver.HandleTvConnectionStatusChangedL(changeType);	
+		}
+	else if (previousHeadSetState != iIsHeadSetConnected)
+		{
+		changeType = iIsHeadSetConnected == EFalse ? EDisconnected : ETvConnectionChanged;
+		GLX_LOG_INFO1("CGlxTvConnectionMonitor::IssueNotificationL - Headset Connection Changed %d", changeType);
+		iConnectionObserver.HandleTvConnectionStatusChangedL(changeType);	
 		}
 	}
 
@@ -201,12 +216,13 @@ void CGlxTvConnectionMonitor::UpdateConnectionStatusL()
     {
     TRACER("CGlxTvConnectionMonitor::UpdateConnectionStatusL()");
 
-    GLX_LOG_INFO2("CGlxTvConnectionMonitor::UpdateConnectionStatusL previousTvState = %d , previousHDMIState = %d",
-            iIsTvOutConnected,iIsHDMIConnected);
+    GLX_LOG_INFO3("CGlxTvConnectionMonitor::UpdateConnectionStatusL previousTvState = %d , previousHDMIState = %d iIsHeadSetConnected=%d",
+            iIsTvOutConnected,iIsHDMIConnected,iIsHeadSetConnected);
 
     // reset the states
     iIsHDMIConnected = EFalse;
     iIsTvOutConnected = EFalse;
+    iIsHeadSetConnected = EFalse;
 
     //gets the TV status in to the iCurrentAccArray and haves the Latest Accesory in 0-index
     User::LeaveIfError(iTvAccCon.GetAccessoryConnectionStatus(iCurrentAccArray));
@@ -257,9 +273,15 @@ void CGlxTvConnectionMonitor::UpdateConnectionStatusL()
                     }
                 }
             }
-        }
+		else if (genId.DeviceTypeCaps(KDTHeadset)
+				&& genId.PhysicalConnectionCaps(KPCWired))
+			{
+			GLX_LOG_INFO("CGlxTvConnectionMonitor::UpdateConnectionStatusL HeadSet connect");
+			iIsHeadSetConnected = ETrue;
+			}
+		}
     CleanupStack::PopAndDestroy(nameArray);
 
-    GLX_LOG_INFO2("CGlxTvConnectionMonitor::UpdateConnectionStatusL CurrentTvState = %d , CurrentHDMIState = %d",
-            iIsTvOutConnected,iIsHDMIConnected);
+    GLX_LOG_INFO3("CGlxTvConnectionMonitor::UpdateConnectionStatusL CurrentTvState = %d , CurrentHDMIState = %d, iIsHeadSetConnected=%d",
+            iIsTvOutConnected,iIsHDMIConnected,iIsHeadSetConnected);
     }

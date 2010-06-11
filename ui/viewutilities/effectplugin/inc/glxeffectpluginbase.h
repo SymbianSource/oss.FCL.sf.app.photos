@@ -22,24 +22,56 @@
 #include <QString>
 #include <QGraphicsItem>
 
-class GlxEffectPluginBase
-{
-
-public :
-    GlxEffectPluginBase() {  }
-    virtual ~GlxEffectPluginBase() {}
-    virtual QList <QString > getEffectFileList() = 0;
-    virtual void setUpItems( QList< QGraphicsItem * > &  items ) { Q_UNUSED( items ) }
 /*
- * second animation will run same time(false) or later (true)
- */    
+ * It is based class of diffetent animation plugin.
+ * These Plugin mostly used for playing the animation in slide show
+ */
+
+class GlxEffectPluginBase 
+{
+public :
+    /*
+     * Constructor
+     */
+    GlxEffectPluginBase( int effectId ) { mEffectId = effectId ;  }
+    
+    /*
+     * Destructor
+     */
+    virtual ~GlxEffectPluginBase() {}
+    
+    /*
+     * return the list of effect file's 
+     */
+    virtual QList <QString > effectFileList() = 0;
+    
+    /*
+     * Setup the item's postion and other properties before plaing the animation
+     */
+    virtual void setUpItems( QList< QGraphicsItem * > &  items ) { Q_UNUSED( items ) }
+
+    /*
+     * second animation will run same time(false) or later (true)
+     */    
     virtual bool isAnimationLater(int index) 
     { 
         Q_UNUSED( index )
         return false ; 
     }
+    
+    /*
+     * Return the item type of animated object
+     */
     virtual QString ItemType() { return QString("HbIconItem") ; }
+    
+    /*
+     * Return the animation object
+     */
     virtual QGraphicsItem * animationItem() { return NULL; }
+    
+private :
+    int mEffectId ;
+
 };
 
 #endif /*GLXEFFECTPLUGINBASE_H*/

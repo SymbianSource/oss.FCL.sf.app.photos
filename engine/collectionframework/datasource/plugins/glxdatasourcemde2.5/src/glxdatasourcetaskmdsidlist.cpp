@@ -74,7 +74,8 @@ _LIT(KPropertyDefNameCreationDate, "CreationDate");
 //  Constructor
 // ----------------------------------------------------------------------------
 //	
-CGlxDataSourceTaskMdeIdList::CGlxDataSourceTaskMdeIdList(CGlxIdListRequest* aRequest, MGlxDataSourceRequestObserver& aObserver, CGlxDataSource* aDataSource)
+CGlxDataSourceTaskMdeIdList::CGlxDataSourceTaskMdeIdList(CGlxIdListRequest* aRequest,
+        MGlxDataSourceRequestObserver& aObserver, CGlxDataSource* aDataSource)
     : CGlxDataSourceTaskMde(aRequest, aObserver, aDataSource)
     {
     TRACER("CGlxDataSourceTaskMdeIdList::CGlxDataSourceTaskMdeIdList()")
@@ -109,6 +110,9 @@ void CGlxDataSourceTaskMdeIdList::FilterAvailableComplete(
 void CGlxDataSourceTaskMdeIdList::ExecuteRequestL()
     {
     TRACER("CGlxDataSourceTaskMdeIdList::ExecuteRequestL()") 
+#ifdef _DEBUG
+    iStartTime.HomeTime(); 
+#endif    
     CGlxIdListRequest* request = static_cast<CGlxIdListRequest*>(iRequest);
     TGlxMediaId container = request->ContainerId();
     TGlxQueryType queryType = EIdListQuery;
@@ -140,9 +144,9 @@ void CGlxDataSourceTaskMdeIdList::ExecuteRequestL()
                 }
             case KGlxCollectionPluginMonthsImplementationUid:
                 {
-                iFilterProperties.iOrigin = EGlxFilterOriginCamera;
+                iFilterProperties.iOrigin = EGlxFilterOriginAll;          
                 container = TGlxMediaId(KGlxCollectionRootId);
-                resultMode = EQueryResultModeObjectWithFreetexts;
+                resultMode = EQueryResultModeItem;
                 break;
                 }
             case KGlxCollectionPluginImageViewerImplementationUid:
@@ -177,7 +181,7 @@ void CGlxDataSourceTaskMdeIdList::ExecuteRequestL()
                 }
             case KGlxCollectionPluginMonthsImplementationUid: 
                 {
-				iFilterProperties.iOrigin = EGlxFilterOriginCamera;
+				iFilterProperties.iOrigin = EGlxFilterOriginAll;
                 AddMonthFilterL(container, iFilterProperties);
                 container = TGlxMediaId(KGlxCollectionRootId);
                 break;
@@ -202,6 +206,11 @@ void CGlxDataSourceTaskMdeIdList::DoHandleQueryCompletedL(CMdEQuery& /*aQuery*/)
     TRACER("CGlxDataSourceTaskMdeIdList::DoHandleQueryCompletedL()")
     __ASSERT_DEBUG(iQueryTypes[0] == EIdListQuery, Panic(EGlxPanicLogicError));
     DoHandleListQueryCompletedL();
+#ifdef _DEBUG
+    iStopTime.HomeTime(); 
+    GLX_DEBUG2("GlxDataSrcTaskMdeIdList:DoHandleQueryCompletedL() took %d us",
+                     (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif    
     }
 
 // ----------------------------------------------------------------------------
@@ -211,7 +220,7 @@ void CGlxDataSourceTaskMdeIdList::DoHandleQueryCompletedL(CMdEQuery& /*aQuery*/)
 void CGlxDataSourceTaskMdeIdList::DoHandleListQueryCompletedL()
     {
     TRACER("CGlxDataSourceTaskMdeIdList::DoHandleListQueryCompletedL()")
-    if(iQueries[0]->ResultMode() == EQueryResultModeObjectWithFreetexts)
+    if(iQueries[0]->ResultMode() == EQueryResultModeItem)
         {
         DoMonthListCreationL(*iQueries[0], iFilterProperties);
         }
@@ -245,6 +254,7 @@ void CGlxDataSourceTaskMdeIdList::DoMonthListCreationL(CMdEQuery& aQuery,
     TTime lastMonth;
     TTime currentMonth;
     TInt count = aQuery.Count();
+    GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL count=%d", count);    
     for( TInt i = 0 ; i < count ; i++ )
         {
         CMdEObject& object = (CMdEObject&)aQuery.ResultItem(i);
@@ -254,13 +264,17 @@ void CGlxDataSourceTaskMdeIdList::DoMonthListCreationL(CMdEQuery& aQuery,
             User::Leave(KErrCorrupt);
             }
         currentMonth = static_cast<CMdETimeProperty*>(time)->Value();
-        if( !DataSource()->SameMonth(lastMonth, currentMonth) )
+
+        // Also Checking for a Valid Month Entry Based on a Year Greater than 0000.
+        if( !DataSource()->SameMonth(lastMonth, currentMonth) && (currentMonth.DateTime().Year() > 0) )
             {
             const TGlxMediaId monthId = DataSource()->GetMonthIdL(currentMonth);
             monthList.AppendL(monthId);
+            GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL monthId=%d", monthId.Value());    
             lastMonth = currentMonth;
             }
         }
+    GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL monthList.Count=%d", monthList.Count());    
     PostFilterL(monthList, aFilterProperties);
     CleanupStack::PopAndDestroy(&monthList);
     }

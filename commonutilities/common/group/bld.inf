@@ -46,9 +46,8 @@ PRJ_EXPORTS
 	// for emulator
 	../cenrep/200009EE_orientation_portrait_landscape.txt   /epoc32/release/winscw/udeb/z/private/10202be9/200009EE.txt
 	//slideshow settings cenrep initialisation file
-	../cenrep/20007194.txt   /epoc32/data/z/private/10202be9/20007194.txt
-	../cenrep/20007194.txt   /epoc32/release/winscw/udeb/z/private/10202be9/20007194.txt
-	../cenrep/20007194.txt   /epoc32/release/winscw/urel/z/private/10202be9/20007194.txt	
+	../cenrep/20007194.txt   z:/private/10202be9/20007194.txt
+	
 	
 #endif
 
@@ -58,6 +57,8 @@ PRJ_EXPORTS
 
 ../../../conf/slideshowsettings.confml                        CONFML_EXPORT_PATH(slideshowsettings.confml,customsw)
 ../../../conf/slideshowsettings_20007194.crml	        CRML_EXPORT_PATH(slideshowsettings_20007194.crml,customsw)
+../../../data/photos.docml		z:/resource/hb/splashml/photos.docml
+../../../data/photos.splashml	z:/resource/hb/splashml/photos.splashml
 PRJ_MMPFILES
 glxcommon.mmp
 

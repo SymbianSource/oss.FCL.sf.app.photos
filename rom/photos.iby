@@ -76,6 +76,8 @@ file=ABI_DIR/BUILD_DIR/glxmediamodel.dll                   	SHARED_LIB_DIR/glxme
 file=ABI_DIR/BUILD_DIR/glxmodelwrapper.dll              	SHARED_LIB_DIR/glxmodelwrapper.dll
 file=ABI_DIR/BUILD_DIR/glxlistmodel.dll                    	SHARED_LIB_DIR/glxlistmodel.dll
 file=ABI_DIR/BUILD_DIR/glxviews.dll                        	SHARED_LIB_DIR/glxviews.dll
+file=ABI_DIR/BUILD_DIR/glxviewutilities.dll                	SHARED_LIB_DIR/glxviewutilities.dll
+file=ABI_DIR/BUILD_DIR/glxzoomwidget.dll                	SHARED_LIB_DIR/glxzoomwidget.dll
 
 
 S60_APP_EXE(photos)
@@ -84,4 +86,6 @@ data=DATAZ_/APP_RESOURCE_DIR/photos.mif                     			APP_RESOURCE_DIR/
 data=/epoc32/data/Z/private/10202BE9/20007194.txt						private/10202BE9/20007194.txt
 data=/epoc32/data/z/system/install/photos_stub.sis        				/system/install/photos_stub.sis
 
+data=ZRESOURCE/hb/splashml/photos.splashml  RESOURCE_FILES_DIR/hb/splashml/photos.splashml
+data=ZRESOURCE/hb/splashml/photos.docml  RESOURCE_FILES_DIR/hb/splashml/photos.docml
 #endif //__PHOTOS_IBY__

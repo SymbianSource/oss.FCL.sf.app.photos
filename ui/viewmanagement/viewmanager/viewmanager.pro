@@ -23,13 +23,15 @@ INCLUDEPATH += . ../../inc \
                  ../../views/viewbase/inc \
                  ../../views/effectengine/inc \
                  ../../../loggers/loggerqt/inc \
-                 ../../../commonutilities/externalutility/inc 
+                 ../../../commonutilities/externalutility/inc \
+                 ../../viewutilities/effectengine/inc \
         
 CONFIG += hb
 
 LIBS +=  -lglxexternalutility.dll \
          -lglxviews.dll \
-         -lglxloggerqt.dll 
+         -lglxloggerqt.dll \
+         -lglxviewutilities.dll
 
 
 DEFINES += BUILD_VIEWMANAGER

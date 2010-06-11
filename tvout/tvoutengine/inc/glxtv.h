@@ -56,9 +56,10 @@ class MGlxTvConnectionObserver
     {
 public:
     /**
-     * Handle TV connection state changes
+     * Handle TV/HDMI/Headset connection state changes
+     * @param aChangeType The connection change type
      */
-    virtual void HandleTvConnectionStatusChangedL( ) = 0;
+    virtual void HandleTvConnectionStatusChangedL(TTvChangeType aChangeType) = 0;
     };
         
         
@@ -135,7 +136,7 @@ public: // from MGlxTvConnectionObserver
     /**
      * @ref MGlxTvConnectionObserver::HandleTvConnectionStatusChangedL
      */
-    void HandleTvConnectionStatusChangedL( );
+    void HandleTvConnectionStatusChangedL(TTvChangeType aChangeType);
     
 private: // new private methods
     /**

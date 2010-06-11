@@ -75,7 +75,7 @@ void CGlxHdmiContainer::ConstructL()
 RWindow* CGlxHdmiContainer::GetWindow()
     {
     TRACER("CGlxHdmiContainer::GetWindow()");
-    return &Window();   
+    return &iWsWindow;   
     }
 
 // -----------------------------------------------------------------------------

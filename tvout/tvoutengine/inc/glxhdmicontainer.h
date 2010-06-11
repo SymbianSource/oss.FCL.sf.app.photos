@@ -63,10 +63,10 @@ private:
     void CreateHdmiWindowL();
     
 private:
-    TRect iRect;
-    RWsSession iSession;
+    TRect               iRect;
+    RWsSession          iSession;
     RWindow             iWsWindow;
-    CWsScreenDevice* iScreenDevice;    
+    CWsScreenDevice*    iScreenDevice;    
     RWindowGroup        iWsWindowGroup;
     CWindowGc*          iWindowGc;
     TInt                iWsWindowGroupID;

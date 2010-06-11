@@ -15,18 +15,23 @@
 *
 */
 
-#include "glxbackwardtransitionplugin.h"
+#include <glxsettinginterface.h>
+#include <glxsetting.h>
 
-
-GlxBackwardTransitionPlugin::GlxBackwardTransitionPlugin()
+GlxSettingInterface::GlxSettingInterface()
 {
-    mEffectFileList.append(QString(":/data/transtionbackward.fxml"));
-    mEffectFileList.append(QString(":/data/transtion.fxml"));
 }
 
-GlxBackwardTransitionPlugin::~GlxBackwardTransitionPlugin()
+GlxSettingInterface::~GlxSettingInterface()
 {
-    mEffectFileList.clear();
 }
 
+GlxSettingInterface::GlxSettingInterface( GlxSettingInterface & )
+{
+}
+
+GlxSettingInterface * GlxSettingInterface::instance()
+{
+    return GlxSetting::instance();
+}
 

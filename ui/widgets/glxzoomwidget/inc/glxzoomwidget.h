@@ -23,15 +23,18 @@
 #include <QPixmap>
 #include <hbscrollarea.h>
 
+#include <glxzoomwidget_global.h>
+
 class QGestureEvent;
 class QPinchGesture;
 class HbIconItem;
 class GlxImageDecoderWrapper;
+class QTimeLine;
 
 const int MAXZVALUE = 100;
 const int MINZVALUE = 0;
 
-class GlxZoomWidget : public HbScrollArea
+class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
 {
     Q_OBJECT
 
@@ -43,6 +46,8 @@ class GlxZoomWidget : public HbScrollArea
     void setWindowSize(QSize windowSize);
     void cleanUp();
     void activate();
+    void setMinMaxZValue(int minZvalue, int maxZvalue);
+    void connectDecodeRequestToPinchEvent();
 
     signals:
     void pinchGestureReceived(int index);
@@ -51,13 +56,20 @@ class GlxZoomWidget : public HbScrollArea
     public slots:
     //for Decoder support
     void decodedImageAvailable();
+    void sendDecodeRequest(int index);
+
+	//for animation effects
+	void animateZoomIn(QPointF animRefPoint);
+	void animateZoomOut(QPointF animRefPoint);
+	void animationFrameChanged(int frameNumber);
+	void animationTimeLineFinished();
 
     protected:
     bool sceneEvent(QEvent *event);
     bool sceneEventFilter(QGraphicsItem *watched,QEvent *event);
     protected slots:
     void dataChanged(QModelIndex startIndex, QModelIndex endIndex);
-    void sendDecodeRequest(int index);
+
 
     private:
     bool executeGestureEvent(QGraphicsItem *source,QGestureEvent *event);
@@ -84,6 +96,13 @@ class GlxZoomWidget : public HbScrollArea
     QGraphicsWidget *mZoomWidget;     //container :all scaling and transforms would be done on this widget
     HbIconItem* mBlackBackgroundItem; //for setting black background
 
+    //view Z values 
+    //might push to layouts later
+
+    int mMinZValue ;
+    int mMaxZValue ;
+
+
     //to be in sync with the model
     QAbstractItemModel *mModel;
     int mFocusIndex;
@@ -97,7 +116,10 @@ class GlxZoomWidget : public HbScrollArea
     QSizeF mMinDecScaleSize;   //the Minimum scale limit after which the image scaling down should be decelerated
     QSizeF mMaxScaleSize;   // the maximum scale limit
     QSizeF mMaxScaleDecSize;   // the Maximum scale limit after which the image scaling should be decelerated
-
+	//for animation effect
+	qreal m_FinalAnimatedScaleFactor;
+	QPointF m_AnimRefPoint;
+	QTimeLine *m_AnimTimeLine;
     //for Decoder support
     GlxImageDecoderWrapper* mImageDecoder;
 

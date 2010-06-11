@@ -66,8 +66,8 @@ GlxFullScreenView::GlxFullScreenView(HbMainWindow *window,HbDocumentLoader *DocL
 	mFlipAction(NULL),
 	mSendAction(NULL),
 	mDeleteAction(NULL),
-	mZoomWidget(NULL),
-	mUseImageAction(NULL)
+	mUseImageAction(NULL),
+	mZoomWidget(NULL)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_ENTRY );
     
@@ -112,6 +112,7 @@ void GlxFullScreenView::loadWidgets()
     mCoverFlow = qobject_cast<GlxCoverFlow*> (mDocLoader->findWidget(GLXFULLSCREEN_COVERFLOW));
 
 	 mZoomWidget  =  qobject_cast<GlxZoomWidget*> (mDocLoader->findWidget(GLXFULLSCREENZOOMWIDGET));
+	 mZoomWidget->connectDecodeRequestToPinchEvent();
 	 mCoverFlow->setMultitouchFilter(mZoomWidget);
     //initialise the cover flow for basic connections and the rest
     mCoverFlow->setCoverFlow();
@@ -123,6 +124,7 @@ void GlxFullScreenView::loadWidgets()
     //@to do : hide the widgets by default in docml
     mImageStrip->hide();      
 	mImageStrip->setLayoutName( QString( "ImageStrip" ) );
+	mImageStrip->setEnabledAnimations(HbAbstractItemView::None);
 	
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_LOADWIDGETS_EXIT );
 }

@@ -27,9 +27,8 @@
 #include "glxuistd.h"
 #include "glxviewids.h"
 #include "glxslideshowsettingsview.h"
-#include "glxeffectengine.h"
-
-
+#include "glxsettinginterface.h"
+#include "glxlocalisationstrings.h"
 
 
 GlxSlideShowSettingsView::GlxSlideShowSettingsView(HbMainWindow *window) 
@@ -42,22 +41,22 @@ GlxSlideShowSettingsView::GlxSlideShowSettingsView(HbMainWindow *window)
       mDelaylabel (NULL),
       mSettings( NULL )
 {
-    mSettings = new GlxSlideShowSetting();
+    mSettings = GlxSettingInterface::instance() ;
   	setContentFullScreen( true );
 }
 
 GlxSlideShowSettingsView::~GlxSlideShowSettingsView()
 {
-    	delete mContextlabel;
-    	delete mEffectlabel;
-    	delete mDelaylabel;
-    	delete mEffect;
-    	delete mDelay;
-        delete mSettings;
+    delete mContextlabel;
+    delete mEffectlabel;
+    delete mDelaylabel;
+    delete mEffect;
+    delete mDelay;
 }
 
 void GlxSlideShowSettingsView::setModel(QAbstractItemModel *model)
 {
+    Q_UNUSED( model )
     return;
 }
 
@@ -71,35 +70,33 @@ void GlxSlideShowSettingsView::activate()
     connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
     
     if ( mContextlabel == NULL ) {
-        mContextlabel = new HbLabel("Slideshow", this);
+        mContextlabel = new HbLabel( GLX_MENU_SLIDESHOW, this );
     }
     
     if ( mEffectlabel == NULL ) {
-        mEffectlabel = new HbLabel("Transition effect:", this);
+        mEffectlabel = new HbLabel( GLX_LABEL_TRANSITION_EFFECT, this );
     }
     
     if ( mEffect == NULL ) {
         mEffect = new HbComboBox(this);
         QStringList effectList = mSettings->slideShowEffectList();
-        mEffect->addItems( effectList );
-        
+        mEffect->addItems( effectList );        
     }
     
     if ( mDelaylabel == NULL ) {
-        mDelaylabel = new HbLabel("Transition delay:", this);
+        mDelaylabel = new HbLabel( GLX_LABEL_TRANSITION_DELAY, this );
     }
     
     if ( mDelay == NULL ) {
         mDelay = new HbComboBox(this);
         QStringList delayList;
-        delayList<<"slow"<<"medium"<<"fast";
+        delayList <<  GLX_VAL_SLOW << GLX_VAL_MEDIUM << GLX_VAL_FAST ;
         mDelay->addItems( delayList );
     }
    
-   // Read the values from the cenrep
-    
-    mEffect->setCurrentIndex( mSettings->slideShowEffectIndex());
-    mDelay->setCurrentIndex( mSettings->slideShowDelayIndex());
+   // Read the values from the cenrep    
+    mEffect->setCurrentIndex( mSettings->slideShowEffectIndex() );
+    mDelay->setCurrentIndex( mSettings->slideShowDelayIndex() );
     setLayout();
 }
 
@@ -117,10 +114,8 @@ void GlxSlideShowSettingsView::setLayout()
 void GlxSlideShowSettingsView::deActivate()
 {
 	 //Store the current effect and delay before going back to the previous view
-	mSettings->setslideShowEffectIndex(mEffect->currentIndex());
-	mSettings->setSlideShowDelayIndex(mDelay->currentIndex()); 
+	mSettings->setslideShowEffectIndex( mEffect->currentIndex() );
+	mSettings->setSlideShowDelayIndex( mDelay->currentIndex() ); 
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
 }
-
-
 

@@ -891,9 +891,22 @@ CFbsBitmap* GlxMLWrapperPrivate::RetrieveBitmap(int aItemIndex)
     {
     GLX_LOG_INFO1("GlxMLWrapperPrivate::RetrieveBitmap %d",aItemIndex);
     const TGlxMedia& item = iMediaList->Item( aItemIndex );
+    TInt height =KFullScreenTNPTWidth; // default as portrait
+    TInt width =KFullScreenTNPTHeight;
+    if (iPtFsContextActivated )
+        {
+        GLX_LOG_INFO("GlxMLWrapperPrivate::RetrieveBitmap - CGlxHdmi :PT");
+        width = KFullScreenTNPTWidth;
+        height = KFullScreenTNPTHeight;
+        }
+    else if (iLsFsContextActivated)
+        {
+        GLX_LOG_INFO("GlxMLWrapperPrivate::RetrieveBitmap - CGlxHdmi :LS");
+        width = KFullScreenTNLSWidth;
+        height = KFullScreenTNLSHeight;
+        }
     TMPXAttribute fsTnAttrib= TMPXAttribute(KGlxMediaIdThumbnail,
-                GlxFullThumbnailAttributeId(ETrue, KFullScreenTNPTWidth,
-                        KFullScreenTNPTHeight));
+                GlxFullThumbnailAttributeId(ETrue, width, height));
     const CGlxThumbnailAttribute* fsTnValue = item.ThumbnailAttribute(
             fsTnAttrib);
     if (fsTnValue)

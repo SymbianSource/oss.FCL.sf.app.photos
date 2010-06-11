@@ -18,6 +18,8 @@ TEMPLATE    = subdirs
 CONFIG += ordered
 SUBDIRS	    = uiengine \
               commandhandlers \
+              viewutilities \
+              widgets \
               views \
               viewmanagement \
 #	      viewplugins

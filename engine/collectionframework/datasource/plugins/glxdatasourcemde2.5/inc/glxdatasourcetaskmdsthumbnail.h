@@ -77,7 +77,7 @@ private: // From CGlxDataSourceTaskMde
 
 #ifdef USE_S60_TNM
 private: //MThumbnailFetchRequestObserver
-    void ThumbnailFetchComplete(TInt aError);
+    void ThumbnailFetchComplete(TInt aError, TBool aQuality);
     void FetchFileInfoL();
 #endif
 

@@ -11,7 +11,7 @@
 *
 * Contributors:
 *
-* Description:   
+* Description: Implementation of the Data Source Class.
 *
 */
 
