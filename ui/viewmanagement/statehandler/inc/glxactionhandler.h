@@ -22,9 +22,9 @@
 
 #include <QObject>
 #include <QHash>
+#include <QModelIndex>
 
 class GlxCommandHandler;
-class QModelIndex;
 
 class GlxActionHandler : public QObject
 {
