@@ -341,10 +341,11 @@ void CGlxCommandHandlerSlideshow::HandleFocusChangedL(
                 TInt /*aNewIndex*/, TInt /*aOldIndex*/, MGlxMediaList* aList)
     {
     TRACER("CGlxCommandHandlerSlideshow::HandleFocusChangedL");
-    if (aList->Count() <= 0 && iUiUtility->GetGridToolBar())
+    // Check if toolbar is available.
+    CAknToolbar* toolbar = iUiUtility->GetGridToolBar();
+    if (aList->Count() <= 0 && toolbar)
         {
-        iUiUtility->GetGridToolBar()->SetItemDimmed(
-                EGlxCmdStartMultipleMarking, ETrue, ETrue);
+        toolbar->SetItemDimmed(EGlxCmdSlideshowPlay, ETrue, ETrue);
         }
     }
 
@@ -355,10 +356,12 @@ void CGlxCommandHandlerSlideshow::HandleFocusChangedL(
 void CGlxCommandHandlerSlideshow::HandleItemAddedL(TInt /*aStartIndex*/,
             TInt /*aEndIndex*/, MGlxMediaList* aList)
     {
-    if (aList->Count() > 0 && iUiUtility->GetGridToolBar())
+    TRACER("CGlxCommandHandlerSlideshow::HandleItemAddedL");
+    // Check if toolbar is available.
+    CAknToolbar* toolbar = iUiUtility->GetGridToolBar();
+    if (aList->Count() > 0 && toolbar)
         {
-        iUiUtility->GetGridToolBar()->SetItemDimmed(EGlxCmdSlideshowPlay,
-                EFalse, ETrue);
+        toolbar->SetItemDimmed(EGlxCmdSlideshowPlay, EFalse, ETrue);
         }
     }
 
@@ -378,10 +381,12 @@ void CGlxCommandHandlerSlideshow::HandleMediaL(TInt /*aListIndex*/,
 void CGlxCommandHandlerSlideshow::HandleItemRemovedL(TInt /*aStartIndex*/,
             TInt /*aEndIndex*/, MGlxMediaList* aList)
     {
-    if (aList->Count() <= 0 && iUiUtility->GetGridToolBar())
+    TRACER("CGlxCommandHandlerSlideshow::HandleItemRemovedL");
+    // Check if toolbar is available.
+    CAknToolbar* toolbar = iUiUtility->GetGridToolBar();
+    if (aList->Count() <= 0 && toolbar)
         {
-        iUiUtility->GetGridToolBar()->SetItemDimmed(EGlxCmdSlideshowPlay,
-                ETrue, ETrue);
+        toolbar->SetItemDimmed(EGlxCmdSlideshowPlay, ETrue, ETrue);
         }
     }
 
@@ -529,10 +534,11 @@ void CGlxCommandHandlerSlideshow::UpdateToolbar()
 void CGlxCommandHandlerSlideshow::HandlePopulatedL( MGlxMediaList* aList )
     {
     TRACER("CGlxCommandHandlerSlideshow::HandlePopulatedL()");
-    if (aList->Count() == 0 && iUiUtility->GetGridToolBar())
+    // Check if toolbar is available.
+    CAknToolbar* toolbar = iUiUtility->GetGridToolBar();
+    if (aList->Count() == 0 && toolbar)
         {
-        iUiUtility->GetGridToolBar()->SetItemDimmed(
-                EGlxCmdSlideshowPlay, ETrue, ETrue);
+        toolbar->SetItemDimmed(EGlxCmdSlideshowPlay, ETrue, ETrue);
         }
     }
 

@@ -96,35 +96,40 @@ void CGlxCollectionPluginAll::ConstructL()
     iDataSource = MGlxDataSource::OpenDataSourceL(KGlxDefaultDataSourceUid, *this);
 	}
 
-void CGlxCollectionPluginAll::CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray)
-	{
-    TRACER("CGlxCollectionPluginAll::CpiAttributeAdditionalAttributes()");
-    // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here as all the others are reading straight from resource files
+void CGlxCollectionPluginAll::CpiAttributeAdditionalAttributesL(
+        const TMPXAttribute& aCpiAttribute,
+        RArray<TMPXAttribute>& aAttributeArray)
+    {
+    TRACER("CGlxCollectionPluginAll::CpiAttributeAdditionalAttributesL()");
+    // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here as 
+    // all the others are reading straight from resource files
     // KGlxMediaCollectionPluginSpecificSubTitle requires a usage count
-	if (aCpiAttribute == KGlxMediaCollectionPluginSpecificSubTitle)
-	    {
-	    // need to add the usage count. but check first if it is already present
-	    TInt attrCount = aAttributeArray.Count();
-	    TBool found = EFalse;
-	    
-	    for ( TInt index = 0 ; index < attrCount ; index++)
-	        {
-	        if (aAttributeArray[index] == KMPXMediaGeneralCount)
-	            {
-	            found = ETrue;
-	            break;
-	            }
-	        }
-	        
-	    if (!found)
-	        {
-	        aAttributeArray.Append(KMPXMediaGeneralCount);
-	        }
-	    }
- 	}
+    if (aCpiAttribute == KGlxMediaCollectionPluginSpecificSubTitle)
+        {
+        // need to add the usage count. but check first if it is already present
+        TInt attrCount = aAttributeArray.Count();
+        TBool found = EFalse;
 
-void CGlxCollectionPluginAll::HandleCpiAttributeResponseL(CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, TArray<TGlxMediaId> /* aMediaIds */)
-	{
+        for (TInt index = 0; index < attrCount; index++)
+            {
+            if (aAttributeArray[index] == KMPXMediaGeneralCount)
+                {
+                found = ETrue;
+                break;
+                }
+            }
+
+        if (!found)
+            {
+            aAttributeArray.AppendL(KMPXMediaGeneralCount);
+            }
+        }
+    }
+
+void CGlxCollectionPluginAll::HandleCpiAttributeResponseL(
+        CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, 
+        TArray<TGlxMediaId> /* aMediaIds */)
+    {
     TRACER("CGlxCollectionPluginAll::HandleCpiAttributeResponseL");
     _LIT(KResourceFile, "z:glxpluginall.rsc");
     
@@ -142,64 +147,71 @@ void CGlxCollectionPluginAll::HandleCpiAttributeResponseL(CMPXMedia* aResponse, 
 	            }
             else
                 {
-                TInt usageCount = aResponse->ValueTObjectL<TInt>(KMPXMediaGeneralCount);
+                TInt usageCount = aResponse->ValueTObjectL<TInt> (
+                        KMPXMediaGeneralCount);
                 HBufC* tempTitle = NULL;
-                
-                if(0 == usageCount)
-                	{
-                	tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALL_ITEM_SUB_TITLE_EMPTY);                	
-                	// Set the title in the response.
-            		aResponse->SetTextValueL(attr, *tempTitle);  
-            		CleanupStack::PopAndDestroy(tempTitle);
-            		continue;            
-                	}
-                // Get the format string
-                else  if (1 == usageCount)
+
+                if (0 == usageCount)
                     {
-                    tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALL_SUB_TITLE_SINGLE);
-                    aResponse->SetTextValueL(attr, *tempTitle);  
+                    tempTitle = LoadLocalizedStringLC(KResourceFile,
+                            R_ALL_ITEM_SUB_TITLE_EMPTY);
+                    // Set the title in the response.
+                    aResponse->SetTextValueL(attr, *tempTitle);
                     CleanupStack::PopAndDestroy(tempTitle);
-                    continue; 
+                    continue;
+                    }
+                // Get the format string
+                else if (1 == usageCount)
+                    {
+                    tempTitle = LoadLocalizedStringLC(KResourceFile,
+                            R_ALL_SUB_TITLE_SINGLE);
+                    aResponse->SetTextValueL(attr, *tempTitle);
+                    CleanupStack::PopAndDestroy(tempTitle);
+                    continue;
                     }
                 else
                     {
-                    tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALL_SUB_TITLE_MULTI);
+                    tempTitle = LoadLocalizedStringLC(KResourceFile,
+                            R_ALL_SUB_TITLE_MULTI);
                     }
                 TPtr formatString = tempTitle->Des();
-                
-                // Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
+
+                // Now create a buffer that will contain the result. needs to be 
+                // length of format string plus a few extra for the number
                 HBufC* title = HBufC::NewLC(formatString.Length() + 10);
                 TPtr ptr = title->Des();
                 StringLoader::Format(ptr, formatString, -1, usageCount);
-           
+
                 // Set the title in the response.
-                aResponse->SetTextValueL(attr, *title);    
+                aResponse->SetTextValueL(attr, *title);
 
                 CleanupStack::PopAndDestroy(title);
                 CleanupStack::PopAndDestroy(tempTitle);
                 }
-	        }
-	    else if (attr == KGlxMediaCollectionPluginSpecificSelectMediaPopupTitle)
-	        {
-	        User::Leave(KErrNotSupported);
-	        }
-	    else if (attr == KGlxMediaCollectionPluginSpecificNewMediaItemTitle)
-	        {
-	        User::Leave(KErrNotSupported);
-	        }
-	    else if (attr == KGlxMediaCollectionPluginSpecificDefaultMediaTitle)
-	        {
-	        User::Leave(KErrNotSupported);
-	        }
-	    else if (attr == KMPXMediaGeneralTitle)
-	        {
-	        HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALL_GENERAL_TITLE);
+            }
+        else if (attr
+                == KGlxMediaCollectionPluginSpecificSelectMediaPopupTitle)
+            {
+            User::Leave(KErrNotSupported);
+            }
+        else if (attr == KGlxMediaCollectionPluginSpecificNewMediaItemTitle)
+            {
+            User::Leave(KErrNotSupported);
+            }
+        else if (attr == KGlxMediaCollectionPluginSpecificDefaultMediaTitle)
+            {
+            User::Leave(KErrNotSupported);
+            }
+        else if (attr == KMPXMediaGeneralTitle)
+            {
+            HBufC* title = LoadLocalizedStringLC(KResourceFile,
+                    R_ALL_GENERAL_TITLE);
             // Set the title in the response.
-            aResponse->SetTextValueL(attr, *title);  
-            CleanupStack::PopAndDestroy(title); 
-	        }
-	    }
-	}
+            aResponse->SetTextValueL(attr, *title);
+            CleanupStack::PopAndDestroy(title);
+            }
+        }
+    }
 
 TBool CGlxCollectionPluginAll::IsUpdateMessageIgnoredL(CMPXMessage& /*aMessage*/)
 	{

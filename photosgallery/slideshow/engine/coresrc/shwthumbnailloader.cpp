@@ -194,7 +194,6 @@ CShwThumbnailLoader* CShwThumbnailLoader::NewL(
 	MGlxMediaList& aMedialist, MShwThumbnailLoadObserver& aErrorHandler )
 	{
 	TRACER("CShwThumbnailLoader::NewLs");
-	GLX_LOG_INFO( "CShwThumbnailLoader::NewL" );
 	CShwThumbnailLoader* self = new( ELeave ) CShwThumbnailLoader;
 	CleanupStack::PushL( self );
 
@@ -205,7 +204,6 @@ CShwThumbnailLoader* CShwThumbnailLoader::NewL(
 	// call 2nd phase
 	self->iImpl->ConstructL();
 // << 2nd phase
-
 	// pop the stack
 	CleanupStack::Pop( self );
 	return self;
@@ -217,7 +215,6 @@ CShwThumbnailLoader* CShwThumbnailLoader::NewL(
 CShwThumbnailLoader::~CShwThumbnailLoader()
 	{
 	TRACER("CShwThumbnailLoader::~CShwThumbnailLoader");
-	GLX_LOG_INFO( "CShwThumbnailLoader::~CShwThumbnailLoader" );
 	delete iImpl;
 	}
 
@@ -227,7 +224,6 @@ CShwThumbnailLoader::~CShwThumbnailLoader()
 void CShwThumbnailLoader::LoadAndNotifyL( TInt aIndex, TSize aSize )
 	{
 	TRACER("CShwThumbnailLoader::LoadAndNotifyL");
-	GLX_LOG_INFO( "CShwThumbnailLoader::LoadAndNotifyL" );
 	// forward
 	iImpl->LoadAndNotifyL( aIndex, aSize );
 	}
@@ -238,7 +234,6 @@ void CShwThumbnailLoader::LoadAndNotifyL( TInt aIndex, TSize aSize )
 void CShwThumbnailLoader::Unload( TInt aIndex )
 	{
 	TRACER("CShwThumbnailLoader::Unload");
-	GLX_LOG_INFO( "CShwThumbnailLoader::Unload" );
 	// forward
 	iImpl->Unload( aIndex );
 	}
@@ -249,7 +244,6 @@ void CShwThumbnailLoader::Unload( TInt aIndex )
 TSize CShwThumbnailLoader::ImageSizeL( TInt aIndex )
 	{
 	TRACER("CShwThumbnailLoader::ImageSizeL");
-	GLX_LOG_INFO( "CShwThumbnailLoader::ImageSizeL" );
 	// forward
 	return iImpl->ImageSizeL( aIndex );
 	}
@@ -271,7 +265,6 @@ inline CShwThumbnailLoader::CShwThumbnailLoaderImpl::CShwThumbnailLoaderImpl(
 inline CShwThumbnailLoader::CShwThumbnailLoaderImpl::~CShwThumbnailLoaderImpl()
     {
     TRACER("CShwThumbnailLoader::CShwThumbnailLoaderImpl::~CShwThumbnailLoaderImpl()");
-    GLX_LOG_INFO( "CShwThumbnailLoaderImpl::~CShwThumbnailLoaderImpl" );
     // delete asynch callbacks, delete also cancels them
     delete iCompletedCallBack;
     delete iErrorCallBack;
@@ -310,7 +303,6 @@ inline CShwThumbnailLoader::CShwThumbnailLoaderImpl::~CShwThumbnailLoaderImpl()
 inline void CShwThumbnailLoader::CShwThumbnailLoaderImpl::ConstructL()
     {
     TRACER("CShwThumbnailLoader::CShwThumbnailLoaderImpl::ConstructL");
-    GLX_LOG_INFO( "CShwThumbnailLoader::CShwThumbnailLoaderImpl::ConstructL" );
     // retrieve the size of images with own context
     AddSizeContextL();
 
@@ -390,7 +382,7 @@ inline void CShwThumbnailLoader::CShwThumbnailLoaderImpl::LoadAndNotifyL(
 	if( !context )
 		{
 		// create new context for the index with the given size
-		context = CShwThumbnailContext::NewLC( aIndex, aSize );
+		context = CShwThumbnailContext::NewLC( aIndex, aSize, iMedialist );
 		iHighQualityContexts.AppendL( context );
 		CleanupStack::Pop( context );
 		// add the context to the medialist with priority
@@ -481,7 +473,6 @@ void CShwThumbnailLoader::CShwThumbnailLoaderImpl::HandleItemRemovedL(
 	TInt /*aStartIndex*/, TInt /*aEndIndex*/, MGlxMediaList* /*aList*/ )
 	{
 	TRACER("CShwThumbnailLoader::CShwThumbnailLoaderImpl::HandleItemRemovedL");
-	GLX_LOG_INFO( "CShwThumbnailLoader::CShwThumbnailLoaderImpl::HandleItemRemovedL" );
 	// check if we still got some items to show
 	if( iMedialist.Count() < 1 )
 	    {
@@ -506,7 +497,6 @@ void CShwThumbnailLoader::CShwThumbnailLoaderImpl::HandleAttributesAvailableL(
 	MGlxMediaList* /*aList*/ )
 	{
 	TRACER("CShwThumbnailLoader::CShwThumbnailLoaderImpl::HandleAttributesAvailableL");
-	GLX_LOG_INFO( "CShwThumbnailLoader::CShwThumbnailLoaderImpl::HandleAttributesAvailableL" );
 	//done to verify context availability
 	TInt attributeCount = aAttributes.Count();
 	for(TInt i = 0; i < attributeCount; i++ )
@@ -680,7 +670,6 @@ inline CShwThumbnailContext*
 inline void CShwThumbnailLoader::CShwThumbnailLoaderImpl::AddSizeContextL()
 	{
 	TRACER("CShwThumbnailLoader::CShwThumbnailLoaderImpl::AddSizeContextL");
-	GLX_LOG_INFO( "CShwThumbnailLoader::FindContext ");
 	// Create the fetch context to retrieve the attribute
 	iSizeContext = CGlxDefaultAttributeContext::NewL();
     // Set the range offsets relative to the focus item
@@ -756,7 +745,6 @@ inline void CShwThumbnailLoader::CShwThumbnailLoaderImpl::
 inline TInt CShwThumbnailLoader::CShwThumbnailLoaderImpl::CompletedNotifyL()
     {
     TRACER("CShwThumbnailLoader::CShwThumbnailLoaderImpl::CompletedNotifyL");
-	GLX_LOG_INFO( "CShwThumbnailLoader::CompletedNotifyL" );
     // then we need to also remove all notifications for the given index
     TInt count = iCompletedIndexes.Count();
     while( count-- > 0 )
@@ -779,7 +767,6 @@ inline TInt CShwThumbnailLoader::CShwThumbnailLoaderImpl::CompletedNotifyL()
 inline TInt CShwThumbnailLoader::CShwThumbnailLoaderImpl::ErrorNotifyL()
     {
     TRACER("CShwThumbnailLoader::CShwThumbnailLoaderImpl::ErrorNotifyL");
-	GLX_LOG_INFO( "CShwThumbnailLoader::ErrorNotifyL" );
     // then we need to also remove all notifications for the given index
     TInt count = iErrorIndexes.Count();
     while( count-- > 0 )
@@ -805,7 +792,6 @@ inline TInt CShwThumbnailLoader::CShwThumbnailLoaderImpl::ErrorNotifyL()
 inline TInt CShwThumbnailLoader::CShwThumbnailLoaderImpl::AsyncErrorHandleL()
     {
     TRACER("CShwThumbnailLoader::CShwThumbnailLoaderImpl::AsyncErrorHandleL");
-	GLX_LOG_INFO( "CShwThumbnailLoader::AsyncErrorHandleL" );
     // handle the error
 	DoHandleErrorL();
     // need to return value to please TCallBack API

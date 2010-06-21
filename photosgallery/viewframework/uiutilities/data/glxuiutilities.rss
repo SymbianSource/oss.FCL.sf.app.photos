@@ -818,6 +818,12 @@ RESOURCE TBUF r_glx_completion_file_saved_to
     buf = qtn_lgal_note_file_saved_to;
     }
 
+// Error note when the image can not be opened
+RESOURCE TBUF r_glx_err_format_unknown
+    {
+    buf = qtn_lgal_format_unknown;
+    }
+
 RESOURCE CBA r_glx_progressbar_softkey_hide
     {
     buttons =

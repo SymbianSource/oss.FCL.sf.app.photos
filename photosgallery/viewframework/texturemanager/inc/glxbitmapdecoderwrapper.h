@@ -87,40 +87,39 @@ public:
 public:    
     /**
      * Standard Active object functions
-     * */
+     */
     virtual void RunL();
     virtual void DoCancel();
 
 private:
-    /*
+    /**
      * Constructor
-     * */
+     */
     CGlxBitmapDecoderWrapper();
     
-    /*
-     *Second-phase constuction 
-     * */
+    /**
+     * Second-phase constuction 
+     */
     void ConstructL(MGlxBitmapDecoderObserver* aObserver);
-    /*
-     * Get the orientation of the file
-     * This API reads the Exif tag in an image and returns the orientation of that Image 
+    
+    /**
+     * If the image format is non jpeg, then we need to calculate as per
+     * reduction factor and reduced size as what the decoder is going to return us
+     * This function returns if that needs to be done. 
      */
-    TUint16 GetOrientationL(const TDesC& aFileName) ;
-    /*
-     * Get the Rotation Angle and Mirroring status of the image so as to set it on the decoder 
-     * This API calculates the rotation angle and the Mirroring status required by the decoder
-     * @param aOrientation Orientation of the image.
-     * @param aRotAngle Rotation angle to be set on the image decoder.
-     * @param aFlipStatus Mirroring status for the decoder if 1 then mirroring should be set.
-     * Internally it also sets the iOriginalSize to the required size
+    TBool DoesMimeTypeNeedsRecalculateL();
+    
+    /**
+     * Recalculate the size for png/bmp as decoder fails to 
+     * decode for desired size 
      */
-    void GetRotationParameters(TUint16 aOrientation, TInt& aRotAngle, TBool& aFlipStatus) ;
+    TSize ReCalculateSizeL();
 
 private:    
     /* Contains the TextureManagerImpl object,calls the HandleBitmapDecoded*/
     MGlxBitmapDecoderObserver* iObserver;
     /*Specifies the Decoder */
-    CImageDecoder*          iImageDecoder; // decoder from ICL API
+    CImageDecoder* iImageDecoder; // decoder from ICL API
     /*Contains the Thumbnail Index*/
     TInt iThumbnailIndex;
     /*Contains the Bitmap generated*/
@@ -129,13 +128,11 @@ private:
     TAlfRealSize iOriginalSize;
     /*A handle to a file server session.*/ 
     RFs iFs;
-    /*Specifies the state of decoding ,if it is in initial level(3MP), Middlelevel(6MP) or final level*/
-    TDecoderState iDecoderState;
-    /*Specifies the size of teh image and levels to decode*/
-    TImageLevel   iImageLevel;
+    /*To store the target image size*/
+    TSize iTargetBitmapSize;
+    /*To store the image uri path*/ 
+    HBufC* iImagePath;                     
 #ifdef _DEBUG
-    
-    TTime iDecodeProcessstartTime;
     TTime iStartTime;
     TTime iStopTime;
 #endif

@@ -69,7 +69,7 @@ public: // Constructors and destructor
 private:
     //From CGlxCollectionPluginBase
 
-    void CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute
+    void CpiAttributeAdditionalAttributesL(const TMPXAttribute& aCpiAttribute
     , RArray<TMPXAttribute>& aAttributeArray);     	
 
 

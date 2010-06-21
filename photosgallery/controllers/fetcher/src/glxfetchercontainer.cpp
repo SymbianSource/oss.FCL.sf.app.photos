@@ -245,7 +245,6 @@ void CGlxFetcherContainer::CreateHgGridWidgetL()
 
 	// Set the grid to use different layout for landscape mode in fetcher
     iHgGrid->SetToolbarVisibility(EFalse);
-    iHgGrid->SetSelectedIndex(iMediaList->FocusIndex());
     // Setting to MopParent to update background skin
     iHgGrid->SetMopParent(this);
     // Setting Selction observer for getting callback on key event change
@@ -462,7 +461,9 @@ void CGlxFetcherContainer::HandleSelectL( TInt aIndex )
 //  
 void CGlxFetcherContainer::HandleOpenL( TInt aIndex )
     {
-    TRACER("CGlxGridViewImp::HandleOpen()");
+    TRACER("CGlxFetcherContainer::HandleOpenL()");
+    GLX_LOG_INFO1("CGlxFetcherContainer::HandleOpenL(%d)", aIndex);
+    
     // Make sure that the Selection Index is inside medialist count
     if (aIndex <iMediaList->Count() && aIndex >=0)
         {

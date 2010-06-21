@@ -93,7 +93,7 @@ void CGlxDetailsMulModelProviderImpl::AddEntryL( const TGlxMulBindingSetFactory&
 	TRACER("CGlxDetailsMulModelProviderImpl::AddEntryL");
 	CGlxBindingSet* bindingSet = aFactory.CreateBindingSetL( *this );
 	CleanupStack::PushL( bindingSet);
-	iEntries.Append( bindingSet );
+	iEntries.AppendL( bindingSet );
 	CleanupStack::Pop( bindingSet );
     TSize Size;
     bindingSet->AddRequirementsL(*iAttributeRequirements,Size);

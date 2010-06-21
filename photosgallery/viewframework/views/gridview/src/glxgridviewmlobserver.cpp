@@ -163,11 +163,6 @@ void CGlxGridViewMLObserver::HandleItemAddedL( TInt aStartIndex, TInt aEndIndex,
             iHgGrid->InsertItem(CHgItem::NewL(), i);
             }
         }
-
-    // Setting the initial focus for all grid views except downloads,
-    // for downloads it is already set.
-    TInt focusIndex = aList->FocusIndex();
-    iHgGrid->SetSelectedIndex(focusIndex);
     }
 
 // ----------------------------------------------------------------------------
@@ -284,12 +279,15 @@ void CGlxGridViewMLObserver::HandleAttributesAvailableL( TInt aItemIndex,
 // ----------------------------------------------------------------------------
 //  
 void CGlxGridViewMLObserver::HandleFocusChangedL( NGlxListDefs::
-    TFocusChangeType /*aType*/, TInt aNewIndex, TInt /*aOldIndex*/, 
+    TFocusChangeType /*aType*/, TInt aNewIndex, TInt aOldIndex, 
     MGlxMediaList* /*aList*/ )
     {
     TRACER("CGlxGridViewMLObserver::HandleFocusChangedL()");
-    iHgGrid->SetSelectedIndex(aNewIndex);
-    iHgGrid->RefreshScreen(aNewIndex); 
+    if (aOldIndex != KErrNotFound)
+        {
+        iHgGrid->SetSelectedIndex(aNewIndex);
+        iHgGrid->RefreshScreen(aNewIndex);
+        }
 /*    if (aList->Count())
         {
         //  This us to set the context to HG Teleport

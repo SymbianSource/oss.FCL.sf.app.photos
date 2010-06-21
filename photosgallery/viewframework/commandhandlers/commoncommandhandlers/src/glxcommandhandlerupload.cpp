@@ -15,6 +15,10 @@
 *
 */
 
+#include <eikenv.h>
+#include <SvgCodecImageConstants.hrh>
+#include <SVGEngineInterfaceImpl.h>
+
 //  CLASS HEADER
 #include "glxcommandhandlerupload.h"
 #include "glxuploadcenrepwatcher.h"
@@ -34,13 +38,12 @@
 #include <glxcommandhandlers.hrh>			// for EGlxCmdUpload
 #include <glxfetchcontextremover.h>         // for TGlxFetchContextRemover
 #include <glxtracer.h>                      // for TRACER logs
+#include <glxlog.h>                         // for GLX logs
 #include <glxuiutilities.rsg>               // for Share AIW interest resource
 #include <mglxmedialist.h>                  // for accessing the media items
 
 #include <glxnavigationalstate.h>
 #include <glxcollectionpluginimageviewer.hrh>
-
-#include <thumbnaildata.h>
 #include <gulicon.h>
 
 // CONSTANTS AND DEFINITIONS
@@ -116,7 +119,6 @@ void CGlxCommandHandlerUpload::ConstructL()
 	iSelectedImageCount = 0;
 	iSelectedVideoCount = 0;
 	iCurrentCenRepMonitor = EMonitorNone;
-	iTnmRequestID = KErrNotFound;
 	
 	iIsFullScreenView = IsFullScreenViewL();
 	
@@ -140,7 +142,7 @@ void CGlxCommandHandlerUpload::ConstructL()
 EXPORT_C CGlxCommandHandlerUpload::~CGlxCommandHandlerUpload()
 	{
 	TRACER("CGlxCommandHandlerUpload::~CGlxCommandHandlerUpload");
-	delete iTnEngine;
+	delete iSvgEngine;
 	
 	if (iUiUtility)
         {
@@ -659,53 +661,6 @@ void CGlxCommandHandlerUpload::DisableUploadToolbarItem(TBool aDimmed)
     }
 
 // -----------------------------------------------------------------------------
-// CGlxCommandHandlerUpload::ThumbnailPreviewReady()
-// -----------------------------------------------------------------------------
-//
-void CGlxCommandHandlerUpload::ThumbnailPreviewReady(MThumbnailData& /*aThumbnail*/,
-        TThumbnailRequestId /*aId*/)
-    {
-    TRACER("CGlxCommandHandlerUpload::ThumbnailPreviewReady");
-    }
-
-// -----------------------------------------------------------------------------
-// CGlxCommandHandlerUpload::ThumbnailReady()
-// -----------------------------------------------------------------------------
-//
-void CGlxCommandHandlerUpload::ThumbnailReady(TInt aError,
-        MThumbnailData& aThumbnail, TThumbnailRequestId /*aId*/)
-    {
-    TRACER("CGlxCommandHandlerUpload::ThumbnailReady");
-    
-    if(aError == KErrNone)
-        {
-        TRAP_IGNORE(SetDecodedUploadIconL(aThumbnail));        
-        }
-    }
-
-// -----------------------------------------------------------------------------
-// CGlxCommandHandlerUpload::SetDecodedUploadIconL()
-// -----------------------------------------------------------------------------
-//
-void CGlxCommandHandlerUpload::SetDecodedUploadIconL(MThumbnailData& aThumbnail)
-    {
-    CAknButton* uploadButton =
-            static_cast<CAknButton*> (iToolbar->ControlOrNull(EGlxCmdUpload));
-
-	if(uploadButton)
-		{
-	    CAknButtonState* currentState = uploadButton->State();    
-	    CFbsBitmap* normalBmp = aThumbnail.DetachBitmap();    
-	    CFbsBitmap* pressedBmp = new (ELeave) CFbsBitmap;
-	    pressedBmp->Duplicate(normalBmp->Handle());
-	    //Ownership of the icon is transferred here    
-	    currentState->SetIcon(CGulIcon::NewL(normalBmp));
-	    currentState->SetPressedIcon(CGulIcon::NewL(pressedBmp));
-	    iToolbar->DrawNow();
-	  	}
-    }
-
-// -----------------------------------------------------------------------------
 // CGlxCommandHandlerUpload::UpdateSelectionCount()
 // -----------------------------------------------------------------------------
 //
@@ -781,36 +736,98 @@ void CGlxCommandHandlerUpload::GetIconNameL(TDes& aUplaodIconNmae)
 // CGlxCommandHandlerUpload::DecodeIconL()
 // -----------------------------------------------------------------------------
 //
-void CGlxCommandHandlerUpload::DecodeIconL(const TDes& aUplaodIconNmae)
+void CGlxCommandHandlerUpload::DecodeIconL(const TDes& aUplaodIconName)
     {
     TRACER("CGlxCommandHandlerUpload::DecodeIconL");
-    
-    if(!iTnEngine)
-        {
-        iTnEngine = CThumbnailManager::NewL( *this);
-        iTnEngine->SetDisplayModeL( EColor16M );
-        }
-    
-    if(iTnmRequestID != KErrNotFound)
-        {
-        //Cancel any outstanding request
-        iTnEngine->CancelRequest(iTnmRequestID);
-        }
-                
-    iTnEngine->SetFlagsL(CThumbnailManager::EDefaultFlags);
+    GLX_LOG_URI("CGlxCommandHandlerUpload:: DecodeIconL(%S)", &aUplaodIconName);
 
+    if (!iToolbar)
+        {
+        return;
+        }
+    
     CAknButton* uploadButton =
-                           static_cast<CAknButton*> (iToolbar->ControlOrNull(EGlxCmdUpload));
-    if(uploadButton)
-    	{
-	    CAknButtonState* currentState = uploadButton->State();
-	    const CGulIcon *icon = currentState->Icon();    
-	    iTnEngine->SetThumbnailSizeL(icon->Bitmap()->SizeInPixels());
-	    iTnEngine->SetQualityPreferenceL(CThumbnailManager::EOptimizeForQuality);
-	    CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(aUplaodIconNmae, 0);
-	    iTnmRequestID = iTnEngine->GetThumbnailL(*source);
-	    CleanupStack::PopAndDestroy(source);
-	    }
+            static_cast<CAknButton*> (iToolbar->ControlOrNull(EGlxCmdUpload));
+    if (uploadButton)
+        {
+        CAknButtonState* currentState = uploadButton->State();
+        const CGulIcon *icon = currentState->Icon();
+
+        TSize size(icon->Bitmap()->SizeInPixels());
+        CFbsBitmap* frameBuffer = new (ELeave) CFbsBitmap;
+        CleanupStack::PushL(frameBuffer);
+        TDisplayMode dispMode =
+                CEikonEnv::Static()->ScreenDevice()->DisplayMode();
+
+        TFontSpec spec;
+        if (!iSvgEngine)
+            {
+            iSvgEngine = CSvgEngineInterfaceImpl::NewL(frameBuffer, NULL,
+                    spec);
+            }
+
+        TInt domHandle = KErrNotFound;
+        MSvgError* serr = iSvgEngine->PrepareDom(aUplaodIconName, domHandle);
+        GLX_LOG_INFO3("CGlxCommandHandlerUpload::DecodeIconL prepare svg dom reader, warning:%d, err code:%d, description:[%S]", serr->IsWarning(), serr->ErrorCode(), &(serr->Description()));
+        if (serr->HasError() && !serr->IsWarning())
+            {
+            GLX_DEBUG2("CGlxCommandHandlerUpload::DecodeIconL PrepareDom error:%d",
+                    serr->SystemErrorCode());
+            User::Leave(serr->SystemErrorCode());
+            }
+
+        // create image bitmap
+        GLX_LOG_INFO("CGlxCommandHandlerUpload::DecodeIconL: Create bitmap for snapshot..");
+
+        CFbsBitmap* decodedBitmap = new (ELeave) CFbsBitmap;
+        CFbsBitmap* decodedMask = new (ELeave) CFbsBitmap;
+        TRAPD ( createError,
+                    {
+                    decodedBitmap->Create( size, EColor64K );
+                    decodedMask->Create( size, EGray256 );
+                    });
+        if (createError)
+            {
+            GLX_DEBUG2("CGlxCommandHandlerUpload::DecodeIconL Error while creating bitmaps:%d", createError );
+            delete decodedBitmap;
+            decodedBitmap = NULL;
+            delete decodedMask;
+            decodedMask = NULL;
+            User::Leave(createError);
+            }
+
+        // create soft mask
+        iSvgEngine->SetViewportHeight((CSvgDocumentImpl *) domHandle,
+                size.iHeight);
+        iSvgEngine->SetViewportWidth((CSvgDocumentImpl *) domHandle,
+                size.iWidth);
+
+        // render svg image
+        serr = iSvgEngine->RenderDom(domHandle, decodedBitmap, decodedMask);
+        GLX_LOG_INFO3("CGlxCommandHandlerUpload::DecodeIconL render svg dom reader, warning:%d, err code:%d, description:[%S]",
+                serr->IsWarning(), serr->ErrorCode(), &(serr->Description()));
+        if (serr->HasError() && !serr->IsWarning())
+            {
+            GLX_DEBUG2("CGlxCommandHandlerUpload::DecodeIconL RenderDom error:%d",
+                    serr->SystemErrorCode());
+            User::Leave(serr->SystemErrorCode());
+            }
+
+        CleanupStack::PopAndDestroy(frameBuffer);
+        iSvgEngine->DeleteDom(domHandle);
+        iSvgEngine->Destroy();
+
+        CFbsBitmap* pressedBitmap = new (ELeave) CFbsBitmap;
+        CFbsBitmap* pressedMask = new (ELeave) CFbsBitmap;
+        pressedBitmap->Duplicate(decodedBitmap->Handle());
+        pressedMask->Duplicate(decodedMask->Handle());
+
+        //Ownership of the icon is transferred here    
+        currentState->SetIcon(CGulIcon::NewL(decodedBitmap, decodedMask));
+        currentState->SetPressedIcon(CGulIcon::NewL(pressedBitmap,
+                pressedMask));
+        iToolbar->DrawNow();
+        }
     }
 
 

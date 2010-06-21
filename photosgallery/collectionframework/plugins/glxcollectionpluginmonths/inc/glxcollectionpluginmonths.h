@@ -79,7 +79,7 @@ private:
 	 * @param aCpiAttribute CPI specific attribute to be constructed later
 	 * @param aAttributeArray modifiable list of attributes to be retrieved from data source
 	 */	 
-	void CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute,
+	void CpiAttributeAdditionalAttributesL(const TMPXAttribute& aCpiAttribute,
 			RArray<TMPXAttribute>& aAttributeArray);
 
 	/**

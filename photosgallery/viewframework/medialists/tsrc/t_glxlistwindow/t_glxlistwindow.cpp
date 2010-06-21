@@ -336,7 +336,7 @@ CTestWindow* CreateWindowLC( const char* aListString, TInt aFrontOffset,
     /// @todo combine these 3 lines to a single call to AddObjects
     if ( info.iTotalSize > 0 )
         {
-        window->AddObjects( info.iFocusIndex, info.iTotalSize, 
+        window->AddObjectsL( info.iFocusIndex, info.iTotalSize, 
             0, info.iTotalSize - 1 );
         }
     
@@ -347,9 +347,9 @@ CTestWindow* CreateWindowLC( const char* aListString, TInt aFrontOffset,
     }
 
 /** Cleans up a window */
-void Cleanup( CTestWindow& aWindow )
+void CleanupL( CTestWindow& aWindow )
     {
-    aWindow.Cleanup();
+    aWindow.CleanupL();
     // test cleanup ok
     for ( TInt i = 0; i < aWindow.iEntries.Count(); i++ )
         {
@@ -365,7 +365,7 @@ void VerifyAndCleanup( CTestWindow& aWindow, const char* aWindowBefore,
     AssertWindow( aWindow, aWindowAfter );
     // makes sure reused items have not been cleaned up during update
     AssertReuse( aWindow, aWindowBefore, aWindowAfter, aChange, aChangedIndex, aChangeCount );
-    Cleanup( aWindow );
+    CleanupL( aWindow );
     }
     
 /** 
@@ -396,7 +396,7 @@ void TestUpdateL( const char* aListBeforeChange, const char* aWindowBefore,
         window->iList = aListAfterChange;
         changeCount = strlen( aListAfterChange ) - strlen( aListBeforeChange );
         TWindowInfo info = AnalyzeWindow( aWindowAfter );
-        window->AddObjects( info.iFocusIndex, info.iTotalSize,       // focus, size
+        window->AddObjectsL( info.iFocusIndex, info.iTotalSize,       // focus, size
             aChangedIndex, aChangedIndex + changeCount - 1 ); // first index, last index
         window->iOldList = window->iList; // iOldList is used to check cleanup
         }
@@ -405,14 +405,14 @@ void TestUpdateL( const char* aListBeforeChange, const char* aWindowBefore,
         window->iList = aListAfterChange;
         changeCount = strlen( aListBeforeChange ) - strlen( aListAfterChange );
         TWindowInfo info = AnalyzeWindow( aWindowAfter );
-        window->RemoveObjects(  info.iFocusIndex, info.iTotalSize, // focus, size
+        window->RemoveObjectsL(  info.iFocusIndex, info.iTotalSize, // focus, size
             aChangedIndex, aChangedIndex + changeCount - 1 ); // first index, last index
         window->iOldList = window->iList; // iOldList is used to check cleanup
         }
     if ( ENone == aChange )
         {
         TWindowInfo info = AnalyzeWindow( aWindowAfter );
-        window->SetFocusIndex( info.iFocusIndex, info.iTotalSize );
+        window->SetFocusIndexL( info.iFocusIndex, info.iTotalSize );
         }
         
     VerifyAndCleanup( *window, aWindowBefore, aWindowAfter, aChange, 
@@ -574,23 +574,23 @@ EUNIT_TEST(
     SetupL, T_SetRangeOffsetsLL, Teardown)
 
 EUNIT_TEST(
-    "SetFocusIndex",
+    "SetFocusIndexL",
     "CGlxListWindow",
-    "SetFocusIndex",
+    "SetFocusIndexL",
     "FUNCTIONALITY",
     SetupL, T_SetFocusIndexL, Teardown)
     
 EUNIT_TEST(
-    "AddObjects",
+    "AddObjectsL",
     "CGlxListWindow",
-    "AddObjects",
+    "AddObjectsL",
     "FUNCTIONALITY",
     SetupL, T_AddObjectsL, Teardown)
     
 EUNIT_TEST(
-    "RemoveObjects",
+    "RemoveObjectsL",
     "CGlxListWindow",
-    "RemoveObjects",
+    "RemoveObjectsL",
     "FUNCTIONALITY",
     SetupL, T_RemoveObjectsL, Teardown)
 

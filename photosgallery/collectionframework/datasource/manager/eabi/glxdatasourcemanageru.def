@@ -38,7 +38,7 @@ EXPORTS
 	_ZN24CGlxCollectionPluginBase21LoadLocalizedStringLCERK7TDesC16i @ 37 NONAME
 	_ZN24CGlxCollectionPluginBase22IsUpdateMessageIgnoredER9CMPXMedia @ 38 NONAME
 	_ZN24CGlxCollectionPluginBase27HandleCpiAttributeResponseLEP9CMPXMedia6TArrayI13TMPXAttributeES2_I11TGlxMediaIdE @ 39 NONAME
-	_ZN24CGlxCollectionPluginBase32CpiAttributeAdditionalAttributesERK13TMPXAttributeR6RArrayIS0_E @ 40 NONAME
+	_ZN24CGlxCollectionPluginBase33CpiAttributeAdditionalAttributesLERK13TMPXAttributeR6RArrayIS0_E @ 40 NONAME
 	_ZN24CGlxCollectionPluginBase4AddLERK9CMPXMedia @ 41 NONAME
 	_ZN24CGlxCollectionPluginBase4SetLERK9CMPXMedia @ 42 NONAME
 	_ZN24CGlxCollectionPluginBase5OpenLERK18CMPXCollectionPathRK6TArrayI13TMPXAttributeEP9CMPXMedia @ 43 NONAME
@@ -59,25 +59,25 @@ EXPORTS
 	_ZNK20CGlxThumbnailRequest13ThumbnailInfoEv @ 58 NONAME
 	_ZNK20CGlxThumbnailRequest16ThumbnailRequestER20TGlxThumbnailRequest @ 59 NONAME
 	_ZNK20CGlxThumbnailRequest6ItemIdEv @ 60 NONAME
-	_ZTI11CGlxRequest @ 61 NONAME ; #<TI>#
-	_ZTI14CGlxDataSource @ 62 NONAME ; #<TI>#
-	_ZTI14CGlxGetRequest @ 63 NONAME ; #<TI>#
-	_ZTI17CGlxIdListRequest @ 64 NONAME ; #<TI>#
-	_ZTI18CGlxCommandRequest @ 65 NONAME ; #<TI>#
-	_ZTI18CGlxDataSourceTask @ 66 NONAME ; #<TI>#
-	_ZTI20CGlxThumbnailRequest @ 67 NONAME ; #<TI>#
-	_ZTI24CGlxCollectionPluginBase @ 68 NONAME ; #<TI>#
-	_ZTV11CGlxRequest @ 69 NONAME ; #<VT>#
-	_ZTV14CGlxDataSource @ 70 NONAME ; #<VT>#
-	_ZTV14CGlxGetRequest @ 71 NONAME ; #<VT>#
-	_ZTV17CGlxIdListRequest @ 72 NONAME ; #<VT>#
-	_ZTV18CGlxCommandRequest @ 73 NONAME ; #<VT>#
-	_ZTV18CGlxDataSourceTask @ 74 NONAME ; #<VT>#
-	_ZTV20CGlxThumbnailRequest @ 75 NONAME ; #<VT>#
-	_ZTV24CGlxCollectionPluginBase @ 76 NONAME ; #<VT>#
-	_ZThn24_N24CGlxCollectionPluginBase14HandleResponseEP9CMPXMediaP11CGlxRequestRKi @ 77 NONAME ; #<thunk>#
-	_ZThn28_N14CGlxDataSource13CancelRequestER29MGlxDataSourceRequestObserver @ 78 NONAME ; #<thunk>#
-	_ZThn28_N14CGlxDataSource18DataSourceRequestLEP11CGlxRequestR29MGlxDataSourceRequestObserver @ 79 NONAME ; #<thunk>#
-	_ZThn28_N14CGlxDataSource5CloseER28MGlxDataSourceUpdateObserver @ 80 NONAME ; #<thunk>#
-	_ZThn28_N24CGlxCollectionPluginBase13HandleMessageER9CMPXMedia @ 81 NONAME ; #<thunk>#
+	_ZTI11CGlxRequest @ 61 NONAME
+	_ZTI14CGlxDataSource @ 62 NONAME
+	_ZTI14CGlxGetRequest @ 63 NONAME
+	_ZTI17CGlxIdListRequest @ 64 NONAME
+	_ZTI18CGlxCommandRequest @ 65 NONAME
+	_ZTI18CGlxDataSourceTask @ 66 NONAME
+	_ZTI20CGlxThumbnailRequest @ 67 NONAME
+	_ZTI24CGlxCollectionPluginBase @ 68 NONAME
+	_ZTV11CGlxRequest @ 69 NONAME
+	_ZTV14CGlxDataSource @ 70 NONAME
+	_ZTV14CGlxGetRequest @ 71 NONAME
+	_ZTV17CGlxIdListRequest @ 72 NONAME
+	_ZTV18CGlxCommandRequest @ 73 NONAME
+	_ZTV18CGlxDataSourceTask @ 74 NONAME
+	_ZTV20CGlxThumbnailRequest @ 75 NONAME
+	_ZTV24CGlxCollectionPluginBase @ 76 NONAME
+	_ZThn24_N24CGlxCollectionPluginBase14HandleResponseEP9CMPXMediaP11CGlxRequestRKi @ 77 NONAME
+	_ZThn28_N14CGlxDataSource13CancelRequestER29MGlxDataSourceRequestObserver @ 78 NONAME
+	_ZThn28_N14CGlxDataSource18DataSourceRequestLEP11CGlxRequestR29MGlxDataSourceRequestObserver @ 79 NONAME
+	_ZThn28_N14CGlxDataSource5CloseER28MGlxDataSourceUpdateObserver @ 80 NONAME
+	_ZThn28_N24CGlxCollectionPluginBase13HandleMessageER9CMPXMedia @ 81 NONAME
 

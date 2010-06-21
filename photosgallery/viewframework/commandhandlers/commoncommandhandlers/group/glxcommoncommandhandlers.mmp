@@ -147,4 +147,6 @@ LIBRARY         glxtexturemanager.lib
 LIBRARY         glximageviewermanager.lib
 LIBRARY         mpxplaybackutility.lib    // MPX playback utility
 LIBRARY         thumbnailmanager.lib
+LIBRARY         svgengine.lib
+LIBRARY         gdi.lib
 // End of File

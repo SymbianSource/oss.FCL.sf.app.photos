@@ -37,8 +37,8 @@ const TInt KGlxPanFactorUpdateMultiple      =   5       ; // The number of pan o
 const TInt KGlxMaxPanUpdateMultiple         =   6       ;
 const TInt KGlxOrigin                       =   0       ;
 
-const TInt KGlxMinRelativeZoomPercent       =   85       ;
-const TInt KGlxMaxRelativeZoomPercent       =   115      ;
+const TInt KGlxMinRelativeZoomPercent       =   70       ;
+const TInt KGlxMaxRelativeZoomPercent       =   130      ;
 
 const TInt KGlxZoomPanInc                   =   10      ; // Min number of pixels panned in one keypress. This value is incremented exponentially by multiples of iPanFactor 
 
@@ -226,7 +226,7 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
         centerTranslationfactor.iY = (((apZoomFocus->iY - halfScreenHeight  ) * newZoomRatio)/oldZoomRatio) + (halfScreenHeight - apZoomFocus->iY);
         }
 
-    GLX_LOG_INFO1(" Zoom: newZoomRatio = %x.   ", newZoomRatio );
+    GLX_LOG_INFO1(" Zoom: newZoomRatio = %f.   ", newZoomRatio);
     
     TSize imageDimension = TSize(iActualImageSize);
     imageDimension.iWidth =  (imageDimension.iWidth  * newZoomRatio)/100;
@@ -258,37 +258,35 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
             }
         else
             {
-            TInt weightedBorderHeight = (iBorderWidth.iHeight*(100-((newZoomRatio-iMinZoomRatio)*100/(iMaxZoomRatio-iMinZoomRatio))))/100 ;
             // Is Center positioned such that the top end of the image is inside the 
             // screen. 
-            if( iCenter.iY < (halfScreenHeight - weightedBorderHeight )) 
+            if( iCenter.iY < halfScreenHeight ) 
                 {
-                iCenter.iY = halfScreenHeight - weightedBorderHeight ;
+                iCenter.iY = halfScreenHeight;
                 }
             // Is Center positioned such that the Bottom end of the image is inside the 
             // screen. 
-            else if((iCenter.iY + (halfScreenHeight - weightedBorderHeight ))> imageDimension.iHeight)
+            else if((iCenter.iY + halfScreenHeight)> imageDimension.iHeight)
                 {
                 // if so pan the image so that the edge of the image and screen coincide.
-                iCenter.iY = imageDimension.iHeight - (halfScreenHeight - weightedBorderHeight)  ;
+                iCenter.iY = imageDimension.iHeight - halfScreenHeight ;
                 }
             }
 
         //WIDTH Calculation
-        if((imageDimension.iWidth < iScreenSize.iWidth - BORDER_WIDTH))
+        if(imageDimension.iWidth < iScreenSize.iWidth )
             {
             iCenter.iX=(imageDimension.iWidth/2);
             }
         else
             {
-            TInt weightedBorderWidth = (iBorderWidth.iWidth*(100-((newZoomRatio-iMinZoomRatio)*100/(iMaxZoomRatio-iMinZoomRatio))))/100 ;
-            if( iCenter.iX < (halfScreenWidth - weightedBorderWidth )) 
+            if( iCenter.iX < halfScreenWidth) 
                 {
-                iCenter.iX = (halfScreenWidth - weightedBorderWidth );
+                iCenter.iX = halfScreenWidth;
                 }
-            else if((iCenter.iX + (halfScreenWidth - weightedBorderWidth ))> imageDimension.iWidth)
+            else if((iCenter.iX + halfScreenWidth)> imageDimension.iWidth)
                 {
-                iCenter.iX = imageDimension.iWidth - (halfScreenWidth - weightedBorderWidth ) ;
+                iCenter.iX = imageDimension.iWidth - halfScreenWidth;
                 }
             }
         //Update the TopLeft corner and then re align to the center in the below code
@@ -331,10 +329,9 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
             // New DIM is less than Old one. and all above conditions fail. 
             // This means that new DIM is smaller than VP DIM. So keep center 'centered'.
             // DIM = dimension
-            else if(iImageVirtualSize.iHeight >  imageDimension.iHeight)      
+            else if(iCenter.iY < halfScreenHeight)      
                 {
-                //This is executed in the Zoom Out Case,In ZoomIn Case the Image is widened.
-                iCenter.iY=(imageDimension.iHeight/2);
+                iCenter.iY=halfScreenHeight;
                 }
             }
 
@@ -356,10 +353,10 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
                 //Stick the Image to right side and then re-posistion the center 
                 iCenter.iX = imageDimension.iWidth - halfScreenWidth ;
                 }
-            else if(iImageVirtualSize.iWidth >imageDimension.iWidth )
+            else if(iCenter.iX < halfScreenWidth)
                 {
                 //The Image is panned and while zooming out ,the center has to be possistioned to center of the screen.
-                iCenter.iX =(imageDimension.iWidth/2);
+                iCenter.iX = halfScreenWidth;
                 }
             }
         viewPortTopLeft.iX = iCenter.iX - halfScreenWidth;
@@ -417,7 +414,7 @@ TReal TGlxZoomAndPanMathsEngine::NewZoomRatio(
         TBool *aThresholdReached)  
     {
     TRACER("TGlxZoomAndPanMathsEngine::NewZoomRatio ");
-    GLX_LOG_INFO1("NewZoomRatio: Old Zoom Ratio = %x .   ",iZoomRatio   );
+    GLX_LOG_INFO1("NewZoomRatio: Old Zoom Ratio = %f       .   ",iZoomRatio   );
     GLX_LOG_INFO1("NewZoomRatio: Expected Zoom Ratio  = %d .   ",aExpectedZoomRatio    );
     GLX_LOG_INFO1("NewZoomRatio: Relative Zoom Factor = %d .   ",aRelativeZoomFactor   );
     
@@ -430,7 +427,7 @@ TReal TGlxZoomAndPanMathsEngine::NewZoomRatio(
     else if (aRelativeZoomFactor > 0)
         {
         //Pruning extreme values. Not allowing more than 15% change in zoom ratio.
-        TInt normalizedRelativeZoomFactor = aRelativeZoomFactor ;
+        TReal normalizedRelativeZoomFactor = aRelativeZoomFactor ;
         if (normalizedRelativeZoomFactor < KGlxMinRelativeZoomPercent)
             {
             normalizedRelativeZoomFactor = KGlxMinRelativeZoomPercent;
@@ -439,7 +436,8 @@ TReal TGlxZoomAndPanMathsEngine::NewZoomRatio(
             {
             normalizedRelativeZoomFactor = KGlxMaxRelativeZoomPercent;
             }
-        iZoomRatio =  (iZoomRatio * normalizedRelativeZoomFactor)/100 ;
+        iZoomRatio =  (iZoomRatio * ((normalizedRelativeZoomFactor - 100.0F)*0.75F + 100.0F))/100.0F ;
+        GLX_LOG_INFO1("NewZoomRatio: New Zoom Ratio = %f       .   ",iZoomRatio   );
         }
     else
         {
@@ -468,12 +466,12 @@ TReal TGlxZoomAndPanMathsEngine::NewZoomRatio(
         iZoomRatio = iMinZoomRatio;
         if (NULL != aThresholdReached)
             {
-            GLX_LOG_INFO1("NewZoomRatio: Min Threshold Reached iInitialZoomRatio = %d .", iMinZoomRatio );
+            GLX_LOG_INFO1("NewZoomRatio: Min Threshold Reached iMinZoomRatio = %d .", iMinZoomRatio );
             *aThresholdReached = ETrue;
             }
         }
 
-    GLX_LOG_INFO1("NewZoomRatio: New Zoom Ratio = %x.   ",iZoomRatio   );
+    GLX_LOG_INFO1("NewZoomRatio: New Zoom Ratio = %f.   ",iZoomRatio  );
     return iZoomRatio;
     }
 

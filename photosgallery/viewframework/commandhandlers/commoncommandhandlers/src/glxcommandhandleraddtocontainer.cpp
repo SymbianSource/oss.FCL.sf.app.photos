@@ -176,6 +176,7 @@ CMPXCommand* CGlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
 	    return NULL;
 	    }
     iSelectionCount = 0;
+    iItemsSelectionCount = 0;
 	// Set the Flag inorder to block any new subsequent selection pop-ups from getting created.
 	iIsProcessOngoing = ETrue;
     CMPXCollectionPath* targetCollection = CMPXCollectionPath::NewL();
@@ -226,6 +227,7 @@ CMPXCommand* CGlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
             // Set the container selection count to give correct completion text
             TArray<TInt> selection = targetContainers->Selection();
             iSelectionCount = selection.Count();
+            iItemsSelectionCount = sourceItems->Count();
             
             CleanupStack::PushL(targetContainers);
             command = TGlxCommandFactory::AddToContainerCommandLC(
@@ -263,7 +265,7 @@ HBufC* CGlxCommandHandlerAddToContainer::CompletionTextL() const
     TRACER("CGlxCommandHandlerAddToContainer::CompletionTextL()");
     if (iCommandId == EGlxCmdAddToAlbum)
     	{
-   		if (iSelectionCount > 1)
+   		if (iItemsSelectionCount > 1)
    			{
 	   		return StringLoader::LoadL(R_GLX_COMPLETION_ADD_TO_CONTAINER_MULTI_ITEM_ALBUM);
    			}
@@ -334,7 +336,7 @@ void CGlxCommandHandlerAddToContainer::PopulateToolbarL()
 // ---------------------------------------------------------------------------
 //
 TBool CGlxCommandHandlerAddToContainer::DoIsDisabled(TInt aCommandId, 
-                                                 MGlxMediaList& aList) const
+                                                 MGlxMediaList& /*aList*/) const
     {
 	TRACER("CGlxCommandHandlerAddToContainer::DoIsDisabled");
 	if (EGlxCmdAddToAlbum==aCommandId || EGlxCmdAddTag == aCommandId)

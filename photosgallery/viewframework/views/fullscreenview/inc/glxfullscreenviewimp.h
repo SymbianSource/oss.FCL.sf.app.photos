@@ -309,6 +309,10 @@ private:
      */
     TBool CheckIfSliderToBeShownL();
 
+    /**
+     * Update coverflow items after zoom/foreground event
+     */
+    void UpdateItems();
 
 private:
     /** Softkey resource id's */

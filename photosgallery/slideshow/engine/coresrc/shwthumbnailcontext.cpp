@@ -34,20 +34,22 @@
 // -----------------------------------------------------------------------------
 // Constructor.
 // -----------------------------------------------------------------------------
-inline CShwThumbnailContext::CShwThumbnailContext( 
-    TInt aIndex, TSize aSize ) : iSize(aSize), iCurrentIndex( aIndex )
+inline CShwThumbnailContext::CShwThumbnailContext(TInt aIndex, TSize aSize,
+        MGlxMediaList& aList) :
+    iSize(aSize), iCurrentIndex(aIndex), iList(aList)
     {
     }
 
 // -----------------------------------------------------------------------------
 // NewLC.
 // -----------------------------------------------------------------------------
-CShwThumbnailContext* CShwThumbnailContext::NewLC( TInt aIndex, TSize aSize )
+CShwThumbnailContext* CShwThumbnailContext::NewLC(TInt aIndex, TSize aSize,
+        MGlxMediaList& aList)
     {
     TRACER("CShwThumbnailContext::NewLC");
     GLX_LOG_INFO1( "CShwThumbnailContext::NewL, aIndex=%d", aIndex );
     CShwThumbnailContext* self =
-        new (ELeave) CShwThumbnailContext( aIndex, aSize );
+        new (ELeave) CShwThumbnailContext( aIndex, aSize, aList );
     CleanupStack::PushL( self );
     self->ConstructL();
     return self;
@@ -59,7 +61,6 @@ CShwThumbnailContext* CShwThumbnailContext::NewLC( TInt aIndex, TSize aSize )
 void CShwThumbnailContext::ConstructL()
     {
     TRACER("CShwThumbnailContext::ConstructL");
-    GLX_LOG_INFO("CShwThumbnailContext::ConstructL");
     // Create the high quality / slower context
     iHighQualityContext = CGlxThumbnailContext::NewL( this );
     // Call both setdefault and add
@@ -76,7 +77,6 @@ void CShwThumbnailContext::ConstructL()
 CShwThumbnailContext::~CShwThumbnailContext()
     {
     TRACER("CShwThumbnailContext::~CShwThumbnailContext");
-    GLX_LOG_INFO( "CShwThumbnailContext::~CShwThumbnailContext" );
     delete iHighQualityContext;
     }
 
@@ -86,7 +86,6 @@ CShwThumbnailContext::~CShwThumbnailContext()
 void CShwThumbnailContext::SetToFirst( const MGlxMediaList* /*aList*/ )
     {
     TRACER("CShwThumbnailContext::SetToFirst");
-    GLX_LOG_INFO( "CShwThumbnailContext::SetToFirst" );
     // reset iterator state
     iIterated = EFalse;
     }
@@ -97,19 +96,19 @@ void CShwThumbnailContext::SetToFirst( const MGlxMediaList* /*aList*/ )
 TInt CShwThumbnailContext::operator++( TInt )
     {
     TRACER("CShwThumbnailContext::operator++");
-    GLX_LOG_INFO( "CShwThumbnailContext::operator++" );
     // we want to load all the thumbnails our clients have requested 
     // notification on, nothing else
     // by default tell the thumbnail that we dont have any interesting indexes
     TInt wantedIndex = KErrNotFound;
-    // check if we were asked already
-    if( !iIterated )
-        {
-        // we want to load thumbnail for the specified index
+    TInt count = iList.Count();
+    // check if we were asked already and guard conditions
+    if( !iIterated && (count > 0) && (iCurrentIndex < count))
+        {        
         wantedIndex = iCurrentIndex;
         iIterated = ETrue;
         }
     // finally return the index that was wanted
+    GLX_LOG_INFO1("CShwThumbnailContext::operator++ wantedIndex %d",wantedIndex);
     return wantedIndex;
     }
 
@@ -119,7 +118,6 @@ TInt CShwThumbnailContext::operator++( TInt )
 TBool CShwThumbnailContext::InRange( TInt aIndex ) const
     {
     TRACER("CShwThumbnailContext::InRange");
-    GLX_LOG_INFO( "CShwThumbnailContext::InRange" );
     // if we got notifications
     if ( aIndex == iCurrentIndex )
         {
@@ -137,7 +135,6 @@ TBool CShwThumbnailContext::InRange( TInt aIndex ) const
 TInt CShwThumbnailContext::RequestCountL(const MGlxMediaList* aList) const
     {
     TRACER("CShwThumbnailContext::RequestCountL");
-    GLX_LOG_INFO( "CShwThumbnailContext::RequestCountL" );
     return iHighQualityContext->RequestCountL( aList );
     }
 
@@ -157,6 +154,5 @@ TInt CShwThumbnailContext::Index()
 MGlxFetchContext* CShwThumbnailContext::Context()
 	{
 	TRACER("CShwThumbnailContext::Context");
-	GLX_LOG_INFO( "CShwThumbnailContext::Context" );
 	return iHighQualityContext;
 	}

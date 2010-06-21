@@ -34,6 +34,7 @@
 #include <glxfullscreenview.hrh>
 #include <glxzoomeventhandler.h>
 #include <mglxtvobserver.h>     // for inteface MGlxTvObserver
+#include "glxrequestfreegoom.h"
 //Gesture Helper namespace
 namespace GestureHelper
     {
@@ -66,6 +67,7 @@ using namespace Alf;
 // Commands sent to the view in response to zoom keys
 const TInt KGlxZoomInCommand    = 1 ;
 const TInt KGlxZoomOutCommand   = 2 ;
+const TInt KGlxZoomOrientationChange   =3;
 const TInt KGlxVerticalImageOrientationThreshold   = 4 ;
 
 /**
@@ -77,7 +79,8 @@ class CGlxZoomControl : public CAlfControl,
                         public MGlxTextureObserver,
                         public MGlxZoomEventHandlers,
                         public GestureHelper::MGestureObserver,
-                        public MGlxTvObserver
+                        public MGlxTvObserver,
+                        public MGoomNotifierObserver
     {
 public:
     // Constructors and destructor
@@ -236,6 +239,11 @@ private:
     */
     void HandleHDMIGestureReleased();
     
+    /*
+     * @ Notification from MGoomNotifierObserver
+     */
+    void HandleGoomMemoryReleased(TInt aStatus);
+    
 private:    // Data
     CAlfEnv* iEnv;                                      // AlfEnv
     MGlxMediaList& iMediaList;                          // Medialist (not owned)
@@ -266,7 +274,7 @@ private:    // Data
     CGlxTv*  iGlxTvOut;
     CPeriodic* iTimer;
     TBool iZoomIn;
-    
+    CGlxRelaseGPUMemory* iGPUMemMonitor;
     };
 
 #endif  // C_GLXZOOMCONTROL_H

@@ -579,10 +579,10 @@ RESOURCE AVKON_TOOLBAR r_glx_grid_view_toolbar
                     AVKON_BUTTON_STATE
                         {
                         bmpfile = "z:\\Resource\\apps\\glxicons.mif";
-                        bmpid = EMbmGlxiconsQgn_indi_cam4_tb_upload;
-                        bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_upload_mask;
-                        press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_upload;
-                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_upload_mask;                       
+                        bmpid = EMbmGlxicons1click_default_icon_active;
+                        bmpmask = EMbmGlxicons1click_default_icon_active_mask;
+                        press_bmpid = EMbmGlxicons1click_default_icon_active;
+                        press_bmpmask = EMbmGlxicons1click_default_icon_active_mask;                      
                         }
                     };
                 };

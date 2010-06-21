@@ -167,9 +167,7 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
                 = &iMediaListFactory->CreateMediaListL(*iCollectionUtility);
 
         if ((navigationalState->Id() != TMPXItemId(
-                KGlxCollectionPluginAlbumsImplementationUid))
-                && (navigationalState->Id() != TMPXItemId(
-                        KGlxCollectionPluginAlbumsImplementationUid)))
+				KGlxCollectionPluginAlbumsImplementationUid)))
             {
             iPreloadContextForCommandHandlers
                     = new (ELeave) CGlxAttributeContext(&iSelectionIterator);

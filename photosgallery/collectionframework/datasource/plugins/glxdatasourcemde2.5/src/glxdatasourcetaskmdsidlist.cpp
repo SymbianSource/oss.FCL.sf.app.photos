@@ -243,6 +243,9 @@ void CGlxDataSourceTaskMdeIdList::PostFilterL(const RArray<TGlxMediaId>&
 	if( aFilterProperties.iPromoteSystemItems )
 		{
 		RArray<TGlxMediaId> list = aFilteredList;
+		// Here we don't have to push list in cleanup stack as caller function,
+		// CGlxDataSourceTaskMdeIdList::DoHandleListQueryCompletedL is already
+		// doing that.
 		TInt cameraAlbumIndex = list.Find(DataSource()->CameraAlbumId());
 		
 		// If Camera Index is not KErrNotFound, 1st Album should be Captured and 
@@ -251,13 +254,13 @@ void CGlxDataSourceTaskMdeIdList::PostFilterL(const RArray<TGlxMediaId>&
 		if( KErrNotFound != cameraAlbumIndex )
 			{	
 			list.Remove(cameraAlbumIndex);	
-			list.Insert(DataSource()->CameraAlbumId(), KGlxCameraAlbumPromotionPosition);    			
+			list.InsertL(DataSource()->CameraAlbumId(), KGlxCameraAlbumPromotionPosition);    			
 
 			TInt favoritesIndex = list.Find(DataSource()->FavoritesId());			
 			if( KErrNotFound != favoritesIndex )
 				{
 				list.Remove(favoritesIndex);
-				list.Insert(DataSource()->FavoritesId(),KGlxfavoritesAlbumPromotionPosition);		
+				list.InsertL(DataSource()->FavoritesId(),KGlxfavoritesAlbumPromotionPosition);		
 				} 
 			}
 		else
@@ -269,7 +272,7 @@ void CGlxDataSourceTaskMdeIdList::PostFilterL(const RArray<TGlxMediaId>&
 			if( KErrNotFound != favoritesIndex )
 				{
 				list.Remove(favoritesIndex);
-				list.Insert(DataSource()->FavoritesId(),KGlxfavoritesAlbumPromotionPosition - 1);		
+				list.InsertL(DataSource()->FavoritesId(),KGlxfavoritesAlbumPromotionPosition - 1);		
 				} 			
 			}
 					

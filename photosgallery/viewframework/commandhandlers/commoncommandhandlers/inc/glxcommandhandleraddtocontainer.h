@@ -130,6 +130,9 @@ private:
 
 	// Target containers selection count
 	static TInt iSelectionCount;
+	
+	// Media items selection count
+	mutable TInt iItemsSelectionCount;
 
 	// Popup Completion Status Flag
 	mutable TBool iIsProcessOngoing;

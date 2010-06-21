@@ -418,14 +418,16 @@ void CGlxCommandHandlerSend::HandleItemSelectedL(TInt /*aIndex*/,
         TBool /*aSelected*/, MGlxMediaList* aList)
     {
     GLX_FUNC("CGlxCommandHandlerSend::HandleItemSelectedL");
-    if (aList->SelectionCount() > 0 && iUiUtility->GetGridToolBar())
+    // Check if toolbar is available.
+    CAknToolbar* toolbar = iUiUtility->GetGridToolBar();
+    if (toolbar)
         {
-        iUiUtility->GetGridToolBar()->SetItemDimmed(EGlxCmdSend, EFalse,
-                ETrue);
-        }
-    else
-        {
-        iUiUtility->GetGridToolBar()->SetItemDimmed(EGlxCmdSend, ETrue, ETrue);
+        TBool dimmed = ETrue;
+        if (aList->SelectionCount() > 0)
+            {
+            dimmed = EFalse;
+            }
+        toolbar->SetItemDimmed(EGlxCmdSend, dimmed, ETrue);
         }
     }
 

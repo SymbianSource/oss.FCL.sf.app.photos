@@ -1411,11 +1411,10 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
     TRACER("GLX_CLOUD::CGlxCloudViewControl::HandlePointerEventL");
     CAlfVisual* tappedvisual = aEvent.Visual();	
     TBool consumed = EFalse;
-    
 
     if(aEvent.PointerEvent().iType == TPointerEvent::EButton1Down)
         {	
-        iDownEventReceived = EFalse;
+        iDownEventReceived = ETrue;
         //reset variables & Physics simulator 
         iPhysics->StopPhysics();
         iPhysics->ResetFriction();
@@ -1431,7 +1430,6 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
         //If the grid is already shown , disable it
         if(iTagsContextMenuControl->ItemMenuVisibility())
            {
-           iDownEventReceived = ETrue;
            iTagsContextMenuControl->ShowItemMenuL(EFalse);
            return ETrue;
            }
@@ -1457,20 +1455,17 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
                 }
             }
         }
-    else if(iDownEventReceived)
-        {
-        consumed = ETrue;
-        }
-    else if (aEvent.PointerEvent().iType == TPointerEvent::EDrag)
+    else if (iDownEventReceived && aEvent.PointerEvent().iType == TPointerEvent::EDrag)
         {
         GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::HandlePointerEventL(EDrag) event");
-        
+
         iTouchFeedback->InstantFeedback(ETouchFeedbackBasic);
 
         consumed = HandleDragL(aEvent.PointerEvent());
         }
-    else if (aEvent.PointerUp())
+    else if (iDownEventReceived && aEvent.PointerUp())
         {
+        iDownEventReceived = EFalse;
         Display()->Roster().SetPointerEventObservers(0, *this);
         consumed = ETrue;
         
@@ -1700,7 +1695,8 @@ IAlfWidgetEventHandler::AlfEventHandlerExecutionPhase CGlxCloudViewControl::even
 // offerEvent()
 // ---------------------------------------------------------------------------
 //
-AlfEventStatus CGlxCloudViewControl::offerEvent( CAlfWidgetControl& aControl, const TAlfEvent& aEvent )
+AlfEventStatus CGlxCloudViewControl::offerEvent(CAlfWidgetControl& aControl,
+        const TAlfEvent& aEvent)
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::offerEvent");  
     AlfEventStatus status = EEventNotHandled;  
@@ -1759,7 +1755,8 @@ AlfEventStatus CGlxCloudViewControl::offerEvent( CAlfWidgetControl& aControl, co
 // accept()
 // ---------------------------------------------------------------------------
 //   
-bool CGlxCloudViewControl::accept ( CAlfWidgetControl& /*aControl*/, const TAlfEvent& aEvent ) const
+bool CGlxCloudViewControl::accept(CAlfWidgetControl& /*aControl*/,
+        const TAlfEvent& aEvent) const
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::accept");
     if(	aEvent.CustomParameter() == EEventScrollPageUp 	||
@@ -1777,12 +1774,12 @@ bool CGlxCloudViewControl::accept ( CAlfWidgetControl& /*aControl*/, const TAlfE
 // ---------------------------------------------------------------------------
 //	
 void CGlxCloudViewControl::InitializeScrollBar(IAlfScrollBarWidget* aScrollBarWidget)
-    { 
+    {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::InitializeScrollBar");
-    iScrollBarWidget=aScrollBarWidget;
-    ((IAlfScrollBarModel *)(iScrollBarWidget->model()))->initializeData(iScrollEventData.mSpan,
-            iScrollEventData.mViewLength,0);													           
-    DisplayScrollBar();	
+    iScrollBarWidget = aScrollBarWidget;
+    ((IAlfScrollBarModel *) (iScrollBarWidget->model()))->initializeData(
+            iScrollEventData.mSpan, iScrollEventData.mViewLength, 0);
+    DisplayScrollBar();
     }
 
 // ---------------------------------------------------------------------------
@@ -1840,21 +1837,21 @@ void CGlxCloudViewControl::UpdateScrollBar(TInt aNumberOfSteps, TBool aDiff)
 //
 void CGlxCloudViewControl::DisplayScrollBar() 
     {
-    if( iScrollBarWidget )
+    if (iScrollBarWidget)
         {
         IAlfElement* vertBaseElement =(iScrollBarWidget->control()->findElement ("BaseElement"));
         IAlfScrollBarDefaultBaseElement* scrollbarbaselement=static_cast<IAlfScrollBarDefaultBaseElement*> (
             vertBaseElement->makeInterface (IAlfScrollBarDefaultBaseElement::type() ) );
 
-        if( iScrollEventData.mSpan )
-            {       
-            scrollbarbaselement->setThumbOpacity(1.0);  
+        // To set the scrollbar visibility, it's enough to set the opacity 
+        // of baselayout. No need to set the opacity of thumb separately. 
+        if (iScrollEventData.mSpan)
+            {
             //make scroll bar visible
             scrollbarbaselement->setOpacity(1.0);
             }
         else
             {
-            scrollbarbaselement->setThumbOpacity(0.0);  
             //make scroll bar invisible
             scrollbarbaselement->setOpacity(0.0);
             }

@@ -100,97 +100,110 @@ void CGlxCollectionPluginAlbums::ConstructL()
     iDataSource = MGlxDataSource::OpenDataSourceL(KGlxDefaultDataSourceUid, *this);
     }
 
-void CGlxCollectionPluginAlbums::CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray)
+void CGlxCollectionPluginAlbums::CpiAttributeAdditionalAttributesL(
+        const TMPXAttribute& aCpiAttribute,
+        RArray<TMPXAttribute>& aAttributeArray)
     {
-    TRACER("CGlxCollectionPluginAlbums::CpiAttributeAdditionalAttributes");
-    // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here as all the others are reading straight from resource files
+    TRACER("CGlxCollectionPluginAlbums::CpiAttributeAdditionalAttributesL");
+    // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here 
+    // as all the others are reading straight from resource files
     // KGlxMediaCollectionPluginSpecificSubTitle requires a usage count
     if (aCpiAttribute == KGlxMediaCollectionPluginSpecificSubTitle)
         {
         // need to add the usage count. but check first if it is already present
         TInt attrCount = aAttributeArray.Count();
         TBool found = EFalse;
-        
-        for ( TInt index = 0 ; index < attrCount ; index++)
+
+        for (TInt index = 0; index < attrCount; index++)
             {
-            if ( aAttributeArray[index] == KMPXMediaGeneralCount)
+            if (aAttributeArray[index] == KMPXMediaGeneralCount)
                 {
                 found = ETrue;
                 break;
                 }
             }
-            
+
         if (!found)
             {
-            aAttributeArray.Append(KGlxMediaCollectionInternalUsageCount);
+            aAttributeArray.AppendL(KGlxMediaCollectionInternalUsageCount);
             }
         }
     }
-void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, TArray<TGlxMediaId> aMediaIds)
+void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(
+        CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, 
+        TArray<TGlxMediaId> aMediaIds)
     {
     TRACER("CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL");
     const TInt mediaIdCount = aMediaIds.Count();
-    
+
     switch (mediaIdCount)
         {
-    case 0:
-        User::Leave(KErrNotSupported);
-        break;
-    case 1:
-        HandleCpiAttributeResponseL(aResponse, aCpiAttributes, aMediaIds[0]);
-        break;
-    default:
+        case 0:
+            User::Leave(KErrNotSupported);
+            break;
+        case 1:
+            HandleCpiAttributeResponseL(aResponse, aCpiAttributes,
+                    aMediaIds[0]);
+            break;
+        default:
             {
             // We have an array of CMPXMedia items
-            
+
             if (TGlxMediaId(KGlxCollectionRootId) == aMediaIds[0])
                 {
                 User::Leave(KErrNotSupported);
                 }
-                
-            CMPXMediaArray* mediaArray = aResponse->ValueCObjectL<CMPXMediaArray>(KMPXMediaArrayContents);
+
+            CMPXMediaArray* mediaArray = aResponse->ValueCObjectL<
+                    CMPXMediaArray> (KMPXMediaArrayContents);
             CleanupStack::PushL(mediaArray);
 
             const TInt arrayCount = mediaArray->Count();
-            
+
             // Sanity check
             if (arrayCount != mediaIdCount)
                 {
                 User::Leave(KErrArgument);
                 }
-            
+
             for (TInt index = 0; index < arrayCount; index++)
                 {
-                HandleCpiAttributeResponseL((*mediaArray)[index], aCpiAttributes, aMediaIds[index]);
+                HandleCpiAttributeResponseL((*mediaArray)[index],
+                        aCpiAttributes, aMediaIds[index]);
                 }
 
             aResponse->SetCObjectValueL(KMPXMediaArrayContents, mediaArray);
             CleanupStack::PopAndDestroy(mediaArray);
             }
-        break;
+            break;
         }
     }
 
-void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, TGlxMediaId aMediaId)
+void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(
+        CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes,
+        TGlxMediaId aMediaId)
     {
     _LIT(KResourceFile, "z:glxpluginalbums.rsc");
 
     const TInt attribCount = aCpiAttributes.Count();
 
-    for (TInt index = 0; index < attribCount ; index++)
+    for (TInt index = 0; index < attribCount; index++)
         {
         const TMPXAttribute attr = aCpiAttributes[index];
-        
+
         if (attr == KGlxMediaCollectionPluginSpecificSubTitle)
             {
             TInt usageCount = 0;
-            if ( aResponse->IsSupported(KMPXMediaGeneralCount) )
+            if (aResponse->IsSupported(KMPXMediaGeneralCount))
                 {
-                usageCount = aResponse->ValueTObjectL<TInt>(KMPXMediaGeneralCount);
+                usageCount = aResponse->ValueTObjectL<TInt> (
+                        KMPXMediaGeneralCount);
                 }
-            else if ( aResponse->IsSupported(KGlxMediaCollectionInternalUsageCount) )
+            else if (aResponse->IsSupported(
+                    KGlxMediaCollectionInternalUsageCount))
                 {
-                usageCount = aResponse->ValueTObjectL<TInt>(KGlxMediaCollectionInternalUsageCount);
+                usageCount = aResponse->ValueTObjectL<TInt> (
+                        KGlxMediaCollectionInternalUsageCount);
                 aResponse->Delete(KGlxMediaCollectionInternalUsageCount);
                 }
             else
@@ -198,115 +211,133 @@ void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(CMPXMedia* aRespons
                 User::Leave(KErrNotSupported);
                 }
             HBufC* tempTitle = NULL;
-            
-            if (TGlxMediaId(KGlxCollectionRootId) == aMediaId)
-            	{
-                if (1 == usageCount)
-                	{
-                    tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALBUM_SUB_TITLE_SINGLE);
-                    aResponse->SetTextValueL(attr, *tempTitle);  
-                    CleanupStack::PopAndDestroy(tempTitle);
-                    continue;                   
-                	}
-                else
-                	{
-                	tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALBUM_SUB_TITLE_MULTI);
-                	}
-            	}
-            else
-            	{
-            	if(0 == usageCount)
-            		{
-                	tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALBUM_ITEM_SUB_TITLE_EMPTY);
-                	
-                	// Set the title in the response.
-            		aResponse->SetTextValueL(attr, *tempTitle);  
-            		CleanupStack::PopAndDestroy(tempTitle);
-					
-            		// Set the count in the response.
-            		aResponse->SetTObjectValueL(KMPXMediaGeneralCount, usageCount); 
-					
-            		continue;                	
-            		}            	
-            	else if (1 == usageCount)
-                	{
-                	tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALBUM_ITEM_SUB_TITLE_SINGLE);
-                    aResponse->SetTextValueL(attr, *tempTitle);  
-                    CleanupStack::PopAndDestroy(tempTitle);
-					
-            		// Set the count in the response.
-            		aResponse->SetTObjectValueL(KMPXMediaGeneralCount, usageCount);    
 
-                    continue;                   
-                	}
+            if (TGlxMediaId(KGlxCollectionRootId) == aMediaId)
+                {
+                if (1 == usageCount)
+                    {
+                    tempTitle = LoadLocalizedStringLC(KResourceFile,
+                            R_ALBUM_SUB_TITLE_SINGLE);
+                    aResponse->SetTextValueL(attr, *tempTitle);
+                    CleanupStack::PopAndDestroy(tempTitle);
+                    continue;
+                    }
                 else
-                	{
-                    tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALBUM_ITEM_SUB_TITLE_MULTI);
-                	}
-            	}
-            
+                    {
+                    tempTitle = LoadLocalizedStringLC(KResourceFile,
+                            R_ALBUM_SUB_TITLE_MULTI);
+                    }
+                }
+            else
+                {
+                if (0 == usageCount)
+                    {
+                    tempTitle = LoadLocalizedStringLC(KResourceFile,
+                            R_ALBUM_ITEM_SUB_TITLE_EMPTY);
+
+                    // Set the title in the response.
+                    aResponse->SetTextValueL(attr, *tempTitle);
+                    CleanupStack::PopAndDestroy(tempTitle);
+
+                    // Set the count in the response.
+                    aResponse->SetTObjectValueL(KMPXMediaGeneralCount,
+                            usageCount);
+
+                    continue;
+                    }
+                else if (1 == usageCount)
+                    {
+                    tempTitle = LoadLocalizedStringLC(KResourceFile,
+                            R_ALBUM_ITEM_SUB_TITLE_SINGLE);
+                    aResponse->SetTextValueL(attr, *tempTitle);
+                    CleanupStack::PopAndDestroy(tempTitle);
+
+                    // Set the count in the response.
+                    aResponse->SetTObjectValueL(KMPXMediaGeneralCount,
+                            usageCount);
+
+                    continue;
+                    }
+                else
+                    {
+                    tempTitle = LoadLocalizedStringLC(KResourceFile,
+                            R_ALBUM_ITEM_SUB_TITLE_MULTI);
+                    }
+                }
+
             TPtr formatString = tempTitle->Des();
-            
-            // Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
+
+            // Now create a buffer that will contain the result. needs to be 
+            // length of format string plus a few extra for the number
             HBufC* title = HBufC::NewLC(formatString.Length() + 10);
             TPtr ptr = title->Des();
             StringLoader::Format(ptr, formatString, -1, usageCount);
-            
+
             // Set the title in the response.
-            aResponse->SetTextValueL(attr, *title);    
+            aResponse->SetTextValueL(attr, *title);
 
             // Set the count in the response.
-            aResponse->SetTObjectValueL(KMPXMediaGeneralCount, usageCount);    
+            aResponse->SetTObjectValueL(KMPXMediaGeneralCount, usageCount);
 
             CleanupStack::PopAndDestroy(title);
             CleanupStack::PopAndDestroy(tempTitle);
             }
-        else if (attr == KGlxMediaCollectionPluginSpecificSelectMediaPopupTitle)
+        else if (attr
+                == KGlxMediaCollectionPluginSpecificSelectMediaPopupTitle)
             {
-            HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_POPUP_TITLE);
-            aResponse->SetTextValueL(attr, *title);  
-            CleanupStack::PopAndDestroy(title); 
+            HBufC* title = LoadLocalizedStringLC(KResourceFile,
+                    R_ALBUM_POPUP_TITLE);
+            aResponse->SetTextValueL(attr, *title);
+            CleanupStack::PopAndDestroy(title);
             }
         else if (attr == KGlxMediaCollectionPluginSpecificNewMediaItemTitle)
             {
-            HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_ITEM_TITLE);
-            aResponse->SetTextValueL(attr, *title);  
-            CleanupStack::PopAndDestroy(title); 
+            HBufC* title = LoadLocalizedStringLC(KResourceFile,
+                    R_ALBUM_ITEM_TITLE);
+            aResponse->SetTextValueL(attr, *title);
+            CleanupStack::PopAndDestroy(title);
             }
         else if (attr == KGlxMediaCollectionPluginSpecificDefaultMediaTitle)
             {
-            HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_DEFAULT_TITLE);
-            aResponse->SetTextValueL(attr, *title);  
-            CleanupStack::PopAndDestroy(title); 
+            HBufC* title = LoadLocalizedStringLC(KResourceFile,
+                    R_ALBUM_DEFAULT_TITLE);
+            aResponse->SetTextValueL(attr, *title);
+            CleanupStack::PopAndDestroy(title);
             }
         else if (attr == KMPXMediaGeneralTitle)
             {
-            if( TGlxMediaId(KGlxCollectionRootId) == aMediaId )
+            if (TGlxMediaId(KGlxCollectionRootId) == aMediaId)
                 {
-                HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_GENERAL_TITLE);
-                aResponse->SetTextValueL(attr, *title);  
-                CleanupStack::PopAndDestroy(title); 
+                HBufC* title = LoadLocalizedStringLC(KResourceFile,
+                        R_ALBUM_GENERAL_TITLE);
+                aResponse->SetTextValueL(attr, *title);
+                CleanupStack::PopAndDestroy(title);
                 }
             else
                 {
-                if( aResponse->IsSupported(KGlxMediaCollectionInternalSystemItemType) )
-					{
-					TGlxMediaId responseMediaid ((TUint32)aResponse->ValueTObjectL<TMPXItemId>(KMPXMediaGeneralId));
-					// Set the text value based on the Media ID in aResponse
-					if( TGlxMediaId(KCapturedAlbumId) == responseMediaid )
-						{
-						HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_CAMERA_TITLE);
-						aResponse->SetTextValueL(attr, *title);  
-						CleanupStack::PopAndDestroy(title);						
-						}
-					else if (TGlxMediaId(KFavoriteAlbumId) == responseMediaid  )
-						{
-						HBufC* title = LoadLocalizedStringLC(KResourceFile, R_ALBUM_FAVORITES_TITLE);
-						aResponse->SetTextValueL(attr, *title);  
-						CleanupStack::PopAndDestroy(title);						
-						}
-					}                                             
-                 aResponse->Delete(KGlxMediaCollectionInternalSystemItemType);                    
+                if (aResponse->IsSupported(
+                        KGlxMediaCollectionInternalSystemItemType))
+                    {
+                    TGlxMediaId responseMediaid(
+                            (TUint32) aResponse->ValueTObjectL<TMPXItemId> (
+                                    KMPXMediaGeneralId));
+                    // Set the text value based on the Media ID in aResponse
+                    if (TGlxMediaId(KCapturedAlbumId) == responseMediaid)
+                        {
+                        HBufC* title = LoadLocalizedStringLC(KResourceFile,
+                                R_ALBUM_CAMERA_TITLE);
+                        aResponse->SetTextValueL(attr, *title);
+                        CleanupStack::PopAndDestroy(title);
+                        }
+                    else if (TGlxMediaId(KFavoriteAlbumId) == responseMediaid)
+                        {
+                        HBufC* title = LoadLocalizedStringLC(KResourceFile,
+                                R_ALBUM_FAVORITES_TITLE);
+                        aResponse->SetTextValueL(attr, *title);
+                        CleanupStack::PopAndDestroy(title);
+                        }
+                    }
+                aResponse->Delete(KGlxMediaCollectionInternalSystemItemType);
                 }
             }
         }

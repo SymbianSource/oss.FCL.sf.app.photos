@@ -118,6 +118,7 @@ void CGlxZoomControl::ConstructL()
     //To know if HDMi cable is connected.
     iGlxTvOut = CGlxTv::NewL(*this);
     iTimer = CPeriodic::NewL( CActive::EPriorityStandard );
+    iGPUMemMonitor = CGlxRelaseGPUMemory::NewL(*this);
     }
 
 // -----------------------------------------------------------------------------
@@ -231,7 +232,12 @@ CGlxZoomControl::~CGlxZoomControl()
         iTimer->Cancel();
         }
     delete iTimer;
-
+    
+    if(iGPUMemMonitor)
+        {
+        delete iGPUMemMonitor;
+        }
+    
     if(iGlxTvOut)
         {
         delete iGlxTvOut;
@@ -444,15 +450,14 @@ void CGlxZoomControl::ActivateFullscreen()
 EXPORT_C void CGlxZoomControl::Deactivate()
     {
     TRACER("CGlxZoomControl::Deactivate()");
-    
-    if ( iZoomActive )
+    if (iZoomActive)
         {
-         if(iTimer->IsActive())
-           {
-           iTimer->Cancel();           
-           }  
+        if (iTimer->IsActive())
+            {
+            iTimer->Cancel();
+            }
         iZoomSliderWidget.RemoveEventHandler(*this);
-        iZoomBackKey->MakeVisible( EFalse );
+        iZoomBackKey->MakeVisible(EFalse);
         iTextureMgr->RemoveZoomList();
 
         iImageVisual->SetImage(*iImageTexture);
@@ -460,7 +465,7 @@ EXPORT_C void CGlxZoomControl::Deactivate()
         CleanUpVisual();
 
         iZoomActive = EFalse;
-        iEventHandler->SetZoomActivated(EFalse);        
+        iEventHandler->SetZoomActivated(EFalse);
         }
     // Hide the Zoom View
     ShowZoom(EFalse);
@@ -473,35 +478,17 @@ EXPORT_C void CGlxZoomControl::Deactivate()
 EXPORT_C void CGlxZoomControl::HandleZoomForegroundEvent(TBool aForeground)
     {
     TRACER("CGlxZoomControl::HandleZoomForegroundEventL()");
-
-    //Refeed the textures if we are coming back to foreground from background
-    //To Retrive the image details
-    TMPXAttribute thumbNailAttribute(0,0);
-    TInt focusIndex = iMediaList.FocusIndex();
-    TGlxIdSpaceId idspace = iMediaList.IdSpaceId( focusIndex );
-    //Get the texture Created in fullscreen View.
-    TGlxMedia item = iMediaList.Item( focusIndex );
     
     if (!aForeground)
         {
+        ShowUi(EFalse);
         iEventHandler->CancelZoomPanTimer();
         iEventHandler->CancelUITimer();
         iEventHandler->CancelAnimationTimer();
         }
     else
         {
-        // if we already have the decoded zoomed image bitmap use the texture corresponding to that.
-        // Else make do with the fullscreen texture till that happens.  
-        TRAP_IGNORE(iImageTexture = 
-            iTextureMgr->CreateZoomedTextureL());
-        
-        if (NULL == iImageTexture)
-            {
-            iImageTexture = &(iTextureMgr->CreateNewTextureForMediaL(
-                    ScreenSize(),item, idspace, this ));
-            }
-
-        iImageVisual->SetImage(*iImageTexture);
+        iGPUMemMonitor->RequestMemory();
         }
     } 
 
@@ -643,6 +630,7 @@ void CGlxZoomControl::VisualLayoutUpdated(CAlfVisual& aVisual)
         	{
 	        iEventHandler->OrientationChanged(rect);
       		}
+		iCommandHandler.HandleCommandL(KGlxZoomOrientationChange, this);
         }
     }
 
@@ -980,5 +968,45 @@ EXPORT_C TUiState CGlxZoomControl::ZoomUiState()
     {
     TRACER("CGlxZoomControl::ZoomUiState");
     return iEventHandler->ZoomUiState();
+    }
+
+// ---------------------------------------------------------------------------
+// HandleGoomMemoryReleased
+// Callback from memMonitor CGlxRelaseGPUMemory
+// ---------------------------------------------------------------------------
+//  
+void CGlxZoomControl::HandleGoomMemoryReleased(TInt aStatus)
+    {
+    TRACER("CGlxZoomControl::HandleGoomMemoryReleased");
+    if (aStatus == KErrNone)
+        {
+        //Refeed the textures if we are coming back to foreground from background
+        //To Retrive the image details
+        TMPXAttribute thumbNailAttribute(0, 0);
+        TInt focusIndex = iMediaList.FocusIndex();
+        TGlxIdSpaceId idspace = iMediaList.IdSpaceId(focusIndex);
+        //Get the texture Created in fullscreen View.
+        TGlxMedia item = iMediaList.Item(focusIndex);
+
+        // if we already have the decoded zoomed image bitmap use the texture corresponding to that.
+        // Else make do with the fullscreen texture till that happens.  
+        TRAP_IGNORE(iImageTexture =
+                iTextureMgr->CreateZoomedTextureL());
+
+        if (NULL == iImageTexture)
+            {
+            TRAP_IGNORE(iImageTexture = &(iTextureMgr->CreateNewTextureForMediaL(
+                                    ScreenSize(), item, idspace, this)))
+            }
+
+        if (NULL != iImageTexture)
+            {
+            iImageVisual->SetImage(*iImageTexture);
+            return;
+            }
+        }
+
+    // No GPU Memory, return back to Fullscreenview
+    ActivateFullscreen();
     }
 //  End of File

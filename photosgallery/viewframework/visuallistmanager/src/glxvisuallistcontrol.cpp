@@ -306,7 +306,7 @@ void CGlxVisualListControl::AddObserverL(MGlxVisualListObserver* aObserver)
 	GLX_LOG_INFO("CGlxVisualListControl::AddObserverL");
 	__ASSERT_DEBUG(iObservers.Find(aObserver) == KErrNotFound, 
 	                    Panic(EGlxPanicIllegalArgument)); // Already exists
-	iObservers.Append(aObserver);
+	iObservers.AppendL(aObserver);
 	}
 
 // -----------------------------------------------------------------------------
@@ -342,7 +342,7 @@ TGlxViewContextId CGlxVisualListControl::AddContextL(
 	context.iId = nextId;
 	context.iFrontVisibleRangeOffset = aFrontVisibleRangeOffset;
 	context.aRearVisibleRangeOffset = aRearVisibleRangeOffset;
-	iContexts.Append(context); // Cannot fail thanks to reservation
+	iContexts.AppendL(context); // Cannot fail thanks to reservation
 	
 	// Combine the contexts, and update the window
 	TInt frontOffset = 0;
@@ -445,7 +445,7 @@ void CGlxVisualListControl::HandleItemAddedL(TInt aStartIndex, TInt aEndIndex,
 	{
 	TRACER("CGlxVisualListControl::HandleItemAddedL");
 	GLX_LOG_INFO("CGlxVisualListControl::HandleItemAddedL");
-	iVisualWindow->AddObjects( aStartIndex, aEndIndex );
+	iVisualWindow->AddObjectsL( aStartIndex, aEndIndex );
 	iVisualWindow->UpdatePositions();
 	}
 	
@@ -469,7 +469,7 @@ void CGlxVisualListControl::HandleItemRemovedL(TInt aStartIndex, TInt aEndIndex,
 	{
 	TRACER("CGlxVisualListControl::HandleItemRemovedL");
 	GLX_LOG_INFO("CGlxVisualListControl::HandleItemRemovedL");
-	iVisualWindow->RemoveObjects( aStartIndex, aEndIndex );
+	iVisualWindow->RemoveObjectsL( aStartIndex, aEndIndex );
 	iVisualWindow->UpdatePositions();
 	}
 

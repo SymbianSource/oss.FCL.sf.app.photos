@@ -96,12 +96,19 @@ const TInt KPeriodicStartDelay = 250000;
  */
 const TInt KPeriodicIntervalDelay = 500000; 
 
-//This constant is used to calculate the index of the item for which texture has to removed.
-//6 = 5(iterator value in forward or backward direction for fullscreen) + 1(focus index)
-const TInt KFullScreenIterator = 3; 
-//Constant which says maximum number of fullscreen textures that we have have at a time.
-//11 = (5(5 fullscreen texture backwards)+1(fucus index texture)+5(5 fullscreen texture forwards))
-const TInt KFullScreenTextureOffset = 5;
+/** 
+ * Fullscreen texture offset 
+ */ 
+const TInt KTextureOffset = 2; 
+
+// This constant is used to calculate the index of the item 
+// for which texture has to removed.
+const TInt KFullScreenIterator = KTextureOffset + 1; 
+
+// This constant is used to calculate the maximum number of fullscreen textures 
+// needs to be updated during foreground event.
+const TInt KFullScreenTextureOffset = KFullScreenIterator + KTextureOffset;
+
 const TInt KGlxDecodingThreshold = 3000000; // pixels
 
 _LIT( KTfxResourceActivateFullScreen, "z:\\resource\\effects\\photos_fullscreen_open.fxml" );
@@ -354,9 +361,10 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
 
     //Create hdmicontroller when it is only launched from fullscreen.  
     //From filemanager show only clone mode.
+    iHdmiController = CGlxHdmiController::NewL(*this); 
+    
     if( !iImgViewerMode )    
         {
-        iHdmiController = CGlxHdmiController::NewL(*this);    
         SetItemToHDMIL();
         }
     iScreenFurniture->SetActiveView(iViewUid);
@@ -699,8 +707,7 @@ void CGlxFullScreenViewImp::ActivateZoomControlL(TZoomStartMode aStartMode, TPoi
      * We will not do any zoom while HDMI is connected.
      * This is as part of HDMI improvements.
      */
-    if (!iImgViewerMode && iHdmiController 
-				&& iHdmiController->IsHDMIConnected())
+    if (iHdmiController && iHdmiController->IsHDMIConnected())
         {
         // Hide zoom slider in HDMI mode as Zoom is disable.
         // Let the other screen furnitures intact.
@@ -793,6 +800,7 @@ void CGlxFullScreenViewImp::DeactivateZoomControlL()
     {
     TRACER("CGlxFullScreenViewImp::DeactivateZoomControlL");
     ActivateFullScreenL();
+    UpdateItems();
     //Deactivate HDMI controller for zoom out while pinch zooming.
     if(iHdmiController)
         {
@@ -950,8 +958,7 @@ void CGlxFullScreenViewImp::HandleForegroundEventL(TBool aForeground)
 				}
 			else if (iMediaListMulModelProvider)
 				{
-				TInt focusIndex = iMediaList->FocusIndex();
-				iMediaListMulModelProvider->UpdateItems(focusIndex, 1);
+	            UpdateItems();
 
 				if (iHdmiController)
 					{
@@ -1275,15 +1282,22 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
 //
  void CGlxFullScreenViewImp::HandleCommandL(TInt aCommandId, CAlfControl* aControl) 
 	 {
-	 TRACER("CGlxFullScreenViewImp::HandleCommandLCAlfControl");
-	 //Gets a callback from zoomview if zoomlevel goes beyound the launch zoomlevel
-	 // and activates the fullscreenview
-	 if((aControl == iZoomControl)&& (aCommandId == KGlxZoomOutCommand))
-	     {
-	     SetSliderLevel();
-	     DeactivateZoomControlL();
-	     }
-	 } 
+    TRACER("CGlxFullScreenViewImp::HandleCommandLCAlfControl");
+    //Gets a callback from zoomview if zoomlevel goes beyound the launch zoomlevel
+    // and activates the fullscreenview
+    if (aControl == iZoomControl)
+        {
+        if (aCommandId == KGlxZoomOutCommand)
+            {
+            SetSliderLevel();
+            DeactivateZoomControlL();
+            }
+        else if(aCommandId == KGlxZoomOrientationChange)
+            {
+            iViewWidget->setRect(TRect(TPoint(0,0),AlfUtil::ScreenSize()));
+            }
+        }
+	} 
 
 // ---------------------------------------------------------------------------
 // From HandleResourceChangeL..
@@ -1501,19 +1515,27 @@ void CGlxFullScreenViewImp::ShowDrmExpiryNoteL()
                 iPeriodic->Cancel();
                 }
 
-            CGlxNavigationalState* navigationalState =
-                    CGlxNavigationalState::InstanceL();
-            CleanupClosePushL(*navigationalState);
-            CMPXCollectionPath* naviState = navigationalState->StateLC();
-            if (naviState->Id() == TMPXItemId(
-                    KGlxCollectionPluginImageViewerImplementationUid))
+            if (iImgViewerMode)
                 {
-                GLX_LOG_INFO("CGlxFullScreenViewImp::ShowDrmExpiryNoteL()"
-                        "- ShowErrorNoteL()");
-                GlxGeneralUiUtilities::ShowErrorNoteL(tnError);
+                GLX_LOG_INFO1("CGlxFullScreenViewImp::ShowDrmExpiryNoteL()"
+                        "- ShowErrorNoteL(%d)", tnError);
+                if (tnError == KErrNoMemory || tnError == KErrNotSupported
+                        || tnError == KErrInUse || tnError == KErrDiskFull
+                        || tnError == KErrTimedOut || tnError
+                        == KErrPermissionDenied)
+                    {
+                    GlxGeneralUiUtilities::ShowErrorNoteL(tnError);
+                    }
+                else
+                    {
+                    // Generic "Unable to open image" error note
+                    HBufC* str = StringLoader::LoadLC(
+                            R_GLX_ERR_FORMAT_UNKNOWN);
+                    CAknErrorNote* note = new (ELeave) CAknErrorNote(ETrue);
+                    note->ExecuteLD(*str); // ignore return value, not used
+                    CleanupStack::PopAndDestroy(str);
+                    }
                 }
-            CleanupStack::PopAndDestroy(naviState);
-            CleanupStack::PopAndDestroy(navigationalState);
             }
         }
     }
@@ -1791,20 +1813,15 @@ void CGlxFullScreenViewImp::HandleMMCInsertionL()
 void CGlxFullScreenViewImp::NavigateToMainListL()
     {
     TRACER("CGlxFullScreenViewImp::NavigateToMainListL()");
-    CGlxNavigationalState* navigationalState =  CGlxNavigationalState::InstanceL();
-    CleanupClosePushL( *navigationalState );
-    CMPXCollectionPath* naviState = navigationalState->StateLC();
-    if (naviState->Id() != TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
+    if (!iImgViewerMode)
         {
-        if(iZoomControl && iZoomControl->Activated())
-        	{
-        	SetSliderLevel();
-		    DeactivateZoomControlL();	
-        	}
-        ProcessCommandL(EAknSoftkeyClose);
+        if (iZoomControl && iZoomControl->Activated())
+            {
+            SetSliderLevel();
+            DeactivateZoomControlL();
+            }
+        ProcessCommandL( EAknSoftkeyClose);
         }
-    CleanupStack::PopAndDestroy(naviState);
-    CleanupStack::PopAndDestroy(navigationalState);
     }
 	
 // ---------------------------------------------------------------------------
@@ -1947,4 +1964,67 @@ void CGlxFullScreenViewImp::HandleHDMIDecodingEventL(
         THdmiDecodingStatus /*aStatus*/)
     {
     TRACER("CGlxFullScreenViewImp::HandleHDMIDecodingEventL()");
+    }
+
+// ---------------------------------------------------------------------------
+// UpdateItems
+// ---------------------------------------------------------------------------
+void CGlxFullScreenViewImp::UpdateItems()
+    {
+    TRACER("CGlxFullScreenViewImp::UpdateItems()");
+    TInt focusIndex = iMediaList->FocusIndex();
+    TInt count = iMediaList->Count();
+    GLX_LOG_INFO2("CGlxFullScreenViewImp::UpdateItems()"
+            " focusIndex(%d), count(%d)", focusIndex, count);
+    
+    if (focusIndex != KErrNotFound && count)
+        {        
+        // update the focus index first
+		iMediaListMulModelProvider->UpdateItems(focusIndex, 1);
+
+        TInt startIndex = focusIndex;
+        TInt iteratorCount = (KTextureOffset > count) ? 
+                                count : KTextureOffset;
+        TInt textureCount = (KFullScreenTextureOffset > count)?
+                                count : KFullScreenTextureOffset;
+
+        startIndex = focusIndex - iteratorCount;
+        if (startIndex < 0)
+            {
+            startIndex = count + startIndex;
+            }
+
+        TInt i = 0;
+        //Update all the textures in the window
+        while (i < textureCount)
+            {
+            if (startIndex != focusIndex)
+                {
+                GLX_LOG_INFO1("CGlxFullScreenViewImp::UpdateItems(%d)", startIndex);
+                iMediaListMulModelProvider->UpdateItems(startIndex, 1);
+                }
+            if (++startIndex == count)
+                {
+                startIndex = 0;
+                }
+            i++;
+            }
+        
+        // When the focused index is first or last, 
+        // need to update the items adjacent to KFullScreenIterator also!
+        if (count > (KFullScreenTextureOffset))
+            {
+            TInt lastIndex = count - 1;
+            if (focusIndex == 0)
+                {
+                iMediaListMulModelProvider->UpdateItems(KFullScreenIterator,
+                        1);
+                }
+            else if (focusIndex == lastIndex)
+                {
+                iMediaListMulModelProvider->UpdateItems(lastIndex
+                        - KFullScreenIterator, 1);
+                }
+            }
+        }
     }

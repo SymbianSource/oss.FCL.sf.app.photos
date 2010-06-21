@@ -268,7 +268,15 @@ void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile,
     else
         {
         ReleaseContent();
-        }
+		if (iNextImagePath)
+			{
+			delete iNextImagePath;
+			iNextImagePath = NULL;
+			}
+		// Ongoing decoding is cancelled if any,reset the decoding flags. 
+		iDecodingNext = EFalse;
+		iDecodingCurrent = EFalse;
+		}
     // Initiate the HDMI by assigning the necessary values
     InitiateHdmiL(aFsBitmap, aImageFile, aNextImageFile);
     //Cancel the zoom timers if any

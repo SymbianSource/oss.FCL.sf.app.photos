@@ -91,7 +91,7 @@ void CGlxCollectionPluginImageViewer::ConstructL()
     iDataSource = MGlxDataSource::OpenDataSourceL(KGlxDefaultDataSourceUid, *this);
     }
 
-void CGlxCollectionPluginImageViewer::CpiAttributeAdditionalAttributes(
+void CGlxCollectionPluginImageViewer::CpiAttributeAdditionalAttributesL(
         const TMPXAttribute& /*aCpiAttribute*/, 
         RArray<TMPXAttribute>& /*aAttributeArray*/)
     {

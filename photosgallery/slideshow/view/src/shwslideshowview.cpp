@@ -506,7 +506,7 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
     iUiUtility->Display()->SetVisibleArea(TRect(TPoint(0,0),AlfUtil::ScreenSize()));
 	// We will require to act on events ONLY when the view is active.
 	// So listen to them only when the view is active.
-    iShwGestureControl->AddObserver(this);    
+    iShwGestureControl->AddObserverL(this);    
     }
 
 // -----------------------------------------------------------------------------

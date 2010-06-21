@@ -490,10 +490,12 @@ TKeyResponse CGlxCommandHandlerMarking::OfferKeyEventL(const TKeyEvent&
 void CGlxCommandHandlerMarking::HandleItemAddedL(TInt /*aStartIndex*/, 
                                     TInt /*aEndIndex*/, MGlxMediaList* aList)
     {
-    if (aList->Count() > 0 && iUiUtility->GetGridToolBar())
+    TRACER("CGlxCommandHandlerMarking::HandleItemAddedL");
+    // Check if toolbar is available.
+    CAknToolbar* toolbar = iUiUtility->GetGridToolBar();
+    if (aList->Count() > 0 && toolbar)
         {
-        iUiUtility->GetGridToolBar()->SetItemDimmed(
-                EGlxCmdStartMultipleMarking, EFalse, ETrue);
+        toolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, EFalse, ETrue);
         }
     }
     
@@ -513,10 +515,12 @@ void CGlxCommandHandlerMarking::HandleMediaL(TInt /*aListIndex*/,
 void CGlxCommandHandlerMarking::HandleItemRemovedL(TInt /*aStartIndex*/, 
                                     TInt /*aEndIndex*/, MGlxMediaList* aList)
     {
-    if (aList->Count() == 0 && iUiUtility->GetGridToolBar())
+    TRACER("CGlxCommandHandlerMarking::HandleItemRemovedL");
+    // Check if toolbar is available.
+    CAknToolbar* toolbar = iUiUtility->GetGridToolBar();
+    if (aList->Count() == 0 && toolbar)
         {
-        iUiUtility->GetGridToolBar()->SetItemDimmed(
-                EGlxCmdStartMultipleMarking, ETrue, ETrue);
+        toolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, ETrue, ETrue);
         }
     }
 
@@ -538,31 +542,31 @@ void CGlxCommandHandlerMarking::HandleAttributesAvailableL(TInt aItemIndex,
 	
 	if(!iUiUtility->IsPenSupported())
 		{
-	    if( aItemIndex == aList->FocusIndex() && iMultipleMarking)
-	        {
-	        if(aList->Item(aItemIndex).IsStatic())
-	            {
-	            iScreenFurniture->ModifySoftkeyIdL(
-	                    CEikButtonGroupContainer::EMiddleSoftkeyPosition, 
-	                    EAknSoftkeyEmpty, 0, KGlxBlankString);    
-	            }
-	        else
-	            {
-	            if (aList->IsSelected(aItemIndex))
-	                {
-	                iScreenFurniture->ModifySoftkeyIdL(
-	                        CEikButtonGroupContainer::EMiddleSoftkeyPosition, 
-	                        EAknCmdUnmark, 0, *iMskTextUnMark);    
-	                }
-	            else
-	                {
-	                iScreenFurniture->ModifySoftkeyIdL(
-	                        CEikButtonGroupContainer::EMiddleSoftkeyPosition, 
-	                            EAknCmdMark, 0, *iMskTextMark);    
-	                }
-	            	}
-	        	}
+		if (aItemIndex == aList->FocusIndex() && iMultipleMarking)
+			{
+			if (aList->Item(aItemIndex).IsStatic())
+				{
+				iScreenFurniture->ModifySoftkeyIdL(
+						CEikButtonGroupContainer::EMiddleSoftkeyPosition,
+						EAknSoftkeyEmpty, 0, KGlxBlankString);
+				}
+			else
+				{
+				if (aList->IsSelected(aItemIndex))
+					{
+					iScreenFurniture->ModifySoftkeyIdL(
+							CEikButtonGroupContainer::EMiddleSoftkeyPosition,
+							EAknCmdUnmark, 0, *iMskTextUnMark);
+					}
+				else
+					{
+					iScreenFurniture->ModifySoftkeyIdL(
+							CEikButtonGroupContainer::EMiddleSoftkeyPosition,
+							EAknCmdMark, 0, *iMskTextMark);
+					}
+				}
 			}
+		}
     }
 
 // ---------------------------------------------------------------------------
@@ -604,7 +608,6 @@ void CGlxCommandHandlerMarking::HandleFocusChangedL(NGlxListDefs::TFocusChangeTy
                 if( aOldIndex < aNewIndex )
                     {
                     endIdx += count;  
-
                     }          
                 }
                 break;
@@ -682,16 +685,15 @@ void CGlxCommandHandlerMarking::HandleItemSelectedL(TInt aIndex,
     correspond to the marked state of the focussed item. If the item is 
     marked the softkey is changed to "Unmark" and vice versa.
     */
-    
-	if(!iUiUtility->IsPenSupported())
+    if (!iUiUtility->IsPenSupported())
 		{
-    	if( aIndex == aList->FocusIndex() )
-        	{
-        	// Update MSK
-        	iScreenFurniture->ModifySoftkeyIdL(
-                CEikButtonGroupContainer::EMiddleSoftkeyPosition, EAknCmdUnmark, 0, *iMskTextUnMark);    
-
-        	} 
+		if (aIndex == aList->FocusIndex())
+			{
+			// Update MSK
+			iScreenFurniture->ModifySoftkeyIdL(
+					CEikButtonGroupContainer::EMiddleSoftkeyPosition,
+					EAknCmdUnmark, 0, *iMskTextUnMark);
+			}
 		}
     }
 

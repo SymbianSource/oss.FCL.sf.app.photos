@@ -68,4 +68,6 @@ EXPORTS
 	?ShowConfirmationNoteL@GlxGeneralUiUtilities@@SAXABVTDesC16@@H@Z @ 67 NONAME ; void GlxGeneralUiUtilities::ShowConfirmationNoteL(class TDesC16 const &, int)
 	?ScreenFurniture@CGlxUiUtility@@QAEPAVCGlxScreenFurniture@@XZ @ 68 NONAME ; class CGlxScreenFurniture * CGlxUiUtility::ScreenFurniture(void)
 	?InstanceL@MGlxActiveMediaListResolver@@SAPAV1@PAVMGlxActiveMediaListChangeObserver@@@Z @ 69 NONAME ; class MGlxActiveMediaListResolver * MGlxActiveMediaListResolver::InstanceL(class MGlxActiveMediaListChangeObserver *)
+	?NewL@CGlxRelaseGPUMemory@@SAPAV1@AAVMGoomNotifierObserver@@@Z @ 70 NONAME ; class CGlxRelaseGPUMemory * CGlxRelaseGPUMemory::NewL(class MGoomNotifierObserver &)
+	?RequestMemory@CGlxRelaseGPUMemory@@QAEXXZ @ 71 NONAME ; void CGlxRelaseGPUMemory::RequestMemory(void)
 

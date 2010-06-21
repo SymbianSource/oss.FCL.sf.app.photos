@@ -277,6 +277,7 @@ private:
     TBool               iDragOngoing;                   // Is a drag event ongoing
     TBool               iZoomActivated;                 // To Denote if zoom is activated
     TUiState            iZoomUiState;                   // To Denote if the Ui is On in zoom
+    TInt                iPrevPinchFactor;                // To avoid the bouce while pinch gesture end
     
     TPoint              iPreviousPointerPosition;
     TPoint              iPreviousDragStartPosition;

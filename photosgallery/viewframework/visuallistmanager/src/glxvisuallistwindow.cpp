@@ -206,7 +206,7 @@ void CGlxVisualListWindow::SetFocusIndexL( TInt aFocusIndex )
 	{
 	TRACER("CGlxVisualListWindow::SetFocusIndexL");
     GLX_LOG_INFO1("CGlxVisualListWindow::SetFocusIndexL %d",aFocusIndex);
-	CGlxListWindow::SetFocusIndex( aFocusIndex );
+	CGlxListWindow::SetFocusIndexL( aFocusIndex );
 	
 	UpdatePositions();
 

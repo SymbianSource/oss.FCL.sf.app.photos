@@ -199,7 +199,7 @@ protected:
 	 * @param aCpiAttribute CPI specific attribute to be constructed later
 	 * @param aAttributeArray modifiable list of attributes to be retrieved from data source
 	 */	 
-	IMPORT_C virtual void CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray);     	
+	IMPORT_C virtual void CpiAttributeAdditionalAttributesL(const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray);     	
 
 	/**
 	 * Modifies the response to include all requested CPI specific attributes or Leaves.

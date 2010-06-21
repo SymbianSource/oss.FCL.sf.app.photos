@@ -97,79 +97,84 @@ void CGlxCollectionPluginCamera::ConstructL()
     iDataSource = MGlxDataSource::OpenDataSourceL(KGlxDefaultDataSourceUid, *this);
 	}
 // ----------------------------------------------------------------------------
-// CpiAttributeAdditionalAttributes
+// CpiAttributeAdditionalAttributesL
 // ----------------------------------------------------------------------------
 //
-void CGlxCollectionPluginCamera::CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray)
-	{
-    TRACER("CGlxCollectionPluginCamera::CpiAttributeAdditionalAttributes");
-    // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here as all the other attributes
-    // are reading straight from resource files KGlxMediaCollectionPluginSpecificSubTitle 
-    // requires a image and the Video count in the collection
-    
-	if (aCpiAttribute == KGlxMediaCollectionPluginSpecificSubTitle)
-		{
-		// need to add the usage count. but check first if it is already present
-		TInt attrCount = aAttributeArray.Count();
-		
-		TBool found = EFalse;
-		
-#ifdef GLX_SUB_TITLE_REL8
-		
-		TBool videofound = EFalse;
-		TBool imagefound = EFalse;		
+void CGlxCollectionPluginCamera::CpiAttributeAdditionalAttributesL(
+        const TMPXAttribute& aCpiAttribute,
+        RArray<TMPXAttribute>& aAttributeArray)
+    {
+    TRACER("CGlxCollectionPluginCamera::CpiAttributeAdditionalAttributesL");
+    // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here as 
+    // all the other attributes are reading straight from resource files 
+    // KGlxMediaCollectionPluginSpecificSubTitle requires a image and the 
+    // Video count in the collection
 
-		for ( TInt index = 0 ; index < attrCount ; index++)
-			{
-			if (aAttributeArray[index] == KMPXMediaGeneralCount)
-				{
-				found = ETrue;	            
-				}
-			else if (aAttributeArray[index] == KGlxMediaItemTypeVideo)
-				{
-				videofound = ETrue;	            
-				}
-			else if(aAttributeArray[index] == KGlxMediaItemTypeImage)	            
-				{
-				imagefound = ETrue;
-				}
-				
-		if (!videofound)
-			{
-			aAttributeArray.Append(KGlxMediaItemTypeVideo);
-			}
-		if (!imagefound)	        
-			{
-			aAttributeArray.Append(KGlxMediaItemTypeImage);
-			}
-		if (!found)
-			{
-			aAttributeArray.Append(KMPXMediaGeneralCount);
-			}
-				
+    if (aCpiAttribute == KGlxMediaCollectionPluginSpecificSubTitle)
+        {
+        // need to add the usage count. but check first if it is already present
+        TInt attrCount = aAttributeArray.Count();
+
+        TBool found = EFalse;
+
+#ifdef GLX_SUB_TITLE_REL8
+
+        TBool videofound = EFalse;
+        TBool imagefound = EFalse;
+
+        for ( TInt index = 0; index < attrCount; index++)
+            {
+            if (aAttributeArray[index] == KMPXMediaGeneralCount)
+                {
+                found = ETrue;
+                }
+            else if (aAttributeArray[index] == KGlxMediaItemTypeVideo)
+                {
+                videofound = ETrue;
+                }
+            else if(aAttributeArray[index] == KGlxMediaItemTypeImage)
+                {
+                imagefound = ETrue;
+                }
+
+            if (!videofound)
+                {
+                aAttributeArray.AppendL(KGlxMediaItemTypeVideo);
+                }
+            if (!imagefound)
+                {
+                aAttributeArray.AppendL(KGlxMediaItemTypeImage);
+                }
+            if (!found)
+                {
+                aAttributeArray.AppendL(KMPXMediaGeneralCount);
+                }
+
 #else
 
-	for ( TInt index = 0 ; index < attrCount ; index++)
-			{
-			if (aAttributeArray[index] == KMPXMediaGeneralCount)
-				{
-				found = ETrue;	            
-				}			
-			}			
-		if (!found)
-			{
-			aAttributeArray.Append(KMPXMediaGeneralCount);
-			}       
+        for (TInt index = 0; index < attrCount; index++)
+            {
+            if (aAttributeArray[index] == KMPXMediaGeneralCount)
+                {
+                found = ETrue;
+                }
+            }
+        if (!found)
+            {
+            aAttributeArray.AppendL(KMPXMediaGeneralCount);
+            }
 #endif						
-		}
-	}
+        }
+    }
 
 // ----------------------------------------------------------------------------
 // HandleCpiAttributeResponseL
 // ----------------------------------------------------------------------------
 // 
-void CGlxCollectionPluginCamera::HandleCpiAttributeResponseL(CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, TArray<TGlxMediaId> /* aMediaIds */)
-	{
+void CGlxCollectionPluginCamera::HandleCpiAttributeResponseL(
+        CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, 
+        TArray<TGlxMediaId> /* aMediaIds */)
+    {
     TRACER("CGlxCollectionPluginCamera::HandleCpiAttributeResponseL");
     
     _LIT(KResourceFile, "z:glxplugincamera.rsc");
@@ -216,7 +221,8 @@ void CGlxCollectionPluginCamera::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 					{	
 					GLX_LOG_INFO("ImageCount and VideoCount is 0");
 									
-					tempTitle = LoadLocalizedStringLC(KResourceFile, R_CAMERA_SUB_TITLE_NO_IMAGE_NO_VIDEO);
+					tempTitle = LoadLocalizedStringLC(KResourceFile, 
+					        R_CAMERA_SUB_TITLE_NO_IMAGE_NO_VIDEO);
 					aResponse->SetTextValueL(attr, *tempTitle);	
 					}
 
@@ -225,11 +231,13 @@ void CGlxCollectionPluginCamera::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 					{
 					GLX_LOG_INFO1("ImageCount is 0 and VideoCount is %d",videoCount);
 					
-					tempTitle = LoadLocalizedStringLC(KResourceFile, R_CAMERA_SUB_TITLE_ONE_IMAGE_MULTI_VIDEO);
+					tempTitle = LoadLocalizedStringLC(KResourceFile, 
+					        R_CAMERA_SUB_TITLE_ONE_IMAGE_MULTI_VIDEO);
 
 					TPtr formatString = tempTitle->Des();
 
-					// Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
+					// Now create a buffer that will contain the result. needs to be 
+					// length of format string plus a few extra for the number
 					HBufC* title = HBufC::NewLC(formatString.Length() + 10);
 					TPtr ptr = title->Des();
 
@@ -246,11 +254,13 @@ void CGlxCollectionPluginCamera::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 					{
 					GLX_LOG_INFO1("ImageCount is %d and VideoCount is 0",imageCount);
 					
-					tempTitle = LoadLocalizedStringLC(KResourceFile, R_CAMERA_SUB_TITLE_MULTI_IMAGE_ONE_VIDEO);                	
+					tempTitle = LoadLocalizedStringLC(KResourceFile, 
+					        R_CAMERA_SUB_TITLE_MULTI_IMAGE_ONE_VIDEO);                	
 
 					TPtr formatString = tempTitle->Des();
 
-					// Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
+					// Now create a buffer that will contain the result. needs to be 
+					// length of format string plus a few extra for the number
 					HBufC* title = HBufC::NewLC(formatString.Length() + 10);
 					TPtr ptr = title->Des();
 
@@ -267,7 +277,8 @@ void CGlxCollectionPluginCamera::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 					{
 					GLX_LOG_INFO2("ImageCount is %d,VideoCount is %d",imageCount,videoCount);
 					
-					tempTitle = LoadLocalizedStringLC(KResourceFile, R_CAMERA_SUB_TITLE_MULTI_IMAGE_MULTI_VIDEO);                	
+					tempTitle = LoadLocalizedStringLC(KResourceFile, 
+					        R_CAMERA_SUB_TITLE_MULTI_IMAGE_MULTI_VIDEO);                	
 					TPtr formatString = tempTitle->Des();	
 
 					HBufC* title = HBufC::NewLC(formatString.Length() + 10);
@@ -290,7 +301,8 @@ void CGlxCollectionPluginCamera::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 #else
 				if(0 == usageCount)
             		{
-                	tempTitle = LoadLocalizedStringLC(KResourceFile, R_CAMERA_SUB_TITLE_NO_IMAGE_NO_VIDEO);                	
+                	tempTitle = LoadLocalizedStringLC(KResourceFile, 
+                	        R_CAMERA_SUB_TITLE_NO_IMAGE_NO_VIDEO);                	
                 	// Set the title in the response.
             		aResponse->SetTextValueL(attr, *tempTitle);  
             		CleanupStack::PopAndDestroy(tempTitle);
@@ -310,7 +322,8 @@ void CGlxCollectionPluginCamera::HandleCpiAttributeResponseL(CMPXMedia* aRespons
                     }
                 TPtr formatString = tempTitle->Des();
                 
-                // Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
+                // Now create a buffer that will contain the result. needs to be 
+                // length of format string plus a few extra for the number
                 HBufC* title = HBufC::NewLC(formatString.Length() + 10);
                 TPtr ptr = title->Des();
                 StringLoader::Format(ptr, formatString, -1, usageCount);

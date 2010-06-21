@@ -585,16 +585,17 @@ void T_CShwEffectControl::HandleFocusChangedL()
 
 void T_CShwEffectControl::TestThumbnailLoadingL()
 	{
-	// create shw thumbnail context for index 1 and size 100,100
-	const TInt thumbIndex = 1;
-	CShwThumbnailContext* context = CShwThumbnailContext::NewLC( thumbIndex, TSize( 100, 100 ) );
+    // create shw thumbnail context for index 1 and size 100,100
+    const TInt thumbIndex = 1;
+    CShwThumbnailContext* context = CShwThumbnailContext::NewLC(thumbIndex,
+            TSize(100, 100), iStubMediaList);
 
     // test that the index is returned
     // set iterator to first
-    context->SetToFirst( iStubMediaList );
+    context->SetToFirst(iStubMediaList);
     // then iterate once
     TInt index = (*context)++;
-    EUNIT_ASSERT_EQUALS_DESC( thumbIndex, index, "check first iterated index" );
+    EUNIT_ASSERT_EQUALS_DESC(thumbIndex, index, "check first iterated index");
 
     index = (*context)++;
     EUNIT_ASSERT_EQUALS_DESC( KErrNotFound, index, "next index is KErrNotFound" );
@@ -604,8 +605,8 @@ void T_CShwEffectControl::TestThumbnailLoadingL()
     EUNIT_ASSERT_DESC( !context->InRange( thumbIndex+1 ), "thumbIndex+1 is not in range" );
     EUNIT_ASSERT_DESC( context->InRange( thumbIndex ), "thumbIndex is in range" );
 
-    CleanupStack::PopAndDestroy( context );
-	}
+    CleanupStack::PopAndDestroy(context);
+    }
 
 void T_CShwEffectControl::TestErrorsInThumbnailLoadingL()
 	{

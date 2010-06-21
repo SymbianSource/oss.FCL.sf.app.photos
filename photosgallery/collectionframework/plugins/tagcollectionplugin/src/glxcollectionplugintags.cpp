@@ -90,10 +90,10 @@ CGlxCollectionPluginTags::CGlxCollectionPluginTags(
 // Add Additional attributes
 // ----------------------------------------------------------------------------
 
-void CGlxCollectionPluginTags::CpiAttributeAdditionalAttributes(
+void CGlxCollectionPluginTags::CpiAttributeAdditionalAttributesL(
 				const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray)
 	{
-    TRACER("CGlxCollectionPluginTags::CpiAttributeAdditionalAttributes");  
+    TRACER("CGlxCollectionPluginTags::CpiAttributeAdditionalAttributesL");  
     // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here as all
     // the others are reading straight from resource files
     // KGlxMediaCollectionPluginSpecificSubTitle requires a usage count
@@ -116,7 +116,7 @@ void CGlxCollectionPluginTags::CpiAttributeAdditionalAttributes(
 	        
 	    if (!found)
 	        {
-	        aAttributeArray.Append(KMPXMediaGeneralCount);
+	        aAttributeArray.AppendL(KMPXMediaGeneralCount);
 	        }
 	    }
 	}
@@ -126,56 +126,58 @@ void CGlxCollectionPluginTags::CpiAttributeAdditionalAttributes(
 // Modify the response
 // ----------------------------------------------------------------------------
 
-void CGlxCollectionPluginTags::HandleCpiAttributeResponseL(CMPXMedia* aResponse, 
-				TArray<TMPXAttribute> aCpiAttributes, TArray<TGlxMediaId> aMediaIds)
-	{
-    TRACER("CGlxCollectionPluginTags::HandleCpiAttributeResponseL");  
+void CGlxCollectionPluginTags::HandleCpiAttributeResponseL(
+        CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, TArray<
+                TGlxMediaId> aMediaIds)
+    {
+    TRACER("CGlxCollectionPluginTags::HandleCpiAttributeResponseL");
     const TInt mediaIdCount = aMediaIds.Count();
-    
+
     switch (mediaIdCount)
         {
-    case 0:
+        case 0:
             User::Leave(KErrNotSupported);
             break;
-        
-    case 1:
-            GLX_LOG_INFO("CGlxCollectionPluginTags::HandleCpiAttributeResponseL-MediaID");  
-    	
-            HandleCpiAttributeResponseL(aResponse, aCpiAttributes, aMediaIds[0]);
+
+        case 1:
+            GLX_LOG_INFO("CGlxCollectionPluginTags::HandleCpiAttributeResponseL-MediaID");
+
+            HandleCpiAttributeResponseL(aResponse, aCpiAttributes,
+                    aMediaIds[0]);
             break;
-        
-        
-    default:
+
+        default:
             {
             // We have an array of CMPXMedia items
-            
+
             if (TGlxMediaId(KGlxCollectionRootId) == aMediaIds[0])
                 {
                 User::Leave(KErrNotSupported);
                 }
-                
-            CMPXMediaArray* mediaArray = aResponse->ValueCObjectL<CMPXMediaArray>(KMPXMediaArrayContents);
+
+            CMPXMediaArray* mediaArray = aResponse->ValueCObjectL<
+                    CMPXMediaArray> (KMPXMediaArrayContents);
             CleanupStack::PushL(mediaArray);
 
             const TInt arrayCount = mediaArray->Count();
-            
+
             // Sanity check
-        	if (arrayCount != mediaIdCount)
-        	    {
+            if (arrayCount != mediaIdCount)
+                {
                 User::Leave(KErrArgument);
-        	    }
-        	
+                }
+
             for (TInt index = 0; index < arrayCount; index++)
                 {
-                HandleCpiAttributeResponseL((*mediaArray)[index], aCpiAttributes, 
-                						aMediaIds[index]);
+                HandleCpiAttributeResponseL((*mediaArray)[index],
+                        aCpiAttributes, aMediaIds[index]);
                 }
-            aResponse->SetCObjectValueL(KMPXMediaArrayContents, mediaArray);        
+            aResponse->SetCObjectValueL(KMPXMediaArrayContents, mediaArray);
             CleanupStack::PopAndDestroy(mediaArray);
             }
-        break;
+            break;
         }
-	}
+    }
 	
 	
 // ----------------------------------------------------------------------------
@@ -186,7 +188,8 @@ void CGlxCollectionPluginTags::HandleCpiAttributeResponseL(CMPXMedia* aResponse,
 			 TArray<TMPXAttribute> aCpiAttributes, TGlxMediaId aMediaId)
     {
     
-    TRACER("CGlxCollectionPluginTags::HandleCpiAttributeResponseL-Enter");  
+    TRACER("CGlxCollectionPluginTags::HandleCpiAttributeResponseL-Enter"); 
+    const TInt KDateBufferPadding = 10; 
 
     const TInt attribCount = aCpiAttributes.Count();
 	
@@ -261,9 +264,10 @@ void CGlxCollectionPluginTags::HandleCpiAttributeResponseL(CMPXMedia* aResponse,
                     }
                 TPtr formatString = tempTitle->Des();
                 
-                // Now create a buffer that will contain the result. needs to be length 
-                //of format string plus a few extra for the number
-                HBufC* title = HBufC::NewLC(formatString.Length() + 10);
+                // Now create a buffer that will contain the result. 
+                // needs to be length of format string plus a few 
+                // extra for the number
+                HBufC* title = HBufC::NewLC(formatString.Length() + KDateBufferPadding);
                 TPtr ptr = title->Des();
                 StringLoader::Format(ptr, formatString, -1, usageCount);
                 
@@ -329,10 +333,12 @@ TBool CGlxCollectionPluginTags::IsUpdateMessageIgnored(CMPXMessage& /*aMessage*/
 
 TGlxFilterProperties CGlxCollectionPluginTags::DefaultFilter(TInt aLevel)
     {
-    TRACER("CGlxCollectionPluginTags::DefaultFilter"); 
-    __ASSERT_DEBUG(( (aLevel == KGlxCollectionRootLevel) || (aLevel == KGlxCollectionTagLevel) 
-                || (aLevel == KGlxCollectionTagContentsLevel) || (aLevel == KGlxCollectionTagFSContentsLevel)),
-                 Panic(EGlxPanicInvalidPathLevel));
+    TRACER("CGlxCollectionPluginTags::DefaultFilter");
+    __ASSERT_DEBUG(( (aLevel == KGlxCollectionRootLevel) 
+                    || (aLevel == KGlxCollectionTagLevel)
+                    || (aLevel == KGlxCollectionTagContentsLevel) 
+                    || (aLevel == KGlxCollectionTagFSContentsLevel)),
+                    Panic(EGlxPanicInvalidPathLevel));
     TGlxFilterProperties filterProperties;
     filterProperties.iSortDirection = EGlxFilterSortDirectionAscending;
     switch(aLevel)

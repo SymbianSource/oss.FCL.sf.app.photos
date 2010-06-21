@@ -373,7 +373,7 @@ EXPORT_C TCollectionCapability CGlxCollectionPluginBase::GetCapabilities()
 EXPORT_C void CGlxCollectionPluginBase::HandleResponse(CMPXMedia* aResponse, CGlxRequest* aRequest, const TInt& aError)
 	{
     TRACER("void CGlxCollectionPluginBase::HandleResponse()");
-	
+    GLX_DEBUG2("CGlxCollectionPluginBase::HandleResponse()() aError=%d", aError);
     if (dynamic_cast<CGlxIdListRequest*>(aRequest))
 	// iRequest is a CGlxIdListRequest
 	    {
@@ -384,8 +384,20 @@ EXPORT_C void CGlxCollectionPluginBase::HandleResponse(CMPXMedia* aResponse, CGl
 	else if (dynamic_cast<CGlxThumbnailRequest*>(aRequest))
 	// iRequest is a CGlxThumbnailRequest
         {
- 		iObs->HandleMedia(aResponse, aError); 
-	    }
+        //when IAD update / sisx installation of S60 TNM is done and
+        //photos asks for the thumbnail, the thumbnail manager returns an 
+        //error KErrServerTerminated(-15)/KErrDied(-13) for which the MPX recreates
+        //the collection plugins and reconnects to the MPX server and goes into
+        //a invalid state. After this, the error is not propogated to the Medialist
+        //and no further requests are processed and it keeps returning KErrNotReady(-18)
+        //So, as a HACK we are changing the error code to KErrCompletion(-17), 
+        //for which the MPX collection does not take any action and propogates the error
+        //to the medialist. This error(KErrCompletion) is treated as a temporary error
+        //and the thumbnail request is made again from the medialist for which the
+        //S60 TNM returns the thumbnail properly.
+        iObs->HandleMedia(aResponse, ((aError == KErrServerTerminated
+                || aError == KErrDied) ? KErrCompletion : aError));
+        }
 	else if (dynamic_cast<CGlxGetRequest*>(aRequest))
 	// iRequest is a CGlxGetRequest
         {
@@ -456,7 +468,7 @@ CGlxRequest* CGlxCollectionPluginBase::GetRequestFactoryL(const CMPXCollectionPa
         if( KGlxMediaIdCollectionPluginSpecific == aAttrs[i].ContentId())
         	{
 			cpiAttributeArray.AppendL(aAttrs[i]);
-			CpiAttributeAdditionalAttributes(aAttrs[i], attributeArray);  
+			CpiAttributeAdditionalAttributesL(aAttrs[i], attributeArray);  
 			doNotNeedDataSource = EFalse;   	
         	}
         else 
@@ -494,9 +506,9 @@ EXPORT_C TBool CGlxCollectionPluginBase::IsUpdateMessageIgnored(CMPXMessage& /*a
 	return ETrue;
 	}
 
-EXPORT_C void CGlxCollectionPluginBase::CpiAttributeAdditionalAttributes(const TMPXAttribute& /*aCpiAttribute*/, RArray<TMPXAttribute>& /*aAttributeArray*/)
+EXPORT_C void CGlxCollectionPluginBase::CpiAttributeAdditionalAttributesL(const TMPXAttribute& /*aCpiAttribute*/, RArray<TMPXAttribute>& /*aAttributeArray*/)
 	{
-    TRACER("void CGlxCollectionPluginBase::CpiAttributeAdditionalAttributes()");
+    TRACER("void CGlxCollectionPluginBase::CpiAttributeAdditionalAttributesL()");
 	// Default implementation does not require additional attributes	
 	}
 

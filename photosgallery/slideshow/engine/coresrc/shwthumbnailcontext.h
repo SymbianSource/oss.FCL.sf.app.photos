@@ -45,8 +45,10 @@ NONSHARABLE_CLASS( CShwThumbnailContext ) : public CBase,
 		 * Constructor.
            * @param aIndex, the medialist index for the thumbnail to load
            * @param aSize, the size for the thumbnail
+           * @param aList, the medialist being traversed
 		 */
-		static CShwThumbnailContext* NewLC( TInt aIndex, TSize aSize );
+		static CShwThumbnailContext* NewLC( TInt aIndex, TSize aSize,
+				MGlxMediaList& aList );
 
 		/**
 		 * Destructor.
@@ -84,7 +86,7 @@ NONSHARABLE_CLASS( CShwThumbnailContext ) : public CBase,
         /**
          * C++ constructor.
          */
-        CShwThumbnailContext( TInt aIndex, TSize aSize );
+        CShwThumbnailContext( TInt aIndex, TSize aSize, MGlxMediaList& aList);
 
         /**
          * 2nd stage constructor
@@ -101,6 +103,8 @@ NONSHARABLE_CLASS( CShwThumbnailContext ) : public CBase,
         TSize iSize;
         /// Own: the currrent focus item
         TInt iCurrentIndex;
+        /// Ref: The medialist being traversed
+        MGlxMediaList& iList;
 
 	};
 

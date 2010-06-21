@@ -51,8 +51,7 @@ const TInt KGlxAnimeFrameCount          = 10        ;
 
 const TInt KGlxPanInertiaFrameInmS      = 20000     ;
 
-//Zoom Factor to keep the relative Zoom Ratio 
-//same while changing orientation.
+// The (neutral) zoom factor above which all zooms caused are zoom-ins and below , zoom-outs.
 const TInt KGlxNeutralZoomFactor = 100;
 
 using namespace GestureHelper;
@@ -64,10 +63,12 @@ using namespace GestureHelper;
 // NewL
 //----------------------------------------------------------------------------------
 //
-CGlxZoomPanEventHandler* CGlxZoomPanEventHandler::NewL(MGlxZoomEventHandlers& aZoomEventHandler)
+CGlxZoomPanEventHandler* CGlxZoomPanEventHandler::NewL(
+        MGlxZoomEventHandlers& aZoomEventHandler)
     {
     TRACER("CGlxZoomPanEventHandler::NewL");
-    CGlxZoomPanEventHandler* self = new (ELeave) CGlxZoomPanEventHandler(aZoomEventHandler);
+    CGlxZoomPanEventHandler* self = new (ELeave) CGlxZoomPanEventHandler(
+            aZoomEventHandler);
     CleanupStack::PushL(self);
     self->ConstructL();
     CleanupStack::Pop(self);
@@ -78,8 +79,10 @@ CGlxZoomPanEventHandler* CGlxZoomPanEventHandler::NewL(MGlxZoomEventHandlers& aZ
 // CGlxZoomPanEventHandler constructor
 //----------------------------------------------------------------------------------
 //
-CGlxZoomPanEventHandler::CGlxZoomPanEventHandler(MGlxZoomEventHandlers& aZoomEventHandler):
-        iZoomEventHandler(aZoomEventHandler)
+CGlxZoomPanEventHandler::CGlxZoomPanEventHandler(
+        MGlxZoomEventHandlers& aZoomEventHandler) :
+    iZoomEventHandler(aZoomEventHandler), iPrevPinchFactor(
+            KGlxNeutralZoomFactor)
     {
     TRACER("CGlxZoomPanEventHandler::CGlxZoomPanEventHandler()");
     // No Implementation
@@ -110,7 +113,6 @@ CGlxZoomPanEventHandler::~CGlxZoomPanEventHandler()
         delete iZoomAnimationTimer;
         iZoomAnimationTimer = NULL;
         }
-   
     }
 
 //----------------------------------------------------------------------------------
@@ -139,32 +141,34 @@ void CGlxZoomPanEventHandler::ConstructL()
 //----------------------------------------------------------------------------------
 //
 // Todo: Combine logics of setting up animated zoom and pan.
-void CGlxZoomPanEventHandler::SetupAnimatedZoom(TZoomMode aZoomMode, TPoint* /*aZoomFocus*/)
+void CGlxZoomPanEventHandler::SetupAnimatedZoom(TZoomMode aZoomMode, 
+        TPoint* /*aZoomFocus*/)
     {
     TRACER("CGlxZoomPanEventHandler::SetupAnimatedZoom");
-    
-    iTargetAnimatedZoomRatio = (iMaxZoomRatio + iMinZoomRatio)/2 ;
-    
+
+    iTargetAnimatedZoomRatio = (iMaxZoomRatio + iMinZoomRatio) / 2;
+
     CancelAnimationTimer();
     CancelUITimer();
-    
+
     //ToDo: Verify this with images slightly smaller or slightly larger than fullscreen size. 
     if (EZoomIn == aZoomMode)
         {
         // the '1+' is to take care of the situation when there the rest of the equation returns something betn 0 and 1
-        iZoomPerInterval = 1 + (iTargetAnimatedZoomRatio - iZoomRatio)/KGlxAnimeFrameCount ; 
+        iZoomPerInterval = 1 + (iTargetAnimatedZoomRatio - iZoomRatio)
+                / KGlxAnimeFrameCount;
         }
     else
         {
-        iZoomPerInterval = 1 + (iZoomRatio - iMinZoomRatio)/KGlxAnimeFrameCount;
+        iZoomPerInterval = 1 + (iZoomRatio - iMinZoomRatio)
+                / KGlxAnimeFrameCount;
         }
-    
-    
+
     if (1 < iZoomPerInterval)
         {
         iIsZoomingInAnimatedState = ETrue;
-        
-        switch(aZoomMode)
+
+        switch (aZoomMode)
             {
             case EZoomIn:
                 iAnimatedZoomMode = EAnimationModeZoomIn;
@@ -174,24 +178,23 @@ void CGlxZoomPanEventHandler::SetupAnimatedZoom(TZoomMode aZoomMode, TPoint* /*a
                 break;
             }
 
-        iZoomAnimationTimer->Start( 0,  
-                KGlxAnimeFrameInmS, 
-                TCallBack( ActivationIntervalElapsed,(TAny*)this) );
+        iZoomAnimationTimer->Start(0, KGlxAnimeFrameInmS, TCallBack(
+                ActivationIntervalElapsed, (TAny*) this));
         }
     else
-        // Cant zoom in/out at less than 1 percent. so directly jump to the target zoom ratio.
-        // This happens in cases where there is not much difference between the source and target zoom levels
+    // Cant zoom in/out at less than 1 percent. so directly jump to the target zoom ratio.
+    // This happens in cases where there is not much difference between the source and target zoom levels
         {
-        TInt targetZoomRatio = 0;  
+        TInt targetZoomRatio = 0;
         if (EZoomIn == aZoomMode)
             {
-            targetZoomRatio = iTargetAnimatedZoomRatio ;
+            targetZoomRatio = iTargetAnimatedZoomRatio;
             }
         else
             {
-            targetZoomRatio = iMinZoomRatio ;
+            targetZoomRatio = iMinZoomRatio;
             }
-        Zoom(targetZoomRatio, 0) ;
+        Zoom(targetZoomRatio, 0);
         }
     }
 
@@ -231,8 +234,10 @@ void CGlxZoomPanEventHandler::NextStepAnimatedZoom()
     Zoom(targetZoomLevel, 0, EZoomIn, &iZoomFocus );
 
     // The boundary conditions. 
-    if ( (( targetZoomLevel >= iTargetAnimatedZoomRatio ) && (EAnimationModeZoomIn == iAnimatedZoomMode ) ) 
-            || ((targetZoomLevel <= iMinZoomRatio) && (EAnimationModeZoomOut == iAnimatedZoomMode)))
+    if (((targetZoomLevel >= iTargetAnimatedZoomRatio)
+            && (EAnimationModeZoomIn == iAnimatedZoomMode))
+            || ((targetZoomLevel <= iMinZoomRatio) && (EAnimationModeZoomOut
+                    == iAnimatedZoomMode)))
         {
         iIsZoomingInAnimatedState = EFalse;
         CancelAnimationTimer();
@@ -338,8 +343,9 @@ void CGlxZoomPanEventHandler::StartUITimer(TTimeIntervalMicroSeconds32 aDelay,
 //
 TBool CGlxZoomPanEventHandler::HandlekeyEvents(const TAlfEvent &aEvent)
     {
-    TRACER("CGlxZoomControl::HandlekeyEvents()");
-    GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandlekeyEvents. Scancode = %d   ", aEvent.KeyEvent().iScanCode);
+    TRACER("CGlxZoomPanEventHandler::HandlekeyEvents()");
+    GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandlekeyEvents.Scancode = %d", 
+            aEvent.KeyEvent().iScanCode);
 
     TBool consumed = EFalse;
     
@@ -410,10 +416,10 @@ TBool CGlxZoomPanEventHandler::HandlekeyEvents(const TAlfEvent &aEvent)
 // HandleZoomKey:Zooms the image on zoom stripe action.
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::HandleZoomKey(TZoomMode aZoomMode ,
+void CGlxZoomPanEventHandler::HandleZoomKey(TZoomMode aZoomMode,
         TEventCode aEventCode)
     {
-    TRACER("CGlxZoomControl::HandleZoomKey ");
+    TRACER("CGlxZoomPanEventHandler::HandleZoomKey ");
     if ( iZoomActivated )
         {
         switch(aEventCode)
@@ -431,7 +437,6 @@ void CGlxZoomPanEventHandler::HandleZoomKey(TZoomMode aZoomMode ,
             }
         }
     }
-
 
 // -----------------------------------------------------------------------------
 // SetupPanOperation: start the pan operation for Key based pan. 
@@ -577,11 +582,11 @@ TBool CGlxZoomPanEventHandler::HandlePanKey( const TAlfEvent &aEvent )
 // HandleDragEvent
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::HandleDragEvent(const GestureHelper::MGestureEvent& aEvent )
+void CGlxZoomPanEventHandler::HandleDragEvent(
+        const GestureHelper::MGestureEvent& aEvent)
     {
-    TRACER("CGlxZoomControl::HandleDragEvent (GestureHelper::MGestureEvent&)");
+    TRACER("CGlxZoomPanEventHandler::HandleDragEvent(GestureHelper::MGestureEvent&)");
     
-
     // Ignore events when we are animating in Zoom
     if (iIsZoomingInAnimatedState)
         {
@@ -598,15 +603,16 @@ void CGlxZoomPanEventHandler::HandleDragEvent(const GestureHelper::MGestureEvent
         iPreviousPointerPosition = startPos;
         }
     
-    TPoint offset((iPreviousPointerPosition.iX - currPos.iX) , (iPreviousPointerPosition.iY - currPos.iY));
+    TPoint offset((iPreviousPointerPosition.iX - currPos.iX),
+            (iPreviousPointerPosition.iY - currPos.iY));
     
     HideScreenFurniture();
 
     TPoint topLeftCorner(0,0);    
     iMathsEngine.Pan(offset, topLeftCorner, EGlxPanIncrementUniform);
     
-
-    iZoomEventHandler.HandleViewPortParametersChanged(topLeftCorner, KGlxAnimationTimeDrag);
+    iZoomEventHandler.HandleViewPortParametersChanged(topLeftCorner,
+            KGlxAnimationTimeDrag);
     
     iPreviousPointerPosition = currPos ;
     iPreviousDragStartPosition = startPos;
@@ -616,12 +622,12 @@ void CGlxZoomPanEventHandler::HandleDragEvent(const GestureHelper::MGestureEvent
 // HandleGestureReleased
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::HandleGestureReleased(const GestureHelper::MGestureEvent& /*aEvent*/ )
+void CGlxZoomPanEventHandler::HandleGestureReleased(
+        const GestureHelper::MGestureEvent& /*aEvent*/)
     {
     TRACER("CGlxZoomPanEventHandler::HandleGestureReleasedEvent(const GestureHelper::MGestureEvent& )");
     
-    if ( /*(EGestureUnknown  == iPreviousGestureCode)
-          ||*/(EGestureSwipeLeft  == iPreviousGestureCode)
+    if ( (EGestureSwipeLeft  == iPreviousGestureCode)
           ||(EGestureSwipeRight == iPreviousGestureCode)
           ||(EGestureSwipeUp    == iPreviousGestureCode)
           ||(EGestureSwipeDown  == iPreviousGestureCode))
@@ -667,12 +673,14 @@ void CGlxZoomPanEventHandler::NextStepInerticPan()
         }
     else
         {
-        TPoint topLeftCorner(0,0);    
-        TBool thresholdReached = EFalse; 
-        iMathsEngine.Pan(inertiaOffset, topLeftCorner, EGlxPanIncrementInertic, &thresholdReached);
-        
-        iZoomEventHandler.HandleViewPortParametersChanged(topLeftCorner, KGlxAnimationTimeDrag);
-        
+        TPoint topLeftCorner(0, 0);
+        TBool thresholdReached = EFalse;
+        iMathsEngine.Pan(inertiaOffset, topLeftCorner,
+                EGlxPanIncrementInertic, &thresholdReached);
+
+        iZoomEventHandler.HandleViewPortParametersChanged(topLeftCorner,
+                KGlxAnimationTimeDrag);
+
         // we dont want to continue animated PAN if we have reached one end of the image.
         if (thresholdReached)
             {
@@ -692,9 +700,10 @@ void CGlxZoomPanEventHandler::SetPreviousEventCode(const TGestureCode aCode )
 // HandlePinchEvent
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::HandlePinchEventL(const GestureHelper::MGestureEvent& aEvent )
+void CGlxZoomPanEventHandler::HandlePinchEventL(
+        const GestureHelper::MGestureEvent& aEvent)
     {
-    TRACER("CGlxZoomControl::HandlePinchEvent(GestureHelper::MGestureEvent&)");
+    TRACER("CGlxZoomPanEventHandler::HandlePinchEvent(GestureHelper::MGestureEvent&)");
 
     // Ignore events when we are animating in Zoom
     if (iIsZoomingInAnimatedState)
@@ -703,17 +712,33 @@ void CGlxZoomPanEventHandler::HandlePinchEventL(const GestureHelper::MGestureEve
         }
     
     TPoint pinchFocus       = aEvent.PinchCentrePoint();
-    TInt pinchPercentage    = aEvent.PinchPercent();  // Wrong convention in variable nomenclature but better than ratioInPercentOfChangeInPinchDistance which is incidentally correct 
+   // Wrong convention in variable nomenclature but better than 
+   // ratioInPercentOfChangeInPinchDistance which is incidentally correct 
+    TInt pinchPercentage    = aEvent.PinchPercent();  
 
+	if (( iPrevPinchFactor >= KGlxNeutralZoomFactor ) && 
+        ( pinchPercentage < KGlxNeutralZoomFactor ))
+        {
+		iPrevPinchFactor = pinchPercentage ;
+		//This will result in we ignoring this event
+		pinchPercentage = KGlxNeutralZoomFactor;
+        }
+	else
+        {	
+		iPrevPinchFactor = pinchPercentage ;
+        }
+	
     // pinchPercentage == 100 => No change in finger distance => No Zoom. 
-    // A negative Pinch percentage signifies an error in calculations. So NOT handling these
-    if ( (pinchPercentage != 100)
+    // A negative Pinch percentage signifies an error in calculations. 
+	// So NOT handling these
+    if ( (pinchPercentage != KGlxNeutralZoomFactor)
             && (pinchPercentage > 0) )
         {
         Zoom(0, pinchPercentage, EZoomIn, &pinchFocus);
         }
     
     HideScreenFurniture();
+    GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandlePinchEventL: Percentage [%d]" , pinchPercentage);
     }
 
 // -----------------------------------------------------------------------------
@@ -722,7 +747,7 @@ void CGlxZoomPanEventHandler::HandlePinchEventL(const GestureHelper::MGestureEve
 //
 void CGlxZoomPanEventHandler::HandleDoubleTap(const GestureHelper::MGestureEvent& /*aEvent*/ )
     {
-    TRACER("CGlxZoomControl::HandleDoubleTap(GestureHelper::MGestureEvent&)");
+    TRACER("CGlxZoomPanEventHandler::HandleDoubleTap(GestureHelper::MGestureEvent&)");
 
     // Ignore events when we are animating in Zoom
     if (iIsZoomingInAnimatedState)
@@ -762,7 +787,7 @@ void CGlxZoomPanEventHandler::HandleSingleTap(const GestureHelper::MGestureEvent
 //  
 TInt CGlxZoomPanEventHandler::UiTimeOut(TAny* aSelf)
     {
-    TRACER("CGlxZoomControl::UiTimeOut");
+    TRACER("CGlxZoomPanEventHandler::UiTimeOut");
     if(aSelf)
         {
         CGlxZoomPanEventHandler* self = static_cast <CGlxZoomPanEventHandler*> (aSelf);
@@ -781,7 +806,7 @@ TInt CGlxZoomPanEventHandler::UiTimeOut(TAny* aSelf)
 //  
 TInt CGlxZoomPanEventHandler::ZoomOutTimerL(TAny* aSelf)
     {
-    TRACER("CGlxZoomControl::ZoomOutTimerL");
+    TRACER("CGlxZoomPanEventHandler::ZoomOutTimerL");
     if(aSelf)
         {
         CGlxZoomPanEventHandler* self = static_cast <CGlxZoomPanEventHandler*> (aSelf);
@@ -824,9 +849,11 @@ void CGlxZoomPanEventHandler::DoPan()
 
     TBool atPanThreshold = EFalse;
     TPoint topLeftCorner;
-    iMathsEngine.Pan(iPanDirection, topLeftCorner, EGlxPanIncrementExponential,  &atPanThreshold);
-    
-    iZoomEventHandler.HandleViewPortParametersChanged(topLeftCorner, KGlxAnimationTimekeyPan);
+    iMathsEngine.Pan(iPanDirection, topLeftCorner,
+            EGlxPanIncrementExponential, &atPanThreshold);
+
+    iZoomEventHandler.HandleViewPortParametersChanged(topLeftCorner,
+            KGlxAnimationTimekeyPan);
     
     if ( atPanThreshold )
         {
@@ -1017,7 +1044,7 @@ TBool CGlxZoomPanEventHandler::HandleEvent( const TAlfEvent& aEvent )
                 {
                 case ETypePrimaryValueChange:
                     {
-                    GLX_LOG_INFO(" CGlxZoomPanEventHandler::HandleEvent: ETypePrimaryValueChange."  );
+                    GLX_LOG_INFO("CGlxZoomPanEventHandler::HandleEvent:ETypePrimaryValueChange");
 
                     MulSliderPos* dataPtr = (MulSliderPos*)(aEvent.CustomEventData());  
                     TInt currentSliderValue = dataPtr->mCurrentValue;
@@ -1041,7 +1068,7 @@ TBool CGlxZoomPanEventHandler::HandleEvent( const TAlfEvent& aEvent )
                      {
                      //The Slider is held by user,so cancel the UI Timer
                      //When the slider is held ,the screen furniture shouldn't disappear
-                     GLX_LOG_INFO( " CGlxZoomControl::offerEvent,ECustomEventIconClick");
+                     GLX_LOG_INFO("CGlxZoomPanEventHandler::HandleEvent, ECustomEventIconClick");
                      CancelUITimer();    
                      eventHandledState = ETrue;           
                      }
@@ -1050,8 +1077,9 @@ TBool CGlxZoomPanEventHandler::HandleEvent( const TAlfEvent& aEvent )
                 case ECustomEventIconRelease:
                      {
                      //The slider is not held, by the user,start the ui timer to hide the screen furniture
-                     GLX_LOG_INFO( " CGlxZoomControl::offerEvent,ECustomEventIconRelease");
-                     StartUITimer(KGlxScreenTimeout, KGlxScreenTimeout, TCallBack( UiTimeOut,this ) );
+                     GLX_LOG_INFO( " CGlxZoomPanEventHandler::offerEvent,ECustomEventIconRelease");
+                     StartUITimer(KGlxScreenTimeout, KGlxScreenTimeout,
+                            TCallBack(UiTimeOut, this));
                      eventHandledState = ETrue;
                      }
                      break;
@@ -1112,9 +1140,10 @@ void CGlxZoomPanEventHandler::ZoomToMinimumL()
 // Zoom
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::Zoom(TInt aExpectedZoomLevel, TInt aRelativeZoomFactor, TZoomMode aZoomMode, TPoint* aZoomFocus)
+void CGlxZoomPanEventHandler::Zoom(TInt aExpectedZoomLevel,
+        TInt aRelativeZoomFactor, TZoomMode aZoomMode, TPoint* aZoomFocus)
     {
-    TRACER("CGlxZoomPanEventHandler::ZoomL( )");
+    TRACER("CGlxZoomPanEventHandler::Zoom()");
     
     TPoint          viewPortTopLeft(0,0);
     TSize           viewPortDimension(0,0);

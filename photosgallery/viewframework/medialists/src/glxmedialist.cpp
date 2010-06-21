@@ -1344,7 +1344,7 @@ void CGlxMediaList::OpenL(const CMPXCollectionPath& aPath)
     for (TInt level = 0; level < levels; level++) 
         {
         TGlxMediaId id(aPath.Id(level));
-        iPath.Append(id); 
+        iPath.AppendL(id); 
         }
 
     

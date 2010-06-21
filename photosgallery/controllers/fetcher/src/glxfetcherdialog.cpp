@@ -213,38 +213,42 @@ void CGlxFetcherDialog::ProcessCommandL(TInt aCommandId)
 //-----------------------------------------------------------------------------
 TBool CGlxFetcherDialog::OkToExitL(TInt aKeycode)
 	{
-	TRACER("CGlxFetcherDialog::OkToExitL");
-	GLX_LOG_INFO1("CGlxFetcherDialog::OkToExitL : %d",aKeycode );
+    TRACER("CGlxFetcherDialog::OkToExitL");
+    GLX_LOG_INFO1("CGlxFetcherDialog::OkToExitL : %d",aKeycode );
     TBool retVal = ETrue;
     TBool retrieveUriValue = EFalse;
-    switch( aKeycode )
+    switch (aKeycode)
         {
-        case EAknSoftkeySelect :
-        case EGlxCmdSelectMarked :
-        case EAknSoftkeyOk :
-        case EAknCmdOpen :
+        case EAknSoftkeySelect:
+        case EGlxCmdSelectMarked:
+        case EAknSoftkeyOk:
+        case EAknCmdOpen:
             {
             // Retreives the uri's of the selected files and verifies if it is a 
             // supported format
             if (!iFetchUri)
                 {
                 iFetchUri = ETrue;
-                retrieveUriValue = iFetcherContainer->RetrieveUrisL(iSelectedFiles, iFetchUri);
-                if ( iVerifier && !iVerifier->VerifySelectionL( &iSelectedFiles ) )
+                retrieveUriValue = iFetcherContainer->RetrieveUrisL(
+                        iSelectedFiles, iFetchUri);
+                if (iVerifier
+                        && !iVerifier->VerifySelectionL(&iSelectedFiles))
                     {
+                    GLX_LOG_INFO("CGlxFetcherDialog::OkToExitL : "
+                            " VerifySelectionL() failed!");
                     iSelectedFiles.Reset();
                     retVal = EFalse;
                     //if the corrupt file is selected then reset the flag to again enable
                     //the selection.
                     iFetcherContainer->SetFileAttached(EFalse);
-                    } 
+                    }
                 if (!retrieveUriValue)
                     {
                     retVal = EFalse;
                     }
                 if (iMultiSelectionEnabled && retVal)
                     {
-                    iFetcherContainer->DoExecuteL(EGlxCmdEndMultipleMarking);    
+                    iFetcherContainer->DoExecuteL(EGlxCmdEndMultipleMarking);
                     }
                 }
             else
@@ -255,8 +259,8 @@ TBool CGlxFetcherDialog::OkToExitL(TInt aKeycode)
                 }
             break;
             }
-        case EAknSoftkeyCancel : // exit dialog
-        case EAknCmdExit :
+        case EAknSoftkeyCancel: // exit dialog
+        case EAknCmdExit:
             {
             break;
             }
@@ -264,22 +268,24 @@ TBool CGlxFetcherDialog::OkToExitL(TInt aKeycode)
         case EAknSoftkeyMark:
             {
             if (iMultiSelectionEnabled)
-                {                
-                if(iUiUtility->IsPenSupported())
+                {
+                if (iUiUtility->IsPenSupported())
                     {
                     //Since the MSK is disabled we always get EAknCmdMark
                     //when we select msk hardkey in touch phone, so we need 
                     //to toggle between mark/unmark on the same hardkey event
                     if (!iMarkStarted)
                         {
-                        iFetcherContainer->DoExecuteL(EGlxCmdStartMultipleMarking);
+                        iFetcherContainer->DoExecuteL(
+                                EGlxCmdStartMultipleMarking);
                         iMarkStarted = ETrue;
                         }
                     else
                         {
-                        MGlxMediaList& mediaList = iFetcherContainer->MediaList();
-                        TInt focusIdx = mediaList.FocusIndex();                        
-                        if ( mediaList.IsSelected(focusIdx) )
+                        MGlxMediaList& mediaList =
+                                iFetcherContainer->MediaList();
+                        TInt focusIdx = mediaList.FocusIndex();
+                        if (mediaList.IsSelected(focusIdx))
                             iFetcherContainer->DoExecuteL(EAknCmdUnmark);
                         else
                             iFetcherContainer->DoExecuteL(EAknCmdMark);
@@ -289,7 +295,8 @@ TBool CGlxFetcherDialog::OkToExitL(TInt aKeycode)
                     {
                     if (!iMarkStarted)
                         {
-                        iFetcherContainer->DoExecuteL(EGlxCmdStartMultipleMarking);
+                        iFetcherContainer->DoExecuteL(
+                                EGlxCmdStartMultipleMarking);
                         iMarkStarted = ETrue;
                         }
                     else
@@ -307,20 +314,21 @@ TBool CGlxFetcherDialog::OkToExitL(TInt aKeycode)
             if (iMultiSelectionEnabled)
                 {
                 iFetcherContainer->DoExecuteL(EAknCmdUnmark);
-				                
+
                 //@ fix for ELWU-7RA7NX 
                 //@ Reset the flag on no selection, else it'll not pass the events to container for
                 //@ EGlxCmdStartMultipleMarking  case.
-                MGlxMediaList& mediaList = iFetcherContainer->MediaList() ;
-                if ( mediaList.SelectionCount() <= 0 )
-	                {
-	                iMarkStarted = EFalse;	
-	                } 
-					
-                HBufC* mskTextMark = StringLoader::LoadLC( R_GLX_MARKING_MARK );
-                HBufC* rskTextCancel = StringLoader::LoadLC( R_GLX_SOFTKEY_CANCEL );
+                MGlxMediaList& mediaList = iFetcherContainer->MediaList();
+                if (mediaList.SelectionCount() <= 0)
+                    {
+                    iMarkStarted = EFalse;
+                    }
+
+                HBufC* mskTextMark = StringLoader::LoadLC(R_GLX_MARKING_MARK);
+                HBufC* rskTextCancel = StringLoader::LoadLC(
+                        R_GLX_SOFTKEY_CANCEL);
                 iUiUtility->ScreenFurniture()->ModifySoftkeyIdL(
-                        CEikButtonGroupContainer::EMiddleSoftkeyPosition, 
+                        CEikButtonGroupContainer::EMiddleSoftkeyPosition,
                         EAknCmdMark, 0, *mskTextMark);
                 iUiUtility->ScreenFurniture()->ModifySoftkeyIdL(
                         CEikButtonGroupContainer::ERightSoftkeyPosition,
@@ -331,11 +339,13 @@ TBool CGlxFetcherDialog::OkToExitL(TInt aKeycode)
             retVal = EFalse;
             break;
             }
-        default :
+        default:
             break;
         }
+
+    GLX_LOG_INFO1("CGlxFetcherDialog::OkToExitL : retVal(%d)", retVal);
     return retVal;
-	}
+    }
 
 //-----------------------------------------------------------------------------
 // CGlxFetcherDialog::SizeChanged
@@ -431,7 +441,7 @@ void CGlxFetcherDialog::HandlePointerEventL(
 //-----------------------------------------------------------------------------
 void CGlxFetcherDialog::HandleDoubleTapEventL(TInt aCommandId)
     {
-    TRACER("CGlxFetcherDialog::HandleTapEvent");
+    TRACER("CGlxFetcherDialog::HandleDoubleTapEventL");
     Extension()->iPublicFlags.Set(CEikDialogExtension::EDelayedExit);
     ProcessCommandL(aCommandId);
     Extension()->iPublicFlags.Clear(CEikDialogExtension::EDelayedExit);

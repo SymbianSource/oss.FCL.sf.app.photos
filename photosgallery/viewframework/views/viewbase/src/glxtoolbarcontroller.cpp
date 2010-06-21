@@ -248,7 +248,11 @@ void CGlxToolbarController::SetStatusOnViewActivationL( MGlxMediaList* aList )
                 iToolbar->RemoveItem(EGlxCmdUpload);
                 }
             }
-        SetToolbarItemsDimmed(EFalse);
+        iToolbar->SetItemDimmed(EGlxCmdSlideshowPlay, EFalse, ETrue);
+        iToolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, EFalse, ETrue);
+        TBool dimmed = aList->SelectionCount() ? EFalse : ETrue;
+        iToolbar->SetItemDimmed(EGlxCmdSend, dimmed, ETrue);
+        iToolbar->SetItemDimmed(EGlxCmdUpload, dimmed, ETrue);
         }
     else if (navigationalState->ViewingMode() == NGlxNavigationalState::EView)
         {

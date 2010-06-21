@@ -276,14 +276,16 @@ EXPORT_C TBool CGlxCommandHandlerNewMedia::BypassFiltersForExecute() const
     return iSchedulerWait != NULL;
     }
     
+
 // ---------------------------------------------------------------------------
 // TitlesL fetches the 'media popup title' and 'default new media item title'
 // from the collection.
 // ---------------------------------------------------------------------------
 //
 
-void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId, TDes& aDefaultNewMediaItemTitle) const
-	{
+void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId,
+        TDes& aDefaultNewMediaItemTitle) const
+    {
     TRACER("CGlxCommandHandlerNewMedia::TitlesL");
     CMPXCollectionPath* path = CMPXCollectionPath::NewL();
     CleanupStack::PushL(path);
@@ -291,104 +293,114 @@ void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId, TDes& 
     CleanupClosePushL(*rootList);
 
     TGlxSpecificIdIterator iter(KGlxIdSpaceIdRoot, aCollectionId);
-    CGlxAttributeContext* attributeContext = new (ELeave) CGlxAttributeContext(&iter);
+    CGlxAttributeContext* attributeContext =
+            new (ELeave) CGlxAttributeContext(&iter);
     CleanupStack::PushL(attributeContext);
-    attributeContext->AddAttributeL(KGlxMediaCollectionPluginSpecificDefaultMediaTitle);
+    attributeContext->AddAttributeL(
+            KGlxMediaCollectionPluginSpecificDefaultMediaTitle);
     rootList->AddContextL(attributeContext, KGlxFetchContextPriorityBlocking);
-    
+
     TGlxFetchContextRemover contextRemover(attributeContext, *rootList);
     // put to cleanupstack as cleanupstack is emptied before stack objects
     // are deleted
-    CleanupClosePushL( contextRemover );
-    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext, *rootList, ETrue));
+    CleanupClosePushL(contextRemover);
+    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext,
+            *rootList, ETrue));
     // context off the list
-    CleanupStack::PopAndDestroy( &contextRemover );
-    	
-        TInt index =  rootList->Index(KGlxIdSpaceIdRoot, aCollectionId);
-        
-        __ASSERT_DEBUG(index != KErrNotFound, Panic(EGlxPanicRequiredItemNotFound));
-        
-    	TGlxMedia  item =  rootList->Item(index);
-    	
-    	const CGlxMedia* media = item.Properties();
-    	if (media)
-    		{
-    		aDefaultNewMediaItemTitle.Copy(media->ValueText(KGlxMediaCollectionPluginSpecificDefaultMediaTitle).Left(KMaxMediaPopupTitleLength));
-    		}
+    CleanupStack::PopAndDestroy(&contextRemover);
 
-	CleanupStack::PopAndDestroy(attributeContext);
-	CleanupStack::PopAndDestroy(rootList);
+    TInt index = rootList->Index(KGlxIdSpaceIdRoot, aCollectionId);
+
+    __ASSERT_DEBUG(index != KErrNotFound, Panic(EGlxPanicRequiredItemNotFound));
+
+    TGlxMedia item = rootList->Item(index);
+
+    const CGlxMedia* media = item.Properties();
+    if (media)
+        {
+        aDefaultNewMediaItemTitle.Copy(media->ValueText(
+                KGlxMediaCollectionPluginSpecificDefaultMediaTitle).Left(
+                KMaxMediaPopupTitleLength));
+        }
+
+    CleanupStack::PopAndDestroy(attributeContext);
+    CleanupStack::PopAndDestroy(rootList);
     CleanupStack::PopAndDestroy(path);
-	}
+    }
 
 // ---------------------------------------------------------------------------
 // TitlesL fetches the 'media popup title' and 'default new media item title'
 // from the collection.
 // ---------------------------------------------------------------------------
 //
-HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL
-                                   (const TDesC& aDefaultNewMediaItemTitle, MGlxMediaList& aList) const
-    {        
+HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL(
+        const TDesC& aDefaultNewMediaItemTitle, MGlxMediaList& aList) const
+    {
     TRACER("CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL");
     TGlxSequentialIterator iter;
-    CGlxAttributeContext* attributeContext = new (ELeave) CGlxAttributeContext(&iter);
+    CGlxAttributeContext* attributeContext =
+            new (ELeave) CGlxAttributeContext(&iter);
     CleanupStack::PushL(attributeContext);
     attributeContext->AddAttributeL(KMPXMediaGeneralTitle);
     aList.AddContextL(attributeContext, KGlxFetchContextPriorityBlocking);
     TGlxFetchContextRemover contextRemover(attributeContext, aList);
     // put to cleanupstack as cleanupstack is emptied before stack objects
     // are deleted
-    CleanupClosePushL( contextRemover );
-    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext, aList, EFalse));
+    CleanupClosePushL(contextRemover);
+    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext,
+            aList, EFalse));
     // context off the list
-    CleanupStack::PopAndDestroy( &contextRemover );
+    CleanupStack::PopAndDestroy(&contextRemover);
     CleanupStack::PopAndDestroy(attributeContext);
-    
+
     RArray<TInt> numbers;
     CleanupClosePushL(numbers);
-    
+
     TInt count = aList.Count();
     for (TInt i = 0; i < count; i++)
         {
-        TGlxMedia  item =  aList.Item(i);    
+        TGlxMedia item = aList.Item(i);
         const CGlxMedia* media = item.Properties();
         if (media)
             {
             const TDesC& title = media->ValueText(KMPXMediaGeneralTitle);
-            
+
             TInt length = aDefaultNewMediaItemTitle.Length();
             if (title.Left(length).Compare(aDefaultNewMediaItemTitle) == 0)
                 {
                 if (length == title.Length())
                     {
-                    numbers.InsertInOrder(0); // special case
+                    numbers.InsertInOrderL(0); // special case
                     }
-                else if(title.Length() > length + KOpenBracket().Length() + KCloseBracket().Length())
+                else if (title.Length() > length + KOpenBracket().Length()
+                        + KCloseBracket().Length())
                     {
                     TInt pos = length;
                     length = KOpenBracket().Length();
-                    
-                    if (title.Mid(pos, length).Compare(KOpenBracket) == 0 && 
-                        title.Right(KCloseBracket().Length()).Compare(KCloseBracket) == 0)
+
+                    if (title.Mid(pos, length).Compare(KOpenBracket) == 0
+                            && title.Right(KCloseBracket().Length()).Compare(
+                                    KCloseBracket) == 0)
                         {
                         pos += length;
-                        length = title.Length() - pos - KCloseBracket().Length();
+                        length = title.Length() - pos
+                                - KCloseBracket().Length();
                         if (length > 0)
                             {
                             TLex lex = title.Mid(pos, length);
                             TInt val = 0;
                             if (lex.Val(val) == KErrNone)
                                 {
-                                numbers.InsertInOrder(val);
+                                numbers.InsertInOrderL(val);
                                 }
                             }
                         }
                     }
-               
+
                 }
             }
         }
-    
+
     TInt nextNumber = 0;
     count = numbers.Count();
     for (TInt i = 0; i < count; i++)
@@ -402,25 +414,30 @@ HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL
             break;
             }
         }
-    
+
     CleanupStack::PopAndDestroy(&numbers);
-    
-    TInt defaultTitleLength = aDefaultNewMediaItemTitle.Length() + KFileNameFormatString().Length() + KCloseBracket().Length() + KMaxNumberLength;
-    // If the default title length is bigger than KMaxMediaPopupTitleLength, make sure we allocate enough space for it.
-    TInt titleLength  = defaultTitleLength > KMaxMediaPopupTitleLength ? defaultTitleLength : KMaxMediaPopupTitleLength;
+
+    TInt defaultTitleLength = aDefaultNewMediaItemTitle.Length()
+            + KFileNameFormatString().Length() + KCloseBracket().Length()
+            + KMaxNumberLength;
+    // If the default title length is bigger than KMaxMediaPopupTitleLength, 
+    // make sure we allocate enough space for it.
+    TInt titleLength = defaultTitleLength > KMaxMediaPopupTitleLength ? 
+                                            defaultTitleLength
+                                            : KMaxMediaPopupTitleLength;
     HBufC* newMediaItemTitle = HBufC::NewL(titleLength);
     TPtr newMediaItemTitleDes = newMediaItemTitle->Des();
     newMediaItemTitleDes.Append(aDefaultNewMediaItemTitle);
-    
+
     if (nextNumber > 0)
         {
-        newMediaItemTitleDes.AppendFormat(KFileNameFormatString,nextNumber);
+        newMediaItemTitleDes.AppendFormat(KFileNameFormatString, nextNumber);
         }
     else
         {
         // 0 is a special case, return "New Media", not "New Media (0)"
         }
-    
+
     return newMediaItemTitle;
     }
 
@@ -440,16 +457,18 @@ void CGlxCommandHandlerNewMedia::SetFocusL(TInt aIndex)
 // HandleItemAddedL
 // -----------------------------------------------------------------------------
 //  
-EXPORT_C void CGlxCommandHandlerNewMedia::HandleItemAddedL(TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList)
+EXPORT_C void CGlxCommandHandlerNewMedia::HandleItemAddedL(TInt aStartIndex,
+        TInt aEndIndex, MGlxMediaList* aList)
     {
     TRACER("CGlxCommandHandlerNewMedia::HandleItemAddedL");
-    if(aList == &MediaList() && iNewMediaId != KGlxCollectionRootId)
+    if (aList == &MediaList() && iNewMediaId != KGlxCollectionRootId)
         {
         for (TInt i = aStartIndex; i <= aEndIndex; i++)
             {
             if (aList->Item(i).Id() == iNewMediaId)
                 {
-                iAsyncFocuser->SetFocus(i); // calls CGlxCommandHandlerNewMedia::SetFocusL asynchronously
+                // calls CGlxCommandHandlerNewMedia::SetFocusL asynchronously
+                iAsyncFocuser->SetFocus(i);
                 break;
                 }
             }
@@ -463,9 +482,9 @@ EXPORT_C void CGlxCommandHandlerNewMedia::HandleItemAddedL(TInt aStartIndex, TIn
 CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::
     CGlxAsyncFocuser(CGlxCommandHandlerNewMedia* aGlxCommandHandlerNewMedia)
     : CActive(KMaxTInt), iGlxCommandHandlerNewMedia(aGlxCommandHandlerNewMedia)
-    // The active object has the maximum possible priority to prevent other active objects
-    // running before it. (Unless they too are scheduled to run and have the maximum
-    // possible priority
+    // The active object has the maximum possible priority to prevent 
+    // other active objects running before it. (Unless they too are 
+    // scheduled to run and have the maximum possible priority
     {
     TRACER("CGlxCommandHandlerNewMedia::CGlxAsyncFocuser::CGlxAsyncFocuser");
     __ASSERT_DEBUG(aGlxCommandHandlerNewMedia, Panic(EGlxPanicNullPointer));

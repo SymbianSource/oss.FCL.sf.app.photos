@@ -580,7 +580,8 @@ void CGlxMedia::AddUser( MGlxMediaUser& aUser, TInt aIndex )
 
     __DEBUG_ONLY( _iUserReservationCount-- );
 
-	iUsers.Append( TMediaUser( &aUser, aIndex ) ); // Ignore error, cannot fail since reservation made 
+	// Ignore the leave, cannot fail since reservation made 
+    TRAP_IGNORE(iUsers.AppendL(TMediaUser(&aUser, aIndex))); 
 	}
 
 // -----------------------------------------------------------------------------

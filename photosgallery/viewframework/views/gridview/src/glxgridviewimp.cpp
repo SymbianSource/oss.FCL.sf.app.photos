@@ -133,16 +133,32 @@ void CGlxGridViewImp::DoMLViewActivateL(
     HBufC8* activationParam = HBufC8::NewLC(KMaxUidName);
     activationParam->Des().AppendNum(KGlxActivationCmdShowAll);    
 
-    //Do not animate the view if launched from camera application.
+    // Start Animating the view when launched from other views 
+    // except if launched from Camera App.
     if (aCustomMessage.Compare(activationParam->Des()) != 0) 
-        {    
+        {
         GfxTransEffect::BeginFullScreen( transitionID, TRect(),
                                     AknTransEffect::EParameterType, 
                                     AknTransEffect::GfxTransParam( KPhotosUid,
                                     AknTransEffect::TParameter::EEnableEffects) );	
         GfxTransEffect::EndFullScreen();
         }
-	
+    else
+    	{
+		// Launched from Camera App, Check if there is any existing filter
+    	// and clear the 'MaxCount' filter, if supported to show all images.
+		GLX_DEBUG1("CGlxGridViewImp::DoMLViewActivateL() - "
+				"Launched From Camera");
+		CMPXFilter* filter = iMediaList->Filter();
+		if (filter && filter->IsSupported(KGlxFilterGeneralMaxCount))
+			{
+			GLX_DEBUG1( "CGlxGridViewImp::DoMLViewActivateL()- "
+					"Clear MaxCount filter");
+			filter->SetTObjectValueL<TInt> (KGlxFilterGeneralMaxCount, 0);
+			iMediaList->SetFilterL(filter);
+			}
+    	}
+    
 	CleanupStack::PopAndDestroy(activationParam);
 	
 	if(StatusPane())

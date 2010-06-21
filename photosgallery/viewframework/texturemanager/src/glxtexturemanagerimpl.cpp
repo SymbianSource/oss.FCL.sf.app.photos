@@ -733,13 +733,13 @@ CAlfTexture& CGlxTextureManagerImpl::CreateNewTextureL( TSize aSize,
     if( aIsThumbnailTexture )
 	    {
 	     //Add to the thumbnail list
-        GLX_LOG_INFO("CGlxTextureManagerImpl::CreateNewTextureL iThumbnailList.Append ");
-	    iThumbnailList.Append(aThumbData); 	
+        GLX_LOG_INFO("CGlxTextureManagerImpl::CreateNewTextureL iThumbnailList.AppendL");
+	    iThumbnailList.AppendL(aThumbData); 	
 	    }
    else
 	   {
         GLX_LOG_INFO1("CGlxTextureManagerImpl::CreateNewTextureL,count=%d",iZoomedList.Count());
-	   iZoomedList.Append(aThumbData);
+	   iZoomedList.AppendL(aThumbData);
 	   }
          
     // If we got this far we need to create a new texture
@@ -804,7 +804,7 @@ CAlfTexture& CGlxTextureManagerImpl::CreateZoomedTextureL(
     aThumbData.iIdSpaceId = aIdSpaceId;
     
     //Add to the thumbnail list
-    iZoomedList.Append(aThumbData);  
+    iZoomedList.AppendL(aThumbData);  
             
     TInt index = iZoomedList.Count()-1;
 	GLX_LOG_INFO1("CGlxTextureManagerImpl:: CreateZoomedTextureL,index=%d",index);
@@ -858,7 +858,7 @@ CAlfTexture& CGlxTextureManagerImpl::CreateAnimatedGifTextureL(
     
     iAnimatedTnmList.ReserveL( iAnimatedTnmList.Count() + 1 );
 
-    iAnimatedTnmList.Append(thumbData);
+    iAnimatedTnmList.AppendL(thumbData);
     
     CAlfTexture& newTexture = iAlfTextureManager.LoadTextureL(aFilename,aSize, 
             EAlfTextureFlagDefault,thumbData.iTextureId );    

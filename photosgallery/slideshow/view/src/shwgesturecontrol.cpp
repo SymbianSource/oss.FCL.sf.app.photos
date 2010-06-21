@@ -79,20 +79,20 @@ CShwGestureControl::~CShwGestureControl()
     }
 
 // -----------------------------------------------------------------------------
-// AddObserver
+// AddObserverL
 // -----------------------------------------------------------------------------
 //
-void CShwGestureControl::AddObserver(MShwGestureObserver* aObserver) 
+void CShwGestureControl::AddObserverL(MShwGestureObserver* aObserver) 
     {
-    TRACER("CShwGestureControl::AddObserver");
-    GLX_LOG_INFO("CShwGestureControl::AddObserver");
+    TRACER("CShwGestureControl::AddObserverL");
+    GLX_LOG_INFO("CShwGestureControl::AddObserverL");
     __ASSERT_DEBUG( NULL != aObserver , Panic(EGlxPanicNullPointer)); 
     
     // dont want to observe the same thing again and again.
     if (iObservers.Find(aObserver) == KErrNotFound)
         {
-        iObservers.Append(aObserver);
-        GLX_LOG_INFO1("CShwGestureControl::AddObserver  Observer Added "
+        iObservers.AppendL(aObserver);
+        GLX_LOG_INFO1("CShwGestureControl::AddObserverL  Observer Added "
                 "observer count now [%d]", iObservers.Count());
         }
     }
@@ -109,7 +109,7 @@ void CShwGestureControl::RemoveObserver(MShwGestureObserver* aObserver)
     if (observerPosition != KErrNotFound)
         {
         iObservers.Remove(observerPosition);
-        GLX_LOG_INFO1("CShwGestureControl::AddObserver  One Observer removed "
+        GLX_LOG_INFO1("CShwGestureControl::RemoveObserver  One Observer removed "
                 "observer count now [%d]", iObservers.Count());
         }
     }

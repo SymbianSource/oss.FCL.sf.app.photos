@@ -22,8 +22,6 @@
 //  EXTERNAL INCLUDES
 #include "AiwServiceHandler.h"                  // AIW service handler
 #include <centralrepository.h>              // for checking the ShareOnline version
-#include <thumbnailmanager.h>
-#include <thumbnailmanagerobserver.h>
 
 //  INTERNAL INCLUDES
 #include "glxmedialistcommandhandler.h"         // for MediaListCommandHandler
@@ -33,6 +31,7 @@
 class MGlxMediaListProvider;
 class CGlxDefaultAttributeContext;
 class CGlxUploadCenRepWatcher;
+class CSvgEngineInterfaceImpl;
 
 // For upload icon change notification
 class MGlxUploadIconObserver
@@ -53,7 +52,7 @@ public:
 // CLASS DECLARATION
 
 NONSHARABLE_CLASS (CGlxCommandHandlerUpload) : public CGlxMediaListCommandHandler,
-public MGlxMediaListObserver, public MThumbnailManagerObserver, public MGlxUploadIconObserver
+public MGlxMediaListObserver, public MGlxUploadIconObserver
 	{
 public:  // Constructors and destructor
 	/**
@@ -144,13 +143,6 @@ private: // From CGlxMediaListCommandHandler
 	* Called when the owning view is deactivated
 	*/
 	void Deactivate();	
-	
-private: // From MThumbnailManagerObserver
-
-    void ThumbnailPreviewReady( MThumbnailData& aThumbnail,
-        TThumbnailRequestId aId );
-    void ThumbnailReady( TInt aError, MThumbnailData& aThumbnail,
-        TThumbnailRequestId aId );	
 
 private:
 	/**
@@ -195,21 +187,15 @@ private:
 	void GetIconNameL(TDes& aUplaodIconName);
 
 	/**
-	 * Decodes the Icon using the TNM Manager
+	 * Decodes the Icon using the SVG Engine
 	 */	
-	void DecodeIconL(const TDes& aUplaodIconNmae);
+	void DecodeIconL(const TDes& aUplaodIconName);
 
 
 	/**
 	 * Updates the Toolbar upload icon based on the current selection
 	 */	
 	void UpdateFSUploadIconL();
-    
-	
-	/**
-     * Sets the decoded upload icon to the toolbar item
-     */	
-	void SetDecodedUploadIconL(MThumbnailData& aThumbnail);
 	
 private: // data
 
@@ -231,8 +217,6 @@ private: // data
     // Owned - AIW Service Handler
     CAiwServiceHandler* iServiceHandler;
     
-    CThumbnailManager* iTnEngine; // Own
-    
     //Keep the count of no. of images/videos selected
     TInt iSelectedImageCount;
     TInt iSelectedVideoCount;
@@ -250,11 +234,11 @@ private: // data
     
 	//Toolbar instance of current view
     CAknToolbar* iToolbar;
-    
-    TThumbnailRequestId iTnmRequestID;
 
     //To check if we are in fullscreen
     TBool iIsFullScreenView;
+    
+    CSvgEngineInterfaceImpl* iSvgEngine;
 	};
 
 #endif //__GLXCOMMANDHANDLERUPLOAD_H__

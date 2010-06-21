@@ -276,13 +276,13 @@ void CGlxDataSourceTaskMdeIdList::PostFilterL(const RArray<TGlxMediaId>&
             if( KErrNotFound != favoritesIndex )
                 {
                 list.Remove(favoritesIndex);
-                list.Insert(DataSource()->FavoritesId(), KGlxAlbumPromotionPosition);
+                list.InsertL(DataSource()->FavoritesId(), KGlxAlbumPromotionPosition);
                 }
             TInt cameraAlbumIndex = list.Find(DataSource()->CameraAlbumId());
             if( KErrNotFound != cameraAlbumIndex )
                 {
                 list.Remove(cameraAlbumIndex);
-                list.Insert(DataSource()->CameraAlbumId(), KGlxAlbumPromotionPosition);
+                list.InsertL(DataSource()->CameraAlbumId(), KGlxAlbumPromotionPosition);
                 }
             DoPostFilterComplete(list, KErrNone);
             }

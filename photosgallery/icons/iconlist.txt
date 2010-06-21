@@ -57,3 +57,4 @@
 -c8,8 qgn_graf_ring_wait_08.svg
 -c8,8 qgn_graf_ring_wait_09.svg
 -c8,8 qgn_graf_ring_wait_10.svg
+-c8,8 1click_default_icon_active.svg

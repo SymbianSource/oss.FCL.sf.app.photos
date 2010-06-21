@@ -70,4 +70,6 @@ LIBRARY         hal.lib              // HAL, HALData
 LIBRARY         exiflib.lib
 LIBRARY         oommonitor.lib       // For Requesting RAM
 LIBRARY         glximageviewermanager.lib
+LIBRARY         apgrfx.lib
+LIBRARY         apmime.lib
 // End of File

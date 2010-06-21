@@ -341,7 +341,7 @@ void CGlxCacheManager::HandleCollectionMediaL(const TGlxIdSpaceId& aIdSpaceId, c
 			TInt userCount = item->UserCount();
 			for ( TInt userIndex = 0; userIndex < userCount; userIndex++ )
 				{
-				users.InsertInAddressOrder( &item->User( userIndex ) );
+				users.InsertInAddressOrderL( &item->User( userIndex ) );
 				}
         	}		
         // Notify all affected users of error

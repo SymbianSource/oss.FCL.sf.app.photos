@@ -44,6 +44,12 @@
 #include <glxtracer.h>
 
 #include "glxcollectionplugindownloads.hrh"
+
+// CONSTANT
+namespace
+    {
+    const TInt KDateBufferPadding = 10;
+    }
 /**
  * @internal reviewed 14/06/2007 by Alex Birkett
  */
@@ -97,10 +103,13 @@ void CGlxCollectionPluginDownloads::ConstructL()
 // CpiAttributeAdditionalAttributes
 // ----------------------------------------------------------------------------
 //
-void CGlxCollectionPluginDownloads::CpiAttributeAdditionalAttributes(const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray)
-	{
-    TRACER("CGlxCollectionPluginDownloads::CpiAttributeAdditionalAttributes");
-    // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here as all the others are reading straight from resource files
+void CGlxCollectionPluginDownloads::CpiAttributeAdditionalAttributesL(
+        const TMPXAttribute& aCpiAttribute,
+        RArray<TMPXAttribute>& aAttributeArray)
+    {
+    TRACER("CGlxCollectionPluginDownloads::CpiAttributeAdditionalAttributesL");
+    // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here as all 
+    // the others are reading straight from resource files
     // KGlxMediaCollectionPluginSpecificSubTitle requires a usage count
 	if (aCpiAttribute == KGlxMediaCollectionPluginSpecificSubTitle)
 	    {
@@ -119,7 +128,7 @@ void CGlxCollectionPluginDownloads::CpiAttributeAdditionalAttributes(const TMPXA
 	        
 	    if (!found)
 	        {
-	        aAttributeArray.Append(KMPXMediaGeneralCount);
+	        aAttributeArray.AppendL(KMPXMediaGeneralCount);
 	        }
 	    }
 	}
@@ -128,8 +137,10 @@ void CGlxCollectionPluginDownloads::CpiAttributeAdditionalAttributes(const TMPXA
 // HandleCpiAttributeResponseL
 // ----------------------------------------------------------------------------
 // 
-void CGlxCollectionPluginDownloads::HandleCpiAttributeResponseL(CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, TArray<TGlxMediaId> /* aMediaIds */)
-	{
+void CGlxCollectionPluginDownloads::HandleCpiAttributeResponseL(
+        CMPXMedia* aResponse, TArray<TMPXAttribute> aCpiAttributes, TArray<
+                TGlxMediaId> /* aMediaIds */)
+    {
     TRACER("CGlxCollectionPluginDownloads::HandleCpiAttributeResponseL");
     
     _LIT(KResourceFile, "z:glxplugindownloads.rsc");
@@ -161,7 +172,8 @@ void CGlxCollectionPluginDownloads::HandleCpiAttributeResponseL(CMPXMedia* aResp
 					{
 					GLX_LOG_INFO("Count is 0 items");
 					
-					tempTitle = LoadLocalizedStringLC(KResourceFile,R_DOWNLOADS_SUB_TITLE_NO_IMG_NO_VID);
+					tempTitle = LoadLocalizedStringLC(KResourceFile,
+					        R_DOWNLOADS_SUB_TITLE_NO_IMG_NO_VID);
 					aResponse->SetTextValueL(attr, *tempTitle); 
 					}
 					
@@ -169,19 +181,24 @@ void CGlxCollectionPluginDownloads::HandleCpiAttributeResponseL(CMPXMedia* aResp
 					{
 					GLX_LOG_INFO("Count is 1 item");
 						                    
-					tempTitle = LoadLocalizedStringLC(KResourceFile, R_DOWNLOADS_SUB_TITLE_SINGLE);
+					tempTitle = LoadLocalizedStringLC(KResourceFile, 
+					        R_DOWNLOADS_SUB_TITLE_SINGLE);
 					aResponse->SetTextValueL(attr, *tempTitle); 
 					}
 				else
 					{
 					GLX_LOG_INFO1("Count is %d items",usageCount);
 					
-					tempTitle = LoadLocalizedStringLC(KResourceFile, R_DOWNLOADS_SUB_TITLE_MULTI);
+					tempTitle = LoadLocalizedStringLC(KResourceFile, 
+					        R_DOWNLOADS_SUB_TITLE_MULTI);
 					//Format the string
 					TPtr formatString = tempTitle->Des();
 
-					// Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
-					HBufC* title = HBufC::NewLC(formatString.Length() + 10);
+					// Now create a buffer that will contain the result. 
+					// needs to be length of format string plus a few 
+					// extra for the number
+					HBufC* title = HBufC::NewLC(formatString.Length() + 
+					        KDateBufferPadding);
 					TPtr ptr = title->Des();
 					StringLoader::Format(ptr, formatString, -1, usageCount);
 
@@ -193,7 +210,8 @@ void CGlxCollectionPluginDownloads::HandleCpiAttributeResponseL(CMPXMedia* aResp
 #else
             	if(0 == usageCount)
             		{
-                	tempTitle = LoadLocalizedStringLC(KResourceFile, R_DOWNLOADS_SUB_TITLE_NO_IMG_NO_VID);                	
+                	tempTitle = LoadLocalizedStringLC(KResourceFile, 
+                	        R_DOWNLOADS_SUB_TITLE_NO_IMG_NO_VID);                	
                 	// Set the title in the response.
             		aResponse->SetTextValueL(attr, *tempTitle);  
             		CleanupStack::PopAndDestroy(tempTitle);
@@ -202,19 +220,22 @@ void CGlxCollectionPluginDownloads::HandleCpiAttributeResponseL(CMPXMedia* aResp
 				// Get the format string
             	else if (1 == usageCount)
                     {
-                    tempTitle = LoadLocalizedStringLC(KResourceFile, R_DOWNLOADS_SUB_TITLE_SINGLE);
+                    tempTitle = LoadLocalizedStringLC(KResourceFile, 
+                            R_DOWNLOADS_SUB_TITLE_SINGLE);
                     aResponse->SetTextValueL(attr, *tempTitle);  
                     CleanupStack::PopAndDestroy(tempTitle);
                     continue; 
                     }
                 else
                     {
-                    tempTitle = LoadLocalizedStringLC(KResourceFile, R_DOWNLOADS_SUB_TITLE_MULTI);
+                    tempTitle = LoadLocalizedStringLC(KResourceFile, 
+                            R_DOWNLOADS_SUB_TITLE_MULTI);
                     }
                 TPtr formatString = tempTitle->Des();
                 
-                // Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
-                HBufC* title = HBufC::NewLC(formatString.Length() + 10);
+                // Now create a buffer that will contain the result. needs to be 
+                // length of format string plus a few extra for the number
+                HBufC* title = HBufC::NewLC(formatString.Length() + KDateBufferPadding);
                 TPtr ptr = title->Des();
                 StringLoader::Format(ptr, formatString, -1, usageCount);
                 
@@ -248,7 +269,8 @@ void CGlxCollectionPluginDownloads::HandleCpiAttributeResponseL(CMPXMedia* aResp
 	        {
 	        GLX_LOG_INFO("Attribute : GeneralTitle");
 	        
-	        HBufC* title = LoadLocalizedStringLC(KResourceFile, R_DOWNLOADS_GENERAL_TITLE);
+	        HBufC* title = LoadLocalizedStringLC(KResourceFile, 
+	                R_DOWNLOADS_GENERAL_TITLE);
             // Set the title in the response.
             aResponse->SetTextValueL(attr, *title);  
             CleanupStack::PopAndDestroy(title); 
@@ -265,7 +287,8 @@ void CGlxCollectionPluginDownloads::HandleCpiAttributeResponseL(CMPXMedia* aResp
 TBool CGlxCollectionPluginDownloads::IsUpdateMessageIgnoredL(CMPXMessage& /*aMessage*/)
 	{
 	TRACER("CGlxCollectionPluginDownloads::IsUpdateMessageIgnoredL");	
-	/// @todo origin could be passed up to allow downloads to ignore irrelevant adds, wait until inheritance is resolved
+	/// @todo origin could be passed up to allow downloads to ignore irrelevant adds, 
+	// wait until inheritance is resolved
 	TBool ignore = EFalse;
 	return ignore;
 	}
@@ -279,8 +302,10 @@ TGlxFilterProperties CGlxCollectionPluginDownloads::DefaultFilter(TInt aLevel)
     {
     TRACER("CGlxCollectionPluginDownloads::DefaultFilter");
     
-    __ASSERT_DEBUG(( (aLevel == KGlxCollectionRootLevel) || (aLevel == KGlxCollectionRootLevel+1) 
-    || (aLevel == KGlxCollectionRootLevel+2) ), Panic(EGlxPanicInvalidPathLevel));
+    __ASSERT_DEBUG(( (aLevel == KGlxCollectionRootLevel) 
+            || (aLevel == KGlxCollectionRootLevel+1) 
+            || (aLevel == KGlxCollectionRootLevel+2) ), 
+            Panic(EGlxPanicInvalidPathLevel));
     TGlxFilterProperties filterProperties;
 	filterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
     filterProperties.iSortDirection = EGlxFilterSortDirectionDescending;

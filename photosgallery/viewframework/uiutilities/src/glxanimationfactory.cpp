@@ -40,9 +40,10 @@ EXPORT_C MGlxAnimation* GlxAnimationFactory::CreateViewAnimationL(
     CGlxAnimationView* anim = NULL;
     
     RPointerArray<CAlfControlGroup> controlGroupArray;
-    controlGroupArray.Append(aControlGroup);
+	CleanupClosePushL(controlGroupArray);
+    controlGroupArray.AppendL(aControlGroup);
     anim = CGlxAnimationView::NewL(aAnimType, aDirection, controlGroupArray);
-    controlGroupArray.Reset();
+    CleanupStack::PopAndDestroy(&controlGroupArray);
     
     return anim;
     }

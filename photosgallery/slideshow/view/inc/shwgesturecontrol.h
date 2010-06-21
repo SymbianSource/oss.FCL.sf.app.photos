@@ -74,11 +74,11 @@ public:
     ~CShwGestureControl();
     
     /**
-     * AddObserver
+     * AddObserverL
      * Add an Observer 
      * @param aObserver, Observer to be added. 
      */ 
-    void AddObserver(MShwGestureObserver* aObserver); 
+    void AddObserverL(MShwGestureObserver* aObserver); 
 
     /**
      * RemoveObserver

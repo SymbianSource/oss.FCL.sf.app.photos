@@ -50,6 +50,8 @@ SOURCE          mglxactivemedialistresolver.cpp
 SOURCE          glxskinchangemonitor.cpp
 SOURCE 		glxprogressindicator.cpp
 SOURCE		glxmmcnotifier.cpp
+SOURCE		glxrequestfreegoom.cpp
+
 // System includes from epoc32/include
 APP_LAYER_SYSTEMINCLUDE
 
@@ -104,19 +106,19 @@ LIBRARY         mpxcollectionutility.lib
 LIBRARY         mpxcommon.lib
 LIBRARY         ws32.lib 
 LIBRARY         glxtvout.lib            // for TV out notificaions
-LIBRARY			libpthread.lib
+LIBRARY         libpthread.lib
 // Uiaccelerator related libraries 
 LIBRARY         osncore.lib 
-LIBRARY			alfwidgetmodel.lib
+LIBRARY         alfwidgetmodel.lib
 // MUL related libraries  
 LIBRARY          mulmodelutility.lib //For Visual Item and Filter action item
 //for handling the Ustring memory leak  
-LIBRARY 		  libc.lib
-LIBRARY		      libglib.lib
-LIBRARY 		  libstdcpp.lib
+LIBRARY         libc.lib
+LIBRARY         libglib.lib
+LIBRARY         libstdcpp.lib
 LIBRARY         flogger.lib
-//LIBRARY 		hgcontextutility.lib 					// For Teleport
+//LIBRARY       hgcontextutility.lib 					// For Teleport
 LIBRARY		akntransitionutils.lib
-// EXPORTUNFROZEN 
+LIBRARY		goommonitor.lib      //For GOOM
 
 // End of File

@@ -109,13 +109,13 @@ void CGlxCollectionPluginMonths::ConstructL()
 
  
 // ----------------------------------------------------------------------------
-// CpiAttributeAdditionalAttributes
+// CpiAttributeAdditionalAttributesL
 // ----------------------------------------------------------------------------
 //
-void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
+void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributesL(
 	const TMPXAttribute& aCpiAttribute, RArray<TMPXAttribute>& aAttributeArray)
 	{
-    TRACER("CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes");
+    TRACER("CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributesL");
     // Only need to process KGlxMediaCollectionPluginSpecificSubTitle here as all the others are reading straight from resource files
     // KGlxMediaCollectionPluginSpecificSubTitle requires a usage count
 	if (aCpiAttribute == KGlxMediaCollectionPluginSpecificSubTitle)
@@ -156,23 +156,23 @@ void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
 
 		if (!found)
 			{
-			aAttributeArray.Append(KGlxMediaCollectionInternalUsageCount);
+            aAttributeArray.AppendL(KGlxMediaCollectionInternalUsageCount);
 			}
 			
 		if (!startfound)
 			{
-			aAttributeArray.Append(KGlxMediaCollectionInternalStartDate);
+            aAttributeArray.AppendL(KGlxMediaCollectionInternalStartDate);
 			}
 		// end date will be returned when start date is requested.	        
 
 		if (!videofound)
 			{
-			aAttributeArray.Append(KGlxMediaItemTypeVideo);
+            aAttributeArray.AppendL(KGlxMediaItemTypeVideo);
 			}
 
 		if (!imagefound)	        
 			{
-			aAttributeArray.Append(KGlxMediaItemTypeImage);
+            aAttributeArray.AppendL(KGlxMediaItemTypeImage);
 			}	
 #else
 
@@ -196,16 +196,16 @@ void CGlxCollectionPluginMonths::CpiAttributeAdditionalAttributes(
 	        
 	    if (!found)
 	        {
-	        aAttributeArray.Append(KGlxMediaCollectionInternalUsageCount);
+            aAttributeArray.AppendL(KGlxMediaCollectionInternalUsageCount);
 	        }
 #ifdef SHOW_MONTHS_START_END_SUB_TITLE				
 	    if (!startfound)
 	        {
-	        aAttributeArray.Append(KGlxMediaCollectionInternalStartDate);
+            aAttributeArray.AppendL(KGlxMediaCollectionInternalStartDate);
 	        }
 	    if(!endfound)
 	    	{
-	    	aAttributeArray.Append(KGlxMediaCollectionInternalEndDate);
+            aAttributeArray.AppendL(KGlxMediaCollectionInternalEndDate);
 	        }
 #endif // #ifdef SHOW_MONTHS_START_END_SUB_TITLE
 #endif // #ifdef GLX_SUB_TITLE_REL8
@@ -281,7 +281,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
     TRACER("CGlxCollectionPluginMonths::HandleCpiAttributeResponseL");
     
 	TInt count = aCpiAttributes.Count();
-    GLX_DEBUG2("CGlxCollectionPluginMonths::HandleCpiAttributeResponseL count=%d", count);    
+    GLX_DEBUG2("CGlxCollectionPluginMonths::HandleCpiAttributeResponseL count=%d", 
+            count);    
 	
 	TLanguage lang;
     lang = User::Language();
@@ -311,33 +312,38 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 					// Get the format string
 					HBufC* tempTitle = NULL;
 
-					if(0 == usageCount)	
-						{	
-						GLX_LOG_INFO("SubTitle:0 Items");
-											
-						tempTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_NO_IMAGE_NO_VIDEO);
-						aResponse->SetTextValueL(attr, *tempTitle);
-						}
+					if(0 == usageCount)
+                        {
+                        GLX_LOG_INFO("SubTitle:0 Items");
 
-					// Get the format string
-					else if (1 == usageCount)
-						{
-						GLX_LOG_INFO("SubTitle:1 Item");
-						
-						tempTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_SINGLE_BY_MONTH);
-						aResponse->SetTextValueL(attr, *tempTitle);
-						}
-					else 
-						{
-						GLX_LOG_INFO1("SubTitle: %d Items",usageCount);
-						
-						tempTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_MULTI_BY_MONTH);						
-						TPtr formatString = tempTitle->Des();
+                        tempTitle = LoadLocalizedStringLC(KResourceFile, 
+                                R_MONTHS_SUB_TITLE_NO_IMAGE_NO_VIDEO);
+                        aResponse->SetTextValueL(attr, *tempTitle);
+                        }
 
-						// Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
-						HBufC* title = HBufC::NewLC(formatString.Length() + KDateBufferPaddingMin);
-						TPtr ptr = title->Des();
-						StringLoader::Format(ptr, formatString, -1, usageCount);
+                    // Get the format string
+
+                    else if (1 == usageCount)
+                        {
+                        GLX_LOG_INFO("SubTitle:1 Item");
+
+                        tempTitle = LoadLocalizedStringLC(KResourceFile, 
+                                R_MONTHS_SUB_TITLE_SINGLE_BY_MONTH);
+                        aResponse->SetTextValueL(attr, *tempTitle);
+                        }
+                    else
+                        {
+                        GLX_LOG_INFO1("SubTitle: %d Items",usageCount);
+
+                        tempTitle = LoadLocalizedStringLC(KResourceFile, 
+                                R_MONTHS_SUB_TITLE_MULTI_BY_MONTH);
+                        TPtr formatString = tempTitle->Des();
+
+                        // Now create a buffer that will contain the result. needs to be 
+                        // length of format string plus a few extra for the number
+                        HBufC* title = HBufC::NewLC(formatString.Length() + KDateBufferPaddingMin);
+                        TPtr ptr = title->Des();
+                        StringLoader::Format(ptr, formatString, -1, usageCount);
 
 						// Set the title in the response.
 						aResponse->SetTextValueL(attr, *title);    
@@ -359,7 +365,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 	            HBufC* tempTitle = NULL;
                 if( TTime(0) == start )
                     {
-                    tempTitle = LoadLocalizedStringLC(KResourceFile, R_MONTHS_SUB_TITLE_NO_IMAGE_NO_VIDEO);
+                    tempTitle = LoadLocalizedStringLC(KResourceFile, 
+                            R_MONTHS_SUB_TITLE_NO_IMAGE_NO_VIDEO);
                     aResponse->SetTextValueL(attr, *tempTitle);
                     CleanupStack::PopAndDestroy(tempTitle);
                     continue;
@@ -449,7 +456,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 
 						TPtr formatString = tempTitle->Des();
 
-						// Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
+						// Now create a buffer that will contain the result. needs to be 
+						// length of format string plus a few extra for the number
 						HBufC* title = HBufC::NewLC(formatString.Length() + KDateBufferPaddingMin);
 						TPtr ptr = title->Des();
 
@@ -471,7 +479,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 
 						TPtr formatString = tempTitle->Des();
 
-						// Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
+						// Now create a buffer that will contain the result. needs to be 
+						// length of format string plus a few extra for the number
 						HBufC* title = HBufC::NewLC(formatString.Length() + KDateBufferPaddingMin);
 						TPtr ptr = title->Des();
 
@@ -565,7 +574,8 @@ void CGlxCollectionPluginMonths::HandleCpiAttributeResponseL(CMPXMedia* aRespons
                 
                 TPtr formatString = tempTitle->Des();
                 
-                // Now create a buffer that will contain the result. needs to be length of format string plus a few extra for the number
+                // Now create a buffer that will contain the result. needs to be 
+                // length of format string plus a few extra for the number
                 HBufC* title = HBufC::NewLC(formatString.Length() + KDateBufferPaddingMin);
                 TPtr ptr = title->Des();
                 StringLoader::Format(ptr, formatString, -1, usageCount);
