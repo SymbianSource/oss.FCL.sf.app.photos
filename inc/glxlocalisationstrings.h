@@ -88,8 +88,9 @@
 #define GLX_SUBTITLE_CAM_GRIDVIEW      hbTrId("txt_photos_subtitle_my_camera")
 #define GLX_SUBTITLE_MYFAV_GRIDVIEW    hbTrId("txt_photos_subtitle_my_favorites")
 #define GLX_SUBTITLE_NOITEMS           hbTrId("txt_photos_subtitle_no_image_or_videos_to_display")
-
-
+#define GLX_FETCHER_TITLE              QString("Select Image")
+#define GLX_GRID_NO_IMAGE              QString("(No Images)\n")
+#define GLX_GRID_OPEN_CAMERA           QString("To capture images Open")
 //VIEW RELATED STRINGS AND COMMON DIALOGS
 
 //comments lable for photos flip view

@@ -41,8 +41,18 @@ TARGET.CAPABILITY = ALL -TCB
 }
 
 exportfile = "inc/glxzoomwidget.h APP_LAYER_PLATFORM_EXPORT_PATH(glxzoomwidget.h)"
+exportfile += "inc/glxzoomwidget_global.h APP_LAYER_PLATFORM_EXPORT_PATH(glxzoomwidget_global.h)"
 BLD_INF_RULES.prj_exports += exportfile
 
 # Input
 HEADERS += inc/glxzoomwidget.h inc/glxzoomwidget_global.h
 SOURCES += src/glxzoomwidget.cpp
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxzoomwidget.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxzoomwidget.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock

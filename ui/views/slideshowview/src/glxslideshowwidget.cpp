@@ -72,8 +72,9 @@ void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
     mIsPause = false;
 
     for ( int i = 0; i < NBR_ITEM ; i++) {
-        mIconItems[i] = new HbIconItem(this);
-        mIconItems[i]->setBrush(QBrush(Qt::black));
+        mIconItems[i] = new HbIconItem( this );
+        mIconItems[i]->setBrush( QBrush( Qt::black ) );
+        mIconItems[i]->setAlignment( Qt::AlignCenter );
     }
 
     mSlideTimer = new QTimer();
@@ -170,7 +171,7 @@ void GlxSlideShowWidget::triggeredEffect()
     GLX_LOG_INFO3("GlxSlideShowWidget::triggeredEffect() image selected index %d array index %d index %d", mSelIndex, mItemIndex, index);  
     mEffectEngine->runEffect( mItemList, QString("HbIconItem") );
     emit slideShowEvent( EFFECT_STARTED );
-    }
+}
 
 void GlxSlideShowWidget::effectFinshed()
 {
@@ -182,6 +183,7 @@ void GlxSlideShowWidget::effectFinshed()
     mSelIndex = ( ++mSelIndex ) % rowCount;
     mItemIndex = ( ++mItemIndex ) % NBR_ITEM;
     mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxFocusIndexRole );
+    mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxVisualWindowIndex );
     setIconItems( MOVE_FORWARD );
   
     GLX_LOG_INFO2("GlxSlideShowWidget::effectFinshed() after image selected index %d array index %d ", mSelIndex, mItemIndex);
@@ -315,6 +317,7 @@ void GlxSlideShowWidget::leftMoveEffectFinished( const HbEffect::EffectStatus &s
     mSelIndex = ( ++mSelIndex ) % rowCount;
     mItemIndex = ( ++mItemIndex ) % NBR_ITEM;
     mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxFocusIndexRole );
+    mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxVisualWindowIndex );
 
     setIconItems( MOVE_FORWARD );
     startSlideShow();
@@ -331,8 +334,9 @@ void GlxSlideShowWidget::rightMoveEffectFinished( const HbEffect::EffectStatus &
     mSelIndex = mSelIndex ? --mSelIndex : rowCount - 1;
     mItemIndex = mItemIndex ? mItemIndex - 1 : NBR_ITEM - 1;
     mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxFocusIndexRole );
+    mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxVisualWindowIndex );
 
-    setIconItems( MOVE_BACKWARD);
+    setIconItems( MOVE_BACKWARD );
     startSlideShow();
     emit indexchanged(); // on right swipe
 } 

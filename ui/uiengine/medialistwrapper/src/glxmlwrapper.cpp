@@ -52,6 +52,17 @@ void GlxMLWrapper::setContextMode(GlxContextMode contextMode)
 }
 
 // ---------------------------------------------------------------------------
+// removeContextMode.
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapper::removeContextMode(GlxContextMode contextMode)
+{
+    mMLWrapperPrivate->RemoveContextMode(contextMode);
+}
+
+
+
+// ---------------------------------------------------------------------------
 // getItemCount.
 // ---------------------------------------------------------------------------
 //
@@ -92,6 +103,16 @@ QString GlxMLWrapper::retrieveListSubTitle(int index)
 {
 	return (mMLWrapperPrivate->RetrieveListSubTitle(index));
 }
+
+// ---------------------------------------------------------------------------
+// retrieveListDesc.
+// ---------------------------------------------------------------------------
+//
+QString GlxMLWrapper::retrieveListDesc(int index)
+{
+    return (mMLWrapperPrivate->RetrieveListDesc(index));
+}
+
 // ---------------------------------------------------------------------------
 // retrieveItemUri.
 // ---------------------------------------------------------------------------
@@ -109,10 +130,33 @@ QSize GlxMLWrapper::retrieveItemDimension(int index)
 	return (mMLWrapperPrivate->RetrieveItemDimension(index));
 }
 
+// ---------------------------------------------------------------------------
+// retrieveItemSize.
+// ---------------------------------------------------------------------------
+//
+int GlxMLWrapper::retrieveItemSize(int index)
+{
+    return (mMLWrapperPrivate->RetrieveItemSize(index));
+}
+
+// ---------------------------------------------------------------------------
+// retrieveItemDate.
+// ---------------------------------------------------------------------------
+//
 QDate GlxMLWrapper::retrieveItemDate(int index)
 {
 	return (mMLWrapperPrivate->RetrieveItemDate(index));
 }
+
+// ---------------------------------------------------------------------------
+// retrieveItemTime.
+// ---------------------------------------------------------------------------
+//
+QTime GlxMLWrapper::retrieveItemTime(int index)
+{
+    return (mMLWrapperPrivate->RetrieveItemTime(index));
+}
+
 
 int GlxMLWrapper::retrieveItemFrameCount(int index)
 {
@@ -243,6 +287,16 @@ void GlxMLWrapper::handleListItemAvailable(int itemIndex)
 	emit updateItem(itemIndex, GlxTBContextNone);
 }
 
+
+// ---------------------------------------------------------------------------
+// handleDetailsItemAvailable.
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapper::handleDetailsItemAvailable(int itemIndex)
+{
+
+    emit updateDetails();
+}
 
 // ---------------------------------------------------------------------------
 // handleGeneralError.

@@ -17,13 +17,13 @@
             </widget>
             <layout type="anchor">
                 <anchoritem dst="listview" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
-                <anchoritem dst="listview" dstEdge="TOP" spacing="9un" src="" srcEdge="TOP"/>
+                <anchoritem dst="listview" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
                 <anchoritem dst="listview" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
-                <anchoritem dst="listview" dstEdge="BOTTOM" spacing="-9un" src="" srcEdge="BOTTOM"/>
+                <anchoritem dst="listview" dstEdge="BOTTOM" spacing="0un" src="" srcEdge="BOTTOM"/>
             </layout>
         </widget>
         <string name="title" value="Photos"/>
-        <bool name="contentFullScreen" value="TRUE"/>
+        <bool name="contentFullScreen" value="FALSE"/>
     </widget>
     <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>

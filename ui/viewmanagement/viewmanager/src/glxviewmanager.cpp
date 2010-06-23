@@ -70,10 +70,8 @@ GlxViewManager::GlxViewManager()
 void GlxViewManager::setupItems( )
 {
     mMenuManager = new GlxMenuManager(mMainWindow);
-    addBackSoftKeyAction(); 
-    
-    addConnection();
-    
+    addBackSoftKeyAction();    
+    addConnection();    
     mMenuManager->addMenu( mView->viewId(), mView->menu() );
     mMenuManager->setModel( mModel );
 }
@@ -159,7 +157,7 @@ void GlxViewManager::launchView (qint32 id, QAbstractItemModel *model, GlxEffect
     if ( mEffectEngine == NULL ) { 
         mEffectEngine = new GlxEffectEngine();
         mEffectEngine->registerTransitionEffect();
-        connect( mEffectEngine, SIGNAL( effectFinished() ), this, SLOT( effectFinished() ) );
+        connect( mEffectEngine, SIGNAL( effectFinished() ), this, SLOT( effectFinished() ), Qt::QueuedConnection );
     }
     
     QList< QGraphicsItem * > itemList;
@@ -587,7 +585,7 @@ void GlxViewManager::addConnection()
         connect(mBackAction, SIGNAL( triggered() ), this, SLOT( handleAction() ));
         
     if ( mEffectEngine )  {
-        connect( mEffectEngine, SIGNAL( effectFinished() ), this, SLOT( effectFinished() ) );
+        connect( mEffectEngine, SIGNAL( effectFinished() ), this, SLOT( effectFinished() ), Qt::QueuedConnection );
     }        
 }
 

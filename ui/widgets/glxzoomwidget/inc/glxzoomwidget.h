@@ -67,6 +67,7 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     protected:
     bool sceneEvent(QEvent *event);
     bool sceneEventFilter(QGraphicsItem *watched,QEvent *event);
+    void timerEvent(QTimerEvent *event);
     protected slots:
     void dataChanged(QModelIndex startIndex, QModelIndex endIndex);
 
@@ -130,6 +131,7 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     bool mPinchGestureOngoing; 
     //to check if decoded image is available
     bool mDecodedImageAvailable;
+    int mTimerId;
 
 };
 #endif  //GLXZOOMWIDGET_H

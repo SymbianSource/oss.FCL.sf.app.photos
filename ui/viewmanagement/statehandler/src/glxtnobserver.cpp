@@ -66,5 +66,6 @@ void GlxTNObserver::stopTNMDaemon()
 GlxTNObserver::~GlxTNObserver()
 {
     TRACER("GlxTNObserver::~GlxTNObserver() ");
+    RProperty::Set( KTAGDPSNotification, KForceBackgroundGeneration, EFalse );
     delete mTNMonitor;
 }

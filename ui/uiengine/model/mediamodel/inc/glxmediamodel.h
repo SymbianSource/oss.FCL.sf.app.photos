@@ -76,6 +76,10 @@ private:
  * for setting the attribute context mode will be used mainly for retreiving thumbnail of different sizes.
  */
     void setContextMode(GlxContextMode contextMode);
+	/*
+	 *Removes the context
+	 */
+    void removeContextMode(GlxContextMode contextMode);
     void setFocusIndex(const QModelIndex &index);
     QModelIndex getFocusIndex() const;
     void setSelectedIndex(const QModelIndex &index);
@@ -84,6 +88,10 @@ private:
 	
 signals :
     void iconAvailable(int itemIndex, HbIcon* itemIcon, GlxTBContextType tbContextType) const;
+	/*
+	 *signal to update the details view
+	 */
+    void updateDetailsView();
 public slots:
 	void itemUpdated1(int mlIndex, GlxTBContextType tbContextType);
 	void itemsAdded(int startIndex, int endIndex);
@@ -91,6 +99,10 @@ public slots:
 	void itemCorrupted(int itemIndex);
 	void albumTitleUpdated(QString aTitle);
 	void modelpopulated();
+	/*
+	 *Emits signal to update the details view
+	 */
+	void updateDetailItems();
 protected:
 	
 private slots:

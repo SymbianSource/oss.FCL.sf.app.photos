@@ -52,3 +52,12 @@ SOURCES += src/glxmlgenericobserver.cpp \
 		   src/glxtitlefetcher.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxmedialistwrapper.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxmedialistwrapper.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock

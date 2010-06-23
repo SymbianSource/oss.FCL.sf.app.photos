@@ -15,7 +15,7 @@ rem Description:
 rem
 
 
-call makesis photos_stub.pkg
+call makesis -v -s photos_stub.pkg
 
 call makesis photos.pkg
 call signsis -s photos.sis photos.sisx RDTest_02.der RDTest_02.key

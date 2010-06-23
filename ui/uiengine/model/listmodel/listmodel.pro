@@ -38,3 +38,12 @@ HEADERS += inc/glxalbummodel.h
 SOURCES += src/glxalbummodel.cpp 
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxlistmodel.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxlistmodel.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock

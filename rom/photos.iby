@@ -78,6 +78,10 @@ file=ABI_DIR/BUILD_DIR/glxlistmodel.dll                    	SHARED_LIB_DIR/glxli
 file=ABI_DIR/BUILD_DIR/glxviews.dll                        	SHARED_LIB_DIR/glxviews.dll
 file=ABI_DIR/BUILD_DIR/glxviewutilities.dll                	SHARED_LIB_DIR/glxviewutilities.dll
 file=ABI_DIR/BUILD_DIR/glxzoomwidget.dll                	SHARED_LIB_DIR/glxzoomwidget.dll
+file=ABI_DIR/BUILD_DIR/detailsnamelabel.dll                	SHARED_LIB_DIR/detailsnamelabel.dll
+file=ABI_DIR/BUILD_DIR/detailsnamelabelplugin.dll          	SHARED_LIB_DIR/detailsnamelabelplugin.dll
+file=ABI_DIR/BUILD_DIR/detailsdescriptionedit.dll          SHARED_LIB_DIR/detailsdescriptionedit.dll
+file=ABI_DIR/BUILD_DIR/detailsdescriptioneditplugin.dll    SHARED_LIB_DIR/detailsdescriptioneditplugin.dll
 
 
 S60_APP_EXE(photos)

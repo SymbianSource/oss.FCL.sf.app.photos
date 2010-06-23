@@ -25,7 +25,8 @@ CONFIG += hb
 LIBS += -limageconversion.dll \
 	-lbitmaptransforms.dll \
 	-liclextjpegapi.dll \
-	-lfbscli.dll
+	-lfbscli.dll \
+	-lefsrv.dll
 
 DEFINES += BUILD_IMAGEWRAPPER
 symbian: { 
@@ -41,3 +42,12 @@ HEADERS += inc/glximagedecoder.h inc/glximagedecoderwrapper.h
 SOURCES += src/glximagedecoder.cpp src/glximagedecoderwrapper.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glximagedecoderwrapper.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glximagedecoderwrapper.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock

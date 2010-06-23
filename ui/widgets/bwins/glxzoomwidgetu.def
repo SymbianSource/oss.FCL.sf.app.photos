@@ -36,4 +36,5 @@ EXPORTS
 	?animationFrameChanged@GlxZoomWidget@@QAEXH@Z @ 35 NONAME ; void GlxZoomWidget::animationFrameChanged(int)
 	?tr@GlxZoomWidget@@SA?AVQString@@PBD0@Z @ 36 NONAME ; class QString GlxZoomWidget::tr(char const *, char const *)
 	?trUtf8@GlxZoomWidget@@SA?AVQString@@PBD0H@Z @ 37 NONAME ; class QString GlxZoomWidget::trUtf8(char const *, char const *, int)
+	?timerEvent@GlxZoomWidget@@MAEXPAVQTimerEvent@@@Z @ 38 NONAME ; void GlxZoomWidget::timerEvent(class QTimerEvent *)
 

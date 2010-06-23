@@ -44,3 +44,12 @@ SOURCES += src/glxtvoutwrapper.cpp \
 			src/glxtvconnectionobserver.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxtvoutwrapper.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxtvoutwrapper.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock

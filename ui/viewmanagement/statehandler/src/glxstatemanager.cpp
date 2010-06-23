@@ -15,34 +15,40 @@
 *
 */
 
-#include <glxstatemanager.h>
-#include <glxviewmanager.h>
-#include <glxviewids.h>
-#include <glxmediamodel.h>
-#include <glxgridstate.h>
-#include <glxliststate.h>
-#include <glxfullscreenstate.h>
-#include <glxdetailstate.h>
-#include <glxslideshowsettingsstate.h>
-#include <glxslideshowstate.h>
-#include <glxtnobserver.h>
-#include <glxmodelparm.h>
-#include <glxcollectionpluginall.hrh>
-#include <glxcollectionplugincamera.hrh>
-#include <glxcollectionpluginalbums.hrh>
-#include <glxcollectionpluginimageviewer.hrh>
-#include <glxexternalutility.h>
-#include <glxalbummodel.h>
-#include <glxloggerenabler.h>
-#include <glxmediaid.h>
-#include <glxactionhandler.h>
-#include <glxcommandhandlers.hrh>
+//include
 #include <QApplication>
-#include <glxplugincommandid.hrh>
 #include <QDebug>
 #include <QItemSelectionModel>
 #include <hbnotificationdialog.h>
 #include <QProcess>
+#include <hbinstance.h>
+
+//user includes
+#include "glxstatemanager.h"
+#include "glxviewmanager.h"
+#include "glxviewids.h"
+#include "glxmediamodel.h"
+#include "glxgridstate.h"
+#include "glxliststate.h"
+#include "glxfullscreenstate.h"
+#include "glxdetailstate.h"
+#include "glxslideshowsettingsstate.h"
+#include "glxslideshowstate.h"
+#include "glxtnobserver.h"
+#include "glxmodelparm.h"
+#include "glxcollectionpluginall.hrh"
+#include "glxcollectionplugincamera.hrh"
+#include "glxcollectionpluginalbums.hrh"
+#include "glxcollectionpluginimageviewer.hrh"
+#include "glxexternalutility.h"
+#include "glxalbummodel.h"
+#include "glxloggerenabler.h"
+#include "glxmediaid.h"
+#include "glxactionhandler.h"
+#include "glxcommandhandlers.hrh"
+#include "glxplugincommandid.hrh"
+#include "glxlog.h"
+#include "glxtracer.h"
 
 
 GlxStateManager::GlxStateManager() 
@@ -98,6 +104,20 @@ bool GlxStateManager::executeCommand(qint32 commandId)
     return TRUE;
 }
 
+bool GlxStateManager::eventFilter(QObject *obj, QEvent *event)
+{
+    TRACER("GlxStateManager::eventFilter() ");
+    GLX_LOG_INFO1("GlxStateManager::eventFilter() %d event type", event->type());
+    
+    if ( event->type() ==  QEvent::ApplicationActivate ) {
+        mTNObserver->startTNMDaemon();
+    }
+    if ( event->type() ==  QEvent::ApplicationDeactivate ) {
+        mTNObserver->stopTNMDaemon();
+    }
+    return QObject::eventFilter(obj, event);
+}
+
 void GlxStateManager::launchApplication()
 {
     qDebug("GlxStateManager::launchApplication");   
@@ -108,8 +128,7 @@ void GlxStateManager::launchApplication()
        
     if ( mTNObserver->getTNLeftCount() > 0 ) {
         mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
-        mViewManager->launchProgressDialog( mTNObserver->getTNLeftCount() );
-		isProgressbarRunning = true ;
+        launchProgressDialog();
     }
     else {
         createModel( GLX_GRIDVIEW_ID );
@@ -151,24 +170,25 @@ void GlxStateManager::setupItems()
 
 void GlxStateManager::updateTNProgress( int count)
 {    
+    TRACER("GlxStateManager::updateTNProgress() ");
     // this is case when progress bar is not showing
     // in the case of rename of an image or capture the single item
     // it is also launching the progress bar, to avoid this scenario add the check of count more than 5
     if ( mCurrentModel && count > 5 ) { 
          goBack( GLX_GRIDVIEW_ID, ALL_ITEM_S ) ;
-         cleanAllModel();   
-         mViewManager->launchProgressDialog ( count ) ;
-         isProgressbarRunning = true ;         
+         cleanAllModel();
+         launchProgressDialog();
     }
     
     if ( isProgressbarRunning ){
         if ( count == 0 ) {
             createModel( mCurrentState->id() );
             mViewManager->setModel( mCurrentModel );
-            isProgressbarRunning = false;
+            vanishProgressDialog();
         }
-        
-        mViewManager->updateProgressDialog( count );
+        else {
+            mViewManager->updateProgressDialog( count );
+        }
     }
 }
 
@@ -282,6 +302,7 @@ void GlxStateManager::changeState(qint32 stateId, int internalState)
 
 void GlxStateManager::removeCurrentModel()
 {
+    TRACER("GlxStateManager::removeCurrentModel() ");
     if ( mCurrentModel == mAllMediaModel ) {
         qDebug("GlxStateManager::removeCurrentModel() remove all media model");	
         delete mAllMediaModel ;
@@ -308,6 +329,7 @@ void GlxStateManager::removeCurrentModel()
 
 void GlxStateManager::cleanAllModel()
 {
+    TRACER("GlxStateManager::cleanAllModel() ");
     delete mAllMediaModel ;
     mAllMediaModel = NULL ;
     delete mAlbumMediaModel ; 
@@ -317,6 +339,28 @@ void GlxStateManager::cleanAllModel()
     delete mImageviewerMediaModel ;
     mImageviewerMediaModel = NULL ;
     mCurrentModel = NULL ;
+}
+
+void GlxStateManager::launchProgressDialog()
+{
+    TRACER("GlxStateManager::launchProgressDialog() ");
+    //HbMainWindow *window = hbInstance->allMainWindows().first();
+    //window->setAutomaticOrientationEffectEnabled( true );
+    
+    QCoreApplication::instance()->installEventFilter( this );
+    mViewManager->launchProgressDialog( mTNObserver->getTNLeftCount() );
+    isProgressbarRunning = true ;
+}
+
+void GlxStateManager::vanishProgressDialog()
+{
+    TRACER("GlxStateManager::vanishProgressDialog() ");
+    //HbMainWindow *window = hbInstance->allMainWindows().first();
+    //window->setAutomaticOrientationEffectEnabled( false );
+    
+    QCoreApplication::instance()->removeEventFilter( this );
+    isProgressbarRunning = false;
+    mViewManager->updateProgressDialog( 0 );    
 }
 
 GlxState * GlxStateManager::createState(qint32 stateId)
@@ -564,18 +608,6 @@ void GlxStateManager::eventHandler(qint32 &id)
        
    case EGlxCmdSetupItem :
        emit setupItemsSignal();
-       break;
-       
-   case EGlxCmdAppBackground :
-       if ( isProgressbarRunning ){
-            mTNObserver->stopTNMDaemon();
-       }
-       break;
- 
-   case EGlxCmdAppForeground :
-       if ( isProgressbarRunning ){
-            mTNObserver->startTNMDaemon();
-       }
        break;
        
     default :

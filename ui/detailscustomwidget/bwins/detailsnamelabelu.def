@@ -1,0 +1,18 @@
+EXPORTS
+	??_EGlxDetailsNameLabel@@UAE@I@Z @ 1 NONAME ; GlxDetailsNameLabel::~GlxDetailsNameLabel(unsigned int)
+	??1GlxDetailsNameLabel@@UAE@XZ @ 2 NONAME ; GlxDetailsNameLabel::~GlxDetailsNameLabel(void)
+	?tr@GlxDetailsNameLabel@@SA?AVQString@@PBD0@Z @ 3 NONAME ; class QString GlxDetailsNameLabel::tr(char const *, char const *)
+	?mousePressEvent@GlxDetailsNameLabel@@MAEXPAVQGraphicsSceneMouseEvent@@@Z @ 4 NONAME ; void GlxDetailsNameLabel::mousePressEvent(class QGraphicsSceneMouseEvent *)
+	?metaObject@GlxDetailsNameLabel@@UBEPBUQMetaObject@@XZ @ 5 NONAME ; struct QMetaObject const * GlxDetailsNameLabel::metaObject(void) const
+	?getStaticMetaObject@GlxDetailsNameLabel@@SAABUQMetaObject@@XZ @ 6 NONAME ; struct QMetaObject const & GlxDetailsNameLabel::getStaticMetaObject(void)
+	?staticMetaObject@GlxDetailsNameLabel@@2UQMetaObject@@B @ 7 NONAME ; struct QMetaObject const GlxDetailsNameLabel::staticMetaObject
+	?qt_metacall@GlxDetailsNameLabel@@UAEHW4Call@QMetaObject@@HPAPAX@Z @ 8 NONAME ; int GlxDetailsNameLabel::qt_metacall(enum QMetaObject::Call, int, void * *)
+	??0GlxDetailsNameLabel@@QAE@PAVQGraphicsItem@@@Z @ 9 NONAME ; GlxDetailsNameLabel::GlxDetailsNameLabel(class QGraphicsItem *)
+	?labelPressed@GlxDetailsNameLabel@@IAEXXZ @ 10 NONAME ; void GlxDetailsNameLabel::labelPressed(void)
+	?setItemText@GlxDetailsNameLabel@@QAEXABVQString@@@Z @ 11 NONAME ; void GlxDetailsNameLabel::setItemText(class QString const &)
+	?mouseReleaseEvent@GlxDetailsNameLabel@@MAEXPAVQGraphicsSceneMouseEvent@@@Z @ 12 NONAME ; void GlxDetailsNameLabel::mouseReleaseEvent(class QGraphicsSceneMouseEvent *)
+	?trUtf8@GlxDetailsNameLabel@@SA?AVQString@@PBD0H@Z @ 13 NONAME ; class QString GlxDetailsNameLabel::trUtf8(char const *, char const *, int)
+	?trUtf8@GlxDetailsNameLabel@@SA?AVQString@@PBD0@Z @ 14 NONAME ; class QString GlxDetailsNameLabel::trUtf8(char const *, char const *)
+	?tr@GlxDetailsNameLabel@@SA?AVQString@@PBD0H@Z @ 15 NONAME ; class QString GlxDetailsNameLabel::tr(char const *, char const *, int)
+	?qt_metacast@GlxDetailsNameLabel@@UAEPAXPBD@Z @ 16 NONAME ; void * GlxDetailsNameLabel::qt_metacast(char const *)
+

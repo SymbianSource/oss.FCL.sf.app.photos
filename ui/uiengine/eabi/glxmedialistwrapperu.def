@@ -45,4 +45,10 @@ EXPORTS
 	_ZNK12GlxMLWrapper13getFocusIndexEv @ 44 NONAME
 	_ZTI12GlxMLWrapper @ 45 NONAME
 	_ZTV12GlxMLWrapper @ 46 NONAME
+	_ZN12GlxMLWrapper16retrieveItemSizeEi @ 47 NONAME
+	_ZN12GlxMLWrapper16retrieveItemTimeEi @ 48 NONAME
+	_ZN12GlxMLWrapper16retrieveListDescEi @ 49 NONAME
+	_ZN12GlxMLWrapper17removeContextModeE14GlxContextMode @ 50 NONAME
+	_ZN12GlxMLWrapper13updateDetailsEv @ 51 NONAME
+	_ZN12GlxMLWrapper26handleDetailsItemAvailableEi @ 52 NONAME
 

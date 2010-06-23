@@ -115,8 +115,7 @@ enum TGlxCommandId
     EGlxCmdContextSend,
     EGlxCmdContextRename,
     EGlxCmdSetupItem,
-    EGlxCmdAppBackground,    //when application goes into background
-    EGlxCmdAppForeground,    //when application comes into foreground
+    EGlxCmdComment,
     EGlxCmdAiwBase = 0x6000
     };
 

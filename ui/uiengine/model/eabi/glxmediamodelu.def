@@ -36,4 +36,7 @@ EXPORTS
 	_ZNK13GlxMediaModel8rowCountERK11QModelIndex @ 35 NONAME
 	_ZTI13GlxMediaModel @ 36 NONAME
 	_ZTV13GlxMediaModel @ 37 NONAME
+	_ZN13GlxMediaModel17removeContextModeE14GlxContextMode @ 38 NONAME
+	_ZN13GlxMediaModel17updateDetailItemsEv @ 39 NONAME
+	_ZN13GlxMediaModel17updateDetailsViewEv @ 40 NONAME
 

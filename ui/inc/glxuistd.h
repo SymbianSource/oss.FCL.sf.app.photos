@@ -41,7 +41,8 @@ enum GlxContextMode
 	GlxContextLsList,
 	GlxContextPtList,
     GlxContextSelectionList,
-    GlxContextFavorite
+    GlxContextFavorite,
+    GlxContextComment   //to fetch the description
 };
 
 enum GlxTBContextType

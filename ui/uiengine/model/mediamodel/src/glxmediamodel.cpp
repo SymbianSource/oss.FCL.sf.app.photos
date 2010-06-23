@@ -23,8 +23,6 @@
 #include <glxmodelparm.h>
 #include <QCache>
 #include <QDebug>
-#include <hal.h>
-#include <hal_data.h>
 #include <glxmlwrapper.h>
 
 #include <glxfiltergeneraldefs.h>
@@ -55,7 +53,7 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	err = connect( mMLWrapper, SIGNAL(updateAlbumTitle(QString)), this, SLOT(albumTitleUpdated(QString)));
 	qDebug("updateAlbumTitle() connection status %d", err);
 	err = connect(mMLWrapper, SIGNAL(populated()), this, SLOT(modelpopulated()));
-	//itemadded.resize(mMLWrapper->getItemCount());
+	err = connect(mMLWrapper, SIGNAL(updateDetails()), this, SLOT(updateDetailItems()));
 	
 	itemIconCache.setMaxCost(20);  //Changed While Doing Media Wall
 	itemFsIconCache.setMaxCost(5);
@@ -73,39 +71,54 @@ GlxMediaModel::~GlxMediaModel()
 {
     //itemadded.clear();
 	qDebug("GlxMediaModel::~GlxMediaModel");
-	int freeMemory = 0;
-	int err1 = HAL::Get( HALData::EMemoryRAMFree, freeMemory );
-	qDebug("####mediaModel : Memory available before cache cleanup  = %d and error is = %d ", freeMemory , err1 );
 	itemIconCache.clear();
 	itemFsIconCache.clear();
 	delete m_DefaultIcon;
 	m_DefaultIcon = NULL;
 	clearExternalItems();
-	err1 = HAL::Get( HALData::EMemoryRAMFree, freeMemory );
-	qDebug("####mediaModel : Memory available after cache cleanup  = %d and error is = %d ", freeMemory , err1 );
-    int err = disconnect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
+  int err = disconnect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	err = disconnect(mMLWrapper, SIGNAL(itemCorrupted(int)), this, SLOT(itemCorrupted(int)));
 	err = disconnect(mMLWrapper, SIGNAL(insertItems(int, int)), this, SLOT(itemsAdded(int, int)));
 	err = disconnect(mMLWrapper, SIGNAL(removeItems(int, int)), this, SLOT(itemsRemoved(int, int)));
 	err = disconnect(this, SIGNAL(iconAvailable(int, HbIcon*, GlxTBContextType)), this, SLOT(updateItemIcon(int, HbIcon*, GlxTBContextType)));
 	err = disconnect(mMLWrapper, SIGNAL(updateAlbumTitle(QString)), this, SLOT(albumTitleUpdated(QString)));	    
 	err = disconnect(mMLWrapper, SIGNAL(populated()), this, SLOT(modelpopulated()));
+	err = disconnect(mMLWrapper, SIGNAL(updateDetails()), this, SLOT(updateDetailItems()));
     delete mMLWrapper;
 
 }
 
+//------------------------------------------------------------------------------------------------------------
+//setContextMode
+//------------------------------------------------------------------------------------------------------------
 void GlxMediaModel::setContextMode(GlxContextMode contextMode)
 {
-	if(mContextMode != contextMode)	{
+    if(contextMode == GlxContextComment)
+        {
+           mMLWrapper->setContextMode(contextMode);
+        }
+    else 
+        {
+      if(mContextMode != contextMode)	{
+        
 		itemFsIconCache.clear();
 		mMLWrapper->setContextMode(contextMode);
 		mContextMode = contextMode;
 		if ( mContextMode == GlxContextLsGrid || mContextMode == GlxContextPtGrid ) {
             itemIconCache.clear();
             //emit dataChanged( index( 0, 0), index( rowCount() - 1, 0) );  // Not Needed for HgWidget
-        }
-	}
+       }
+	  }
+     }
 }
+
+//------------------------------------------------------------------------------------------------------------
+//removeContextMode
+//------------------------------------------------------------------------------------------------------------
+void GlxMediaModel::removeContextMode(GlxContextMode contextMode)
+    {
+     mMLWrapper->removeContextMode(contextMode);
+    }
 
 //to add external data to the model
 void GlxMediaModel::addExternalItems(GlxExternalData* externalItems)
@@ -314,7 +327,18 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
     if (role == GlxHdmiBitmap) {
         return mMLWrapper->RetrieveBitmap(itemIndex);
     }
-	    
+    
+    if (role == GlxTimeRole) {
+        return mMLWrapper->retrieveItemTime(itemIndex);
+    }
+	
+    if (role == GlxSizeRole) {
+            return mMLWrapper->retrieveItemSize(itemIndex);
+        }
+    
+    if (role == GlxDescRole) {
+              return mMLWrapper->retrieveListDesc(itemIndex);
+          }
     return QVariant();
 }
 
@@ -384,6 +408,15 @@ void GlxMediaModel::itemCorrupted(int itemIndex)
 void GlxMediaModel::modelpopulated()
 {
     emit populated();
+}
+
+//------------------------------------------------------------------------------------------------------------
+//updateDetailItems
+//------------------------------------------------------------------------------------------------------------
+void GlxMediaModel::updateDetailItems()
+{
+    qDebug("GlxMediaModel::updateDetailItems");
+    emit updateDetailsView();
 }
 
 void GlxMediaModel::itemsAdded(int startIndex, int endIndex)
@@ -485,6 +518,14 @@ bool GlxMediaModel::setData ( const QModelIndex & idx, const QVariant & value, i
             return TRUE;
         }
     }
+    
+    if ( GlxRemoveContextRole == role ) {
+            if ( value.isValid() &&  value.canConvert <int> () ) {
+                removeContextMode( (GlxContextMode) value.value <int> () );
+                return TRUE;
+            }
+        }
+    
     
     if ( GlxFocusIndexRole == role ) {
         if ( value.isValid() &&  value.canConvert <int> () ) {

@@ -45,7 +45,8 @@ GlxCoverFlow::GlxCoverFlow(QGraphicsItem *parent )
        mMoveDir(NO_MOVE),
        mSpeed ( GLX_COVERFLOW_SPEED ),
 	   mZoomOn(false),
-	   mMultitouchFilter(NULL)
+	   mMultitouchFilter(NULL),
+       mTimerId(0)
 {
 //TO:DO through exception
    qDebug("GlxCoverFlow::GlxCoverFlow");
@@ -63,11 +64,12 @@ void GlxCoverFlow::setCoverFlow()
 {
     qDebug("GlxCoverFlow::setCoverFlow");
     for ( qint8 i = 0; i < NBR_ICON_ITEM ; i++ ) {
-        mIconItem[i] = new HbIconItem(this);
-        mIconItem[i]->grabGesture(Qt::PinchGesture, Qt::ReceivePartialGestures);
-        mIconItem[i]->installSceneEventFilter(mMultitouchFilter);
-        mIconItem[i]->setBrush(QBrush(Qt::black));
-        mIconItem[i]->setSize(QSize(0,0));
+        mIconItem[i] = new HbIconItem( this );
+        mIconItem[i]->grabGesture( Qt::PinchGesture, Qt::ReceivePartialGestures );
+        mIconItem[i]->installSceneEventFilter( mMultitouchFilter );
+        mIconItem[i]->setBrush( QBrush( Qt::black ) );
+        mIconItem[i]->setSize( QSize( 0, 0 ) );
+        mIconItem[i]->setAlignment( Qt::AlignCenter );
     }
     mUiOn = FALSE;
     mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
@@ -108,7 +110,14 @@ void GlxCoverFlow::gestureEvent(QGestureEvent *event)
 {    
     if(QTapGesture *gesture = static_cast<QTapGesture *>(event->gesture(Qt::TapGesture))) {        
         if (gesture->state() == Qt::GestureFinished) {
-            emit coverFlowEvent( TAP_EVENT );
+            if(!mTimerId) {
+                mTimerId = startTimer(500);
+            }
+            else {
+                killTimer(mTimerId);
+                mTimerId = 0;
+                emit doubleTapEventReceived(gesture->position());
+            }
             event->accept(gesture);
         }
     }
@@ -534,4 +543,14 @@ void GlxCoverFlow::zoomFinished(int index)
 	mZoomOn = false;
 	indexChanged(index);
 
+}
+
+void GlxCoverFlow::timerEvent(QTimerEvent *event)
+{
+    if(mTimerId == event->timerId())
+    {
+        killTimer(mTimerId);
+        mTimerId = 0;
+        emit coverFlowEvent( TAP_EVENT );
+    }
 }

@@ -23,6 +23,7 @@
         <file>data/listview.docml</file>
         <file>data/fullscreen.docml</file>
         <file>data/slideshow.docml</file>
+	<file>data/detailsview.docml</file>
         <file>data/Image1.jpg</file>
         <file>data/Image2.jpg</file>
         <file>data/Image3.jpg</file>

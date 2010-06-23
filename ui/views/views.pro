@@ -21,6 +21,7 @@ DEPENDPATH += . fullscreenview/inc fullscreenview/src gridview/inc gridview/src 
 CONFIG += hb
 
 LIBS += -lglxfavmediamodel.dll \
+        -lglxmediamodel.dll \
         -lglximagedecoderwrapper.dll \
         -lglxloggerqt.dll \
         -lshareui.dll \
@@ -31,14 +32,19 @@ LIBS += -lglxfavmediamodel.dll \
         -lganeswidgets.dll \
         -lglxmodelwrapper.dll \
         -lglxviewutilities.dll \
-        -lglxzoomwidget.dll
+	 -lglxzoomwidget.dll \
+        -ldetailsnamelabel.dll \
+        -ldetailsnamelabelplugin.dll \
+        -ldetailsdescriptionedit.dll \
+        -ldetailsdescriptioneditplugin.dll
 
 DEFINES += BUILD_GLXVIEWS
 
 INCLUDEPATH += . ../inc \
           ../../inc \
-	  ../widgets/glxzoomwidget/inc \
-          ../uiengine/model/favmediamodel/inc \
+  	  ../widgets/glxzoomwidget/inc \
+          ../uiengine/model/mediamodel/inc \
+	  ../uiengine/model/favmediamodel/inc \
           ../uiengine/medialistwrapper/inc \
           ../viewbase/inc \
           ../../commonutilities/imagedecoderwrapper/inc \
@@ -48,7 +54,9 @@ INCLUDEPATH += . ../inc \
           ../uiengine/model/modelwrapper/inc \
           ../viewutilities/effectengine/inc \
           ../viewutilities/settingutility/inc \
-          /epoc32/include/mw/hgwidgets
+          /epoc32/include/mw/hgwidgets \
+          ../detailscustomwidget/detailsnamelabel/inc \
+          ../detailscustomwidget/detailsdescriptionedit/inc
 
 symbian: { 
 TARGET.UID3 = 0x200009EF
@@ -62,8 +70,6 @@ HEADERS += viewbase/inc/glxview.h \
            fullscreenview/inc/glxcoverflow.h \
            fullscreenview/inc/glxfullscreenview.h \
            detailsview/inc/glxdetailsview.h  \
-           detailsview/inc/glxdetailscustomwidgets.h  \
-           detailsview/inc/glxdetailscustomicon.h \
            gridview/inc/glxgridview.h \
            slideshowsettingsview/inc/glxslideshowsettingsview.h \
            listview/inc/glxlistview.h \
@@ -76,8 +82,6 @@ SOURCES += viewbase/src/glxview.cpp \
            fullscreenview/src/glxcoverflow.cpp \
            fullscreenview/src/glxfullscreenview.cpp \
 	   detailsview/src/glxdetailsview.cpp \
-           detailsview/src/glxdetailscustomwidgets.cpp \
-           detailsview/src/glxdetailscustomicon.cpp \
            gridview/src/glxgridview.cpp \
            slideshowsettingsview/src/glxslideshowsettingsview.cpp \
            listview/src/glxlistview.cpp \
@@ -87,3 +91,12 @@ SOURCES += viewbase/src/glxview.cpp \
            viewsfactory/src/glxviewsfactory.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT 
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxviews.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxviews.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock
