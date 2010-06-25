@@ -45,6 +45,8 @@
 #include <glxfilterfactory.h>
 #include <glxlog.h>
 
+#include "glxsymbianlocalisationstrings.h"
+
 // CONSTANTS
 const TInt KFavoriteAlbumId = 1 ;
 const TInt KCapturedAlbumId = 2 ;
@@ -214,7 +216,8 @@ void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(CMPXMedia* aRespons
             	{
             	if(0 == usageCount)
             		{
-                	tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALBUM_ITEM_SUB_TITLE_EMPTY);
+                	tempTitle = LoadLocalizedStringLC(KNoImages); 
+         
                 	
                 	// Set the title in the response.
             		aResponse->SetTextValueL(attr, *tempTitle);  
@@ -276,14 +279,12 @@ void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 					{
 					if( TGlxMediaId(KCapturedAlbumId) == aMediaId )
 						{
-					     _LIT(KCameraText,"txt_photos_dblist_my_camera");
 						 HBufC* title = LoadLocalizedStringLC(KCameraText);
 						 aResponse->SetTextValueL(attr, *title);  
 						 CleanupStack::PopAndDestroy(title);						
 						}
 					else if (TGlxMediaId(KFavoriteAlbumId) == aMediaId  )
 						{
-					    _LIT(KMyFavText,"txt_photos_dblist_my_favorites");				                                    					                  
 						HBufC* title = LoadLocalizedStringLC(KMyFavText);
 						aResponse->SetTextValueL(attr, *title);  
 						CleanupStack::PopAndDestroy(title);						

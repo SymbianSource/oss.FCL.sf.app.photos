@@ -37,4 +37,6 @@ EXPORTS
 	?eventFilter@GlxStateManager@@UAE_NPAVQObject@@PAVQEvent@@@Z @ 36 NONAME ; bool GlxStateManager::eventFilter(class QObject *, class QEvent *)
 	?vanishProgressDialog@GlxStateManager@@AAEXXZ @ 37 NONAME ; void GlxStateManager::vanishProgressDialog(void)
 	?launchProgressDialog@GlxStateManager@@AAEXXZ @ 38 NONAME ; void GlxStateManager::launchProgressDialog(void)
+	?saveData@GlxStateManager@@QAEXXZ @ 39 NONAME ; void GlxStateManager::saveData(void)
+	?launchActivity@GlxStateManager@@AAE_NXZ @ 40 NONAME ; bool GlxStateManager::launchActivity(void)
 

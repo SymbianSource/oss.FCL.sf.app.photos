@@ -66,6 +66,7 @@ file=ABI_DIR/BUILD_DIR/glxstatehandler.dll              	SHARED_LIB_DIR/glxstate
 file=ABI_DIR/BUILD_DIR/glxviewmanager.dll              		SHARED_LIB_DIR/glxviewmanager.dll
 
 //qt 
+file=ABI_DIR/BUILD_DIR/glxdrmutilitywrapper.dll             SHARED_LIB_DIR/glxdrmutilitywrapper.dll
 file=ABI_DIR/BUILD_DIR/glxexternalutility.dll              	SHARED_LIB_DIR/glxexternalutility.dll
 file=ABI_DIR/BUILD_DIR/glximagedecoderwrapper.dll          	SHARED_LIB_DIR/glximagedecoderwrapper.dll
 file=ABI_DIR/BUILD_DIR/glxloggerqt.dll              	   	SHARED_LIB_DIR/glxloggerqt.dll
@@ -88,6 +89,7 @@ S60_APP_EXE(photos)
 data=/epoc32/data/z/private/10003a3f/import/apps/photos_reg.rsc         private/10003a3f/import/apps/photos_reg.rsc
 data=DATAZ_/APP_RESOURCE_DIR/photos.mif                     			APP_RESOURCE_DIR/photos.mif  
 data=/epoc32/data/Z/private/10202BE9/20007194.txt						private/10202BE9/20007194.txt
+data=/epoc32/data/Z/private/10202BE9/20007193.txt						private/10202BE9/20007193.txt
 data=/epoc32/data/z/system/install/photos_stub.sis        				/system/install/photos_stub.sis
 
 data=ZRESOURCE/hb/splashml/photos.splashml  RESOURCE_FILES_DIR/hb/splashml/photos.splashml

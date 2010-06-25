@@ -48,8 +48,11 @@ GlxAlbumModel::GlxAlbumModel(GlxModelParm & modelParm):mContextMode(GlxContextIn
 	qDebug("insertItems() connection status %d", err);
 	err = connect(mMLWrapper, SIGNAL(removeItems(int, int)), this, SLOT(itemsRemoved(int, int)));
 	qDebug("removeItems() connection status %d", err);
+    err = connect(mMLWrapper, SIGNAL(populated()), this, SLOT(modelPopulated()));
+	qDebug("populated() connection status %d", err);
     err = connect(this, SIGNAL(iconAvailable(int, HbIcon*, GlxTBContextType)), this, SLOT(updateItemIcon(int, HbIcon*, GlxTBContextType)));
 	qDebug("iconAvailable() connection status %d", err);
+	mTempVisibleWindowIndex = 0;
     itemIconCache.setMaxCost(50);
 }
 
@@ -62,6 +65,7 @@ GlxAlbumModel::~GlxAlbumModel()
 	err = disconnect(mMLWrapper, SIGNAL(insertItems(int, int)), this, SLOT(itemsAdded(int, int)));
 	err = disconnect(mMLWrapper, SIGNAL(removeItems(int, int)), this, SLOT(itemsRemoved(int, int)));
     err = disconnect(this, SIGNAL(iconAvailable(int, HbIcon*, GlxTBContextType)), this, SLOT(updateItemIcon(int, HbIcon*, GlxTBContextType)));
+    err = disconnect(mMLWrapper, SIGNAL(populated()), this, SLOT(modelPopulated()));
 	delete mMLWrapper;
     mMLWrapper = NULL;
     itemIconCache.clear();
@@ -149,6 +153,8 @@ QVariant GlxAlbumModel::data(const QModelIndex &index, int role) const
         
     case GlxSystemItemRole :
         return mMLWrapper->isSystemItem( getFocusIndex().row() );
+    case GlxVisualWindowIndex :
+        return mMLWrapper->getVisibleWindowIndex();
            
     default :       
         return QVariant();
@@ -183,6 +189,12 @@ bool GlxAlbumModel::setData ( const QModelIndex & idx, const QVariant & value, i
     if ( GlxSelectedIndexRole == role ) {
         if ( value.isValid() &&  value.canConvert <int> () ) {
             setSelectedIndex( index( value.value <int> (), 0) );
+            return TRUE;
+        }
+    }
+    if ( GlxTempVisualWindowIndex == role ) {
+        if ( value.isValid() && value.canConvert<int> () ) {
+        mTempVisibleWindowIndex = value.value <int> (); 
             return TRUE;
         }
     }
@@ -232,6 +244,14 @@ QModelIndex GlxAlbumModel::getFocusIndex() const
     return index(mMLWrapper->getFocusIndex(), 0);
 }
 
+void GlxAlbumModel::modelPopulated()
+{
+    if ( mTempVisibleWindowIndex!=-1) {
+        mMLWrapper->setVisibleWindowIndex(mTempVisibleWindowIndex);
+        mTempVisibleWindowIndex = -1;
+        emit listPopulated();
+    }
+}
 void GlxAlbumModel::itemUpdated1(int mlIndex,GlxTBContextType tbContextType  )
 {
 	Q_UNUSED(tbContextType);

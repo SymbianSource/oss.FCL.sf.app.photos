@@ -36,7 +36,7 @@ public:
 private:
     QString CompletionTextL() const;
     QString GetName(MGlxMediaList& aMediaList) const;
-	void HandleErrorL(TInt aErrorCode);
+
 	};
 
 #endif // GLXCOMMANDHANDLERCOMMENT_H

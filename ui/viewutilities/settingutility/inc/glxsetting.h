@@ -25,7 +25,7 @@ class XQSettingsKey;
 class XQSettingsManager;
 class QStringList;
 
-#define NBR_SLIDESHOW_EFFECT 3
+#define NBR_SLIDESHOW_EFFECT 4
 
 /*
  * This class is used for read and write the photos application related setting from the centrep.

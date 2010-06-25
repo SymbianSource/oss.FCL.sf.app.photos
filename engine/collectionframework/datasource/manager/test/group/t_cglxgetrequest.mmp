@@ -56,6 +56,6 @@ LIBRARY                 glxcommon.lib
 // Libraries required by the tested code
 LIBRARY                 ecom.lib
 LIBRARY                 mpxcommon.lib
-
+SMPSAFE
 //deffile ../bwins/t_cglxgetrequest.def
 // End of file

@@ -65,5 +65,5 @@ LIBRARY                 glxlogging.lib                  // for logging
 #ifndef WINSCW
 EPOCALLOWDLLDATA
 #endif
-
+SMPSAFE
 // End of file

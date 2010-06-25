@@ -35,6 +35,7 @@
 class HbIcon;
 class GlxModelParm;
 class GlxMLWrapper;
+class GlxDRMUtilityWrapper;
 #include <QCache>
 #include <QVector>
 
@@ -119,6 +120,8 @@ private:
 	int externalDataCount;
 	int mFocusIndex;
 	int mSubState;
+	GlxDRMUtilityWrapper* mDRMUtilityWrapper;
+	int mTempVisibleWindowIndex;
 };
 
 

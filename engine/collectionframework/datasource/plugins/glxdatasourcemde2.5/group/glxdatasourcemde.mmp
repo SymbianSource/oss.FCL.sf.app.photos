@@ -96,4 +96,5 @@ LIBRARY         flogger.lib
 LIBRARY         imageconversion.lib
 LIBRARY	   	harvesterclient.lib
 
+SMPSAFE
 // End of File

@@ -47,4 +47,6 @@ EXPORTS
 	?tr@GlxViewManager@@SA?AVQString@@PBD0H@Z @ 46 NONAME ; class QString GlxViewManager::tr(char const *, char const *, int)
 	?activateView@GlxViewManager@@AAEXXZ @ 47 NONAME ; void GlxViewManager::activateView(void)
 	?hideProgressDialog@GlxViewManager@@AAEXXZ @ 48 NONAME ; void GlxViewManager::hideProgressDialog(void)
+	?applicationReady@GlxViewManager@@IAEXXZ @ 49 NONAME ; void GlxViewManager::applicationReady(void)
+	?handleReadyView@GlxViewManager@@QAEXXZ @ 50 NONAME ; void GlxViewManager::handleReadyView(void)
 

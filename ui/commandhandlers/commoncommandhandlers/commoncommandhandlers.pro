@@ -40,6 +40,7 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 TARGET.UID3 = 0x20000A0D
 TARGET.CAPABILITY = ALL -TCB 
 TARGET.EPOCALLOWDLLDATA = 1
+MMP_RULES += SMPSAFE 
 }
 
 LIBS += -lglxcommandhandlerbase.dll \
@@ -54,7 +55,11 @@ LIBS += -lglxcommandhandlerbase.dll \
 	-lfbscli.dll \
 	-lbafl.dll \
 	-lefsrv.dll \
-	-lcaf.dll
+	-lcaf.dll \
+        -lxqservice.dll \
+	-lxqserviceutil.dll \
+	-lglxmediamodel.dll
+
 
 # Input
 HEADERS += inc/glxcommandhandlerdelete.h
@@ -66,7 +71,8 @@ HEADERS += inc/glxcommandhandlerremovefrom.h
 HEADERS += inc/glxcommandhandlerrename.h
 HEADERS += inc/glxcommondialogs.h
 HEADERS += inc/glxcommandhandlercomment.h
-
+HEADERS += inc/glxcommandhandlercropimage.h
+HEADERS += inc/glxcommandhandlerrotateimage.h
 
 SOURCES += src/glxcommandhandlerdelete.cpp
 SOURCES += src/glxcommandhandleraddtocontainer.cpp
@@ -77,6 +83,8 @@ SOURCES += src/glxcommandhandlerremovefrom.cpp
 SOURCES += src/glxcommandhandlerrename.cpp
 SOURCES += src/glxcommondialogs.cpp
 SOURCES += src/glxcommandhandlercomment.cpp
+SOURCES += src/glxcommandhandlercropimage.cpp
+SOURCES += src/glxcommandhandlerrotateimage.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 

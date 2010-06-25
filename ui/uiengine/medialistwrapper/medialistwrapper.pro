@@ -42,6 +42,8 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 TARGET.UID3 = 0x20000A0B
 TARGET.CAPABILITY = ALL -TCB 
 TARGET.EPOCALLOWDLLDATA = 1
+MMP_RULES += SMPSAFE 
+
 }	
 # Input
 HEADERS += inc/glxmlgenericobserver.h inc/glxmlwrapper.h inc/glxmlwrapper_p.h inc/glxattributeretriever.h inc/glxtitlefetcher.h

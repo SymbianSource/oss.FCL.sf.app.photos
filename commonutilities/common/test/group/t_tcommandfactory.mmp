@@ -58,5 +58,5 @@ LIBRARY                 estor.lib
 LIBRARY                 ecom.lib
 LIBRARY                 lbs.lib
 LIBRARY                 mpxcommon.lib
-
+SMPSAFE
 // End of file

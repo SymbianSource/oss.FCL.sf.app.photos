@@ -113,6 +113,10 @@ public:
 	QString retrieveViewTitle();
 	void handlepopulated();	
 	bool IsPopulated();
+	bool IsDrmProtected(int index = -1);	
+	bool IsDrmValid(int index);
+	void setDrmValid(int index,bool valid);			
+	
 	/*
 	 * retriveBitmap helps to retrive the bitmap
 	 * @param1 index 

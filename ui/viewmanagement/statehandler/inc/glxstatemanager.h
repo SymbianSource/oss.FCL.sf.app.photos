@@ -24,6 +24,7 @@
 #include <QObject>
 #include <QList>
 #include <glxbasestate.h>
+#include <qmap.h>
 
 class GlxState;
 class GlxViewManager;
@@ -118,6 +119,7 @@ public slots:
      * call back function to monitor the change in thumbnail manager
      */
     void updateTNProgress( int count);
+    void saveData();
 
 public :
     /*
@@ -198,6 +200,11 @@ private:
      */        
     void exitApplication();
 
+    /*Launch Application as an acitivyt.
+     * Return Value @0 : If launching an activity fails
+     *              @1 : If launch activity passes
+     */
+     bool launchActivity();
 private:
     GlxViewManager      *mViewManager;
     GlxMediaModel       *mAllMediaModel;        // for all grid
@@ -210,6 +217,7 @@ private:
     GlxTNObserver       *mTNObserver;
     int                 mCollectionId;
     bool                isProgressbarRunning;
+    QMap<QString, qint32> mSaveActivity;
 };
 
 

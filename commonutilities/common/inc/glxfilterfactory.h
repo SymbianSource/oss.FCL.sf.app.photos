@@ -54,7 +54,14 @@ public:
     * @return a filter object with array elements set specifying the filter type (Images or Video)
     */
     IMPORT_C static CMPXFilter* CreateItemTypeFilterL(TGlxFilterItemType aItemType);
-
+    /**
+    * Creates a URI filter, Used to specify 1 particular item (no wild cards allowed).
+    *
+    * @param TGlxMediaGeneralCategory ( EMPXImage )
+    * @return a filter object with array non drm images
+    */
+	IMPORT_C static CMPXFilter* TGlxFilterFactory::CreateExcludeDrmImageTypeFilterL(TGlxFilterItemType aFilterType);
+	
     /**
     * Creates a URI filter, Used to specify 1 particular item (no wild cards allowed).
     *

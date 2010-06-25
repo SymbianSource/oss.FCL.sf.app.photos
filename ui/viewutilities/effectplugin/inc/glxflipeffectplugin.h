@@ -45,23 +45,12 @@ public :
     void setUpItems( QList< QGraphicsItem * > &  items );
     
     /*
-     * second animation will be run later
-     */    
-    bool isAnimationLater(int index) ;
-    
-    /*
-     *  return the second animation object to play the flip show animation
-     */
-    QGraphicsItem * animationItem() ;
-    
-    /*
      * get the name of the effect, use to shown in the slide show setting view
      */
-    static QString effectName() { return QString ("Flip") ; }
+    static QString effectName();
 	
 private :
     QList <QString > mEffectFileList;
-    QGraphicsItem *mItem;
 };
 
 #endif /*GLXFLIPEFFECTPLUGIN_H*/

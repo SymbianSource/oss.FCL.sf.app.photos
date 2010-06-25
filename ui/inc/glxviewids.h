@@ -28,26 +28,42 @@
 #define GLX_SLIDESHOWSETTINGSVIEW_ID 0x12121217
 
 
+/* 
+ * For the non ui component, only sub state is expose in the model 
+ * so it is required to have unique substrate of states 
+ * Add the new sub state in between NO and Max 
+ * and take care uniqueness of all these substrate
+ */
 typedef enum 
 {
-    NO_GRID_S,
+    NO_GRID_S = 0,
     ALL_ITEM_S,
-    ALBUM_ITEM_S,
+    ALBUM_ITEM_S,    
+    MAX_GRID_S
 } GridState;
 
 typedef enum 
 {
-    NO_FULLSCREEN_S,
+    NO_FULLSCREEN_S = MAX_GRID_S + 1,
     EXTERNAL_S,
     IMAGEVIEWER_S,
-	FETCHER_S
+	FETCHER_S,  
+	MAX_FULLSCREEN_S
 } FullScreenState;
 
 typedef enum 
 {
-    NO_SLIDESHOW_S,
+    NO_SLIDESHOW_S = MAX_FULLSCREEN_S + 1,
     SLIDESHOW_GRID_ITEM_S,
     SLIDESHOW_ALBUM_ITEM_S,
+    MAX_SLIDESHOW_S 
 } SlideShowState;
+
+typedef enum
+{
+    NO_DETAIL_S = MAX_SLIDESHOW_S + 1,
+    IMAGEVIEWER_DETAIL_S,
+    MAX_DETAIL_S
+} DetailState;
 
 #endif /* GLXVIEWIDS_H */

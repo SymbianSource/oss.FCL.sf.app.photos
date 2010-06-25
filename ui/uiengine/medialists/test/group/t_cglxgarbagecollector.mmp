@@ -78,5 +78,5 @@ LIBRARY                 glxmedialists.lib
 LIBRARY                 glxlogging.lib
 
 EXPORTUNFROZEN
-
+SMPSAFE
 // End of file

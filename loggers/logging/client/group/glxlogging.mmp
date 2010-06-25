@@ -44,3 +44,5 @@ LIBRARY         flogger.lib
 #ifndef WINSCW
 EPOCALLOWDLLDATA
 #endif
+
+SMPSAFE

@@ -48,4 +48,5 @@ EXPORTS
 	_ZN13CGlxTNMonitor4NewLEP14MGlxTNObserver @ 47 NONAME
 	_ZTI13CGlxTNMonitor @ 48 NONAME
 	_ZTV13CGlxTNMonitor @ 49 NONAME
+	_ZN17TGlxFilterFactory32CreateExcludeDrmImageTypeFilterLE18TGlxFilterItemType @ 50 NONAME
 

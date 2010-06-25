@@ -27,4 +27,6 @@ EXPORTS
 	_ZNK13GlxAlbumModel8rowCountERK11QModelIndex @ 26 NONAME
 	_ZTI13GlxAlbumModel @ 27 NONAME
 	_ZTV13GlxAlbumModel @ 28 NONAME
+	_ZN13GlxAlbumModel13listPopulatedEv @ 29 NONAME
+	_ZN13GlxAlbumModel14modelPopulatedEv @ 30 NONAME
 

@@ -67,5 +67,5 @@ LIBRARY                 mpxcommon.lib
 LIBRARY                 Lbs.lib
 
 EXPORTUNFROZEN
-
+SMPSAFE
 // End of file

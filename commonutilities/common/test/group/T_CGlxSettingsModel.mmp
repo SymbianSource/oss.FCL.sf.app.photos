@@ -43,5 +43,5 @@ SYSTEMINCLUDE           /epoc32/include/Digia/EUnit
 LIBRARY                 centralrepository.lib       // For central repository
 LIBRARY                 eunit.lib
 LIBRARY                 euser.lib
-
+SMPSAFE
 // End of file

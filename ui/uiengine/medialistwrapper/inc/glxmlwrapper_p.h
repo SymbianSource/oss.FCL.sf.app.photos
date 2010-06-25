@@ -39,6 +39,7 @@ class CGlxDefaultAttributeContext;
 class CGlxDefaultThumbnailContext;
 class CGlxDefaultListAttributeContext;
 class CGlxTitleFetcher;
+class CGlxDRMUtility;
 //to use first call GlxMLWrapperPrivate::Instance then set the mode by calling GlxMLWrapperPrivate::SetContextMode()
 //CLASS Declaration
 class GlxMLWrapperPrivate : public QObject,public MGlxTitleFetcherObserver
@@ -134,7 +135,9 @@ public:
 	void SetDescontextL();
 	QString RetrieveViewTitle();
 	bool IsPopulated();
-		
+	bool IsDrmProtected(int index );
+	bool IsDrmValid(int index);
+	void setDrmValid(int index,bool valid);			
 private:
 
     /**
@@ -237,6 +240,6 @@ private:
 	CGlxTitleFetcher* iTitleFetcher;
 	QImage iCorruptImage;
 	QString iViewTitle;
-
+	CGlxDRMUtility * iDrmUtility;
 };
 #endif //GLXMLWRAPPER_P_H 

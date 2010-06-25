@@ -59,3 +59,4 @@ LIBRARY       ComposerPluginInterface.lib
 LIBRARY       MdEClient.lib
 LIBRARY         flogger.lib						// For Logging Tracer
 
+SMPSAFE

@@ -147,15 +147,4 @@ QString GlxCommandHandlerComment::GetName(MGlxMediaList& aMediaList) const
     return title;
     }
 
-void GlxCommandHandlerComment::HandleErrorL(TInt aErrorCode)
-	{
-    if(aErrorCode == KErrAlreadyExists)
-        {
-        HbMessageBox::warning("Name Already Exist!!!", new HbLabel(
-                "Rename"));
-        }
-	else{
-		GlxMpxCommandHandler::HandleErrorL(aErrorCode);
-		}	
-	}
 

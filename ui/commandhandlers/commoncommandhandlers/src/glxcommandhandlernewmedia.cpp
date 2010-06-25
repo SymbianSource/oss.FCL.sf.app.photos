@@ -28,6 +28,8 @@
 #include <hbinputdialog.h>
 #include <hblabel.h>
 #include <hbmessagebox.h>
+
+#include "glxlocalisationstrings.h"
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
 #include "glxcommandhandlernewmediaTraces.h"
@@ -61,12 +63,11 @@ CMPXCommand* GlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
     CMPXCollectionPath* path = aMediaList.PathLC(NGlxListDefs::EPathParent);
     CMPXCommand* command = NULL;
    
-    QString title("NEW MEDIA");
-    QString mainPane = GenerateNewMediaItemTitleL("Album",aMediaList);
+    QString mainPane = GenerateNewMediaItemTitleL(GLX_DIALOG_ALBUM_NAME_DEFAULT,aMediaList);
     bool ok = false;
 	QString mediaTitle = NULL;
     GlxTextInputDialog* dlg = new GlxTextInputDialog();
-    mediaTitle = dlg->getText(title, mainPane, &ok);
+    mediaTitle = dlg->getText(GLX_DIALOG_NAME_PROMPT, mainPane, &ok);
     delete dlg;
     iNewMediaCreationError = KErrNone;
     if (ok == true)

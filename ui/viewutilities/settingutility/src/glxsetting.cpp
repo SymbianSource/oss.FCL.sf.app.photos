@@ -29,7 +29,7 @@ const TUint32 KGlxTransitionDelay  = 0x2;
 const TUint32 KGlxSlow  = 0x3;
 const TUint32 KGlxMeduim  = 0x4;
 const TUint32 KGlxFast  = 0x5;
-const TUint32 KGlxSlideShowEffect[ ]  = { 0x6, 0x7, 0x8 };
+const TUint32 KGlxSlideShowEffect[ ]  = { 0x6, 0x7, 0x8, 0x9 };
 const TUint32 KCRUidGallery = 0x20007194;
 
 GlxSetting GlxSetting::mObj ;

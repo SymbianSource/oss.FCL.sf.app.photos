@@ -63,10 +63,6 @@ GlxFullScreenView::GlxFullScreenView(HbMainWindow *window,HbDocumentLoader *DocL
     mIconItem(NULL),
     mTvOutWrapper(NULL),
     mFullScreenToolBar(NULL),
-	mFlipAction(NULL),
-	mSendAction(NULL),
-	mDeleteAction(NULL),
-	mUseImageAction(NULL),
 	mZoomWidget(NULL)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_ENTRY );
@@ -89,14 +85,11 @@ void GlxFullScreenView::initializeView(QAbstractItemModel *model)
         mTvOutWrapper = new GlxTvOutWrapper();
     }
     setHdmiModel(model);
-
-    //Load/Retrieve the Widgets
     loadWidgets();
 
-    //Initialize the coverflow and partially creates the coverflow with one image
-    // to make the widget light weight in order to make
-    // transition smooth 
-    mCoverFlow->partiallyCreate( model, screenSize());
+    // Initialize the coverflow and partially creates the coverflow with one image
+    // to make the widget light weight in order to make transition smooth 
+    mCoverFlow->partiallyCreate( model, screenSize() );
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_INITIALIZEVIEW_EXIT );
 }
@@ -104,24 +97,22 @@ void GlxFullScreenView::initializeView(QAbstractItemModel *model)
 void GlxFullScreenView::loadWidgets()
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_LOADWIDGETS_ENTRY );
-    
-    //Load the Coverflow and image strip widget    
+       
     mCoverFlow = qobject_cast<GlxCoverFlow*> (mDocLoader->findWidget(GLXFULLSCREEN_COVERFLOW));
-
-	 mZoomWidget  =  qobject_cast<GlxZoomWidget*> (mDocLoader->findWidget(GLXFULLSCREENZOOMWIDGET));
-	 mZoomWidget->connectDecodeRequestToPinchEvent();
-	 mCoverFlow->setMultitouchFilter(mZoomWidget);
+    
+    mZoomWidget  =  qobject_cast<GlxZoomWidget*> (mDocLoader->findWidget(GLXFULLSCREENZOOMWIDGET));
+    mZoomWidget->connectDecodeRequestToPinchEvent();
+    mCoverFlow->setMultitouchFilter(mZoomWidget);
+    
     //initialise the cover flow for basic connections and the rest
     mCoverFlow->setCoverFlow();
-
-   //Load the IMAGE STRIP & FULLSCREEN TOOLBAR[PUSH BUTTON]
-    mImageStrip              =   qobject_cast<HbGridView*> (mDocLoader->findWidget(GLXFULLSCREEN_FILMSTRIP));
+    mImageStrip = qobject_cast<HbGridView*> (mDocLoader->findWidget(GLXFULLSCREEN_FILMSTRIP));
      
     //When the widget is loaded/retreived the widgets are shown by default.
     //@to do : hide the widgets by default in docml
     mImageStrip->hide();      
-	mImageStrip->setLayoutName( QString( "ImageStrip" ) );
-	mImageStrip->setEnabledAnimations(HbAbstractItemView::None);
+	mImageStrip->setLayoutName( QString( "ImageStrip" ) ); // To distinguish in CSS file
+	mImageStrip->setEnabledAnimations( HbAbstractItemView::None );
 	
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_LOADWIDGETS_EXIT );
 }
@@ -138,66 +129,46 @@ void GlxFullScreenView::loadFullScreenToolBar()
 
     mFullScreenToolBar = qobject_cast<HbToolBar *> (mDocLoader->findObject(QString("toolBar")));
     mFullScreenToolBar->clearActions();
-
-    //create  Flip tool bar button action
-    mFlipAction = new HbAction(this);
-    mFlipAction->setData(EGlxCmdDetailsOpen);
-    mFlipAction->setIcon(HbIcon(GLXICON_FLIP));
-    mFullScreenToolBar->addAction( mFlipAction);
-
-    //create  Send tool bar button action
-    mSendAction = new HbAction(this);
-    mSendAction->setData(EGlxCmdSend);
-    mSendAction->setIcon(HbIcon(GLXICON_SEND));
-    mFullScreenToolBar->addAction( mSendAction);
-
-    //create  Delete tool bar button action
-    mDeleteAction = new HbAction(this);
-    mDeleteAction->setData(EGlxCmdDelete);        
-    mDeleteAction->setIcon(HbIcon(GLXICON_DELETE)); 
     
-    //create  Use Image tool bar button action
-    mUseImageAction = new HbAction(this);
-    //mUseImageAction->setData(EGlxCmdDelete);        
-    mUseImageAction->setIcon(HbIcon(GLXICON_USEIMAGE)); 
-    if(getSubState() != IMAGEVIEWER_S){
-        mFullScreenToolBar->addAction( mDeleteAction);
-    }else{
-        mFullScreenToolBar->addAction( mUseImageAction);
+    addToolBarAction( EGlxCmdDetailsOpen, GLXICON_FLIP, "Flip Action" ); //create  Flip tool bar button action
+    addToolBarAction( EGlxCmdSend, GLXICON_SEND, "Send Action" );        //create  Send tool bar button action
+    if( getSubState() != IMAGEVIEWER_S ) {        
+        addToolBarAction( EGlxCmdDelete, GLXICON_DELETE, "Delete Action" ); //create  Delete tool bar button action
     }
-     
-
-    connect(mFlipAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) ); 
-    connect(mSendAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) ); 
-    connect(mDeleteAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );
-    connect(mUseImageAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );
-    
+    else {
+        addToolBarAction( EGlxCmdHandled, GLXICON_USEIMAGE, "Use Action" ); //create  Use Image tool bar button action
+    }
+ 
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_LOADFULLSCREENTOOLBAR_EXIT );
+}
+
+void GlxFullScreenView::addToolBarAction( int commandId, const QString &iconName, const QString &name )
+{
+    HbAction *action = new HbAction( this ); 
+    action->setData( commandId );
+    action->setIcon( HbIcon( iconName ) ); 
+    action->setObjectName( name );
+    mFullScreenToolBar->addAction( action);
+    connect(action, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) ); 
 }
 
 void GlxFullScreenView::activate()
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_ACTIVATE_ENTRY );    
-
-    setStatusBarVisible(FALSE);
-    setTitleBarVisible(FALSE);
-	//To:Do remove it later, currently it is solving the problem of status bar is not
-	//visible when tap on the screen first time
-    setStatusBarVisible(FALSE);
-    setTitleBarVisible(FALSE);  
-
 //for zoom might not be required after wk15 release
 	mWindow->viewport()->setAttribute(Qt::WA_AcceptTouchEvents,true); 
 	mWindow->viewport()->grabGesture(Qt::PinchGesture);
 	
 	QCoreApplication::instance()->installEventFilter(this);
 
-    if(!mCoverFlow){
+    if( !mCoverFlow ) {
         loadWidgets();  //retrives the widgets
     }
-
     //Loads the widgets corresponding to the orientation.
-    loadViewSection();   
+    loadViewSection();
+    
+    setStatusBarVisible(FALSE);
+    setTitleBarVisible(FALSE);
         
     mUiOffTimer = new QTimer();
     mUiOff = true;
@@ -282,6 +253,7 @@ void GlxFullScreenView::cleanUp()
         delete mTvOutWrapper;
         mTvOutWrapper = NULL;
     }
+    
     if(mZoomWidget)
     {
         mZoomWidget->cleanUp();
@@ -369,7 +341,7 @@ void GlxFullScreenView::activateUI()
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_ACTIVATEUI_ENTRY );
     
     if ( mUiOff && getSubState() != FETCHER_S){      
-        if(!mFullScreenToolBar) {
+        if( !mFullScreenToolBar ) {
             loadFullScreenToolBar();
         }
         mUiOff = FALSE;
@@ -384,7 +356,6 @@ void GlxFullScreenView::activateUI()
 		setStatusBarVisible(TRUE);
         setTitleBarVisible(TRUE);
        
-
         if ( mImageStrip && getSubState() != IMAGEVIEWER_S) {
             mImageStrip->show(); 
             HbEffect::start(mImageStrip, QString("HbGridView"), QString("TapShow"), this, "effectFinished" );
@@ -437,6 +408,10 @@ void GlxFullScreenView::changeSelectedIndex(const QModelIndex &index)
         if (mTvOutWrapper){
             // for the image changed on deletion
             mTvOutWrapper->setImagetoHDMI();
+        }
+        if (mZoomWidget){
+            // for the image changed on deletion
+            mZoomWidget->indexChanged();
         }
         return;
     }
@@ -672,22 +647,7 @@ void GlxFullScreenView::removeConnection()
         disconnect(mUiOffTimer, SIGNAL(timeout()), this, SLOT(hideUi()));
     }
             
-    if(mFlipAction) {
-        disconnect(mFlipAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );  
-    }
-
-    if(mSendAction) {
-        disconnect(mSendAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );  
-    }
-
-    if(mDeleteAction) {
-        disconnect(mDeleteAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );  
-    }
-
-    if(mUseImageAction) {
-        disconnect(mUseImageAction, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) );  
-    }
-	if(mCoverFlow && mZoomWidget) {
+	if( mCoverFlow && mZoomWidget ) {
 		disconnect(mZoomWidget,SIGNAL( pinchGestureReceived(int) ), mCoverFlow, SLOT( zoomStarted(int) ) );
 		disconnect(mZoomWidget,SIGNAL( zoomWidgetMovedBackground(int) ), mCoverFlow, SLOT( zoomFinished(int) ) );
 	}
@@ -774,10 +734,13 @@ void GlxFullScreenView::handleToolBarAction()
 
 int GlxFullScreenView::getSubState()
 {
-	int substate = NO_FULLSCREEN_S;
-	QVariant variant = mModel->data( mModel->index(0,0), GlxSubStateRole );    
-	if ( variant.isValid() &&  variant.canConvert<int> ()  ) {
-		substate = variant.value<int>();
+	int substate = NO_FULLSCREEN_S;	
+	
+	if ( mModel  ) {	
+        QVariant variant = mModel->data( mModel->index(0,0), GlxSubStateRole );    
+        if ( variant.isValid() &&  variant.canConvert<int> ()  ) {
+            substate = variant.value<int>();
+        }
 	}
 	return substate;
 }

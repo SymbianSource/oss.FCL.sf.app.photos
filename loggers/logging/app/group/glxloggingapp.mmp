@@ -70,3 +70,5 @@ START RESOURCE glxloggingapp_loc.rss
 TARGETPATH /resource/apps
 LANGUAGE_IDS
 END
+
+SMPSAFE

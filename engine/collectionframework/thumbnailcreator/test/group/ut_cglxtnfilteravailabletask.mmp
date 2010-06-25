@@ -49,5 +49,5 @@ LIBRARY                 EUnit.lib
 LIBRARY                 EUnitUtil.lib
 LIBRARY                 euser.lib
 
-
+SMPSAFE
 // End of file

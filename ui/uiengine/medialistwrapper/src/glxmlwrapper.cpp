@@ -178,6 +178,20 @@ bool GlxMLWrapper::IsPopulated()
     return mMLWrapperPrivate->IsPopulated();
 }
 
+bool GlxMLWrapper::IsDrmProtected(int index)
+    {
+    return mMLWrapperPrivate->IsDrmProtected(index);
+    }
+bool GlxMLWrapper::IsDrmValid(int index)
+	{
+	return mMLWrapperPrivate->IsDrmValid(index);
+	}
+
+void GlxMLWrapper::setDrmValid(int index,bool valid)
+	{
+	mMLWrapperPrivate->setDrmValid(index,valid);
+	}
+
 QVariant GlxMLWrapper::RetrieveBitmap(int index)
 {
     QVariant var;

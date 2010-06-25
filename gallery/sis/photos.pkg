@@ -99,6 +99,7 @@
 "\epoc32\release\armv5\urel\glxviewmanager.dll"        		-"!:\sys\bin\glxviewmanager.dll"
 
 ;qt dlls
+"\epoc32\release\armv5\urel\glxdrmutilitywrapper.dll"	   -"!:\sys\bin\glxdrmutilitywrapper.dll"
 "\epoc32\release\armv5\urel\glxexternalutility.dll"        -"!:\sys\bin\glxexternalutility.dll"
 "\epoc32\release\armv5\urel\glximagedecoderwrapper.dll"    -"!:\sys\bin\glximagedecoderwrapper.dll"
 "\epoc32\release\armv5\urel\glxtvoutwrapper.dll"           -"!:\sys\bin\glxtvoutwrapper.dll"
@@ -110,13 +111,18 @@
 "\epoc32\release\armv5\urel\glxloggerqt.dll"               -"!:\sys\bin\glxloggerqt.dll"
 "\epoc32\release\armv5\urel\glxviews.dll"                  -"!:\sys\bin\glxviews.dll"
 "\epoc32\release\armv5\urel\glxviewutilities.dll"          -"!:\sys\bin\glxviewutilities.dll"
-"\epoc32\release\armv5\urel\glxzoomwidget.dll"          -"!:\sys\bin\glxzoomwidget.dll"
+"\epoc32\release\armv5\urel\glxzoomwidget.dll"             -"!:\sys\bin\glxzoomwidget.dll"
+"\epoc32\release\armv5\urel\detailsnamelabel.dll"          -"!:\sys\bin\detailsnamelabel.dll"
+"\epoc32\release\armv5\urel\detailsnamelabelplugin.dll"    -"!:\sys\bin\detailsnamelabelplugin.dll"
+"\epoc32\release\armv5\urel\detailsdescriptionedit.dll"    -"!:\sys\bin\detailsdescriptionedit.dll"
+"\epoc32\release\armv5\urel\detailsdescriptioneditplugin.dll" -"!:\sys\bin\detailsdescriptioneditplugin.dll"
 
 ;translations
 "\epoc32\data\z\resource\qt\translations\photos_en.qm"     -"!:\resource\qt\translations\photos.qm"
 
 ;cenrep
 "\epoc32\data\Z\private\10202BE9\20007194.txt"			   -"!:\private\10202BE9\20007194.txt"		
+"\epoc32\data\Z\private\10202BE9\20007193.txt"			   -"!:\private\10202BE9\20007193.txt"		
 
 ;splash screen
 "\epoc32\data\z\resource\hb\splashml\photos.splashml"  				-"!:\resource\hb\splashml\photos.splashml"

@@ -88,9 +88,11 @@ QModelIndexList GlxAlbumSelectionPopup::GetSelectionList(GlxAlbumModel *model, b
     connect( mSelectionModel, SIGNAL( selectionChanged( const QItemSelection &, const QItemSelection& ) ), this, SLOT( changeButtonText() ) );
     
     HbAction *primary = new HbAction( "New" );
+    primary->setObjectName( "Cmd New" );
     popup.addAction( primary ) ;
 
     HbAction *secondary = new HbAction( GLX_BUTTON_CANCEL );
+    secondary->setObjectName( "Cmd Cancel" );
     popup.addAction( secondary );
     
     popup.setContentWidget( listview ); //ownership transfer

@@ -89,4 +89,5 @@ LIBRARY         vedengine.lib
 LIBRARY         tneengine.lib
 #endif
 
+SMPSAFE
 // End of File

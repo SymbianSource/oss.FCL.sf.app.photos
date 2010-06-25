@@ -35,6 +35,7 @@ TARGET.UID3 = 0x2000718E
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 TARGET.EPOCALLOWDLLDATA = 1
 TARGET.CAPABILITY = ALL -TCB 
+MMP_RULES += SMPSAFE
 }
 
 # Input
@@ -44,6 +45,7 @@ HEADERS += settingutility/inc/glxsetting.h \
            effectplugin/inc/glxfadeeffectplugin.h \
            effectplugin/inc/glxflipeffectplugin.h \
            effectplugin/inc/glxzoominoutplugin.h \
+           effectplugin/inc/glxhelixeffectplugin.h \
            effectplugin/inc/glxeffectpluginresolver.h \
            effectengine/inc/glxtransitioneffect.h \
            effectengine/inc/glxeffectengine.h 
@@ -53,6 +55,7 @@ SOURCES += settingutility/src/glxsetting.cpp \
            effectplugin/src/glxfadeeffectplugin.cpp \
            effectplugin/src/glxflipeffectplugin.cpp \
            effectplugin/src/glxzoominoutplugin.cpp \
+           effectplugin/src/glxhelixeffectplugin.cpp \
            effectplugin/src/glxeffectpluginresolver.cpp \
            effectengine/src/glxtransitioneffect.cpp \
            effectengine/src/glxeffectengine.cpp

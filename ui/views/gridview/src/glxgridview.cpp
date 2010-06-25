@@ -72,18 +72,11 @@ GlxGridView::GlxGridView(HbMainWindow *window)
 void GlxGridView::activate()
 {
     OstTraceFunctionEntry0( GLXGRIDVIEW_ACTIVATE_ENTRY );
-    if(mUiOnButton == NULL) {
-        mUiOnButton = new HbPushButton(this);
-        connect(mUiOnButton, SIGNAL(clicked(bool)), this, SLOT(uiButtonClicked(bool)));
-        mUiOnButton->setGeometry(QRectF(590,0,40,40));
-        mUiOnButton->setZValue(1);
-        mUiOnButton->setIcon(HbIcon(GLXICON_WALL_UI_ON));
-        mUiOnButton->hide();
-    }
     loadGridView();
 	connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationchanged(Qt::Orientation)),Qt::UniqueConnection);
     if(mCountItem == NULL) {
         mCountItem = new HbLabel(this);
+        mCountItem->setObjectName( "Count" );
         HbFrameItem *frame = new HbFrameItem(this); //graphics for mCountItem
         frame->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
         frame->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");
@@ -205,6 +198,7 @@ void GlxGridView::enableMarking()
     mWidget->setSelectionMode(HgWidget::MultiSelection);
     if (mMainLabel == NULL) {
         mMainLabel = new HbLabel("Select Photos", this);
+        mMainLabel->setObjectName( "Select Photos");
         HbFrameItem *frame1 = new HbFrameItem(this);    //graphics for mMainLabel
         frame1->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
         frame1->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");
@@ -213,6 +207,7 @@ void GlxGridView::enableMarking()
     }
     if (mMarkCheckBox == NULL) {
         mMarkCheckBox = new HbCheckBox(GLX_OPTION_MARK_ALL, this);
+        mMarkCheckBox->setObjectName( "CheckB MarkAll" );
         HbFrameItem *frame2 = new HbFrameItem(this);    //graphics for mMarkCheckBox
         frame2->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
         frame2->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");
@@ -221,6 +216,7 @@ void GlxGridView::enableMarking()
     }
     if (mCountLabel == NULL) {
         mCountLabel = new HbLabel(this);
+        mCountLabel->setObjectName( "MarkCount" );
         HbFrameItem *frame3 = new HbFrameItem(this);    //graphics for mCountLabel
         frame3->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
         frame3->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");
@@ -345,9 +341,6 @@ void GlxGridView::showItemCount()
                         showAlbumTitle(variant.toString());
                     }
 				}	
-                else if(XQServiceUtil::isService()){
-                    showAlbumTitle(GLX_FETCHER_TITLE);
-                }
             }
         }
     }
@@ -361,6 +354,7 @@ void GlxGridView::showAlbumTitle(QString aTitle)
                                                                    : QSize( deviceSize.height(), deviceSize.width() )  ;
     if(mAlbumName == NULL) {
         mAlbumName = new HbLabel(this);
+        mAlbumName->setObjectName( "Album Name" );
         HbFrameItem *frame = new HbFrameItem(this); //graphics for mAlbumName
         frame->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
         frame->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");
@@ -414,12 +408,14 @@ void GlxGridView::showNoImageString()
             displayText.append(GLX_GRID_OPEN_CAMERA);
             }
         mZeroItemLabel = new HbLabel(displayText, this);
+        mZeroItemLabel->setObjectName( "No Image" );
     }
     mZeroItemLabel->setGeometry(QRectF(0, midHeight - deviceSize.height()/16, screenSize.width(), 3*deviceSize.height()/32));
     mZeroItemLabel->setAlignment(Qt::AlignHCenter);
     mZeroItemLabel->show();
     if (mCameraButton == NULL) {
         mCameraButton = new HbPushButton(this);
+        mCameraButton->setObjectName( "Camera Button" );
         mCameraButton->setIcon(HbIcon(GLXICON_CAMERA));
         mCameraButton->hide();
         connect(mCameraButton, SIGNAL(clicked(bool)), this, SLOT(cameraButtonClicked(bool)));
@@ -433,6 +429,12 @@ void GlxGridView::showNoImageString()
 
 void GlxGridView::populated()
 {
+      QVariant variant = mModelWrapper->data(mModelWrapper->index(0,0), GlxVisualWindowIndex );
+       int visualIndex = 0;
+       if ( variant.isValid() &&  variant.canConvert<int> () )  {
+           visualIndex = variant.value<int>();
+       }
+       mWidget->scrollTo(mModelWrapper->index(visualIndex,0));
     showItemCount();
 }
 
@@ -523,6 +525,7 @@ void GlxGridView::loadGridView()
         mWindow->viewport()->grabGesture(Qt::TapGesture);
         mWindow->viewport()->grabGesture(Qt::TapAndHoldGesture);
         mWidget = new HgGrid(orient);
+        mWidget->setObjectName( "Media Wall" );
         mWidget->setLongPressEnabled(true);
         mWidget->setScrollBarPolicy(HgWidget::ScrollBarAutoHide);
         setWidget( mWidget );
@@ -542,14 +545,16 @@ void GlxGridView::hideorshowitems(Qt::Orientation orient)
         if( orient == Qt::Horizontal ) {
 			setItemVisible(Hb::AllItems, FALSE) ;
         	setViewFlags(viewFlags() | HbView::ViewTitleBarHidden | HbView::ViewStatusBarHidden);
-            //To:Do remove it later, currently it is solving the problem of status bar is not
-            //visible when tap on the screen first time
-        	setItemVisible(Hb::AllItems, FALSE) ;
-        	setViewFlags(viewFlags() | HbView::ViewTitleBarHidden | HbView::ViewStatusBarHidden);
-        	showItemCount();
-            if (mUiOnButton) {
-                mUiOnButton->show();
+            showItemCount();
+            if(mUiOnButton == NULL) {
+                mUiOnButton = new HbPushButton(this);
+                connect(mUiOnButton, SIGNAL(clicked(bool)), this, SLOT(uiButtonClicked(bool)));
+                mUiOnButton->setGeometry(QRectF(590,0,40,40));
+                mUiOnButton->setZValue(1);
+                mUiOnButton->setIcon(HbIcon(GLXICON_WALL_UI_ON));
+                mUiOnButton->setObjectName( "UiOn Button" );
             }
+            mUiOnButton->show();
         }
         else {
             showHbItems();
@@ -593,16 +598,6 @@ void GlxGridView::scrolltofocus()
         }
 }
 
-QVariant  GlxGridView::itemChange (GraphicsItemChange change, const QVariant &value)
-    {
-    OstTrace0( TRACE_NORMAL, GLXGRIDVIEW_ITEMCHANGE, "GlxGridView::itemChange" );
-    static bool isEmit = true;
-    if ( isEmit && change == QGraphicsItem::ItemVisibleHasChanged && value.toBool()  ) {
-    emit actionTriggered( EGlxCmdSetupItem );
-    isEmit = false;
-    }
-    return HbWidget::itemChange(change, value);
-    }
 
 void GlxGridView::addViewConnection()
 {
