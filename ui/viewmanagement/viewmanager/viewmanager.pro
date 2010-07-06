@@ -31,8 +31,9 @@ CONFIG += hb
 LIBS +=  -lglxexternalutility.dll \
          -lglxviews.dll \
          -lglxloggerqt.dll \
-         -lglxviewutilities.dll
-
+         -lglxviewutilities.dll \
+	 -lfeatdiscovery.dll \
+	 -lxqsettingsmanager
 
 DEFINES += BUILD_VIEWMANAGER
 symbian: { 
@@ -40,6 +41,7 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 TARGET.UID3 = 0x20000A03
 TARGET.CAPABILITY = ALL -TCB 
 TARGET.EPOCALLOWDLLDATA = 1
+MMP_RULES += SMPSAFE
 }
 # Input
 HEADERS += inc/glxviewmanager.h \

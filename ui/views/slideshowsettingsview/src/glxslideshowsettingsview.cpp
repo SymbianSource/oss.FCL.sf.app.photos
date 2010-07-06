@@ -71,24 +71,29 @@ void GlxSlideShowSettingsView::activate()
     
     if ( mContextlabel == NULL ) {
         mContextlabel = new HbLabel( GLX_MENU_SLIDESHOW, this );
+        mContextlabel->setObjectName( "SlideShow" );
     }
     
     if ( mEffectlabel == NULL ) {
         mEffectlabel = new HbLabel( GLX_LABEL_TRANSITION_EFFECT, this );
+        mEffectlabel->setObjectName( "Effect" );
     }
     
     if ( mEffect == NULL ) {
         mEffect = new HbComboBox(this);
         QStringList effectList = mSettings->slideShowEffectList();
-        mEffect->addItems( effectList );        
+        mEffect->addItems( effectList ); 
+        mEffect->setObjectName( "Effect List" );
     }
     
     if ( mDelaylabel == NULL ) {
         mDelaylabel = new HbLabel( GLX_LABEL_TRANSITION_DELAY, this );
+        mDelaylabel->setObjectName( "Delay" );
     }
     
     if ( mDelay == NULL ) {
         mDelay = new HbComboBox(this);
+        mDelay->setObjectName( "Delay List" );
         QStringList delayList;
         delayList <<  GLX_VAL_SLOW << GLX_VAL_MEDIUM << GLX_VAL_FAST ;
         mDelay->addItems( delayList );

@@ -46,6 +46,7 @@ symbian: {
         41943040
     TARGET.CAPABILITY = ALL \
         -TCB
+    MMP_RULES += SMPSAFE     
 }
 
 LIBS += -lglxstatehandler.dll \

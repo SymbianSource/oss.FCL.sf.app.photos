@@ -21,33 +21,22 @@
 
 GlxFlipEffectPlugin::GlxFlipEffectPlugin() : GlxEffectPluginBase( FLIP_EFFECT )
 {
-    mEffectFileList.append(QString(":/data/view_flip_hide.fxml"));
-    mEffectFileList.append(QString(":/data/view_flip_show.fxml"));
+    mEffectFileList.append(QString(":/data/uphide.fxml"));
+    mEffectFileList.append(QString(":/data/downshow.fxml"));
 }
 
 void GlxFlipEffectPlugin::setUpItems( QList< QGraphicsItem * > &  items )
 {
     if ( items.count() < 2 ) 
         return;
-    
-    mItem = items.at(1);
-    mItem->hide();
-    mItem->setPos(0,0);
+   
     items.at(0)->setPos(0,0);
+    items.at(1)->setPos(0,0);
 }
 
-bool GlxFlipEffectPlugin::isAnimationLater(int index) 
-{
-    if ( index == 1) {
-        return true;
-    }
-    return false;
-}
-
-QGraphicsItem * GlxFlipEffectPlugin::animationItem() 
+QString GlxFlipEffectPlugin::effectName() 
 { 
-    mItem->show();
-    return mItem ; 
+    return ( "FLip" ) ; 
 }
 
 GlxFlipEffectPlugin::~GlxFlipEffectPlugin()

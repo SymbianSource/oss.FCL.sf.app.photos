@@ -88,6 +88,7 @@
 "" - "z:\sys\bin\glxviewmanager.dll"
 
 ; qt dlls
+"" - "z:\sys\bin\glxdrmutilitywrapper.dll"
 "" - "z:\sys\bin\glxexternalutility.dll"
 "" - "z:\sys\bin\glximagedecoderwrapper.dll"
 "" - "z:\sys\bin\glxloggerqt.dll"
@@ -100,8 +101,13 @@
 "" - "z:\sys\bin\glxviews.dll"
 "" - "z:\sys\bin\glxviewutilities.dll"
 "" - "z:\sys\bin\glxzoomwidget.dll"
+"" - "z:\sys\bin\detailsnamelabel.dll"
+"" - "z:\sys\bin\detailsnamelabelplugin.dll"
+"" - "z:\sys\bin\detailsdescriptionedit.dll"
+"" - "z:\sys\bin\detailsdescriptioneditplugin.dll"
 
 "" - "z:\private\10202BE9\20007194.txt"
+"" - "z:\private\10202BE9\20007193.txt"
 
 "" - "z:\resource\qt\translations\photos.qm"
 

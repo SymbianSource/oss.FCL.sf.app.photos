@@ -103,5 +103,6 @@ LIBRARY                 thumbnailmanager.lib
 LIBRARY                 bitgdi.lib
 #endif
 
+SMPSAFE
 // End of File
 

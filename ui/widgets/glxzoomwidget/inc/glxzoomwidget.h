@@ -48,7 +48,12 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     void activate();
     void setMinMaxZValue(int minZvalue, int maxZvalue);
     void connectDecodeRequestToPinchEvent();
-
+    
+    /*
+     * This is an overloaded function when an index is changes due to deletion 
+     */
+    void indexChanged();
+    
     signals:
     void pinchGestureReceived(int index);
     void zoomWidgetMovedBackground(int index);
@@ -70,7 +75,7 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     void timerEvent(QTimerEvent *event);
     protected slots:
     void dataChanged(QModelIndex startIndex, QModelIndex endIndex);
-
+    void modelDestroyed();
 
     private:
     bool executeGestureEvent(QGraphicsItem *source,QGestureEvent *event);

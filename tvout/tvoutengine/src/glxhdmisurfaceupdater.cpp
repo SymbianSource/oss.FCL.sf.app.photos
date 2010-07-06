@@ -886,7 +886,7 @@ void CGlxHdmiSurfaceUpdater::ProcessTvImage()
         iSurfBufferAO->iStatus = KRequestPending;
         iSurfBufferAO->SetActive();
         iSurfUpdateSession.NotifyWhenAvailable(iSurfBufferAO->iStatus);
-        TInt err = iSurfUpdateSession.SubmitUpdate(1, iSurfId, 0, NULL);
+        TInt err = iSurfUpdateSession.SubmitUpdate(KAllScreens, iSurfId, 0, NULL);
         GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::ProcessTvImage() Surfaceupdatesession error %d",err);
         }
     }

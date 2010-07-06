@@ -67,10 +67,12 @@ private :
     
 signals :
     void iconAvailable(int itemIndex, HbIcon* itemIcon, GlxTBContextType tbContextType) const;
+    void listPopulated();
 public slots:
     void itemUpdated1(int mlIndex, GlxTBContextType tbContextType);
     void itemsAdded(int startIndex, int endIndex);
     void itemsRemoved(int startIndex, int endIndex);
+    void modelPopulated();
 protected:
     
 private slots:
@@ -80,6 +82,7 @@ private:
     GlxContextMode mContextMode;
     HbIcon* mDefaultIcon;
     QCache<int, HbIcon> itemIconCache;
+    int mTempVisibleWindowIndex;
 };
 
 #endif /* GLXALBUMMODEL_H */

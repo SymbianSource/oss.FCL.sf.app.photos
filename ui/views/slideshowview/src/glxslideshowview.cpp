@@ -64,7 +64,7 @@ GlxSlideShowView::~GlxSlideShowView()
 void GlxSlideShowView::activate()
 {
     TRACER("GlxSlideShowView::activate()");
-    mWindow->setOrientation(Qt::Horizontal, true);  // Actually it is animation false, Hack for Bug in Media wall -todo- need to Address this ASAP
+    mWindow->setOrientation(Qt::Horizontal, false);
 
     //finds the widgets from the docml
     loadObjects();
@@ -83,7 +83,7 @@ void GlxSlideShowView::activate()
 void GlxSlideShowView::deActivate()
 {
     TRACER("GlxSlideShowView::deActivate()");
-    mWindow->unsetOrientation(true);         // Actually it is animation false, Hack for Bug in Media wall -todo- need to Address this ASAP
+    mWindow->unsetOrientation(false);
     
     setStatusBarVisible(TRUE);
     setTitleBarVisible(TRUE);

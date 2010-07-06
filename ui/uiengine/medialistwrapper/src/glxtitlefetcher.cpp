@@ -59,8 +59,10 @@ void CGlxTitleFetcher::ConstructL()
     // this path
     iPath->Back();
     
-    if( iPath->Levels() < 0 )
+    if( iPath->Levels() <= 0 )
         {
+        //For This Level, Opening a collection is nothing but open EGlxCollectionPluginShowInMainListView
+        //We dont need this in 10.1
         return;
         }
     

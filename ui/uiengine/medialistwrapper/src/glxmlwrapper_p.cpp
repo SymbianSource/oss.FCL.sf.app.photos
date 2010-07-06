@@ -45,6 +45,8 @@
 //#define GLXPERFORMANCE_LOG  
 #include <glxperformancemacro.h>
 #include "glxtitlefetcher.h"
+#include"glxdrmutility.h"
+
 //constant declaration
 const TInt KTBAttributeAvailable(1);
 const TInt KTBAttributeUnavailable(0);
@@ -131,6 +133,7 @@ void GlxMLWrapperPrivate::ConstructL(int aCollectionId, int aHierarchyId, TGlxFi
 		}
 	iMLGenericObserver = CGlxMLGenericObserver::NewL(*iMediaList,this);
 	iBlockyIteratorForFilmStrip.SetRangeOffsets(0,0);
+	iDrmUtility = CGlxDRMUtility::InstanceL();
     }
 
 // ---------------------------------------------------------------------------
@@ -140,6 +143,10 @@ void GlxMLWrapperPrivate::ConstructL(int aCollectionId, int aHierarchyId, TGlxFi
 GlxMLWrapperPrivate::~GlxMLWrapperPrivate()
     {
     TRACER("GlxMLWrapperPrivate::~GlxMLWrapperPrivate");
+	if ( iDrmUtility )
+		{
+		iDrmUtility->Close();
+		}
 	RemoveGridContext();
 	RemovePtFsContext();
 	RemoveLsFsContext();
@@ -590,7 +597,12 @@ void GlxMLWrapperPrivate::CreateMediaListL(int aCollectionId, int aHierarchyId, 
 		filter = TGlxFilterFactory::CreateCameraAlbumExclusionFilterL();
 		CleanupStack::PushL(filter);
 		}
-	else
+	else if(EGlxFilterImage == aFilterType)
+		{
+		filter = TGlxFilterFactory::CreateExcludeDrmImageTypeFilterL(aFilterType);   
+		CleanupStack::PushL(filter);
+		}
+	else 
 		{
 		filter = TGlxFilterFactory::CreateItemTypeFilterL(aFilterType);   //todo take actual filter type
 		CleanupStack::PushL(filter);
@@ -1368,7 +1380,6 @@ void GlxMLWrapperPrivate::HandleTitleAvailableL(
     {
     iViewTitle = QString::fromUtf16(aTitle.Ptr(), aTitle.Length());	
 	iMLWrapper->handleTitleAvailable(iViewTitle);
-    RDebug::Print(_L("GlxPhotos: GlxMLWrapperPrivate : TITLE =-%S"),&aTitle);
 	}
 
 QString GlxMLWrapperPrivate::RetrieveViewTitle()
@@ -1407,3 +1418,65 @@ void GlxMLWrapperPrivate::RemoveDescContext()
         iDetailsContextActivated = EFalse;   
         }
     }
+
+bool GlxMLWrapperPrivate::IsDrmProtected(int index)
+    {
+    TInt itemIndex = index;
+    if(-1 == itemIndex)
+        {
+        itemIndex = iMediaList->FocusIndex();
+        }
+    const TGlxMedia& media = iMediaList->Item(itemIndex);
+    return media.IsDrmProtected();
+    }
+
+bool GlxMLWrapperPrivate::IsDrmValid(int index)
+    {
+    TInt itemIndex = index;
+    if(-1 == itemIndex)
+        {
+        itemIndex = iMediaList->FocusIndex();
+        }
+		
+    const TGlxMedia& media = iMediaList->Item(itemIndex);
+    TGlxMediaGeneralRightsValidity isValid = EGlxDrmRightsValidityUnknown;
+    TBool ret = media.GetDrmValidity(isValid);
+	if(ret && EGlxDrmRightsValidityUnknown == isValid )
+		{
+		// check rights           
+		TMPXGeneralCategory cat = media.Category();
+		const TDesC& uri = media.Uri();
+		if ( uri.Length() && cat != EMPXNoCategory )
+			{
+			TBool valid = iDrmUtility->ItemRightsValidityCheckL( uri, ( cat == EMPXImage ) );
+			CGlxMedia* properties = const_cast<CGlxMedia*>(media.Properties());
+			if( valid )
+				{
+				
+				isValid = EGlxDrmRightsValid;
+				}
+			else
+				{
+				
+				isValid = EGlxDrmRightsInvalid;
+				}
+			properties->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, isValid);
+			}
+		}
+    return ( EGlxDrmRightsValid == isValid );
+    }
+	
+void GlxMLWrapperPrivate::setDrmValid(int index,bool valid)	
+	{
+	const TGlxMedia& media = iMediaList->Item(index);
+	CGlxMedia* properties = const_cast<CGlxMedia*>(media.Properties());
+	if(valid)
+		{
+		properties->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, EGlxDrmRightsValid);
+		}
+	else
+		{
+		properties->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, EGlxDrmRightsInvalid);
+		}
+	}
+

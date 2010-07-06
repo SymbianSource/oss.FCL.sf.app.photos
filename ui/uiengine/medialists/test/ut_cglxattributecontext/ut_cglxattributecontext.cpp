@@ -45,7 +45,7 @@ void CGlxDRMUtility::Close()
     delete this;
     }
     
-TBool CGlxDRMUtility::CheckOpenRightsL(const TDesC&, TBool)
+TBool CGlxDRMUtility::ItemRightsValidityCheckL(const TDesC&, TBool)
     {
     return ETrue;
     }

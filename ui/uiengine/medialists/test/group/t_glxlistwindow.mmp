@@ -55,4 +55,5 @@ LIBRARY                 euser.lib
 // Libraries required by the tested code
 
 EXPORTUNFROZEN
+SMPSAFE
 // End of file

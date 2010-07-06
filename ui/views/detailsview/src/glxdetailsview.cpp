@@ -72,7 +72,7 @@ const int KBytesInGB = 1024 * 1024 * 1024;
 GlxDetailsView::GlxDetailsView(HbMainWindow *window) :
 GlxView(GLX_DETAILSVIEW_ID), mDetailsIcon(NULL), mFavIcon(NULL), mModel(
         NULL), mFavModel(NULL), mWindow(window),
-        mSelIndex(0),mDescriptions(NULL),mDateLabel(NULL),mSizeLabel(NULL),mTimeLabel(NULL)
+        mSelIndex(0),mDocLoader(NULL),mImageName(NULL),mDescriptions(NULL),mDateLabel(NULL),mSizeLabel(NULL),mTimeLabel(NULL)
    {
     GLX_LOG_INFO("GlxDetailsView::GlxDetailsView");
     OstTraceFunctionEntry0( GLXDETAILSVIEW_GLXDETAILSVIEW_ENTRY );
@@ -125,7 +125,7 @@ void GlxDetailsView::initializeView(QAbstractItemModel *model)
     OstTraceFunctionEntry0( GLXDETAILSVIEW_INITIALIZEVIEW_ENTRY );
     bool loaded = false;
     
-    if(mDocLoader)
+    if(!mDocLoader)
         {
          mDocLoader = new GlxDetailsViewDocLoader();
         }

@@ -5,7 +5,7 @@
 	<visual src="Item">
 		<param name="scale_x" type="anim">
 			<style>linear</style>
-			<duration>0.6</duration>
+			<duration>0.8</duration>
 			<keyframe at="0.0">0.1</keyframe>
 			<keyframe at="1.0">1.0</keyframe>
 		</param>
@@ -13,13 +13,13 @@
 		<param name="scale_origin_y" ref="visual.height">0.5</param>
 		<param name="scale_y" type="anim">
 			<style>linear</style>
-			<duration>0.6</duration>
+			<duration>0.8</duration>
 			<keyframe at="0.0">0.1</keyframe>
 			<keyframe at="1.0">1.0</keyframe>
 		</param>
 		<param name="opacity" type="anim">
 			<style>linear</style>
-			<duration>0.6</duration>
+			<duration>0.8</duration>
 			<keyframe at="0.0">0.0</keyframe>
 			<keyframe at="1.0">1.0</keyframe>
 		</param>

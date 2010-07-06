@@ -54,4 +54,7 @@ EXPORTS
 	?removeContextMode@GlxMLWrapper@@QAEXW4GlxContextMode@@@Z @ 53 NONAME ; void GlxMLWrapper::removeContextMode(enum GlxContextMode)
 	?updateDetails@GlxMLWrapper@@IAEXXZ @ 54 NONAME ; void GlxMLWrapper::updateDetails(void)
 	?handleDetailsItemAvailable@GlxMLWrapper@@QAEXH@Z @ 55 NONAME ; void GlxMLWrapper::handleDetailsItemAvailable(int)
+	?setDrmValid@GlxMLWrapper@@QAEXH_N@Z @ 56 NONAME ; void GlxMLWrapper::setDrmValid(int, bool)
+	?IsDrmProtected@GlxMLWrapper@@QAE_NH@Z @ 57 NONAME ; bool GlxMLWrapper::IsDrmProtected(int)
+	?IsDrmValid@GlxMLWrapper@@QAE_NH@Z @ 58 NONAME ; bool GlxMLWrapper::IsDrmValid(int)
 

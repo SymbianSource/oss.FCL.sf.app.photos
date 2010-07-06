@@ -58,6 +58,6 @@ LIBRARY                 euser.lib
 LIBRARY                 ecom.lib
 LIBRARY                 mpxcommon.lib
 
-
+SMPSAFE
 //deffile ../bwins/t_cglxidlistrequest.def
 // End of file

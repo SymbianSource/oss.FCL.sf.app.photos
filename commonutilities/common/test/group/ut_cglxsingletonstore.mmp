@@ -48,5 +48,5 @@ LIBRARY                 EUnit.lib
 LIBRARY                 euser.lib
 LIBRARY                 lbs.lib
 LIBRARY                 mpxcommon.lib
-
+SMPSAFE
 // End of file

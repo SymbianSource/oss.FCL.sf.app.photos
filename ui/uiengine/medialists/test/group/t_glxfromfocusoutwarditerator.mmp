@@ -44,5 +44,5 @@ LIBRARY                 glxmedialists.lib
 LIBRARY                 lbs.lib // TCoordinate
 
 EXPORTUNFROZEN
-
+SMPSAFE
 // End of file

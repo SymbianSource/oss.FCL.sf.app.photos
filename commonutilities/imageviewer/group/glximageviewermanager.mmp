@@ -43,4 +43,6 @@ LIBRARY					euser.lib
 LIBRARY                 flogger.lib         // For Logging Tracer
 LIBRARY                 glxcommon.lib       // CGlxSingetonStore
 
+SMPSAFE
+
 //EXPORTUNFROZEN

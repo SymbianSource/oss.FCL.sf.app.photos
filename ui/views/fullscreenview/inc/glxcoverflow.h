@@ -22,15 +22,15 @@
 
 #define NBR_ICON_ITEM 5
 
-#include <hbscrollarea.h>
 #include <hbeffect.h>
+#include <hbwidget.h>
 
 //forward declaration
 class HbIconItem;
 class HbMainWindow;
 class QAbstractItemModel;
-
 class QGestureEvent;
+
 typedef enum
 {
     NO_MOVE,
@@ -81,14 +81,13 @@ protected slots:
     void dataChanged(QModelIndex startIndex, QModelIndex endIndex);
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsRemoved(const QModelIndex &parent, int start, int end);
+    void modelDestroyed();
     void autoLeftMove();
     void autoRightMove();
 
 protected:
 	void gestureEvent(QGestureEvent *event);
-
     void move(int value);
-
     void setRows() ;
     void setStripLen();
     int calculateIndex(int index);
@@ -96,15 +95,53 @@ protected:
     void loadIconItems (); 
     void updateIconItem (qint16 selIndex, qint16 selIconIndex, qint16 deltaX);
     
-    //clear all the model connection
+    /*
+     * In the case of animated image, it will play the animation for focus image
+     */
+    void playAnimation();
+    
+    /*
+     * To stop the animation
+     */
+    void stopAnimation();
+    
+    /*
+     * clear all the model connection
+     */
     void clearCurrentModel();
-    //add the connection to the model
+    
+    /*
+     * add the connection to the model
+     */
     void initializeNewModel();
-    //reset all the data of cover flow
+    
+    /*
+     * reset all the data of cover flow
+     */    
     void resetCoverFlow();
     int getSubState();
     void timerEvent(QTimerEvent *event);
 
+    /*
+     * To get the focus index
+     */
+    int getFocusIndex( );
+
+    /*
+     * To get the full screen icon of the image
+     */
+    HbIcon getIcon( int index );
+    
+    /*
+     * To get the URI of the image
+     */
+    QString getUri( int index );
+    
+    /*
+     * To get the GIF file info of the image
+     */
+    bool isAnimatedImage( int index );
+    
 private:
 	HbIconItem *mIconItem[NBR_ICON_ITEM];      //at most contain only five item
     qint16 mSelItemIndex;                    // current full screen index

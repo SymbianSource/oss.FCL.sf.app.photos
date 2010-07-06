@@ -49,5 +49,5 @@ LIBRARY        					mpxcommon.lib
 //LIBRARY                 glxmedialists.lib
 
 EXPORTUNFROZEN 
-
+SMPSAFE
 // End of file

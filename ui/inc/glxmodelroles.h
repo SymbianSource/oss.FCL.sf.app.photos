@@ -44,7 +44,8 @@ enum
 	GlxTimeRole,                        //to get the time image was modified
 	GlxSizeRole,                         //to get the size of the image
 	GlxDescRole,                         //to get the description of the images
-	GlxRemoveContextRole                 //to remove the context
+	GlxRemoveContextRole,                 //to remove the context
+	GlxTempVisualWindowIndex              //to store the visual index obtained from AM temporarily
 };
 
 

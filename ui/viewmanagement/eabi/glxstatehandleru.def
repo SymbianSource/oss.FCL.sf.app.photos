@@ -37,4 +37,6 @@ EXPORTS
 	_ZN15GlxStateManager11eventFilterEP7QObjectP6QEvent @ 36 NONAME
 	_ZN15GlxStateManager20launchProgressDialogEv @ 37 NONAME
 	_ZN15GlxStateManager20vanishProgressDialogEv @ 38 NONAME
+	_ZN15GlxStateManager14launchActivityEv @ 39 NONAME
+	_ZN15GlxStateManager8saveDataEv @ 40 NONAME
 

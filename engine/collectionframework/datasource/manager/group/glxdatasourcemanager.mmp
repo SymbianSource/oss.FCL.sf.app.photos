@@ -66,5 +66,6 @@ LIBRARY         glxcommon.lib
 LIBRARY         flogger.lib
 LIBRARY		    HbCore.lib
 
+SMPSAFE
 // End of File
 

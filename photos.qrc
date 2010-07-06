@@ -10,7 +10,11 @@
         <file>data/zoomin.fxml</file>
         <file>data/zoomout.fxml</file>
         <file>data/view_flip_hide.fxml</file>
-        <file>data/view_flip_show.fxml</file>
+        <file>data/view_flip_show.fxml</file>        
+        <file>data/helix.fxml</file>
+        <file>data/fadein.fxml</file>  
+        <file>data/uphide.fxml</file>
+        <file>data/downshow.fxml</file> 
         <file>data/fullscreentogrid.fxml</file>
         <file>data/gridtofullscreenhide.fxml</file>
         <file>data/gridtofullscreenshow.fxml</file>

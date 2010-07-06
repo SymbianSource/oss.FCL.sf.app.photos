@@ -21,6 +21,7 @@
 #include <hbaction.h>
 #include <hbtoolbar.h>
 #include <hbstyleloader.h>
+#include <hbnotificationdialog.h>
 
 #include <QtDebug>
 #include <Qt>
@@ -42,6 +43,7 @@
 #include <glxexternalutility.h>
 #include "glxlocalisationstrings.h"
 #include <xqaiwdeclplat.h>
+#include <xqappmgr.h>
 
 #define IMAGE_FETCHER_SERVICE_NAME QLatin1String("photos.com.nokia.symbian.IImageFetch")
 #define IMAGE_FETCHER_SERVICE_DEPINTERFACE_NAME QLatin1String("photos.Image")
@@ -77,6 +79,8 @@ GlxAiwServiceHandler::GlxAiwServiceHandler() :
         }
     else if( 0 == currentInterfaceName.compare(QLatin1String("com.nokia.symbian.IFileView")))
         {
+		viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
+		viewport()->grabGesture(Qt::PinchGesture);
         mImageViewerService = new GlxImageViewerService(this);
         }
 
@@ -194,15 +198,16 @@ void GlxAiwServiceHandler::launchFetcher(QString viewTitle)
     }
 
 void GlxAiwServiceHandler::itemSpecificMenuTriggered(qint32 viewId,QPointF pos)
-	{
+{
     mFetcherContextMenu = new HbMenu();
 	HbAction *action = mFetcherContextMenu->addAction(GLX_MENU_OPEN);
+	action->setObjectName( "Menu Open" );
 	connect(action, SIGNAL(triggered()), this, SLOT(openFSView()));
 	connect(this, SIGNAL(aboutToChangeOrientation ()), mFetcherContextMenu, SLOT(close()));
 	connect( mFetcherContextMenu, SIGNAL( aboutToClose () ), this, SLOT( closeContextMenu() ) );
 	mFetcherContextMenu->setPreferredPos( pos );
 	mFetcherContextMenu->show();
- 	}
+}
 
 void GlxAiwServiceHandler::closeContextMenu()
     {
@@ -221,6 +226,8 @@ void GlxAiwServiceHandler::openFSView()
         mModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
     }    
     HbAction* selectAction = new HbAction(GLX_BUTTON_SELECT);
+    selectAction->setObjectName( "FS Select" );
+    
 	connect(selectAction, SIGNAL(triggered()), this, SLOT(handleFSSelect()));
     HbToolBar* toolBar = new HbToolBar();
     toolBar->setOrientation( Qt::Horizontal );
@@ -546,6 +553,20 @@ void GlxImageViewerService::complete(bool ok)
 
 bool GlxImageViewerService::view(QString file)
     {
+    XQApplicationManager appmgr;
+    QFile tempfile(file);
+    QVariantList attrValues;
+	QList<int> attrNames;
+	attrNames.append(XQApplicationManager::IsProtected);
+    bool ok = appmgr.getDrmAttributes(tempfile, attrNames, attrValues);
+    if(attrValues.at(0).toBool()){
+		HbNotificationDialog::launchDialog("NOT SUPPORTED");
+        connect(this, SIGNAL(returnValueDelivered()), mServiceApp,
+                SLOT(handleAnswerDelivered()));
+		complete(true);
+		return false;
+    }
+	
     XQRequestInfo info = requestInfo();
     mAsyncRequest = !info.isSynchronous();
     if (!mImageViewerInstance)

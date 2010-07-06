@@ -62,5 +62,5 @@ LIBRARY                 mpxcommon.lib							//CollectionPath Level
 
 LIBRARY                 glxdatasourcemanager.lib				//DataSource Request
 LIBRARY                 glxcommon.lib							//Filters
-
+SMPSAFE
 // End of file

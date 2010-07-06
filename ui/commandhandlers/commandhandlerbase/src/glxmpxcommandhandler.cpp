@@ -64,6 +64,7 @@ GlxMpxCommandHandler::~GlxMpxCommandHandler()
 void GlxMpxCommandHandler::executeCommand(int commandId, int collectionId,QList<QModelIndex>  indexList)
     {
     OstTraceFunctionEntry0( GLXMPXCOMMANDHANDLER_EXECUTECOMMAND_ENTRY );
+    Q_UNUSED(indexList);
     int aHierarchyId = 0;
     TGlxFilterItemType aFilterType = EGlxFilterImage;
 
@@ -349,7 +350,8 @@ void GlxMpxCommandHandler::TryExitL(TInt aErrorCode)
         // @todo error received. Close progress note 
         DismissProgressNoteL();
         iMediaList->RemoveMediaListObserver(this);
-
+        iMediaList->Close();
+        iMediaList = NULL;
         // handle error
         HandleErrorL(aErrorCode);
         }
@@ -357,6 +359,8 @@ void GlxMpxCommandHandler::TryExitL(TInt aErrorCode)
         {
         DismissProgressNoteL();
         iMediaList->RemoveMediaListObserver(this);
+        iMediaList->Close();
+        iMediaList = NULL;
         CompletionNoteL();
         iProgressComplete = EFalse;
         }
@@ -478,7 +482,8 @@ void GlxMpxCommandHandler::ConfirmationNoteSingleL(MGlxMediaList& aMediaList)
             // noteText has a place for a title string in it
             const TDesC& itemName = media->ValueText(KMPXMediaGeneralTitle);
             QString qtItemName = QString::fromUtf16(itemName.Ptr(),itemName.Length());
-            qtText.append(QString("%1").arg(qtItemName));
+            QString localisedString  = qtText.arg(qtItemName);
+            qtText = localisedString;          
             }
             // (else) If error, assume confirmed anyway
         CleanupStack::PopAndDestroy(attributeContext);

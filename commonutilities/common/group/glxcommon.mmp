@@ -60,4 +60,5 @@ LIBRARY         lbs.lib                    // For TCoordinate
 LIBRARY         mpxcommon.lib
 LIBRARY         flogger.lib
 
+SMPSAFE
 // End of file

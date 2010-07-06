@@ -27,7 +27,8 @@
 #include "glxstatemanager.h"
 #include "glxaiwservicehandler.h"
 #include "glxapplication.h"
-
+#include "glxlocalisationstrings.h"
+#include "hbsplashscreen.h"
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
 #include "mainTraces.h"
@@ -42,7 +43,7 @@ int main(int argc, char *argv[])
     OstTraceExt3( TRACE_NORMAL, DUP1__MAIN, "::main Time at Launch HHMMSS =%d::%d::%d",
             localTime.hour(), localTime.minute(), localTime.second() );
 
-    GlxApplication app(argc, argv);	
+    GlxApplication app(argc, argv, Hb::NoSplash);	
     bool loaded(false);	
     QTranslator translator;
     QString path = "Z:/resource/qt/translations/";
@@ -58,8 +59,9 @@ int main(int argc, char *argv[])
     OstTraceEventStart0( EVENT_DUP1__MAIN_START, "launch" );
 
     if(!XQServiceUtil::isService()){
+        HbSplashScreen::start();
         stateMgr = new GlxStateManager();
-        app.setApplicationName("Photos");          
+        app.setApplicationName(GLX_TITLE);          
         stateMgr->launchApplication();  
     }
     else {

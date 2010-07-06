@@ -73,5 +73,5 @@ LIBRARY                 vedengine.lib
 #else
 LIBRARY                 tneengine.lib
 #endif
-
+SMPSAFE
 // End of file

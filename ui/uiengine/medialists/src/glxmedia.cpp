@@ -273,7 +273,7 @@ EXPORT_C TBool TGlxMedia::IsDrmProtected() const
     {
     TRACER("TGlxMedia::IsDrmProtected");
     
-    TBool isDrmProtected = ETrue;
+    TBool isDrmProtected = EFalse;
     if ( iItem )
         {
         // ignore return value. Failure leaves isDrmProtected unchanged as ETrue

@@ -64,6 +64,7 @@ LIBRARY			cfclient.lib // for CCFClient
 LIBRARY			cfservices.lib // for CCFContextObject
 #endif
 
+SMPSAFE
 //EXPORTUNFROZEN
 
 // End of file

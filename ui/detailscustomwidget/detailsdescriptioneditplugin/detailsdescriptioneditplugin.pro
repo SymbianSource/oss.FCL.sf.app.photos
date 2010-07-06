@@ -49,6 +49,8 @@ symbian: {
     TARGET.UID3 = 0x2000A774
 	TARGET.EPOCALLOWDLLDATA=1
 	TARGET.CAPABILITY = CAP_GENERAL_DLL
+	MMP_RULES += SMPSAFE 
+	
 	  
 	LIBS += \
 	    -ldetailsdescriptionedit.dll

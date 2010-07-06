@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<hbdocument version="1.0">
+<hbdocument version="1.1">
     <widget name="mGlxFullscreenView" type="HbView">
         <widget name="mcontent" role="HbView:widget" type="HbWidget">
             <widget name="mCoverFlow" type="HbWidget">
@@ -22,17 +22,16 @@
             <widget name="toolBar" type="HbToolBar">
                 <enums name="layoutDirection" value="RightToLeft"/>
                 <real name="z" value="7"/>
+                <real name="opacity" value="0.5"/>
                 <sizehint height="60.44776un" type="PREFERRED" width="9.40299un"/>
                 <enums name="orientation" value="Vertical"/>
-                <real name="opacity" value="0.5"/>
             </widget>
-	    <widget name="glxZoomWidget" type="HbWidget">
-                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                <enums name="scrollDirections" value="Horizontal|Vertical"/>
+            <widget name="glxZoomWidget" type="HbWidget">
+                <string name="alignment" value="AlignVCenter|AlignHCenter"/>
+                <string name="scrollDirections" value="Horizontal|Vertical"/>
                 <bool name="frictionEnabled" value="TRUE"/>
             </widget>
-
-            <string name="toolTipText" value=""/>
+            <string name="toolTipText"/>
             <bool name="visible" value="TRUE"/>
             <layout type="anchor">
                 <anchoritem dst="mCoverFlow" dstEdge="LEFT" spacing="var(hb-param-margin-view-left)" src="" srcEdge="LEFT"/>
@@ -49,19 +48,19 @@
                 <anchoritem dst="glxZoomWidget" dstEdge="TOP" spacing="var(hb-param-margin-view-top)" src="" srcEdge="TOP"/>
                 <anchoritem dst="glxZoomWidget" dstEdge="RIGHT" spacing="var(hb-param-margin-view-right)" src="" srcEdge="RIGHT"/>
                 <anchoritem dst="glxZoomWidget" dstEdge="BOTTOM" spacing="var(hb-param-margin-view-bottom)" src="" srcEdge="BOTTOM"/>
-         </layout>
+            </layout>
         </widget>
-        <string name="title" value="Photos"/>
+        <string locid="txt_photos_title_photos" name="title" value="Photos"/>
         <bool name="contentFullScreen" value="TRUE"/>
-        <enums name="titleBarFlags" value="TitleBarHidden|TitleBarTransparent"/>
+        <string name="titleBarFlags" value="TitleBarHidden|TitleBarTransparent"/>
     </widget>
     <section name="portrait">
-        <widget name="toolBar" type="HbToolBar">
-            <sizehint height="58.50746un" type="PREFERRED" width="9.40299un"/>
-        </widget>
         <widget name="mImageStrip" type="HbGridView">
             <integer name="columnCount" value="4"/>
             <integer name="rowCount" value="1"/>
+        </widget>
+        <widget name="toolBar" type="HbToolBar">
+            <sizehint height="58.50746un" type="PREFERRED" width="9.40299un"/>
         </widget>
         <widget name="mcontent" role="HbView:widget" type="HbWidget">
             <layout type="anchor">
@@ -75,7 +74,7 @@
                 <anchoritem dst="mImageStrip" dstEdge="BOTTOM" spacing="var(hb-param-margin-view-bottom)" src="" srcEdge="BOTTOM"/>
                 <anchoritem dst="toolBar" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
                 <anchoritem dst="toolBar" dstEdge="TOP" spacing="18.13433un" src="" srcEdge="TOP"/>
-		<anchoritem dst="glxZoomWidget" dstEdge="LEFT" spacing="var(hb-param-margin-view-left)" src="" srcEdge="LEFT"/>
+                <anchoritem dst="glxZoomWidget" dstEdge="LEFT" spacing="var(hb-param-margin-view-left)" src="" srcEdge="LEFT"/>
                 <anchoritem dst="glxZoomWidget" dstEdge="TOP" spacing="var(hb-param-margin-view-top)" src="" srcEdge="TOP"/>
                 <anchoritem dst="glxZoomWidget" dstEdge="RIGHT" spacing="var(hb-param-margin-view-right)" src="" srcEdge="RIGHT"/>
                 <anchoritem dst="glxZoomWidget" dstEdge="BOTTOM" spacing="var(hb-param-margin-view-bottom)" src="" srcEdge="BOTTOM"/>
@@ -85,14 +84,14 @@
     <section name="landscape">
         <widget name="mGlxFullscreenView" type="HbView">
             <real name="z" value="0"/>
-            <string name="HbVkbHost" value=""/>
-        </widget>
-        <widget name="toolBar" type="HbToolBar">
-            <sizehint height="46.71642un" type="PREFERRED" width="9.4427un"/>
+            <string name="HbVkbHost"/>
         </widget>
         <widget name="mImageStrip" type="HbGridView">
             <integer name="columnCount" value="6"/>
             <integer name="rowCount" value="1"/>
+        </widget>
+        <widget name="toolBar" type="HbToolBar">
+            <sizehint height="46.71642un" type="PREFERRED" width="9.4427un"/>
         </widget>
         <widget name="mcontent" role="HbView:widget" type="HbWidget">
             <layout type="anchor">
@@ -115,7 +114,7 @@
             </layout>
         </widget>
     </section>
-    <metadata activeUIState="Common ui state" display="NHD portrait" unit="un">
+    <metadata activeUIState="Common ui state" display="NHD-3.2-inch_portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>
         <uistate name="portrait" sections="#common portrait"/>
         <uistate name="landscape" sections="#common landscape"/>

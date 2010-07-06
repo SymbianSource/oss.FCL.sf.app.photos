@@ -47,4 +47,6 @@ EXPORTS
 	_ZTI14GlxViewManager @ 46 NONAME
 	_ZTV14GlxViewManager @ 47 NONAME
 	_ZN14GlxViewManager18hideProgressDialogEv @ 48 NONAME
+	_ZN14GlxViewManager15handleReadyViewEv @ 49 NONAME
+	_ZN14GlxViewManager16applicationReadyEv @ 50 NONAME
 

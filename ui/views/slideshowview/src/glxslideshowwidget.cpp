@@ -72,9 +72,10 @@ void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
     mIsPause = false;
 
     for ( int i = 0; i < NBR_ITEM ; i++) {
-        mIconItems[i] = new HbIconItem( this );
-        mIconItems[i]->setBrush( QBrush( Qt::black ) );
+        mIconItems[i] = new HbIconItem(this);
+        mIconItems[i]->setBrush(QBrush(Qt::black));
         mIconItems[i]->setAlignment( Qt::AlignCenter );
+        mIconItems[i]->setObjectName( QString( "SlideShowIcon%1" ).arg( i ) );
     }
 
     mSlideTimer = new QTimer();

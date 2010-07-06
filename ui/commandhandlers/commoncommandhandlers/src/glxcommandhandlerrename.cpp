@@ -26,6 +26,7 @@
 #include <glxattributeretriever.h>
 #include <glxfetchcontextremover.h>
 #include <glxcommondialogs.h>
+#include "glxlocalisationstrings.h"
 
 GlxCommandHandlerRename::GlxCommandHandlerRename()
     {
@@ -43,11 +44,10 @@ CMPXCommand* GlxCommandHandlerRename::CreateCommandL(TInt aCommandId,
     
     CMPXCommand* command = NULL;
     QString mainPane = GetName(aMediaList);
-    QString title("Rename");
     QString mediaTitle = NULL;
     bool ok = false;    
     GlxTextInputDialog* dlg = new GlxTextInputDialog();
-    mediaTitle = dlg->getText(title, mainPane, &ok);
+    mediaTitle = dlg->getText(GLX_DIALOG_NAME_PROMPT, mainPane, &ok);
     delete dlg;
 
     if(ok == true)

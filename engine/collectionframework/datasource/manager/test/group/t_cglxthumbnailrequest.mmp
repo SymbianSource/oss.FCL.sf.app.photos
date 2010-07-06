@@ -58,6 +58,6 @@ LIBRARY                 euser.lib
 // Libraries required by the tested code
 LIBRARY                 ecom.lib
 LIBRARY                 mpxcommon.lib
-
+SMPSAFE
 deffile ../bwins/t_cglxthumbnailrequest.def
 // End of file

@@ -75,13 +75,14 @@
 //
 #define GLX_MENU_RENAME                hbTrId("txt_common_menu_rename_item")
 
+#define GLX_DIALOG_NAME_PROMPT                hbTrId("txt_photos_title_enter_name")
 
+#define GLX_DIALOG_ALBUM_NAME_DEFAULT         hbTrId("txt_photos_dialog_enter_name_entry_album")
+#define GLX_DIALOG_DELETE_ONE_ITEM            hbTrId("txt_photos_info_deleting_1")
 //TITLE RELATED and DEFAULT STRINGS
 
 #define GLX_CAPTION                    hbTrId("txt_short_caption_photos")
 #define GLX_TITLE                      hbTrId("txt_photos_title_photos")
-#define GLX_CAMERA                     "txt_photos_dblist_my_camera"
-#define GLX_MYFAV                      "txt_photos_dblist_my_favorites"
 #define GLX_PLACES                     "txt_photos_dblist_places_ln"
 #define GLX_ITEMS_CAMERA               "txt_photos_dblist_val_ln_items"
 #define GLX_ITEMS_MYFAV                "txt_photos_subtitle_ln_items"

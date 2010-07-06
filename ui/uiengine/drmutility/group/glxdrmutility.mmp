@@ -44,4 +44,5 @@ LIBRARY         drmhelper.lib
 LIBRARY         caf.lib
 LIBRARY         cafutils.lib
 
+SMPSAFE
 // End of File

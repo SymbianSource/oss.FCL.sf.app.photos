@@ -20,12 +20,15 @@ DEPENDPATH += . inc src
 INCLUDEPATH += . ../../../inc \
 		 ../../../../inc \
              ../../../../loggers\loggerqt\inc \
-		 ../../medialistwrapper/inc 
+		 ../../medialistwrapper/inc \
+		 ../../drmutilitywrapper/inc
 
 CONFIG += hb
 
 LIBS += -lglxmedialistwrapper.dll \
-        -lglxloggerqt.dll
+	-lglxdrmutilitywrapper.dll \
+        -lglxloggerqt.dll \
+	-lglximageviewermanager.dll		
 
 
 DEFINES += BUILD_MEDIAMODEL
@@ -35,6 +38,7 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 TARGET.UID3 = 0x20000A08
 TARGET.CAPABILITY = ALL -TCB 
 TARGET.EPOCALLOWDLLDATA = 1
+MMP_RULES += SMPSAFE
 }
 # Input
 HEADERS += inc/glxmediamodel.h 

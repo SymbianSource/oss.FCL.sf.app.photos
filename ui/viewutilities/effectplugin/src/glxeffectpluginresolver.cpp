@@ -22,6 +22,7 @@
 #include "glxfadeeffectplugin.h"
 #include "glxflipeffectplugin.h"
 #include "glxzoominoutplugin.h"
+#include "glxhelixeffectplugin.h"
 
 GlxEffectPluginResolver::GlxEffectPluginResolver()
 {
@@ -30,6 +31,7 @@ GlxEffectPluginResolver::GlxEffectPluginResolver()
 
 QString GlxEffectPluginResolver::effectName( int effectId )
 {
+    qDebug( " GlxEffectPluginResolver::effectName %d ", effectId );
     switch ( effectId ) {
     case FLIP_EFFECT :
         return GlxFlipEffectPlugin::effectName();
@@ -38,7 +40,10 @@ QString GlxEffectPluginResolver::effectName( int effectId )
         return GlxFadeEffectPlugin::effectName() ;
     
     case ZOOM_TO_FACE :
-        return GlxZoomInOutEffectPlugin::effectName(); //To:Do temp remove once plugin is ready
+        return GlxZoomInOutEffectPlugin::effectName();
+        
+    case HELIX_EFFECT :
+        return GlxHelixEffectPlugin::effectName();
         
     default :
         return GlxFadeEffectPlugin::effectName() ;
@@ -47,6 +52,7 @@ QString GlxEffectPluginResolver::effectName( int effectId )
 
 GlxEffectPluginBase *GlxEffectPluginResolver::effectPlugin( int effectId )
 {
+    qDebug( " GlxEffectPluginResolver::effectPlugin %d ", effectId );
     GlxEffectPluginBase * effectPlugin = mEffectPluginList.value( ( GlxEffect  )effectId );
     if ( effectPlugin ) {
         return  effectPlugin ;
@@ -63,6 +69,11 @@ GlxEffectPluginBase *GlxEffectPluginResolver::effectPlugin( int effectId )
             mEffectPluginList[ ZOOM_TO_FACE ] = effectPlugin ;
             break ;
             
+        case HELIX_EFFECT :
+            effectPlugin = new GlxHelixEffectPlugin() ;
+            mEffectPluginList[ HELIX_EFFECT ] = effectPlugin ;
+            break ;
+        
         case SMOOTH_FADE :   
         default :
             effectPlugin = mEffectPluginList.value( SMOOTH_FADE );

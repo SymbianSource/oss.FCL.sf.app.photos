@@ -70,4 +70,6 @@ LIBRARY		AccPolicy.lib //For RAccessoryConnection status ID's
 #ifdef __MARM
 LIBRARY 		GSServerEngine.lib  // FOr AspectRatio
 #endif
+
+SMPSAFE
 // End of File

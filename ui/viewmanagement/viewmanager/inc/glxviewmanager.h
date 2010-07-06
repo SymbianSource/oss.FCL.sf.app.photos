@@ -105,6 +105,7 @@ signals :
  */
     void actionTriggered(qint32 id);
     void externalCommand(int cmdId);
+    void applicationReady();
 
 public slots:
 /*
@@ -146,6 +147,7 @@ public slots:
  */    
     void itemSpecificMenuTriggered(qint32,QPointF );
     
+    void handleReadyView();
 protected:
 	
 private slots:
@@ -205,7 +207,6 @@ private:
     QList<HbAction *>  mMarkingActionList; //marking mode tool bar action list
     HbToolBar          *mViewToolBar; //view tool bar
     HbToolBar          *mMarkingToolBar; //marking mode tool bar
-    HbMenu *mMenu; 
     GlxView *mView;
     QAbstractItemModel *mModel; //no ownership
     QItemSelectionModel * mSelectionModel;

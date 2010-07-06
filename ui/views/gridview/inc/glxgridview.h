@@ -70,7 +70,7 @@ public slots:
     void populated();
 
 protected :
-    QVariant  itemChange (GraphicsItemChange change, const QVariant &value) ;
+   
 
 private slots:
     void indicateLongPress(const QModelIndex& index, QPointF coords);
