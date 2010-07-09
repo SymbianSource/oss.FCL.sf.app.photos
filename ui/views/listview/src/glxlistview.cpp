@@ -76,13 +76,14 @@ void GlxListView::addToolBar( HbToolBar *toolBar )
     setToolBar(toolBar) ;
 }
 
-void GlxListView::initializeView(QAbstractItemModel *model)
+void GlxListView::initializeView( QAbstractItemModel *model, GlxView *preView )
 {
+    Q_UNUSED( preView )
     qDebug("GlxListView::initializeView()");
-    if (mListView == NULL) {
+    if ( mListView == NULL ) {
         createListView();
     }
-    setModel(model);
+    setModel( model );
 }
 
 QGraphicsItem * GlxListView::getAnimationItem( GlxEffect transtionEffect )

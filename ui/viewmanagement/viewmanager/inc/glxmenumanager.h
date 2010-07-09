@@ -21,6 +21,7 @@ class HbMenu;
 class QAbstractItemModel;
 class QAction;
 class HbMainWindow;
+class GlxSettingInterface;
 
 
 //Grid view option menu
@@ -29,7 +30,8 @@ enum {
    GlxGridViewSlideShow,
    GlxGridViewAddToAlbum,
    GlxGridViewRemoveFromAlbum,
-   GlxGridViewDelete
+   GlxGridViewDelete,
+   GlxGridView3DEffect
 };
 
 class GlxMenuManager : public QObject
@@ -37,22 +39,23 @@ class GlxMenuManager : public QObject
 Q_OBJECT
 
 public :
-	GlxMenuManager(HbMainWindow* mainWindow);
+	GlxMenuManager( HbMainWindow* mainWindow );
 	~GlxMenuManager();
-    void createMarkingModeMenu(HbMenu* menu);
-    void ShowItemSpecificMenu(qint32 viewId,QPointF pos);
-    void setModel(QAbstractItemModel *model) { mModel = model ; }
-    void addMenu(qint32 viewId, HbMenu* menu);
-    void removeMenu(qint32 viewId, HbMenu* menu);
-    void disableAction(HbMenu* menu,bool disable);
+    void createMarkingModeMenu( HbMenu* menu );
+    void ShowItemSpecificMenu( qint32 viewId,QPointF pos );
+    void setModel( QAbstractItemModel *model ) { mModel = model ; }
+    void addMenu( qint32 viewId, HbMenu* menu );
+    void removeMenu( qint32 viewId, HbMenu* menu );
+    void disableAction( HbMenu* menu,bool disable );
     
 signals :
-    void commandTriggered(qint32 commandId);
+    void commandTriggered( qint32 commandId );
     
 private:
-    void CreateGridMenu(HbMenu* menu);
-    void CreateListMenu(HbMenu* menu);
-    void CreateFullscreenMenu(HbMenu* menu);
+    void CreateGridMenu( HbMenu* menu );
+    void CreateListMenu( HbMenu* menu );
+    void CreateFullscreenMenu( HbMenu* menu );
+    void createSlideShowMenu( HbMenu* menu );
     void setAllActionVisibility( QList<QAction*> actionList, bool visible );
     int  viewSubState();
 
@@ -67,4 +70,6 @@ private:
 	HbMainWindow* mMainWindow;
 	HbMenu *mContextMenu;
 	HbMenu* mSubMenu;
+	HbMenu* m3DEffectSubMenu;
+	GlxSettingInterface *mSettings;
 };

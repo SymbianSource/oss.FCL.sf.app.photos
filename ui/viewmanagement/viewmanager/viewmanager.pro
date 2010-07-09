@@ -25,6 +25,7 @@ INCLUDEPATH += . ../../inc \
                  ../../../loggers/loggerqt/inc \
                  ../../../commonutilities/externalutility/inc \
                  ../../viewutilities/effectengine/inc \
+                 ../../viewutilities/settingutility/inc 
         
 CONFIG += hb
 

@@ -15,8 +15,8 @@
 *
 */
 
-#ifndef GLXCOMMANDHANDLERROTATEIMAGE_H_
-#define GLXCOMMANDHANDLERROTATEIMAGE_H_
+#ifndef GlxCommandHandlerEditImage_H_
+#define GlxCommandHandlerEditImage_H_
 
 
 #include <glxmodelcommandhandler.h>
@@ -31,12 +31,12 @@
 //Forward Declaration
 class XQAiwRequest;
 
-class GLX_COMMONCOMMANDHANDLERS_EXPORT GlxCommandHandlerRotateImage : public GlxModelCommandHandler
+class GLX_COMMONCOMMANDHANDLERS_EXPORT GlxCommandHandlerEditImage : public GlxModelCommandHandler
 {
   
 public:
-    GlxCommandHandlerRotateImage();
-    ~GlxCommandHandlerRotateImage();
+    GlxCommandHandlerEditImage();
+    ~GlxCommandHandlerEditImage();
     void executeCommand(int commandId,int collectionId, QList<QModelIndex> indexList = QList<QModelIndex>() );
     void doHandleUserAction(GlxMediaModel* model,QList<QModelIndex> indexList) const ;
 
@@ -46,4 +46,4 @@ private:
 };
 
 
-#endif /* GLXCOMMANDHANDLERROTATEIMAGE_H_ */
+#endif /* GlxCommandHandlerEditImage_H_ */

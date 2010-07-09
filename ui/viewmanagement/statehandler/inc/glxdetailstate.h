@@ -27,6 +27,11 @@ class GlxDetailState : public GlxState
 public :
 	GlxDetailState(GlxState *preState = NULL);
 	void eventHandler(qint32 &id);
+	int state() const { return (int) mState; }
+/*
+ *  This Function set the internal state of details state
+ */ 
+    void setState(int internalState) { mState = (DetailState) internalState; }
 /*
  *  This function set the transition parameter ( for animation) from full screen view to other view
  */ 
@@ -45,6 +50,7 @@ private:
 //Functions
 
 private:
+    DetailState mState;
 //Data Member
 	
 };

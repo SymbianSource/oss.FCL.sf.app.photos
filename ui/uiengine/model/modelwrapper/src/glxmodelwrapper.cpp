@@ -173,7 +173,20 @@ void GlxModelWrapper::resetTheModel()
 
 void GlxModelWrapper::dataChangedinModel(QModelIndex startIndex, QModelIndex endIndex)
     {
-    emit dataChanged(index(startIndex.row(),startIndex.column()),index(endIndex.row(),endIndex.column()));
+    int aStartRow = startIndex.row();
+
+    if((aStartRow  == 14) || (aStartRow+1 == rowCount()))
+        {
+        emit dataChanged(index(0,0),index(endIndex.row(),0));
+        }
+    else if(aStartRow  >= 15)
+        {
+        emit dataChanged(index(aStartRow,0),index(endIndex.row(),0));
+        }
+    else
+        {
+        // Do Nothing
+        }
     }
 
 void GlxModelWrapper::rowsAboutToBeInserted(const QModelIndex &parent,int start,int end)

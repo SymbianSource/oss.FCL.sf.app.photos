@@ -25,10 +25,6 @@
 
 #include "glxicondefs.h" //Contains the icon names/Ids
 
-const QColor KListOddRowColor(211, 211, 211, 127);
-const QColor KListEvenRowColor(255, 250, 250, 127);
-
-
 GlxAlbumModel::GlxAlbumModel(GlxModelParm & modelParm):mContextMode(GlxContextInvalid)
 {
     qDebug("GlxAlbumModel::GlxAlbumModel()");
@@ -41,6 +37,7 @@ GlxAlbumModel::GlxAlbumModel(GlxModelParm & modelParm):mContextMode(GlxContextIn
     
     //todo get this Default icon from some generic path and not directly.
      mDefaultIcon = new HbIcon(GLXICON_DEFAULT);
+	 m_CorruptIcon = new HbIcon( GLXICON_CORRUPT );
 
 	int err = connect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	qDebug("updateItem() connection status %d", err);
@@ -61,6 +58,7 @@ GlxAlbumModel::~GlxAlbumModel()
     qDebug("GlxAlbumModel::~GlxAlbumModel()");
     delete mDefaultIcon;
     mDefaultIcon = NULL;
+	delete m_CorruptIcon;
 	int err = disconnect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	err = disconnect(mMLWrapper, SIGNAL(insertItems(int, int)), this, SLOT(itemsAdded(int, int)));
 	err = disconnect(mMLWrapper, SIGNAL(removeItems(int, int)), this, SLOT(itemsRemoved(int, int)));
@@ -117,7 +115,7 @@ QVariant GlxAlbumModel::data(const QModelIndex &index, int role) const
            
     case Qt::DecorationRole :
         if(mContextMode == GlxContextSelectionList){
-            return HbIcon();
+            return QVariant();
         }
         else
         {
@@ -128,19 +126,8 @@ QVariant GlxAlbumModel::data(const QModelIndex &index, int role) const
             }
             else {
                 qDebug("GlxAlbumModel::data, Item inValid");
-                itemIcon = mDefaultIcon;
+                itemIcon = getCorruptDefaultIcon( index ) ;;
                 return *itemIcon;
-            }
-        }
-    case Qt::BackgroundRole:
-        {
-            if (rowIndex % 2 == 0)
-            {
-                return QBrush(KListEvenRowColor);
-            }
-            else
-            {
-                return QBrush(KListOddRowColor);
             }
         }
 
@@ -159,6 +146,13 @@ QVariant GlxAlbumModel::data(const QModelIndex &index, int role) const
     default :       
         return QVariant();
     }
+}
+HbIcon * GlxAlbumModel::getCorruptDefaultIcon( const QModelIndex &index ) const
+{
+    if ( mMLWrapper->isCorruptedImage( index.row() ) ) {
+        return m_CorruptIcon ;
+    }
+    return mDefaultIcon ;
 }
 
 bool GlxAlbumModel::setData ( const QModelIndex & idx, const QVariant & value, int role )
@@ -247,11 +241,18 @@ QModelIndex GlxAlbumModel::getFocusIndex() const
 void GlxAlbumModel::modelPopulated()
 {
     if ( mTempVisibleWindowIndex!=-1) {
+	      //Set the visible Window index only ff the index stored in the activity manager is not out of range
+          if(rowCount() > mTempVisibleWindowIndex && mTempVisibleWindowIndex > 0) {
         mMLWrapper->setVisibleWindowIndex(mTempVisibleWindowIndex);
+          }
+          else {
+              mMLWrapper->setVisibleWindowIndex(0);
+          }
         mTempVisibleWindowIndex = -1;
+    }
         emit listPopulated();
     }
-}
+
 void GlxAlbumModel::itemUpdated1(int mlIndex,GlxTBContextType tbContextType  )
 {
 	Q_UNUSED(tbContextType);

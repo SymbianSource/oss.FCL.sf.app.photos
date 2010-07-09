@@ -36,7 +36,7 @@ public:
     GlxCommandHandlerNewMedia();
     ~GlxCommandHandlerNewMedia();
 
-    TInt ExecuteLD(TGlxMediaId& aNewMediaId);
+    TInt ExecuteLD(TGlxMediaId& aNewMediaId,QString& aTitle);
 
 private:
     QString CompletionTextL() const;

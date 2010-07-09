@@ -45,7 +45,8 @@ enum
 	GlxSizeRole,                         //to get the size of the image
 	GlxDescRole,                         //to get the description of the images
 	GlxRemoveContextRole,                 //to remove the context
-	GlxTempVisualWindowIndex              //to store the visual index obtained from AM temporarily
+	GlxTempVisualWindowIndex,              //to store the visual index obtained from AM temporarily
+	GlxImageCorruptRole                 //To get the corrupt image status
 };
 
 

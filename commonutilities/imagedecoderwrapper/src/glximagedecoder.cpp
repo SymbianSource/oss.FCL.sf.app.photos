@@ -22,7 +22,10 @@
 #include <imageconversion.h>
 #include <IclExtJpegApi.h>  // For CExtJpegDecoder
 #include <e32math.h>
+#include <apgcli.h>
 
+_LIT(KMimeJpeg,"image/jpeg");
+_LIT(KMimeJpg,"image/jpg");
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
@@ -90,15 +93,15 @@ QSizeF CGlxImageDecoder::DecodeImageL(QString aSourceFileName)
         iImageDecoder = NULL;
         }
 	TRAPD( err, iImageDecoder = CExtJpegDecoder::FileNewL(
-            CExtJpegDecoder::EHwImplementation, iFs, sourceFileName, CImageDecoder::EOptionAutoRotate ) );
+            CExtJpegDecoder::EHwImplementation, iFs, sourceFileName, CImageDecoder::EOptionAlwaysThread ) );
     if ( KErrNone != err )
         {
         TRAP(err,iImageDecoder = CExtJpegDecoder::FileNewL(
-                CExtJpegDecoder::ESwImplementation, iFs, sourceFileName, CImageDecoder::EOptionAutoRotate ) );
+                CExtJpegDecoder::ESwImplementation, iFs, sourceFileName, CImageDecoder::EOptionAlwaysThread ) );
         if ( KErrNone != err )
             {
             // Not a JPEG - use standard decoder
-            iImageDecoder = CImageDecoder::FileNewL( iFs, sourceFileName, CImageDecoder::EOptionAutoRotate );
+            iImageDecoder = CImageDecoder::FileNewL( iFs, sourceFileName, CImageDecoder::EOptionAlwaysThread );
             }
         }
 	TSize imageSize = iImageDecoder->FrameInfo().iOverallSizeInPixels;
@@ -116,6 +119,15 @@ QSizeF CGlxImageDecoder::DecodeImageL(QString aSourceFileName)
 
 		decodeSize = TSize(imageSize.iWidth * compressionFactor, imageSize.iHeight * compressionFactor);
 	}
+	//if an image is converted to Pixmap with any of its dimension > 2048 
+	//the conversion will fail so limiting dimensions to 2000
+	//on 2048 there is a buffer corruption so display image is distorted  
+	if(decodeSize.iWidth > KMaxDimensionLimit ||decodeSize.iHeight > KMaxDimensionLimit)
+    {
+        QSize finalSize(decodeSize.iWidth, decodeSize.iHeight);
+        finalSize.scale(KMaxDimensionLimit, KMaxDimensionLimit, Qt::KeepAspectRatio);
+        decodeSize = TSize(finalSize.width(), finalSize.height());
+    }
 	//clear the existing Bitmap
 	if(iBitmap)
 	{
@@ -126,12 +138,56 @@ QSizeF CGlxImageDecoder::DecodeImageL(QString aSourceFileName)
     if(!iBitmap)
         {
         iBitmap = new (ELeave) CFbsBitmap();
-        iBitmap->Create( decodeSize,EColor64K);
+        decodeSize = ReCalculateSizeL(aSourceFileName, decodeSize);
+        iBitmap->Create( decodeSize,EColor16MU);
         iImageDecoder->Convert( &iStatus, *iBitmap );
 		SetActive();
 		}
 	return QSizeF(decodeSize.iWidth,decodeSize.iHeight) ;
 }
+
+// -----------------------------------------------------------------------------
+// DoesMimeTypeNeedsRecalculateL()
+// -----------------------------------------------------------------------------
+//
+TBool CGlxImageDecoder::DoesMimeTypeNeedsRecalculateL(QString aSourceFileName){
+    RApaLsSession session;
+    TDataType mimeType;
+    TUid uid;
+    
+    User::LeaveIfError( session.Connect() );
+    CleanupClosePushL( session );
+    TPtrC16 sourceFileName(reinterpret_cast<const TUint16*>(aSourceFileName.utf16()));
+    User::LeaveIfError( session.AppForDocument( sourceFileName, uid, mimeType ) );
+    CleanupStack::PopAndDestroy(&session);
+    
+    if (mimeType.Des().Compare(KMimeJpeg)==0 ||
+            mimeType.Des().Compare(KMimeJpg)==0){
+        return EFalse;
+        }
+    else{
+        return ETrue; 
+        }
+    }
+
+// -----------------------------------------------------------------------------
+// ReCalculateSize 
+// -----------------------------------------------------------------------------
+TSize CGlxImageDecoder::ReCalculateSizeL(QString aSourceFileName, TSize aDestSize){
+    if(DoesMimeTypeNeedsRecalculateL(aSourceFileName)){
+        TSize fullFrameSize = iImageDecoder->FrameInfo().iOverallSizeInPixels;
+        // calculate the reduction factor on what size we need
+        TInt reductionFactor = iImageDecoder->ReductionFactor(fullFrameSize, aDestSize);
+        // get the reduced size onto destination size
+        TSize destSize;
+        User::LeaveIfError(iImageDecoder->ReducedSize(fullFrameSize, reductionFactor, destSize));
+        return destSize;
+        }
+    else{
+        return aDestSize;
+        }
+    }
+
 // ---------------------------------------------------------------------------
 // RunL
 // ---------------------------------------------------------------------------
@@ -176,49 +232,7 @@ QPixmap CGlxImageDecoder::GetPixmap()
 	{
 	if(iBitmap)
 		{
-		//convert the bitmap to pixmap
-		iBitmap->LockHeap();
-		TUint32 *tempData = iBitmap->DataAddress();
-		uchar *data = (uchar *)(tempData);	
-		int bytesPerLine = iBitmap->ScanLineLength(iBitmap->SizeInPixels().iWidth , iBitmap->DisplayMode());
-		 QImage::Format format;
-    switch(iBitmap->DisplayMode()) {
-    case EGray2:
-        format = QImage::Format_MonoLSB;
-        break;
-    case EColor256:
-    case EGray256:
-        format = QImage::Format_Indexed8;
-        break;
-    case EColor4K:
-        format = QImage::Format_RGB444;
-        break;
-    case EColor64K:
-        format = QImage::Format_RGB16;
-        break;
-    case EColor16M:
-        format = QImage::Format_RGB666;
-        break;
-    case EColor16MU:
-        format = QImage::Format_RGB32;
-        break;
-    case EColor16MA:
-        format = QImage::Format_ARGB32;
-        break;
-#if !defined(__SERIES60_31__) && !defined(__S60_32__)
-    case EColor16MAP:
-        format = QImage::Format_ARGB32_Premultiplied;
-        break;
-#endif
-    default:
-        format = QImage::Format_Invalid;
-        break;
-    }
-		//QImage share the memory occupied by data
-		QImage image(data, iBitmap->SizeInPixels().iWidth, iBitmap->SizeInPixels().iHeight, bytesPerLine, format);
-		iDecodedPixmap = QPixmap::fromImage(image);
-		iBitmap->UnlockHeap();
-		//clean the bitmap as it is not required anymore
+		iDecodedPixmap = QPixmap::fromSymbianCFbsBitmap(iBitmap);
 		delete iBitmap;
 		iBitmap = NULL;
 		}

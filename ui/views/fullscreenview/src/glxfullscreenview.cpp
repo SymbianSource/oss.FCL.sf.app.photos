@@ -30,7 +30,7 @@
 #include <hbabstractviewitem.h>
 #include <hbiconitem.h>
 #include <QCoreApplication>
-
+#include <xqserviceutil.h>
 //User Includes
 #include "glxlog.h"
 #include "glxtracer.h"
@@ -54,29 +54,31 @@
 const int KUiOffTime = 3000;
 
 GlxFullScreenView::GlxFullScreenView(HbMainWindow *window,HbDocumentLoader *DocLoader) : 
-    GlxView ( GLX_FULLSCREENVIEW_ID), 
-    mModel(NULL), 
-    mWindow( window), 
-    mCoverFlow(NULL) , 
-    mImageStrip (NULL), 
-    mUiOffTimer(NULL),
-    mIconItem(NULL),
-    mTvOutWrapper(NULL),
-    mFullScreenToolBar(NULL),
-	mZoomWidget(NULL)
+    GlxView ( GLX_FULLSCREENVIEW_ID ), 
+    mModel( NULL ), 
+    mWindow( window ), 
+    mCoverFlow( NULL ) , 
+    mImageStrip( NULL ), 
+    mUiOffTimer( NULL ),
+    mTvOutWrapper( NULL ),
+    mFullScreenToolBar( NULL ),
+	mZoomWidget( NULL ),
+	mUiOff ( false)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_ENTRY );
-    
+    mIconItems[0] = NULL;
+    mIconItems[1] = NULL;
     mDocLoader = DocLoader;
     setContentFullScreen( true );
-    HbEffect::add( QString("HbGridView"), QString(":/data/transitionup.fxml"), QString( "TapShow" ));
-    HbEffect::add( QString("HbGridView"), QString(":/data/transitiondown.fxml"), QString( "TapHide" ));
-    HbEffect::add( QString("HbGridViewItem"), QString(":/data/gridtofullscreenhide.fxml"), QString( "Select" ));
+    HbEffect::add( QString( "HbGridView" ), QString( ":/data/transitionup.fxml" ), QString( "TapShow" ) );
+    HbEffect::add( QString( "HbGridView" ), QString( ":/data/transitiondown.fxml" ), QString( "TapHide" ) );
+    HbEffect::add( QString( "HbGridViewItem" ), QString( ":/data/zoomin.fxml" ), QString( "SelectHide" ) );
+    HbEffect::add( QString( "HbGridViewItem" ), QString( ":/data/zoomout.fxml" ), QString( "SelectShow" ) );
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_EXIT );
 }
 
-void GlxFullScreenView::initializeView(QAbstractItemModel *model)
+void GlxFullScreenView::initializeView( QAbstractItemModel *model, GlxView *preView )
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_INITIALIZEVIEW_ENTRY );
     
@@ -87,9 +89,23 @@ void GlxFullScreenView::initializeView(QAbstractItemModel *model)
     setHdmiModel(model);
     loadWidgets();
 
-    // Initialize the coverflow and partially creates the coverflow with one image
-    // to make the widget light weight in order to make transition smooth 
-    mCoverFlow->partiallyCreate( model, screenSize() );
+    /* 
+     * Initialize the coverflow and partially creates the coverflow with one image
+     * to make the widget light weight in order to make transition smooth 
+     */
+    /* 
+     * Grid view is not in full screen mode so this view have some flicker after transtion is finshed 
+     * and some cases in grid view status bar is visible and some cases it is not
+     * so adjust the initial postion of fullscreen base on status bar visiblity.
+     */
+    if ( preView->compare( GLX_GRIDVIEW_ID ) && preView->isItemVisible ( Hb::StatusBarItem ) ) {
+        qreal chromeHeight = 0;
+        style()->parameter( "hb-param-widget-chrome-height", chromeHeight );
+        mCoverFlow->partiallyCreate( model, screenSize(), -chromeHeight );
+    }
+    else {
+        mCoverFlow->partiallyCreate( model, screenSize() );
+    }
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_INITIALIZEVIEW_EXIT );
 }
@@ -113,6 +129,7 @@ void GlxFullScreenView::loadWidgets()
     mImageStrip->hide();      
 	mImageStrip->setLayoutName( QString( "ImageStrip" ) ); // To distinguish in CSS file
 	mImageStrip->setEnabledAnimations( HbAbstractItemView::None );
+	mImageStrip->setHorizontalScrollBarPolicy( HbScrollArea::ScrollBarAlwaysOff );
 	
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_LOADWIDGETS_EXIT );
 }
@@ -166,12 +183,14 @@ void GlxFullScreenView::activate()
     }
     //Loads the widgets corresponding to the orientation.
     loadViewSection();
-    
-    setStatusBarVisible(FALSE);
-    setTitleBarVisible(FALSE);
+	// In case of fetcher don't hide status pane and title bar
+    if(!(XQServiceUtil::isService() && (0 == XQServiceUtil::interfaceName().compare(QLatin1String("com.nokia.symbian.IImageFetch"))))){
+	    setStatusBarVisible(FALSE);
+	    setTitleBarVisible(FALSE);
+		mUiOff = true;
+	}
         
     mUiOffTimer = new QTimer();
-    mUiOff = true;
     mUiOffTimer->stop();        
     mCoverFlow->setUiOn(FALSE);    
     addConnection(); 
@@ -287,9 +306,8 @@ void GlxFullScreenView::setModel( QAbstractItemModel *model )
     if(getSubState() == IMAGEVIEWER_S) {
         setTitle("Image Viewer");
     }
-	else if(getSubState() == FETCHER_S){
-		setStatusBarVisible(TRUE);
-        setTitleBarVisible(TRUE);
+	else if(getSubState() == FETCHER_S){ //do not zoom in case of fetcher
+		disconnect(mCoverFlow,SIGNAL( doubleTapEventReceived(QPointF) ), mZoomWidget, SLOT( animateZoomIn(QPointF) ) );
 	}
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_SETMODEL_EXIT );
 }
@@ -419,6 +437,7 @@ void GlxFullScreenView::changeSelectedIndex(const QModelIndex &index)
     mModel->setData( index, index.row(), GlxFocusIndexRole );
     mModel->setData( index, index.row(), GlxVisualWindowIndex );
 	mZoomWidget->indexChanged(index.row());  
+
     if (mTvOutWrapper){
         // for the image changed on swipe
         mTvOutWrapper->setImagetoHDMI();
@@ -435,16 +454,17 @@ void GlxFullScreenView::indexChanged(const QModelIndex &index)
        OstTraceFunctionExit0( GLXFULLSCREENVIEW_INDEXCHANGED_EXIT );
        return;
     }         
-    mModel->setData( index, index.row(), GlxFocusIndexRole );
-	mZoomWidget->indexChanged(index.row());
-    mCoverFlow->indexChanged(index.row());
-    mImageStrip->scrollTo(index, HbGridView::EnsureVisible );
+    
     if (mTvOutWrapper){
-    // for the indexchnaged through filmstrip
-    mTvOutWrapper->setImagetoHDMI();
+        // for the indexchnaged through filmstrip
+        mTvOutWrapper->setImagetoHDMI();
     }
     //disable the animation for the time being
-    //imageSelectionAnimation( index );
+    imageSelectionAnimation( index );
+    
+    mModel->setData( index, index.row(), GlxFocusIndexRole );
+    mZoomWidget->indexChanged(index.row());
+    mZoomWidget->setVisible( false );
     
     OstTraceFunctionExit0( DUP1_GLXFULLSCREENVIEW_INDEXCHANGED_EXIT );
 }
@@ -528,6 +548,7 @@ void GlxFullScreenView::coverFlowEventHandle( GlxCoverFlowEvent e )
         break ;
         
     case PANNING_START_EVENT :
+    case ZOOM_START_EVENT :
         hideUi();
         break ;
         
@@ -567,13 +588,17 @@ void GlxFullScreenView::imageSelectionEffectFinished( const HbEffect::EffectStat
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_IMAGESELECTIONEFFECTFINISHED_ENTRY );
     
-    mIconItem->resetTransform();
-    mIconItem->setVisible( false );
+    for ( int i = 0; i < NBR_ANIM_ITEM; i++ ) { 
+        mIconItems[ i ]->resetTransform();
+        mIconItems[ i ]->setVisible( false );
+    }
     
     QVariant variant = mModel->data( mModel->index(0,0), GlxFocusIndexRole );    
     if ( variant.isValid() &&  variant.canConvert<int> ()  ) {
         mCoverFlow->indexChanged( variant.value<int>() ) ;         
     }
+    mCoverFlow->setVisible( true );
+    mZoomWidget->setVisible( true );
 
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_IMAGESELECTIONEFFECTFINISHED_EXIT );
 }
@@ -675,8 +700,9 @@ GlxFullScreenView::~GlxFullScreenView()
     OstTraceFunctionEntry0( DUP1_GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_ENTRY );
     
 	cleanUp();
-	
-	delete mIconItem ;
+	for ( int i = 0; i < NBR_ANIM_ITEM; i++ ) {
+	    delete mIconItems[ i ] ;
+	}
     delete mImageStrip;
     delete mFullScreenToolBar;
     delete mCoverFlow;
@@ -689,8 +715,9 @@ GlxFullScreenView::~GlxFullScreenView()
     
     HbEffect::remove( QString("HbGridView"), QString(":/data/transitionup.fxml"), QString( "TapShow" ));
     HbEffect::remove( QString("HbGridView"), QString(":/data/transitiondown.fxml"), QString( "TapHide" ));
-    HbEffect::remove( QString("HbGridViewItem"), QString(":/data/gridtofullscreenhide.fxml"), QString( "Select" ));
-
+    HbEffect::remove( QString( "HbGridViewItem" ), QString( ":/data/zoomin.fxml" ), QString( "SelectHide" ) );
+    HbEffect::remove( QString( "HbGridViewItem" ), QString( ":/data/zoomout.fxml" ), QString( "SelectShow" ) );
+        
     OstTraceFunctionExit0( DUP1_GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_EXIT );
 }
 
@@ -698,25 +725,28 @@ void GlxFullScreenView::imageSelectionAnimation(const QModelIndex &index)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_IMAGESELECTIONANIMATION_ENTRY );
 
-    if ( mIconItem == NULL ) {
-        mIconItem = new HbIconItem( mCoverFlow );
-        mIconItem->setBrush( QBrush( Qt::black ) );
-        mIconItem->setZValue( mCoverFlow->zValue() );
+    if ( mIconItems[0] == NULL ) {
+        for ( int i = 0; i < NBR_ANIM_ITEM; i++ ) {
+            mIconItems[ i ] = new HbIconItem( mFullScreenToolBar->parentItem() );
+            mIconItems[ i ]->setBrush( QBrush( Qt::black ) );
+            mIconItems[ i ]->setZValue( mFullScreenToolBar->zValue() - 2 );
+            mIconItems[ i ]->setPos( 0, 0 );
+            mIconItems[ i ]->setAlignment( Qt::AlignCenter );
+        }
     }
     
-    HbAbstractViewItem *mItem = mImageStrip->itemByIndex( index );    
-    mIconItem->setSize( mItem->size() );    
-    mIconItem->setPos( mItem->sceneTransform().map( QPoint(0,0)).x() , screenSize().height() - 2 * mItem->size().height() ); 
-    mIconItem->setVisible( true );
-    
-    QVariant variant = mModel->data( index, Qt::DecorationRole );
-    if ( variant.isValid() &&  variant.canConvert<HbIcon> () ) {
-        mIconItem->setIcon ( variant.value<HbIcon>() ) ; 
+    for ( int i = 0; i < NBR_ANIM_ITEM; i++ ) {
+        mIconItems[ i ]->setVisible( true );
+        mIconItems[ i ]->setSize( screenSize() );
     }
-    else {
-        mIconItem->setIcon( HbIcon() );
-    }    
-    HbEffect::start( mIconItem, QString("HbGridViewItem"), QString("Select"), this, "imageSelectionEffectFinished" ); 
+    
+    mIconItems[ 0 ]->setIcon( mCoverFlow->getIcon( mCoverFlow->getFocusIndex() ) );    
+    mIconItems[ 1 ]->setIcon( mCoverFlow->getIcon( index.row() ) );   
+    mCoverFlow->setVisible( false );
+    mZoomWidget->setVisible( false );
+    
+    HbEffect::start( mIconItems[ 0 ], QString( "HbGridViewItem" ), QString( "SelectHide" ) );
+    HbEffect::start( mIconItems[ 1 ], QString( "HbGridViewItem" ), QString( "SelectShow" ), this, "imageSelectionEffectFinished" );
 
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_IMAGESELECTIONANIMATION_EXIT );
 }
@@ -752,9 +782,15 @@ bool GlxFullScreenView::eventFilter(QObject *obj, QEvent *ev)
         GLX_LOG_INFO("GlxFullScreenView::event() shift to native - CGlxHdmi");
         mTvOutWrapper->setToNativeMode();    
     }
-    if ( ev->type() ==  QEvent::ApplicationDeactivate && mTvOutWrapper) {
-        GLX_LOG_INFO("GlxFullScreenView::event() shift to Clone - CGlxHdmi");
-        mTvOutWrapper->setToCloningMode();    
+    if (ev->type() ==  QEvent::ApplicationDeactivate)
+    {
+        if(mZoomWidget) {
+            mZoomWidget->forceZoomToBackground();
+        }
+        if (mTvOutWrapper) {
+            GLX_LOG_INFO("GlxFullScreenView::event() shift to Clone - CGlxHdmi");
+            mTvOutWrapper->setToCloningMode();    
+        }
     }
     return HbView::eventFilter(obj,ev);
 }

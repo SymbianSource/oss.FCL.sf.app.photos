@@ -53,6 +53,7 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
      * This is an overloaded function when an index is changes due to deletion 
      */
     void indexChanged();
+    void forceZoomToBackground();
     
     signals:
     void pinchGestureReceived(int index);
@@ -94,6 +95,8 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     void finalizeWidgetTransform();
     //get the focused image from the model
     QPixmap getFocusedImage();
+    //set all the zoom parameters as per the circumstances
+    void setZoomParams();
 
     //data members
     private:
@@ -136,6 +139,8 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     bool mPinchGestureOngoing; 
     //to check if decoded image is available
     bool mDecodedImageAvailable;
+    //to check if the widget is actually in Foreground
+    bool mZoomOngoing;
     int mTimerId;
 
 };

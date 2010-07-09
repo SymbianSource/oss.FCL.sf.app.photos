@@ -34,6 +34,7 @@ class HbMainWindow;
 class QGraphicsItem;
 class HbDocumentLoader;
 class HbAbstractDataModel;
+class HbLabel;
 
 //User Forward Declarations
 class GlxEffectEngine;
@@ -47,12 +48,6 @@ typedef enum
     EMPTY_DATA_EVENT, //send the signal when model have no data
     EFFECT_STARTED  // sends the signal when effect is started.
 } GlxSlideShowEvent;
-
-typedef enum 
-{
-    MOVE_FORWARD,
-    MOVE_BACKWARD,
-} GlxSlideShowMoveDir;
 
 class GlxSlideShowWidget : public HbWidget
 {
@@ -108,23 +103,64 @@ private :
     //add the connection to the model
     void initializeNewModel();
     void resetSlideShow();
-    void setIconItems( int moveDir );
     void moveImage( int nextIndex, int posX, const QString & move, char * callBack );
     void addConnections();
     void removeConnections();
+    
+    /*
+     * To get the focus index
+     */
+    int getFocusIndex( );
+
+    /*
+     * To get the full screen icon of the image
+     */
+    HbIcon getIcon( int index );
+    
+    /*
+     * To check the itemis corrupted or not
+     */
+    bool isCorrupt( int index );
+    
+    /*
+     * To set the current ( focus ) item icon
+     */
+    bool setFocusItemIcon();
+    
+    /*
+     * To set the next itme icon in the list
+     */
+    bool setNextItemIcon();
+    
+    /*
+     * To set the previous icon in the list
+     */
+    bool setPreItemIcon();
+    
+    /*
+     * In the case of all the image are corrupted then show the error notes
+     */
+    void showErrorNote();
+    
+    /*
+     * It will hide the corrupted images note
+     */
+    void hideErrorNote();    
 
 private:
     GlxEffectEngine          *mEffectEngine;
     GlxSettingInterface      *mSettings;               //no ownership
-    HbIconItem               *mIconItems[NBR_ITEM]; 
+    HbIconItem               *mIconItems[ NBR_ITEM ]; 
     HbPushButton             *mContinueButton;
+    HbLabel                  *mErrorNote ;               //when all the image are corrupted then show the no image label
     int                      mItemIndex;
-    int                      mSelIndex;
+    int                      mSelIndex[ NBR_ITEM ];
     QTimer                   *mSlideTimer;
     QAbstractItemModel       *mModel;
     QRect                    mScreenRect;
     QList <QGraphicsItem *>  mItemList;
     bool                     mIsPause;
+    int                      mSlideShowItemCount;
 };
 
 #endif /* GLXSLIDESHOWWIDGET_H */

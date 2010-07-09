@@ -39,4 +39,5 @@ EXPORTS
 	?updateDetailsView@GlxMediaModel@@IAEXXZ @ 38 NONAME ; void GlxMediaModel::updateDetailsView(void)
 	?removeContextMode@GlxMediaModel@@AAEXW4GlxContextMode@@@Z @ 39 NONAME ; void GlxMediaModel::removeContextMode(enum GlxContextMode)
 	?updateDetailItems@GlxMediaModel@@QAEXXZ @ 40 NONAME ; void GlxMediaModel::updateDetailItems(void)
+	?getCorruptDefaultIcon@GlxMediaModel@@ABEPAVHbIcon@@ABVQModelIndex@@@Z @ 41 NONAME ; class HbIcon * GlxMediaModel::getCorruptDefaultIcon(class QModelIndex const &) const
 

@@ -95,7 +95,7 @@ CMPXCommand* GlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
     }
 
 
-TInt GlxCommandHandlerNewMedia::ExecuteLD(TGlxMediaId& aNewMediaId)
+TInt GlxCommandHandlerNewMedia::ExecuteLD(TGlxMediaId& aNewMediaId,QString& aTitle)
     {
     OstTraceFunctionEntry0( GLXCOMMANDHANDLERNEWMEDIA_EXECUTELD_ENTRY );
     GlxMpxCommandHandler::executeCommand(EGlxCmdAddMedia, KGlxCollectionPluginAlbumsImplementationUid);
@@ -108,6 +108,7 @@ TInt GlxCommandHandlerNewMedia::ExecuteLD(TGlxMediaId& aNewMediaId)
         if (iNewMediaCreationError == KErrNone)
             {
             aNewMediaId = iNewMediaId;
+            aTitle = QString::fromUtf16(iNewMediaItemTitle->Des().Ptr(),iNewMediaItemTitle->Length());
             }
         }
 

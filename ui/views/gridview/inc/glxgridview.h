@@ -26,12 +26,13 @@
 //Qt/Orbit forward declarations
 class HbMainWindow;
 class QAbstractItemModel;
-class HgWidget;
+class HgGrid;
 class GlxModelWrapper;
 class HbPushButton;
 class HbIconItem;
 class HbCheckBox;
 class HbLabel;
+class GlxSettingInterface;
 
 class GlxGridView : public GlxView
 {
@@ -42,7 +43,7 @@ public :
     ~GlxGridView();
     void activate() ;
     void deActivate();
-    void initializeView(QAbstractItemModel *model);
+    void initializeView( QAbstractItemModel *model, GlxView *preView );
     void setModel(QAbstractItemModel *model);
     void addToolBar( HbToolBar *toolBar );
     void enableMarking() ;
@@ -89,7 +90,7 @@ private:
 
 	HbMainWindow        *mWindow;          // no ownership
 	QAbstractItemModel  *mModel ;
-	HgWidget            *mWidget;          // HG Grid Widget
+	HgGrid              *mWidget;          // HG Grid Widget
 	QItemSelectionModel *mSelectionModel;  // Selected items model
     GlxModelWrapper     *mModelWrapper;    // Temp Model Wrapper, so That Role Change not a problem
     HbPushButton        *mUiOnButton;
@@ -102,6 +103,7 @@ private:
     HbLabel             *mCountLabel;      // Marked item count
     HbLabel             *mZeroItemLabel;   // zero itemcount
     HbLabel             *mAlbumName;
+    GlxSettingInterface *mSettings;      
 };
 
 #endif /* GLXGRIDVIEW_H_ */

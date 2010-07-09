@@ -81,6 +81,18 @@ public :
      */
     int slideShowEffectId( int index ) ;
     
+    /* 
+     * Returns Current Media Wall 3D effect Status
+     * This value is fetched from Central repository 
+     */
+    int mediaWall3DEffect();
+    
+    /*
+     * Set Media Wall 3D effect. True = 3D Effect On / False = 3D Effect Off 
+     * This data will be written to the Central Repository
+     */
+    void setmediaWall3DEffect( int index );
+    
 protected :
     /*
      * Constructor
@@ -108,6 +120,8 @@ private :
     XQSettingsKey *mSlowCenRepKey;
     XQSettingsKey *mMediumCenRepKey;
     XQSettingsKey *mFastCenRepKey;
+    
+    XQSettingsKey *m3DEffectCenRepKey;
     
     static GlxSetting mObj;
 };

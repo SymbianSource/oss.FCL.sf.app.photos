@@ -18,15 +18,31 @@
 
 
 #include <glxfullscreenstate.h>
+#include <glxstatemanager.h>
+#include <glxcommandhandlers.hrh>
 
-GlxFullScreenState::GlxFullScreenState(GlxState *preState) : GlxState(GLX_FULLSCREENVIEW_ID, preState)
+GlxFullScreenState::GlxFullScreenState(GlxStateManager *stateManager, GlxState *preState) : GlxState(GLX_FULLSCREENVIEW_ID, preState)
 {
-	
+    mStateManager = stateManager ;
 }
 
 void GlxFullScreenState::eventHandler(qint32 &id)
 {
-    Q_UNUSED(id);	
+    switch ( id ){
+    case EGlxCmdDetailsOpen :
+        if ( mState == IMAGEVIEWER_S ) {
+
+            mStateManager->nextState( GLX_DETAILSVIEW_ID, IMAGEVIEWER_DETAIL_S );
+        }
+        else {
+
+            mStateManager->nextState( GLX_DETAILSVIEW_ID, NO_DETAIL_S );
+        }
+        id = EGlxCmdHandled;
+        break ;
+    default :
+        break ;
+    }
 }
 
 void GlxFullScreenState::setTranstionParameter(NavigationDir dir, GlxEffect &effect, GlxViewEffect &viewEffect)

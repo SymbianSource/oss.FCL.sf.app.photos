@@ -138,6 +138,7 @@ public:
 	bool IsDrmProtected(int index );
 	bool IsDrmValid(int index);
 	void setDrmValid(int index,bool valid);			
+	bool IsCorruptedImage( int aItemIndex );				
 private:
 
     /**

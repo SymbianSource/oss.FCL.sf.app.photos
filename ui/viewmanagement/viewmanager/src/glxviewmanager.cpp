@@ -129,8 +129,8 @@ void GlxViewManager::addBackSoftKeyAction ( )
 {
     qDebug("GlxViewManager::addBackSoftKeyAction ");
     //create the back soft key action and set the data
-    mBackAction = new HbAction(Hb::BackNaviAction, this);
-    mBackAction->setData(EGlxCmdBack);
+    mBackAction = new HbAction( Hb::BackNaviAction, this );
+    mBackAction->setData( EGlxCmdBack );
     mBackAction->setObjectName( "App Back" );
     mView->setNavigationAction( mBackAction );
 }
@@ -179,7 +179,7 @@ void GlxViewManager::launchView (qint32 id, QAbstractItemModel *model, GlxEffect
     
     mView = resolveView(id);
     //partially initialise the view so that animation run smoothly
-    mView->initializeView( model);
+    mView->initializeView( model, curr_view );
     mModel = model; 
 
     if ( viewEffect == CURRENT_VIEW || viewEffect == BOTH_VIEW ) { 
@@ -289,7 +289,7 @@ void GlxViewManager::updateProgressDialog( int currentValue )
         mProgressDialog->setIcon(icon);
         
         if ( currentValue < 0 ) {
-            mProgressDialog->setText( QString( "Refreshing" ) ); //To:Do string will change later
+            mProgressDialog->setText( QString( GLX_REFRESHING ) ); //To:Do string will change later
             mProgressDialog->setProgressValue( 0 );
         }
         else {
@@ -343,7 +343,6 @@ void GlxViewManager::checkMarked()
         if( mMarkingActionList.at(i)->data()==EGlxCmdSelect) {
        	    bool noSelection=selectedModelIndex.empty();
             mMarkingActionList.at(i)->setDisabled(noSelection);
-            mMenuManager->disableAction(mView->menu(),noSelection);
             break;
         }
     }

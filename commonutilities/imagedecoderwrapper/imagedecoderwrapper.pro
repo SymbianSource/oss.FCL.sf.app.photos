@@ -26,7 +26,9 @@ LIBS += -limageconversion.dll \
 	-lbitmaptransforms.dll \
 	-liclextjpegapi.dll \
 	-lfbscli.dll \
-	-lefsrv.dll
+	-lefsrv.dll \
+	-lapmime.dll \
+	-lapgrfx.dll
 
 DEFINES += BUILD_IMAGEWRAPPER
 symbian: { 

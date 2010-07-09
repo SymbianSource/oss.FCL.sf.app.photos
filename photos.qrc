@@ -27,16 +27,16 @@
         <file>data/listview.docml</file>
         <file>data/fullscreen.docml</file>
         <file>data/slideshow.docml</file>
-	<file>data/detailsview.docml</file>
-        <file>data/Image1.jpg</file>
-        <file>data/Image2.jpg</file>
-        <file>data/Image3.jpg</file>
-        <file>data/Image4.jpg</file>
-        <file>data/Image5.jpg</file>
-        <file>data/Image6.jpg</file>
-        <file>data/Image7.jpg</file>
-        <file>data/Image8.jpg</file>
-        <file>data/Image9.jpg</file>
-        <file>data/Image10.jpg</file>
+        <file>data/detailsview.docml</file>
+        <file>data/Wait/qgn_graf_ring_wait_01.svg</file>
+        <file>data/Wait/qgn_graf_ring_wait_02.svg</file>
+        <file>data/Wait/qgn_graf_ring_wait_03.svg</file>
+        <file>data/Wait/qgn_graf_ring_wait_04.svg</file>
+        <file>data/Wait/qgn_graf_ring_wait_05.svg</file>
+        <file>data/Wait/qgn_graf_ring_wait_06.svg</file>
+        <file>data/Wait/qgn_graf_ring_wait_07.svg</file>
+        <file>data/Wait/qgn_graf_ring_wait_08.svg</file>
+        <file>data/Wait/qgn_graf_ring_wait_09.svg</file>
+        <file>data/Wait/qgn_graf_ring_wait_10.svg</file>
     </qresource>
 </RCC>

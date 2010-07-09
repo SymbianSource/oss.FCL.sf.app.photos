@@ -238,6 +238,7 @@ void GlxAiwServiceHandler::openFSView()
     mFSView = GlxViewsFactory::createView(GLX_FULLSCREENVIEW_ID, this);
     //ownership transfered to view
 	mFSView->setToolBar(toolBar);
+	mView->deActivate();
     mFSView->activate();
     mFSView->setModel(mModel);
     addView(mFSView);

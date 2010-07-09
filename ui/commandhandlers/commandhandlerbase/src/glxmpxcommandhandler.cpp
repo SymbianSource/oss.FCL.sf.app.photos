@@ -487,7 +487,7 @@ void GlxMpxCommandHandler::ConfirmationNoteSingleL(MGlxMediaList& aMediaList)
             }
             // (else) If error, assume confirmed anyway
         CleanupStack::PopAndDestroy(attributeContext);
-        HbMessageBox::question(qtText, this, SLOT(messageDialogClose(HbAction*)));  
+        HbMessageBox::question(qtText, this, SLOT(messageDialogClose(HbAction*)),HbMessageBox::Ok | HbMessageBox::Cancel);
         }
     else{
         executeMpxCommand(true);
@@ -499,7 +499,7 @@ void GlxMpxCommandHandler::ConfirmationNoteMultipleL(MGlxMediaList& /*aMediaList
     QString qtText = ConfirmationTextL(true);
     if(!qtText.isEmpty ())
         {
-        HbMessageBox::question(qtText, this, SLOT(messageDialogClose(HbAction*)));
+        HbMessageBox::question(qtText, this, SLOT(messageDialogClose(HbAction*)),HbMessageBox::Ok |HbMessageBox::Cancel);
         }    
     else{
         executeMpxCommand(true);

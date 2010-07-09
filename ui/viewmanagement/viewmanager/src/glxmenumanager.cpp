@@ -28,6 +28,7 @@
 #include "glxcommandhandlers.hrh"
 #include "glxmodelparm.h"
 #include "glxlocalisationstrings.h"
+#include "glxsettinginterface.h"
 
 
 GlxMenuManager::GlxMenuManager(HbMainWindow* mainWindow)
@@ -35,6 +36,7 @@ GlxMenuManager::GlxMenuManager(HbMainWindow* mainWindow)
       mMainWindow( mainWindow ),
       mContextMenu( 0 )
 {
+    mSettings = GlxSettingInterface::instance();
 }
 
 GlxMenuManager::~GlxMenuManager()
@@ -73,8 +75,8 @@ void GlxMenuManager::addMenu(qint32 viewId, HbMenu* menu)
 {
     switch(viewId) {
     case GLX_GRIDVIEW_ID:
-        connect( menu, SIGNAL( aboutToShow() ), this, SLOT( updateGridMenu() ) );
         CreateGridMenu( menu );
+        connect( menu, SIGNAL( aboutToShow() ), this, SLOT( updateGridMenu() ) );
         break;                            
 
     case GLX_LISTVIEW_ID: 
@@ -82,9 +84,13 @@ void GlxMenuManager::addMenu(qint32 viewId, HbMenu* menu)
         break;
         
     case GLX_FULLSCREENVIEW_ID:
-        connect( menu, SIGNAL( aboutToShow() ), this, SLOT( updateFullscreenMenu() ) );
         CreateFullscreenMenu( menu );
+        connect( menu, SIGNAL( aboutToShow() ), this, SLOT( updateFullscreenMenu() ) );
         break;
+        
+    case GLX_SLIDESHOWVIEW_ID :
+        createSlideShowMenu( menu );
+        break ;
                 
     default:
         break;
@@ -145,6 +151,22 @@ void GlxMenuManager::CreateGridMenu(HbMenu* menu)
     action->setData(EGlxCmdDelete);
     action->setObjectName( "GridMenu Delete" );
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+    
+    m3DEffectSubMenu = menu->addMenu("3D Effect");
+    m3DEffectSubMenu->setObjectName( "GridMenu 3DEffect" );
+    
+    action = m3DEffectSubMenu->addAction("On"); 
+    action->setCheckable(ETrue);
+    action->setData(EGlxCmd3DEffectOn);
+    action->setObjectName( "GridMenu 3DOn" );
+    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+    
+    action = m3DEffectSubMenu->addAction("Off");
+    action->setCheckable(ETrue);
+    action->setData(EGlxCmd3DEffectOff);
+    action->setObjectName( "GridMenu 3DOff" );
+    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected())); 
+
 }
 
 void GlxMenuManager::CreateListMenu(HbMenu* menu)
@@ -186,15 +208,21 @@ void GlxMenuManager::CreateFullscreenMenu(HbMenu* menu)
 	CFeatureDiscovery* featManager = CFeatureDiscovery::NewL();
     if(featManager->IsFeatureSupportedL(KFeatureIdFfImageEditor))
         {
-		mSubMenu = menu->addMenu(QString("Rotate"));
-		action = mSubMenu->addAction(QString("90 CW")); 
+        mSubMenu = menu->addMenu(GLX_MENU_USE_IMAGE);
+        action = mSubMenu->addAction(GLX_MENU_SET_WALLPAPER); 
+        action->setData(EGlxCmdSetWallpaper);
+        connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected())); 
+        
+            
+		mSubMenu = menu->addMenu(GLX_MENU_ROTATE);
+		action = mSubMenu->addAction(GLX_MENU_90_CW); 
 		action->setData(EGlxCmdRotateImgCW);
 		connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected())); 
-		action = mSubMenu->addAction(QString("90 CCW"));
+		action = mSubMenu->addAction(GLX_MENU_90_CCW);
 		action->setData(EGlxCmdRotateImgCCW);
 		connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 		
-		action = menu->addAction(QString("Crop"));
+		action = menu->addAction(GLX_MENU_CROP);
 		action->setData(EGlxCmdRotateImgCrop);
 		connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));   
         }
@@ -205,6 +233,17 @@ void GlxMenuManager::CreateFullscreenMenu(HbMenu* menu)
     action->setData(EGlxCmdAddToAlbum);
     action->setObjectName( "FSMenu AddToAlbum" );
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+}
+
+void GlxMenuManager::createSlideShowMenu( HbMenu* menu )
+{
+    HbAction *action = NULL;
+    menu->setObjectName( "SSMenu" );
+    
+    action = menu->addAction( GLX_OPTION_SS_SETTINGS );
+    action->setData( EGlxCmdSlideshowSettings );
+    action->setObjectName( "SSMenu Setting" );
+    connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) ); 
 }
 
 void GlxMenuManager::setAllActionVisibility( QList<QAction*> actionList, bool visible )
@@ -257,6 +296,26 @@ void GlxMenuManager::updateGridMenu()
             actionList.at(GlxGridViewRemoveFromAlbum)->setVisible( FALSE );
             break ;
         }       
+        
+        if(mMainWindow->orientation() == Qt::Horizontal)
+            {
+            actionList.at(GlxGridView3DEffect)->setVisible( TRUE );
+            QList<QAction*> subActionList = m3DEffectSubMenu->actions();
+            if(mSettings->mediaWall3DEffect())
+                {
+                subActionList.at(0)->setChecked(ETrue);
+                subActionList.at(1)->setChecked(EFalse);
+                }
+            else
+                {
+                subActionList.at(0)->setChecked(EFalse);
+                subActionList.at(1)->setChecked(ETrue);
+                }
+            }
+        else
+            {
+            actionList.at(GlxGridView3DEffect)->setVisible( FALSE );
+            }
     }    
 }
 
@@ -295,32 +354,37 @@ void GlxMenuManager::ShowItemSpecificMenu(qint32 viewId,QPointF pos)
 
     switch ( viewId ) {
 	    case GLX_GRIDVIEW_ID :
-	        action = mContextMenu->addAction(GLX_MENU_SHARE);
-	        action->setData(EGlxCmdContextSend);
-	        action->setObjectName( "CM Send" );
-	        connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+	        action = mContextMenu->addAction( GLX_MENU_OPEN );
+            action->setData( EGlxCmdFullScreenOpen );
+            action->setObjectName( "CM Open" );
+            connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );	        
 	        
-	        action = mContextMenu->addAction(GLX_MENU_SLIDESHOW);
-	        action->setData(EGlxCmdSelectSlideshow);
+            action = mContextMenu->addAction( GLX_MENU_SHARE );
+	        action->setData( EGlxCmdContextSend );
+	        action->setObjectName( "CM Send" );
+	        connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
+	        
+	        action = mContextMenu->addAction( GLX_MENU_SLIDESHOW );
+	        action->setData( EGlxCmdSelectSlideshow );
 	        action->setObjectName( "CM SlideShow" );
-	        connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+	        connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
 
 	        if ( viewSubState() == ALBUM_ITEM_S ) {        
-                action = mContextMenu->addAction(GLX_OPTION_REMOVE_FROM_ALBUM);
-                action->setData(EGlxCmdContextRemoveFrom);
+                action = mContextMenu->addAction( GLX_OPTION_REMOVE_FROM_ALBUM );
+                action->setData( EGlxCmdContextRemoveFrom );
                 action->setObjectName( "CM RemoveAlbum" );
-                connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+                connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
 	        }
 	        
-	        action = mContextMenu->addAction(GLX_MENU_ADD_TO_ALBUM);
-		    action->setData(EGlxCmdContextAddToAlbum);
+	        action = mContextMenu->addAction( GLX_MENU_ADD_TO_ALBUM );
+		    action->setData( EGlxCmdContextAddToAlbum );
 		    action->setObjectName( "CM AddToAlbum" );
-		    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+		    connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
 		    
-		    action = mContextMenu->addAction(GLX_MENU_DELETE);
-		    action->setData(EGlxCmdContextDelete);
+		    action = mContextMenu->addAction( GLX_MENU_DELETE );
+		    action->setData( EGlxCmdContextDelete );
 		    action->setObjectName( "CM Delete" );
-		    connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+		    connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
 			break;
 	    	
 	    case GLX_LISTVIEW_ID : {
@@ -328,26 +392,31 @@ void GlxMenuManager::ShowItemSpecificMenu(qint32 viewId,QPointF pos)
             QVariant variant = mModel->data( mModel->index(0,0), GlxListItemCount );    
 	        if ( variant.isValid() &&  variant.canConvert<int> () ) {
 	            count = variant.value<int>();  
-	        }  
+	        }
+	        
+	        action = mContextMenu->addAction( GLX_MENU_OPEN );
+            action->setData( EGlxCmdAlbumGridOpen );
+            action->setObjectName( "CM Album Open" );
+            connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
 
 	        if ( count ) {
-                action = mContextMenu->addAction(GLX_MENU_SLIDESHOW);
-                action->setData(EGlxCmdAlbumSlideShow);
+                action = mContextMenu->addAction( GLX_MENU_SLIDESHOW );
+                action->setData( EGlxCmdAlbumSlideShow );
                 action->setObjectName( "CM Album SlideShow" );
-                connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+                connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
 	        }
 	        
 	        variant = mModel->data( mModel->index(0,0), GlxSystemItemRole );    
             if ( variant.isValid() &&  variant.canConvert<bool> () && ( variant.value<bool>() == false ) ) {           
-                action = mContextMenu->addAction(GLX_MENU_RENAME);
-                action->setData(EGlxCmdContextRename);
+                action = mContextMenu->addAction( GLX_MENU_RENAME );
+                action->setData( EGlxCmdContextRename );
                 action->setObjectName( "CM Rename" );
-                connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+                connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
                             
-                action = mContextMenu->addAction(GLX_MENU_DELETE);
-                action->setData(EGlxCmdContextAlbumDelete);
+                action = mContextMenu->addAction( GLX_MENU_DELETE );
+                action->setData( EGlxCmdContextAlbumDelete );
                 action->setObjectName( "CM Album Delete" );
-                connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+                connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
             }
 	    }
 			break;

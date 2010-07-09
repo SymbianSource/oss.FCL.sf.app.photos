@@ -119,6 +119,9 @@ enum TGlxCommandId
     EGlxCmdRotateImgCW,
     EGlxCmdRotateImgCCW,
     EGlxCmdRotateImgCrop,
+    EGlxCmd3DEffectOn,
+    EGlxCmd3DEffectOff,
+    EGlxCmdSetWallpaper,
     EGlxCmdAiwBase = 0x6000
     };
 

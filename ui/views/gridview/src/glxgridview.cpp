@@ -38,6 +38,7 @@
 #include "glxcommandhandlers.hrh"
 #include "glxicondefs.h"
 #include "glxlocalisationstrings.h"
+#include "glxsettinginterface.h"
 
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
@@ -66,6 +67,7 @@ GlxGridView::GlxGridView(HbMainWindow *window)
     mModelWrapper = new GlxModelWrapper();
     mModelWrapper->setRoles(GlxQImageSmall);
     mIconItem = new HbIconItem(this);
+    mSettings = GlxSettingInterface::instance() ;
     OstTraceFunctionExit0( GLXGRIDVIEW_GLXGRIDVIEW_EXIT );
 }
 
@@ -116,8 +118,9 @@ void GlxGridView::deActivate()
     OstTraceFunctionExit0( GLXGRIDVIEW_DEACTIVATE_EXIT );
 }
 
-void GlxGridView::initializeView(QAbstractItemModel *model)
+void GlxGridView::initializeView( QAbstractItemModel *model, GlxView *preView )
 {
+    Q_UNUSED( preView )
     activate();
     setModel(model);
 }
@@ -450,6 +453,18 @@ void GlxGridView::handleUserAction(qint32 commandId)
             mWidget->clearSelection();
             break;
 
+        case EGlxCmd3DEffectOn:
+            mSettings->setmediaWall3DEffect(1);
+            if(mWidget && !mWidget->effect3dEnabled())
+                mWidget->setEffect3dEnabled(ETrue);
+            break;
+            
+        case EGlxCmd3DEffectOff:
+            mSettings->setmediaWall3DEffect(0);
+            if(mWidget && mWidget->effect3dEnabled())
+                mWidget->setEffect3dEnabled(EFalse);
+            break;
+
         default :
             break;
     }
@@ -528,6 +543,14 @@ void GlxGridView::loadGridView()
         mWidget->setObjectName( "Media Wall" );
         mWidget->setLongPressEnabled(true);
         mWidget->setScrollBarPolicy(HgWidget::ScrollBarAutoHide);
+        if(XQServiceUtil::isService())
+            {
+            mWidget->setEffect3dEnabled(EFalse);
+            }
+        else
+            {
+            mWidget->setEffect3dEnabled(mSettings->mediaWall3DEffect());
+            }
         setWidget( mWidget );
         addViewConnection();
         hideorshowitems(orient);

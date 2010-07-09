@@ -39,4 +39,5 @@ EXPORTS
 	_ZN13GlxMediaModel17removeContextModeE14GlxContextMode @ 38 NONAME
 	_ZN13GlxMediaModel17updateDetailItemsEv @ 39 NONAME
 	_ZN13GlxMediaModel17updateDetailsViewEv @ 40 NONAME
+	_ZNK13GlxMediaModel21getCorruptDefaultIconERK11QModelIndex @ 41 NONAME
 

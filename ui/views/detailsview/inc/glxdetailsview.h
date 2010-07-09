@@ -61,7 +61,7 @@ public:
     /*
      * This is called from the view manager before the view is going to Activated.
      */
-    void initializeView(QAbstractItemModel *model);
+    void initializeView( QAbstractItemModel *model, GlxView *preView );
 
     /*
      * This is called from the view manager before the view is going to de-activated.
@@ -146,6 +146,7 @@ private:
      */
     void clearConnections();
     
+    int getSubState();
 private:
     
     //Contains the thumbnail shown in teh details view.

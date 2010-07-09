@@ -308,7 +308,7 @@ void GlxMLWrapper::handleListItemAvailable(int itemIndex)
 //
 void GlxMLWrapper::handleDetailsItemAvailable(int itemIndex)
 {
-
+    Q_UNUSED( itemIndex )
     emit updateDetails();
 }
 
@@ -330,3 +330,7 @@ void GlxMLWrapper::handleTitleAvailable(QString aTitle)
     emit updateAlbumTitle(aTitle);
 }
 
+bool GlxMLWrapper::isCorruptedImage( int index )
+{
+    return mMLWrapperPrivate->IsCorruptedImage( index );
+}

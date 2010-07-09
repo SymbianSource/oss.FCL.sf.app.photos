@@ -69,7 +69,6 @@ GlxStateManager::GlxStateManager()
         mViewManager = new GlxViewManager();
     }
     mTNObserver = new GlxTNObserver();
-    mSaveActivity.clear();
     
     connect ( this, SIGNAL( setupItemsSignal() ), this, SLOT( setupItems() ), Qt::QueuedConnection );
     connect ( mViewManager, SIGNAL(actionTriggered( qint32 )), this, SLOT(actionTriggered( qint32 )), Qt::QueuedConnection );
@@ -134,7 +133,7 @@ void GlxStateManager::launchApplication()
      if( !activitySuccess ) { 
     mCurrentState = createState( GLX_GRIDVIEW_ID );
     mCurrentState->setState( ALL_ITEM_S );
-    
+       
     int leftCount = mTNObserver->getTNLeftCount() ;
     if (  leftCount > 0  ) {
         mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
@@ -146,8 +145,7 @@ void GlxStateManager::launchApplication()
     }
     
     mTNObserver->startTNObserving() ; 
-     }
-     //Remove the previous activity
+}
      HbActivityManager* activityManager = app->activityManager();
      bool ok = activityManager->removeActivity("PhotosMainView");
      if ( !ok )
@@ -162,30 +160,29 @@ bool GlxStateManager::launchActivity()
     if ( !ok )
     {
         qDebug("subscribing to activity manager failed" );
-        //return false;  TBD: waitActivity is always returning false. Could be some issue with AM.
     }
     QVariant data = app->activityManager()->activityData( "PhotosMainView" );
     QByteArray serializedModel = data.toByteArray();
     QDataStream stream(&serializedModel, QIODevice::ReadOnly);
+    
     //Fetch the data from the activity Manager
-    QMap<QString, qint32> fetchActivity;
-    stream >> fetchActivity;  
-    qint32 stateId = fetchActivity.value("ID");
+    stream >> mSaveActivity;  
+    qint32 stateId = mSaveActivity.value("ID");
     mCurrentState = createState(stateId);
-    mCurrentState->setState( fetchActivity.value("InternalState") );
+    mCurrentState->setState( mSaveActivity.value("InternalState") );
     createModel( stateId);
 	/*Model might not be populated yet to set the visibleWindowIndex right away.
 	*So, let us store the visible index as a temporary Variable, so that  visible Window Index 
 	*is set once the model is populated.
     */
-    mCurrentModel->setData(QModelIndex(), fetchActivity.value("VisibleIndex") , GlxTempVisualWindowIndex );
+    mCurrentModel->setData(QModelIndex(), mSaveActivity.value("VisibleIndex") , GlxTempVisualWindowIndex );
     mViewManager->launchApplication(stateId, mCurrentModel); 
     return true;
 }
 
 void GlxStateManager::launchFromExternal()
 {
-    qDebug("GlxStateManager::launchApplication");
+    qDebug("GlxStateManager::launchFromExternal");
     mCurrentState = createState(GLX_FULLSCREENVIEW_ID);
     mCurrentState->setState(IMAGEVIEWER_S);
     
@@ -210,17 +207,22 @@ void GlxStateManager::setupItems()
     mActionHandler = new GlxActionHandler();
     connect ( mViewManager, SIGNAL(externalCommand(int )), this, SIGNAL(externalCommand(int )) );
     mViewManager->setupItems();
-    mViewManager->updateToolBarIcon(GLX_ALL_ACTION_ID);
+        switch(mSaveActivity.value("ID")){
+        case GLX_LISTVIEW_ID:
+            mViewManager->updateToolBarIcon(GLX_ALBUM_ACTION_ID);
+            break;
+        case GLX_GRIDVIEW_ID:
+        default:
+    		mViewManager->updateToolBarIcon(GLX_ALL_ACTION_ID);
+        }
 }
 
 void GlxStateManager::updateTNProgress( int count)
 {    
     TRACER("GlxStateManager::updateTNProgress() ");
-// mCurrentModel ------------this is case when progress bar is not showing
-// count > 5 ----------------in the case of rename of an image or capture the single item
-//                           it is also launching the progress bar, to avoid this scenario add the check of count more than 5
-// count == KErrNotReady ----A case when memory card is inserted but it is not harvest so it is given an error
-//                           In that case also user should be block to browse the images
+    // this is case when progress bar is not showing
+    // in the case of rename of an image or capture the single item
+    // it is also launching the progress bar, to avoid this scenario add the check of count more than 5
     if ( mCurrentModel && ( count > 5  ) ) { 
          goBack( GLX_GRIDVIEW_ID, ALL_ITEM_S ) ;
          cleanAllModel();
@@ -238,27 +240,21 @@ void GlxStateManager::updateTNProgress( int count)
         }
     }   
 }
-
 void GlxStateManager::saveData()
 {
     if( (mCurrentState->id() == GLX_GRIDVIEW_ID && mCurrentState->state() == ALL_ITEM_S) || mCurrentState->id() == GLX_LISTVIEW_ID ) {
     mSaveActivity.insert("ID",mCurrentState->id()); 
     mSaveActivity.insert("InternalState",mCurrentState->state());
-    
-    //Store the visual Index
     if(mCurrentModel)
     {
     	QVariant variant = mCurrentModel->data( mCurrentModel->index(0,0), GlxVisualWindowIndex );
     	if ( variant.isValid() &&  variant.canConvert<int> () ) {
          mSaveActivity.insert("VisibleIndex",variant.value<int>());
-    	}
+    }
  		}
  		else
  			   mSaveActivity.insert("VisibleIndex",0);
- 			   
     HbActivityManager* activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
-    
-    //Take a screenshot
     QVariantHash metadata;
     HbMainWindow *window = hbInstance->allMainWindows().first();
     metadata.insert("screenshot", QPixmap::grabWidget(window, window->rect()));
@@ -266,15 +262,13 @@ void GlxStateManager::saveData()
      QByteArray serializedModel;
      QDataStream stream(&serializedModel, QIODevice::WriteOnly | QIODevice::Append);
      stream << mSaveActivity;
-     //Add the activity
     bool ok = activityManager->addActivity("PhotosMainView", serializedModel, metadata);
      if ( !ok )
      {
         qDebug("SaveData::Add activity failed" );
+        }
     }
-   }
 }
-
 
 void GlxStateManager::nextState(qint32 state, int internalState)
 {
@@ -459,7 +453,7 @@ GlxState * GlxStateManager::createState(qint32 stateId)
         return new GlxListState( mCurrentState );    	
     	
     case GLX_FULLSCREENVIEW_ID :
-        return new GlxFullScreenState( mCurrentState );
+        return new GlxFullScreenState( this, mCurrentState );
         
     case GLX_DETAILSVIEW_ID:
         return new GlxDetailState( mCurrentState );
@@ -686,6 +680,8 @@ void GlxStateManager::eventHandler(qint32 &id)
         
    case EGlxCmdMarkAll:
    case EGlxCmdUnMarkAll:
+   case EGlxCmd3DEffectOn:
+   case EGlxCmd3DEffectOff:
        mViewManager->handleUserAction(mCurrentState->id(), id);
        id = EGlxCmdHandled;
        break;
@@ -713,6 +709,7 @@ GlxStateManager::~GlxStateManager()
 {
     qDebug("GlxStateManager::~GlxStateManager");
     cleanAllModel();
+    mSaveActivity.clear();
     delete mActionHandler;
     qDebug("GlxStateManager::~GlxStateManager delete Model");
     

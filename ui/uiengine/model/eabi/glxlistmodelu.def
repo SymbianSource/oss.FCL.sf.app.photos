@@ -29,4 +29,5 @@ EXPORTS
 	_ZTV13GlxAlbumModel @ 28 NONAME
 	_ZN13GlxAlbumModel13listPopulatedEv @ 29 NONAME
 	_ZN13GlxAlbumModel14modelPopulatedEv @ 30 NONAME
+	_ZNK13GlxAlbumModel21getCorruptDefaultIconERK11QModelIndex @ 31 NONAME
 

@@ -21,14 +21,12 @@
 #include<glxcommandhandlerdelete.h>
 #include <glxcommandhandleraddtocontainer.h>
 #include <glxcommandhandlerrotate.h>
-#include <glxcommandhandlerrotateimage.h>
-#include <glxcommandhandlercropimage.h>
+#include <glxcommandhandlereditimage.h>
 #include <glxcommandhandlerremovefrom.h>
 #include <glxcommandhandlernewmedia.h>
 #include <glxcommandhandlersend.h>
 #include <glxcommandhandlerrename.h>
 #include <glxcommandhandlercomment.h>
-
 
 GlxCommandHandler* GlxCommandHandlerFactory::CreateCommandHandler(int commandId)
 {
@@ -60,9 +58,9 @@ GlxCommandHandler* GlxCommandHandlerFactory::CreateCommandHandler(int commandId)
                    break;
         case EGlxCmdRotateImgCW:
         case EGlxCmdRotateImgCCW:
-            					cmdHandler = new GlxCommandHandlerRotateImage();
-            break;
-        case EGlxCmdRotateImgCrop: cmdHandler = new GlxCommandHandlerCropImage();
+		case EGlxCmdRotateImgCrop:
+		case EGlxCmdSetWallpaper:
+            				cmdHandler = new GlxCommandHandlerEditImage();
             break;
         default:
            break;

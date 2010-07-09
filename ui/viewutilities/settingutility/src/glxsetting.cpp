@@ -30,6 +30,7 @@ const TUint32 KGlxSlow  = 0x3;
 const TUint32 KGlxMeduim  = 0x4;
 const TUint32 KGlxFast  = 0x5;
 const TUint32 KGlxSlideShowEffect[ ]  = { 0x6, 0x7, 0x8, 0x9 };
+const TUint32 KGlx3DEffect  = 0xA;
 const TUint32 KCRUidGallery = 0x20007194;
 
 GlxSetting GlxSetting::mObj ;
@@ -43,6 +44,7 @@ GlxSetting::GlxSetting(  )
     mSlowCenRepKey = new XQSettingsKey( XQSettingsKey::TargetCentralRepository, KCRUidGallery ,KGlxSlow );
     mMediumCenRepKey = new XQSettingsKey( XQSettingsKey::TargetCentralRepository, KCRUidGallery ,KGlxMeduim );
     mFastCenRepKey = new XQSettingsKey( XQSettingsKey::TargetCentralRepository, KCRUidGallery ,KGlxFast );
+    m3DEffectCenRepKey = new XQSettingsKey( XQSettingsKey::TargetCentralRepository, KCRUidGallery ,KGlx3DEffect );
 
     for ( int i = 0; i < NBR_SLIDESHOW_EFFECT; i++ ) {
         mSlideShowEffectCenRepKey[ i ] = new XQSettingsKey( XQSettingsKey::TargetCentralRepository, KCRUidGallery , KGlxSlideShowEffect[ i ] );
@@ -62,6 +64,7 @@ GlxSetting::~GlxSetting( )
     delete mTransitionDelayCenrepKey;
     delete mTransitionEffectCenrepKey;
     delete mSettingsManager;
+    delete m3DEffectCenRepKey;
     
     for ( int i = 0 ; i < NBR_SLIDESHOW_EFFECT ; i++ ) {
         delete mSlideShowEffectCenRepKey[ i ];
@@ -135,4 +138,17 @@ int GlxSetting::slideShowEffectId( int index )
     
     return mSettingsManager->readItemValue( * mSlideShowEffectCenRepKey[ index ] ).toInt() ;
 }
+
+int GlxSetting::mediaWall3DEffect()
+{
+    QVariant effectvalue = mSettingsManager->readItemValue(*m3DEffectCenRepKey);
+    return effectvalue.toInt();
+}
+
+void GlxSetting::setmediaWall3DEffect( int index )
+{
+    mSettingsManager->writeItemValue( *m3DEffectCenRepKey, index ) ;
+}
+
+
 

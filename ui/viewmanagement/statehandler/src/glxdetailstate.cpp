@@ -21,7 +21,7 @@
 
 GlxDetailState::GlxDetailState(GlxState *preState) : GlxState(GLX_DETAILSVIEW_ID, preState)
 {
-	
+	mState = NO_DETAIL_S ;
 }
 
 

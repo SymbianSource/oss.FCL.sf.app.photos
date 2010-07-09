@@ -57,4 +57,5 @@ EXPORTS
 	?setDrmValid@GlxMLWrapper@@QAEXH_N@Z @ 56 NONAME ; void GlxMLWrapper::setDrmValid(int, bool)
 	?IsDrmProtected@GlxMLWrapper@@QAE_NH@Z @ 57 NONAME ; bool GlxMLWrapper::IsDrmProtected(int)
 	?IsDrmValid@GlxMLWrapper@@QAE_NH@Z @ 58 NONAME ; bool GlxMLWrapper::IsDrmValid(int)
+	?isCorruptedImage@GlxMLWrapper@@QAE_NH@Z @ 59 NONAME ; bool GlxMLWrapper::isCorruptedImage(int)
 

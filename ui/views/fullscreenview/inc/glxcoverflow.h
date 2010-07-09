@@ -44,7 +44,8 @@ typedef enum
 {
     TAP_EVENT, //send the signal when user tap on full screen
     PANNING_START_EVENT, //send the signal when panning of full screen start
-    EMPTY_ROW_EVENT //send the signal when model have no data
+    EMPTY_ROW_EVENT, //send the signal when model have no data
+    ZOOM_START_EVENT
 } GlxCoverFlowEvent;
 
 class GlxCoverFlow : public HbWidget
@@ -59,10 +60,20 @@ public :
     void indexChanged (int index);
     void setUiOn(bool uiOn) { mUiOn = uiOn; }
     void partiallyClean();
-    void partiallyCreate(QAbstractItemModel *model, QSize itemSize);
+    void partiallyCreate(QAbstractItemModel *model, QSize itemSize, int posY = 0 );
 	void setCoverFlow();
     void ClearCoverFlow();
 	void setMultitouchFilter(QGraphicsItem* multitouchFilter);
+	
+	/*
+     * To get the focus index
+     */
+    int getFocusIndex( );
+
+    /*
+     * To get the full screen icon of the image
+     */
+    HbIcon getIcon( int index );
 		    
 public slots:
 	void zoomStarted(int index);
@@ -121,16 +132,6 @@ protected:
     void resetCoverFlow();
     int getSubState();
     void timerEvent(QTimerEvent *event);
-
-    /*
-     * To get the focus index
-     */
-    int getFocusIndex( );
-
-    /*
-     * To get the full screen icon of the image
-     */
-    HbIcon getIcon( int index );
     
     /*
      * To get the URI of the image

@@ -100,7 +100,9 @@ void GlxDetailsView::activate()
     {
     OstTraceFunctionEntry0( GLXDETAILSVIEW_ACTIVATE_ENTRY );
     //create and set the Favourite Model
-    setFavModel();
+    if(getSubState() != IMAGEVIEWER_DETAIL_S) {
+       setFavModel();
+    }
     
     //fill the data
     FillDetails();
@@ -120,19 +122,20 @@ void GlxDetailsView::activate()
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //initializeView
 //--------------------------------------------------------------------------------------------------------------------------------------------
-void GlxDetailsView::initializeView(QAbstractItemModel *model)
-    {
+void GlxDetailsView::initializeView( QAbstractItemModel *model, GlxView *preView)
+{
+    Q_UNUSED( preView )
     OstTraceFunctionEntry0( GLXDETAILSVIEW_INITIALIZEVIEW_ENTRY );
     bool loaded = false;
-    
+
     if(!mDocLoader)
         {
          mDocLoader = new GlxDetailsViewDocLoader();
         }
-    
+
     //Load the docml
     mDocLoader->load(GLX_DETAILSVIEW_DOCMLPATH, &loaded);     
-    
+
     HbView *mView = static_cast<HbView*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_VIEW));
     
@@ -143,6 +146,7 @@ void GlxDetailsView::initializeView(QAbstractItemModel *model)
             GLX_DETAILSVIEW_IMAGE));
     mFavIcon = static_cast<HbPushButton*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_FAVICON));
+
 
     mDescriptions = static_cast<GlxDetailsDescriptionEdit*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_DESCRPTIONTEXT));
@@ -159,20 +163,26 @@ void GlxDetailsView::initializeView(QAbstractItemModel *model)
     mSizeLabel = static_cast<HbLabel*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_SIZETEXT));
 
-    //set the frame graphics to the background of the fav icon
-    HbFrameItem* frame = new HbFrameItem(this);
-    frame->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
-    frame->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");
-    frame->graphicsItem()->setOpacity(0.2);
-    mFavIcon->setBackgroundItem(frame->graphicsItem(), -1);
-    mFavIcon->setBackground(HbIcon("qtg_fr_multimedia_trans"));
-    mFavIcon->setIcon(HbIcon(GLXICON_REMOVE_FAV));
     
-    setWidget(mView);
-
-    //Set the Model
+        //Set the Model
     mModel = model;  
-
+   if(getSubState() == IMAGEVIEWER_DETAIL_S) {
+       mFavIcon->hide();
+    }
+    else
+    {
+        //set the frame graphics to the background of the fav icon
+        HbFrameItem* frame = new HbFrameItem(this);
+        frame->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
+        frame->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");
+        frame->graphicsItem()->setOpacity(0.2);
+        mFavIcon->setBackgroundItem(frame->graphicsItem(), -1);
+        mFavIcon->setBackground(HbIcon("qtg_fr_multimedia_trans"));
+        mFavIcon->setIcon(HbIcon(GLXICON_REMOVE_FAV));
+     }	
+	 
+	setWidget(mView);
+	
     //Set the Layout Correspondingly.
     updateLayout(mWindow->orientation());
 
@@ -211,10 +221,11 @@ void GlxDetailsView::deActivate()
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::cleanUp()
     {
-    clearCurrentModel();
-
-    //clear the connections
+    qDebug("GlxDetailsView::cleanUp Enter");
+	//clear the connections
     clearConnections();   
+    
+    clearCurrentModel();
 
     delete mFavModel;
     mFavModel = NULL;
@@ -296,15 +307,21 @@ void GlxDetailsView::setConnections()
     {
     connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this,
             SLOT(updateLayout(Qt::Orientation)));
+    
+    
+    if(getSubState() != IMAGEVIEWER_DETAIL_S) {    
     connect(mFavIcon, SIGNAL(clicked()), this, SLOT(updateFavourites()));
     
     connect(mDescriptions, SIGNAL(labelPressed()), this,
             SLOT(UpdateDescription()));
     
+    connect(mFavModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ),
+                   this, SLOT( dataChanged(QModelIndex,QModelIndex) ));
+    }
+    
     connect(mModel, SIGNAL( updateDetailsView() ), this, SLOT( FillDetails() ));
     
-    connect(mFavModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ),
-               this, SLOT( dataChanged(QModelIndex,QModelIndex) ));    
+        
     }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -312,18 +329,22 @@ void GlxDetailsView::setConnections()
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::clearConnections()
     {
+    
+    qDebug("GlxDetailsView:: clearConnections");
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this,
             SLOT(updateLayout(Qt::Orientation)));
-    
+           
+    if(mModel && getSubState() != IMAGEVIEWER_DETAIL_S) {
     disconnect(mFavIcon, SIGNAL(clicked()), this, SLOT(updateFavourites()));
-    
     disconnect(mDescriptions, SIGNAL(labelPressed()), this,
             SLOT(UpdateDescription()));
+    disconnect(mFavModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ),
+                    this, SLOT( dataChanged(QModelIndex,QModelIndex) ));
+    }
     
     disconnect(mModel, SIGNAL( updateDetailsView() ), this, SLOT( FillDetails() ));
     
-    disconnect(mFavModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ),
-                this, SLOT( dataChanged(QModelIndex,QModelIndex) ));
+    
     }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -614,3 +635,20 @@ QString GlxDetailsView::sizeinStrings(int size)
         }
     return sizeString;
     }
+
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//getSubState
+//--------------------------------------------------------------------------------------------------------------------------------------------
+int GlxDetailsView::getSubState()
+  {
+    int substate = NO_DETAIL_S;
+
+    if (mModel) {
+      QVariant variant = mModel->data(mModel->index(0, 0), GlxSubStateRole);
+
+      if (variant.isValid() && variant.canConvert<int> ()) {
+           substate = variant.value<int> ();
+      }
+    } 
+    return substate;
+ }

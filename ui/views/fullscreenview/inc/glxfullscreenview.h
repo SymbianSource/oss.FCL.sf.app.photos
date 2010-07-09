@@ -26,6 +26,9 @@
 //User Defined Includes
 #include <glxview.h>
 #include <glxcoverflow.h>
+
+#define NBR_ANIM_ITEM 2
+
 //Orbit/Qt forward declartion
 class QTimer;
 class HbAction;
@@ -54,7 +57,7 @@ public :
      * to make the widget light weight in order to make transition smooth
      * and also loads the widgets. 
      */
-    void initializeView(QAbstractItemModel *model);
+    void initializeView( QAbstractItemModel *model, GlxView *preView );
     
    /*
      * resets the view, with just one icon being present in the widget
@@ -116,7 +119,7 @@ private:
     GlxCoverFlow        *mCoverFlow;
     HbGridView          *mImageStrip;
     QTimer              *mUiOffTimer;  //use for ui off after 30 sec
-    HbIconItem          *mIconItem ;   //temporary item for play the image strip select animation
+    HbIconItem          *mIconItems[ NBR_ANIM_ITEM ] ;   //temporary item for play the image strip select animation
     GlxTvOutWrapper     *mTvOutWrapper;
     HbToolBar           *mFullScreenToolBar; //Fullscreen Toolbar
     //for Zoom

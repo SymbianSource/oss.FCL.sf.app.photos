@@ -29,4 +29,5 @@ EXPORTS
 	?setData@GlxAlbumModel@@UAE_NABVQModelIndex@@ABVQVariant@@H@Z @ 28 NONAME ; bool GlxAlbumModel::setData(class QModelIndex const &, class QVariant const &, int)
 	?listPopulated@GlxAlbumModel@@IAEXXZ @ 29 NONAME ; void GlxAlbumModel::listPopulated(void)
 	?modelPopulated@GlxAlbumModel@@QAEXXZ @ 30 NONAME ; void GlxAlbumModel::modelPopulated(void)
+	?getCorruptDefaultIcon@GlxAlbumModel@@ABEPAVHbIcon@@ABVQModelIndex@@@Z @ 31 NONAME ; class HbIcon * GlxAlbumModel::getCorruptDefaultIcon(class QModelIndex const &) const
 

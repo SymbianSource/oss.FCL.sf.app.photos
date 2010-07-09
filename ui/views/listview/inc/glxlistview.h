@@ -38,7 +38,7 @@ public :
     void deActivate();
     void setModel(QAbstractItemModel *model);
     void addToolBar( HbToolBar *toolBar );
-    void initializeView(QAbstractItemModel *model);
+    void initializeView( QAbstractItemModel *model, GlxView *preView );
     QGraphicsItem * getAnimationItem( GlxEffect transtionEffect );
 
 public slots:

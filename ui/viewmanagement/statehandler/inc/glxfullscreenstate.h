@@ -21,11 +21,12 @@
 #define GLXFULLSCREENSTATE_H
 
 #include <glxbasestate.h>
+class GlxStateManager;
 
 class GlxFullScreenState : public GlxState
 {
 public :
-    GlxFullScreenState(GlxState *preState = NULL);
+    GlxFullScreenState( GlxStateManager *stateManager, GlxState *preState = NULL );
     int state() const { return (int) mState; }
 /*
  *  This Function set the internal state of full screen state
@@ -49,6 +50,7 @@ private:
 
 private:
     FullScreenState mState;
+    GlxStateManager *mStateManager;
 	
 };
 

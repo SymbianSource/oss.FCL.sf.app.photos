@@ -37,19 +37,28 @@ class GlxView :public HbView
 Q_OBJECT
     
 public :
-    GlxView(qint32 id, QGraphicsItem *parent = 0 );
+    GlxView( qint32 id, QGraphicsItem *parent = 0 );
     virtual void activate() = 0;
     virtual void deActivate() = 0;
-    virtual void setModel(QAbstractItemModel *model) = 0;
+    virtual void setModel( QAbstractItemModel *model ) = 0;
 
-    virtual bool compare (qint32 id);
+    virtual bool compare ( qint32 id );
     virtual void addToolBar( HbToolBar *toolBar ) { Q_UNUSED(toolBar) }
     virtual void enableMarking() { }
     virtual void disableMarking() { }
-    virtual void handleUserAction(qint32 commandId) { Q_UNUSED(commandId) }
+    virtual void handleUserAction( qint32 commandId ) { Q_UNUSED(commandId) }
     virtual QItemSelectionModel * getSelectionModel() { return NULL ; }
     virtual void resetView() {}
-    virtual void initializeView(QAbstractItemModel *model) {Q_UNUSED(model)}
+    /*
+     * model - Model to retreive the initial set up data
+     * preView - previous view pointer to retrieve the mode , state information 
+     */
+    virtual void initializeView( QAbstractItemModel *model, GlxView *preView ) 
+    {
+        Q_UNUSED( model )
+        Q_UNUSED( preView )
+    }
+     
     inline qint32 viewId() { return mId;}
     QSize screenSize();
     QRect screenGeometry(); 
@@ -57,10 +66,9 @@ public :
     virtual ~GlxView() {   }   
 	
 signals:
-    void actionTriggered(qint32 id);
-    void itemSpecificMenuTriggered(qint32,QPointF );
-    void gridItemSelected(const QModelIndex &);
-   
+    void actionTriggered( qint32 id );
+    void itemSpecificMenuTriggered( qint32,QPointF );
+    void gridItemSelected( const QModelIndex &);   
     
 private :
 	qint32 mId;	

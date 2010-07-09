@@ -39,4 +39,6 @@ EXPORTS
 	?tr@GlxZoomWidget@@SA?AVQString@@PBD0@Z @ 38 NONAME ; class QString GlxZoomWidget::tr(char const *, char const *)
 	?trUtf8@GlxZoomWidget@@SA?AVQString@@PBD0H@Z @ 39 NONAME ; class QString GlxZoomWidget::trUtf8(char const *, char const *, int)
 	?modelDestroyed@GlxZoomWidget@@IAEXXZ @ 40 NONAME ; void GlxZoomWidget::modelDestroyed(void)
+	?setZoomParams@GlxZoomWidget@@AAEXXZ @ 41 NONAME ; void GlxZoomWidget::setZoomParams(void)
+	?forceZoomToBackground@GlxZoomWidget@@QAEXXZ @ 42 NONAME ; void GlxZoomWidget::forceZoomToBackground(void)
 

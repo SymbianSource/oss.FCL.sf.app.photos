@@ -45,4 +45,6 @@ EXPORTS
 	_ZThn8_N13GlxZoomWidgetD0Ev @ 44 NONAME
 	_ZThn8_N13GlxZoomWidgetD1Ev @ 45 NONAME
 	_ZN13GlxZoomWidget14modelDestroyedEv @ 46 NONAME
+	_ZN13GlxZoomWidget13setZoomParamsEv @ 47 NONAME
+	_ZN13GlxZoomWidget21forceZoomToBackgroundEv @ 48 NONAME
 

@@ -50,16 +50,8 @@ HbListViewItem::icon-1[graphicsSize="Thumbnail"]:landscape{
 }
 
 HbListViewItem::selection-icon{
-	fixed-height: var(hb-param-graphic-size-primary-medium);
-	fixed-width: var(hb-param-graphic-size-primary-medium);
-}
-
-HbListViewItem::multiselection-toucharea{
+	fixed-height: 0.0un;
 	fixed-width: 0.0un;
 }
 
-HbListViewItem::icon-1{
-	fixed-height: var(hb-param-graphic-size-function);
-	fixed-width: var(hb-param-margin-view-bottom);
-}
 

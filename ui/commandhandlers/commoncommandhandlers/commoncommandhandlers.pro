@@ -71,8 +71,8 @@ HEADERS += inc/glxcommandhandlerremovefrom.h
 HEADERS += inc/glxcommandhandlerrename.h
 HEADERS += inc/glxcommondialogs.h
 HEADERS += inc/glxcommandhandlercomment.h
-HEADERS += inc/glxcommandhandlercropimage.h
-HEADERS += inc/glxcommandhandlerrotateimage.h
+HEADERS += inc/glxcommandhandlereditimage.h
+
 
 SOURCES += src/glxcommandhandlerdelete.cpp
 SOURCES += src/glxcommandhandleraddtocontainer.cpp
@@ -83,8 +83,8 @@ SOURCES += src/glxcommandhandlerremovefrom.cpp
 SOURCES += src/glxcommandhandlerrename.cpp
 SOURCES += src/glxcommondialogs.cpp
 SOURCES += src/glxcommandhandlercomment.cpp
-SOURCES += src/glxcommandhandlercropimage.cpp
-SOURCES += src/glxcommandhandlerrotateimage.cpp
+SOURCES += src/glxcommandhandlereditimage.cpp
+
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 

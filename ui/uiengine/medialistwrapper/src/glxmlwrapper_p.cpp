@@ -41,6 +41,7 @@
 #include "glxmlgenericobserver.h"
 #include "glxattributeretriever.h"
 #include "glxicondefs.h" //Contains the icon names/Ids
+#include "glxerrors.h"
 
 //#define GLXPERFORMANCE_LOG  
 #include <glxperformancemacro.h>
@@ -94,8 +95,8 @@ GlxMLWrapperPrivate::GlxMLWrapperPrivate(GlxMLWrapper* aMLWrapper)
       iLsFsContextActivated(EFalse),
       iPtFsContextActivated(EFalse), 
       iPtListContextActivated(EFalse),
-      iSelectionListContextActivated(EFalse),
-	  iDetailsContextActivated(EFalse)
+      iDetailsContextActivated(EFalse),
+      iSelectionListContextActivated(EFalse)	  
 {
     TRACER("GlxMLWrapperPrivate::GlxMLWrapperPrivate");
 	iGridThumbnailContext = NULL;
@@ -700,12 +701,8 @@ HbIcon* GlxMLWrapperPrivate::RetrieveItemIcon(int aItemIndex, GlxTBContextType a
     {  
         GLX_LOG_INFO1("### GlxMLWrapperPrivate::HandleAttributesAvailableL GetIconInfo-Index is %d",aItemIndex);
     }*/
-    else if( tnError == KErrCANoRights)	{
         //handle DRM case
-    }
-    else if( tnError ) {
-        return (new HbIcon(GLXICON_CORRUPT));
-    }
+
     
     GLX_LOG_INFO1("### GlxMLWrapperPrivate::RetrieveItemIcon value-Index is %d and have returned empty icon",aItemIndex);
     return NULL;
@@ -1187,7 +1184,7 @@ TInt GlxMLWrapperPrivate::CheckTBAttributesPresenceandSanity( TInt aItemIndex,
 void GlxMLWrapperPrivate::CheckDetailsAttributes(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes)
 {
     qDebug("GlxMLWrapperPrivate::CheckDetailsAttributes");
-    TBool attribPresent = EFalse;
+    
     TMPXAttribute titleAttrib(KMPXMediaGeneralComment);
     TIdentityRelation< TMPXAttribute > match ( &TMPXAttribute::Match );
 
@@ -1196,7 +1193,7 @@ void GlxMLWrapperPrivate::CheckDetailsAttributes(TInt aItemIndex, const RArray<T
     if (KErrNotFound != aAttributes.Find(titleAttrib, match))
         {
         qDebug("GlxMLWrapperPrivate::CheckDetailsAttributes TRUE");
-        attribPresent = ETrue;
+    
         iMLWrapper->handleDetailsItemAvailable(aItemIndex);
         GLX_LOG_INFO1("### GlxMLWrapperPrivate::CheckDetailsAttributes title present %d",aItemIndex);
         }     
@@ -1480,3 +1477,19 @@ void GlxMLWrapperPrivate::setDrmValid(int index,bool valid)
 		}
 	}
 
+bool GlxMLWrapperPrivate::IsCorruptedImage( int aItemIndex )
+{
+    const TGlxMedia& item = iMediaList->Item( aItemIndex );
+    qDebug("GlxMLWrapperPrivate::IsCorruptedImage item property %u ", item.Properties() );
+    TInt tnError = GlxErrorManager::HasAttributeErrorL( item.Properties(), KGlxMediaIdThumbnail );
+    qDebug("GlxMLWrapperPrivate::IsCorruptedImage index %d error %d ", aItemIndex, tnError);
+    if ( KErrNone == tnError 
+            || KErrNotSupported == tnError 
+            || KErrCANoRights == tnError 
+            || KErrGlxEmptyContainer == tnError ) {
+        return false ;
+    }
+    else {
+        return true ;
+    }
+}

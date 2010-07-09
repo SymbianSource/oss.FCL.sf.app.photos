@@ -19,11 +19,12 @@
 #include <hbiconitem.h>
 #include <QTimeLine>
 #include <QGesture>
+#include <hbinstance.h>
 #include "glximagedecoderwrapper.h"
 #include "glxmodelparm.h"
 #include "glxzoomwidget.h"
 
-GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), mModel(NULL), mMinZValue(MINZVALUE), mMaxZValue(MAXZVALUE), mImageDecodeRequestSend(false), mPinchGestureOngoing(false), mDecodedImageAvailable(false), mTimerId(0)
+GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), mModel(NULL), mMinZValue(MINZVALUE), mMaxZValue(MAXZVALUE), mImageDecodeRequestSend(false), mPinchGestureOngoing(false), mDecodedImageAvailable(false),mZoomOngoing(false), mTimerId(0)
 {
     grabGesture(Qt::PinchGesture);
     grabGesture(Qt::TapGesture);
@@ -83,11 +84,30 @@ void GlxZoomWidget::setWindowSize(QSize windowSize)
     mWindowSize = windowSize;
     mBlackBackgroundItem->setGeometry(QRectF(QPointF(0,0), mWindowSize));
     //try to reset the max and min zoomed size here
+    //In case the zoom widget is in background reset it
+    if(!mZoomOngoing && mModel) {
+        retreiveFocusedImage();
+    }
+    setZoomParams();
+}
+
+void GlxZoomWidget::forceZoomToBackground()
+{
+    mBlackBackgroundItem->hide();
+    //push the widget back to background
+    setZValue(mMinZValue);
+    mZoomOngoing = false;
+    emit zoomWidgetMovedBackground(mFocusIndex);
+    //this actually resets the ZoomWidget and decoder
+    if(mImageDecoder) {
+        mImageDecoder->resetDecoder();
+    }
+    retreiveFocusedImage();
+
 }
 
 void GlxZoomWidget::indexChanged(int index)
 {
-    Q_UNUSED(index);
     if(mFocusIndex != index) {
         mImageDecoder->resetDecoder();//reset the decoder first to cancel pending tasks
         mImageDecodeRequestSend = false;
@@ -162,7 +182,7 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
             else {
                 killTimer(mTimerId);
                 mTimerId = 0;
-                animateZoomOut(gesture->position());
+                animateZoomOut(hbInstance->allMainWindows().first()->mapToScene(gesture->position().toPoint()));
             }
         }
         event->accept(gesture);
@@ -173,6 +193,7 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
        QPinchGesture::ChangeFlags changeFlags = pinchG->changeFlags();
        if (changeFlags & QPinchGesture::ScaleFactorChanged) {
             mPinchGestureOngoing = true;
+            mZoomOngoing = true;
             //bring the zoom widget to foreground
             setZValue(mMaxZValue);
             //show the black background
@@ -184,7 +205,7 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
             qreal value = pinchG->scaleFactor() / pinchG->lastScaleFactor();
             QPointF center = pinchG->property("centerPoint").toPointF();
             //set the gesture center to the scene coordinates
-            QPointF sceneGestureCenter = source->sceneTransform().map(center);
+            QPointF sceneGestureCenter = hbInstance->allMainWindows().first()->mapToScene(center.toPoint());
             zoomImage(value, sceneGestureCenter);
 
         }
@@ -211,6 +232,7 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
                mBlackBackgroundItem->hide();
                //push the widget back to background
                setZValue(mMinZValue);
+               mZoomOngoing = false;
                emit zoomWidgetMovedBackground(mFocusIndex);
                //do not reset the transform here as it will then zoom-in the widget to decoded image size
            }
@@ -228,6 +250,10 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
 
 void GlxZoomWidget::zoomImage(qreal zoomFactor, QPointF center)
 {
+        // Pinch event filtering for very small zoom factors
+    if (qAbs(1.0 - zoomFactor) < 0.007) {
+        return;
+    }
     adjustGestureCenter(center, zoomFactor);
     QSizeF requiredSize(mCurrentSize.width()*zoomFactor, mCurrentSize.height()*zoomFactor);
     limitRequiredSize(requiredSize);
@@ -279,42 +305,49 @@ void GlxZoomWidget::adjustGestureCenter(QPointF & gestureCenter, qreal& zoomFact
 
     }
     //maintains the boundary of the edges for zoom out conditions
-    if(zoomFactor < 1)
-    {
+    if(zoomFactor < 1) {
         QPointF itemOriginPos = mZoomWidget->sceneTransform().map(QPointF(0,0));
         bool hasWidthExceededWindow = mCurrentSize.width() > mWindowSize.width();
         bool hasHeightExceededWindow = mCurrentSize.height() > mWindowSize.height();
-        if(itemOriginPos.x() >= 0)  {
-        //image has crossed left boundry leaving blank space
-            if(hasWidthExceededWindow) {
+        if(hasWidthExceededWindow) {
+            bool hasItemCrossedBoundary = false;
+            if(itemOriginPos.x() >= -5)  {
+                //image has crossed left boundry leaving blank space
                 //stick the gesture to the left corner
                 gestureCenter.setX(itemOriginPos.x());
+                hasItemCrossedBoundary = true;
+            }
+        
+            //Check if the right boundry can be adjusted
+            if(itemOriginPos.x()+ mCurrentSize.width() <= mWindowSize.width()+5) {
+                //Image is before the right boundry leaving blank space
+                gestureCenter.setX(itemOriginPos.x()+ mCurrentSize.width() );
+                hasItemCrossedBoundary = true;
+            }
+            if((mCurrentSize.width() - mWindowSize.width() <= 20) && !hasItemCrossedBoundary) {
+                gestureCenter.setX(mWindowSize.width()/2 + (qAbs(itemOriginPos.x()) - 10));
             }
         }
-        //Check if the right boundry can be adjusted
-        if(itemOriginPos.x()+ mCurrentSize.width() <= mWindowSize.width()) {
-                //Image is before the right boundry leaving blank space
-                if(hasWidthExceededWindow) {
-                    //stick the gesture to the right corner
-                    gestureCenter.setX(itemOriginPos.x()+ mCurrentSize.width());
-                }
-        }
-        //check if the upper boundry could be adjusted
-        if(itemOriginPos.y() >= 0) {
+
+        if(hasHeightExceededWindow) {
+             bool hasItemCrossedBoundary = false;
+            //check if the upper boundry could be adjusted
+            if(itemOriginPos.y() >= -5) {
                 //image has crossed the upper boundry leaving blank space
-                if(hasHeightExceededWindow) {
-                    //stick the image to the upper boundry
-                    gestureCenter.setY(itemOriginPos.y());
-                }
-        }
-        //check if the lower boundry could be adjusted
-        if(itemOriginPos.y()+ mCurrentSize.height() <= mWindowSize.height()) {
-        //Image is before the right boundry leaving blank space
-            if(hasHeightExceededWindow) {
+                //stick the image to the upper boundry
+                gestureCenter.setY(itemOriginPos.y());
+                hasItemCrossedBoundary = true;
+            }
+            //check if the lower boundry could be adjusted
+            if(itemOriginPos.y()+ mCurrentSize.height() <= mWindowSize.height()+5) {
+                //Image is before the right boundry leaving blank space
                 //stick the image to the right corner
                 gestureCenter.setY(itemOriginPos.y()+ mCurrentSize.height());
+                hasItemCrossedBoundary = true;
             }
-
+            if((mCurrentSize.height() - mWindowSize.height() <= 20) && !hasItemCrossedBoundary) {
+                gestureCenter.setY(mWindowSize.height()/2 + (qAbs(itemOriginPos.y()) - 10));
+            }
         }
     }
     //control the zoom Factor to boundaries
@@ -460,7 +493,27 @@ QPixmap GlxZoomWidget::getFocusedImage()
 
 }
 
+void GlxZoomWidget::setZoomParams()
+{
+    if (mModel)  {
+        QVariant sizeVariant = mModel->data(mModel->index(mFocusIndex,0),GlxDimensionsRole);
+        QSize fsSize;
+        if(sizeVariant.isValid() &&  sizeVariant.canConvert<QSize> ()) {
+            fsSize = sizeVariant.toSize();
+            if(!(fsSize.width() < mWindowSize.width() && fsSize.height() < mWindowSize.height()))  {
+                fsSize.scale( mWindowSize, Qt::KeepAspectRatio);
+            }
+            mMaxScaleSize = fsSize;
+            mMaxScaleSize.scale(mWindowSize*13, Qt::KeepAspectRatio);
+            mMaxScaleDecSize = fsSize;
+            mMaxScaleDecSize.scale(mWindowSize*7, Qt::KeepAspectRatio);
+            mMinScaleSize = fsSize* 0.7;
+            mMinDecScaleSize = fsSize;
+        }
+    }
 
+
+}
 
 
 
@@ -468,6 +521,7 @@ void GlxZoomWidget::animateZoomIn(QPointF animRefPoint)
 {
       emit pinchGestureReceived(mFocusIndex);
             //bring the zoom widget to foreground
+            mZoomOngoing = true;
             setZValue(mMaxZValue);
             //show the black background
             mBlackBackgroundItem->setParentItem(parentItem());
@@ -510,6 +564,7 @@ void GlxZoomWidget::animationTimeLineFinished()
                mBlackBackgroundItem->hide();
                //push the widget back to background
                setZValue(mMinZValue);
+               mZoomOngoing = false;
                emit zoomWidgetMovedBackground(mFocusIndex);
                //do not reset the transform here as it will then zoom-in the widget to decoded image size
            }

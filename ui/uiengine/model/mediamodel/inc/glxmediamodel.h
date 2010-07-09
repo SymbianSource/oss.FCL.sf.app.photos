@@ -84,7 +84,7 @@ private:
     void setFocusIndex(const QModelIndex &index);
     QModelIndex getFocusIndex() const;
     void setSelectedIndex(const QModelIndex &index);
-
+    HbIcon *getCorruptDefaultIcon ( const QModelIndex &index ) const;
 
 	
 signals :
@@ -108,11 +108,14 @@ protected:
 	
 private slots:
     void updateItemIcon(int itemIndex, HbIcon* itemIcon, GlxTBContextType tbContextType);
+    
 private:
 	GlxMLWrapper* mMLWrapper;	
 	QCache<int, HbIcon> itemIconCache;
 	QCache<int, HbIcon> itemFsIconCache;
 	HbIcon* m_DefaultIcon;
+	HbIcon* m_CorruptIcon;
+	
 	GlxContextMode mContextMode;
 	//for external data to be populated by model
 	GlxExternalData* mExternalItems;

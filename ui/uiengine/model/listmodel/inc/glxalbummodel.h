@@ -64,6 +64,7 @@ private :
     void setSelectedIndex(const QModelIndex &index);
     QModelIndex getFocusIndex() const;
     HbIcon* GetPreviewIconItem(int itemIndex, GlxTBContextType tbContextType) const;
+    HbIcon *getCorruptDefaultIcon ( const QModelIndex &index ) const;
     
 signals :
     void iconAvailable(int itemIndex, HbIcon* itemIcon, GlxTBContextType tbContextType) const;
@@ -83,6 +84,7 @@ private:
     HbIcon* mDefaultIcon;
     QCache<int, HbIcon> itemIconCache;
     int mTempVisibleWindowIndex;
+    HbIcon* m_CorruptIcon;
 };
 
 #endif /* GLXALBUMMODEL_H */

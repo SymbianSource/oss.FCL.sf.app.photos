@@ -24,6 +24,7 @@
 #include <QGesture>
 #include <hbpangesture.h>
 #include <hbiconanimator.h>
+#include <hbinstance.h>
 
 //User Includes
 #include <glxmodelparm.h>
@@ -119,7 +120,7 @@ void GlxCoverFlow::gestureEvent(QGestureEvent *event)
             else {
                 killTimer(mTimerId);
                 mTimerId = 0;
-                emit doubleTapEventReceived(gesture->position());
+                emit doubleTapEventReceived(hbInstance->allMainWindows().first()->mapToScene(gesture->position().toPoint()));
             }
             event->accept(gesture);
         }
@@ -486,11 +487,11 @@ void GlxCoverFlow::partiallyClean()
     }      
 }
 
-void GlxCoverFlow::partiallyCreate(QAbstractItemModel *model, QSize itemSize)
+void GlxCoverFlow::partiallyCreate( QAbstractItemModel *model, QSize itemSize, int posY )
 {
-    qDebug("GlxCoverFlow::resetpartiallyCreated");
+    qDebug("GlxCoverFlow::resetpartiallyCreated poxY %d", posY );
     mIconItem[2]->setSize ( itemSize );
-    mIconItem[2]->setPos ( QPointF ( 0, 0) ); 
+    mIconItem[2]->setPos ( QPointF ( 0, posY ) ); 
     mModel = model ; 
     mSelIndex = getFocusIndex();
     mIconItem[2]->setIcon( getIcon( mSelIndex ) ) ;
@@ -530,6 +531,7 @@ int GlxCoverFlow::getSubState()
 void GlxCoverFlow::zoomStarted(int index)
 {
     Q_UNUSED(index)
+    emit coverFlowEvent( ZOOM_START_EVENT );
     stopAnimation();
 	mZoomOn = true;	
 }

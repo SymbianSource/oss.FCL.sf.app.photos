@@ -134,6 +134,7 @@ public:
 	bool isSystemItem( int aItemIndex );
 	void handleTitleAvailable(QString aTitle);
 	
+    bool isCorruptedImage( int index );
 signals:
      void updateItem(int index, GlxTBContextType tbContextType);
 	 void insertItems(int startIndex,int endIndex);

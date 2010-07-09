@@ -26,6 +26,9 @@ class GlxImageDecoderWrapper;
 class CImageDecoder;
 class CFbsBitmap;
 const TReal KTargetSize = 1000000;
+//if any image is converted to Pixmap with an dimension > 2048 
+//the conversion will fail
+const TInt KMaxDimensionLimit = 2000;
 class CGlxImageDecoder : public CActive
 {
 public:
@@ -50,6 +53,19 @@ private:
      * */
     void ConstructL(GlxImageDecoderWrapper* decoderWrapper);
 
+    /*
+     * Checks if the mimetype needs recalculations
+     * @returnType false if jpeg
+     * true otheriwise 
+     */
+    TBool DoesMimeTypeNeedsRecalculateL(QString aSourceFileName);
+    
+    /*
+     * Does the recalculation and returns back the correct size
+     * @returntype Size of the decoded bitmap
+     */
+    TSize ReCalculateSizeL(QString aSourceFileName, TSize aDestSize);
+    
 private:
 	GlxImageDecoderWrapper* iDecoderWrapper;
 	/*Specifies the Decoder */

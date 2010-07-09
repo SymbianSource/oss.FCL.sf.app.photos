@@ -62,8 +62,8 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	itemFsIconCache.setMaxCost(5);
 	itemExternalIconCache.setMaxCost(0);
 	
-	//todo get this Default icon from some generic path and not directly.
 	m_DefaultIcon = new HbIcon(GLXICON_DEFAULT);
+	m_CorruptIcon = new HbIcon( GLXICON_CORRUPT );
 	mExternalItems = NULL;
 	externalDataCount = 0;
 	mFocusIndex = -1;
@@ -79,8 +79,10 @@ GlxMediaModel::~GlxMediaModel()
 	itemFsIconCache.clear();
 	delete m_DefaultIcon;
 	m_DefaultIcon = NULL;
+	delete m_CorruptIcon;
+	m_CorruptIcon = NULL;
 	clearExternalItems();
-  int err = disconnect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
+    int err = disconnect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	err = disconnect(mMLWrapper, SIGNAL(itemCorrupted(int)), this, SLOT(itemCorrupted(int)));
 	err = disconnect(mMLWrapper, SIGNAL(insertItems(int, int)), this, SLOT(itemsAdded(int, int)));
 	err = disconnect(mMLWrapper, SIGNAL(removeItems(int, int)), this, SLOT(itemsRemoved(int, int)));
@@ -177,12 +179,11 @@ QModelIndex GlxMediaModel::parent(const QModelIndex &child) const
 
 
 //todo refactor this whole function ... too many return statements are not good
-QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
+QVariant GlxMediaModel::data( const QModelIndex &index, int role ) const
 {
-    if (role == GlxViewTitle)
-        {
+    if (role == GlxViewTitle) {
         return mMLWrapper->retrieveViewTitle();
-        }
+    }
 
     if(role == GlxPopulated) {
         return mMLWrapper->IsPopulated();
@@ -204,12 +205,11 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
         if(!m_DefaultIcon->isNull()) {
             // this image Creation is Slow. 
             // But what to do, Q class's Does not undersatnd our Localised File names
-        return m_DefaultIcon->pixmap().toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    }
+            return m_DefaultIcon->pixmap().toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        }
         else {
             return QImage();
-        }
-            
+        }            
     }
 
     HbIcon* itemIcon = NULL;
@@ -220,31 +220,18 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
          return QVariant();
     }
     
-//external data are always placed at the beginning of the Media List
-//Check if the index can be mapped to the external data
-//if not then map the index to Ml Index
-    if(itemIndex < externalDataCount) {
-        if(role == Qt::DecorationRole || role == GlxFsImageRole){
-            return *(GetExternalIconItem(itemIndex,GlxTBContextExternal));
-        }
-    }
-    else {
-        itemIndex -=  externalDataCount;
-    }
-    
-//retrieve Data from Media List		
-    if (role == Qt::DecorationRole) {
+    //retrieve Data from Media List		
+    if ( role == Qt::DecorationRole ) {
         itemIcon = GetGridIconItem(itemIndex,GlxTBContextGrid);
-        if(itemIcon == NULL || itemIcon->isNull() ){
-            itemIcon = m_DefaultIcon;
+        if( itemIcon == NULL || itemIcon->isNull() ) {
+            itemIcon = getCorruptDefaultIcon( index );
         }
         return *itemIcon;
     }
 		
-    if (role == GlxQImageSmall)
-        {
+    if (role == GlxQImageSmall) {
         return mMLWrapper->retrieveItemImage(itemIndex, GlxTBContextGrid);
-        }
+    }
 
     if (role == GlxFsImageRole){
         if(mContextMode == GlxContextLsFs){
@@ -254,14 +241,17 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
             itemIcon = GetFsIconItem(itemIndex,GlxTBContextPtFs);
         }
         
-        if ( itemIcon == NULL) {
-            //itemIcon = GetGridIconItem(itemIndex,GlxTBContextGrid);    
+        if ( itemIcon == NULL ) {  
             HbIcon* tempIcon = GetGridIconItem( itemIndex, GlxTBContextGrid );
             if (tempIcon && !tempIcon->isNull()) {
                 qDebug("GlxMediaModel::scaling thumbnail");
                 QPixmap tempPixmap = tempIcon->qicon().pixmap(128, 128);
+                QSize itemSize = mMLWrapper->retrieveItemDimension(itemIndex);
                 QSize sz = ( mContextMode == GlxContextLsFs ) ? QSize ( 640, 360) : QSize ( 360, 640 );
-                tempPixmap = tempPixmap.scaled(sz, Qt::KeepAspectRatio );
+                if(!((itemSize.width() < sz.width()) && (itemSize.height() < sz.height()))); {
+                    itemSize.scale(sz, Qt::KeepAspectRatio);
+                }
+                tempPixmap = tempPixmap.scaled(itemSize, Qt::IgnoreAspectRatio );
                 HbIcon tmp = HbIcon( QIcon(tempPixmap)) ;
 				if(!tmp.isNull()){
 					return tmp;
@@ -270,66 +260,63 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
         }
 		  
         if ( itemIcon == NULL || itemIcon->isNull() ) {
-            itemIcon = m_DefaultIcon;
+            itemIcon = getCorruptDefaultIcon( index ) ;
         }
         return *itemIcon;
     }
 	
-    if (role == GlxQImageLarge)
-        {
-        if(mContextMode == GlxContextLsFs)
-            {
+    if (role == GlxQImageLarge) {
+        if(mContextMode == GlxContextLsFs) {
             itemImage = mMLWrapper->retrieveItemImage(itemIndex, GlxTBContextLsFs);
-            }
-        else
-            {
+        }
+        else {
             itemImage = mMLWrapper->retrieveItemImage(itemIndex, GlxTBContextPtFs);
-            }
-        if(!itemImage.isNull()) 
-            {
+        }
+        if(!itemImage.isNull()) {
             return itemImage;
-            }
-        else 
-            {
+        }
+        else {
             itemImage =  mMLWrapper->retrieveItemImage(itemIndex, GlxTBContextGrid);
-            if (!itemImage.isNull()) 
-                {
+            if (!itemImage.isNull()) {
                 QSize sz = ( mContextMode == GlxContextLsFs ) ? QSize ( 640, 360) : QSize ( 360, 640 );
                 itemImage = itemImage.scaled(sz,Qt::KeepAspectRatio); 
-                }
-                return itemImage;
             }
+            return itemImage;
         }
+    }
     
-    if (role == GlxVisualWindowIndex)
-        {
+    if (role == GlxVisualWindowIndex) {
         return mMLWrapper->getVisibleWindowIndex();
-        }
+    }
 	
     QModelIndex idx;
     if ( GlxFocusIndexRole == role ) {
         idx = getFocusIndex();
         return idx.row();
     }
+    
     if(role == GlxUriRole) {
         return (mMLWrapper->retrieveItemUri(itemIndex));
     }
+    
     if(role == GlxDimensionsRole) {
         return (mMLWrapper->retrieveItemDimension(itemIndex));
     }
     
     if(role == GlxDateRole ) {
-    	qDebug("GlxMediaModel::data GlxDateRole ");
     	return (mMLWrapper->retrieveItemDate(itemIndex));
     }
     
     if (role == GlxFrameCount) {
-    qDebug("GlxMediaModel:: GlxFrameCount ");
-    return (mMLWrapper->retrieveItemFrameCount(itemIndex));
+        return (mMLWrapper->retrieveItemFrameCount(itemIndex));
     }
     
     if (role == GlxHdmiBitmap) {
         return mMLWrapper->RetrieveBitmap(itemIndex);
+    }
+
+    if ( role == GlxImageCorruptRole ) {
+        return mMLWrapper->isCorruptedImage( itemIndex );
     }
     
     if (role == GlxTimeRole) {
@@ -337,12 +324,12 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
     }
 	
     if (role == GlxSizeRole) {
-            return mMLWrapper->retrieveItemSize(itemIndex);
-        }
+        return mMLWrapper->retrieveItemSize(itemIndex);
+     }
     
-    if (role == GlxDescRole) {
-              return mMLWrapper->retrieveListDesc(itemIndex);
-          }
+     if (role == GlxDescRole) {
+        return mMLWrapper->retrieveListDesc(itemIndex);
+     }
     return QVariant();
 }
 
@@ -434,9 +421,15 @@ void GlxMediaModel::itemCorrupted(int itemIndex)
 void GlxMediaModel::modelpopulated()
 {
     if ( mTempVisibleWindowIndex!=-1) {
-        mMLWrapper->setVisibleWindowIndex(mTempVisibleWindowIndex);
+        //Set the visible Window index only ff the index stored in the activity manager is not out of range
+        if( rowCount() > mTempVisibleWindowIndex && mTempVisibleWindowIndex > 0 ) {
+            mMLWrapper->setVisibleWindowIndex(mTempVisibleWindowIndex);
+        }
+        else {
+            mMLWrapper->setVisibleWindowIndex(0);
+        }
         mTempVisibleWindowIndex = -1;
-	}
+    }
     emit populated();
 }
 
@@ -548,6 +541,14 @@ void GlxMediaModel::setSelectedIndex(const QModelIndex &index)
     int itemIndex = index.row();
     qDebug("GlxMediaModel::setSelectedIndex()%d", itemIndex);    
     mMLWrapper->setSelectedIndex(itemIndex);
+}
+
+HbIcon * GlxMediaModel::getCorruptDefaultIcon( const QModelIndex &index ) const
+{
+    if ( mMLWrapper->isCorruptedImage( index.row() ) ) {
+        return m_CorruptIcon ;
+    }
+    return m_DefaultIcon ;
 }
 
 bool GlxMediaModel::setData ( const QModelIndex & idx, const QVariant & value, int role )

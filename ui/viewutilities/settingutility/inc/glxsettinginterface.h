@@ -82,6 +82,19 @@ public :
      */
     virtual int slideShowEffectId( int index ) = 0;
     
+    
+    /* 
+     * Returns Current Media Wall 3D effect Status
+     * This value is fetched from Central repository 
+     */
+    virtual int mediaWall3DEffect() = 0 ;
+    
+    /*
+     * Set Media Wall 3D effect. True = 3D Effect On / False = 3D Effect Off 
+     * This data will be written to the Central Repository
+     */
+    virtual void setmediaWall3DEffect( int index ) = 0 ;
+    
 protected :
     /*
      * Constructor

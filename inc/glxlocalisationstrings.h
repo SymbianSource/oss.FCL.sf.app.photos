@@ -92,6 +92,7 @@
 #define GLX_FETCHER_TITLE              QString("Select Image")
 #define GLX_GRID_NO_IMAGE              QString("(No Images)\n")
 #define GLX_GRID_OPEN_CAMERA           QString("To capture images Open")
+#define GLX_ALBUM_SELECTION_TITLE      QString("Select Album")
 //VIEW RELATED STRINGS AND COMMON DIALOGS
 
 //comments lable for photos flip view
@@ -111,6 +112,8 @@
 
 #define GLX_BUTTON_HIDE              hbTrId("txt_common_button_hide")
 
+#define GLX_BUTTON_NEW               QString("New")
+
 #define GLX_LABEL_TRANSITION_EFFECT  hbTrId("txt_photos_setlabel_transistion_effect")
 #define GLX_VAL_SMOOTH_FADE          hbTrId("txt_photos_setlabel_transistion_effect_val_smooth")
 
@@ -118,5 +121,15 @@
 #define GLX_VAL_SLOW                 hbTrId("txt_photos_setlabel_transistion_delay_val_slow")
 #define GLX_VAL_MEDIUM               hbTrId("txt_photos_setlabel_transistion_delay_val_medium")
 #define GLX_VAL_FAST                 hbTrId("txt_photos_setlabel_transistion_delay_val_fast")
+#define GLX_NOIMAGE_PLAY_SLIDESHOW   hbTrId( "txt_photos_info_no_images_to_play_slideshow" )
+#define GLX_REFRESHING               QString("Refreshing")
+
+//Full Screen Menu
+#define GLX_MENU_USE_IMAGE			QString("Use Image")
+#define GLX_MENU_SET_WALLPAPER		QString("Wallpaper")
+#define GLX_MENU_ROTATE				QString("Rotate")
+#define GLX_MENU_90_CW				QString("90 CW")
+#define GLX_MENU_90_CCW				QString("90 CCW")
+#define GLX_MENU_CROP				QString("Crop")
 
 #endif /* GLXLOCALISATIONSTRINGS_H_ */

@@ -11,7 +11,8 @@
 *
 * Contributors:
 *
-* Description: 
+* Description: Handles command related to mediaeditors in fullscreen 
+* for image Rotate, Crop & Set as Wallpaper
 *
 */
 
@@ -19,26 +20,25 @@
 
 #include <glxcommandfactory.h>
 #include <photoeditor_highway.hrh>
-#include "glxcommandhandlerrotateimage.h"
+#include "glxcommandhandlereditimage.h"
 #include <glxcommandhandlers.hrh>
 #include <glxmodelparm.h>
 #include <glxmediamodel.h>
 #include <XQServiceRequest.h>
 #include <XQAiwRequest.h>
 
-GlxCommandHandlerRotateImage::GlxCommandHandlerRotateImage() : mReq(NULL)
+GlxCommandHandlerEditImage::GlxCommandHandlerEditImage() : mReq(NULL)
     {
     //Nothing to do here
     }
 
-GlxCommandHandlerRotateImage::~GlxCommandHandlerRotateImage()
+GlxCommandHandlerEditImage::~GlxCommandHandlerEditImage()
     {
     delete mReq;
     mReq = NULL;
     }
 
-void GlxCommandHandlerRotateImage::executeCommand(int commandId,int collectionId, QList<QModelIndex> /*indexList*/)
-//void GlxCommandHandlerRotateImage::doHandleUserAction(GlxMediaModel* model,QList<QModelIndex> indexList) const
+void GlxCommandHandlerEditImage::executeCommand(int commandId,int collectionId, QList<QModelIndex> /*indexList*/)
     {
     const QString service = QLatin1String("PhotoEditor");
     const QString interface = QLatin1String("com.nokia.symbian.imageeditor");
@@ -66,7 +66,15 @@ void GlxCommandHandlerRotateImage::executeCommand(int commandId,int collectionId
     
     QList<QVariant> args;
     args << imagePath;
-    if(EGlxCmdRotateImgCW == commandId)
+	if(EGlxCmdSetWallpaper == commandId)
+		{
+		args << EEditorHighwayWallpaperCrop;
+		}
+	else if(EGlxCmdRotateImgCrop == commandId)
+        {
+        args << EEditorHighwayFreeCrop;
+        }
+    else if(EGlxCmdRotateImgCW == commandId)
         {
         args << EEditorHighwayRotateCW;
         }
@@ -85,7 +93,7 @@ void GlxCommandHandlerRotateImage::executeCommand(int commandId,int collectionId
         }
     }
 
-void GlxCommandHandlerRotateImage::doHandleUserAction(GlxMediaModel* /*model*/,QList<QModelIndex> /*indexList*/) const 
+void GlxCommandHandlerEditImage::doHandleUserAction(GlxMediaModel* /*model*/,QList<QModelIndex> /*indexList*/) const 
     {
     //Dummy, to keepup with compiler errore
     }

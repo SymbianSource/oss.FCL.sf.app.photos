@@ -35,7 +35,8 @@
 #include <hbview.h>
 #include <hbpushbutton.h>
 #include <QGraphicsGridLayout>
-#include <hbdialog.h>
+#include <hbselectiondialog.h>
+
 #include <hbmessagebox.h>
 
 #include <glxcommandhandlers.hrh>
@@ -47,14 +48,10 @@
 #endif
 
 
-TInt GlxCommandHandlerAddToContainer::iSelectionCount = 0;
-
 const TInt KSelectionPopupListHierarchy = 5;
-const TInt KListPrefferedHeight = 400;
 
 GlxAlbumSelectionPopup::GlxAlbumSelectionPopup() 
-    : mPopupDlg( 0 ), 
-      mSelectionModel( 0 ),
+    : mSelectionModel( 0 ),
       mEventLoop( 0 ),
       mResult( false )
 {
@@ -66,71 +63,44 @@ GlxAlbumSelectionPopup::~GlxAlbumSelectionPopup()
 
 QModelIndexList GlxAlbumSelectionPopup::GetSelectionList(GlxAlbumModel *model, bool *ok) 
 {
-    // Create a popup
-    HbDialog popup;
+    HbSelectionDialog *dlg = new HbSelectionDialog;
+	dlg->setHeadingWidget(new HbLabel(GLX_ALBUM_SELECTION_TITLE));
+    dlg->setSelectionMode(HbAbstractItemView::SingleSelection);
+    dlg->setModel(model);
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->clearActions();
+    HbAction *action;
+    action= new HbAction(GLX_BUTTON_NEW);
+    action->setObjectName( "ch_new_album_button" );
+    dlg->addAction(action);
+    action= new HbAction(GLX_BUTTON_CANCEL);
+    action->setObjectName( "ch_cancel_album_button" );
+    dlg->addAction(action);
+    dlg->open(this, SLOT(dialogClosed(HbAction*)));
+    
     QEventLoop eventLoop;
     mEventLoop = &eventLoop;
-    
-    popup.setPreferredHeight( KListPrefferedHeight );
-    // Set dismiss policy that determines what tap events will cause the popup
-    // to be dismissed
-    popup.setDismissPolicy(HbDialog::NoDismiss);
-
-    // Set timeout to zero to wait user to either click Ok or Cancel
-    popup.setTimeout(HbDialog::NoTimeout);
-    popup.setHeadingWidget( new HbLabel("Select Album") );      
-    
-    mPopupDlg = &popup;
-    HbListView *listview = new HbListView();
-    listview->setSelectionMode(HbAbstractItemView::MultiSelection);
-    listview->setModel(model);
-    mSelectionModel = listview->selectionModel() ;
-    connect( mSelectionModel, SIGNAL( selectionChanged( const QItemSelection &, const QItemSelection& ) ), this, SLOT( changeButtonText() ) );
-    
-    HbAction *primary = new HbAction( "New" );
-    primary->setObjectName( "Cmd New" );
-    popup.addAction( primary ) ;
-
-    HbAction *secondary = new HbAction( GLX_BUTTON_CANCEL );
-    secondary->setObjectName( "Cmd Cancel" );
-    popup.addAction( secondary );
-    
-    popup.setContentWidget( listview ); //ownership transfer
-    listview->show();
-    
-    popup.open( this, SLOT( dialogClosed( HbAction* ) ) ); 
+  
     eventLoop.exec( );
     mEventLoop = 0 ;
     if ( ok ) {
         *ok = mResult ;
     }
-    QModelIndexList selectedIndexes = mSelectionModel->selectedIndexes();       
-    disconnect( mSelectionModel, SIGNAL( selectionChanged( const QItemSelection &, const QItemSelection& ) ), this, SLOT( changeButtonText() ) );
-    delete primary;
-    delete secondary;
 
+    QModelIndexList selectedIndexes = dlg->selectedModelIndexes();
     return selectedIndexes;
-}
-
-void GlxAlbumSelectionPopup::changeButtonText()
-{
-    if ( mSelectionModel->selectedIndexes().count() ) {
-        mPopupDlg->actions().first()->setText( GLX_BUTTON_OK );
-    }
-    else {
-        mPopupDlg->actions().first()->setText("New");
-    }    
 }
 
 
 void GlxAlbumSelectionPopup::dialogClosed(HbAction *action)
 {
-    HbDialog *dlg = static_cast<HbDialog*>(sender());
-    if( action == dlg->actions().first() ) {
-        mResult = true ;
+    HbSelectionDialog *dlg = (HbSelectionDialog*)(sender());
+
+    if( action == dlg->actions().at(1) ) {
+        mResult = false ;
     }
     else {
-        mResult = false ;
+        mResult = true ;
     }
     if ( mEventLoop && mEventLoop->isRunning( ) ) {
         mEventLoop->exit( 0 );
@@ -138,7 +108,7 @@ void GlxAlbumSelectionPopup::dialogClosed(HbAction *action)
 }
 
 GlxCommandHandlerAddToContainer::GlxCommandHandlerAddToContainer() :
-    mNewMediaAdded(false)
+    mNewMediaAdded(false),mAlbumName(QString())
     {
     OstTraceFunctionEntry0( GLXCOMMANDHANDLERADDTOCONTAINER_GLXCOMMANDHANDLERADDTOCONTAINER_ENTRY );
     mTargetContainers = NULL;
@@ -156,11 +126,11 @@ CMPXCommand* GlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
         MGlxMediaList& aMediaList, TBool& /*aConsume*/) const
     {
     OstTraceFunctionEntry0( GLXCOMMANDHANDLERADDTOCONTAINER_CREATECOMMANDL_ENTRY );
-    iSelectionCount = 0;
     CMPXCommand* command = NULL;
-
+    mAlbumName.clear();
     if(aCommandId == EGlxCmdAddToFav)
         {
+		   mAlbumName = GLX_SUBTITLE_MYFAV_GRIDVIEW;
            CMPXCollectionPath* targetCollection = CMPXCollectionPath::NewL();
            CleanupStack::PushL(targetCollection);
            // The target collection has to be appeneded with the albums plugin id
@@ -235,6 +205,10 @@ CMPXCommand* GlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
                     delete mTargetContainers;
                     mTargetContainers = NULL;
                     mTargetContainers = targetContainers;
+
+					const TGlxMedia& item = targetMediaList->Item(targetMediaList->SelectedItemIndex(0));
+					const TDesC& title = item.Title();
+					mAlbumName = QString::fromUtf16(title.Ptr(),title.Length());
                     }
     
                 command = TGlxCommandFactory::AddToContainerCommandLC(*sourceItems,
@@ -262,14 +236,15 @@ void GlxCommandHandlerAddToContainer::createNewMedia() const
     GlxCommandHandlerNewMedia* commandHandlerNewMedia =
             new GlxCommandHandlerNewMedia();
     TGlxMediaId newMediaId;
-    TInt error = commandHandlerNewMedia->ExecuteLD(newMediaId);
+    QString newTitle;
+    TInt error = commandHandlerNewMedia->ExecuteLD(newMediaId,newTitle);
 
     while (error == KErrAlreadyExists)
         {
         HbMessageBox::warning("Name Already Exist!!!", new HbLabel(
                 "New Album"));
         error = KErrNone;
-        error = commandHandlerNewMedia->ExecuteLD(newMediaId);
+        error = commandHandlerNewMedia->ExecuteLD(newMediaId,newTitle);
         }
 
     if (error == KErrNone)
@@ -282,6 +257,7 @@ void GlxCommandHandlerAddToContainer::createNewMedia() const
         delete mTargetContainers;
         mTargetContainers = NULL;
         mTargetContainers = path;
+        mAlbumName = newTitle;
         mNewMediaAdded = true;
         }
     OstTraceFunctionExit0( GLXCOMMANDHANDLERADDTOCONTAINER_CREATENEWMEDIA_EXIT );
@@ -289,10 +265,13 @@ void GlxCommandHandlerAddToContainer::createNewMedia() const
 
 QString GlxCommandHandlerAddToContainer::CompletionTextL() const
     {
-	return QString();	
+    if(!mAlbumName.isNull()){
+        return QString("Added to %1").arg(mAlbumName);
+        }
+	return 	QString();
     }
 
 QString GlxCommandHandlerAddToContainer::ProgressTextL() const
     {
-    return QString("Adding album...");
+    return QString("Adding Images...");
     }

@@ -33,7 +33,6 @@ class HbListView;
 class QGraphicsGridLayout;
 class GlxAlbumModel;
 class QGraphicsItem;
-class HbDialog;
 class QItemSelectionModel;
 class QEventLoop;
 
@@ -51,9 +50,9 @@ private:
     void createNewMedia() const;
 
 private:
-    static TInt iSelectionCount;
     mutable bool mNewMediaAdded ;
     mutable CMPXCollectionPath* mTargetContainers ;
+    mutable QString mAlbumName;
 };
 
 class GlxAlbumSelectionPopup: public QObject
@@ -66,11 +65,9 @@ public:
     QModelIndexList GetSelectionList(GlxAlbumModel *model,bool *ok = 0) ;
     
 private slots:
-    void changeButtonText();
     void dialogClosed( HbAction *action ) ;
     
 private :
-    HbDialog* mPopupDlg;
     QItemSelectionModel * mSelectionModel; //no owner ship
     QEventLoop *mEventLoop;
     bool mResult;        

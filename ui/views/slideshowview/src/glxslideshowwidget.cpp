@@ -28,6 +28,7 @@
 #include <QAbstractItemModel>
 #include <QGesture>
 #include <hbpangesture.h>
+#include <hblabel.h>
 
 //User Includes
 #include "glxicondefs.h" //Contains the icon names/Ids
@@ -36,19 +37,21 @@
 #include "glxdocloaderdefs.h"
 #include "glxslideshowwidget.h"
 #include "glxsettinginterface.h"
+#include "glxlocalisationstrings.h"
 #include "glxlog.h"
 #include "glxtracer.h"
 
 
 GlxSlideShowWidget::GlxSlideShowWidget( QGraphicsItem *parent ) 
-    : HbWidget(parent), 
-      mEffectEngine(NULL), 
+    : HbWidget( parent ), 
+      mEffectEngine( NULL ), 
       mSettings( NULL ),
-      mContinueButton(NULL), 
-      mItemIndex(1), 
-      mSelIndex(0), 
-      mSlideTimer(NULL), 
-      mModel(NULL)
+      mContinueButton( NULL ), 
+      mErrorNote( NULL ),
+      mItemIndex( 1 ),  
+      mSlideTimer( NULL ), 
+      mModel( NULL ), 
+      mSlideShowItemCount( 0 )
 {
     TRACER("GlxSlideShowWidget::GlxSlideShowWidget()");
     mSettings = GlxSettingInterface::instance() ; //no owner ship
@@ -66,16 +69,17 @@ void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
 
     // Now load the view and the contents.
     // and then set the play icon to the button
-    mContinueButton = static_cast<HbPushButton*>(DocLoader->findWidget(GLXSLIDESHOW_PB));
-    mContinueButton->setIcon(HbIcon(GLXICON_PLAY));
+    mContinueButton = static_cast<HbPushButton*>( DocLoader->findWidget( GLXSLIDESHOW_PB ) );
+    mContinueButton->setIcon( HbIcon( GLXICON_PLAY ) );
     mContinueButton->hide();
     mIsPause = false;
 
     for ( int i = 0; i < NBR_ITEM ; i++) {
-        mIconItems[i] = new HbIconItem(this);
-        mIconItems[i]->setBrush(QBrush(Qt::black));
-        mIconItems[i]->setAlignment( Qt::AlignCenter );
-        mIconItems[i]->setObjectName( QString( "SlideShowIcon%1" ).arg( i ) );
+        mSelIndex[ i ] = -1;
+        mIconItems[ i ] = new HbIconItem( this );
+        mIconItems[ i ]->setBrush( QBrush( Qt::black ) );
+        mIconItems[ i ]->setAlignment( Qt::AlignCenter );
+        mIconItems[ i ]->setObjectName( QString( "SlideShowIcon%1" ).arg( i ) );
     }
 
     mSlideTimer = new QTimer();
@@ -111,7 +115,7 @@ void GlxSlideShowWidget::cleanUp()
     TRACER("GlxSlideShowWidget::cleanUp()");
     removeConnections();
 
-    if(mEffectEngine) {
+    if( mEffectEngine ) {
         mEffectEngine->deRegisterEffect( QString("HbIconItem") );    
         delete mEffectEngine;
         mEffectEngine = NULL;
@@ -122,9 +126,14 @@ void GlxSlideShowWidget::cleanUp()
         mIconItems[i] = NULL;
     }
 
-    if(mSlideTimer) {
+    if( mSlideTimer ) {
         delete mSlideTimer;
         mSlideTimer = NULL;
+    }
+    
+    if ( mErrorNote ) {
+        delete mErrorNote ;
+        mErrorNote = NULL;
     }
 
     clearCurrentModel();
@@ -176,22 +185,16 @@ void GlxSlideShowWidget::triggeredEffect()
 
 void GlxSlideShowWidget::effectFinshed()
 {
-    TRACER("GlxSlideShowWidget::effectFinshed()");
-    //To:Do boundery condition or last item check implemented after behaviour of slide show clear
-    int rowCount = mModel->rowCount();
     GLX_LOG_INFO2("GlxSlideShowWidget::effectFinshed() before image selected index %d array index %d", mSelIndex, mItemIndex); 
 
-    mSelIndex = ( ++mSelIndex ) % rowCount;
     mItemIndex = ( ++mItemIndex ) % NBR_ITEM;
-    mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxFocusIndexRole );
-    mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxVisualWindowIndex );
-    setIconItems( MOVE_FORWARD );
+    mModel->setData( mModel->index( 0, 0 ), mSelIndex[ mItemIndex ], GlxFocusIndexRole );
+    mModel->setData( mModel->index( 0, 0 ), mSelIndex[ mItemIndex ], GlxVisualWindowIndex );
+    setNextItemIcon();
   
     GLX_LOG_INFO2("GlxSlideShowWidget::effectFinshed() after image selected index %d array index %d ", mSelIndex, mItemIndex);
     
-    if ( mIsPause == false ) {
-        mSlideTimer->start( mSettings->slideShowDelayTime() );  
-    } 
+    startSlideShow();
     mItemList.clear();
     emit indexchanged(); // on each item change
 }
@@ -211,7 +214,7 @@ void GlxSlideShowWidget::pauseSlideShow()
     cancelEffect();
     mContinueButton->setZValue( this->zValue() + 2);
     mContinueButton->show() ;
-    emit slideShowEvent(UI_ON_EVENT);
+    emit slideShowEvent( UI_ON_EVENT );
 }
 
 void GlxSlideShowWidget::continueSlideShow(bool checked)
@@ -219,11 +222,11 @@ void GlxSlideShowWidget::continueSlideShow(bool checked)
     Q_UNUSED( checked )
     TRACER("GlxSlideShowWidget::continueSlideShow()");
     mIsPause = false;
-    if ( mModel &&  mModel->rowCount() > 1 ) {
+    if ( mModel &&  mSlideShowItemCount > 1 ) {
         mSlideTimer->start( mSettings->slideShowDelayTime() ); 
     }
     mContinueButton->hide(); 
-    emit slideShowEvent(UI_OFF_EVENT);
+    emit slideShowEvent( UI_OFF_EVENT );
 }
 
 void GlxSlideShowWidget::dataChanged(QModelIndex startIndex, QModelIndex endIndex)
@@ -231,20 +234,12 @@ void GlxSlideShowWidget::dataChanged(QModelIndex startIndex, QModelIndex endInde
     Q_UNUSED( endIndex )
     TRACER("GlxSlideShowWidget::dataChanged()");
     GLX_LOG_INFO2("GlxSlideShowWidget::dataChanged startIndex = %d mSelIndex = %d ", startIndex.row(), mSelIndex  );
-    int deltaIndex = startIndex.row() - mSelIndex;
-
-    if ( deltaIndex <= 1 && deltaIndex >= -1 ) {
-        int index = ( mItemIndex + deltaIndex + NBR_ITEM ) % NBR_ITEM; //calculated the array index in which data sould be updated
-        GLX_LOG_INFO2("GlxSlideShowWidget::dataChanged index = %d mSelItemIndex = %d ", index, mItemIndex );
     
-        QVariant variant = mModel->data( startIndex, GlxFsImageRole );
-        if ( variant.isValid() &&  variant.canConvert<HbIcon> () ) {
-            mIconItems[index]->setIcon ( variant.value<HbIcon>() ) ;
+    for( int i = 0; i < NBR_ITEM; ++i ) {
+        if ( mSelIndex[ i ] == startIndex.row() ) {
+            mIconItems[ i ]->setIcon( getIcon( startIndex.row() ) );
         }
-        else {
-            mIconItems[index]->setIcon ( HbIcon() ) ; 
-        }
-    }	
+    }
 }
 
 void GlxSlideShowWidget::rowsInserted(const QModelIndex &parent, int start, int end)
@@ -289,7 +284,6 @@ void GlxSlideShowWidget::orientationChanged(QRect screenRect)
     resetSlideShow();
 }
 
-
 void GlxSlideShowWidget::leftGesture(int value)
 {
     Q_UNUSED(value)
@@ -313,14 +307,11 @@ void GlxSlideShowWidget::leftMoveEffectFinished( const HbEffect::EffectStatus &s
     Q_UNUSED(status)
     TRACER("GlxSlideShowWidget::leftMoveEffectFinished()");
     GLX_LOG_INFO1("GlxSlideShowWidget::leftMoveEffectFinished() %d status", status.reason);
-
-    int rowCount = mModel->rowCount();
-    mSelIndex = ( ++mSelIndex ) % rowCount;
+   
     mItemIndex = ( ++mItemIndex ) % NBR_ITEM;
-    mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxFocusIndexRole );
-    mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxVisualWindowIndex );
-
-    setIconItems( MOVE_FORWARD );
+    mModel->setData( mModel->index( 0, 0 ), mSelIndex[ mItemIndex ], GlxFocusIndexRole );
+    mModel->setData( mModel->index( 0, 0 ), mSelIndex[ mItemIndex ], GlxVisualWindowIndex );
+    setNextItemIcon();
     startSlideShow();
     emit indexchanged(); // on left swipe
 }
@@ -331,13 +322,10 @@ void GlxSlideShowWidget::rightMoveEffectFinished( const HbEffect::EffectStatus &
     TRACER ( "GlxSlideShowWidget::rightMoveEffectFinished( ) ");
     GLX_LOG_INFO1("GlxSlideShowWidget::rightMoveEffectFinished() %d status", status.reason);
 
-    int rowCount = mModel->rowCount();
-    mSelIndex = mSelIndex ? --mSelIndex : rowCount - 1;
     mItemIndex = mItemIndex ? mItemIndex - 1 : NBR_ITEM - 1;
-    mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxFocusIndexRole );
-    mModel->setData( mModel->index(mSelIndex, 0), mSelIndex, GlxVisualWindowIndex );
-
-    setIconItems( MOVE_BACKWARD );
+    mModel->setData( mModel->index( 0, 0 ), mSelIndex[ mItemIndex ], GlxFocusIndexRole );
+    mModel->setData( mModel->index( 0, 0 ), mSelIndex[ mItemIndex ], GlxVisualWindowIndex );
+    setPreItemIcon();
     startSlideShow();
     emit indexchanged(); // on right swipe
 } 
@@ -374,7 +362,11 @@ void GlxSlideShowWidget::startSlideShow ( )
 {
     TRACER ( "GlxSlideShowWidget::startSlideShow( ) ");
     GLX_LOG_INFO1 ( "GlxSlideShowWidget::startSlideShow( ) is pause %d", mIsPause);    
-    if ( mIsPause == false && mModel &&  mModel->rowCount() > 1 ) {
+    
+    if ( mSlideShowItemCount == 0 ) { 
+        showErrorNote();
+    }
+    if ( mIsPause == false && mModel &&  mSlideShowItemCount > 1 ) {
         mSlideTimer->start( mSettings->slideShowDelayTime() );  
     }    
 }
@@ -396,10 +388,6 @@ void GlxSlideShowWidget::clearCurrentModel()
         disconnect(mModel, SIGNAL(destroyed()), this, SLOT( modelDestroyed()));
         mModel = NULL ;
     }
-/*
-    disconnect(mModel, SIGNAL(destroyed()), this, SLOT(_q_modelDestroyed()));
-    disconnect(mModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
- */	
 }
 
 void GlxSlideShowWidget::initializeNewModel()
@@ -413,70 +401,30 @@ void GlxSlideShowWidget::initializeNewModel()
     }	
 }
 
-
 void GlxSlideShowWidget::resetSlideShow()
 {
     TRACER("GlxSlideShowWidget::resetSlideShow()" );
-	if(! mModel) {
+	if(  mModel == NULL || mModel->rowCount() == 0 ) {
 		return;
 	}
-    QVariant variant = mModel->data( mModel->index( mSelIndex, 0 ), GlxFocusIndexRole );
-    if ( variant.isValid() &&  variant.canConvert<int> () ) {
-        mSelIndex = variant.value<int>() ;
-        GLX_LOG_INFO1("GlxSlideShowWidget::resetSlideShow() selected index %d", mSelIndex ); 
-    }
-
-    variant = mModel->data( mModel->index( mSelIndex, 0 ), GlxFsImageRole );
-    if ( variant.isValid() &&  variant.canConvert<HbIcon> () ) {
-        mIconItems[mItemIndex]->setIcon ( variant.value<HbIcon>() ) ; 
-    }
-    else {
-        mIconItems[mItemIndex]->setIcon ( HbIcon() ) ; 
-    }
-    
-    setIconItems(MOVE_FORWARD);
-    setIconItems(MOVE_BACKWARD);
-    if ( mIsPause == false && mModel &&  mModel->rowCount() > 1 ) {
-        mSlideTimer->start( mSettings->slideShowDelayTime() );  
-    }  
-}
-
-void GlxSlideShowWidget::setIconItems( int moveDir )
-{
-    TRACER("GlxSlideShowWidget::setIconItems()");
-    int index = 0, itemIndex = 0;
-    int rowCount = mModel->rowCount();
-    GLX_LOG_INFO1("GlxSlideShowWidget::setIconItems() rowcount %d ", rowCount);
-
-    if ( rowCount == 0 ) {
-        return ;
-    }
-    
-    if ( moveDir == MOVE_FORWARD ) {
-        index = ( mSelIndex + 1 ) % rowCount;
-        itemIndex = ( mItemIndex + 1) % NBR_ITEM;
-    }
-    else {
-        index = mSelIndex ? mSelIndex - 1 : rowCount - 1;  
-        itemIndex = mItemIndex ? mItemIndex - 1 : NBR_ITEM - 1; 
-    }
-
-    GLX_LOG_INFO4("GlxSlideShowWidget::setIconItems() image selected index %d array index %d index %d icon index %d", mSelIndex, mItemIndex, index, itemIndex);
-
-    QVariant variant = mModel->data( mModel->index( index, 0 ), GlxFsImageRole );
-    if ( variant.isValid() &&  variant.canConvert<HbIcon> () ) {
-        mIconItems[itemIndex]->setIcon ( variant.value<HbIcon>() ) ; 
-    }
-    else {
-        mIconItems[itemIndex]->setIcon ( HbIcon() ) ;
-    } 
+	
+	mSlideShowItemCount = mModel->rowCount();
+	setFocusItemIcon() ;
+	setNextItemIcon() ;
+	setPreItemIcon() ;
+	startSlideShow();
+	
+	qDebug( "GlxSlideShowWidget::resetSlideShow slide show item count %d" , mSlideShowItemCount );
+	if ( mErrorNote && mErrorNote->isVisible() && mSlideShowItemCount > 1 ){
+	    hideErrorNote();
+	}
 }
 
 void GlxSlideShowWidget::moveImage(int nextIndex, int posX, const QString & move, char * callBack)
 {
     TRACER("GlxSlideShowWidget::MoveImage()");
 
-    if ( mModel->rowCount() <= 1 || mEffectEngine->isEffectRuning( mItemList ) ) {
+    if ( mSlideShowItemCount <= 1 || mEffectEngine->isEffectRuning( mItemList ) ) {
         return ;
     }
 
@@ -514,3 +462,125 @@ void GlxSlideShowWidget::removeConnections()
         disconnect( mContinueButton, SIGNAL( clicked(bool) ), this, SLOT( continueSlideShow(bool) ) );
     }
 }
+
+int GlxSlideShowWidget::getFocusIndex( )
+{
+    QVariant variant = mModel->data( mModel->index( 0, 0 ), GlxFocusIndexRole ) ;
+    if ( variant.isValid() && variant.canConvert< int > () ) {
+        return variant.value< int > ();
+    }
+    return -1;
+}
+
+HbIcon GlxSlideShowWidget::getIcon( int index )
+{
+    QVariant variant = mModel->data( mModel->index( index, 0 ), GlxFsImageRole );
+    if ( variant.isValid() &&  variant.canConvert< HbIcon > () ) {
+        return variant.value< HbIcon > () ;       
+    }
+    return HbIcon() ;
+}
+
+bool GlxSlideShowWidget::isCorrupt( int index )
+{
+    QVariant variant = mModel->data( mModel->index( index, 0 ), GlxImageCorruptRole );
+    if ( variant.isValid() && variant.canConvert< bool> () ) {
+        return variant.value< bool > () ;
+    }
+    return false ;    
+}
+
+bool GlxSlideShowWidget::setFocusItemIcon( )
+{
+    int nbrItem = mModel->rowCount();
+    int focusIndex = getFocusIndex();
+    
+    for ( int i = 0; i < nbrItem ; ++i ) {
+        if ( isCorrupt( focusIndex  ) == false ) {  
+            qDebug( "GlxSlideShowWidget::setFocusItemIcon1 focus index %d" , focusIndex );
+            mIconItems[ mItemIndex ]->setIcon( getIcon( focusIndex ) ) ;
+            mSelIndex[ mItemIndex ] = focusIndex ;
+            if (  i != 0 ) {
+                mModel->setData( mModel->index( 0, 0 ), focusIndex, GlxFocusIndexRole );
+                mModel->setData( mModel->index( 0, 0 ), focusIndex, GlxVisualWindowIndex );
+            }
+            return true;
+        }
+        focusIndex = ( focusIndex + 1 ) % nbrItem;
+    }
+    mSlideShowItemCount = 0;
+    return false;    
+}
+
+bool GlxSlideShowWidget::setNextItemIcon( )
+{
+    int nbrItem = mModel->rowCount();
+    int imageIndex = ( mSelIndex[ mItemIndex ] + 1 ) % nbrItem ;
+    int itemIndex = ( mItemIndex + 1 ) % NBR_ITEM ;
+    
+    for( int i = 1; i < nbrItem; ++i ) {
+       if ( isCorrupt( imageIndex ) == false ) {
+           mIconItems[ itemIndex ]->setIcon( getIcon( imageIndex ) );
+           mSelIndex[ itemIndex ] = imageIndex ;
+           return true;
+       }
+       imageIndex = ( imageIndex + 1 ) % nbrItem ;
+    }
+    
+    if ( isCorrupt( imageIndex ) ) {
+        mSlideShowItemCount = 0;
+    }
+    else {
+        mSlideShowItemCount = 1;
+    }
+    return false ;
+}
+
+bool GlxSlideShowWidget::setPreItemIcon()
+{
+    int nbrItem = mModel->rowCount() ;
+    int imageIndex = mSelIndex[ mItemIndex ] > 0 ? mSelIndex[ mItemIndex ] - 1 : nbrItem - 1 ;
+    int itemIndex = mItemIndex > 0 ? mItemIndex - 1 : mItemIndex  ;
+    
+    for( int i = 1; i < nbrItem; ++i ) {
+        if ( isCorrupt( imageIndex ) == false ) {
+            mIconItems[ itemIndex ]->setIcon( getIcon( imageIndex ) ) ;
+            mSelIndex[ itemIndex ] = imageIndex ;
+            return true;        
+        }
+        imageIndex = imageIndex > 0 ? imageIndex - 1 : nbrItem - 1 ; 
+    }
+    if ( isCorrupt( imageIndex ) ) {
+        mSlideShowItemCount = 0;
+    }
+    else {
+        mSlideShowItemCount = 1;
+    }
+    return false;
+}
+
+void GlxSlideShowWidget::showErrorNote()
+{
+    if ( mErrorNote == NULL ){
+        mErrorNote = new HbLabel( QString( GLX_NOIMAGE_PLAY_SLIDESHOW ), this);
+        mErrorNote->setObjectName( "No Image" );
+        mErrorNote->setGeometry( mIconItems[ 0 ]->geometry() );
+        mErrorNote->setAlignment( Qt::AlignCenter );
+    }
+    
+    for( int i = 0; i < NBR_ITEM; ++i ){
+        mIconItems[ i ]->setVisible( false );
+    }
+    mErrorNote->setVisible( true );
+    emit slideShowEvent( UI_ON_EVENT );
+}
+
+void GlxSlideShowWidget::hideErrorNote()
+{
+    for( int i = 0; i < NBR_ITEM; ++i ){
+        mIconItems[ i ]->setVisible( true );
+    }
+    mErrorNote->setVisible( false );
+    emit slideShowEvent( UI_OFF_EVENT );
+}
+

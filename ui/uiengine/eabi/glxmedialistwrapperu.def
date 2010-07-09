@@ -54,4 +54,5 @@ EXPORTS
 	_ZN12GlxMLWrapper10IsDrmValidEi @ 53 NONAME
 	_ZN12GlxMLWrapper11setDrmValidEib @ 54 NONAME
 	_ZN12GlxMLWrapper14IsDrmProtectedEi @ 55 NONAME
+	_ZN12GlxMLWrapper16isCorruptedImageEi @ 56 NONAME
 
