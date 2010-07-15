@@ -61,7 +61,7 @@ public:
     
 	// From CGlxBinding
     void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia,
-		TBool aIsFocused ) const;
+		TBool aIsFocused, TInt aTextureId = KErrNotFound ) const;
     TBool HasRelevantAttributes( const RArray< TMPXAttribute >& aAttributes ) const;
     
     TResponse HandleFocusChanged( TBool aIsGained );

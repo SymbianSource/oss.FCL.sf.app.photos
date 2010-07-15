@@ -163,7 +163,7 @@ CGlxTemplateBinding* CGlxTemplateBinding::NewLC(
 // ----------------------------------------------------------------------------
 //
 void CGlxTemplateBinding::PopulateT( Alf::MulVisualItem& aItem, 
-	const TGlxMedia& /*aMedia*/, TBool aIsFocused ) const
+	const TGlxMedia& /*aMedia*/, TBool aIsFocused, TInt /*aTextureId*/ ) const
     {
     TRACER("CGlxTemplateBinding::PopulateT");
     // need to get the MUL field for the editable template from Akash
@@ -334,7 +334,7 @@ void CGlxStringBinding::ConstructL( const Alf::mulvisualitem::TVisualAttribute& 
 // ----------------------------------------------------------------------------
 //
 void CGlxStringBinding::PopulateT( MulVisualItem& aItem, const TGlxMedia& /*aMedia*/,
-        TBool /*aIsFocused*/ ) const
+        TBool /*aIsFocused*/, TInt /*aTextureId*/ ) const
     {
     TRACER("CGlxStringBinding::PopulateT");
     aItem.SetAttribute( MulTag(), *iStringBuffer );
@@ -399,7 +399,7 @@ CGlxMpxAttributeBinding::CGlxMpxAttributeBinding( const TMPXAttribute&
 // ----------------------------------------------------------------------------
 //
 void CGlxMpxAttributeBinding::PopulateT( MulVisualItem& aItem/**/, const 
-    TGlxMedia& aMedia, TBool /*aIsFocused*/ ) const
+    TGlxMedia& aMedia, TBool /*aIsFocused*/, TInt /*aTextureId*/ ) const
     {
     TRACER("CGlxMpxAttributeBinding::PopulateT");
     //T is used for throws as per C++ standard.Hence used instead of "L"
@@ -510,7 +510,7 @@ CGlxThumbnailBinding::~CGlxThumbnailBinding()
 // ----------------------------------------------------------------------------
 //
 void CGlxThumbnailBinding::PopulateT( MulVisualItem& aItem, const TGlxMedia& 
-    aMedia, TBool aIsFocused ) const
+    aMedia, TBool aIsFocused, TInt aTextureId ) const
     {
     TRACER("CGlxThumbnailBinding::PopulateT");
     //T is used for throws as per C++ standard.Hence used instead of "L"
@@ -518,7 +518,7 @@ void CGlxThumbnailBinding::PopulateT( MulVisualItem& aItem, const TGlxMedia&
     SetAttributeT( aItem, MulTag(), 
         std::auto_ptr< GlxThumbnailVariantType >( 
             GlxThumbnailVariantType::NewL( aMedia, iThumbnailSize, 
-        aIsFocused ) ) );
+        aIsFocused, aTextureId ) ) );
         //@todo
     }
 
@@ -635,7 +635,7 @@ CGlxFullScreenThumbnailBinding::~CGlxFullScreenThumbnailBinding()
 // ----------------------------------------------------------------------------
 //
 void CGlxFullScreenThumbnailBinding::PopulateT( MulVisualItem& aItem, const TGlxMedia& 
-    aMedia, TBool aIsFocused ) const
+    aMedia, TBool aIsFocused, TInt aTextureId ) const
     {
     TRACER("CGlxFullScreenThumbnailBinding::PopulateT");
     //T is used for throws as per C++ standard.Hence used instead of "L"
@@ -643,7 +643,7 @@ void CGlxFullScreenThumbnailBinding::PopulateT( MulVisualItem& aItem, const TGlx
     SetAttributeT( aItem, MulTag(), 
         std::auto_ptr< GlxThumbnailVariantType >( 
         GlxThumbnailVariantType::NewL( aMedia, iFullScreenThumbnailSize, 
-        aIsFocused ) ) );
+        aIsFocused, aTextureId ) ) );
         
     }
 
@@ -770,7 +770,7 @@ CGlxIconBinding::CGlxIconBinding( const CGlxMulIconProvider* aIconProvider,
 // ----------------------------------------------------------------------------
 //
 void CGlxIconBinding::PopulateT( MulVisualItem& aItem, 
-           const TGlxMedia& aMedia, TBool /*aIsFocused*/ ) const
+           const TGlxMedia& aMedia, TBool /*aIsFocused*/, TInt /*aTextureId*/ ) const
     {
     
     TRACER("CGlxIconBinding::PopulateT");
@@ -841,7 +841,7 @@ CGlxCommandBinding::~CGlxCommandBinding()
 // ----------------------------------------------------------------------------
 //
 void CGlxCommandBinding::PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& /*aMedia*/,
-        TBool /*aIsFocused*/ ) const
+        TBool /*aIsFocused*/, TInt /*aTextureId*/ ) const
     {
     TRACER("CGlxCommandBinding::PopulateT");
     GlxCommandBindingUtility::SetT( aItem, *iCommand );

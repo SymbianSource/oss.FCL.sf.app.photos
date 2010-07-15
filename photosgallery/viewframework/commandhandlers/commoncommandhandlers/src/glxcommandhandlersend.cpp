@@ -47,6 +47,7 @@
 #include <glxresourceutilities.h>           // for CGlxResourceUtilities
 #include <glxicons.mbg>
 #include <glximageviewermanager.h>          // for CGlxImageViewerManager
+#include <glxgeneraluiutilities.h>
 
 // LOCAL FUNCTIONS AND CONSTANTS
 namespace
@@ -351,9 +352,15 @@ void CGlxCommandHandlerSend::SendSelectedItemsL()
 		iUiUtility->SetAppOrientationL( EGlxOrientationDefault );
 		}
 	// Trap the send call to ensure the orientation is reverted
-	TRAP_IGNORE( iSendUi->ShowQueryAndSendL( msgData, Capabilities(),
-	                filterOutPlugins, KNullUid, ETrue, *title ) );
-		
+	TRAPD(error, iSendUi->ShowQueryAndSendL( msgData, Capabilities(),
+					filterOutPlugins, KNullUid, ETrue, *title ));
+	if (error == KErrNoMemory || error == KErrNotSupported || error
+			== KErrInUse || error == KErrDiskFull || error == KErrTimedOut
+			|| error == KErrPermissionDenied)
+		{
+		GlxGeneralUiUtilities::ShowErrorNoteL(error);
+		GLX_LOG_INFO1("error sending the image %d",error);
+		}
 	CleanupStack::PopAndDestroy(filterOutPlugins);
 	CleanupStack::PopAndDestroy(title);
 	CleanupStack::PopAndDestroy(msgData);

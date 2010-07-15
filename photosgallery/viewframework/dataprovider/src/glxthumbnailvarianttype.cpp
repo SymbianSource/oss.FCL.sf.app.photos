@@ -41,11 +41,11 @@ _LIT(KGlxIconsFilename, "glxicons.mif");
 // ----------------------------------------------------------------------------
 //
 GlxThumbnailVariantType* GlxThumbnailVariantType::NewL( const TGlxMedia& aMedia, const TSize& aSize, 
-	TBool aIsFocused  )
+	TBool aIsFocused, TInt aTextureId  )
 	{
 	TRACER("GlxThumbnailVariantType::NewL");
 	GlxThumbnailVariantType* self = GlxThumbnailVariantType::NewLC( aMedia, 
-		aSize, aIsFocused );
+		aSize, aIsFocused, aTextureId );
 	CleanupStack::Pop( self );
 	return self;
 	}
@@ -55,14 +55,14 @@ GlxThumbnailVariantType* GlxThumbnailVariantType::NewL( const TGlxMedia& aMedia,
 // ----------------------------------------------------------------------------
 //
 GlxThumbnailVariantType* GlxThumbnailVariantType::NewLC( const TGlxMedia& aMedia, const TSize& aSize, 
-	TBool aIsFocused )
+	TBool aIsFocused, TInt aTextureId )
 	{
 	TRACER("GlxThumbnailVariantType::NewLC");
 	
 	GlxThumbnailVariantType* self = new ( EMM ) GlxThumbnailVariantType(
-		aMedia, aSize, aIsFocused );
+		aMedia, aSize, aIsFocused, aTextureId );
 	CleanupStack::PushL( self );
-	self->ConstructL( aMedia, aSize, aIsFocused );
+	self->ConstructL( aMedia, aSize, aIsFocused, aTextureId );
 	return self;
 	}
 
@@ -71,7 +71,7 @@ GlxThumbnailVariantType* GlxThumbnailVariantType::NewLC( const TGlxMedia& aMedia
 // ----------------------------------------------------------------------------
 //
 GlxThumbnailVariantType::GlxThumbnailVariantType( const TGlxMedia& /*aMedia*/, 
-    const TSize& /*aSize*/, TBool /*aIsFocused*/ )
+    const TSize& /*aSize*/, TBool /*aIsFocused*/, TInt /*aTextureId*/ )
     {
     
     }
@@ -81,11 +81,18 @@ GlxThumbnailVariantType::GlxThumbnailVariantType( const TGlxMedia& /*aMedia*/,
 // ----------------------------------------------------------------------------
 //
 void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& aSize, 
-		TBool aIsFocused )   
+		TBool aIsFocused, TInt aTextureId )   
 	{
 
 	TRACER("GlxThumbnailVariantType::ConstructL");    
-    GLX_DEBUG2("GlxThumbnailVariantType::ConstructL Media Id=%d", aMedia.Id().Value());	
+    GLX_DEBUG2("GlxThumbnailVariantType::ConstructL Media Id=%d", aMedia.Id().Value());
+    
+    if(aTextureId != KErrNotFound)
+        {
+        mTextureId = aTextureId;
+        return;
+        }
+    
     iUiUtility = CGlxUiUtility::UtilityL();
     
     TBool drm = EFalse;

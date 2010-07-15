@@ -11,7 +11,7 @@
  *
  * Contributors:
  *
- * Description:    AppUi class 
+ * Description: Image Viewer AppUi class 
  *
  */
 
@@ -22,16 +22,13 @@
 #define C_GLXIVIEWERAPPUI_H
 
 #include <aknViewAppUi.h>
-#include <mpxcollectionobserver.h>
 #include <mglxnavigationalstateobserver.h>
 #include <mpxcollectionpath.h>
-#include "glxiadupdate.h"
+#include <mglxcache.h>
 
 class MMPXViewUtility;
-class MMPXCollectionUtility;
 class CGlxUiUtility;
 class CGlxNavigationalState;
-class CAknGlobalNote;
 
 /**
  *  CGlxIVwrAppUi
@@ -39,14 +36,20 @@ class CAknGlobalNote;
  *  @lib ViewerApplication
  */
 
-class CGlxIVwrAppUi : public CAknViewAppUi, public MGlxNavigationalStateObserver
+class CGlxIVwrAppUi : public CAknViewAppUi,
+        public MGlxNavigationalStateObserver
     {
 public:
     CGlxIVwrAppUi();
     void ConstructL();
     ~CGlxIVwrAppUi();
+    /**
+     * Open the viewer on receving OpenFileL() callback in CViewerDocument
+     */
+    void HandleOpenFileL();
 
-public: // from CAknAppUi
+public:
+    // from CAknAppUi
     /**
      * From CAknAppUi
      * Handle user menu selections
@@ -56,22 +59,17 @@ public: // from CAknAppUi
 
     // From MGlxNavigationalStateObserver
     void HandleNavigationalStateChangedL();
-    //OOM Method
-    void HandleApplicationSpecificEventL(TInt aEventType, const TWsEvent& aWsEvent);
-
-    /**
-     * Open the viewer on receving OpenFileL() callback in CViewerDocument
-     */
-    void HandleOpenFileL();
     
-private:    // From CEikAppUi
+    //OOM Method
+    void HandleApplicationSpecificEventL(TInt aEventType,
+            const TWsEvent& aWsEvent);
+
+protected:
+    // From CEikAppUi
+    void OpenFileL(const TDesC& aFileName);
 
     TBool ProcessCommandParametersL(TApaCommand aCommand,
             TFileName& aDocumentName, const TDesC8& aTail);
-
-private: // From CCoeAppUi
-
-    void HandleForegroundEventL( TBool aForeground );
 
 private:
     enum TEntryType
@@ -84,27 +82,29 @@ private:
      * (using Get in the name since the function does not return anything)
      * @param aIns list that will be populated with scoring ids
      */
-    void GetViewScoringIdsL( RArray<TUid>& aIds ) const;
+    void GetViewScoringIdsL(RArray<TUid>& aIds) const;
 
     /**
      * Get view scoring id for collection plugin
      * @param naviState Path to represent navigational state
      * @return scoding id
      */
-    TUid GetViewScoringIdForCollectionPlugin( const CMPXCollectionPath& aNaviState ) const;
+    TUid GetViewScoringIdForCollectionPlugin(
+            const CMPXCollectionPath& aNaviState) const;
 
     /**
      * Get view scoring id for depth in ui hierarchy
      * @param naviState Path to represent navigational state
      * @return scoding id
      */
-    TUid ViewScoringIdForNaviStateDepth( const CMPXCollectionPath& aNaviState ) const;
+    TUid ViewScoringIdForNaviStateDepth(
+                    const CMPXCollectionPath& aNaviState) const;
 
     /**
      * Requesting OOM to Free Some Memory, so that photos image viewer can start
      * @return Error if Memory Cannot be freed else Error None
      */
-    TInt OOMRequestFreeMemoryL( TInt aBytesRequested) ;
+    TInt OOMRequestFreeMemoryL(TInt aBytesRequested);
 
     /**
      * Finds Current Memory Availability And Decides to Send a Request for freeing the memory 
@@ -112,14 +112,14 @@ private:
      * @return Error Code from OOM
      */
     TInt ReserveMemoryL(TInt aCriticalMemoryRequired);
-    
+
     /**
      * Finds Current Minimum Required memory to start photos image viewer
      * @param Type of application invokation 
      * @return Required Critical Memory
      */
     TInt RamRequiredInBytesL(TEntryType aType);
-    
+
     /**
      * Reserve critical memory qequired to start photos image viewer
      * @param Type of application invokation 
@@ -127,20 +127,21 @@ private:
     void ReserveMemoryL(TEntryType aType);
 
     /**
-     * close photos app.
+     * Close Image Viewer App.
      */
     void CloseImgVwr();
 
 private:
+    /// MPX View Utility
     MMPXViewUtility* iViewUtility;
 
-	/// Singleton that stores gallery's navigational state
+    /// Image Viewer's Navigational State
     CGlxNavigationalState* iNavigationalState;
 
-    /** Optional view plugin UID to activate when the collection is opened */
+    /// Optional view plugin UID to activate when the collection is opened
     TUid iStartupViewUid;
 
-    ///Ui utility
+    /// Ui Utility
     CGlxUiUtility* iUiUtility;
     };
 

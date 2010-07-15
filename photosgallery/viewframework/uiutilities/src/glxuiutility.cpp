@@ -42,7 +42,7 @@
 #include <eikenv.h> 
 #include <eikappui.h>
 #include <aknclearer.h>
-
+#include <avkondomainpskeys.h> // Keyguard Status
 // Internal incudes
 #include <glxresolutionmanager.h>       // for CGlxResolutionManager
 #include <glxsingletonstore.h>      
@@ -827,7 +827,8 @@ EXPORT_C TInt CGlxUiUtility::GetItemsLeftCount()
     {
     TRACER("CGlxUiUtility::GetItemsLeftCount");
     TInt itemsLeftCount = 0;
-    TInt err = RProperty::Get(KTAGDPSNotification, KItemsleft, itemsLeftCount);
+    TInt err =
+            RProperty::Get(KTAGDPSNotification, KItemsleft, itemsLeftCount);
     GLX_LOG_INFO1("GetItemsLeftCount: GetItemsLeftCount %d", itemsLeftCount);
 
     // In case of error, enter in the next view. Don't block photos permanently.
@@ -841,7 +842,8 @@ EXPORT_C TInt CGlxUiUtility::GetItemsLeftCount()
     // This case is added as per UI-Improvements.
     // Use case: Take a pic. open photos from Menu (not "Goto photos")
     // Progress bar SHOULD NOT be displayed.
-    if (itemsLeftCount <= KIgnoreItemsLeftCount)
+    if ((itemsLeftCount != KErrNotReady) && (itemsLeftCount
+            <= KIgnoreItemsLeftCount))
         {
         GLX_LOG_INFO("GetItemsLeftCount( < KIgnoreItemsLeftCount )");
         itemsLeftCount = 0;
@@ -876,5 +878,36 @@ EXPORT_C void CGlxUiUtility::DestroyScreenClearer()
         delete iClearer;
         iClearer = NULL;
         }
+    }
+
+// -----------------------------------------------------------------------------
+// SetTNMDaemonPSKeyvalue
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TInt CGlxUiUtility::SetTNMDaemonPSKeyvalue()
+    {
+    TRACER("CGlxUiUtility::SetTNMDaemonPSKeyvalue");
+    TInt ret = RProperty::Define(KTAGDPSNotification, KItemsleft,
+            RProperty::EInt);
+    GLX_LOG_INFO1("CGlxUiUtility::SetTNMDaemon()RProperty::Define %d", ret);
+    if (ret == KErrNone)
+        {
+        ret = RProperty::Set(KTAGDPSNotification, KItemsleft, KErrNotReady);
+        GLX_LOG_INFO1("CGlxUiUtility::SetTNMDaemon() RProperty::Set %d", ret);
+        }
+    return ret;
+    }
+
+// -----------------------------------------------------------------------------
+// GetKeyguardStatus
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TInt CGlxUiUtility::GetKeyguardStatus()
+    {
+    TRACER("CGlxUiUtility::GetKeyguardStatus");
+    TInt keyguardStatus = KErrNone;
+    RProperty::Get(KPSUidAvkonDomain, KAknKeyguardStatus, keyguardStatus);
+    GLX_LOG_INFO1("CGlxUiUtility::GetKeyguardStatus() keyguardStatus=%d", keyguardStatus);
+    return keyguardStatus;
     }
 // End of file

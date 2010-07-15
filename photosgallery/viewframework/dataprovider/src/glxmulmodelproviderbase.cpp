@@ -43,6 +43,7 @@
 #include <glxicons.mbg>
 #include <glxuistd.h>
 #include <mul/imulcoverflowwidget.h>               // An interface for Multimedia coverflow Widget
+#include "glxdrmgiftexturecreator.h"
 
 using namespace Alf;
 
@@ -91,6 +92,11 @@ CGlxMulModelProviderBase::CGlxMulModelProviderBase( IMulWidget& aWidget )
 CGlxMulModelProviderBase::~CGlxMulModelProviderBase()
     { 
     TRACER("CGlxMulModelProviderBase::~CGlxMulModelProviderBase");
+    if(iDrmGifTextureCreator)
+        {
+        delete iDrmGifTextureCreator;
+        iDrmGifTextureCreator = NULL;
+        }
     //   remove event handler
 	iWidget.RemoveEventHandler( *this );
     if ( iNavigationalState )
@@ -293,8 +299,51 @@ void CGlxMulModelProviderBase::SetDataT( const CGlxBinding& aBinding,
         const TGlxMedia& aMedia, TInt aAtIndex )
     {
     TRACER("CGlxMulModelProviderBase::SetDataT");
-    iModel->SetData( aAtIndex, CreateItemT( aBinding, aMedia, 
-        IsFocused( aAtIndex ) ) );
+    
+    if(IsFocused(aAtIndex))
+        {
+        TBool drm = EFalse;
+        TGlxMediaGeneralRightsValidity isValid = EGlxDrmRightsValidityUnknown;
+        if (aMedia.GetDrmProtected(drm))
+            {
+            GLX_DEBUG1("CGlxMulModelProviderBase::SetDataT GetDrmValidity");
+            aMedia.GetDrmValidity(isValid);
+            }
+        TInt frameCount;
+        aMedia.GetFrameCount(frameCount);
+        
+        //Create the DRM gif texture intance only if the DRM gif image is
+        //valid and focused
+        if (frameCount > 1 && drm && isValid == EGlxDrmRightsValid)
+            {
+            if (!iDrmGifTextureCreator)
+                {
+                iDrmGifTextureCreator = CGlxDrmGifTextureCreator::NewL(
+                        aBinding, aMedia, aAtIndex, iModel);
+                }
+            else
+                {
+                iDrmGifTextureCreator->UpdateNewImageL(aMedia, aAtIndex);
+                }
+            }
+        else
+            {
+            //if the focus is changed then delete the DRMGifTextureCreator 
+            //instance if any
+            if (iDrmGifTextureCreator)
+                {
+                delete iDrmGifTextureCreator;
+                iDrmGifTextureCreator = NULL;
+                }
+            iModel->SetData(aAtIndex, CreateItemT(aBinding, aMedia,
+                    IsFocused(aAtIndex)));
+            }
+        }
+    else
+        {
+        iModel->SetData( aAtIndex, CreateItemT( aBinding, aMedia, 
+            IsFocused( aAtIndex ) ) );
+        }
     }
     
 // ----------------------------------------------------------------------------
@@ -559,4 +608,16 @@ void CGlxMulModelProviderBase::AddWidgetEventHandler()
     iWidget.AddEventHandler( *this );
     }
 
+//-----------------------------------------------------------------------------
+// AnimateDRMGifItem
+//-----------------------------------------------------------------------------
+//
+void CGlxMulModelProviderBase::AnimateDRMGifItem( TBool aAnimate )
+    {
+	TRACER("CGlxMulModelProviderBase::AnimateDRMGifItem");
+    if(iDrmGifTextureCreator)
+        {
+        iDrmGifTextureCreator->AnimateDRMGifItem(aAnimate);
+        }
+    }
 //EOF

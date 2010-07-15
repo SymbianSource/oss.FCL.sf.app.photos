@@ -183,11 +183,18 @@ void CGlxToolbarController::HandleItemSelectedL(TInt /*aIndex*/, TBool /*aSelect
         MGlxMediaList* aList)
     {
     TRACER("CGlxToolbarController::HandleItemSelectedL");
-    
+    GLX_DEBUG2("CGlxToolbarController::HandleItemSelectedL()"
+            " aList->SelectionCount()=%d", aList->SelectionCount());
+
     // If atleast 1 item is marked, or if Mark All is called, then Latch the mark button.
-    if((aList->SelectionCount() == 1 ) || (aList->SelectionCount() == aList->Count()))
+    if ((aList->SelectionCount() == 1) || (aList->SelectionCount()
+            == aList->Count()))
         {
-        EnableLatch( EGlxCmdStartMultipleMarking, ETrue );
+        EnableLatch(EGlxCmdStartMultipleMarking, ETrue);
+        }
+    else if (aList->SelectionCount() == 0)
+        {
+        EnableLatch(EGlxCmdStartMultipleMarking, EFalse);
         }
     }
 
@@ -335,19 +342,17 @@ void CGlxToolbarController::SetStatusL(MGlxMediaList* aList)
 //
 void CGlxToolbarController::EnableLatch( TInt aCommandId, TInt aLatched )
     {
-    CAknButton* toolbarButton = static_cast<CAknButton*>
-                                (iToolbar->ControlOrNull( aCommandId ));
+    TRACER("CGlxToolbarController::EnableLatch()");
+    GLX_DEBUG2("CGlxToolbarController::EnableLatch() aLatched=%d", aLatched);
 
-    if( toolbarButton )
+    CAknButton* toolbarButton =
+            static_cast<CAknButton*> (iToolbar->ControlOrNull(aCommandId));
+
+    if (toolbarButton && !toolbarButton->IsDimmed())
         {
-        if (aLatched)
-            {
-            toolbarButton->SetCurrentState(ETrue, ETrue);
-            }
-        else
-            {
-            toolbarButton->SetCurrentState(EFalse, ETrue);
-            }
+        toolbarButton->SetCurrentState(aLatched, ETrue);
+        // Force to update the frame IDs 
+        toolbarButton->SetDimmed(EFalse);
         }
     }
 

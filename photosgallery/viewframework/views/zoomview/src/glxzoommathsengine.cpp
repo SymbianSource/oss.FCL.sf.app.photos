@@ -25,8 +25,6 @@
 #include <glxtracer.h>                      //  For Tracer
 #include <glxlog.h>                         //  For Log
 
-#define BORDER_HEIGHT (iBorderWidth.iHeight*(100-((newZoomRatio-iMinZoomRatio)*100/(iMaxZoomRatio-iMinZoomRatio))))/100
-#define BORDER_WIDTH (iBorderWidth.iWidth*(100-((newZoomRatio-iMinZoomRatio)*100/(iMaxZoomRatio-iMinZoomRatio))))/100
 // LOCAL CONSTANTS AND MACROS
 const TInt KGlxLargeImageMaximumZoomRatio   =   100     ;
 const TInt KGlxSmallImageMaximumZoomRatio   =   150     ;
@@ -37,8 +35,8 @@ const TInt KGlxPanFactorUpdateMultiple      =   5       ; // The number of pan o
 const TInt KGlxMaxPanUpdateMultiple         =   6       ;
 const TInt KGlxOrigin                       =   0       ;
 
-const TInt KGlxMinRelativeZoomPercent       =   70       ;
-const TInt KGlxMaxRelativeZoomPercent       =   130      ;
+const TInt KGlxMinRelativeZoomPercent       =   85       ;
+const TInt KGlxMaxRelativeZoomPercent       =   115      ;
 
 const TInt KGlxZoomPanInc                   =   10      ; // Min number of pixels panned in one keypress. This value is incremented exponentially by multiples of iPanFactor 
 
@@ -47,8 +45,8 @@ const TInt KGlxZoomPanInc                   =   10      ; // Min number of pixel
 void TGlxZoomAndPanMathsEngine::Initialize(TPoint& aCenter, 
         TSize& aScreenSize, 
         TSize& aImageSize,
-        TSize& /*aOriginalZoomedDimensions*/,
-        TUint8 aInitialZoomRatio)
+        TUint8 aInitialZoomRatio,
+        TUint8 aMinZoomRatio)
     {
     TRACER("void TGlxZoomAndPanMathsEngine::Initialize()");
 
@@ -59,10 +57,12 @@ void TGlxZoomAndPanMathsEngine::Initialize(TPoint& aCenter,
     // [TODO] Is there a way to make this constant.
     iActualImageSize    = aImageSize;
     
-    iMinZoomRatio   = aInitialZoomRatio;
-    iZoomRatio          = aInitialZoomRatio;
-    iMaxZoomRatio = ((aInitialZoomRatio == KGlxLargeImageMaximumZoomRatio) ? 
+    iMinZoomRatio   = aMinZoomRatio;
+    iZoomRatio      = aInitialZoomRatio;
+    iMaxZoomRatio   = ((aInitialZoomRatio >= KGlxLargeImageMaximumZoomRatio) ? 
         KGlxSmallImageMaximumZoomRatio:KGlxLargeImageMaximumZoomRatio);
+    GLX_LOG_INFO1("TGlxZoomAndPanMathsEngine::Initialize: Minimum ZoomRatio = [%d]   ", iMinZoomRatio     );
+    GLX_LOG_INFO1("TGlxZoomAndPanMathsEngine::Initialize: Maximum ZoomRatio = [%d]   ", iMaxZoomRatio     );
 
     iPanFactor          = KGlxMinPanFactor;
 
@@ -74,6 +74,8 @@ void TGlxZoomAndPanMathsEngine::Initialize(TPoint& aCenter,
     
     iBorderWidth.iWidth     = (iScreenSize.iWidth  - iImageVirtualSize.iWidth )/2  ; 
     iBorderWidth.iHeight    = (iScreenSize.iHeight - iImageVirtualSize.iHeight)/2 ;
+    
+    GLX_LOG_INFO2("TGlxZoomAndPanMathsEngine::Initialize: Center at Initialization = [%f,%f]   ", iCenter.iX, iCenter.iY  );
     
     }
 
@@ -124,7 +126,7 @@ void TGlxZoomAndPanMathsEngine::Pan(TPoint aOffset,
     TRACER("TGlxZoomAndPanMathsEngine::Pan");
     
     GLX_LOG_INFO2("Pan: Center before PAN= [%d,%d]   ", iCenter.iX, iCenter.iY  );
-    GLX_LOG_INFO2("Pan: Pan Offset = [%d,%d]   ", TInt(aOffset.iX), TInt(aOffset.iY));
+    GLX_LOG_INFO2("Pan: Pan Offset = [%d,%d]   ", aOffset.iX, aOffset.iY);
     
     TPoint panOffset = aOffset; 
     TUint16 halfScreenWidth     = iScreenSize.iWidth>>1;
@@ -252,7 +254,7 @@ TInt TGlxZoomAndPanMathsEngine::Zoom(TZoomMode aZoomMode,
         //HEIGHT Calculation
         // TODO: Hive center corrections into an different function.
         // If the image might have become smaller than the screen DUE to or AFTER the above calculations
-        if((imageDimension.iHeight < iScreenSize.iHeight - BORDER_HEIGHT))
+        if((imageDimension.iHeight < iScreenSize.iHeight ))
             {
             iCenter.iY=(imageDimension.iHeight/2);
             }

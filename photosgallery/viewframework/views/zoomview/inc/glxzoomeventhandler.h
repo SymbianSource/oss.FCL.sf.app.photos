@@ -72,12 +72,11 @@ public:
     /*
      * ActivateZoom from the Zoom control
      */
-    void ActivateZoom(TInt initialZoomRatio, 
+    void ActivateZoom(  TInt aInitialZoomRatio,
                         TSize imageSize, 
                         TZoomStartMode aStartMode, 
-                        TInt aMinSliderRange, 
-                        TInt aMaxSliderRange,
-                        TSize& aOriginalDimensions, 
+                        TInt aMinZoomRatio, 
+                        TInt aMaxZoomRatio,
                         TPoint* aZoomFocus);
     
     /*
@@ -271,13 +270,12 @@ private:
     TPoint              iStartDisplayPoint;             // The variable holds the starting pointer posistion to determine the Drag Distance
     TTime               iDoubleTap;                     // This Variable is used to determine the double tap,by using the difference of the time 
                                                         // between subsequent single Tap.
-    TInt                iInitialZoomRatio;
     TInt                iZoomRatio;
     TRect               iDoubleTapRect;                 // This varaible holds the rect for the Double Tap
     TBool               iDragOngoing;                   // Is a drag event ongoing
     TBool               iZoomActivated;                 // To Denote if zoom is activated
     TUiState            iZoomUiState;                   // To Denote if the Ui is On in zoom
-    TInt                iPrevPinchFactor;                // To avoid the bouce while pinch gesture end
+    TInt                iPrevPinchPercentage;                // To avoid the bouce while pinch gesture end
     
     TPoint              iPreviousPointerPosition;
     TPoint              iPreviousDragStartPosition;

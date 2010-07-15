@@ -83,7 +83,7 @@ private:
 public:	
  	 //From CGlxBinding
       void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia, 
-		TBool aIsFocused ) const;
+		TBool aIsFocused, TInt aTextureId = KErrNotFound) const;
       CGlxBinding::TResponse HandleFocusChanged( TBool aIsGained );
       void HandleItemChangedL(const CMPXCollectionPath& aPath );
       

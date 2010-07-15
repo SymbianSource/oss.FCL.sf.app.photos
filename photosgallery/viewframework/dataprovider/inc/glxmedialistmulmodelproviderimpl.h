@@ -77,6 +77,12 @@ public:
       * @param aCount Number of items to be updated.
       */ 
     void UpdateItems( TInt aIndex, TInt aCount );
+
+      /**
+      * Enable/disable animation
+      * @param aAnimate - ETrue to enable the animation; EFalse Otherwise.
+      */ 
+    void AnimateDRMGifItem( TBool aAnimate );
     
 private:
 	/**

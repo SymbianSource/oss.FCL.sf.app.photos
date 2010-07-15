@@ -66,6 +66,12 @@ public:
       */ 
     IMPORT_C void UpdateItems( TInt aIndex, TInt aCount );
 
+      /**
+      * Enable/disable animation
+      * @param aAnimate - ETrue to enable the animation; EFalse Otherwise.
+      */ 
+    IMPORT_C void AnimateDRMGifItem( TBool aAnimate );
+
 private:
     CGlxMediaListMulModelProvider();
     

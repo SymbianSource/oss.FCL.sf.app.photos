@@ -245,6 +245,17 @@ public:
     * @param aState Animation state [ETrue to Start, EFalse to Stop]
     */
     IMPORT_C void AnimateMediaItem(const TGlxMediaId& aMediaId, TBool aState);
+
+ 	/**
+    * Creates textures for the given GIF media
+	* @param aMedia The media item
+	* @param aIdSpaceId The Id of the Id space in which the media Id is defined
+	* @param aFrameNumber frame number of gif media
+    * @param aBitmap Bitmap for the particular frame
+	* @return Created texture: ownership transfered
+    */    
+    IMPORT_C CAlfTexture& CreateDRMAnimatedGifTextureL(const TGlxMedia& aMedia,
+            TGlxIdSpaceId aIdSpaceId, TInt aFrameNumber, CFbsBitmap* aBitmap, CFbsBitmap* aBitmapMask);
     
 public: // from MGlxSkinChangeObserver
 

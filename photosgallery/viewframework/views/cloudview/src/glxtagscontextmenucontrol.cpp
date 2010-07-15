@@ -77,6 +77,8 @@ const TInt KShrinkYCoord = 5;
 const TInt KWidthPadding = 30;
 //Padding value for Minimum spacing for line separators
 const TInt KLinePadding = 5;
+//Padding value for right margin
+const TInt KRightMargin = 10;
 //Context menu separator line thickness value
 const TReal KSeparatorLineThickness = 0.2;
 //For Tagging the visuals
@@ -272,11 +274,12 @@ void CGlxTagsContextMenuControl::SetDisplay(const TPoint& aPoint)
         }
 
     TInt upperYPos = aPoint.iY - KMinimalGap;
-    TInt XPos = aPoint.iX + KWidthPadding;
+    TInt XPos = aPoint.iX;
     
     //Preferred is to display in upper area
     TInt upperDisplayableHeight = upperYPos - iViewableRect.iTl.iY;
-    TInt rightDisplayableWidth = iViewableRect.iBr.iX - XPos ;
+    TInt rightDisplayableWidth = iViewableRect.iBr.iX - (XPos + KRightMargin
+            + KWidthPadding);
 
     //always draw above
     if(rightDisplayableWidth < iMaxTextWidth)

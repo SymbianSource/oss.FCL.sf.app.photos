@@ -244,7 +244,20 @@ public:
      * Destroy Blank screen
      */
     IMPORT_C void CGlxUiUtility::DestroyScreenClearer();
-    
+	
+	/**
+     *  SetTNMDaemonPSKeyvalue
+     *  @return Error code(TInt)
+     */
+    IMPORT_C TInt SetTNMDaemonPSKeyvalue();
+	
+    /**
+     *  Get Keyguard on/off PSKeyvalue
+     *  @return 0 keyguard off
+     *          1 keyguard on
+     */
+    IMPORT_C TInt GetKeyguardStatus();
+
 public: // from class MGlxTvObserver
 
     /**

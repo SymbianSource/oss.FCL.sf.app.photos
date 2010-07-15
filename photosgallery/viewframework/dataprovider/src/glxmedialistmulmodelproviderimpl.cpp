@@ -336,3 +336,12 @@ void CGlxMediaListMulModelProviderImpl::UpdateItems( TInt aIndex, TInt aCount )
     TRACER("CGlxMediaListMulModelProviderImpl::UpdateItems");
     CGlxMulModelProviderBase::UpdateItems(aIndex, aCount);
     }
+	
+// ----------------------------------------------------------------------------
+// AnimateDRMGifItem
+// ----------------------------------------------------------------------------
+// 
+void CGlxMediaListMulModelProviderImpl::AnimateDRMGifItem( TBool aAnimate )
+    {
+    CGlxMulModelProviderBase::AnimateDRMGifItem(aAnimate);
+    }

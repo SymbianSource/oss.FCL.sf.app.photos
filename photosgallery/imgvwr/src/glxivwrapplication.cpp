@@ -19,14 +19,12 @@
 
 
 #include "glxivwrapplication.h"
-
-#include <glxgallery.hrh>
-#include <glxlog.h>
-#include <glxtracer.h>
-
 #include "glxivwrdocument.h"
 
-// UID for the application, this should correspond to the uid defined in the mmp file
+#include <glxtracer.h>
+
+// UID for the application, 
+// this should correspond to the uid defined in the mmp file
 static const TUid KUidGlxIvwrApp = {0x200104E7};
 
 // -----------------------------------------------------------------------------
@@ -36,7 +34,6 @@ static const TUid KUidGlxIvwrApp = {0x200104E7};
 CApaDocument* CGlxIVwrApplication::CreateDocumentL()
     {
     TRACER("CApaIVwrDocument* CGlxApplication::CreateDocumentL()");
-    GLX_LOG_INFO("CGlxApplication::CreateDocumentL");
     // Create a Viewer document, and return a pointer to it
     CApaDocument* document = CGlxIVwrDocument::NewL(*this);
     return document;
@@ -47,10 +44,10 @@ CApaDocument* CGlxIVwrApplication::CreateDocumentL()
 // -----------------------------------------------------------------------------
 //
 TUid CGlxIVwrApplication::AppDllUid() const
-{
-// Return the UID for the Viewer application
-return KUidGlxIvwrApp;
-}
+    {
+    // Return the UID for the Viewer application
+    return KUidGlxIvwrApp;
+    }
 
 #include <eikstart.h>
 

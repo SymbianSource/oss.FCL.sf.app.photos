@@ -87,7 +87,7 @@ CGlxContainerListBinding::~CGlxContainerListBinding()
 // ---------------------------------------------------------------------------
 //
 void CGlxContainerListBinding::PopulateT( Alf::MulVisualItem& aItem,
-        const TGlxMedia& aMedia, TBool /*aIsFocused*/ ) const
+        const TGlxMedia& aMedia, TBool /*aIsFocused*/, TInt /*aTextureId*/  ) const
 	{
     const TInt KCommaLength = 2;
     _LIT(KComma,",");

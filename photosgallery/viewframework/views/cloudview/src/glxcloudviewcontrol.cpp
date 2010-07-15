@@ -69,7 +69,7 @@ const TInt KTagScreenHeight = 460;
 const TReal KBoundaryMargin = 0.1; //10% = 10/100 = 0.1 
 const TInt KFastCloudMovement = 100; //Transition time to move cloud view
 const TInt KSlowCloudMovement = 1000; //Transition time to move cloud view
-const TInt KLongPressTimer = 1500000; //1.5 seconds
+const TInt KLongPressTimer = 700000;//700 ms to synchonize with gridview context menu timings
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.

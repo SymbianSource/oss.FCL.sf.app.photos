@@ -72,8 +72,8 @@ public:
     void Initialize(TPoint& aCenter, 
             TSize& aScreenSize, 
             TSize& aImageSize,
-            TSize& aOriginalZoomedDimensions, 
-            TUint8 aInitialZoomRatio);
+            TUint8 aInitialZoomRatio,
+            TUint8 aMinZoomRatio);
     
     /**
      * UpdatePanFactor [Useful only in Key-based Panning]

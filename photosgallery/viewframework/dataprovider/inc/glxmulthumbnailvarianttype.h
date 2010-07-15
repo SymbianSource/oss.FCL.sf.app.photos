@@ -41,18 +41,18 @@ NONSHARABLE_CLASS( GlxThumbnailVariantType ) : public CBase, public
 public:
 	
 	static GlxThumbnailVariantType* NewL( const TGlxMedia& aMedia, const TSize& aSize, 
-    		TBool aIsFocused = EFalse );
+    		TBool aIsFocused = EFalse, TInt aTextureId = KErrNotFound );
 	
 	static GlxThumbnailVariantType* NewLC( const TGlxMedia& aMedia, const TSize& aSize, 
-    		TBool aIsFocused = EFalse );
+    		TBool aIsFocused = EFalse, TInt aTextureId = KErrNotFound);
 	
 	void ConstructL( const TGlxMedia& aMedia, const TSize& aSize, TBool 
-			aIsFocused = EFalse );
+			aIsFocused = EFalse, TInt aTextureId = KErrNotFound);
 			
     /** constructor
      * Create via new (EMM) ... */
     GlxThumbnailVariantType( const TGlxMedia& aMedia, const TSize& aSize, 
-    		TBool aIsFocused = EFalse );
+    		TBool aIsFocused = EFalse, TInt aTextureId = KErrNotFound);
     /** destructor */
     ~GlxThumbnailVariantType();
 

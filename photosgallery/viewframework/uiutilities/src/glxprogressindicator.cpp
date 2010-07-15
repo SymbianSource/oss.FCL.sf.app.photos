@@ -128,10 +128,13 @@ inline void CGlxProgressIndicator::DisplayProgressBarL()
     {
     TRACER("CGlxProgressIndicator::DisplayProgressBarL");
     TInt itemsLeft = iUiUtility->GetItemsLeftCount();
-    GLX_LOG_INFO1("itemsLeft in DisplayProgressBarL = %d",iFinalCount);
+    GLX_LOG_INFO2("DisplayProgressBarL itemsLeft (%d),iFinalCount (%d) ",
+            itemsLeft,iFinalCount);
     UpdateProgressBar();
-    if (!itemsLeft)
+    if (!itemsLeft && (itemsLeft != KErrNotReady))
         {
+        // stop TNM daemon once all the imgs are processed.
+        iUiUtility->StopTNMDaemon();
         if (iProgressbarTicker->IsActive())
             {
             iProgressbarTicker->Cancel();
@@ -147,6 +150,9 @@ inline void CGlxProgressIndicator::DisplayProgressBarL()
 void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue, TBool aShow)
     {
     TRACER("CGlxProgressIndicator::StartProgressNoteL()");
+    //for MMC insert case need to know the count.so start Daemon.
+    iUiUtility->StartTNMDaemon();
+
     TInt itemsLeft = iUiUtility->GetItemsLeftCount();
     if (aShow)
         {
@@ -229,14 +235,18 @@ TInt CGlxProgressIndicator::CalculateDisplayBarIncrement()
 
     TInt itemsLeft = iUiUtility->GetItemsLeftCount();
 
-    if (iFinalCount < itemsLeft)
+    if ((iFinalCount < itemsLeft) && (itemsLeft != KErrNotReady))
         {
         iProgressInfo->SetFinalValue(itemsLeft);
         iFinalCount = itemsLeft;
         }
+    GLX_LOG_INFO1("CalculateDisplayBarIncrement = %d ",
+            (iFinalCount - itemsLeft));
+    // If TNM is still in harvesting mode, return 0.
+    // When the actual count is coming return the difference to update the info-bar
     
     GLX_LOG_INFO1("CalculateDisplayBarIncrement = %d ",(iFinalCount - itemsLeft));
-    return (iFinalCount - itemsLeft);
+    return ((itemsLeft == KErrNotReady) ? 0 :(iFinalCount - itemsLeft));
     }
 
 // -----------------------------------------------------------------------------
@@ -247,7 +257,7 @@ void EXPORT_C CGlxProgressIndicator::ShowProgressbarL()
     {
     TRACER("CGlxProgressIndicator::ShowProgressbarL");
     TInt itemsLeft = iUiUtility->GetItemsLeftCount();
-    GLX_DEBUG3("ShowProgressbarL itemsLeft(%d), iFinalCount(%d)", itemsLeft, 
+    GLX_DEBUG3("ShowProgressbarL itemsLeft(%d), iFinalCount(%d)", itemsLeft,
             iFinalCount);
 
     if (iFinalCount < itemsLeft)
@@ -257,7 +267,8 @@ void EXPORT_C CGlxProgressIndicator::ShowProgressbarL()
          */
         iFinalCount = itemsLeft;
         }
-    if (iFinalCount)
+
+    if ((itemsLeft == KErrNotReady) || iFinalCount)
         {
         StartProgressNoteL(iFinalCount, ETrue);
         if (!iProgressbarTicker)
@@ -285,8 +296,8 @@ void EXPORT_C CGlxProgressIndicator::ShowProgressbarL()
 EXPORT_C void CGlxProgressIndicator::DismissProgressDialog()
     {
     TRACER("CGlxProgressIndicator::DismissProgressDialog");
-    
-    if(iProgressDialog)
+
+    if (iProgressDialog)
         {
         TRAP_IGNORE(iProgressDialog->ProcessFinishedL());
         }

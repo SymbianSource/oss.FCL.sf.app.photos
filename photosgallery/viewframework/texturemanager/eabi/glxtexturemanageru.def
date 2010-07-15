@@ -16,9 +16,10 @@ EXPORTS
 	_ZN18CGlxTextureManager25CreateAnimatedGifTextureLERK7TDesC16RK5TSizeRK9TGlxMedia6TGlxIdI17TGlxIdSpaceIdBaseE @ 15 NONAME
 	_ZN18CGlxTextureManager25CreateNewTextureForMediaLE5TSizeRK9TGlxMediaRK6TGlxIdI17TGlxIdSpaceIdBaseEP19MGlxTextureObserver @ 16 NONAME
 	_ZN18CGlxTextureManager28CreateColorAvkonIconTextureLERK11TAknsItemIDi4TRgbS2_i5TSize @ 17 NONAME
-	_ZN18CGlxTextureManager4NewLER18CAlfTextureManager @ 18 NONAME
-	_ZTI22CGlxTextureManagerImpl @ 19 NONAME
-	_ZTI24CGlxBitmapDecoderWrapper @ 20 NONAME
-	_ZTV22CGlxTextureManagerImpl @ 21 NONAME
-	_ZTV24CGlxBitmapDecoderWrapper @ 22 NONAME
+	_ZN18CGlxTextureManager28CreateDRMAnimatedGifTextureLERK9TGlxMedia6TGlxIdI17TGlxIdSpaceIdBaseEiP10CFbsBitmapS7_ @ 18 NONAME
+	_ZN18CGlxTextureManager4NewLER18CAlfTextureManager @ 19 NONAME
+	_ZTI22CGlxTextureManagerImpl @ 20 NONAME
+	_ZTI24CGlxBitmapDecoderWrapper @ 21 NONAME
+	_ZTV22CGlxTextureManagerImpl @ 22 NONAME
+	_ZTV24CGlxBitmapDecoderWrapper @ 23 NONAME
 

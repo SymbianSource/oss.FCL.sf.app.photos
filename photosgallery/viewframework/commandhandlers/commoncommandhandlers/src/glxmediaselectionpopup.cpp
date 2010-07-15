@@ -264,6 +264,19 @@ void CGlxSingleGraphicPopupMenuStyleList::HandleListBoxEventL(
 
             break;
             }
+        case EEventEnterKeyPressed:
+            {
+            //Check for MultipleSelection is Disbaled
+            if (!(mediaListAdaptor->MultiSelectionEnabled()))
+                {
+                //Set if its a static item
+                const TGlxMedia& item = mediaListAdaptor->MediaList()->Item(
+                        currItemIndx);
+                mediaListAdaptor->SetStaticItemSelected(item.IsStatic());
+                }
+            CAknPopupList::HandleListBoxEventL( aListBox, aEventType);
+            break;
+            }
         default:
         	{
         	CAknPopupList::HandleListBoxEventL( aListBox, aEventType);

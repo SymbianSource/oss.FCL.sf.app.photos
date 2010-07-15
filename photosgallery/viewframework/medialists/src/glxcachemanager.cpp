@@ -222,61 +222,63 @@ void CGlxCacheManager::CancelPreviousRequest()
 void CGlxCacheManager::HandleGarbageCollectionL(TBool aStart)
     {
     TRACER("CGlxCacheManager::HandleGarbageCollection");
+    GLX_DEBUG2("CGlxCacheManager::HandleGarbageCollectionL() aStart=%d", aStart);
     TInt freeMemory = 0;
-       
-       HAL::Get( HALData::EMemoryRAMFree, freeMemory );
-           
-       if(aStart)
-           {
-           if(freeMemory < KGlxLowerMemoryLimitForCleanUp)
-               {
-               // 2 page - 30 Items for Flush
-               TInt count = 2;  
-               if(freeMemory < (KGlxLowerMemoryLimitForCleanUp/2))
-                   {
-                   // If Memory is below this limit it's ok i can wait for 60 items to clean-up
-                   count = KGlxNoOfPagesToFlushInCriticalLowMemory;
-                   }
-               // Cancel Clean-up before Flush Page; Clean-up will be starting just after Flush page
-               iGarbageCollector->CancelCleanup(); 
-               iGarbageCollector->FlushPagesL(count);
-               iGarbageCollector->CleanupL();
-               iCleanUpOnGoing = ETrue;         // Clean up is Started now i can call CancelClean-up to Stop Clean Up
-               }
-           else if((freeMemory < KGlxUpperMemoryLimitForCleanUp) && !iCleanUpOnGoing)
-               {
-               iGarbageCollector->CleanupL();
-               iCleanUpOnGoing = ETrue;         // Clean up is Started now i can call CancelClean-up to Stop Clean Up
-               }
-           // This is Added to Keep Assure Clean-up is not going to Disturb normal Flow if there is Enough Memory
-           // We Remove this Code After Evaluation of Use of this Code
-           else if(iCleanUpOnGoing)
-               {
-               iGarbageCollector->CancelCleanup();
-               iCleanUpOnGoing = EFalse;
-               }
-               
-           }
-       else if(freeMemory < KGlxLowerMemoryLimitForCleanUp)
-           {
-           // 2 page - 30 Items for Flush
-           TInt count = 2;
-           if(freeMemory < (KGlxLowerMemoryLimitForCleanUp/2))
-               {
-               // If Memory is below this limit it's ok i can wait for 60 items to clean-up
-               count = KGlxNoOfPagesToFlushInCriticalLowMemory;
-               }
-           // Cancel Clean-up before Flush Page; Clean-up will be starting just after Flush page
-           iGarbageCollector->CancelCleanup();
-           iGarbageCollector->FlushPagesL(count);
-           iGarbageCollector->CleanupL();
-           iCleanUpOnGoing = ETrue;          // Clean up is Started now i can call CancelClean-up to Stop Clean Up
+    HAL::Get(HALData::EMemoryRAMFree, freeMemory);
+    GLX_DEBUG2("CGlxCacheManager::HandleGarbageCollectionL() freeMemory=%d", freeMemory);
+
+    if (aStart)
+        {
+        if (freeMemory < KGlxLowerMemoryLimitForCleanUp)
+            {
+            // 2 page - 30 Items for Flush
+            TInt count = 2;
+            if (freeMemory < (KGlxLowerMemoryLimitForCleanUp / 2))
+                {
+                // If Memory is below this limit it's ok i can wait for 60 items to clean-up
+                count = KGlxNoOfPagesToFlushInCriticalLowMemory;
+                }
+            // Cancel Clean-up before Flush Page; Clean-up will be starting just after Flush page
+            iGarbageCollector->CancelCleanup();
+            iGarbageCollector->FlushPagesL(count);
+            iGarbageCollector->CleanupL();
+            iCleanUpOnGoing = ETrue; // Clean up is Started now i can call CancelClean-up to Stop Clean Up
+            }
+        else if ((freeMemory < KGlxUpperMemoryLimitForCleanUp)
+                && !iCleanUpOnGoing)
+            {
+            iGarbageCollector->CleanupL();
+            iCleanUpOnGoing = ETrue; // Clean up is Started now i can call CancelClean-up to Stop Clean Up
+            }
+        // This is Added to Keep Assure Clean-up is not going to Disturb normal Flow if there is Enough Memory
+        // We Remove this Code After Evaluation of Use of this Code
+        else if (iCleanUpOnGoing)
+            {
+            iGarbageCollector->CancelCleanup();
+            iCleanUpOnGoing = EFalse;
+            }
+        }
+    else if (freeMemory < KGlxLowerMemoryLimitForCleanUp)
+        {
+        // 2 page - 30 Items for Flush
+        TInt count = 2;
+        if (freeMemory < (KGlxLowerMemoryLimitForCleanUp / 2))
+            {
+            // If Memory is below this limit it's ok i can wait for 60 items to clean-up
+            count = KGlxNoOfPagesToFlushInCriticalLowMemory;
+            }
+        // Cancel Clean-up before Flush Page; Clean-up will be starting just after Flush page
+        iGarbageCollector->CancelCleanup();
+        iGarbageCollector->FlushPagesL(count);
+        iGarbageCollector->CleanupL();
+        iCleanUpOnGoing = ETrue; // Clean up is Started now i can call CancelClean-up to Stop Clean Up
         }
     else if(iCleanUpOnGoing)
         {
         iGarbageCollector->CancelCleanup();
         iCleanUpOnGoing = EFalse;
         }
+    GLX_DEBUG2("CGlxCacheManager::HandleGarbageCollectionL() iCleanUpOnGoing=%d", iCleanUpOnGoing);
     }
 		
 // -----------------------------------------------------------------------------
@@ -314,7 +316,9 @@ TBool CGlxCacheManager::Match(const CMPXCollectionPath& aPath1,
 // HandleCollectionMediaL
 // -----------------------------------------------------------------------------
 //
-void CGlxCacheManager::HandleCollectionMediaL(const TGlxIdSpaceId& aIdSpaceId, const CMPXMedia& aMedia, TInt aError, TBool aRequestNextAttr)
+void CGlxCacheManager::HandleCollectionMediaL(
+        const TGlxIdSpaceId& aIdSpaceId, const CMPXMedia& aMedia,
+        TInt aError, TBool aRequestNextAttr)
     {
     TRACER("CGlxCacheManager::HandleCollectionMediaL");
     
@@ -1041,11 +1045,18 @@ void CGlxCacheManager::MaintainCacheL()
     			CleanupStack::PopAndDestroy(path);
     			
     			iRequestOwner = list;
-    			}		
-    			
-    		CleanupStack::PopAndDestroy(attrSpecs);	
-    		}
-    		
+                }
+
+            CleanupStack::PopAndDestroy(attrSpecs);
+            }
+
+        if (iRequestedItemIds.Count())
+            {
+            GLX_DEBUG1("CGlxCacheManager::MaintainCacheL() - Cleanup needed here!");
+            // Clean-up is needed here; Considering Current Memory Condition
+            HandleGarbageCollectionL(ETrue);
+            }
+
         if ( !iRequestOwner )
             {
             if ( iTempError )
@@ -1357,23 +1368,25 @@ void CGlxCacheManager::ReserveUsersL(const TGlxIdSpaceId& aIdSpaceId, TInt aCoun
         iCaches[index]->ReserveUsersL( aCount );
         }
     }
+
 //OOM 
 // -----------------------------------------------------------------------------
 // Start cache cleanup on Low memory event from OOM
 // -----------------------------------------------------------------------------
 //   
 void CGlxCacheManager::ReleaseRAML(TBool aFlushOnRequest)
-{
+    {
     TRACER("CGlxCacheManager::ReleaseRAM");
-    if(aFlushOnRequest)
+    if (aFlushOnRequest)
         {
-        HandleGarbageCollectionL(aFlushOnRequest);        
+        HandleGarbageCollectionL(aFlushOnRequest);
         }
-	else
-	{
-		iGarbageCollector->CleanupL(); 	 				
-	} 	
-}
+    else
+        {
+        iGarbageCollector->CleanupL();
+        }
+    }
+
 // -----------------------------------------------------------------------------
 // Force a cleanup on particular media id : remove all attributes
 // -----------------------------------------------------------------------------

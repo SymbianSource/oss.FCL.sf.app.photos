@@ -50,6 +50,9 @@ class MGlxTextureObserver;
 class CGlxBitmapDecoderWrapper;
 class MGlxBitmapDecoderObserver;
 class CGlxThumbnailAttribute;
+
+const TInt KGlxMaxFrameCount = 25;
+
 /**
  *  CGlxTextureManagerImpl
  *
@@ -160,7 +163,17 @@ public:
     */
     CAlfTexture& CreateAnimatedGifTextureL(const TDesC& aFilename, const TSize& aSize,
                                            const TGlxMedia& aMedia, TGlxIdSpaceId aIdSpaceId);
-
+ 	
+	/**
+    * Creates textures for the given GIF media
+	* @param aMedia The media item
+	* @param aIdSpaceId The Id of the Id space in which the media Id is defined
+	* @param aFrameNumber frame number of gif media
+    * @param aBitmap Bitmap for the particular frame
+	* @return Created texture: ownership transfered
+    */    
+    CAlfTexture& CreateDRMAnimatedGifTextureL(const TGlxMedia& aMedia,
+            TGlxIdSpaceId aIdSpaceId, TInt aFrameNumber, CFbsBitmap* aBitmap, CFbsBitmap* aBitmapMask);
     /**
      * Removes the texture if it was created by CreateThumbnailTextureL or
      * CreateZoomedTextureL
@@ -332,6 +345,44 @@ private:
             return *aMediaId == aThumbData.iMediaId;
             }
          };
+    
+    /**
+     * TGlxDRMGifThumbnailIcon
+     * Values associated with a DRM Gif thumbnail.
+     */
+    class TGlxDRMGifThumbnailIcon
+        {
+    public:
+        TInt iTextureId[KGlxMaxFrameCount];
+        CAlfTexture* iTexture[KGlxMaxFrameCount];
+        TMPXAttribute iAttribId;
+        TSize iRequiredSize;
+        TGlxMediaId iMediaId;
+        TGlxIdSpaceId iIdSpaceId;
+        MGlxTextureObserver* iObserver;
+        CFbsBitmap* iBitmap[KGlxMaxFrameCount];
+        CFbsBitmap* iBitmapMask[KGlxMaxFrameCount];
+        TTime iImageDate;
+        /**
+         * Helper function to be able to find texture from array
+         */
+        static TBool MatchTexture(const CAlfTexture* aTexture,
+                const TGlxDRMGifThumbnailIcon& aThumbData)
+            {
+            // return true if the address of the texture match
+            return aTexture == aThumbData.iTexture[0];
+            }
+
+        /**
+         * Helper function to be able to find mediaid from array
+         */
+        static TBool MatchMediaId(const TGlxMediaId* aMediaId,
+                const TGlxDRMGifThumbnailIcon& aThumbData)
+            {
+            // return true if the Media Id match
+            return *aMediaId == aThumbData.iMediaId;
+            }
+        };
     /**
     * Requests the best match texture. If it already exists this method does nothing.
     * However if it doed not exist it will create it and replace the old texture
@@ -407,8 +458,18 @@ private:
     *        or KErrNotFound
     * @return ETrue if Thumbnail is available, EFalse if it needs to be created
     */
-    TBool CGlxTextureManagerImpl::GetAnimatedGifThumbnailIndex( TSize aSize,
+    TBool GetAnimatedGifThumbnailIndex( TSize aSize,
             const TGlxMedia& aMedia, const TGlxIdSpaceId& aIdSpaceId,
+            TInt& aThumbnailIndex);
+     /**
+    * GetDRMAnimatedGifThumbnailIndex
+    * @param aMedia The TGlxMedia item.
+    * @param aIdSpaceId The Id of the Id space in which the media Id is defined	
+    * @param aThumbnailIndex on return will contain the Index of the thumbnail in the iAnimatedTnmList
+    *        or KErrNotFound
+    * @return ETrue if Thumbnail is available, EFalse if it needs to be created
+    */   
+    TBool GetDRMAnimatedGifThumbnailIndex(const TGlxMedia& aMedia, const TGlxIdSpaceId& aIdSpaceId,
             TInt& aThumbnailIndex);
 private:
     // Alf Texture manager (not owned) 
@@ -428,6 +489,9 @@ private:
 
     // List containing data for textures generated from Animated thumbnail. 
     RArray<TGlxThumbnailIcon> iAnimatedTnmList;
+    
+    // List containing data for textures generated from DRM Gif Animated thumbnail. 
+    RArray<TGlxDRMGifThumbnailIcon> iDRMGifAnimatedTnmList;
         
     // List of .mif filenames of files containing icons. 
     CDesCArrayFlat* iMifFilenames;

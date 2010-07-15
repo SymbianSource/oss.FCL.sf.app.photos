@@ -238,7 +238,7 @@ private:
     * Calls GetInitialZoomLevel() to get the Zoom Level and Sets the Value to the
     * Slider Level
     */
-    void SetSliderLevel();
+    void SetSliderToMin();
     
     /*
     * Creates and Initializes the slider model/widget

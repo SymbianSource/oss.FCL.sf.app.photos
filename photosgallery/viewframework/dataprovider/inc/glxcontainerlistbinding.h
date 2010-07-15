@@ -91,7 +91,7 @@ private:
 	    
 	// From CGlxBinding
 	void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia,
-													TBool aIsFocused ) const;
+								TBool aIsFocused, TInt aTextureId = KErrNotFound) const;
 
 	/**
      * Create media list

@@ -329,4 +329,16 @@ EXPORT_C void CGlxTextureManager::AnimateMediaItem(
     TRACER("CGlxTextureManager::AnimateMediaItem");
     iImpl->AnimateMediaItem(aMediaId, aState);
     }
+	
+// -----------------------------------------------------------------------------
+// CreateDRMAnimatedGifTextureL
+// -----------------------------------------------------------------------------
+//
+EXPORT_C CAlfTexture& CGlxTextureManager::CreateDRMAnimatedGifTextureL(const TGlxMedia& aMedia,
+        TGlxIdSpaceId aIdSpaceId, TInt aFrameNumber, CFbsBitmap* aBitmap, CFbsBitmap* aBitmapMask)
+    {
+    TRACER("CGlxTextureManager::CreateDRMAnimatedGifTextureL");
+    return iImpl->CreateDRMAnimatedGifTextureL( aMedia,
+            aIdSpaceId, aFrameNumber, aBitmap, aBitmapMask);
+    }
 

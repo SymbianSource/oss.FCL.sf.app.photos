@@ -68,10 +68,11 @@ public:
 	 * @param aItem Visual item to be populated
 	 * @param aMedia Media item 
 	 * @param aIsFocused the item is focused or not
+	 * @param aTextureId textureid
 	 */
 	/// T for "throws" (instead of L for "leaves")
 	virtual void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia, 
-		TBool aIsFocused ) const = 0;
+		TBool aIsFocused, TInt aTextureId = KErrNotFound ) const = 0;
 	
 	/**
 	 * HasRelevantAttributes Checks whether the attribute is relevent to the context
@@ -160,7 +161,7 @@ private:
 
     // From CGlxBinding
     void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia, 
-        TBool aIsFocused ) const;
+        TBool aIsFocused,TInt aTextureId = KErrNotFound ) const;
 
     /**
 	 * @todo
@@ -279,7 +280,7 @@ protected:
 private: 
     /// From CGlxBinding
     void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia,
-        TBool aIsFocused ) const;
+        TBool aIsFocused,TInt aTextureId = KErrNotFound ) const;
     
 private:
     /// Holds MPX data 
@@ -327,7 +328,7 @@ private:
     CGlxMpxAttributeBinding( const TMPXAttribute& aAttribute, TInt aFormatStringId );
     // From CGlxBinding
     void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia,
-        TBool aIsFocused ) const;
+        TBool aIsFocused, TInt aTextureId = KErrNotFound ) const;
 	
     /**
       * HasRelevantAttributes
@@ -388,7 +389,7 @@ public:
     
 private: // From CGlxBinding
     void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia,
-        TBool aIsFocused ) const;
+        TBool aIsFocused, TInt aTextureId = KErrNotFound ) const;
 	
     /**
        * HasRelevantAttributes
@@ -435,7 +436,7 @@ public:
     
 private: // From CGlxBinding
     void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia,
-        TBool aIsFocused ) const;
+        TBool aIsFocused, TInt aTextureId = KErrNotFound ) const;
 	
     /**
        * HasRelevantAttributes
@@ -481,7 +482,7 @@ public:
     
 private: // From CGlxBinding
     void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia,
-        TBool aIsFocused ) const;
+        TBool aIsFocused, TInt aTextureId = KErrNotFound ) const;
         
 private:
     const CGlxMulIconProvider* iIconProvider;
@@ -521,7 +522,7 @@ public:
 private:    
 // From CGlxBinding
     void PopulateT( Alf::MulVisualItem& aItem, const TGlxMedia& aMedia,
-        TBool aIsFocused ) const;
+        TBool aIsFocused,TInt textureId = KErrNotFound ) const;
     
 private:    
     MGlxBoundCommand* iCommand;

@@ -37,4 +37,5 @@ EXPORTS
 	?AddThumbnailBindingL@TGlxMulBindingSetFactory@@IBEXABW4TVisualAttribute@mulvisualitem@Alf@@ABVTSize@@@Z @ 36 NONAME ; void TGlxMulBindingSetFactory::AddThumbnailBindingL(enum Alf::mulvisualitem::TVisualAttribute const &, class TSize const &) const
 	?NewL@CGlxMulDriveIconProvider@@SAPAV1@XZ @ 37 NONAME ; class CGlxMulDriveIconProvider * CGlxMulDriveIconProvider::NewL(void)
 	?NewL@CGlxDetailsMulModelProvider@@SAPAV1@AAVCAlfEnv@@AAVIMulWidget@Alf@@AAVMGlxMediaList@@W4TLogicalTemplate@mulwidget@4@H@Z @ 38 NONAME ; class CGlxDetailsMulModelProvider * CGlxDetailsMulModelProvider::NewL(class CAlfEnv &, class Alf::IMulWidget &, class MGlxMediaList &, enum Alf::mulwidget::TLogicalTemplate, int)
+	?AnimateDRMGifItem@CGlxMediaListMulModelProvider@@QAEXH@Z @ 39 NONAME ; void CGlxMediaListMulModelProvider::AnimateDRMGifItem(int)
 

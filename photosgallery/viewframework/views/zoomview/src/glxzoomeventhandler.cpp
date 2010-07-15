@@ -81,7 +81,7 @@ CGlxZoomPanEventHandler* CGlxZoomPanEventHandler::NewL(
 //
 CGlxZoomPanEventHandler::CGlxZoomPanEventHandler(
         MGlxZoomEventHandlers& aZoomEventHandler) :
-    iZoomEventHandler(aZoomEventHandler), iPrevPinchFactor(
+    iZoomEventHandler(aZoomEventHandler), iPrevPinchPercentage(
             KGlxNeutralZoomFactor)
     {
     TRACER("CGlxZoomPanEventHandler::CGlxZoomPanEventHandler()");
@@ -236,8 +236,8 @@ void CGlxZoomPanEventHandler::NextStepAnimatedZoom()
     // The boundary conditions. 
     if (((targetZoomLevel >= iTargetAnimatedZoomRatio)
             && (EAnimationModeZoomIn == iAnimatedZoomMode))
-            || ((targetZoomLevel <= iMinZoomRatio) && (EAnimationModeZoomOut
-                    == iAnimatedZoomMode)))
+            || ((targetZoomLevel <= iMinZoomRatio) 
+                    && (EAnimationModeZoomOut == iAnimatedZoomMode)))
         {
         iIsZoomingInAnimatedState = EFalse;
         CancelAnimationTimer();
@@ -630,8 +630,10 @@ void CGlxZoomPanEventHandler::HandleGestureReleased(
     if ( (EGestureSwipeLeft  == iPreviousGestureCode)
           ||(EGestureSwipeRight == iPreviousGestureCode)
           ||(EGestureSwipeUp    == iPreviousGestureCode)
-          ||(EGestureSwipeDown  == iPreviousGestureCode))
+          ||(EGestureSwipeDown  == iPreviousGestureCode)
+          )
         {
+        GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandleGestureReleased: Previous Gesture Code [%d]" , iPreviousGestureCode);
         SetupAnimatedPan();
         }
     }
@@ -712,20 +714,23 @@ void CGlxZoomPanEventHandler::HandlePinchEventL(
         }
     
     TPoint pinchFocus       = aEvent.PinchCentrePoint();
-   // Wrong convention in variable nomenclature but better than 
-   // ratioInPercentOfChangeInPinchDistance which is incidentally correct 
-    TInt pinchPercentage    = aEvent.PinchPercent();  
+    // Wrong convention in variable nomenclature but better than 
+    // ratioInPercentOfChangeInPinchDistance which is incidentally correct 
+    TInt    pinchPercentage     = aEvent.PinchPercent();  
+    GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandlePinchEventL: Percentage [%d]" , pinchPercentage);
+    GLX_LOG_INFO2("CGlxZoomPanEventHandler::HandlePinchEventL: Pinch Focus [%d, %d]" , pinchFocus.iX, pinchFocus.iY);
 
-	if (( iPrevPinchFactor >= KGlxNeutralZoomFactor ) && 
+	if (( iPrevPinchPercentage >= KGlxNeutralZoomFactor ) && 
         ( pinchPercentage < KGlxNeutralZoomFactor ))
         {
-		iPrevPinchFactor = pinchPercentage ;
+		iPrevPinchPercentage = pinchPercentage ;
+		GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandlePinchEventL: Pinch Ignored. Previous pinch factor = %d", iPrevPinchPercentage );
 		//This will result in we ignoring this event
-		pinchPercentage = KGlxNeutralZoomFactor;
+        pinchPercentage = KGlxNeutralZoomFactor;
         }
 	else
-        {	
-		iPrevPinchFactor = pinchPercentage ;
+        {
+        iPrevPinchPercentage = pinchPercentage ;
         }
 	
     // pinchPercentage == 100 => No change in finger distance => No Zoom. 
@@ -738,7 +743,6 @@ void CGlxZoomPanEventHandler::HandlePinchEventL(
         }
     
     HideScreenFurniture();
-    GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandlePinchEventL: Percentage [%d]" , pinchPercentage);
     }
 
 // -----------------------------------------------------------------------------
@@ -919,12 +923,11 @@ void CGlxZoomPanEventHandler::HideScreenFurniture()
 // ActivateZoom
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomPanEventHandler::ActivateZoom(TInt aInitialZoomRatio, 
+void CGlxZoomPanEventHandler::ActivateZoom( TInt aInitialZoomRatio,  
         TSize aImageSize, 
         TZoomStartMode aStartMode, 
-        TInt aMinSliderRange, 
-        TInt aMaxSliderRange,
-        TSize& aOriginalDimensions, 
+        TInt aMinZoomRatio, 
+        TInt aMaxZoomRatio,
         TPoint* aZoomFocus)
     {
     TRACER("CGlxZoomPanEventHandler::ActivateZoom");
@@ -940,16 +943,15 @@ void CGlxZoomPanEventHandler::ActivateZoom(TInt aInitialZoomRatio,
               );
     
     // Minimum and Maximum Zoom Ratio     
-    iMinZoomRatio = iZoomRatio = aMinSliderRange;
-    iMaxZoomRatio = aMaxSliderRange   ;
+    iZoomRatio      = aInitialZoomRatio; 
+    iMinZoomRatio   = aMinZoomRatio    ;
+    iMaxZoomRatio   = aMaxZoomRatio    ;
     
-    iInitialZoomRatio = aInitialZoomRatio;
-
     iMathsEngine.Initialize(center,
             screenSize,
             imageSize,
-            aOriginalDimensions,
-            iZoomRatio
+            iZoomRatio,
+            aMinZoomRatio
             );
     
     //initially show the slider,so set the state to slider visible
@@ -984,7 +986,7 @@ void CGlxZoomPanEventHandler::ActivateZoom(TInt aInitialZoomRatio,
             break;
         case EZoomStartPinch:
             {
-            iZoomRatio = iMathsEngine.Zoom(EZoomIn, aMinSliderRange,  
+            iZoomRatio = iMathsEngine.Zoom(EZoomIn, aMinZoomRatio,  
                     viewPortTopLeft, viewPortDimension);
 
             iZoomEventHandler.HandleViewPortParametersChanged(viewPortTopLeft , 0, 
@@ -1046,8 +1048,12 @@ TBool CGlxZoomPanEventHandler::HandleEvent( const TAlfEvent& aEvent )
                     {
                     GLX_LOG_INFO("CGlxZoomPanEventHandler::HandleEvent:ETypePrimaryValueChange");
 
+                    GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandleEvent:ETypePrimaryValueChange, iMinZoomRatio = [%d]", iMinZoomRatio);
+                    GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandleEvent:ETypePrimaryValueChange, iMaxZoomRatio = [%d]", iMaxZoomRatio);
+
                     MulSliderPos* dataPtr = (MulSliderPos*)(aEvent.CustomEventData());  
                     TInt currentSliderValue = dataPtr->mCurrentValue;
+                    GLX_LOG_INFO1("CGlxZoomPanEventHandler::HandleEvent:ETypePrimaryValueChange, currentSliderValue = [%d]", currentSliderValue );
 
                     // Is current value within acceptable range? 
 					// If yes, then zoom in or zoom out as needed.
@@ -1131,7 +1137,7 @@ void CGlxZoomPanEventHandler::ZoomToMinimumL()
     {
     TRACER("CGlxZoomPanEventHandler::ZoomToMinimumL( )");
     
-    Zoom(iInitialZoomRatio, 0, EZoomOut);
+    Zoom(iMinZoomRatio, 0, EZoomOut);
     CallZoomOutL();
     }
 
@@ -1159,6 +1165,7 @@ void CGlxZoomPanEventHandler::Zoom(TInt aExpectedZoomLevel,
 
     if( atZoomThreshold )
         {
+        GLX_LOG_INFO("CGlxZoomPanEventHandler::Zoom Threshold Reached");
         CancelZoomPanTimer();
         if (iZoomRatio <= iMinZoomRatio)
             {

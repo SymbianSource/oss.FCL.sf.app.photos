@@ -61,7 +61,6 @@ const TReal KGlxOpacityTransparent = 0.0;
 const TInt KHDMIZoomDelay = 250000; 
 //Zoom level for the animation , assuming the innitial level is 1.
 const TReal KGlxZoomLevel = 1.5;
-const TInt KGlxMinSmallImageZoomLevel =100;
 
 const TInt KGlxDecodingThreshold = 3000000; // pixels
 
@@ -332,9 +331,11 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
             
             // Now since our maximum size possible is 3 MP. all our zoom percentages will be relative to it. 
             // So our initial zoom ratio will be different and cnsequently our minimum slider value too will change. 
-            // Maximum is an
-            TInt initialZoomRatio = GetInitialZoomLevel(maxVirtualImageSize);
-            iZoomSliderModel->SetMinRange(initialZoomRatio);
+
+            
+            GLX_LOG_INFO1("ActivateZoomControlL: Slider MaxRange = %d   ", iZoomSliderModel->MaxRange() );
+            GLX_LOG_INFO1("ActivateZoomControlL: Slider MinRange = %d   ", iZoomSliderModel->MinRange() );
+            GLX_LOG_INFO1("ActivateZoomControlL: Slider PrimaryValue= %d", iZoomSliderModel->PrimaryValue() );
 
             iEventHandler->SetZoomActivated(ETrue);
             if (aStartMode == EZoomStartSlider) 
@@ -344,17 +345,15 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
                         aStartMode,
                         iZoomSliderModel->MinRange(), 
                         iZoomSliderModel->MaxRange(),
-                        maxVirtualImageSize,
                         aZoomFocus);
                 }
             else 
                 {
-                iEventHandler->ActivateZoom(initialZoomRatio,
+                iEventHandler->ActivateZoom(aInitialZoomRatio,
                         maxVirtualImageSize,
                         aStartMode,
                         iZoomSliderModel->MinRange(), 
                         iZoomSliderModel->MaxRange(),
-                        maxVirtualImageSize,
                         aZoomFocus);
                 }
             TRAP_IGNORE(iImageTexture = 
@@ -794,6 +793,9 @@ void CGlxZoomControl::UpdateViewPort(TPoint& aViewPortTopLeft,
         {
         iZoomSliderModel->SetPrimaryValue(aPrimarySliderRatio);
         }
+    
+    GLX_LOG_INFO1(" CGlxZoomControl::UpdateViewPort aPrimarySliderRatio = [%d]", aPrimarySliderRatio);
+    
     }
 
 // -----------------------------------------------------------------------------
@@ -914,33 +916,6 @@ void CGlxZoomControl::HandleGestureL( const GestureHelper::MGestureEvent& aEvent
     iEventHandler->SetPreviousEventCode(code);
     }
 
-// -----------------------------------------------------------------------------
-// GetInitialZoomLevel
-// -----------------------------------------------------------------------------
-//
-TInt CGlxZoomControl::GetInitialZoomLevel(TSize& aSize )
-    {
-    TRACER("CGlxZoomControl::InitialZoomLevel");
-
-    TRect rect = AlfUtil::ScreenSize();
-    TUint8 initialZoomLevel;
-
-    if( rect.Width()>= aSize.iWidth && rect.Height() >= aSize.iHeight)
-        {
-        //if Both the Width and Height are lesser than the screen size,the initial Zoom Level will be 100
-        initialZoomLevel = KGlxMinSmallImageZoomLevel;
-        }
-    else
-        {
-        //Calculate (Display Area Width)  /Image Width   * 100
-        //Calculate (Display Area Height) /Image Height  * 100
-        //Choose the Minimum Of the above.
-        TReal32 imageWidthRatio  = ((TReal32) rect.Width()/ aSize.iWidth  )*100.0F;
-        TReal32 imageHeightRatio = ((TReal32)rect.Height()/ aSize.iHeight )*100.0F;
-        initialZoomLevel = Min(imageWidthRatio,imageHeightRatio);
-        } 
-    return initialZoomLevel;
-    }
 // -----------------------------------------------------------------------------
 // HandleTvStatusChangedL 
 // -----------------------------------------------------------------------------

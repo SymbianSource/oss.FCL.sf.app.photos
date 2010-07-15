@@ -139,7 +139,7 @@ std::auto_ptr< GlxThumbnailVariantType > CGlxPreviewThumbnailBinding::CreateThum
 // ----------------------------------------------------------------------------
 //
 void CGlxPreviewThumbnailBinding::PopulateT(Alf::MulVisualItem& aItem, const TGlxMedia& aMedia, 
-		TBool aIsFocused )const
+		TBool aIsFocused, TInt /*aTextureId*/ )const
 	{		
 	TRACER("CGlxPreviewThumbnailBinding::PopulateT");
 	 //T is used for throws as per C++ standard.Hence used instead of "L"

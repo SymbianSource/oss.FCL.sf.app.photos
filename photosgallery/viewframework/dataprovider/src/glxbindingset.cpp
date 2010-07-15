@@ -69,13 +69,13 @@ void CGlxBindingSet::AddBindingL( CGlxBinding* aBinding )
 // ----------------------------------------------------------------------------
 //
 void CGlxBindingSet::PopulateT( Alf::MulVisualItem& aItem, 
-        const TGlxMedia& aMedia, TBool aIsFocused ) const
+        const TGlxMedia& aMedia, TBool aIsFocused, TInt aTextureId) const
     {
     TRACER("CGlxBindingSet::PopulateT");
     const TInt count = iBindings.Count();
     for ( TInt i = 0; i < count; i++ )
         {
-        iBindings[i]->PopulateT( aItem, aMedia, aIsFocused );
+        iBindings[i]->PopulateT( aItem, aMedia, aIsFocused, aTextureId );
         }
     }
 

@@ -43,21 +43,22 @@ SOURCE			glxmedialistmulmodelproviderimpl.cpp
 SOURCE			glxmulbindingsetfactory.cpp
 SOURCE			glxmulmodelproviderbase.cpp
 SOURCE			glxthumbnailvarianttype.cpp
-SOURCE          glxmuliconprovider.cpp
+SOURCE			glxmuliconprovider.cpp
 SOURCE			glxdetailsboundcommand.cpp
 SOURCE			glxcommandbindingutility.cpp
-SOURCE          glxattributerequirement.cpp
-SOURCE          glxpreviewthumbnailbinding.cpp
-SOURCE          glxcontainerlistbinding.cpp
-
+SOURCE			glxattributerequirement.cpp
+SOURCE			glxpreviewthumbnailbinding.cpp
+SOURCE			glxcontainerlistbinding.cpp
+SOURCE			glxdrmgiftexturecreator.cpp
+SOURCE			glxdrmgifactivedecoder.cpp
 
 USERINCLUDE             ../inc
-SYSTEMINCLUDE             ../../uiutilities/inc
-SYSTEMINCLUDE             ../../inc
-SYSTEMINCLUDE            ../../texturemanager/inc
-SYSTEMINCLUDE             ../../drmutility/inc
+SYSTEMINCLUDE           ../../uiutilities/inc
+SYSTEMINCLUDE           ../../inc
+SYSTEMINCLUDE           ../../texturemanager/inc
+SYSTEMINCLUDE           ../../drmutility/inc
 SYSTEMINCLUDE           ../../../inc
-SYSTEMINCLUDE	  ../../medialists/inc
+SYSTEMINCLUDE           ../../medialists/inc
 SYSTEMINCLUDE           ../../../commonui/inc
 SYSTEMINCLUDE           ../../../common/inc
 SYSTEMINCLUDE		../../commandhandlers/commoncommandhandlers/inc
@@ -85,15 +86,18 @@ LIBRARY                 glxmedialists.lib				// MGlxMediaList
 LIBRARY                 platformenv.lib 
 LIBRARY                 glxtexturemanager.lib			// CGlxTextureManager
 LIBRARY                 glxuiutilities.lib				// CGlxUiUtility::TextureManager
-LIBRARY 				libstdcpp.lib
-LIBRARY					glxlogging.lib		
-LIBRARY         		glxdrmutility.lib				//for Drm Utility
-LIBRARY					glxcommoncommandhandlers.lib 
+LIBRARY                 libstdcpp.lib
+LIBRARY                 glxlogging.lib		
+LIBRARY                 glxdrmutility.lib				//for Drm Utility
+LIBRARY                 glxcommoncommandhandlers.lib 
 LIBRARY                 glxcommonui.lib					//For CGlxCommandHandlerAddToContainer
-LIBRARY					glxcommon.lib
-LIBRARY					flogger.lib
-LIBRARY					exiflib.lib                     //For CExifModify
-LIBRARY			avkon.lib eikcore.lib  // For AknUtils.h
+LIBRARY                 glxcommon.lib
+LIBRARY                 flogger.lib
+LIBRARY                 exiflib.lib                     //For CExifModify
+LIBRARY			avkon.lib                       //For AknUtils.h
+LIBRARY			eikcore.lib  
 LIBRARY                 glximageviewermanager.lib
+LIBRARY                 imageconversion.lib		// ICL 
+LIBRARY                 fbscli.lib 
 // End of File
  

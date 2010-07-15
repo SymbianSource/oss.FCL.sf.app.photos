@@ -329,13 +329,17 @@ void CGlxGridViewImp::HandleGridEventsL(TInt aCmd)
 //
 void CGlxGridViewImp::HandleLatchToolbar()
 	{
-	TRACER("CGlxGridViewImp::HandleLatchToolbarL()");
-	CAknButton* markButton = static_cast<CAknButton*>
-									(iToolbar->ControlOrNull( EGlxCmdStartMultipleMarking ));
+    TRACER("CGlxGridViewImp::HandleLatchToolbarL()");
+    CAknButton* markButton =
+            static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                    EGlxCmdStartMultipleMarking));
 
-	if(markButton)
-		{
-		markButton->SetCurrentState( KGlxToolbarButtonUnLatched, ETrue );
-		}	
-	}
+    if (markButton && !markButton->IsDimmed())
+        {
+        GLX_DEBUG1("CGlxGridViewImp::HandleLatchToolbar() - UnLatch");
+        markButton->SetCurrentState(KGlxToolbarButtonUnLatched, ETrue);
+        // Force to update the frame IDs 
+        markButton->SetDimmed(EFalse);
+        }
+    }
 //  End of File

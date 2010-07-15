@@ -11,7 +11,7 @@
  *
  * Contributors:
  *
- * Description:    AppUi class 
+ * Description: Image Viewer AppUi class 
  *
  */
 
@@ -19,42 +19,26 @@
 
 
 #include "glxivwrappui.h"
+#include "glxivwrdocument.h"
 
-#include <avkon.hrh>
-#include <StringLoader.h>    
-#include <aknnotewrappers.h>
-#include <AknUtils.h>
+#include <apgcli.h>
+#include <hal.h>
+#include <oommonitorsession.h>
 #include <mpxviewutility.h>
-#include <mpxcollectionutility.h>
-#include <mpxcollectionmessage.h>
-#include <mpxmessagegeneraldefs.h>
 #include <mpxcollectionpath.h>
 
-#include <alf/alfenv.h>
-#include <akntoolbar.h>
-#include <glxgallery.hrh>
-
+#include <glxmedialist.h>
 #include <glxcollectionpluginimageviewer.hrh>
-#include <glxfiltergeneraldefs.h>
-#include <glxpanic.h>
-#include <glxuistd.h>
 #include <glxviewpluginuids.hrh>
-#include <glxlog.h>
 #include <glxuiutility.h>
-#include <glxsettingsmodel.h>
-#include <glxcommandhandlers.hrh>
 #include <glxzoomstatepublisher.h>
 #include <glxnavigationalstate.h>
 #include <glxnavigationalstatedefs.h>
-#include <glxfullscreenviewplugin.hrh>
-#include <glxivwr.rsg>
-#include <AknGlobalNote.h>
-#include <hal.h>
-#include <hal_data.h>
-#include <oommonitorsession.h>
 #include <glxtracer.h>
-#include <glxuistd.h>
-#include <apgcli.h>
+#include <glxlog.h>
+#include <glxivwr.rsg>
+
+
 
 //constants
 const TInt KGlxFullThumbnailCount         = 1 ;       // 1 visible thumnail
@@ -66,6 +50,10 @@ const TInt KGlxMaxMegaPixelsSupportedByCamera = 2097152 ; // 2 MB
 const TInt KGlxMaxMemoryToDecodeCapturedPicture = 2 * KGlxMaxMegaPixelsSupportedByCamera ;
 const TInt KGlxMemoryForOOMFwk          = 1048576 ; // 1 MB
 const TInt KGlxThumbNailRepresentation    = 4;         // Thumbnail Representation; Could be 3 also 
+
+// UID for the application, 
+// this should correspond to the uid defined in the mmp file
+static const TUid KUidGlxIvwrApp = {0x200104E7};
 
 // -----------------------------------------------------------------------------
 // Constructor
@@ -85,11 +73,10 @@ void CGlxIVwrAppUi::ConstructL()
 
     // Enable Avkon skins.
     BaseConstructL( EAknEnableSkin | EAknEnableMSK | EAknSingleClickCompatible );
+
     // Create navigational state 
     iNavigationalState = CGlxNavigationalState::InstanceL();
-
     iNavigationalState->AddObserverL( *this );
-
     iNavigationalState->SetBackExitStatus(EFalse);
 
     // Get an instance of view utility
@@ -98,7 +85,9 @@ void CGlxIVwrAppUi::ConstructL()
     iUiUtility = CGlxUiUtility::UtilityL();
     // Always start in default orientation
     iUiUtility->SetAppOrientationL(EGlxOrientationDefault);
+
     ReserveMemoryL(EEntryTypeStartUp);
+    
     // publish zoom context, no zoom keys for now
     NGlxZoomStatePublisher::PublishStateL( EFalse );
     }
@@ -134,8 +123,8 @@ CGlxIVwrAppUi::~CGlxIVwrAppUi()
 void CGlxIVwrAppUi::HandleCommandL(TInt aCommand)
     {
     TRACER("void CGlxIVwrAppUi::HandleCommandL(TInt aCommand)");
-    GLX_LOG_INFO1("PHOTOS LOGS: void CGlxIVwrAppUi::HandleCommandL(TInt aCommand = %d)",aCommand );
-    switch(aCommand)
+    GLX_LOG_INFO1("void CGlxIVwrAppUi::HandleCommandL(aCommand=%d)", aCommand );
+    switch (aCommand)
         {
         case EEikCmdExit:
             {
@@ -151,7 +140,9 @@ void CGlxIVwrAppUi::HandleCommandL(TInt aCommand)
             break;
 
         case EAknSoftkeyBack:
+            {
             iNavigationalState->ActivatePreviousViewL();
+            }
             break;
 
         default:
@@ -166,7 +157,7 @@ void CGlxIVwrAppUi::HandleCommandL(TInt aCommand)
 TBool CGlxIVwrAppUi::ProcessCommandParametersL(TApaCommand /*aCommand*/,
         TFileName& /*aDocumentName*/, const TDesC8& /*aTail*/)
     {
-    TRACER("TBool CGlxIVwrAppUi::ProcessCommandParametersL(TApaCommand /*aCommand*/,TFileName& /*aDocumentName*/, const TDesC8& aTail)");
+    TRACER("TBool CGlxIVwrAppUi::ProcessCommandParametersL()");
 
     // Bring the application to foreground, if not already
     if (0 != iEikonEnv->RootWin().OrdinalPosition())
@@ -189,46 +180,47 @@ void CGlxIVwrAppUi::HandleNavigationalStateChangedL()
     CMPXCollectionPath* naviState = iNavigationalState->StateLC();
 
     // Case: Open photos in grid, go to filemanager via menu and open any image
-    if (naviState->Id() != TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
+    if (naviState->Id() != TMPXItemId(
+            KGlxCollectionPluginImageViewerImplementationUid))
         {
         /*
          * This thread chk is added for EDDG-7UUC53. In this scenario we get EPathChanged from MPX.
          * That initiates a viewnavigational change from CGlxNavigationalStateImp  HandleCollectionMessageL()
          * In these types of scenarios we don't want a view switch. So ignoring the event. 
          */
-        TApaTaskList taskList( iCoeEnv->WsSession() );
-        TApaTask task = taskList.FindApp( TUid::Uid( KGlxGalleryApplicationUid ) );
+        TApaTaskList taskList(iCoeEnv->WsSession());
+        TApaTask task = taskList.FindApp(KUidGlxIvwrApp);
         TApaTask taskForeGround = taskList.FindByPos(0); // get fopreground app
-        if ( task.Exists() && task.ThreadId() != taskForeGround.ThreadId() )
+        if (task.Exists() && task.ThreadId() != taskForeGround.ThreadId())
             {
             GLX_LOG_INFO("CGlxIVwrAppUi ::HandleNavigationalStateChanged: Return ");
             return;
             }
         }
 
-    CleanupStack::PopAndDestroy( naviState );
+    CleanupStack::PopAndDestroy(naviState);
 
-    if ( TUid::Null() != iStartupViewUid )
+    if (TUid::Null() != iStartupViewUid)
         {
-        GLX_LOG_INFO("CGlxAppUi::HandleNavigationalStateChanged: Activating startup view");
+        GLX_LOG_INFO("CGlxIVwrAppUi::HandleNavigationalStateChanged:Activating startup view");
         // Activate startup view
-        iViewUtility->ActivateViewL( iStartupViewUid, NULL );
+        iViewUtility->ActivateViewL(iStartupViewUid, NULL);
         iStartupViewUid = TUid::Null();
         }
     else
         {
-        GLX_LOG_INFO("CGlxAppUi::HandleNavigationalStateChanged: Activating view");
+        GLX_LOG_INFO("CGlxIVwrAppUi::HandleNavigationalStateChanged:Activating view");
 
         // get ids for scoring a view
-        RArray< TUid > scoringIds;
-        CleanupClosePushL( scoringIds );
-        GetViewScoringIdsL( scoringIds );
+        RArray<TUid> scoringIds;
+        CleanupClosePushL(scoringIds);
+        GetViewScoringIdsL(scoringIds);
 
-        GLX_LOG_INFO1( "CGlxIVwrAppUi::HandleNavigationalStateChanged: Uid count %d", scoringIds.Count());
+        GLX_LOG_INFO1("CGlxIVwrAppUi::HandleNavigationalStateChanged:Uid count %d", scoringIds.Count());
         // let view utility to select the best view based on scoring ids
-        iViewUtility->ActivateViewL( scoringIds, NULL );
+        iViewUtility->ActivateViewL(scoringIds, NULL);
 
-        CleanupStack::PopAndDestroy( &scoringIds );
+        CleanupStack::PopAndDestroy(&scoringIds);
         }
     }
 
@@ -237,119 +229,106 @@ void CGlxIVwrAppUi::HandleNavigationalStateChangedL()
 // ---------------------------------------------------------------------------
 //
 void CGlxIVwrAppUi::GetViewScoringIdsL( RArray<TUid>& aIds ) const
-{
-TRACER("void CGlxIVwrAppUi::GetViewScoringIdsL( RArray<TUid>& aIds ) const");
-    CleanupClosePushL(aIds);
-aIds.Reset(); // For maintenance safety
-
-// get current navigational state
-CMPXCollectionPath* naviState = iNavigationalState->StateLC();
-
-// no if check in needed here ,it makes the aapui aware of the list view depth
-// to be removed.added by gopa   
-if ( naviState->Levels() >= 1)
     {
+    TRACER("void CGlxIVwrAppUi::GetViewScoringIdsL()");
+    CleanupClosePushL(aIds);
+    aIds.Reset(); // For maintenance safety
+
+    // get current navigational state
+    CMPXCollectionPath* naviState = iNavigationalState->StateLC();
+
+    // no if check in needed here ,it makes the aapui aware of the list view depth
+    // to be removed.added by gopa   
+    if (naviState->Levels() >= 1)
+        {
         if (iNavigationalState->ViewingMode()
                 == NGlxNavigationalState::EBrowse)
-        {
-        // For image viewer collection, goto view mode
+            {
+            // For image viewer collection, goto view mode
             if (naviState->Id() == TMPXItemId(
                     KGlxCollectionPluginImageViewerImplementationUid))
-            {
-            aIds.AppendL( TUid::Uid(  KGlxViewingModeView ) );
+                {
+                aIds.AppendL(TUid::Uid(KGlxViewingModeView));
+                }
+            else
+                {
+                aIds.AppendL(TUid::Uid(KGlxViewingModeBrowse));
+                }
             }
         else
             {
-            aIds.AppendL( TUid::Uid(  KGlxViewingModeBrowse ) );
+            aIds.AppendL(TUid::Uid(KGlxViewingModeView));
             }
-        } 
-    else 
+        }
+
+    if (TUid::Null() != GetViewScoringIdForCollectionPlugin(*naviState))
         {
-        aIds.AppendL( TUid::Uid(  KGlxViewingModeView ) );
-        }                 
-    }
+        // add scoring id for collection plugin
+        aIds.AppendL(GetViewScoringIdForCollectionPlugin(*naviState));
+        }
 
-if( TUid::Null() != GetViewScoringIdForCollectionPlugin( *naviState ) )
-    {
-    // add scoring id for collection plugin
-    aIds.AppendL( GetViewScoringIdForCollectionPlugin( *naviState ) );
-    }
+    if (TUid::Null() != ViewScoringIdForNaviStateDepth(*naviState))
+        {
+        // add scoring id for depth in the ui hierarchy
+        aIds.AppendL(ViewScoringIdForNaviStateDepth(*naviState));
+        }
 
-if( TUid::Null() != ViewScoringIdForNaviStateDepth( *naviState ) )
-    {
-    // add scoring id for depth in the ui hierarchy
-    aIds.AppendL( ViewScoringIdForNaviStateDepth( *naviState ) );
-    }
-
-CleanupStack::PopAndDestroy( naviState );
+    CleanupStack::PopAndDestroy(naviState);
     CleanupStack::Pop(&aIds);
-}
-// ---------------------------------------------------------------------------
-// Handles the foreground events
-// ---------------------------------------------------------------------------
-//
-void CGlxIVwrAppUi::HandleForegroundEventL( TBool aForeground )
-    {
-    TRACER("void CGlxIVwrAppUi::HandleForegroundEventL( TBool aForeground )");
-
-    // first let base class handle it so that we dont break anything
-    CAknViewAppUi::HandleForegroundEventL( aForeground );
-
     }
+
 // ---------------------------------------------------------------------------
 // Return scoring id for collection plugin
 // ---------------------------------------------------------------------------
 //
-TUid CGlxIVwrAppUi::GetViewScoringIdForCollectionPlugin( const CMPXCollectionPath& aNaviState ) const
-{
-TRACER("TUid CGlxIVwrAppUi::GetViewScoringIdForCollectionPluginL( const CMPXCollectionPath& aNaviState ) const");
-
-GLX_LOG_INFO1( "CGlxIVwrAppUi::GetViewScoringIdForCollectionPluginL: Depth %d", aNaviState.Levels() );
-// score view based on collection plugin if not on root level
-if ( aNaviState.Levels() )
+TUid CGlxIVwrAppUi::GetViewScoringIdForCollectionPlugin(
+        const CMPXCollectionPath& aNaviState) const
     {
-    return TUid::Uid( aNaviState.Id( 0 ) );
+    TRACER("TUid CGlxIVwrAppUi::GetViewScoringIdForCollectionPluginL()");
+
+    GLX_LOG_INFO1( "CGlxIVwrAppUi::GetViewScoringIdForCollectionPluginL:Depth %d", aNaviState.Levels() );
+    // score view based on collection plugin if not on root level
+    if (aNaviState.Levels())
+        {
+        return TUid::Uid(aNaviState.Id(0));
+        }
+    // return null as id to be ignored in scoring
+    return TUid::Null();
     }
-// return null as id to be ignored in scoring
-return TUid::Null(); 
-}
 
 // ---------------------------------------------------------------------------
 // Return scoring id for depth
 // ---------------------------------------------------------------------------
 //
-TUid CGlxIVwrAppUi::ViewScoringIdForNaviStateDepth( const CMPXCollectionPath& aNaviState ) const
-{
-TRACER("TUid CGlxIVwrAppUi::ViewScoringIdForNaviStateDepthL( const CMPXCollectionPath& aNaviState ) const");
-GLX_LOG_INFO1( "CGlxIVwrAppUi::ViewScoringIdForNaviStateDepthL: Level %d", aNaviState.Levels() );
-
-switch ( aNaviState.Levels() )
+TUid CGlxIVwrAppUi::ViewScoringIdForNaviStateDepth(
+        const CMPXCollectionPath& aNaviState) const
     {
-    case 0:
+    TRACER("TUid CGlxIVwrAppUi::ViewScoringIdForNaviStateDepthL()");
+    GLX_LOG_INFO1( "CGlxIVwrAppUi::ViewScoringIdForNaviStateDepthL: Level %d",aNaviState.Levels() );
 
-        GLX_LOG_INFO1( "CGlxIVwrAppUi::ViewScoringIdForNaviStateDepthL: \
-                Depth  case 0 %x", TUid::Uid( KGlxDepthOne ) );
-        return TUid::Uid( KGlxDepthOne );
+    switch (aNaviState.Levels())
+        {
+        case 0:
 
-    case 1:
+            GLX_LOG_INFO1( "CGlxIVwrAppUi::ViewScoringIdForNaviStateDepthL:Depth  case 0 %x", TUid::Uid( KGlxDepthOne ) );
+            return TUid::Uid(KGlxDepthOne);
 
-        GLX_LOG_INFO1( "CGlxIVwrAppUi::ViewScoringIdForNaviStateDepthL: \
-                Depth case 1 %x", TUid::Uid( KGlxDepthTwo ) );
-        return TUid::Uid( KGlxDepthTwo );
+        case 1:
 
+            GLX_LOG_INFO1( "CGlxIVwrAppUi::ViewScoringIdForNaviStateDepthL:Depth case 1 %x", TUid::Uid( KGlxDepthTwo ) );
+            return TUid::Uid(KGlxDepthTwo);
 
-    case 2:
+        case 2:
 
-        GLX_LOG_INFO1( "CGlxIVwrAppUi::GetViewScoringIdForUiHieararchyDepthL: \
-                Depth case 2 %x", TUid::Uid( KGlxDepthThree ) );
-        return TUid::Uid( KGlxDepthThree );
+            GLX_LOG_INFO1( "CGlxIVwrAppUi::GetViewScoringIdForUiHieararchyDepthL:Depth case 2 %x", TUid::Uid( KGlxDepthThree ) );
+            return TUid::Uid(KGlxDepthThree);
 
-    default:
-        GLX_LOG_WARNING( "CGlxIVwrAppUi::GetViewScoringIdsL: Navigational state deeper than supported" );
-        // return null as an id to be ignored in scoring
-        return TUid::Null(); 
+        default:
+            GLX_LOG_WARNING( "CGlxIVwrAppUi::GetViewScoringIdsL:Navigational state deeper than supported" );
+            // return null as an id to be ignored in scoring
+            return TUid::Null();
+        }
     }
-}
 
 // ---------------------------------------------------------------------------
 // HandleOpenFileL
@@ -369,11 +348,10 @@ void CGlxIVwrAppUi::HandleOpenFileL()
 // OOMRequestFreeMemoryL
 // ---------------------------------------------------------------------------
 //
-TInt CGlxIVwrAppUi::OOMRequestFreeMemoryL( TInt aBytesRequested)
+TInt CGlxIVwrAppUi::OOMRequestFreeMemoryL(TInt aBytesRequested)
     {
-    TRACER("TInt CGlxIVwrAppUi::OOMRequestFreeMemoryL( TInt aBytesRequested)");
-    GLX_LOG_INFO1("CGlxIVwrAppUi::OOMRequestFreeMemoryL() aBytesRequested=%d",
-                                                        aBytesRequested);
+    TRACER("TInt CGlxIVwrAppUi::OOMRequestFreeMemoryL(TInt aBytesRequested)");
+    GLX_LOG_INFO1("CGlxIVwrAppUi::OOMRequestFreeMemoryL() aBytesRequested=%d",aBytesRequested);
 
     ROomMonitorSession oomMonitor;
     User::LeaveIfError( oomMonitor.Connect() );
@@ -402,8 +380,7 @@ TInt CGlxIVwrAppUi::ReserveMemoryL(TInt aCriticalMemoryRequired)
     TInt memoryLeft = 0;
     TInt error = KErrNone ; 
     HAL::Get( HALData::EMemoryRAMFree, memoryLeft );
-    GLX_LOG_INFO2("CGlxIVwrAppUi::ReserveMemoryL() - aCriticalMemoryRequired=%d, memoryLeft=%d",
-                                       aCriticalMemoryRequired, memoryLeft);
+    GLX_LOG_INFO2("CGlxIVwrAppUi::ReserveMemoryL() - aCriticalMemoryRequired=%d, memoryLeft=%d", aCriticalMemoryRequired, memoryLeft);
     if ( aCriticalMemoryRequired > memoryLeft )
         {
         // Request for critical memory required 
@@ -428,17 +405,16 @@ TInt CGlxIVwrAppUi::RamRequiredInBytesL(TEntryType aType)
         // For Framework to work and to do the on-the-fly decoding 
         // for the just captured picture = KGlxMemoryForOOMFwk + KGlxMaxMemoryToDecodeCapturedPicture
         // For FullScreen to Work Number of Thumbnail(s) * Width * Height * Representation
-        criticalRamMemory =  KGlxMemoryForOOMFwk + KGlxMaxMemoryToDecodeCapturedPicture + 
-                                             (KGlxFullThumbnailCount *
-                                              displaySize.iWidth * displaySize.iHeight * 
-                                              KGlxThumbNailRepresentation );
-        
-        GLX_LOG_INFO1("CGlxIVwrAppUi::RamRequiredInBytesL(EEntryTypeStartUp): criticalRamMemory=%d",
-                                                                            criticalRamMemory);
+        criticalRamMemory = KGlxMemoryForOOMFwk
+                + KGlxMaxMemoryToDecodeCapturedPicture
+                + (KGlxFullThumbnailCount * displaySize.iWidth
+                        * displaySize.iHeight * KGlxThumbNailRepresentation);
+
+        GLX_LOG_INFO1("CGlxIVwrAppUi::RamRequiredInBytesL(EEntryTypeStartUp):criticalRamMemory=%d", criticalRamMemory);
         }
     else
         {
-        GLX_LOG_INFO("CGlxIVwrAppUi::RamRequiredInBytesL(): Photos Already Running");
+        GLX_LOG_INFO("CGlxIVwrAppUi::RamRequiredInBytesL():Viewer Already Running");
         }
  
     return criticalRamMemory;
@@ -457,7 +433,7 @@ void CGlxIVwrAppUi::ReserveMemoryL(TEntryType aType)
     
     if (KErrNoMemory == error)
         {
-        GLX_LOG_INFO("CGlxIVwrAppUi::ReserveMemoryL(): LEAVE with KErrNoMemory ");
+        GLX_LOG_INFO("CGlxIVwrAppUi::ReserveMemoryL():LEAVE with KErrNoMemory");
         User::Leave(KErrNoMemory);
         }
     }
@@ -467,8 +443,8 @@ void CGlxIVwrAppUi::ReserveMemoryL(TEntryType aType)
 // 
 // ---------------------------------------------------------------------------
 //
-
-void CGlxIVwrAppUi::HandleApplicationSpecificEventL(TInt aEventType, const TWsEvent& aWsEvent)
+void CGlxIVwrAppUi::HandleApplicationSpecificEventL(TInt aEventType, 
+        const TWsEvent& aWsEvent)
     {
     TRACER("CGlxIVwrAppUi::HandleApplicationSpecificEventL");
     CAknViewAppUi::HandleApplicationSpecificEventL(aEventType,aWsEvent);
@@ -484,8 +460,46 @@ void CGlxIVwrAppUi::HandleApplicationSpecificEventL(TInt aEventType, const TWsEv
 //
 void CGlxIVwrAppUi::CloseImgVwr()
     {
-    TRACER("CGlxNsAppUi::CloseImgVwr()");
+    TRACER("CGlxIVwrAppUi::CloseImgVwr()");
     iUiUtility->SetViewNavigationDirection(EGlxNavigationBackwards);
     iUiUtility->SetExitingState(ETrue);         
     }
 
+// ----------------------------------------------------------------------------
+// CGlxIVwrAppUi::OpenFileL
+// This is called by framework when application is already open in background
+// and user open other file in eg. File Browse.
+// New file to been shown is passed via aFileName.
+// ----------------------------------------------------------------------------
+//
+void CGlxIVwrAppUi::OpenFileL(const TDesC& aFileName)
+    {
+    TRACER("CGlxIVwrAppUi::OpenFileL()");
+    GLX_LOG_URI("CGlxIVwrAppUi::OpenFileL(%S)", &aFileName);
+
+    // File changed. Open new file with documents OpenFileL method.
+    Document()->OpenFileL(EFalse, aFileName, iEikonEnv->FsSession());
+
+    GLX_DEBUG1("CGlxIVwrAppUi::OpenFileL() *** File Changed *** ");
+    MGlxCache* cacheManager = MGlxCache::InstanceL();
+    CleanupClosePushL(*cacheManager);
+
+    CMPXCollectionPath* path = CMPXCollectionPath::NewL();
+    CleanupStack::PushL(path);
+    path->AppendL(KGlxCollectionPluginImageViewerImplementationUid);
+
+    MGlxMediaList* mediaList = MGlxMediaList::InstanceL(*path);
+    CleanupClosePushL(*mediaList);
+
+    if (mediaList->Count() > 0)
+        {
+        GLX_DEBUG1("CGlxIVwrAppUi::OpenFileL() - Cleanup & Refresh Media!");
+        cacheManager->ForceCleanupMedia(mediaList->IdSpaceId(0),
+                mediaList->Item(0).Id());
+        cacheManager->RefreshL();
+        }
+
+    CleanupStack::PopAndDestroy(mediaList);
+    CleanupStack::PopAndDestroy(path);
+    CleanupStack::PopAndDestroy(cacheManager);
+    }

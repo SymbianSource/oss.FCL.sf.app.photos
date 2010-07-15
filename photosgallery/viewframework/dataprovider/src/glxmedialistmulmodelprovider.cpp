@@ -82,3 +82,14 @@ EXPORT_C void CGlxMediaListMulModelProvider::UpdateItems( TInt aIndex, TInt aCou
     TRACER("CGlxMediaListMulModelProvider::UpdateItems");
     iImpl->UpdateItems(aIndex, aCount);
     }
+
+// ----------------------------------------------------------------------------
+// AnimateDRMGifItem
+// ----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxMediaListMulModelProvider::AnimateDRMGifItem( TBool aAnimate )
+    {
+    TRACER("CGlxMediaListMulModelProvider::AnimateDRMGifItem");
+    iImpl->AnimateDRMGifItem(aAnimate);
+    }
+//End of file

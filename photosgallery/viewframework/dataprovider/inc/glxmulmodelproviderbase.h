@@ -35,6 +35,7 @@ class CGlxBinding;                          // The binding is created by the bin
 class MGlxBoundCommand;                     // Handles user commands
 class TGlxMedia;                            // Reference to a media item in the item pool
 class CGlxNavigationalState;                // Class that stores the navigational state of the application
+class CGlxDrmGifTextureCreator;
 
 namespace Alf
     {
@@ -117,6 +118,12 @@ protected:
          */
     virtual void HandleOrientationChanged();
 
+      /**
+      * Enable/disable animation
+      * @param aAnimate enable/disable animation
+      */ 
+    void AnimateDRMGifItem( TBool aAnimate );
+
 private: 
 
     /**
@@ -195,6 +202,7 @@ private:
 	
 	// Create navigational state 
     CGlxNavigationalState* iNavigationalState;
+    CGlxDrmGifTextureCreator* iDrmGifTextureCreator;
 	};
 
 #endif // _GLXMULMODELPROVIDERBASE_H_

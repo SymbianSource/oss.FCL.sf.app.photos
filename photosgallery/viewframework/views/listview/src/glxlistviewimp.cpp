@@ -569,16 +569,18 @@ void CGlxListViewImp::HandleOpenL( TInt aIndex )
     {
     TRACER("CGlxListViewImp::HandleOpenL");
     
-    GLX_LOG_INFO1("CGlxListViewImp RProperty::Get leftVariable %d",(iUiUtility->GetItemsLeftCount()));
+    GLX_LOG_INFO1("CGlxListViewImp RProperty::Get leftVariable %d",
+            (iUiUtility->GetItemsLeftCount()));
 
-    if (iUiUtility->GetItemsLeftCount())
+    if ((iUiUtility->GetItemsLeftCount() == KErrNotReady)
+            || (iUiUtility->GetItemsLeftCount()))
         {
-        if(!iProgressIndicator)
+        if (!iProgressIndicator)
             {
             iProgressIndicator = CGlxProgressIndicator::NewL(*this);
             }
         iProgressIndicator->ShowProgressbarL();
-        if(iSchedulerWait)
+        if (iSchedulerWait)
             {
             delete iSchedulerWait;
             iSchedulerWait = NULL;
@@ -1118,7 +1120,10 @@ void CGlxListViewImp::HandleMMCInsertionL()
     {
     TRACER("CGlxListViewImp::HandleMMCInsertionL()");
     iMMCState = ETrue;
-    NavigateToMainListL();
+    // Set PS key value to KErrNotRready as TNM takes some
+    // time to write the value.Will be overwritten by TNM later.
+    iUiUtility->SetTNMDaemonPSKeyvalue();
+	NavigateToMainListL();
     }
 
 // ---------------------------------------------------------------------------
@@ -1141,16 +1146,22 @@ void CGlxListViewImp::HandleMMCRemovalL()
 void CGlxListViewImp::HandleForegroundEventL(TBool aForeground)
     {
     TRACER("CGlxListViewImp::HandleForegroundEventL()");
+    GLX_DEBUG2("CGlxListViewImp::HandleForegroundEventL(%d)", aForeground);
     CAknView::HandleForegroundEventL(aForeground);
-    if(iMMCState)
+    if (iMMCState)
         {
         iMMCState = EFalse;
         NavigateToMainListL();
         }
 
-    if (iProgressIndicator)
+    TInt leftCount = iUiUtility->GetItemsLeftCount();
+    if (iProgressIndicator && (leftCount == KErrNotReady || leftCount))
         {
-        iProgressIndicator->ControlTNDaemon(aForeground);
+        if (!iUiUtility->GetKeyguardStatus())
+            {
+            iProgressIndicator->ControlTNDaemon(aForeground);
+            }
+
         if (aForeground)
             {
             iProgressIndicator->ShowProgressbarL();

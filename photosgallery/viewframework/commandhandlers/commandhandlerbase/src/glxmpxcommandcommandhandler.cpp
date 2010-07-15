@@ -88,18 +88,33 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::DoExecuteL(TInt aCommandId,
     // deriving class consumes command by default
     TBool consume = ETrue;
 	TInt selectionCount = aList.SelectionCount();
-	const TGlxMedia& focusedMedia = aList.Item(aList.FocusIndex());
+	
+	// Do not consume If no item is selected and 
+	// "focused" item index is invalid
+	TInt focusIndex = aList.FocusIndex();
+	if ((selectionCount == 0) && (KErrNotFound == focusIndex || focusIndex
+			> aList.Count()))
+		{
+		return EFalse;
+		}
+	
+	const TGlxMedia& focusedMedia = aList.Item(focusIndex);
     // show confirmation note
     consume = ConfirmationNoteL(aCommandId, aList);
 
     // Check if the selected / focused file(s)s have been deleted from
 	// another application while the confirmation note is displayed
-    if (((selectionCount > 0) && (aList.SelectionCount() == 0))
-			|| ((selectionCount == 0) && aList.Count() && (focusedMedia.Id()
-					!= aList.Item(aList.FocusIndex()).Id())))
+	// 1. If list is empty or previously Items were selected & are removed in current list
+	if (aList.Count() == 0 || ((selectionCount > 0) && (aList.SelectionCount() == 0)))
 		{
-		// All the selected / focused item(s) have been deleted,
-		// do not allow the command to execute.
+		consume = EFalse;
+		}
+	// 2.If previously no Item selected then check if current focus index is valid
+	// and previous & current focused item are same.
+	else if ((selectionCount == 0) && ((KErrNotFound != aList.FocusIndex()
+			&& aList.FocusIndex() < aList.Count()) && (focusedMedia.Id()
+			!= aList.Item(aList.FocusIndex()).Id())))
+		{
 		consume = EFalse;
 		}
 

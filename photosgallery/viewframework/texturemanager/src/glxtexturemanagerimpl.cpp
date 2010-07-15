@@ -83,6 +83,19 @@ CGlxTextureManagerImpl::~CGlxTextureManagerImpl()
     iThumbnailList.Close();
     
     iAnimatedTnmList.Close();
+
+    // delete DRM GIF textures
+    count = iDRMGifAnimatedTnmList.Count();
+    GLX_LOG_INFO1("CGlxTextureManagerImpl iDRMGifAnimatedTnmList.Count=%d",count);
+    for(TInt i = count - 1; i >= 0; i--)
+        {
+        GLX_LOG_INFO1("CGlxTextureManagerImpl DRM Gif Texture deleted i=%d",i);
+        for(TInt texCnt = KGlxMaxFrameCount - 1; texCnt >= 0; texCnt--)
+            {
+            delete iDRMGifAnimatedTnmList[i].iTexture[texCnt];
+            }
+        }
+    iDRMGifAnimatedTnmList.Close();
     
     // delete zoom textures
     count = iZoomedList.Count();
@@ -563,6 +576,23 @@ void CGlxTextureManagerImpl::RemoveTexture(const TGlxMediaId& aMediaId,TBool aAl
             iAlfTextureManager.UnloadTexture(aTexture );        
             }
         }
+    
+    i = iDRMGifAnimatedTnmList.Count();
+    
+    while(i > 0)
+        {
+        --i;
+        if (iDRMGifAnimatedTnmList[i].iMediaId == aMediaId)
+            {
+            GLX_LOG_INFO("RemoveTexture 2 iDRMGifAnimatedTnmList MediaId found");
+            for(TInt textureCnt=0;textureCnt<KGlxMaxFrameCount;textureCnt++)
+                {
+                TInt textureId = iDRMGifAnimatedTnmList[i].iTextureId[textureCnt];
+                iAlfTextureManager.UnloadTexture(textureId);
+                }            
+            iDRMGifAnimatedTnmList.Remove(i);
+            }
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -614,6 +644,19 @@ void CGlxTextureManagerImpl::FlushTextures()
             }
         iAlfTextureManager.UnloadTexture(textureID);
         iAnimatedTnmList[i].iTexture = NULL;
+        }
+    
+    i = iDRMGifAnimatedTnmList.Count();    
+    while(i > 0)
+        {
+        --i;
+        GLX_LOG_INFO("RemoveTexture 2 iDRMGifAnimatedTnmList MediaId found");
+        for (TInt textureCnt = 0; textureCnt < KGlxMaxFrameCount; textureCnt++)
+            {
+            TInt aTexture = iDRMGifAnimatedTnmList[i].iTextureId[textureCnt];
+            iAlfTextureManager.UnloadTexture(aTexture);
+            iDRMGifAnimatedTnmList[i].iTexture[textureCnt] = NULL;
+            }
         }
     }
 
@@ -946,6 +989,29 @@ void CGlxTextureManagerImpl::ProvideBitmapL(TInt aTextureId,
             return;
             }
         }
+    
+    // add loop to search the iDRMGifAnimatedTnmList for the aTextureId
+    i = iDRMGifAnimatedTnmList.Count();
+    while (i > 0)
+        {
+        --i;
+        for(TInt textureCnt=0;textureCnt<KGlxMaxFrameCount;textureCnt++)
+            {
+            if (iDRMGifAnimatedTnmList[i].iBitmap[textureCnt] && 
+                    (iDRMGifAnimatedTnmList[i].iTextureId[textureCnt] == aTextureId))
+                {
+                // We have found the texture, create a duplicate as alf destroys
+                // the bitmap once the texture's been created.
+                aBitmap = CreateDuplicateBitmapL(*iDRMGifAnimatedTnmList[i].iBitmap[textureCnt]);
+                if(iDRMGifAnimatedTnmList[i].iBitmapMask[textureCnt])
+                    {
+                    aMaskBitmap = CreateDuplicateBitmapL(*iDRMGifAnimatedTnmList[i].iBitmapMask[textureCnt]);
+                    }
+                return;
+                }
+            }
+        }
+    
     // find in iIconList
     i = iIconList.Count();
     TBool found = EFalse;
@@ -1366,3 +1432,92 @@ void CGlxTextureManagerImpl::AnimateMediaItem(const TGlxMediaId& aMediaId,
         }
     }
 
+// -----------------------------------------------------------------------------
+// CreateDRMAnimatedGifTextureL
+// -----------------------------------------------------------------------------
+//  
+CAlfTexture& CGlxTextureManagerImpl::CreateDRMAnimatedGifTextureL(const TGlxMedia& aMedia,
+        TGlxIdSpaceId aIdSpaceId,TInt aFrameNumber, CFbsBitmap* aBitmap, CFbsBitmap* aBitmapMask)
+    { 
+    TRACER("CGlxTextureManagerImpl::CreateDRMAnimatedGifTextureL");
+    TInt thumbnailIndex = KErrNotFound;    
+    
+    // If the current thumbnail matches what is required then return the current texture otherwise
+    // create a new one.
+    if (!GetDRMAnimatedGifThumbnailIndex( aMedia, aIdSpaceId,thumbnailIndex))
+        {
+        GLX_LOG_INFO("CreateDRMAnimatedGifTextureL Texture already present");
+        // only texture is missing. 
+        if ((NULL == iDRMGifAnimatedTnmList[thumbnailIndex].iTexture[aFrameNumber])) 
+            {
+            if(NULL == iDRMGifAnimatedTnmList[thumbnailIndex].iBitmap[aFrameNumber])
+                {
+                iDRMGifAnimatedTnmList[thumbnailIndex].iTextureId[aFrameNumber] = NextTextureId();
+                iDRMGifAnimatedTnmList[thumbnailIndex].iBitmap[aFrameNumber] = aBitmap;
+                iDRMGifAnimatedTnmList[thumbnailIndex].iBitmapMask[aFrameNumber] = aBitmapMask;
+                }
+            CAlfTexture* newTexture = &iAlfTextureManager.CreateTextureL(
+                    iDRMGifAnimatedTnmList[thumbnailIndex].iTextureId[aFrameNumber],
+                    this,
+                    EAlfTextureFlagDefault);
+            iDRMGifAnimatedTnmList[thumbnailIndex].iTexture[aFrameNumber] = newTexture;
+            }
+        return *iDRMGifAnimatedTnmList[thumbnailIndex].iTexture[aFrameNumber];
+        }
+    
+    TGlxDRMGifThumbnailIcon thumbData;    
+    thumbData.iTextureId[aFrameNumber] = NextTextureId();   
+    thumbData.iMediaId = aMedia.Id();
+    thumbData.iIdSpaceId = aIdSpaceId;    
+    for(TInt i=0;i<KGlxMaxFrameCount;i++)
+        {
+        thumbData.iTexture[i] = NULL;
+        thumbData.iBitmap[i] = NULL;
+        thumbData.iBitmapMask[i] = NULL;
+        }
+    thumbData.iBitmap[aFrameNumber] = aBitmap;
+    thumbData.iBitmapMask[aFrameNumber] = aBitmapMask;
+    
+    iDRMGifAnimatedTnmList.ReserveL( iDRMGifAnimatedTnmList.Count() + 1 );
+
+    iDRMGifAnimatedTnmList.AppendL(thumbData);
+    
+    CAlfTexture* newTexture = &iAlfTextureManager.CreateTextureL(
+                                                           thumbData.iTextureId[aFrameNumber], 
+                                                           this, 
+                                                           EAlfTextureFlagDefault);   
+    
+    TInt index = iDRMGifAnimatedTnmList.Count()-1;
+    iDRMGifAnimatedTnmList[index].iTexture[aFrameNumber] = newTexture;
+    
+    return *newTexture;
+    }
+
+    
+// -----------------------------------------------------------------------------
+// GetAnimatedGifThumbnailIndex
+// -----------------------------------------------------------------------------
+//
+TBool CGlxTextureManagerImpl::GetDRMAnimatedGifThumbnailIndex(const TGlxMedia& aMedia, const TGlxIdSpaceId& aIdSpaceId,
+        TInt& aThumbnailIndex)
+    {
+    TRACER("CGlxTextureManagerImpl::GetDRMAnimatedGifThumbnailIndex");
+    aThumbnailIndex = KErrNotFound;
+
+    TInt i = iDRMGifAnimatedTnmList.Count();
+
+    while (i > 0 && aThumbnailIndex == KErrNotFound)
+        {
+        --i;
+        if ((iDRMGifAnimatedTnmList[i].iMediaId == aMedia.Id())
+                && (iDRMGifAnimatedTnmList[i].iIdSpaceId == aIdSpaceId))
+            {
+            aThumbnailIndex = i;
+            GLX_LOG_INFO( "GetDRMAnimatedGifThumbnailIndex textureid present" );
+            // We have found that the best match already exists
+            // No need to do anything
+            return EFalse;
+            }
+        }
+    return ETrue;
+    }

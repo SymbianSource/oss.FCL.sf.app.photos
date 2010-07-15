@@ -232,7 +232,7 @@ private:
 
     TBool HandlePointerEventsL(const TAlfEvent &aEvent);
     
-    TInt GetInitialZoomLevel(TSize& aSize );
+    TReal32 GetInitialZoomLevel(TSize& aSize );
     
     /*
     * Does the zoom out on pinch released event
