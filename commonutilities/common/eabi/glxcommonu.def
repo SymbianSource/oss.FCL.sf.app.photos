@@ -45,4 +45,8 @@ EXPORTS
 	_ZN18TGlxCommandFactory28RemoveFromContainerCommandLCERK18CMPXCollectionPath @ 44 NONAME
 	_ZN21CGlxResourceUtilities20GetResourceFilenameLER4TBufILi256EE @ 45 NONAME
 	_ZN21CGlxResourceUtilities20GetResourceFilenameLER4TBufILi256EER3RFs @ 46 NONAME
+	_ZN13CGlxTNMonitor4NewLEP14MGlxTNObserver @ 47 NONAME
+	_ZTI13CGlxTNMonitor @ 48 NONAME
+	_ZTV13CGlxTNMonitor @ 49 NONAME
+	_ZN17TGlxFilterFactory32CreateExcludeDrmImageTypeFilterLE18TGlxFilterItemType @ 50 NONAME
 

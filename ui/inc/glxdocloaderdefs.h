@@ -27,7 +27,9 @@
 #define GLXFULLSCREEN_TOOLBAR     "toolBar"
 #define GLXFULLSCREENLSSECTION    "landscape"
 #define GLXFULLSCREENPTSECTION    "portrait"
+#define GLXFULLSCREENZOOMWIDGET   "glxZoomWidget"
 #define GLXFULLSCREENDOCMLPATH    ":/data/fullscreen.docml"
+
 
 //SLIDE SHOW
 #define GLXSLIDESHOW_VIEW         "mglxslideshow"
@@ -46,5 +48,20 @@
 #define  GLX_LISTVIEW_VIEW       "glxlistview"
 #define  GLX_LISTVIEW_LIST       "listview"
 #define  GLX_LISTVIEW_DOCMLPATH  ":/data/listview.docml"
+
+//DETAILS VIEW
+#define GLX_DETAILSVIEW_DOCMLPATH  ":/data/detailsview.docml"
+#define GLX_DETAILSVIEW_VIEW       "view"
+#define GLX_DETAILSVIEW_IMAGE      "ImageIcon"
+#define GLX_DETAILSVIEW_FAVICON    "FavIcon"    
+#define GLX_DETAILSVIEW_IMGNAME    "ImageName"
+#define GLX_DETAILSVIEW_DATETEXT   "DateText"
+#define GLX_DETAILSVIEW_SIZETEXT   "SizeText"
+#define GLX_DETAILSVIEW_TIMETEXT   "TimeText"
+#define GLX_DETAILSVIEW_DESCRPTION "Descriptions"
+#define GLX_DETAILSVIEW_DESCRPTIONTEXT "DescriptionsText"
+#define  GLX_DETAILSVIEW_LSSECTION   "landscape"
+#define  GLX_DETAILSVIEW_PTSECTION   "portrait"
+
 
 #endif /* GLXDOCLOADERDEFS_H */

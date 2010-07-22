@@ -44,4 +44,6 @@ EXPORTS
 	?ThumbnailCleanupCommandLC@TGlxCommandFactory@@SAPAVCMPXMedia@@XZ @ 43 NONAME ; class CMPXMedia * TGlxCommandFactory::ThumbnailCleanupCommandLC(void)
 	?CreatePreviewFilterL@TGlxFilterFactory@@SAPAVCMPXMedia@@XZ @ 44 NONAME ; class CMPXMedia * TGlxFilterFactory::CreatePreviewFilterL(void)
 	?CreateCameraAlbumExclusionFilterL@TGlxFilterFactory@@SAPAVCMPXMedia@@XZ @ 45 NONAME ; class CMPXMedia * TGlxFilterFactory::CreateCameraAlbumExclusionFilterL(void)
+	?NewL@CGlxTNMonitor@@SAPAV1@PAVMGlxTNObserver@@@Z @ 46 NONAME ; class CGlxTNMonitor * CGlxTNMonitor::NewL(class MGlxTNObserver *)
+	?CreateExcludeDrmImageTypeFilterL@TGlxFilterFactory@@SAPAVCMPXMedia@@W4TGlxFilterItemType@@@Z @ 47 NONAME ; class CMPXMedia * TGlxFilterFactory::CreateExcludeDrmImageTypeFilterL(enum TGlxFilterItemType)
 

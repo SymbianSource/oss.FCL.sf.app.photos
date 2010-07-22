@@ -43,6 +43,7 @@ public :
 
 public slots:
     void itemSelected(const QModelIndex &  index);
+    void populated();
     
 private slots:
 	void indicateLongPress( HbAbstractViewItem *item, QPointF coords );

@@ -156,14 +156,17 @@ CGlxDataSourceTaskMdeThumbnail::~CGlxDataSourceTaskMdeThumbnail()
 void CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL()
     {
     TRACER("CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL()") 
+#ifdef _DEBUG
+    iStartTime.HomeTime(); 
+#endif
     CGlxThumbnailRequest* request = static_cast<CGlxThumbnailRequest*>(iRequest);
     
     TGlxThumbnailRequest tnReq;
     request->ThumbnailRequest(tnReq);
-#ifdef _DEBUG
-	RDebug::Print(_L("==> CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL - FetchThumbnailL(Id=%d), W(%d), H(%d)"), request->ItemId().Value(), tnReq.iSizeClass.iWidth, tnReq.iSizeClass.iHeight);
-	iStartTime.HomeTime(); // Get home time
-#endif
+    GLX_DEBUG4("*** CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL() Id=%d, TN Size w(%d) h(%d) ***", tnReq.iId.Value(),
+    						tnReq.iSizeClass.iWidth, tnReq.iSizeClass.iHeight);
+    GLX_DEBUG2("CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL() iPriorityMode=%d", tnReq.iPriorityMode);
+	
 #ifdef USE_S60_TNM
 	if(request->ThumbnailInfo())
 		{
@@ -173,7 +176,7 @@ void CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL()
 			}
 		else
 			{
-			ThumbnailFetchComplete(KErrNone);
+			ThumbnailFetchComplete(KErrNone, ETrue);
 			}
 		}
 	else
@@ -241,11 +244,13 @@ void CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL(const TGlxMed
     {
     TRACER("CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL()")
     __ASSERT_DEBUG(dynamic_cast<CGlxThumbnailRequest*>(iRequest), Panic(EGlxPanicLogicError));
-#ifdef _DEBUG
-    iStopTime.HomeTime(); // Get home time
-	RDebug::Print(_L("==> ThumbnailFetchComplete <%d> us"), (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
-#endif
     CGlxThumbnailRequest* req = static_cast<CGlxThumbnailRequest*>(iRequest);
+    GLX_DEBUG2("*** CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL() Id=%d ***", req->ItemId().Value());
+#ifdef _DEBUG
+    iStopTime.HomeTime(); 
+    GLX_DEBUG2("CGlxDataSourceTaskMdeThumbnail:HandleThumbnailFetchCompleteL() took %d us",
+                     (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif    
     delete iResponse;
     iResponse = NULL;
     iResponse = CMPXMedia::NewL();
@@ -257,6 +262,7 @@ void CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL(const TGlxMed
     tnAttribute->iDimensions = size;
     tnAttribute->iCroppingRect = tnRequest.iCroppingRect;
     tnAttribute->iThumbnailQuality = aQuality;
+    GLX_DEBUG2("CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL() aQuality=%d", aQuality);
 
     TUint attributeId = req->AttributeId();
     if ( GlxIsFullThumbnailAttribute(attributeId) )
@@ -273,7 +279,8 @@ void CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL(const TGlxMed
     }
 
 #ifdef USE_S60_TNM
-void CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete(TInt aError)
+void CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete(TInt aError, 
+                                                            TBool aQuality)
 	{
     TRACER("CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete(TNM)")
     CGlxThumbnailRequest* request = static_cast<CGlxThumbnailRequest*>(iRequest);
@@ -282,7 +289,12 @@ void CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete(TInt aError)
     TInt err = aError;
     if(!err)
         {
-        TRAP(err, HandleThumbnailFetchCompleteL(tnRequest.iId, EGlxThumbnailQualityHigh));
+        TGlxThumbnailQuality tnQuality = EGlxThumbnailQualityHigh;
+        if (!aQuality)
+            {
+            tnQuality = EGlxThumbnailQualityLow;
+            }
+        TRAP(err, HandleThumbnailFetchCompleteL(tnRequest.iId, tnQuality));
         }
     HandleRequestComplete(err);
 	}
@@ -297,6 +309,7 @@ void CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete(
     const TGlxMediaId& aItemId, TGlxThumbnailQuality aQuality, TInt aErrorCode)
     {
     TRACER("CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete()")
+    GLX_DEBUG2("CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete() aErrorCode=%d", aErrorCode);
     iTnRequestInProgress = EFalse;
     TInt err = aErrorCode;
     if(!err)
@@ -368,18 +381,19 @@ void CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL(CGlxtnFileInfo* aInfo,
         
         /// @todo: use default filter so we can ensure we always get correct first item if filters change
         iFilterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
-        iFilterProperties.iSortDirection = EGlxFilterSortDirectionAscending;
+        iFilterProperties.iSortDirection = EGlxFilterSortDirectionOverrideToDescendingIfDate;
         iFilterProperties.iLastCaptureDate = ETrue;
 
         if( CGlxDataSource::EContainerTypeMonth == containerType )
             {
-            iFilterProperties.iOrigin = EGlxFilterOriginCamera;
+            iFilterProperties.iOrigin = EGlxFilterOriginAll;
             AddMonthFilterL(item, iFilterProperties);
             container = TGlxMediaId(KGlxCollectionRootId);
             objectDef = &DataSource()->ObjectDef();
             }
             
-        DoQueryL(*objectDef, ETrue, EContainerFirstItemQuery,  EQueryResultModeObjectWithFreetexts, container);        
+        DoQueryL(*objectDef, ETrue, EContainerFirstItemQuery,  
+                EQueryResultModeItem, container);        
         }
     else
         {
@@ -433,7 +447,8 @@ void CGlxDataSourceTaskMdeThumbnail::CompleteFetchFileInfoL(CMdEObject* aItem)
         }
 
     CMdEProperty* lastModifiedDateProperty;
-    CMdEPropertyDef& lastModifiedDatePropertyDef = aItem->Def().GetPropertyDefL(KPropertyDefNameLastModifiedDate);
+    CMdEPropertyDef& lastModifiedDatePropertyDef = aItem->Def().GetPropertyDefL(
+            KPropertyDefNameLastModifiedDate);
 
 #ifdef _DEBUG
     TInt index = // This variable is only required for the assert debug below. If it is not wrapped in an  
@@ -467,7 +482,8 @@ void CGlxDataSourceTaskMdeThumbnail::CompleteFetchFileInfoL(CMdEObject* aItem)
         // i.e. background thumbnail generation
         // so we get status from CAF to avoid forcing second stage harvest
         TRAP(err, 
-            ContentAccess::CContent* content = ContentAccess::CContent::NewLC(iTnFileInfo->FilePath());
+            ContentAccess::CContent* content = ContentAccess::CContent::NewLC(
+                    iTnFileInfo->FilePath());
             content->GetAttribute(ContentAccess::EIsProtected, iTnFileInfo->iIsProtected);
             CleanupStack::PopAndDestroy(content);
             );
@@ -512,10 +528,11 @@ void CGlxDataSourceTaskMdeThumbnail::DoHandleContainerFirstItemQueryCompletedL()
 void CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest(TInt aError)
 	{
     TRACER("CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest(TInt aError)")
+    GLX_DEBUG2("CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest  aError=%d", aError);
 #ifdef USE_S60_TNM
 	if (aError != KErrNone)
 		{
-		ThumbnailFetchComplete(aError);
+		ThumbnailFetchComplete(aError, EFalse);
 		}
 	else
 		{
@@ -526,11 +543,15 @@ void CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest(TInt aError)
 		if (tnReq.iSizeClass.iWidth > 0 && tnReq.iSizeClass.iHeight > 0 )
 			{
 		    request->SetThumbnailInfo(iTnFileInfo);
+		    //This function is called number of times as a callback ,
+            //hence not trapping the leaving function which costs time and memory.
+            //Ignoring this for code scanner warnings - Leaving functions called in non-leaving functions.
 			DataSource()->FetchThumbnailL(iRequest, *this);
 			}
 		else
 			{
-			ThumbnailFetchComplete(KErrArgument);
+		    GLX_LOG_INFO("CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest KErrArgument");
+			ThumbnailFetchComplete(KErrArgument, EFalse);
 			}
 			}
 #else
@@ -571,18 +592,19 @@ void CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL()
         
         /// @todo: use default filter so we can ensure we always get correct first item if filters change
         iFilterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
-        iFilterProperties.iSortDirection = EGlxFilterSortDirectionAscending;
+        iFilterProperties.iSortDirection = EGlxFilterSortDirectionOverrideToDescendingIfDate;
         iFilterProperties.iLastCaptureDate = ETrue;
 
         if( CGlxDataSource::EContainerTypeMonth == containerType )
             {
-            iFilterProperties.iOrigin = EGlxFilterOriginCamera;
+            iFilterProperties.iOrigin = EGlxFilterOriginAll;
             AddMonthFilterL(item, iFilterProperties);
             container = TGlxMediaId(KGlxCollectionRootId);
             objectDef = &DataSource()->ObjectDef();
             }
             
-        DoQueryL(*objectDef, ETrue, EContainerFirstItemQuery,  EQueryResultModeObjectWithFreetexts, container);        
+        DoQueryL(*objectDef, ETrue, EContainerFirstItemQuery, 
+                EQueryResultModeItem, container);        
         }
     else
         {

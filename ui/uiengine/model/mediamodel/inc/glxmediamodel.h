@@ -35,6 +35,7 @@
 class HbIcon;
 class GlxModelParm;
 class GlxMLWrapper;
+class GlxDRMUtilityWrapper;
 #include <QCache>
 #include <QVector>
 
@@ -64,6 +65,10 @@ public :
 	* for checking if the item is editab
 	*/
 
+signals :
+	void albumTitleAvailable(QString aTitle);
+	void populated();
+
 private:
 	HbIcon* GetGridIconItem(int itemIndex, GlxTBContextType tbContextType) const;
 	HbIcon* GetFsIconItem(int itemIndex,GlxTBContextType tbContextType)const;
@@ -72,6 +77,10 @@ private:
  * for setting the attribute context mode will be used mainly for retreiving thumbnail of different sizes.
  */
     void setContextMode(GlxContextMode contextMode);
+	/*
+	 *Removes the context
+	 */
+    void removeContextMode(GlxContextMode contextMode);
     void setFocusIndex(const QModelIndex &index);
     QModelIndex getFocusIndex() const;
     void setSelectedIndex(const QModelIndex &index);
@@ -80,11 +89,21 @@ private:
 	
 signals :
     void iconAvailable(int itemIndex, HbIcon* itemIcon, GlxTBContextType tbContextType) const;
+	/*
+	 *signal to update the details view
+	 */
+    void updateDetailsView();
 public slots:
 	void itemUpdated1(int mlIndex, GlxTBContextType tbContextType);
 	void itemsAdded(int startIndex, int endIndex);
 	void itemsRemoved(int startIndex, int endIndex);
 	void itemCorrupted(int itemIndex);
+	void albumTitleUpdated(QString aTitle);
+	void modelpopulated();
+	/*
+	 *Emits signal to update the details view
+	 */
+	void updateDetailItems();
 protected:
 	
 private slots:
@@ -101,6 +120,8 @@ private:
 	int externalDataCount;
 	int mFocusIndex;
 	int mSubState;
+	GlxDRMUtilityWrapper* mDRMUtilityWrapper;
+	int mTempVisibleWindowIndex;
 };
 
 

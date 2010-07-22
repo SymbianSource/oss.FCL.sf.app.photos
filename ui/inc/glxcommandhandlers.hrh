@@ -115,6 +115,10 @@ enum TGlxCommandId
     EGlxCmdContextSend,
     EGlxCmdContextRename,
     EGlxCmdSetupItem,
+    EGlxCmdComment,
+    EGlxCmdRotateImgCW,
+    EGlxCmdRotateImgCCW,
+    EGlxCmdRotateImgCrop,
     EGlxCmdAiwBase = 0x6000
     };
 

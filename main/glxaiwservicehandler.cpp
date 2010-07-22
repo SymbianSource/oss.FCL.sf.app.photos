@@ -21,6 +21,7 @@
 #include <hbaction.h>
 #include <hbtoolbar.h>
 #include <hbstyleloader.h>
+#include <hbnotificationdialog.h>
 
 #include <QtDebug>
 #include <Qt>
@@ -42,6 +43,7 @@
 #include <glxexternalutility.h>
 #include "glxlocalisationstrings.h"
 #include <xqaiwdeclplat.h>
+#include <xqappmgr.h>
 
 #define IMAGE_FETCHER_SERVICE_NAME QLatin1String("photos.com.nokia.symbian.IImageFetch")
 #define IMAGE_FETCHER_SERVICE_DEPINTERFACE_NAME QLatin1String("photos.Image")
@@ -65,11 +67,22 @@ GlxAiwServiceHandler::GlxAiwServiceHandler() :
     mDSDIService(NULL),
     mImageViewerService(NULL)
     {
-    mFetcherService = new GlxGetImageService(this);
-    mNSDIService = new GlxGetImageServiceNSDI(this);
-    mDSDIService = new GlxGetImageServiceDSDI(this);
-    
-    mImageViewerService = new GlxImageViewerService(this);
+    QString currentInterfaceName = XQServiceUtil::interfaceName();
+    if( 0 == currentInterfaceName.compare(QLatin1String("com.nokia.symbian.IImageFetch")))
+        {
+        mFetcherService = new GlxGetImageService(this);
+        }
+    else if( 0 == currentInterfaceName.compare(QLatin1String("Image")))
+        {
+        mNSDIService = new GlxGetImageServiceNSDI(this);
+        mDSDIService = new GlxGetImageServiceDSDI(this);
+        }
+    else if( 0 == currentInterfaceName.compare(QLatin1String("com.nokia.symbian.IFileView")))
+        {
+		viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
+		viewport()->grabGesture(Qt::PinchGesture);
+        mImageViewerService = new GlxImageViewerService(this);
+        }
 
 #ifdef _DEBUG
 	QString t;
@@ -117,7 +130,7 @@ void GlxAiwServiceHandler::itemSelected(const QModelIndex & index)
     {
     qDebug() << "GlxFetcher::itemSelected";
     
-    if (mFetcherService->isActive())
+    if (mFetcherService && mFetcherService->isActive())
         {
         qDebug() << "GlxFetcher::itemSelected mFetcherService->isActive()";
         QVariant variant = mModel->data(index, GlxUriRole);
@@ -129,7 +142,7 @@ void GlxAiwServiceHandler::itemSelected(const QModelIndex & index)
             }
         }
     
-    if (mNSDIService->isActive())
+    else if (mNSDIService && mNSDIService->isActive())
         {
     qDebug() << "GlxFetcher::itemSelected mNSDIService->isActive()";
         QVariant variant = mModel->data(index, GlxUriRole);
@@ -141,7 +154,7 @@ void GlxAiwServiceHandler::itemSelected(const QModelIndex & index)
             }
         }
     
-    if (mDSDIService->isActive())
+    else if (mDSDIService && mDSDIService->isActive())
         {
     qDebug() << "GlxFetcher::itemSelected mDSDIService->isActive()";
         QVariant variant = mModel->data(index, GlxUriRole);
@@ -156,18 +169,19 @@ void GlxAiwServiceHandler::itemSelected(const QModelIndex & index)
 
 
 
-void GlxAiwServiceHandler::launchFetcher()
+void GlxAiwServiceHandler::launchFetcher(QString viewTitle)
     {
     qDebug() << "GlxAiwServiceHandler::launchFetcher START";
+    qApp->setApplicationName(viewTitle);
     HbStyleLoader::registerFilePath(":/data/photos.css");
     GlxModelParm modelParm(KGlxCollectionPluginAllImplementationUid, 0);
     mModel = new GlxMediaModel(modelParm);
 
     if ( this->orientation() == Qt::Horizontal ) {
-        mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
+        mModel->setData(QModelIndex(), (int)GlxContextLsGrid, GlxContextRole );
     }
     else {
-        mModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
+        mModel->setData(QModelIndex(), (int)GlxContextPtGrid, GlxContextRole );
     }    
 
     mView = GlxViewsFactory::createView(GLX_GRIDVIEW_ID, this);
@@ -184,15 +198,16 @@ void GlxAiwServiceHandler::launchFetcher()
     }
 
 void GlxAiwServiceHandler::itemSpecificMenuTriggered(qint32 viewId,QPointF pos)
-	{
+{
     mFetcherContextMenu = new HbMenu();
 	HbAction *action = mFetcherContextMenu->addAction(GLX_MENU_OPEN);
+	action->setObjectName( "Menu Open" );
 	connect(action, SIGNAL(triggered()), this, SLOT(openFSView()));
 	connect(this, SIGNAL(aboutToChangeOrientation ()), mFetcherContextMenu, SLOT(close()));
 	connect( mFetcherContextMenu, SIGNAL( aboutToClose () ), this, SLOT( closeContextMenu() ) );
 	mFetcherContextMenu->setPreferredPos( pos );
 	mFetcherContextMenu->show();
- 	}
+}
 
 void GlxAiwServiceHandler::closeContextMenu()
     {
@@ -204,7 +219,15 @@ void GlxAiwServiceHandler::closeContextMenu()
 	
 void GlxAiwServiceHandler::openFSView()
 	{
+    if ( this->orientation() == Qt::Horizontal ) {
+        mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
+    }
+    else {
+        mModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
+    }    
     HbAction* selectAction = new HbAction(GLX_BUTTON_SELECT);
+    selectAction->setObjectName( "FS Select" );
+    
 	connect(selectAction, SIGNAL(triggered()), this, SLOT(handleFSSelect()));
     HbToolBar* toolBar = new HbToolBar();
     toolBar->setOrientation( Qt::Horizontal );
@@ -317,7 +340,11 @@ bool GlxGetImageService::isActive()
 void GlxGetImageService::fetch()
     {
     mImageRequestIndex = setCurrentRequestAsync();
-    mServiceApp->launchFetcher();
+    QString title = requestInfo().info("WindowTitle").toString();
+    if(title.isNull()){
+        title = QString("Image Fetcher");
+    }
+    mServiceApp->launchFetcher(title);
     }
 
 // ----------------------------------------------------------------------------
@@ -406,7 +433,11 @@ void GlxGetImageServiceNSDI::fetch()
     {
     qDebug() << "GlxGetImageServiceNSDI::fetch START";
     mImageRequestIndex = setCurrentRequestAsync();
-    mServiceApp->launchFetcher();
+    QString title = requestInfo().info("WindowTitle").toString();
+    if(title.isNull()){
+        title = QString("Image Fetcher");
+    }
+    mServiceApp->launchFetcher(title);
     qDebug() << "GlxGetImageServiceNSDI::fetch END";
     }
 
@@ -485,7 +516,11 @@ void GlxGetImageServiceDSDI::fetch(QVariantMap filter, QVariant flag)
     Q_UNUSED(filter)
     Q_UNUSED(flag)
     mImageRequestIndex = setCurrentRequestAsync();
-    mServiceApp->launchFetcher();
+    QString title = requestInfo().info("WindowTitle").toString();
+    if(title.isNull()){
+        title = QString("Image Fetcher");
+    }
+    mServiceApp->launchFetcher(title);
     }
 
 // ----------GlxImageViewerService---------------
@@ -518,13 +553,27 @@ void GlxImageViewerService::complete(bool ok)
 
 bool GlxImageViewerService::view(QString file)
     {
+    XQApplicationManager appmgr;
+    QFile tempfile(file);
+    QVariantList attrValues;
+	QList<int> attrNames;
+	attrNames.append(XQApplicationManager::IsProtected);
+    bool ok = appmgr.getDrmAttributes(tempfile, attrNames, attrValues);
+    if(attrValues.at(0).toBool()){
+		HbNotificationDialog::launchDialog("NOT SUPPORTED");
+        connect(this, SIGNAL(returnValueDelivered()), mServiceApp,
+                SLOT(handleAnswerDelivered()));
+		complete(true);
+		return false;
+    }
+	
     XQRequestInfo info = requestInfo();
     mAsyncRequest = !info.isSynchronous();
     if (!mImageViewerInstance)
         {
         mImageViewerInstance = CGlxImageViewerManager::InstanceL();
         }
-    QString filepath(QDir::toNativeSeparators(file.at(0)));
+    QString filepath(QDir::toNativeSeparators(file));
     TPtrC16 str(reinterpret_cast<const TUint16*> (filepath.utf16()));
     HBufC* uri = str.Alloc();
 

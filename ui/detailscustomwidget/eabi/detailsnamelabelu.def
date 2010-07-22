@@ -1,0 +1,24 @@
+EXPORTS
+	_ZN19GlxDetailsNameLabel11qt_metacallEN11QMetaObject4CallEiPPv @ 1 NONAME
+	_ZN19GlxDetailsNameLabel11qt_metacastEPKc @ 2 NONAME
+	_ZN19GlxDetailsNameLabel11setItemTextERK7QString @ 3 NONAME
+	_ZN19GlxDetailsNameLabel12labelPressedEv @ 4 NONAME
+	_ZN19GlxDetailsNameLabel15mousePressEventEP24QGraphicsSceneMouseEvent @ 5 NONAME
+	_ZN19GlxDetailsNameLabel16staticMetaObjectE @ 6 NONAME DATA 16
+	_ZN19GlxDetailsNameLabel17mouseReleaseEventEP24QGraphicsSceneMouseEvent @ 7 NONAME
+	_ZN19GlxDetailsNameLabel19getStaticMetaObjectEv @ 8 NONAME
+	_ZN19GlxDetailsNameLabelC1EP13QGraphicsItem @ 9 NONAME
+	_ZN19GlxDetailsNameLabelC2EP13QGraphicsItem @ 10 NONAME
+	_ZN19GlxDetailsNameLabelD0Ev @ 11 NONAME
+	_ZN19GlxDetailsNameLabelD1Ev @ 12 NONAME
+	_ZN19GlxDetailsNameLabelD2Ev @ 13 NONAME
+	_ZNK19GlxDetailsNameLabel10metaObjectEv @ 14 NONAME
+	_ZTI19GlxDetailsNameLabel @ 15 NONAME
+	_ZTV19GlxDetailsNameLabel @ 16 NONAME
+	_ZThn16_N19GlxDetailsNameLabelD0Ev @ 17 NONAME
+	_ZThn16_N19GlxDetailsNameLabelD1Ev @ 18 NONAME
+	_ZThn8_N19GlxDetailsNameLabel15mousePressEventEP24QGraphicsSceneMouseEvent @ 19 NONAME
+	_ZThn8_N19GlxDetailsNameLabel17mouseReleaseEventEP24QGraphicsSceneMouseEvent @ 20 NONAME
+	_ZThn8_N19GlxDetailsNameLabelD0Ev @ 21 NONAME
+	_ZThn8_N19GlxDetailsNameLabelD1Ev @ 22 NONAME
+

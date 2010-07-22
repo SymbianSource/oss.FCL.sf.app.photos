@@ -30,7 +30,8 @@ symbian: {
 INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 TARGET.UID3 = 0x20000A15
 TARGET.EPOCALLOWDLLDATA = 1
-TARGET.CAPABILITY = ALL -TCB \
+TARGET.CAPABILITY = ALL -TCB
+MMP_RULES += SMPSAFE 
 }
 
 
@@ -39,5 +40,14 @@ HEADERS += inc/glxperformancelog.h \
            inc/glxperformancemacro.h 
            
 SOURCES += src/glxperformancelog.cpp
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxloggerqt.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxloggerqt.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock
 
 # Directories

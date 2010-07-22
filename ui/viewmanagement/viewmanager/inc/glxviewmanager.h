@@ -19,7 +19,7 @@
 
 #ifndef GLXVIEWMANAGER_H
 #define GLXVIEWMANAGER_H
- #include <QItemSelectionModel>
+
 #include <QObject>
 #include <QList>
 #include <hbeffect.h>
@@ -34,7 +34,9 @@ class HbToolBar;
 class HbAction;
 class QItemSelectionModel;
 class HbMenu;
-class GlxSlideShowEffectEngine;
+class GlxEffectEngine;
+class HbProgressDialog;
+class GlxMainWindowEventFilter;
 
 #ifdef BUILD_VIEWMANAGER
 #define GLX_VIEWMANAGER_EXPORT Q_DECL_EXPORT
@@ -59,7 +61,7 @@ Q_OBJECT
 public :
     GlxViewManager();
     ~GlxViewManager();
-    void setupItems(int subState = -1);
+    void setupItems( );
     void launchApplication(qint32 id, QAbstractItemModel *model);
     void addBackSoftKeyAction();
 /*
@@ -92,6 +94,10 @@ public :
  *  Return the selection model to the user
  */    
     QItemSelectionModel * getSelectionModel(qint32 viewId);
+/*
+ * To set the model of current view
+ */
+    void setModel( QAbstractItemModel *model );
 	    
 signals :
 /*
@@ -99,6 +105,7 @@ signals :
  */
     void actionTriggered(qint32 id);
     void externalCommand(int cmdId);
+    void applicationReady();
 
 public slots:
 /*
@@ -109,6 +116,9 @@ public slots:
  *  It is over load slot and used to run the animation for view transition and launch the view
  */    
     void launchView (qint32 id, QAbstractItemModel *model, GlxEffect effect, GlxViewEffect viewEffect);
+    
+    void launchProgressDialog( int maxValue );
+    void updateProgressDialog( int currentValue);
 /*
  *  It will removed and deleted the view.
  *  Currently It is not used so may be in future, It will be removed.
@@ -137,11 +147,14 @@ public slots:
  */    
     void itemSpecificMenuTriggered(qint32,QPointF );
     
+    void handleReadyView();
 protected:
 	
 private slots:
 
    void checkMarked();
+   void hideProgressDialog();
+   
 private:
 /*
  * It will create and return the view
@@ -189,15 +202,17 @@ private:
     HbMainWindow     *mMainWindow; //main window pointer, It have ownership only if 
     HbAction         *mBackAction; // For back soft key
     GlxMenuManager   *mMenuManager; //Pointer of menu manger to add the menu in the view 
-    GlxSlideShowEffectEngine *mEffectEngine; //To run the animation in between view transition
+    GlxEffectEngine  *mEffectEngine; //To run the animation in between view transition
     QList<HbAction *>  mActionList; //Tool bar action list
     QList<HbAction *>  mMarkingActionList; //marking mode tool bar action list
     HbToolBar          *mViewToolBar; //view tool bar
     HbToolBar          *mMarkingToolBar; //marking mode tool bar
-    HbMenu *mMenu; 
     GlxView *mView;
     QAbstractItemModel *mModel; //no ownership
-	QItemSelectionModel * mSelectionModel;
+    QItemSelectionModel * mSelectionModel;
+    HbProgressDialog *mProgressDialog;
+    GlxMainWindowEventFilter* mWindowEventFilter;
+
 };
 
 

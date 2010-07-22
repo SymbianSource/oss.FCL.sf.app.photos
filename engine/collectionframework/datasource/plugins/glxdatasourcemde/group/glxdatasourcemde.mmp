@@ -82,4 +82,5 @@ LIBRARY         platformenv.lib
 LIBRARY         iclextjpegapi.lib
 LIBRARY         imageconversion.lib
 
+SMPSAFE
 // End of File

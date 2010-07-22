@@ -20,12 +20,15 @@ DEPENDPATH += . inc src
 INCLUDEPATH += . ../../../inc \
 		 ../../../../inc \
              ../../../../loggers\loggerqt\inc \
-		 ../../medialistwrapper/inc 
+		 ../../medialistwrapper/inc \
+		 ../../drmutilitywrapper/inc
 
 CONFIG += hb
 
 LIBS += -lglxmedialistwrapper.dll \
-        -lglxloggerqt.dll      
+	-lglxdrmutilitywrapper.dll \
+        -lglxloggerqt.dll \
+	-lglximageviewermanager.dll		
 
 
 DEFINES += BUILD_MEDIAMODEL
@@ -35,6 +38,7 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 TARGET.UID3 = 0x20000A08
 TARGET.CAPABILITY = ALL -TCB 
 TARGET.EPOCALLOWDLLDATA = 1
+MMP_RULES += SMPSAFE
 }
 # Input
 HEADERS += inc/glxmediamodel.h 
@@ -43,3 +47,13 @@ HEADERS += inc/glxmediamodel.h
 SOURCES += src/glxmediamodel.cpp 
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxmediamodel.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxmediamodel.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock
+

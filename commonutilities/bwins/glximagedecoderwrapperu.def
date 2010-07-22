@@ -6,9 +6,9 @@ EXPORTS
 	??_EGlxImageDecoderWrapper@@UAE@I@Z @ 5 NONAME ; GlxImageDecoderWrapper::~GlxImageDecoderWrapper(unsigned int)
 	?tr@GlxImageDecoderWrapper@@SA?AVQString@@PBD0@Z @ 6 NONAME ; class QString GlxImageDecoderWrapper::tr(char const *, char const *)
 	?qt_metacast@GlxImageDecoderWrapper@@UAEPAXPBD@Z @ 7 NONAME ; void * GlxImageDecoderWrapper::qt_metacast(char const *)
-	?decodeImage@GlxImageDecoderWrapper@@QAEXVQString@@@Z @ 8 NONAME ; void GlxImageDecoderWrapper::decodeImage(class QString)
-	?getStaticMetaObject@GlxImageDecoderWrapper@@SAABUQMetaObject@@XZ @ 9 NONAME ; struct QMetaObject const & GlxImageDecoderWrapper::getStaticMetaObject(void)
-	??1GlxImageDecoderWrapper@@UAE@XZ @ 10 NONAME ; GlxImageDecoderWrapper::~GlxImageDecoderWrapper(void)
+	?getStaticMetaObject@GlxImageDecoderWrapper@@SAABUQMetaObject@@XZ @ 8 NONAME ; struct QMetaObject const & GlxImageDecoderWrapper::getStaticMetaObject(void)
+	??1GlxImageDecoderWrapper@@UAE@XZ @ 9 NONAME ; GlxImageDecoderWrapper::~GlxImageDecoderWrapper(void)
+	?decodeImage@GlxImageDecoderWrapper@@QAE?AVQSizeF@@VQString@@@Z @ 10 NONAME ; class QSizeF GlxImageDecoderWrapper::decodeImage(class QString)
 	?pixmapDecoded@GlxImageDecoderWrapper@@IAEXXZ @ 11 NONAME ; void GlxImageDecoderWrapper::pixmapDecoded(void)
 	?staticMetaObject@GlxImageDecoderWrapper@@2UQMetaObject@@B @ 12 NONAME ; struct QMetaObject const GlxImageDecoderWrapper::staticMetaObject
 	?getPixmap@GlxImageDecoderWrapper@@QAE?AVQPixmap@@XZ @ 13 NONAME ; class QPixmap GlxImageDecoderWrapper::getPixmap(void)

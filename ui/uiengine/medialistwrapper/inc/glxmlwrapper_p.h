@@ -26,6 +26,9 @@
 #include <qdatetime.h>
 #include "glxmedialistiterator.h"
 #include "glxmlwrapper.h"
+#include <QImage>
+#include "mglxtitlefetcherobserver.h"
+
 //Forward Declarations
 class MGlxMediaList;
 class CGlxMLGenericObserver;
@@ -35,10 +38,11 @@ class QImage;
 class CGlxDefaultAttributeContext;
 class CGlxDefaultThumbnailContext;
 class CGlxDefaultListAttributeContext;
-
+class CGlxTitleFetcher;
+class CGlxDRMUtility;
 //to use first call GlxMLWrapperPrivate::Instance then set the mode by calling GlxMLWrapperPrivate::SetContextMode()
 //CLASS Declaration
-class GlxMLWrapperPrivate : public QObject
+class GlxMLWrapperPrivate : public QObject,public MGlxTitleFetcherObserver
 {
     
 public:
@@ -56,6 +60,12 @@ public:
      * for setting the attribute context mode will be used mainly for retreiving thumbnail of different sizes.
      */
 	 void SetContextMode(GlxContextMode aContextMode);
+	 
+	 /*
+	  * For removing the contect used
+	  */
+	 void RemoveContextMode(GlxContextMode aContextMode);
+	 
 	 /**
      * for retreiving the Media List Count.
      */
@@ -83,6 +93,10 @@ public:
 	 */
 	 void SetVisibleWindowIndex(int aItemIndex);
 
+public:
+	 // From MGlxTitleFetcherObserver
+    IMPORT_C void HandleTitleAvailableL(const TDesC& aTitle);
+
 public: 
     void HandleItemAddedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList );
     void HandleItemRemovedL( TInt aStartIndex, TInt aEndIndex, MGlxMediaList*/* aList */);
@@ -95,6 +109,7 @@ public:
   //todo remove comment  void HandleCommandCompleteL( CMPXCommand* aCommandResult, TInt aError,MGlxMediaList* aList );
     void HandleMediaL( TInt aListIndex, MGlxMediaList* aList );
     void HandleItemModifiedL( const RArray<TInt>& aItemIndexes, MGlxMediaList* aList );
+    void HandlePopulatedL(MGlxMediaList* aList);
 
 public:
 	/**
@@ -103,15 +118,26 @@ public:
 	HbIcon* RetrieveItemIcon(int index, GlxTBContextType aTBContextType);
 	QImage  RetrieveItemImage(int index, GlxTBContextType aTBContextType);
 	QString RetrieveListTitle(int index);
+	QString RetrieveListDesc(int index);
 	QString RetrieveListSubTitle(int index);
 	QString RetrieveItemUri(int index);
 	QSize   RetrieveItemDimension(int index);
+	int     RetrieveItemSize(int index);
 	QDate   RetrieveItemDate(int index);
+	QTime   RetrieveItemTime(int index);
 	int     RetrieveItemFrameCount(int aItemIndex);
 	CFbsBitmap* RetrieveBitmap(int aItemIndex);
 	int     RetrieveListItemCount( int aItemIndex );
 	bool    isSystemItem( int aItemIndex );
-		
+	/*
+	 *Sets the context for fetcing comments
+	 */
+	void SetDescontextL();
+	QString RetrieveViewTitle();
+	bool IsPopulated();
+	bool IsDrmProtected(int index );
+	bool IsDrmValid(int index);
+	void setDrmValid(int index,bool valid);			
 private:
 
     /**
@@ -142,6 +168,7 @@ private:
 	void RemovePtFsContext();
 	void RemoveListContext();
 	void RemoveFavouriteContext();
+	void RemoveDescContext();
 	//for the attribute filtering
 	TInt CheckTBAttributesPresenceandSanity(TInt aItemIndex,
 		const RArray<TMPXAttribute>& aAttributes, TMPXAttribute aThumbnailAttribute );
@@ -149,6 +176,10 @@ private:
 	void CheckPtFsTBAttribute(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes);
 	void CheckLsFsTBAttribute(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes);
 	void CheckListAttributes(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes);
+	/*
+	 * to check the attributes returned for details view is present
+	 */
+	void CheckDetailsAttributes(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes);
 	/*
 	 * convert the CFbsbitmap to HbIcon
 	 */
@@ -175,7 +206,6 @@ private:
 	CGlxDefaultThumbnailContext* iLsFsThumbnailContext; 
 	CGlxDefaultThumbnailContext* iFocusFsThumbnailContext;
 	CGlxDefaultThumbnailContext* iFocusGridThumbnailContext;
-	CGlxThumbnailContext* iFilmStripThumbnailContext;
 
 	//List related contexts
 	// Fetch context for retrieving title attribute
@@ -186,6 +216,9 @@ private:
 
     //to find if the image is in favorites or not
    	CGlxDefaultAttributeContext *iFavouriteContext;	
+	
+	//To fetch the details
+    CGlxDefaultAttributeContext *iDescContext;
 	
     CGlxThumbnailContext* iListThumbnailContext;
     // for thumbnail context
@@ -202,7 +235,11 @@ private:
 	TBool iPtFsContextActivated;
 	TBool iLsListContextActivated; //currently not used as we have not implemented the logic for 3 thumbnails
 	TBool iPtListContextActivated; 
+	TBool iDetailsContextActivated; //this is to fetch the comments attributes
 	TBool iSelectionListContextActivated;
-
+	CGlxTitleFetcher* iTitleFetcher;
+	QImage iCorruptImage;
+	QString iViewTitle;
+	CGlxDRMUtility * iDrmUtility;
 };
 #endif //GLXMLWRAPPER_P_H 

@@ -86,6 +86,7 @@ const TMPXAttributeData KGlxFilterGeneralSortOrderPromoteSystemItems = { KGlxFil
 const TMPXAttributeData KGlxFilterGeneralOrigin = { KGlxFilterIdGeneral, EGlxFilterOrigin }; /// TGlxFilterOrigin
 const TMPXAttributeData KGlxFilterGeneralNoDRM = { KGlxFilterIdGeneral, EGlxFilterNoDRM }; /// TBool
 const TMPXAttributeData KGlxFilterGeneralNavigationalStateOnly = { KGlxFilterIdGeneral, 0x4000 }; /// TBool
+const TMPXAttributeData KGlxFilterGeneralMaxCount = { KGlxFilterIdGeneral, 0x8000 }; // TInt
 
 enum TGlxFilterSortOrder
     {
@@ -122,7 +123,8 @@ enum TGlxFilterOrigin
 	{
 	EGlxFilterOriginNotUsed=0,
 	EGlxFilterOriginCamera,
-	EGlxFilterOriginDownload
+	EGlxFilterOriginDownload,
+	EGlxFilterOriginAll
 	};
 
 #endif // __T_GLXFILTERGENERALDEFS_H__

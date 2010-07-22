@@ -23,11 +23,5 @@
  
  #include <platform_paths.hrh>
 
-PRJ_EXPORTS
-../rom/glxtvout.iby     CORE_APP_LAYER_IBY_EXPORT_PATH(glxtvout.iby)
-
 PRJ_MMPFILES
 glxtvout.mmp
-
-PRJ_TESTMMPFILES
-//../tsrc/group/t_glxtvout.mmp

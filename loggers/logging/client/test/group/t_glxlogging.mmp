@@ -55,5 +55,5 @@ LIBRARY                 flogger.lib
 #ifndef WINSCW
 EPOCALLOWDLLDATA
 #endif
-
+SMPSAFE
 // End of file

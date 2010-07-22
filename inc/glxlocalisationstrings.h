@@ -18,6 +18,7 @@
 #ifndef GLXLOCALISATIONSTRINGS_H_
 #define GLXLOCALISATIONSTRINGS_H_
 
+#include "hbglobal.h"
 
 //OPTIONS MENU
 //Options list item
@@ -74,21 +75,23 @@
 //
 #define GLX_MENU_RENAME                hbTrId("txt_common_menu_rename_item")
 
+#define GLX_DIALOG_NAME_PROMPT                hbTrId("txt_photos_title_enter_name")
 
+#define GLX_DIALOG_ALBUM_NAME_DEFAULT         hbTrId("txt_photos_dialog_enter_name_entry_album")
+#define GLX_DIALOG_DELETE_ONE_ITEM            hbTrId("txt_photos_info_deleting_1")
 //TITLE RELATED and DEFAULT STRINGS
 
 #define GLX_CAPTION                    hbTrId("txt_short_caption_photos")
 #define GLX_TITLE                      hbTrId("txt_photos_title_photos")
-#define GLX_CAMERA                     "txt_photos_dblist_my_camera"
-#define GLX_MYFAV                      "txt_photos_dblist_my_favorites"
 #define GLX_PLACES                     "txt_photos_dblist_places_ln"
 #define GLX_ITEMS_CAMERA               "txt_photos_dblist_val_ln_items"
 #define GLX_ITEMS_MYFAV                "txt_photos_subtitle_ln_items"
 #define GLX_SUBTITLE_CAM_GRIDVIEW      hbTrId("txt_photos_subtitle_my_camera")
 #define GLX_SUBTITLE_MYFAV_GRIDVIEW    hbTrId("txt_photos_subtitle_my_favorites")
 #define GLX_SUBTITLE_NOITEMS           hbTrId("txt_photos_subtitle_no_image_or_videos_to_display")
-
-
+#define GLX_FETCHER_TITLE              QString("Select Image")
+#define GLX_GRID_NO_IMAGE              QString("(No Images)\n")
+#define GLX_GRID_OPEN_CAMERA           QString("To capture images Open")
 //VIEW RELATED STRINGS AND COMMON DIALOGS
 
 //comments lable for photos flip view
@@ -106,5 +109,14 @@
 
 #define GLX_MENU_OPEN                hbTrId("txt_common_menu_open")
 
+#define GLX_BUTTON_HIDE              hbTrId("txt_common_button_hide")
+
+#define GLX_LABEL_TRANSITION_EFFECT  hbTrId("txt_photos_setlabel_transistion_effect")
+#define GLX_VAL_SMOOTH_FADE          hbTrId("txt_photos_setlabel_transistion_effect_val_smooth")
+
+#define GLX_LABEL_TRANSITION_DELAY   hbTrId("txt_photos_setlabel_transistion_delay")
+#define GLX_VAL_SLOW                 hbTrId("txt_photos_setlabel_transistion_delay_val_slow")
+#define GLX_VAL_MEDIUM               hbTrId("txt_photos_setlabel_transistion_delay_val_medium")
+#define GLX_VAL_FAST                 hbTrId("txt_photos_setlabel_transistion_delay_val_fast")
 
 #endif /* GLXLOCALISATIONSTRINGS_H_ */

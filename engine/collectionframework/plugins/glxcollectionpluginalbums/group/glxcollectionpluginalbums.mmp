@@ -69,5 +69,5 @@ LIBRARY         glxcommon.lib
 LIBRARY         glxdatasourcemanager.lib
 LIBRARY         mpxcommon.lib
 LIBRARY         flogger.lib
-
+SMPSAFE
 // End of File

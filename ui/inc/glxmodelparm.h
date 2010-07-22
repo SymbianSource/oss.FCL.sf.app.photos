@@ -22,29 +22,7 @@
 
 #include<glxfiltergeneraldefs.h>
 #include<glxuistd.h>
-
-enum
-{
-    GlxHgVisibilityRole = Qt::UserRole + 1, // VisibilityRole For MediaWall ,  Dont Change This Value - Depedency To HgWidget
-    GlxFsImageRole,                         //to get the fullscreen image
-    GlxContextRole,                     //to get and set the context   
-    GlxFocusIndexRole,                  //to get and set the selected item index
-    GlxVisualWindowIndex,               //to set the visual window index in media list
-    GlxUriRole,                         //to get the URI of the image
-    GlxDimensionsRole,                  
-    GlxSelectedIndexRole,               //to get and set the seleceted item list
-    GlxDateRole,                        //to get the image created or modified date 
-    GlxFrameCount,                      //to get the number of frame in an image
-    GlxSubStateRole,                    //to publish the sub state of a SM states
-    GlxHdmiBitmap,                      //to get the pre decoded thumbnail for HDMI
-	GlxListItemCount,                   //to get the number of item in the album list
-	GlxSystemItemRole,                   //to get the item is system item or not
-    GlxFavorites,                       //to get the image is in favorites folder or not
-    GlxQImageSmall,                     //To Get Grid Thumbnail as QImage
-    GlxQImageLarge,                     //To Get FullScreen Thumbnail as QImage
-    GlxDefaultImage                     //To Get Default Thumbnail 
-};
-
+#include<glxmodelroles.h>
 
 class GlxModelParm
 {

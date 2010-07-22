@@ -15,10 +15,13 @@
 *
 */
 
+#include "glxlocalisationstrings.h"
+
 #include <mpxcollectionpath.h>
 #include <mglxmedialist.h>
 #include <glxcommandfactory.h>
 #include <glxcommandhandlerdelete.h>
+
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
 #include "glxcommandhandlerdeleteTraces.h"
@@ -71,7 +74,8 @@ QString GlxCommandHandlerDelete::ConfirmationTextL(bool multiSelection ) const
         }
     else
         {
-        retString = QString("Delete ");
+         
+        retString = GLX_DIALOG_DELETE_ONE_ITEM ;
         }
     return  retString;   
     }    

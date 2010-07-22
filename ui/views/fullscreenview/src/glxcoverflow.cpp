@@ -23,14 +23,16 @@
 #include <QDebug>
 #include <QGesture>
 #include <hbpangesture.h>
+#include <hbiconanimator.h>
 
 //User Includes
 #include <glxmodelparm.h>
 #include <glxcoverflow.h>
 #include "glxviewids.h"
 
-#define GLX_COVERFLOW_SPEED 60
-#define GLX_BOUNCEBACK_SPEED 15
+#define GLX_COVERFLOW_SPEED  32
+#define GLX_BOUNCEBACK_SPEED 16
+#define GLX_BOUNCEBACK_DELTA 8
 
 GlxCoverFlow::GlxCoverFlow(QGraphicsItem *parent ) 
      : HbWidget(parent), 
@@ -42,7 +44,10 @@ GlxCoverFlow::GlxCoverFlow(QGraphicsItem *parent )
        mItemSize (QSize(0,0)),
        mModel ( NULL),
        mMoveDir(NO_MOVE),
-       mSpeed ( GLX_COVERFLOW_SPEED )
+       mSpeed ( GLX_COVERFLOW_SPEED ),
+	   mZoomOn(false),
+	   mMultitouchFilter(NULL),
+       mTimerId(0)
 {
 //TO:DO through exception
    qDebug("GlxCoverFlow::GlxCoverFlow");
@@ -52,16 +57,25 @@ GlxCoverFlow::GlxCoverFlow(QGraphicsItem *parent )
    connect( this, SIGNAL( autoRightMoveSignal() ), this, SLOT( autoRightMove() ), Qt::QueuedConnection );   
 }
 
+void GlxCoverFlow::setMultitouchFilter(QGraphicsItem* mtFilter)
+{
+	mMultitouchFilter = mtFilter;
+}
 void GlxCoverFlow::setCoverFlow()
 {
     qDebug("GlxCoverFlow::setCoverFlow");
     for ( qint8 i = 0; i < NBR_ICON_ITEM ; i++ ) {
-        mIconItem[i] = new HbIconItem(this);
-        mIconItem[i]->setBrush(QBrush(Qt::black));
-        mIconItem[i]->setSize(QSize(0,0));
+        mIconItem[i] = new HbIconItem( this );
+        mIconItem[i]->grabGesture( Qt::PinchGesture, Qt::ReceivePartialGestures );
+        mIconItem[i]->installSceneEventFilter( mMultitouchFilter );
+        mIconItem[i]->setBrush( QBrush( Qt::black ) );
+        mIconItem[i]->setSize( QSize( 0, 0 ) );
+        mIconItem[i]->setAlignment( Qt::AlignCenter );
+        mIconItem[i]->setObjectName( QString( "Cover%1" ).arg( i ) );
     }
+    
     mUiOn = FALSE;
-    mBounceBackDeltaX = 10;
+    mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
 }
 
 void GlxCoverFlow::setItemSize(QSize &size)
@@ -97,44 +111,50 @@ void GlxCoverFlow::indexChanged( int index )
 
 void GlxCoverFlow::gestureEvent(QGestureEvent *event)
 {    
- if(QTapGesture *gesture = static_cast<QTapGesture *>(event->gesture(Qt::TapGesture))) {        
+    if(QTapGesture *gesture = static_cast<QTapGesture *>(event->gesture(Qt::TapGesture))) {        
         if (gesture->state() == Qt::GestureFinished) {
-                     emit coverFlowEvent( TAP_EVENT );
-                      event->accept(gesture);
+            if(!mTimerId) {
+                mTimerId = startTimer(500);
             }
+            else {
+                killTimer(mTimerId);
+                mTimerId = 0;
+                emit doubleTapEventReceived(gesture->position());
+            }
+            event->accept(gesture);
         }
-  
-  if (QPanGesture *panningGesture = qobject_cast<QPanGesture*>(event->gesture(Qt::PanGesture))) {
-        HbPanGesture *hbPanGesture = qobject_cast<HbPanGesture *>(panningGesture);
-         if (hbPanGesture) {
-            if(hbPanGesture->state() == Qt::GestureUpdated) {
-                 QPointF delta(hbPanGesture->sceneDelta());
-                 panGesture(delta);
-                  event->accept(panningGesture);
-
-            }
-             if(hbPanGesture->state() == Qt::GestureFinished) {
-                 switch( mMoveDir ) {
-    
-                        case LEFT_MOVE: 
-                            mMoveDir = NO_MOVE;
-                            emit autoLeftMoveSignal();
-                            break ;
-        
-                        case RIGHT_MOVE :
-                            mMoveDir = NO_MOVE;
-                            emit autoRightMoveSignal();
-                            break;
-        
-                        default:
-                            break;
-                    } 
-                  event->accept(panningGesture);
-
-            }
-         }
     }
   
+    if (QPanGesture *panningGesture = qobject_cast<QPanGesture*>(event->gesture(Qt::PanGesture))) {
+        HbPanGesture *hbPanGesture = qobject_cast<HbPanGesture *>(panningGesture);
+        if (hbPanGesture) {
+            if(hbPanGesture->state() == Qt::GestureUpdated) {
+                QPointF delta(hbPanGesture->sceneDelta());
+                panGesture(delta);
+                event->accept(panningGesture);            
+            }
+            
+            if(hbPanGesture->state() == Qt::GestureFinished) {
+                switch( mMoveDir ) {
+                    case LEFT_MOVE : 
+                        mMoveDir = NO_MOVE;
+                        mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
+                        emit autoLeftMoveSignal();
+                        break ;
+                
+                    case RIGHT_MOVE :
+                        mMoveDir = NO_MOVE;
+                        mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
+                        emit autoRightMoveSignal();
+                        break;
+                
+                    default:
+                        break;
+                } 
+                event->accept(panningGesture);
+            }
+        }
+    }  
 }
 
 void GlxCoverFlow::panGesture ( const QPointF & delta )  
@@ -157,38 +177,6 @@ void GlxCoverFlow::panGesture ( const QPointF & delta )
     }
 }
 
-void GlxCoverFlow::leftGesture(int value)
-{
-    Q_UNUSED(value);
-    qDebug("GlxCoverFlow::leftGesture CurrentPos= %d value %d", mCurrentPos, value); 
-    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S ) {
-        return;
-    }
-    mMoveDir = NO_MOVE;
-    mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
-    emit autoLeftMoveSignal();
-    if ( mUiOn == TRUE ) {
-        mUiOn = FALSE;
-        emit coverFlowEvent( PANNING_START_EVENT );        
-    }
-}
-
-void GlxCoverFlow::rightGesture(int value)
-{
-    Q_UNUSED(value);
-    qDebug("GlxCoverFlow::rightGesture CurrentPos= %d value %d ", mCurrentPos, value);
-    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S ) {
-        return;
-    }
-    mMoveDir = NO_MOVE;
-    mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
-    emit autoRightMoveSignal();
-    if ( mUiOn == TRUE  ) {
-        mUiOn = FALSE;
-        emit coverFlowEvent( PANNING_START_EVENT );
-    }     
-}
-
 void GlxCoverFlow::longPressGesture(const QPointF &point)
 {
      qDebug("GlxCoverFlow::longPressGesture x = %d  y = %d", point.x(), point.y());
@@ -202,17 +190,13 @@ void GlxCoverFlow::dataChanged(QModelIndex startIndex, QModelIndex endIndex)
     
     int index = 0;
     for (int i = 0; i < NBR_ICON_ITEM ; i++) {
-        index = calculateIndex( mSelIndex + i - 2);
+        index = calculateIndex( mSelIndex + i - 2 );
         if ( index == startIndex.row() ) {
             index = ( mSelItemIndex + i - 2 + NBR_ICON_ITEM ) % NBR_ICON_ITEM;
             qDebug("GlxCoverFlow::dataChanged index = %d mSelItemIndex = %d ", index, mSelItemIndex );
-            
-            QVariant variant = mModel->data( startIndex, GlxFsImageRole );
-            if ( variant.isValid() &&  variant.canConvert<HbIcon> () ) {
-                mIconItem[index]->setIcon ( variant.value<HbIcon>() ) ; 
-            }
-            else {
-                mIconItem[index]->setIcon( HbIcon() );
+            mIconItem[ index ]->setIcon( getIcon( startIndex.row() ) );
+            if ( index == mSelItemIndex ) {
+                playAnimation( );
             }
         }
     }
@@ -244,7 +228,10 @@ void GlxCoverFlow::rowsRemoved(const QModelIndex &parent, int start, int end)
     }
 }
 
-
+void GlxCoverFlow::modelDestroyed()
+{
+    mModel = NULL ;    
+}
 
 void GlxCoverFlow::autoLeftMove()
 {
@@ -258,7 +245,7 @@ void GlxCoverFlow::autoLeftMove()
     //for bounce back effect for last image ( it will do the back)
     if ( ( mCurrentPos + width ) > ( mStripLen + mBounceBackDeltaX ) && mMoveDir == NO_MOVE ) {
         mMoveDir = LEFT_MOVE;
-        mBounceBackDeltaX = 10;
+        mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
         autoRightMoveSignal();
         return ;
     }
@@ -282,14 +269,18 @@ void GlxCoverFlow::autoLeftMove()
         }
         int selIndex = mCurrentPos / width ;
         if ( mRows == 1 || selIndex != mSelIndex ) {
+            stopAnimation();
             mSelIndex = selIndex;
             mSelItemIndex = ( ++mSelItemIndex ) % NBR_ICON_ITEM;
             selIndex = ( mSelItemIndex + 2 ) % NBR_ICON_ITEM;
             updateIconItem( mSelIndex + 2, selIndex, width * 2 ) ;
-            emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
+            playAnimation();
+			if(!mZoomOn) {
+                emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
+			}
         }
         mMoveDir = NO_MOVE;
-        mBounceBackDeltaX = 10;
+        mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
         mSpeed = GLX_COVERFLOW_SPEED;
     }   
 }
@@ -308,7 +299,7 @@ void GlxCoverFlow::autoRightMove()
     qDebug("GlxCoverFlow::autoRightMove diffX x = %d current pos = %d mBounceBackDeltaX x = %d", diffX, mCurrentPos, mBounceBackDeltaX);
     if ( diffX > mBounceBackDeltaX && diffX < width && mMoveDir == NO_MOVE ){
         mMoveDir = RIGHT_MOVE;
-        mBounceBackDeltaX = 10;
+        mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
         autoLeftMoveSignal();  
         return ;
     }
@@ -334,14 +325,18 @@ void GlxCoverFlow::autoRightMove()
         }
         int selIndex = mCurrentPos / width ;
         if ( mRows == 1 || selIndex != mSelIndex ) {
+            stopAnimation();
             mSelIndex = selIndex;
             mSelItemIndex = ( mSelItemIndex == 0 ) ?  NBR_ICON_ITEM -1 : --mSelItemIndex;
             selIndex = ( mSelItemIndex + 3 ) % NBR_ICON_ITEM;
             updateIconItem( mSelIndex - 2, selIndex, - width * 2 ) ;
-            emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
+            playAnimation();
+			if(!mZoomOn) {
+                emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
+			}
         }
         mMoveDir = NO_MOVE;
-        mBounceBackDeltaX = 10;
+        mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
         mSpeed = GLX_COVERFLOW_SPEED;
     }
 }
@@ -406,71 +401,67 @@ void GlxCoverFlow::loadIconItems()
 {  
     qDebug("GlxCoverFlow::loadIconItems ");
     int index = 0;
-    QVariant variant = mModel->data( mModel->index(0,0), GlxFocusIndexRole );    
-    if ( variant.isValid() &&  variant.canConvert<int> () ) {
-        mSelIndex = variant.value<int>();  
-    }  
-
+    stopAnimation();
+    mSelIndex = getFocusIndex();
+    
     qDebug("GlxCoverFlow::loadIconItems index = %d, width = %d", mSelIndex, size().width() );    
     
     for ( qint8 i = 0; i < NBR_ICON_ITEM ; i++ ) {
-        index = calculateIndex ( mSelIndex - 2 + i) ;           
-        QVariant variant = mModel->data( mModel->index(index, 0), GlxFsImageRole );
-        if ( variant.isValid() &&  variant.canConvert<HbIcon> () ) {
-            mIconItem[i]->setIcon ( variant.value<HbIcon>() ) ;       
-        }
-        else {
-            mIconItem[i]->setIcon( HbIcon() );
-        }            
+        index = calculateIndex ( mSelIndex - 2 + i) ; 
+        mIconItem[i]->setIcon( getIcon( index ) );
         mIconItem[i]->setSize ( mItemSize );
         mIconItem[i]->setPos ( QPointF ( (i - 2) * mItemSize.width(), 0) );   
     }
     
     mSelItemIndex = 2;
     mCurrentPos = mItemSize.width() * mSelIndex;
+    playAnimation();
+}
+
+void GlxCoverFlow::playAnimation()
+{
+    if ( isAnimatedImage( mSelIndex ) ) {
+        mIconItem[ mSelItemIndex ]->setIcon( HbIcon( getUri( mSelIndex ) ) );
+        mIconItem[ mSelItemIndex ]->animator().startAnimation();
+    }
+}
+
+void GlxCoverFlow::stopAnimation()
+{
+    mIconItem[ mSelItemIndex ]->animator().stopAnimation();
 }
 
 void GlxCoverFlow::updateIconItem (qint16 selIndex, qint16 selItemIndex, qint16 posX)
 {
     qDebug("GlxCoverFlow::updateIconItem selIndex = %d, selIconIndex = %d posX = %d", selIndex, selItemIndex, posX );
-    mIconItem[selItemIndex]->setPos(QPointF(posX, 0));
     
     selIndex = calculateIndex( selIndex );
-    
-    QVariant variant = mModel->data( mModel->index(selIndex, 0), GlxFsImageRole );
-    if ( variant.isValid() &&  variant.canConvert<HbIcon> () ) {
-        mIconItem[selItemIndex]->setIcon ( variant.value<HbIcon>() ) ;       
-    }
-    else {
-        mIconItem[selItemIndex]->setIcon( HbIcon() );
-    }
-    mIconItem[selItemIndex]->setSize ( mItemSize );    
+    mIconItem[ selItemIndex ]->setPos( QPointF( posX, 0 ) );    
+    mIconItem[ selItemIndex ]->setIcon( getIcon( selIndex ) );
+    mIconItem[ selItemIndex ]->setSize ( mItemSize );    
 }
-
 
 void GlxCoverFlow::clearCurrentModel()
 {
     qDebug("GlxCoverFlow::clearCurrentModel ");
     if ( mModel ) {
-        disconnect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
-        disconnect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex,int,int)));
-        disconnect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
+        disconnect( mModel, SIGNAL( dataChanged( QModelIndex, QModelIndex ) ), this, SLOT( dataChanged( QModelIndex, QModelIndex ) ) );
+        disconnect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( rowsInserted( QModelIndex, int, int ) ) );
+        disconnect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int) ), this, SLOT( rowsRemoved( QModelIndex, int, int ) ) );
+        disconnect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
         mModel = NULL ;
-    }
-/*
-    disconnect(mModel, SIGNAL(destroyed()), this, SLOT(_q_modelDestroyed()));
-    disconnect(mModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
-*/  
+    } 
 }
 
 void GlxCoverFlow::initializeNewModel()
 {
     qDebug("GlxCoverFlow::initializeNewModel" );
     if ( mModel ) {
-        connect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
-        connect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex,int,int)));
-        connect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
-    }   
+        connect( mModel, SIGNAL( dataChanged( QModelIndex, QModelIndex ) ), this, SLOT( dataChanged( QModelIndex, QModelIndex ) ) );
+        connect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( rowsInserted( QModelIndex, int, int ) ) );
+        connect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int) ), this, SLOT( rowsRemoved( QModelIndex, int, int ) ) );
+        connect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
+    } 
 }
 
 void GlxCoverFlow::resetCoverFlow()
@@ -499,27 +490,20 @@ void GlxCoverFlow::partiallyCreate(QAbstractItemModel *model, QSize itemSize)
 {
     qDebug("GlxCoverFlow::resetpartiallyCreated");
     mIconItem[2]->setSize ( itemSize );
-    mIconItem[2]->setPos ( QPointF ( 0, 0) );  
-    
-    QVariant variant = model->data( model->index(0,0), GlxFocusIndexRole );    
-    if ( variant.isValid() &&  variant.canConvert<int> () ) {
-        mSelIndex = variant.value<int>();  
-       qDebug("GlxCoverFlow::partiallyCreated index mSelIndex=%d",mSelIndex);
-    }
-    
-    variant = model->data( model->index(mSelIndex, 0), GlxFsImageRole );
-    if ( variant.isValid() &&  variant.canConvert<HbIcon> () ) {
-        mIconItem[2]->setIcon ( variant.value<HbIcon>() ) ; 
-    }
+    mIconItem[2]->setPos ( QPointF ( 0, 0) ); 
+    mModel = model ; 
+    mSelIndex = getFocusIndex();
+    mIconItem[2]->setIcon( getIcon( mSelIndex ) ) ;
+    mModel = NULL;
 }
 
 GlxCoverFlow::~GlxCoverFlow()
 {
     qDebug("GlxCoverFlow::~GlxCoverFlow model " );
+    ClearCoverFlow();
     disconnect( this, SIGNAL( autoLeftMoveSignal() ), this, SLOT( autoLeftMove() ) );
     disconnect( this, SIGNAL( autoRightMoveSignal() ), this, SLOT( autoRightMove() ) );
 }
-
 
 void GlxCoverFlow::ClearCoverFlow()
 {
@@ -541,4 +525,65 @@ int GlxCoverFlow::getSubState()
         substate = variant.value<int>();
     }
     return substate;
+}
+
+void GlxCoverFlow::zoomStarted(int index)
+{
+    Q_UNUSED(index)
+    stopAnimation();
+	mZoomOn = true;	
+}
+
+void GlxCoverFlow::zoomFinished(int index)
+{ 
+	mZoomOn = false;
+	playAnimation();
+	indexChanged(index);
+}
+
+void GlxCoverFlow::timerEvent(QTimerEvent *event)
+{
+    if(mTimerId == event->timerId())
+    {
+        killTimer(mTimerId);
+        mTimerId = 0;
+        emit coverFlowEvent( TAP_EVENT );
+    }
+}
+
+int GlxCoverFlow::getFocusIndex( )
+{
+    QVariant variant = mModel->data( mModel->index( 0, 0 ), GlxFocusIndexRole ) ;
+    if ( variant.isValid() && variant.canConvert< int > () ) {
+        return variant.value< int > ();
+    }
+    return -1;
+}
+
+HbIcon GlxCoverFlow::getIcon( int index )
+{
+    QVariant variant = mModel->data( mModel->index( index, 0 ), GlxFsImageRole );
+    if ( variant.isValid() &&  variant.canConvert< HbIcon > () ) {
+        return variant.value<HbIcon> () ;       
+    }
+    return HbIcon() ;
+}
+
+QString GlxCoverFlow::getUri( int index )
+{
+    QVariant variant = mModel->data( mModel->index( index, 0 ), GlxUriRole );
+    if ( variant.isValid() && variant.canConvert< QString > () ){
+        return variant.value< QString > () ;
+    }
+    return QString();
+}
+
+bool GlxCoverFlow::isAnimatedImage( int index )
+{
+    int frameCount = 0;
+    QVariant variant = mModel->data( mModel->index( index, 0 ), GlxFrameCount );
+    if ( variant.isValid() && variant.canConvert< int > () ) {
+         frameCount = variant.value< int > () ;
+    }
+    return frameCount > 1 ? true : false ;
 }

@@ -37,8 +37,7 @@ class QAbstractItemModel;
 class HbIconItem;
 
 //User Defined forward declartion
-class GlxZoomSlider;
-class GlxZoomControl;
+class GlxZoomWidget;
 class GlxTvOutWrapper;
 
 class GlxFullScreenView : public GlxView
@@ -86,8 +85,7 @@ public slots:
     void handleToolBarAction();
 
 protected :
-    bool event(QEvent *event);
-
+    bool eventFilter(QObject *obj, QEvent *ev);
 private:
     
     /*
@@ -108,9 +106,10 @@ private:
     void setImageStripModel();
     
     void loadFullScreenToolBar();
-    void imageSelectionAnimation(const QModelIndex &index);
+    void addToolBarAction( int commandId, const QString &iconName, const QString &name) ;
+    void imageSelectionAnimation( const QModelIndex &index );
     int getSubState();
-    void setHdmiModel(QAbstractItemModel *model);
+    void setHdmiModel( QAbstractItemModel *model );
 private:
     QAbstractItemModel  *mModel;   //no ownership
     HbMainWindow        *mWindow;  //no ownership
@@ -120,15 +119,8 @@ private:
     HbIconItem          *mIconItem ;   //temporary item for play the image strip select animation
     GlxTvOutWrapper     *mTvOutWrapper;
     HbToolBar           *mFullScreenToolBar; //Fullscreen Toolbar
-    HbAction            *mFlipAction; //Action : it starts activates the details view
-    HbAction            *mSendAction;
-    HbAction            *mDeleteAction;
-    HbAction            *mUseImageAction;
-
     //for Zoom
-    HbPushButton        *mZmPushButton;
-    GlxZoomSlider       *mZoomSlider;
-    GlxZoomControl      *mZoomControl;
+	GlxZoomWidget		*mZoomWidget;
     HbDocumentLoader    *mDocLoader;
   
     bool                mUiOff;        // to check the current status of ui on / off

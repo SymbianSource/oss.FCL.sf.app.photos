@@ -38,6 +38,12 @@ public:
      * destructor
      */
     ~CGlxConnectionObserver();
+    
+    /*
+     * IsHdmiConnected()
+     */
+    TBool IsHdmiConnected();
+    
 private:
     /*
      * ConstructL

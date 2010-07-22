@@ -90,18 +90,28 @@ const TInt KDriveLetterLength = 1;
 _LIT(KColonBackslash, ":\\");
 _LIT(KFileNameFormatString, "(%+02u)");
 
+// Items to be deleted from File server at a time before calling scheduler wait
+const TInt KDeletedItemCount = 10;
+const TInt KDeleteOperationInterval = 1000;
+
 // ----------------------------------------------------------------------------
 // Destructor
 // ----------------------------------------------------------------------------
 //
 CGlxDataSourceTaskMdeCommand::~CGlxDataSourceTaskMdeCommand()
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::~CGlxDataSourceTaskMdeCommand()")
+    TRACER("CGlxDataSourceTaskMdeCommand::~CGlxDataSourceTaskMdeCommand()");
 	iLeftIds.Close();
     iRightIds.Close();
     delete iTitle;
     delete iObjectToRename;
     delete iStringCache;
+    if(iTimer && iTimer->IsActive())
+		{
+		iTimer->Cancel();
+		}
+	delete iTimer;
+    delete iSchedulerWait;    
     }
 
 
@@ -114,7 +124,7 @@ CGlxDataSourceTaskMdeCommand::CGlxDataSourceTaskMdeCommand(
        CGlxDataSource* aDataSource)
     : CGlxDataSourceTaskMde(aRequest, aObserver, aDataSource) 
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::CGlxDataSourceTaskMdeCommand()")
+    TRACER("CGlxDataSourceTaskMdeCommand::CGlxDataSourceTaskMdeCommand()");
 	// No implementation required
 	}
 
@@ -124,13 +134,16 @@ CGlxDataSourceTaskMdeCommand::CGlxDataSourceTaskMdeCommand(
 //
 void CGlxDataSourceTaskMdeCommand::ConstructL()
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::ConstructL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::ConstructL()");
 	iResponse = CMPXCommand::NewL(static_cast<CGlxCommandRequest*>(iRequest)->Command());
 #ifdef USE_S60_TNM
     DataSource()->CancelFetchThumbnail();
 #else    
     DataSource()->ThumbnailCreator().CancelRequest( TGlxMediaId(0) );
-#endif
+#endif    
+    
+    iTimer = CPeriodic::NewL(CActive::EPriorityStandard);
+    iSchedulerWait = new (ELeave) CActiveSchedulerWait();
 	}
 
 /// @todo minor: Rowland Cook 12/06/2007 Add method decription.
@@ -140,7 +153,7 @@ void CGlxDataSourceTaskMdeCommand::ConstructL()
 //
 void CGlxDataSourceTaskMdeCommand::ExecuteRequestL()
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::ExecuteRequestL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::ExecuteRequestL()");
     __ASSERT_DEBUG(DataSource()->NamespaceDef(), Panic(EGlxPanicIllegalState));
     
 	const CMPXCommand& command = static_cast<CGlxCommandRequest*>(iRequest)->Command();
@@ -164,7 +177,7 @@ void CGlxDataSourceTaskMdeCommand::ExecuteRequestL()
 //
 void CGlxDataSourceTaskMdeCommand::AddContainerL(const TDesC& aContainerName)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::AddContainerL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::AddContainerL()");
 	iTitle = aContainerName.AllocL();
 	AppendContainerTitleCountQueryL(ECommandAddContainer, aContainerName);
     ExecuteQueryL();
@@ -174,19 +187,24 @@ void CGlxDataSourceTaskMdeCommand::AddContainerL(const TDesC& aContainerName)
 // Add items to container by id
 // ----------------------------------------------------------------------------
 //
-void CGlxDataSourceTaskMdeCommand::AddToContainerL(const RArray<TGlxMediaId>& aSourceIds, const RArray<TGlxMediaId>& aTargetContainers)
+void CGlxDataSourceTaskMdeCommand::AddToContainerL(const RArray<TGlxMediaId>& aSourceIds,
+        const RArray<TGlxMediaId>& aTargetContainers)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::AddToContainerL(const RArray<TGlxMediaId>& aSourceIds, const RArray<TGlxMediaId>& aTargetContainers)")	
-	__ASSERT_DEBUG(aSourceIds.Count() && aTargetContainers.Count(), Panic(EGlxPanicEmptyArray));
+    TRACER("CGlxDataSourceTaskMdeCommand::AddToContainerL(const RArray<TGlxMediaId>& aSourceIds,const RArray<TGlxMediaId>& aTargetContainers)");	
+	__ASSERT_DEBUG(aSourceIds.Count() && aTargetContainers.Count(), 
+	        Panic(EGlxPanicEmptyArray));
 	
     iLeftIds.Reset();
     iRightIds.Reset();
 
-	CMdEQuery* query = DataSource()->Session().NewRelationQueryL(*DataSource()->NamespaceDef(), this); 
+	CMdEQuery* query = DataSource()->Session().NewRelationQueryL(
+	        *DataSource()->NamespaceDef(), this); 
 	AppendQueryL(query, ECommandAddToContainer);
     
     CMdELogicCondition& rootCondition = query->Conditions();
-    CMdERelationCondition& containerRelationCondition = rootCondition.AddRelationConditionL(DataSource()->ContainsDef(), ERelationConditionSideLeft);
+    CMdERelationCondition& containerRelationCondition = 
+    rootCondition.AddRelationConditionL(DataSource()->ContainsDef(),
+            ERelationConditionSideLeft);
     CMdELogicCondition& leftLogicCondition = containerRelationCondition.LeftL();
     CMdELogicCondition& rightLogicCondition = containerRelationCondition.RightL();
     leftLogicCondition.SetOperator(ELogicConditionOperatorOr);
@@ -236,7 +254,7 @@ void CGlxDataSourceTaskMdeCommand::AddToContainerL(const RArray<TGlxMediaId>& aS
 void CGlxDataSourceTaskMdeCommand::AddToContainerL(const TDesC& aSourceUri, 
 		                        const RArray< TGlxMediaId >& aTargetContainers)
     {
-    TRACER("CGlxDataSourceTaskMdeCommand::AddToContainerL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::AddToContainerL()");
     CMdEObject* sourceObject = DataSource()->Session().GetObjectL(aSourceUri);
     if (!sourceObject)
         {
@@ -254,10 +272,10 @@ void CGlxDataSourceTaskMdeCommand::AddToContainerL(const TDesC& aSourceUri,
 // Copy files to another drive.
 // ----------------------------------------------------------------------------
 //
-/// @todo minor: Rowland Cook 12/06/2007 Has this method been tested? If so remove comments
-void CGlxDataSourceTaskMdeCommand::CopyL(const RArray<TGlxMediaId>& aSourceIds, const TDesC& aDrive)
+void CGlxDataSourceTaskMdeCommand::CopyL(const RArray<TGlxMediaId>& aSourceIds, 
+        const TDesC& aDrive)
     {
-    TRACER("CGlxDataSourceTaskMdeCommand::CopyL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::CopyL()");
     FileOperationL(aSourceIds.Array(), aDrive, ECopy);
     }
 
@@ -265,10 +283,10 @@ void CGlxDataSourceTaskMdeCommand::CopyL(const RArray<TGlxMediaId>& aSourceIds, 
 // Move files to another drive.
 // ----------------------------------------------------------------------------
 //
-/// @todo minor: Rowland Cook 12/06/2007 Has this method been tested? If so remove comments
-void CGlxDataSourceTaskMdeCommand::MoveL(const RArray<TGlxMediaId>& aSourceIds, const TDesC& aDrive)
+void CGlxDataSourceTaskMdeCommand::MoveL(const RArray<TGlxMediaId>& aSourceIds, 
+        const TDesC& aDrive)
     {
-    TRACER("CGlxDataSourceTaskMdeCommand::MoveL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::MoveL()");
     FileOperationL(aSourceIds.Array(), aDrive, EMove);
     }
 
@@ -276,9 +294,10 @@ void CGlxDataSourceTaskMdeCommand::MoveL(const RArray<TGlxMediaId>& aSourceIds, 
 // Remove items from a container.
 // ----------------------------------------------------------------------------
 //
-void CGlxDataSourceTaskMdeCommand::RemoveFromContainerL(const RArray<TGlxMediaId>& aItemIds, const TGlxMediaId& aContainerId)
+void CGlxDataSourceTaskMdeCommand::RemoveFromContainerL(
+        const RArray<TGlxMediaId>& aItemIds, const TGlxMediaId& aContainerId)
     {
-    TRACER("CGlxDataSourceTaskMdeCommand::RemoveFromContainerL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::RemoveFromContainerL()");
     // Answer to question in @bug above: No
     
 	CMdEObject* object = NULL;
@@ -289,12 +308,15 @@ void CGlxDataSourceTaskMdeCommand::RemoveFromContainerL(const RArray<TGlxMediaId
     	User::Leave(KErrNotFound);
     	}
 	
-	CMdEQuery* query = DataSource()->Session().NewRelationQueryL(*DataSource()->NamespaceDef(), this); 
+	CMdEQuery* query = DataSource()->Session().NewRelationQueryL(
+	        *DataSource()->NamespaceDef(), this); 
 	AppendQueryL(query, ECommandRemoveFromContainer); // query is now owned by the query array.
     
     CMdELogicCondition& rootCondition = query->Conditions();
 
-    CMdERelationCondition& containerRelationCondition = rootCondition.AddRelationConditionL(DataSource()->ContainsDef(), ERelationConditionSideLeft);
+    CMdERelationCondition& containerRelationCondition = 
+    rootCondition.AddRelationConditionL(
+            DataSource()->ContainsDef(), ERelationConditionSideLeft);
     CMdELogicCondition* containerLogicCondition = NULL;
     CMdELogicCondition* itemLogicCondition = NULL;
     // Containers are on the left for albums, right for tags
@@ -326,7 +348,7 @@ void CGlxDataSourceTaskMdeCommand::RemoveFromContainerL(const RArray<TGlxMediaId
 //
 void CGlxDataSourceTaskMdeCommand::DeleteL(const RArray<TGlxMediaId>& aItemIds)
     {
-    TRACER("CGlxDataSourceTaskMdeCommand::DeleteL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::DeleteL()");
     CMdEObjectDef* containerObjectDef = NULL;
     TInt err = ContainerObjectDef(containerObjectDef);
     if (err == KErrNone)
@@ -348,10 +370,10 @@ void CGlxDataSourceTaskMdeCommand::DeleteL(const RArray<TGlxMediaId>& aItemIds)
 //
 // ----------------------------------------------------------------------------
 //
-/// @todo minor: Rowland Cook 12/06/2007 Has this method been tested? If so remove comments
-void CGlxDataSourceTaskMdeCommand::RenameL(const TGlxMediaId& aSourceItemId, const TDesC& aTitle)
+void CGlxDataSourceTaskMdeCommand::RenameL(const TGlxMediaId& aSourceItemId, 
+        const TDesC& aTitle)
     {
-    TRACER("CGlxDataSourceTaskMdeCommand::RenameL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::RenameL()");
     delete iTitle;
     iTitle = NULL;
 	iTitle = aTitle.AllocL();
@@ -370,10 +392,12 @@ void CGlxDataSourceTaskMdeCommand::RenameL(const TGlxMediaId& aSourceItemId, con
 // Set description.
 // ----------------------------------------------------------------------------
 //
-void CGlxDataSourceTaskMdeCommand::SetDescriptionL(const RArray<TGlxMediaId>& aItemIds, const TDesC& aDescription)
+void CGlxDataSourceTaskMdeCommand::SetDescriptionL(const RArray<TGlxMediaId>& aItemIds, 
+        const TDesC& aDescription)
     {
-    TRACER("CGlxDataSourceTaskMdeCommand::SetDescriptionL()")
-    CMdEPropertyDef& descriptionPropertyDef = DataSource()->MediaDef().GetPropertyDefL(KPropertyDefNameDescription);
+    TRACER("CGlxDataSourceTaskMdeCommand::SetDescriptionL()");
+    CMdEPropertyDef& descriptionPropertyDef = DataSource()->MediaDef().GetPropertyDefL(
+            KPropertyDefNameDescription);
     if (descriptionPropertyDef.PropertyType() != EPropertyText)
     	{
     	User::Leave(KErrCorrupt);
@@ -430,9 +454,10 @@ void CGlxDataSourceTaskMdeCommand::SetDescriptionL(const RArray<TGlxMediaId>& aI
 // Set capture location.
 // ----------------------------------------------------------------------------
 //
-void CGlxDataSourceTaskMdeCommand::SetCaptureLocationL(const RArray<TGlxMediaId>& aItemIds, const TCoordinate& aCoordinate)
+void CGlxDataSourceTaskMdeCommand::SetCaptureLocationL(const RArray<TGlxMediaId>& aItemIds, 
+        const TCoordinate& aCoordinate)
     {
-    TRACER("CGlxDataSourceTaskMdeCommand::SetCaptureLocationL()")    
+    TRACER("CGlxDataSourceTaskMdeCommand::SetCaptureLocationL()") ;   
     if (!Math::IsNaN(aCoordinate.Latitude()) || !Math::IsNaN(aCoordinate.Longitude()))
     	{
     	User::Leave(KErrArgument);
@@ -443,7 +468,8 @@ void CGlxDataSourceTaskMdeCommand::SetCaptureLocationL(const RArray<TGlxMediaId>
     
     CMdELogicCondition& rootCondition = query->Conditions();
 
-    CMdERelationCondition& containerRelationCondition = rootCondition.AddRelationConditionL(ERelationConditionSideLeft);
+    CMdERelationCondition& containerRelationCondition = rootCondition.AddRelationConditionL(
+            ERelationConditionSideLeft);
     CMdELogicCondition& locationLogicCondition = containerRelationCondition.RightL();
     CMdELogicCondition& itemLogicCondition = containerRelationCondition.LeftL();
     locationLogicCondition.AddObjectConditionL(DataSource()->LocationDef());
@@ -463,7 +489,7 @@ void CGlxDataSourceTaskMdeCommand::SetCaptureLocationL(const RArray<TGlxMediaId>
 //
 void CGlxDataSourceTaskMdeCommand::ThumbnailCleanupL()
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::ThumbnailCleanupL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::ThumbnailCleanupL()");
 #ifndef USE_S60_TNM
     CGlxDataSourceMde* ds = DataSource();
     ds->ThumbnailCreator().CleanupThumbnailsL(&ds->ThumbnailDatabase());
@@ -477,7 +503,7 @@ void CGlxDataSourceTaskMdeCommand::ThumbnailCleanupL()
 //
 void CGlxDataSourceTaskMdeCommand::DoHandleQueryCompletedL(CMdEQuery& aQuery)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleQueryCompletedL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleQueryCompletedL()");
     TGlxQueryType queryType = iQueryTypes[0];
 	
     switch (queryType)
@@ -502,7 +528,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleQueryCompletedL(CMdEQuery& aQuery)
 			
 			if (queryCount)
 				{
-				User::LeaveIfError(DataSource()->Session().RemoveRelationsL(relationsToRemove, successfullyRemovedReleations));
+				User::LeaveIfError(DataSource()->Session().RemoveRelationsL(
+				        relationsToRemove, successfullyRemovedReleations));
 				}
 			
 			CleanupStack::PopAndDestroy(&successfullyRemovedReleations);
@@ -547,7 +574,7 @@ void CGlxDataSourceTaskMdeCommand::DoHandleQueryCompletedL(CMdEQuery& aQuery)
 //
 void CGlxDataSourceTaskMdeCommand::DoNextQueryL()
     {
-    TRACER("CGlxDataSourceTaskMdeCommand::DoNextQueryL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::DoNextQueryL()");
     if (iQueries.Count())
         {
         ExecuteQueryL();
@@ -562,9 +589,10 @@ void CGlxDataSourceTaskMdeCommand::DoNextQueryL()
 // CGlxDataSourceTaskMdeCommand::FileOperationL
 // ----------------------------------------------------------------------------
 //
-void CGlxDataSourceTaskMdeCommand::FileOperationL(const TArray<TGlxMediaId>& aSourceIds, const TDesC& aDrive, TFileOperation aFileOperation)
+void CGlxDataSourceTaskMdeCommand::FileOperationL(const TArray<TGlxMediaId>& aSourceIds, 
+        const TDesC& aDrive, TFileOperation aFileOperation)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::FileOperationL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::FileOperationL()");
 	ContentAccess::CManager *manager = ContentAccess::CManager::NewL();
 	CleanupStack::PushL(manager);
 	// The following line causes a code scanner warning advising use of EikonEnv RFs instance.
@@ -593,7 +621,8 @@ void CGlxDataSourceTaskMdeCommand::FileOperationL(const TArray<TGlxMediaId>& aSo
     		// the drive that it is located on. (For the C:, the root is C:\data, 
     		// for the D: the root is D:\)
     		{
-    		fileNameWithoutRoot.Set(sourceFileName.Right(sourceFileName.Length() - sourceRootPath.Length()));
+    		fileNameWithoutRoot.Set(sourceFileName.Right(sourceFileName.Length() - 
+    		        sourceRootPath.Length()));
     		}
     	else
     		{
@@ -606,7 +635,6 @@ void CGlxDataSourceTaskMdeCommand::FileOperationL(const TArray<TGlxMediaId>& aSo
     	// Append the file name
     	destinationFileName.Append(fileNameWithoutRoot);
     	
-/// @todo minor: Rowland Cook 12/06/2007 majic number.
     	if (destinationFileName.CompareF(sourceFileName) != 0)
     		{
     		// If source and destination are not identical, perform the copy.	
@@ -615,7 +643,8 @@ void CGlxDataSourceTaskMdeCommand::FileOperationL(const TArray<TGlxMediaId>& aSo
 				// If the destination file name already exists find an available file name.
 				TParse destinationFileNameParse;
 				destinationFileNameParse.Set(destinationFileName,NULL,NULL); // this is a copy of the data
-				TInt destinationFileNameWithoutExtensionLength = destinationFileName.Length() - destinationFileNameParse.Ext().Length();
+				TInt destinationFileNameWithoutExtensionLength = destinationFileName.Length()
+				- destinationFileNameParse.Ext().Length();
 				TInt i = 1;
 				do
 					{
@@ -658,16 +687,7 @@ void CGlxDataSourceTaskMdeCommand::FileOperationL(const TArray<TGlxMediaId>& aSo
 TItemId CGlxDataSourceTaskMdeCommand::ContainerItemId(const TGlxMediaId& aMediaId)
     {
     TRACER("TMdEItemId CGlxDataSourceTaskMdeCommand::ContainerItemId()");    
-    TItemId containerId = aMediaId.Value();
-    if (aMediaId == KGlxCollectionRootId)
-        {
-        // Check the collection plugin uid
-        if (iCollectionUid == TUid::Uid(KGlxCollectionPluginCameraImplementationUid))
-            {
-          //  containerId = DataSource()->CameraAlbumId().Value();
-            }  
-        }
-    return containerId;
+    return aMediaId.Value();
     }
 
 // ----------------------------------------------------------------------------
@@ -676,16 +696,19 @@ TItemId CGlxDataSourceTaskMdeCommand::ContainerItemId(const TGlxMediaId& aMediaI
 //
 void CGlxDataSourceTaskMdeCommand::RootPath(const TDesC& aDrive, TDes& aRootPath)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::RootPath()")
-	if (aDrive.Left(KDriveLetterLength).CompareF(PathInfo::PhoneMemoryRootPath().Left(KDriveLetterLength)) == 0)
+    TRACER("CGlxDataSourceTaskMdeCommand::RootPath()");
+	if (aDrive.Left(KDriveLetterLength).CompareF(PathInfo::PhoneMemoryRootPath().Left(
+	        KDriveLetterLength)) == 0)
 		{
 		aRootPath = PathInfo::PhoneMemoryRootPath();
 		}
-	else if (aDrive.Left(KDriveLetterLength).CompareF(PathInfo::MemoryCardRootPath().Left(KDriveLetterLength)) == 0)
+	else if (aDrive.Left(KDriveLetterLength).CompareF(PathInfo::MemoryCardRootPath().Left(
+	        KDriveLetterLength)) == 0)
 		{
 		aRootPath = PathInfo::MemoryCardRootPath();
 		}
-	else if (aDrive.Left(KDriveLetterLength).CompareF(PathInfo::RomRootPath().Left(KDriveLetterLength)) == 0)
+	else if (aDrive.Left(KDriveLetterLength).CompareF(PathInfo::RomRootPath().Left(
+	        KDriveLetterLength)) == 0)
 		{
 		aRootPath = PathInfo::RomRootPath();
 		}
@@ -702,19 +725,23 @@ void CGlxDataSourceTaskMdeCommand::RootPath(const TDesC& aDrive, TDes& aRootPath
 //
 void CGlxDataSourceTaskMdeCommand::SendProgressMessageL(TInt aCurrentStep, TInt aStepCount)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::SendProgressMessageL()")
-	MGlxDataSourceUpdateObserver& observer = static_cast<CGlxCommandRequest*>(iRequest)->DataSourceUpdateObserver();
+    TRACER("CGlxDataSourceTaskMdeCommand::SendProgressMessageL()");
+	MGlxDataSourceUpdateObserver& observer = 
+	static_cast<CGlxCommandRequest*>(iRequest)->DataSourceUpdateObserver();
 	
 	const CMPXCommand& command = static_cast<CGlxCommandRequest*>(iRequest)->Command();
-	__ASSERT_DEBUG(command.IsSupported(KMPXCommandGeneralSessionId), Panic(EGlxPanicCommandHasNoGeneralSessionId));
+	__ASSERT_DEBUG(command.IsSupported(KMPXCommandGeneralSessionId), Panic(
+	        EGlxPanicCommandHasNoGeneralSessionId));
 	
 	TAny* sessionId = command.ValueTObjectL<TAny*>(KMPXCommandGeneralSessionId);
 	
 	CMPXMessage* progressMessage = CMPXMessage::NewL();
 	CleanupStack::PushL(progressMessage);
 	progressMessage->SetTObjectValueL<TInt>(KMPXMessageGeneralId, KMPXMessageContentIdProgress);	
-	progressMessage->SetTObjectValueL<TInt>(TMPXAttribute(KMPXMessageContentIdProgress, EMPXMessageProgressCurrentCount), aCurrentStep);
-	progressMessage->SetTObjectValueL<TInt>(TMPXAttribute(KMPXMessageContentIdProgress, EMPXMessageProgressTotalCount), aStepCount);
+	progressMessage->SetTObjectValueL<TInt>(TMPXAttribute(KMPXMessageContentIdProgress, 
+	        EMPXMessageProgressCurrentCount), aCurrentStep);
+	progressMessage->SetTObjectValueL<TInt>(TMPXAttribute(KMPXMessageContentIdProgress,
+	        EMPXMessageProgressTotalCount), aStepCount);
 	progressMessage->SetTObjectValueL<TAny*>(KMPXCommandGeneralSessionId, sessionId);
 	
 	observer.HandleMessage(*progressMessage);
@@ -728,8 +755,7 @@ void CGlxDataSourceTaskMdeCommand::SendProgressMessageL(TInt aCurrentStep, TInt 
 //
 TInt CGlxDataSourceTaskMdeCommand::ContainerObjectDef(CMdEObjectDef*& aContainerObjectDef)
 {
-    TRACER("CGlxDataSourceTaskMdeCommand::ContainerObjectDef()")
-    //__ASSERT_DEBUG( (iCollectionUid == TUid::Uid(KGlxTagCollectionPluginImplementationUid) || iCollectionUid == TUid::Uid(KGlxCollectionPluginAlbumsImplementationUid)), Panic(EGlxPanicInvalidCollectionUid));
+    TRACER("CGlxDataSourceTaskMdeCommand::ContainerObjectDef()");
     TInt err = KErrNone;
 	if (iCollectionUid == TUid::Uid(KGlxTagCollectionPluginImplementationUid))
         {
@@ -757,7 +783,7 @@ TInt CGlxDataSourceTaskMdeCommand::ContainerObjectDef(CMdEObjectDef*& aContainer
 void CGlxDataSourceTaskMdeCommand::DoHandleAddToContainerQueryCompletedL
 															(CMdEQuery& aQuery)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleAddToContainerQueryCompletedL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleAddToContainerQueryCompletedL()");
 	RPointerArray<CMdEInstanceItem> relations;
 	CleanupClosePushL(relations);
 	 
@@ -783,7 +809,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleAddToContainerQueryCompletedL
             
             if (!alreadyExists)
                 {
-                CMdERelation* relation = DataSource()->Session().NewRelationL(DataSource()->ContainsDef(), iLeftIds[leftPos], iRightIds[rightPos]);
+                CMdERelation* relation = DataSource()->Session().NewRelationL(
+                        DataSource()->ContainsDef(), iLeftIds[leftPos], iRightIds[rightPos]);
                 CleanupStack::PushL(relation);
                 relations.AppendL(relation);
                 CleanupStack::Pop(relation);
@@ -811,13 +838,14 @@ void CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL
 															(CMdEQuery& aQuery)
 
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL()");
    	
    	//Duplicate albums check for the default albums i.e. Favourites 
    	//as title property is left blank in MDS 2.5
    	if(iCollectionUid == TUid::Uid(KGlxCollectionPluginAlbumsImplementationUid))
    		{
-   		if(SearchStringL(R_ALBUM_FAVORITES_TITLE) == 0)
+   		if(SearchStringL(R_ALBUM_FAVORITES_TITLE) == 0 || 
+   				SearchStringL(R_ALBUM_CAMERA_TITLE) == 0 )
     		{
     		User::Leave(KErrAlreadyExists);	
     		}        	
@@ -837,7 +865,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL
     object = DataSource()->Session().NewObjectLC(*containerObjectDef, KNullDesC);
     
     // A title property def of type text is required.
-    CMdEPropertyDef& titlePropertyDef = containerObjectDef->GetPropertyDefL(KPropertyDefNameTitle);
+    CMdEPropertyDef& titlePropertyDef = containerObjectDef->GetPropertyDefL(
+            KPropertyDefNameTitle);
     if (titlePropertyDef.PropertyType() != EPropertyText)
         {
         User::Leave(KErrCorrupt);
@@ -846,7 +875,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL
     object->AddTextPropertyL(titlePropertyDef, *iTitle);
     
       //ItemType property def of type text is required.
-    CMdEPropertyDef& itemTypePropertyDef = containerObjectDef->GetPropertyDefL(KPropertyDefItemType);
+    CMdEPropertyDef& itemTypePropertyDef = containerObjectDef->GetPropertyDefL(
+            KPropertyDefItemType);
     if (itemTypePropertyDef.PropertyType() != EPropertyText)
     	{
     	User::Leave(KErrCorrupt);
@@ -865,7 +895,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL
    
     // A size property is required.
   
-    CMdEPropertyDef& sizePropertyDef = containerObjectDef->GetPropertyDefL(KPropertyDefNameSize);
+    CMdEPropertyDef& sizePropertyDef = containerObjectDef->GetPropertyDefL(
+            KPropertyDefNameSize);
     if (sizePropertyDef.PropertyType() != EPropertyUint32)
         {
         User::Leave(KErrCorrupt);
@@ -874,14 +905,16 @@ void CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL
 
     
     // A creation date property is required.
-    CMdEPropertyDef& creationDateDef = containerObjectDef->GetPropertyDefL(KPropertyDefNameCreationDate);
+    CMdEPropertyDef& creationDateDef = containerObjectDef->GetPropertyDefL(
+            KPropertyDefNameCreationDate);
     if (creationDateDef.PropertyType() != EPropertyTime)
         {
         User::Leave(KErrCorrupt);
         }
 
     // A last modified date property is required.
-    CMdEPropertyDef& lmDateDef = containerObjectDef->GetPropertyDefL(KPropertyDefNameLastModifiedDate);
+    CMdEPropertyDef& lmDateDef = containerObjectDef->GetPropertyDefL(
+            KPropertyDefNameLastModifiedDate);
     if (lmDateDef.PropertyType() != EPropertyTime)
         {
         User::Leave(KErrCorrupt);
@@ -897,7 +930,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL
     
     iResponse->SetTObjectValueL<TMPXItemId>(KMPXMediaGeneralId, id);
     iResponse->SetTObjectValueL<TMPXItemId>(KMPXMessageMediaGeneralId, id);  
-    iResponse->SetTObjectValueL<TMPXChangeEventType>(KMPXMessageChangeEventType, EMPXItemInserted); 
+    iResponse->SetTObjectValueL<TMPXChangeEventType>(KMPXMessageChangeEventType,
+            EMPXItemInserted); 
 	}
 // ----------------------------------------------------------------------------
 // CGlxDataSourceTaskMdeCommand::DoHandleDeleteContainersQueryCompletedL
@@ -906,8 +940,9 @@ void CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL
 void CGlxDataSourceTaskMdeCommand::DoHandleDeleteContainersQueryCompletedL
 															(CMdEQuery& aQuery)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleDeleteContainersQueryCompletedL()")
-    CMdEPropertyDef& albumTypeProperty = DataSource()->AlbumDef().GetPropertyDefL(KPropertyDefNameAlbumType);
+    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleDeleteContainersQueryCompletedL()");
+    CMdEPropertyDef& albumTypeProperty = DataSource()->AlbumDef().GetPropertyDefL(
+            KPropertyDefNameAlbumType);
     TInt queryCount = aQuery.Count();
     
     RArray<TItemId> objectsForRemoval;
@@ -928,8 +963,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteContainersQueryCompletedL
         if (KErrNotFound != albumTypeIndex)
             {
             TInt albumTypeValue = static_cast<CMdEUint16Property*>(albumType)->Value();
-            
-            if ((albumTypeValue == MdeConstants::Album::EAlbumSystemFavourite) || (albumTypeValue == MdeConstants::Album::EAlbumSystemCamera))
+            if ((albumTypeValue == MdeConstants::Album::EAlbumSystemFavourite) || 
+            		(albumTypeValue == MdeConstants::Album::EAlbumSystemCamera))
                {
                User::Leave(KErrAccessDenied); 
                }
@@ -939,7 +974,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteContainersQueryCompletedL
     
     if (queryCount)
     	{
-    	User::LeaveIfError(DataSource()->Session().RemoveObjectsL(objectsForRemoval, sucessfullyRemovedObjects));
+    	User::LeaveIfError(DataSource()->Session().RemoveObjectsL(objectsForRemoval, 
+    	        sucessfullyRemovedObjects));
     	}
     
     CleanupStack::PopAndDestroy(&sucessfullyRemovedObjects);
@@ -952,7 +988,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteContainersQueryCompletedL
 void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
 															(CMdEQuery& aQuery)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL()");
+    TInt deleteItemCounter = 0;
     ContentAccess::CManager *manager = ContentAccess::CManager::NewL();
     CleanupStack::PushL(manager);
     TInt queryCount = aQuery.Count();
@@ -971,7 +1008,10 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
     User::LeaveIfError( fs.Connect() );
     
     TInt lastErr = KErrNone;
-    for(TInt queryPos = queryCount - 1; queryPos >= 0; queryPos--)
+    
+    // If Delete operation is cancelled before completion, 
+    // iCancelled because ETrue, break out of for loop.
+    for(TInt queryPos = queryCount - 1; (queryPos >= 0 && !iCancelled); queryPos--)
         {
         CMdEObject& object = static_cast<CMdEObject&>(aQuery.ResultItem(queryPos));
         //Removes the Read Only attributes of the file 
@@ -981,7 +1021,22 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
         	{
         	lastErr = err;
         	}    
-        objectsForRemoval.AppendL(object.Id());
+        else
+            {    
+            // On successful deletion, delete the same from database
+            objectsForRemoval.AppendL(object.Id());
+            }
+			 
+        // After every 50 items are deleted, break from the for loop 
+        // and process other pending requests if any
+        if(deleteItemCounter == KDeletedItemCount)
+			{	
+			iTimer->Start( KDeleteOperationInterval, KDeleteOperationInterval,
+							TCallBack( &SchedulerStopCallback, (TAny *)this ) );	
+			iSchedulerWait->Start();  
+			deleteItemCounter = 0;
+			}     
+        deleteItemCounter++;     
         }
     // Calling Close() on file server session 
     CleanupStack::PopAndDestroy( &fs );
@@ -1007,7 +1062,7 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
 void CGlxDataSourceTaskMdeCommand::DoHandleRenameConainerQueryCompletedL
                                                             (CMdEQuery& aQuery)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleRenameConainerQueryCompletedL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleRenameConainerQueryCompletedL()");
 	__ASSERT_DEBUG(iObjectToRename, Panic(EGlxPanicLogicError));
 	if (aQuery.Count())
 		{
@@ -1035,8 +1090,8 @@ void CGlxDataSourceTaskMdeCommand::DoHandleRenameConainerQueryCompletedL
             // the type to be a non-localised user defined album
             static_cast<CMdEUint16Property*>(albumType)->SetValueL(MdeConstants::Album::EAlbumUser);
             }
-        
-		else if ((albumTypeValue == MdeConstants::Album::EAlbumSystemFavourite) || (albumTypeValue == MdeConstants::Album::EAlbumSystemCamera))
+		else if ((albumTypeValue == MdeConstants::Album::EAlbumSystemFavourite) || 
+				(albumTypeValue == MdeConstants::Album::EAlbumSystemCamera))
 		    {
             // Cannot rename system albums
 		    User::Leave(KErrAccessDenied); 
@@ -1107,7 +1162,7 @@ void CGlxDataSourceTaskMdeCommand::DoHandleRenameConainerQueryCompletedL
 void CGlxDataSourceTaskMdeCommand::DoHandleRenameQueryCompletedL
                                                            (CMdEQuery& aQuery)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleRenameQueryCompletedL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::DoHandleRenameQueryCompletedL()");
 	__ASSERT_DEBUG(aQuery.Count() == 1, Panic(EGlxPanicUnexpectedQueryResultCount ));
 	delete iObjectToRename;
 	iObjectToRename = static_cast<CMdEObject*>(aQuery.TakeOwnershipOfResult(0));
@@ -1127,20 +1182,23 @@ void CGlxDataSourceTaskMdeCommand::DoHandleRenameQueryCompletedL
 void  CGlxDataSourceTaskMdeCommand::AppendContainerTitleCountQueryL
                         (const TGlxQueryType& aQueryType, const TDesC& aTitle)
 	{
-    TRACER("CGlxDataSourceTaskMdeCommand::AppendContainerTitleCountQueryL()")
+    TRACER("CGlxDataSourceTaskMdeCommand::AppendContainerTitleCountQueryL()");
 	// Test to see if a container alerady exists in the database with aContainerName
     CMdEObjectDef* containerObjectDef = NULL;
     TInt err = ContainerObjectDef(containerObjectDef);
     __ASSERT_ALWAYS(err == KErrNone, Panic(EGlxPanicInvalidCollectionUid));
     
-    CMdEQuery* query = DataSource()->Session().NewObjectQueryL(*DataSource()->NamespaceDef(), *containerObjectDef, this);
+    CMdEQuery* query = DataSource()->Session().NewObjectQueryL(*DataSource()->NamespaceDef(),
+            *containerObjectDef, this);
     CleanupStack::PushL(query);
     
-    CMdEPropertyDef& titlePropertyDef = DataSource()->ObjectDef().GetPropertyDefL(KPropertyDefNameTitle);
+    CMdEPropertyDef& titlePropertyDef = DataSource()->ObjectDef().GetPropertyDefL(
+            KPropertyDefNameTitle);
     
     query->SetResultMode(EQueryResultModeCount);
     
-    query->Conditions().AddPropertyConditionL(titlePropertyDef, ETextPropertyConditionCompareEquals, aTitle);
+    query->Conditions().AddPropertyConditionL(titlePropertyDef, 
+            ETextPropertyConditionCompareEquals, aTitle);
     
     CleanupStack::Pop(query);
     
@@ -1153,7 +1211,7 @@ void  CGlxDataSourceTaskMdeCommand::AppendContainerTitleCountQueryL
 //	
 TInt CGlxDataSourceTaskMdeCommand::SearchStringL(TInt aResourceId)
 	{
-	
+	TRACER("CGlxDataSourceTaskMdeCommand::SearchStringL()");
 	_LIT(KResourceFile, "z:glxpluginalbums.rsc");	
    	
    	if (!iStringCache)
@@ -1170,3 +1228,39 @@ TInt CGlxDataSourceTaskMdeCommand::SearchStringL(TInt aResourceId)
     return result;    
         	
 	}
+
+// ----------------------------------------------------------------------------
+//  CGlxDataSourceTaskMdeCommand::SchedulerStopCallback
+// ----------------------------------------------------------------------------
+//
+TInt CGlxDataSourceTaskMdeCommand::SchedulerStopCallback(TAny* aPtr)
+    {
+    TRACER("CGlxDataSourceTaskMdeCommand::SchedulerStopCallback");
+    
+    CGlxDataSourceTaskMdeCommand* self = (CGlxDataSourceTaskMdeCommand*) aPtr;
+    if ( self )
+        {
+        self->SchedulerStopComplete();
+        }
+
+    return KErrNone;
+    }
+
+// -----------------------------------------------------------------------------
+// SchedulerStopComplete
+// -----------------------------------------------------------------------------
+//
+void CGlxDataSourceTaskMdeCommand::SchedulerStopComplete()
+    {
+    TRACER("CGlxDataSourceTaskMdeCommand::SchedulerStopComplete");  
+    
+    if(iTimer && iTimer->IsActive())
+    	{
+    	iTimer->Cancel();
+    	}
+    
+    if(iSchedulerWait)
+		{		
+		iSchedulerWait->AsyncStop();    
+		}  
+    }

@@ -41,7 +41,8 @@ enum GlxContextMode
 	GlxContextLsList,
 	GlxContextPtList,
     GlxContextSelectionList,
-    GlxContextFavorite
+    GlxContextFavorite,
+    GlxContextComment   //to fetch the description
 };
 
 enum GlxTBContextType
@@ -56,9 +57,10 @@ enum GlxTBContextType
 typedef enum
 {
     NO_EFFECT,
-    WAVE_EFFECT,
+    FLIP_EFFECT,
     SMOOTH_FADE,
     ZOOM_TO_FACE,
+    HELIX_EFFECT,
     TRANSITION_EFFECT,
     FADE_EFFECT,
     GRID_TO_FULLSCREEN,
@@ -127,5 +129,9 @@ const TInt KGlxFetchContextPriorityTitleFetcher = 10;
 // video playback view UID
 const TInt KGlxVideoPlaybackviewPlugin = 0x2000A7B3;
 
+//Constants for ci_photos.confml
+const TUint32 KGlxCi_UidGallery = 0x20007193;
+const TInt KGlxOperatorLink  = 0x1;
+const TInt KGlxOvi  = 0x2;
 
 #endif  // GLXUISTD_H

@@ -28,7 +28,7 @@ class CGlxtnFileInfo;
 class MThumbnailFetchRequestObserver
     {
 public:
-    virtual void ThumbnailFetchComplete(TInt aError) = 0;
+    virtual void ThumbnailFetchComplete(TInt aError, TBool aQuality) = 0;
     virtual void FetchFileInfoL() = 0;
     };
 

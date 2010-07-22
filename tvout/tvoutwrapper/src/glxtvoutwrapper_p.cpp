@@ -22,15 +22,19 @@
 #include "glxmodelparm.h"
 #include "glxviewids.h"
 
+#include "glxtracer.h"
+#include "glxlog.h"
+
 // -----------------------------------------------------------------------------
 // Static method to create the private wrapper instance 
 // -----------------------------------------------------------------------------
 GlxTvOutWrapperPrivate* GlxTvOutWrapperPrivate::Instance(GlxTvOutWrapper* aTvOutWrapper,
-        QAbstractItemModel* aModel)
+        QAbstractItemModel* aModel,bool aEfectsOn)
     {
+    TRACER("GlxTvOutWrapperPrivate::Instance()");
     GlxTvOutWrapperPrivate* self = new GlxTvOutWrapperPrivate(aTvOutWrapper,aModel);
     if (self){
-        TRAPD(err,self->ConstructL());
+        TRAPD(err,self->ConstructL(aEfectsOn));
         if(err != KErrNone){
             delete self;
             self = NULL;
@@ -43,12 +47,13 @@ GlxTvOutWrapperPrivate* GlxTvOutWrapperPrivate::Instance(GlxTvOutWrapper* aTvOut
 // ConstructL
 // This creates the Connection observer and the Hdmi Controller
 // -----------------------------------------------------------------------------
-void GlxTvOutWrapperPrivate::ConstructL()
+void GlxTvOutWrapperPrivate::ConstructL(bool aEfectsOn)
     {
+    TRACER("GlxTvOutWrapperPrivate::ConstructL()");
     iConnectionObserver = CGlxConnectionObserver::NewL(this);
     if (!iHdmiController) {
-        iHdmiController = CGlxHdmiController::NewL();
-        iHdmiConnected = iHdmiController->IsHDMIConnected();
+        iHdmiController = CGlxHdmiController::NewL(aEfectsOn);
+        iHdmiConnected = iConnectionObserver->IsHdmiConnected();
         }
     }
     
@@ -61,8 +66,10 @@ GlxTvOutWrapperPrivate::GlxTvOutWrapperPrivate(GlxTvOutWrapper* aTvOutWrapper,
                 iConnectionObserver(NULL),
                 iHdmiController(NULL),
                 iHdmiConnected(false),
-                isImageSetToHdmi(false)
+                isImageSetToHdmi(false),
+                iIsPhotosInForeground(false)
     {
+    TRACER("GlxTvOutWrapperPrivate::GlxTvOutWrapperPrivate()");
     // Do Nothing
     }
 
@@ -71,6 +78,7 @@ GlxTvOutWrapperPrivate::GlxTvOutWrapperPrivate(GlxTvOutWrapper* aTvOutWrapper,
 // -----------------------------------------------------------------------------
 GlxTvOutWrapperPrivate::~GlxTvOutWrapperPrivate()
     {
+    TRACER("GlxTvOutWrapperPrivate::~GlxTvOutWrapperPrivate()");
     if (iConnectionObserver){
     delete iConnectionObserver;
     iConnectionObserver = NULL;
@@ -87,10 +95,13 @@ GlxTvOutWrapperPrivate::~GlxTvOutWrapperPrivate()
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::HandleConnectionChange(bool aConnected)
     {
+    TRACER("GlxTvOutWrapperPrivate::HandleConnectionChange()");
     iHdmiConnected = aConnected;
     // if Connection state positive and uri/bmp are not passed to HDMI already
     // then it is a new image - Set it.
-    if (!isImageSetToHdmi && iHdmiConnected && getSubState() !=IMAGEVIEWER_S)
+    GLX_LOG_INFO2("GlxTvOutWrapperPrivate::HandleConnectionChange() - isImageSetToHdmi-%d, iHdmiConnected-%d",
+            isImageSetToHdmi,iHdmiConnected);
+    if (!isImageSetToHdmi && iHdmiConnected && getSubState() !=IMAGEVIEWER_S && iIsPhotosInForeground)
         {
         SetNewImage();
         }
@@ -102,6 +113,8 @@ void GlxTvOutWrapperPrivate::HandleConnectionChange(bool aConnected)
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::SetImagetoHDMI()
     {
+    TRACER("GlxTvOutWrapperPrivate::SetImagetoHDMI()");
+    iIsPhotosInForeground = true;
     if (iHdmiConnected)
         {
         // Set the Image
@@ -124,10 +137,12 @@ void GlxTvOutWrapperPrivate::SetImagetoHDMI()
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::SetNewImage()
     {
+    TRACER("GlxTvOutWrapperPrivate::SetNewImage()");
     QVariant focusVariant =(iModel->data(iModel->index(0,0),GlxFocusIndexRole)); 
     int focusIndex;
     if (focusVariant.isValid() && focusVariant.canConvert<int>()) {
         focusIndex = (focusVariant.value<int>());
+        GLX_LOG_INFO1("GlxTvOutWrapperPrivate::SetNewImage() focusindex = %d",focusIndex);
 	}
 	else{
 		return ;
@@ -144,6 +159,7 @@ void GlxTvOutWrapperPrivate::SetNewImage()
     QVariant var = (iModel->data(iModel->index(focusIndex,0),GlxHdmiBitmap));
     CFbsBitmap* bmp = var.value<CFbsBitmap*>();
     iHdmiController->SetImageL(aPtr,bmp);
+    iIsPhotosInForeground = true;
     }
 
 // -----------------------------------------------------------------------------
@@ -151,7 +167,9 @@ void GlxTvOutWrapperPrivate::SetNewImage()
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::SetToCloningMode()
     {
-    if(iHdmiController){
+    TRACER("GlxTvOutWrapperPrivate::SetToCloningMode()");
+    iIsPhotosInForeground = false;
+    if(iHdmiController && iHdmiConnected){
     iHdmiController->ShiftToCloningMode();
     }
     }
@@ -161,7 +179,16 @@ void GlxTvOutWrapperPrivate::SetToCloningMode()
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::SetToNativeMode()
     {
-    if(iHdmiController){
+    TRACER("GlxTvOutWrapperPrivate::SetToNativeMode()");
+    iIsPhotosInForeground = true;
+    
+    if(iHdmiController && iHdmiConnected) {
+    if (!isImageSetToHdmi){
+    }
+    SetNewImage(); // this case can occur when FS image is opened and set to background
+                   // HDMI cable connected and then FS is brought to foreground
+    }
+    else{
     iHdmiController->ShiftToPostingMode();
     }
     }
@@ -171,7 +198,8 @@ void GlxTvOutWrapperPrivate::SetToNativeMode()
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::ItemNotSupported()
     {
-    if(iHdmiController){
+    TRACER("GlxTvOutWrapperPrivate::ItemNotSupported()");
+    if(iHdmiController && iHdmiConnected){
     iHdmiController->ItemNotSupported();
     }
     }
@@ -181,7 +209,7 @@ void GlxTvOutWrapperPrivate::ItemNotSupported()
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::ActivateZoom(bool autoZoomOut)
     {
-    if(iHdmiController){
+    if(iHdmiController && iHdmiConnected){
     iHdmiController->ActivateZoom(autoZoomOut);
     }
     }
@@ -191,8 +219,18 @@ void GlxTvOutWrapperPrivate::ActivateZoom(bool autoZoomOut)
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::DeactivateZoom()
     {
-    if(iHdmiController){
+    if(iHdmiController && iHdmiConnected){
     iHdmiController->DeactivateZoom();
+    }
+    }
+
+// -----------------------------------------------------------------------------
+// FadeSurface 
+// -----------------------------------------------------------------------------
+void GlxTvOutWrapperPrivate::FadeSurface(bool aFadeInOut)
+    {
+    if(iHdmiController && iHdmiConnected){
+    iHdmiController->FadeSurface(aFadeInOut);
     }
     }
 

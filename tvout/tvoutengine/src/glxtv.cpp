@@ -356,25 +356,24 @@ void CGlxTv::HandleWindowVisibilityChangedL( TTvChangeType aChangeType )
 // Called when TV connection state changes
 //-----------------------------------------------------------------------------
 //
-void CGlxTv::HandleTvConnectionStatusChangedL( )
+void CGlxTv::HandleTvConnectionStatusChangedL(TTvChangeType aChangeType)
     {
-    TRACER("CGlxTv::HandleTvConnectionStatusChangedL()");
+	TRACER("CGlxTv::HandleTvConnectionStatusChangedL()");
 
-    if ( iTvConnectionMonitor->IsConnected() )
-        {
-        // Start monitoring the environment for changes
-        MonitorEnvironmentL();
-        // Calculate the TV Out screen buffer
-        CalcTvScreenSzL();
-        }
-    else
-        {
-        StopMonitoringEnvironment();
-        }
-    iTvObserver.HandleTvStatusChangedL( ETvConnectionChanged );
-    }
-    
-        
+	if (iTvConnectionMonitor->IsConnected())
+		{
+		// Start monitoring the environment for changes
+		MonitorEnvironmentL();
+		// Calculate the TV Out screen buffer
+		CalcTvScreenSzL();
+		}
+	else
+		{
+		StopMonitoringEnvironment();
+		}
+	
+	iTvObserver.HandleTvStatusChangedL(aChangeType);
+	}
    
 //-----------------------------------------------------------------------------
 // Retrieve the TV display aspect ratio

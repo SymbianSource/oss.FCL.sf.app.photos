@@ -24,6 +24,7 @@ INCLUDEPATH += . ../../inc \
 			
 CONFIG += hb
 LIBS +=  -lglxtvout.dll \
+		-lglxlogging.dll \
 
 DEFINES += BUILD_TVOUTWRAPPER
 
@@ -32,6 +33,7 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 TARGET.UID3 = 0x2000A772
 TARGET.CAPABILITY = ALL -TCB 
 TARGET.EPOCALLOWDLLDATA = 1
+MMP_RULES += SMPSAFE 
 }	
 # Input
 HEADERS += inc/glxtvoutwrapper.h \
@@ -43,3 +45,12 @@ SOURCES += src/glxtvoutwrapper.cpp \
 			src/glxtvconnectionobserver.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxtvoutwrapper.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxtvoutwrapper.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock

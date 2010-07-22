@@ -63,5 +63,5 @@ LIBRARY                 imageconversion.lib
 LIBRARY                 ecom.lib
 
 LIBRARY		flogger.lib	// for logging to file
-
+SMPSAFE
 // End of file

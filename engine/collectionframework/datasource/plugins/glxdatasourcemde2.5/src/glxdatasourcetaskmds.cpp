@@ -69,8 +69,6 @@
 _LIT(KPropertyDefNameCreationDate, "CreationDate");
 _LIT(KPropertyDefNameLastModifiedDate, "LastModifiedDate");
 _LIT(KPropertyDefNameTitle, "Title");
-//Code commented cout below, so commenting the below line to remove BAD warning
-//_LIT(KPropertyDefNameDRM, "DRM");
 _LIT(KPropertyDefNameFrameCount, "FrameCount");
 _LIT(KPropertyDefNameOrigin, "Origin");
 
@@ -82,7 +80,7 @@ CGlxDataSourceTaskMde:: CGlxDataSourceTaskMde(CGlxRequest* aRequest,
         MGlxDataSourceRequestObserver& aObserver, CGlxDataSource* aDataSource)
     : CGlxDataSourceTask(aRequest, aObserver, aDataSource)
     {
-    TRACER("CGlxDataSourceTaskMde::CGlxDataSourceTaskMde()")
+    TRACER("CGlxDataSourceTaskMde::CGlxDataSourceTaskMde()");
     // No implementation required
     }
 
@@ -92,7 +90,7 @@ CGlxDataSourceTaskMde:: CGlxDataSourceTaskMde(CGlxRequest* aRequest,
 //  
 CGlxDataSourceTaskMde::~CGlxDataSourceTaskMde()
     {
-    TRACER("CGlxDataSourceTaskMde::~CGlxDataSourceTaskMde()")
+    TRACER("CGlxDataSourceTaskMde::~CGlxDataSourceTaskMde()");
     DestroyQueries();
     }
 
@@ -102,7 +100,7 @@ CGlxDataSourceTaskMde::~CGlxDataSourceTaskMde()
 //  	
 void CGlxDataSourceTaskMde::ConstructL()
     {
-    TRACER("CGlxDataSourceTaskMde::ConstructL()")
+    TRACER("CGlxDataSourceTaskMde::ConstructL()");
     CreateResponseL();
 #ifdef USE_S60_TNM
     DataSource()->CancelFetchThumbnail();
@@ -117,9 +115,9 @@ void CGlxDataSourceTaskMde::ConstructL()
 //  
 void CGlxDataSourceTaskMde::CancelRequest()
     {
-    TRACER("CGlxDataSourceTaskMde::CancelRequest()")
-    DestroyQueries();
+    TRACER("CGlxDataSourceTaskMde::CancelRequest()");
     iCancelled = ETrue;
+    DestroyQueries();    
     }
 
 // ----------------------------------------------------------------------------
@@ -130,7 +128,7 @@ void CGlxDataSourceTaskMde::HandleQueryNewResults( CMdEQuery& /*aQuery*/,
                                                      TInt /*aFirstNewItemIndex*/,
                                                      TInt /*aNewItemCount*/ )
     {
-    TRACER("CGlxDataSourceTaskMde::HandleQueryNewResults()")
+    TRACER("CGlxDataSourceTaskMde::HandleQueryNewResults()");
     // Not used.
     }
 
@@ -144,7 +142,7 @@ void CGlxDataSourceTaskMde::HandleQueryNewResults( CMdEQuery& /*aQuery*/,
                                 TInt /*aNewRelationItemCount*/,
                                 TInt /*aNewEventItemCount*/)
     {
-    TRACER("CGlxDataSourceTaskMde::HandleQueryNewResults()")
+    TRACER("CGlxDataSourceTaskMde::HandleQueryNewResults()");
     // Not used.
     }
 
@@ -155,7 +153,7 @@ void CGlxDataSourceTaskMde::HandleQueryNewResults( CMdEQuery& /*aQuery*/,
 //
 void CGlxDataSourceTaskMde::HandleQueryCompleted(CMdEQuery& aQuery, TInt aError)
     {
-    TRACER("CGlxDataSourceTaskMde::HandleQueryCompleted()")
+    TRACER("CGlxDataSourceTaskMde::HandleQueryCompleted()");
     __ASSERT_ALWAYS(&aQuery == iQueries[0], Panic(EGlxPanicQueryLogicError));
 
     TInt err = aError;
@@ -164,7 +162,7 @@ void CGlxDataSourceTaskMde::HandleQueryCompleted(CMdEQuery& aQuery, TInt aError)
         TRAP(err, HandleQueryCompletedL(aQuery));
         }
 
-    if (err != KErrNone)
+    if (err != KErrNone && !iCancelled)
         {
         HandleRequestComplete(err);
         }
@@ -176,7 +174,7 @@ void CGlxDataSourceTaskMde::HandleQueryCompleted(CMdEQuery& aQuery, TInt aError)
 //   
 CGlxDataSourceMde* CGlxDataSourceTaskMde::DataSource()
     {
-    TRACER("CGlxDataSourceTaskMde::DataSource()")
+    TRACER("CGlxDataSourceTaskMde::DataSource()");
     return static_cast<CGlxDataSourceMde*>(iDataSource);
     }
 
@@ -184,9 +182,10 @@ CGlxDataSourceMde* CGlxDataSourceTaskMde::DataSource()
 //  CGlxDataSourceTaskMde::AddMonthFilterL
 // ----------------------------------------------------------------------------
 //     
-void CGlxDataSourceTaskMde::AddMonthFilterL(const TGlxMediaId& aContainerId, TGlxFilterProperties& aFilterProperties)
+void CGlxDataSourceTaskMde::AddMonthFilterL(const TGlxMediaId& aContainerId,
+        TGlxFilterProperties& aFilterProperties)
     {
-    TRACER("CGlxDataSourceTaskMde::AddMonthFilterL(const TGlxMediaId& aContainerId, TGlxFilterProperties& aFilterProperties)")
+    TRACER("CGlxDataSourceTaskMde::AddMonthFilterL(const TGlxMediaId& aContainerId, TGlxFilterProperties& aFilterProperties)");
     CMdEObject* month = DataSource()->Session().GetObjectL(aContainerId.Value());
     if( !month )
         {
@@ -204,16 +203,19 @@ void CGlxDataSourceTaskMde::AddMonthFilterL(const TGlxMediaId& aContainerId, TGl
 //  CGlxDataSourceTaskMde::AddMonthFilterL
 // ----------------------------------------------------------------------------
 //   
-void CGlxDataSourceTaskMde::AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProperties& aFilterProperties)
+void CGlxDataSourceTaskMde::AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProperties& 
+        aFilterProperties)
     {
-    TRACER("CGlxDataSourceTaskMde::AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProperties& aFilterProperties)")
-    CMdEPropertyDef& creationDateDef = DataSource()->ObjectDef().GetPropertyDefL(KPropertyDefNameCreationDate);
+    TRACER("CGlxDataSourceTaskMde::AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProperties& aFilterProperties)");
+    CMdEPropertyDef& creationDateDef = DataSource()->ObjectDef().GetPropertyDefL(
+            KPropertyDefNameCreationDate);
     if (creationDateDef.PropertyType() != EPropertyTime)
         {
         User::Leave(KErrCorrupt);
         }
 
-    CMdEPropertyDef& lmDateDef = DataSource()->ObjectDef().GetPropertyDefL(KPropertyDefNameLastModifiedDate);
+    CMdEPropertyDef& lmDateDef = DataSource()->ObjectDef().GetPropertyDefL(
+            KPropertyDefNameLastModifiedDate);
     if (lmDateDef.PropertyType() != EPropertyTime)
         {
         User::Leave(KErrCorrupt);
@@ -240,15 +242,21 @@ void CGlxDataSourceTaskMde::AddMonthFilterL(CMdEObject* aMonth, TGlxFilterProper
 //  CGlxDataSourceTaskMde::SetQueryConditionsL
 // ----------------------------------------------------------------------------
 //    
-void CGlxDataSourceTaskMde::SetQueryConditionsL(CMdEQuery& aQuery, const TGlxFilterProperties& aFilterProperties, const TGlxMediaId aContainerId, CMdEObjectDef& aObjectDef)
+void CGlxDataSourceTaskMde::SetQueryConditionsL(CMdEQuery& aQuery,
+        const TGlxFilterProperties& aFilterProperties, const TGlxMediaId aContainerId,
+            CMdEObjectDef& aObjectDef)
     {
-    TRACER("CGlxDataSourceTaskMde::SetQueryConditionsL()")
+    TRACER("CGlxDataSourceTaskMde::SetQueryConditionsL()");
     
     CMdELogicCondition& rootCondition = aQuery.Conditions();
     CMdEObjectDef* objectDef = &aObjectDef;
 
     SetQueryFilterConditionsL(rootCondition, *objectDef, aFilterProperties);
-    SetSortOrderL(aQuery, aObjectDef, aFilterProperties);
+
+    if (aQuery.ResultMode() != EQueryResultModeCount)
+        {
+        SetSortOrderL(aQuery, aObjectDef, aFilterProperties);
+        }
     
     if( KGlxCollectionRootId != aContainerId.Value() )
         {
@@ -257,12 +265,14 @@ void CGlxDataSourceTaskMde::SetQueryConditionsL(CMdEQuery& aQuery, const TGlxFil
         objectDef = &DataSource()->ObjectDef();
         if( DataSource()->ContainerIsLeft(aObjectDef) )
             {
-            relationCondition = &rootCondition.AddRelationConditionL(DataSource()->ContainsDef(), ERelationConditionSideRight);
+            relationCondition = &rootCondition.AddRelationConditionL(
+                    DataSource()->ContainsDef(), ERelationConditionSideRight);
             containerCondition = &relationCondition->LeftL();
             }
         else
             {
-            relationCondition = &rootCondition.AddRelationConditionL(DataSource()->ContainsDef(), ERelationConditionSideLeft);
+            relationCondition = &rootCondition.AddRelationConditionL(
+                    DataSource()->ContainsDef(), ERelationConditionSideLeft);
             containerCondition = &relationCondition->RightL();
             }
         containerCondition->AddObjectConditionL(aContainerId.Value());
@@ -278,7 +288,7 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
                                    aLogicCondition, CMdEObjectDef& aObjectDef,
                                  const TGlxFilterProperties& aFilterProperties)
     {
-    TRACER("CGlxDataSourceTaskMde::SetQueryFilterConditionsL()")
+    TRACER("CGlxDataSourceTaskMde::SetQueryFilterConditionsL()");
     
     if( aFilterProperties.iUri )
         {
@@ -298,9 +308,12 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
             }
         }
     
-    if( ( aFilterProperties.iMinCount > 0 ) && ( CGlxDataSource::EContainerTypeNotAContainer != DataSource()->ContainerType(&aObjectDef) ) )
+    if( ( aFilterProperties.iMinCount > 0 ) && ( 
+            CGlxDataSource::EContainerTypeNotAContainer != DataSource()->ContainerType(
+                    &aObjectDef) ) )
         {        
-		TMdEUintRange range(aFilterProperties.iMinCount,aFilterProperties.iMinCount,EMdERangeTypeGreaterOrEqual);
+		TMdEUintRange range(aFilterProperties.iMinCount,
+		        aFilterProperties.iMinCount,EMdERangeTypeGreaterOrEqual);
 		aLogicCondition.AddObjectConditionL(range);
         }
 
@@ -310,12 +323,15 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
         if( DataSource()->ContainerIsLeft(aObjectDef) )
             {
             CMdERelationCondition& relationCondition = 
-                    aLogicCondition.AddRelationConditionL(DataSource()->ContainsDef(), ERelationConditionSideLeft);
-            relationCondition.RightL().AddObjectConditionL(aFilterProperties.iContainsItem.Value());
+                    aLogicCondition.AddRelationConditionL(
+                            DataSource()->ContainsDef(), ERelationConditionSideLeft);
+            relationCondition.RightL().AddObjectConditionL(
+                    aFilterProperties.iContainsItem.Value());
             }
         else
             {
-            CMdERelationCondition& relationCondition = aLogicCondition.AddRelationConditionL(DataSource()->ContainsDef(), ERelationConditionSideRight);
+            CMdERelationCondition& relationCondition = aLogicCondition.AddRelationConditionL(
+                    DataSource()->ContainsDef(), ERelationConditionSideRight);
             relationCondition.LeftL().AddObjectConditionL(aFilterProperties.iContainsItem.Value());
             }
         }
@@ -326,30 +342,43 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
         if( EGlxFilterOriginDownload == aFilterProperties.iOrigin )
             {
             // The download collection shows all but captured items
-            aLogicCondition.AddPropertyConditionL(originProperty, TMdEUintNotEqual(MdeConstants::Object::ECamera));
+            aLogicCondition.AddPropertyConditionL(originProperty, TMdEUintNotEqual(
+                    MdeConstants::Object::ECamera));
             }
 		else if(EGlxFilterOriginCamera == aFilterProperties.iOrigin )            
 			{
 			// The camera collection Shows the captured Items
-			aLogicCondition.AddPropertyConditionL(originProperty, TMdEUintEqual(MdeConstants::Object::ECamera));            
+			aLogicCondition.AddPropertyConditionL(originProperty, TMdEUintEqual(
+			        MdeConstants::Object::ECamera));            
 			}
+		else if(EGlxFilterOriginAll == aFilterProperties.iOrigin )            
+			{
+			// The Months Collection Populates All the Items, filter 
+		    // it for Images and Videos only
+            CMdELogicCondition& logicCondition = 
+                aLogicCondition.AddLogicConditionL(ELogicConditionOperatorOr);
+            logicCondition.AddObjectConditionL( DataSource()->ImageDef() ); 
+			}        
         }
         
     if( aFilterProperties.iExcludeAnimation )
         {
-        //__ASSERT_DEBUG((EGlxFilterImage == aFilterProperties.iItemType), Panic(EGlxPanicIllegalArgument));
         // Exclude any image with a frame count > 1
         const TInt excludeAllImagesAboveOrEqualToThisFrameCount = 2;
-        CMdEPropertyDef& frameCountProperty = DataSource()->ImageDef().GetPropertyDefL(KPropertyDefNameFrameCount);
-        aLogicCondition.AddPropertyConditionL(frameCountProperty, TMdEIntLess(excludeAllImagesAboveOrEqualToThisFrameCount));
+        CMdEPropertyDef& frameCountProperty = DataSource()->ImageDef().GetPropertyDefL(
+                KPropertyDefNameFrameCount);
+        aLogicCondition.AddPropertyConditionL(frameCountProperty, TMdEIntLess(
+                excludeAllImagesAboveOrEqualToThisFrameCount));
         }
         
     if( aFilterProperties.iNoDRM )
         {
-        __ASSERT_DEBUG((EGlxFilterImage == aFilterProperties.iItemType), Panic(EGlxPanicIllegalArgument));
-        // Exclude any image which is DRM protected
-        //CMdEPropertyDef& drmProperty = DataSource()->ImageDef().GetPropertyDefL(KPropertyDefNameDRM);
-        //aLogicCondition.AddPropertyConditionL(drmProperty, EFalse);
+        __ASSERT_DEBUG((EGlxFilterImage == aFilterProperties.iItemType), Panic(
+                EGlxPanicIllegalArgument));
+
+        CMdEPropertyDef& drmProperty = DataSource()->ImageDef().GetPropertyDefL(MdeConstants::MediaObject::KDRMProperty);
+        CMdEPropertyCondition& drmPropertyCondition = aLogicCondition.AddPropertyConditionL(drmProperty);
+        drmPropertyCondition.SetNegate(ETrue);
         }
         
     if( aFilterProperties.iPath )          // If this is set. Then we need to filter on the Ids it supplies
@@ -373,19 +402,22 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
         
     if( !aFilterProperties.iIncludeCameraAlbum )
         {
-        CMdEObjectCondition& objectCondition = aLogicCondition.AddObjectConditionL(DataSource()->CameraAlbumId().Value());
+        CMdEObjectCondition& objectCondition = aLogicCondition.AddObjectConditionL(
+        		DataSource()->CameraAlbumId().Value());
         objectCondition.SetNegate(ETrue);
         }
     
     if( TTime(0) != aFilterProperties.iStartDate )
         {
-        CMdEPropertyDef& creationDateDef = aObjectDef.GetPropertyDefL(KPropertyDefNameCreationDate);
+        CMdEPropertyDef& creationDateDef = aObjectDef.GetPropertyDefL(
+                KPropertyDefNameCreationDate);
         if (creationDateDef.PropertyType() != EPropertyTime)
             {
             User::Leave(KErrCorrupt);
             }
 
-        aLogicCondition.AddPropertyConditionL(creationDateDef, TMdETimeBetween(aFilterProperties.iStartDate, aFilterProperties.iEndDate));
+        aLogicCondition.AddPropertyConditionL(creationDateDef, TMdETimeBetween(
+                aFilterProperties.iStartDate, aFilterProperties.iEndDate));
         }
     }
 
@@ -396,13 +428,14 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
 void CGlxDataSourceTaskMde::SetSortOrderL(CMdEQuery& aQuery, CMdEObjectDef& aObjectDef, 
                                          const TGlxFilterProperties& aFilterProperties)
     {
-    TRACER("CGlxDataSourceTaskMde::SetSortOrderL()")
+    TRACER("CGlxDataSourceTaskMde::SetSortOrderL()");
     switch(aFilterProperties.iSortOrder)
         {
         case EGlxFilterSortOrderAlphabetical:
             {
             CMdEPropertyDef& titleProperty = aObjectDef.GetPropertyDefL(KPropertyDefNameTitle);
-            TMdEOrderRule orderRule(titleProperty, aFilterProperties.iSortDirection == EGlxFilterSortDirectionAscending);
+            TMdEOrderRule orderRule(titleProperty, aFilterProperties.iSortDirection ==
+            EGlxFilterSortDirectionAscending);
             orderRule.SetType(EOrderRuleTypeProperty);
             orderRule.SetCaseSensitive(EFalse);
             aQuery.AppendOrderRuleL(orderRule);
@@ -410,27 +443,35 @@ void CGlxDataSourceTaskMde::SetSortOrderL(CMdEQuery& aQuery, CMdEObjectDef& aObj
             }
          case EGlxFilterSortOrderItemCount:
             {            
-            TMdEOrderRule orderRule(EOrderRuleTypeUsageCount, aFilterProperties.iSortDirection == EGlxFilterSortDirectionAscending);
+            //Order rule is needed for tags popularity            
+            TMdEOrderRule orderRule(EOrderRuleTypeUsageCount, aFilterProperties.iSortDirection ==
+            EGlxFilterSortDirectionAscending);
             aQuery.AppendOrderRuleL(orderRule);            
             break;
             }
         case EGlxFilterSortOrderCaptureDate:
             {
-            CMdEPropertyDef& creationDateProperty = aObjectDef.GetPropertyDefL(KPropertyDefNameCreationDate);
-            TMdEOrderRule orderRule(creationDateProperty, aFilterProperties.iSortDirection == EGlxFilterSortDirectionAscending);
+            CMdEPropertyDef& creationDateProperty = aObjectDef.GetPropertyDefL(
+                    KPropertyDefNameCreationDate);
+            TMdEOrderRule orderRule(creationDateProperty, aFilterProperties.iSortDirection ==
+            EGlxFilterSortDirectionAscending);
             orderRule.SetType(EOrderRuleTypeProperty);
             aQuery.AppendOrderRuleL(orderRule);
-            TMdEOrderRule orderRule2(EOrderRuleTypeItemID, aFilterProperties.iSortDirection == EGlxFilterSortDirectionAscending);
+            TMdEOrderRule orderRule2(EOrderRuleTypeItemID, aFilterProperties.iSortDirection ==
+            EGlxFilterSortDirectionAscending);
             aQuery.AppendOrderRuleL(orderRule2);
             break;
             }
          case EGlxFilterSortOrderModifiedDate:
             {
-            CMdEPropertyDef& modifiedDateProperty = aObjectDef.GetPropertyDefL(KPropertyDefNameLastModifiedDate);
-            TMdEOrderRule orderRule(modifiedDateProperty, aFilterProperties.iSortDirection == EGlxFilterSortDirectionAscending);
+            CMdEPropertyDef& modifiedDateProperty = aObjectDef.GetPropertyDefL(
+                    KPropertyDefNameLastModifiedDate);
+            TMdEOrderRule orderRule(modifiedDateProperty, aFilterProperties.iSortDirection == 
+            EGlxFilterSortDirectionAscending);
             orderRule.SetType(EOrderRuleTypeProperty);
             aQuery.AppendOrderRuleL(orderRule);
-            TMdEOrderRule orderRule2(EOrderRuleTypeItemID, aFilterProperties.iSortDirection == EGlxFilterSortDirectionAscending);
+            TMdEOrderRule orderRule2(EOrderRuleTypeItemID, aFilterProperties.iSortDirection == 
+            EGlxFilterSortDirectionAscending);
             aQuery.AppendOrderRuleL(orderRule2);
             break;
             }
@@ -445,14 +486,16 @@ void CGlxDataSourceTaskMde::SetSortOrderL(CMdEQuery& aQuery, CMdEObjectDef& aObj
 //  CGlxDataSourceTaskMde::MaxQueryResultsCount
 // ----------------------------------------------------------------------------
 // 
-TInt CGlxDataSourceTaskMde::MaxQueryResultsCount(const TGlxFilterProperties& aFilterProperties) const
+TInt CGlxDataSourceTaskMde::MaxQueryResultsCount(const TGlxFilterProperties& 
+        aFilterProperties) const
     {
-    TRACER("CGlxDataSourceTaskMde::MaxQueryResultsCount()")
+    TRACER("CGlxDataSourceTaskMde::MaxQueryResultsCount()");
     TInt ret = KMdEQueryDefaultMaxCount;
-    if (aFilterProperties.iLastCaptureDate)
+    if (aFilterProperties.iLastCaptureDate || aFilterProperties.iMaxCount == 1)
         {
         ret = 1;
         }
+    GLX_DEBUG2("CGlxDataSourceTaskMde::MaxQueryResultsCount ret=%d", ret);   
     return ret;
     }
 
@@ -462,7 +505,7 @@ TInt CGlxDataSourceTaskMde::MaxQueryResultsCount(const TGlxFilterProperties& aFi
 // 
 void CGlxDataSourceTaskMde::RemoveQuery()
     {
-    TRACER("CGlxDataSourceTaskMde::RemoveQuery()")
+    TRACER("CGlxDataSourceTaskMde::RemoveQuery()");
     CMdEQuery* query = iQueries[0];
     iQueryTypes.Remove(0);
     iQueries.Remove(0);
@@ -478,7 +521,7 @@ void CGlxDataSourceTaskMde::DoQueryL(CMdEObjectDef& aObjectDef,
         TBool aIsContent, TGlxQueryType aQueryType, TQueryResultMode aResultMode, 
                                                 const TGlxMediaId& aContainerId)
     {
-    TRACER("CGlxDataSourceTaskMde::DoQueryL()")
+    TRACER("CGlxDataSourceTaskMde::DoQueryL()");
     
     CMdEObjectDef* queryBaseObject = &aObjectDef;
     if( aIsContent )
@@ -503,11 +546,12 @@ void CGlxDataSourceTaskMde::DoQueryL(CMdEObjectDef& aObjectDef,
             }
         }
 
-    CMdEQuery* query = DataSource()->Session().NewObjectQueryL(*DataSource()->NamespaceDef(), *queryBaseObject, this);
+    CMdEQuery* query = DataSource()->Session().NewObjectQueryL(*DataSource()->NamespaceDef(),
+            *queryBaseObject, this);
     CleanupStack::PushL(query);
     
-    SetQueryConditionsL(*query, iFilterProperties, aContainerId, aObjectDef);   
     query->SetResultMode(aResultMode);
+    SetQueryConditionsL(*query, iFilterProperties, aContainerId, aObjectDef);   
     
     CleanupStack::Pop(query);
     
@@ -523,7 +567,7 @@ void CGlxDataSourceTaskMde::DoQueryL(CMdEObjectDef& aObjectDef,
 void CGlxDataSourceTaskMde::QueueImageVideoObjectQueriesL(const RArray<TGlxMediaId>& aObjectIds,
                                           const TGlxFilterProperties& aFilterProperties)
     {
-    TRACER("CGlxDataSourceTaskMde::QueueImageVideoObjectQueriesL()")
+    TRACER("CGlxDataSourceTaskMde::QueueImageVideoObjectQueriesL()");
     if (aFilterProperties.iItemType == EGlxFilterImage)
         {
         // Only perform the image query
@@ -548,7 +592,7 @@ void CGlxDataSourceTaskMde::QueueImageVideoObjectQueriesL(const RArray<TGlxMedia
 //
 void CGlxDataSourceTaskMde::QueueTagObjectQueryL(const RArray<TGlxMediaId>& aObjectIds)
     {
-    TRACER("CGlxDataSourceTaskMde::QueueTagObjectQueryL()")
+    TRACER("CGlxDataSourceTaskMde::QueueTagObjectQueryL()");
     QueueObjectQueryL(DataSource()->TagDef(), aObjectIds, EImageVideoQuery);
     }
 
@@ -558,14 +602,14 @@ void CGlxDataSourceTaskMde::QueueTagObjectQueryL(const RArray<TGlxMediaId>& aObj
 //
 void CGlxDataSourceTaskMde::QueueAlbumObjectQueryL(const RArray<TGlxMediaId>& aObjectIds)
     {
-    TRACER("CGlxDataSourceTaskMde::QueueAlbumObjectQueryL()")
+    TRACER("CGlxDataSourceTaskMde::QueueAlbumObjectQueryL()");
     QueueObjectQueryL(DataSource()->AlbumDef(), aObjectIds, EImageVideoQuery);
     }
 
 
 void CGlxDataSourceTaskMde::QueueMonthObjectQueryL(const RArray<TGlxMediaId>& aObjectIds)
     {
-    TRACER("CGlxDataSourceTaskMde::QueueMonthObjectQueryL()")
+    TRACER("CGlxDataSourceTaskMde::QueueMonthObjectQueryL()");
     QueueObjectQueryL(DataSource()->MonthDef(), aObjectIds, EImageVideoQuery);
     }
 
@@ -576,14 +620,15 @@ void CGlxDataSourceTaskMde::QueueMonthObjectQueryL(const RArray<TGlxMediaId>& aO
 void CGlxDataSourceTaskMde::QueueObjectQueryL(CMdEObjectDef& aObjectDef, 
         const RArray<TGlxMediaId>& aObjectIds, const TGlxQueryType& aQueryType)
     {
-    TRACER("CGlxDataSourceTaskMde::QueueObjectQueryL()")
-    CMdEQuery* query = DataSource()->Session().NewObjectQueryL(*DataSource()->NamespaceDef(), aObjectDef,  this);
+    TRACER("CGlxDataSourceTaskMde::QueueObjectQueryL()");
+    CMdEQuery* query = DataSource()->Session().NewObjectQueryL(*DataSource()->NamespaceDef(), 
+            aObjectDef,  this);
     CleanupStack::PushL(query);
  
     CMdELogicCondition& lc = query->Conditions();
     NGlxDataSourceMdsUtility::AddObjectConditionL(lc,aObjectIds);
     
-    query->SetResultMode(EQueryResultModeObjectWithFreetexts);
+    query->SetResultMode(EQueryResultModeItem);
     
     CleanupStack::Pop(query);
     AppendQueryL(query, aQueryType);
@@ -596,7 +641,7 @@ void CGlxDataSourceTaskMde::QueueObjectQueryL(CMdEObjectDef& aObjectDef,
 // 
 void CGlxDataSourceTaskMde::AppendQueryL(CMdEQuery* aQuery, const TGlxQueryType& aQueryType)
     {
-    TRACER("CGlxDataSourceTaskMde::AppendQueryL()")
+    TRACER("CGlxDataSourceTaskMde::AppendQueryL()");
     CleanupStack::PushL(aQuery);
     
     TInt err = iQueryTypes.Append(aQueryType);
@@ -618,7 +663,7 @@ void CGlxDataSourceTaskMde::AppendQueryL(CMdEQuery* aQuery, const TGlxQueryType&
 // 
 void CGlxDataSourceTaskMde::ExecuteQueryL()
     {
-    TRACER("CGlxDataSourceTaskMde::ExecuteQueryL()")
+    TRACER("CGlxDataSourceTaskMde::ExecuteQueryL()");
     __ASSERT_DEBUG(iQueries.Count(), Panic(EGlxPanicQueryLogicError));
     iQueries[0]->FindL();
     }
@@ -629,9 +674,22 @@ void CGlxDataSourceTaskMde::ExecuteQueryL()
 // 
 void CGlxDataSourceTaskMde::HandleQueryCompletedL(CMdEQuery& aQuery)
     {
-    TRACER("CGlxDataSourceTaskMde::HandleQueryCompletedL()")
+    TRACER("CGlxDataSourceTaskMde::HandleQueryCompletedL()");
     DoHandleQueryCompletedL(aQuery);
-    RemoveQuery();
+    
+    // Both the function calls should be executed if any
+    // request is not cancelled before completion.
+    // All the pending Queries are already destroyed in CancelRequest.
+    // Hence we do not have to call RemoveQuery here. That will lead to
+    // User 130 crash. 
+    // DoNextQuery tries to get iQueries.Count(). Since iQueries is destroyed
+    // in CancelRequest 
+    if (iCancelled)
+    	{ 
+    	GLX_LOG_INFO("***Query already Removed. Hence Return***");
+    	return;  	
+    	}  
+    RemoveQuery();  
     DoNextQueryL();
     }
 
@@ -641,7 +699,7 @@ void CGlxDataSourceTaskMde::HandleQueryCompletedL(CMdEQuery& aQuery)
 // 
 void CGlxDataSourceTaskMde::DestroyQueries()
     {
-    TRACER("CGlxDataSourceTaskMde::DestroyQueries()")
+    TRACER("CGlxDataSourceTaskMde::DestroyQueries()");
     for (TInt i = 0; i < iQueries.Count(); i++)
         {
         // Ensure that there are not any running queries

@@ -36,16 +36,23 @@ class HbDocumentLoader;
 class HbAbstractDataModel;
 
 //User Forward Declarations
-class GlxSlideShowEffectEngine;
-
+class GlxEffectEngine;
+class GlxSettingInterface;
 
 #define NBR_ITEM 3
 typedef enum
 {
     UI_ON_EVENT, //send the signal when user tap on screen ( on the UI )
     UI_OFF_EVENT, //send the signal when user press continous button ( off the UI)
-    EMPTY_DATA_EVENT //send the signal when model have no data
+    EMPTY_DATA_EVENT, //send the signal when model have no data
+    EFFECT_STARTED  // sends the signal when effect is started.
 } GlxSlideShowEvent;
+
+typedef enum 
+{
+    MOVE_FORWARD,
+    MOVE_BACKWARD,
+} GlxSlideShowMoveDir;
 
 class GlxSlideShowWidget : public HbWidget
 {
@@ -101,14 +108,14 @@ private :
     //add the connection to the model
     void initializeNewModel();
     void resetSlideShow();
-    void setIconItems(int moveDir);
-    void setItemPos(int moveDir);
-    void moveImage(int nextIndex, int posX, const QString & move, char * callBack);
+    void setIconItems( int moveDir );
+    void moveImage( int nextIndex, int posX, const QString & move, char * callBack );
     void addConnections();
     void removeConnections();
 
 private:
-    GlxSlideShowEffectEngine *mEffectEngine;
+    GlxEffectEngine          *mEffectEngine;
+    GlxSettingInterface      *mSettings;               //no ownership
     HbIconItem               *mIconItems[NBR_ITEM]; 
     HbPushButton             *mContinueButton;
     int                      mItemIndex;

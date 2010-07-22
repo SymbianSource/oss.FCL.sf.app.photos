@@ -61,6 +61,11 @@ public:
      * for setting the attribute context mode will be used mainly for retreiving thumbnail of different sizes.
      */
     void setContextMode(GlxContextMode contextMode);
+    /**
+      * for removing the contect once it is not rquired anymore
+      */
+    void removeContextMode(GlxContextMode contextMode);
+    
      /**
      * for retreiving the data Count.
      */
@@ -76,6 +81,7 @@ public:
     void handleIconCorrupt(int itemIndex);
     void handleGeneralError(int error);
 	void handleListItemAvailable(int itemIndex);
+	void handleDetailsItemAvailable(int itemIndex);
     int getFocusIndex() const;
     void setFocusIndex(int itemIndex);
     
@@ -83,12 +89,33 @@ public:
 
 	QString retrieveListTitle(int index);
 	QString retrieveListSubTitle(int index);
+	/*
+	 * fetches the comments entered for the image
+	 */
+	QString retrieveListDesc(int index);
     int getVisibleWindowIndex();
     void setVisibleWindowIndex(int itemIndex);
 	QString retrieveItemUri(int index);
 	QSize retrieveItemDimension(int index);
+	/*
+	 * fetches the size for the image
+	 */
+	int   retrieveItemSize(int index);
+    /*
+	 * fetches the date for the image
+	 */	
 	QDate retrieveItemDate(int index);
+	/*
+	 * fetches the time for the image
+	 */	
+	QTime retrieveItemTime(int index);
 	int retrieveItemFrameCount(int index);
+	QString retrieveViewTitle();
+	void handlepopulated();	
+	bool IsPopulated();
+	bool IsDrmProtected(int index = -1);	
+	bool IsDrmValid(int index);
+	void setDrmValid(int index,bool valid);			
 	
 	/*
 	 * retriveBitmap helps to retrive the bitmap
@@ -105,12 +132,19 @@ public:
      * @param1 index 
      */
 	bool isSystemItem( int aItemIndex );
+	void handleTitleAvailable(QString aTitle);
 	
 signals:
      void updateItem(int index, GlxTBContextType tbContextType);
 	 void insertItems(int startIndex,int endIndex);
 	 void removeItems(int startIndex,int endIndex);
 	 void itemCorrupted(int itemIndex);
+	 void updateAlbumTitle(QString aTitle);
+	 void populated();
+ 	/*
+	 * emits the signal to update details view
+	 */	
+	 void updateDetails();
 
 private:
 	GlxMLWrapperPrivate* mMLWrapperPrivate;

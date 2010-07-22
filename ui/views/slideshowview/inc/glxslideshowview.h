@@ -52,7 +52,7 @@ public slots :
     void modelDestroyed();
     
 protected :
-    bool event(QEvent *event);
+    bool eventFilter(QObject *obj, QEvent *ev);
     
 private:
     void loadObjects();

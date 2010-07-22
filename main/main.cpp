@@ -16,9 +16,6 @@
 */
 
 
-
-#include <hbapplication.h>
-#include <glxstatemanager.h>
 #include <hbmainwindow.h>
 #include <glxloggerenabler.h>
 
@@ -26,8 +23,12 @@
 #include <QDebug>
 #include <QTranslator>
 #include <xqserviceutil.h>
-#include <glxaiwservicehandler.h>
 
+#include "glxstatemanager.h"
+#include "glxaiwservicehandler.h"
+#include "glxapplication.h"
+#include "glxlocalisationstrings.h"
+#include "hbsplashscreen.h"
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
 #include "mainTraces.h"
@@ -42,18 +43,15 @@ int main(int argc, char *argv[])
     OstTraceExt3( TRACE_NORMAL, DUP1__MAIN, "::main Time at Launch HHMMSS =%d::%d::%d",
             localTime.hour(), localTime.minute(), localTime.second() );
 
-    HbApplication app(argc, argv);	
-    
-	bool loaded(false);	
-    
+    GlxApplication app(argc, argv, Hb::NoSplash);	
+    bool loaded(false);	
     QTranslator translator;
     QString path = "Z:/resource/qt/translations/";
-    loaded = translator.load("photos_" + QLocale::system().name(), path);
-    if(loaded)
-        {
-         qApp->installTranslator(&translator);
-        }
     
+    loaded = translator.load("photos_" + QLocale::system().name(), path);
+    if(loaded) {
+         qApp->installTranslator(&translator);
+    }
     
     GlxStateManager* stateMgr = NULL;
     GlxAiwServiceHandler* mainWindow = NULL;
@@ -61,13 +59,13 @@ int main(int argc, char *argv[])
     OstTraceEventStart0( EVENT_DUP1__MAIN_START, "launch" );
 
     if(!XQServiceUtil::isService()){
-	      stateMgr = new GlxStateManager();
-        app.setApplicationName("Photos");          
+        HbSplashScreen::start();
+        stateMgr = new GlxStateManager();
+        app.setApplicationName(GLX_TITLE);          
         stateMgr->launchApplication();  
     }
-    else
-    {
-	      mainWindow = new GlxAiwServiceHandler();
+    else {
+        mainWindow = new GlxAiwServiceHandler();
         mainWindow->show();
     }
     OstTraceEventStop( EVENT_DUP1__MAIN_STOP, "launch", EVENT_DUP1__MAIN_START );

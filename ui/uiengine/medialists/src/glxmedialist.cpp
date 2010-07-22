@@ -1494,8 +1494,8 @@ void CGlxMediaList::PopulateL()
     if (!iIsPopulated)
         {
         TListPopulatedNotificationStrategy strategy( *this );
-        NotifyObservers( strategy );
         iIsPopulated = ETrue; // Do this only once.
+        NotifyObservers( strategy );
         }
     }
 

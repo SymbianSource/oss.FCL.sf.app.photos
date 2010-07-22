@@ -102,7 +102,7 @@ void CGlxCollectionPluginTags::CpiAttributeAdditionalAttributes(
 	    TInt attrCount = aAttributeArray.Count();
 	    TBool found = EFalse;
 	    
-	    //GLX_DEBUG1("CGlxCollectionPluginTags::CpiAttributeAdditionalAttributes-AttributesCount");  
+	    GLX_DEBUG1("CGlxCollectionPluginTags::CpiAttributeAdditionalAttributes-AttributesCount");  
 	    
 	    for ( TInt index = 0 ; index < attrCount ; index++)
 	        {
@@ -169,8 +169,6 @@ void CGlxCollectionPluginTags::HandleCpiAttributeResponseL(CMPXMedia* aResponse,
                 HandleCpiAttributeResponseL((*mediaArray)[index], aCpiAttributes, 
                 						aMediaIds[index]);
                 }
-
-			 /// @todo - Can we reset a value. Does it overwrite the original or does it leak? Must test
             aResponse->SetCObjectValueL(KMPXMediaArrayContents, mediaArray);        
             CleanupStack::PopAndDestroy(mediaArray);
             }
@@ -225,6 +223,9 @@ void CGlxCollectionPluginTags::HandleCpiAttributeResponseL(CMPXMedia* aResponse,
                     	{
                     	tempTitle = LoadLocalizedStringLC(KResourceFile,
                    			 R_TAG_SUB_TITLE_SINGLE);
+                        aResponse->SetTextValueL(attr, *tempTitle);  
+                        CleanupStack::PopAndDestroy(tempTitle);
+                        continue;
                     	}
                     else 
                     	{
@@ -247,6 +248,9 @@ void CGlxCollectionPluginTags::HandleCpiAttributeResponseL(CMPXMedia* aResponse,
                 		{
                 		tempTitle = LoadLocalizedStringLC(KResourceFile,
                    			 R_TAG_ITEM_SUB_TITLE_SINGLE);
+                        aResponse->SetTextValueL(attr, *tempTitle);  
+                        CleanupStack::PopAndDestroy(tempTitle);
+                        continue;
                 		}
                     else
                         {

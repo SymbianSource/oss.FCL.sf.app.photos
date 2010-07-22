@@ -7,8 +7,14 @@
         <file>data/transitiondown.fxml</file>
         <file>data/opacity_activate.fxml</file>
         <file>data/opacity_deactivate.fxml</file>
+        <file>data/zoomin.fxml</file>
+        <file>data/zoomout.fxml</file>
         <file>data/view_flip_hide.fxml</file>
-        <file>data/view_flip_show.fxml</file>
+        <file>data/view_flip_show.fxml</file>        
+        <file>data/helix.fxml</file>
+        <file>data/fadein.fxml</file>  
+        <file>data/uphide.fxml</file>
+        <file>data/downshow.fxml</file> 
         <file>data/fullscreentogrid.fxml</file>
         <file>data/gridtofullscreenhide.fxml</file>
         <file>data/gridtofullscreenshow.fxml</file>
@@ -17,13 +23,20 @@
         <file>data/albumlisttogrid.fxml</file>
         <file>data/albumlisttogridshow.fxml</file>
         <file>data/photos.css</file>
-        <file>data/transitionrotate0.fxml</file>
-        <file>data/transitionrotate90.fxml</file>
-        <file>data/transitionrotate180.fxml</file>
-        <file>data/transitionrotate270.fxml</file>
         <file>data/grid.docml</file>
         <file>data/listview.docml</file>
         <file>data/fullscreen.docml</file>
         <file>data/slideshow.docml</file>
-	    </qresource>
+	<file>data/detailsview.docml</file>
+        <file>data/Image1.jpg</file>
+        <file>data/Image2.jpg</file>
+        <file>data/Image3.jpg</file>
+        <file>data/Image4.jpg</file>
+        <file>data/Image5.jpg</file>
+        <file>data/Image6.jpg</file>
+        <file>data/Image7.jpg</file>
+        <file>data/Image8.jpg</file>
+        <file>data/Image9.jpg</file>
+        <file>data/Image10.jpg</file>
+    </qresource>
 </RCC>

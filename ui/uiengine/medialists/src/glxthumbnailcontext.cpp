@@ -590,7 +590,7 @@ TBool CGlxThumbnailContext::CheckDRMStatusL( TInt aListIndex,
         const TDesC& uri = item.Uri();
         if ( uri.Length() && cat != EMPXNoCategory )
             {
-            valid = iDrmUtility->CheckOpenRightsL( uri, ( cat == EMPXImage ) );
+            valid = iDrmUtility->ItemRightsValidityCheckL( uri, ( cat == EMPXImage ) );
             CGlxMedia* properties = const_cast<CGlxMedia*>(item.Properties());
             if( valid )
                 {

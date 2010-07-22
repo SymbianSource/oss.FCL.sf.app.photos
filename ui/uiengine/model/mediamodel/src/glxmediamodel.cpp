@@ -23,16 +23,17 @@
 #include <glxmodelparm.h>
 #include <QCache>
 #include <QDebug>
-#include <hal.h>
-#include <hal_data.h>
 #include <glxmlwrapper.h>
+#include"glxdrmutilitywrapper.h"
 
 #include <glxfiltergeneraldefs.h>
 
+#include <glximageviewermanager.h>
 //#define GLXPERFORMANCE_LOG  
 #include <glxperformancemacro.h>
 
 #include "glxicondefs.h" //Contains the icon names/Ids
+#include<glxviewids.h>
 
 GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 {
@@ -41,7 +42,7 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	mMLWrapper = new GlxMLWrapper(modelParm.collection(),0,EGlxFilterImage);
 	mMLWrapper->setContextMode( modelParm.contextMode() );
 	mContextMode = modelParm.contextMode( ) ; 
-	
+	mDRMUtilityWrapper = new GlxDRMUtilityWrapper();
 	int err = connect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	qDebug("updateItem() connection status %d", err);
 	err = connect(mMLWrapper, SIGNAL(itemCorrupted(int)), this, SLOT(itemCorrupted(int)));
@@ -52,7 +53,10 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	qDebug("updateItem() connection status %d", err);
 	err = connect(this, SIGNAL(iconAvailable(int, HbIcon*, GlxTBContextType)), this, SLOT(updateItemIcon(int, HbIcon*, GlxTBContextType)));
 	qDebug("iconAvailable() connection status %d", err);
-	//itemadded.resize(mMLWrapper->getItemCount());
+	err = connect( mMLWrapper, SIGNAL(updateAlbumTitle(QString)), this, SLOT(albumTitleUpdated(QString)));
+	qDebug("updateAlbumTitle() connection status %d", err);
+	err = connect(mMLWrapper, SIGNAL(populated()), this, SLOT(modelpopulated()));
+	err = connect(mMLWrapper, SIGNAL(updateDetails()), this, SLOT(updateDetailItems()));
 	
 	itemIconCache.setMaxCost(20);  //Changed While Doing Media Wall
 	itemFsIconCache.setMaxCost(5);
@@ -64,43 +68,61 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	externalDataCount = 0;
 	mFocusIndex = -1;
 	mSubState = -1;
+	mTempVisibleWindowIndex = 0;
 }
 
 GlxMediaModel::~GlxMediaModel()
 {
     //itemadded.clear();
 	qDebug("GlxMediaModel::~GlxMediaModel");
-	int freeMemory = 0;
-	int err1 = HAL::Get( HALData::EMemoryRAMFree, freeMemory );
-	qDebug("####mediaModel : Memory available before cache cleanup  = %d and error is = %d ", freeMemory , err1 );
 	itemIconCache.clear();
 	itemFsIconCache.clear();
 	delete m_DefaultIcon;
 	m_DefaultIcon = NULL;
 	clearExternalItems();
-	err1 = HAL::Get( HALData::EMemoryRAMFree, freeMemory );
-	qDebug("####mediaModel : Memory available after cache cleanup  = %d and error is = %d ", freeMemory , err1 );
-    int err = disconnect(mMLWrapper, SIGNAL(updateIcon(int, HbIcon*)), this, SLOT(itemUpdated1(int, HbIcon*)));
+  int err = disconnect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	err = disconnect(mMLWrapper, SIGNAL(itemCorrupted(int)), this, SLOT(itemCorrupted(int)));
 	err = disconnect(mMLWrapper, SIGNAL(insertItems(int, int)), this, SLOT(itemsAdded(int, int)));
 	err = disconnect(mMLWrapper, SIGNAL(removeItems(int, int)), this, SLOT(itemsRemoved(int, int)));
 	err = disconnect(this, SIGNAL(iconAvailable(int, HbIcon*, GlxTBContextType)), this, SLOT(updateItemIcon(int, HbIcon*, GlxTBContextType)));
+	err = disconnect(mMLWrapper, SIGNAL(updateAlbumTitle(QString)), this, SLOT(albumTitleUpdated(QString)));	    
+	err = disconnect(mMLWrapper, SIGNAL(populated()), this, SLOT(modelpopulated()));
+	err = disconnect(mMLWrapper, SIGNAL(updateDetails()), this, SLOT(updateDetailItems()));
     delete mMLWrapper;
-
+	delete mDRMUtilityWrapper;
 }
 
+//------------------------------------------------------------------------------------------------------------
+//setContextMode
+//------------------------------------------------------------------------------------------------------------
 void GlxMediaModel::setContextMode(GlxContextMode contextMode)
 {
-	if(mContextMode != contextMode)	{
+    if(contextMode == GlxContextComment)
+        {
+           mMLWrapper->setContextMode(contextMode);
+        }
+    else 
+        {
+      if(mContextMode != contextMode)	{
+        
 		itemFsIconCache.clear();
 		mMLWrapper->setContextMode(contextMode);
 		mContextMode = contextMode;
 		if ( mContextMode == GlxContextLsGrid || mContextMode == GlxContextPtGrid ) {
             itemIconCache.clear();
             //emit dataChanged( index( 0, 0), index( rowCount() - 1, 0) );  // Not Needed for HgWidget
-        }
-	}
+       }
+	  }
+     }
 }
+
+//------------------------------------------------------------------------------------------------------------
+//removeContextMode
+//------------------------------------------------------------------------------------------------------------
+void GlxMediaModel::removeContextMode(GlxContextMode contextMode)
+    {
+     mMLWrapper->removeContextMode(contextMode);
+    }
 
 //to add external data to the model
 void GlxMediaModel::addExternalItems(GlxExternalData* externalItems)
@@ -157,6 +179,15 @@ QModelIndex GlxMediaModel::parent(const QModelIndex &child) const
 //todo refactor this whole function ... too many return statements are not good
 QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
 {
+    if (role == GlxViewTitle)
+        {
+        return mMLWrapper->retrieveViewTitle();
+        }
+
+    if(role == GlxPopulated) {
+        return mMLWrapper->IsPopulated();
+    }
+
     if ( role == GlxSubStateRole ) {
         return mSubState;
     }
@@ -170,7 +201,15 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
     }
     
     if ( role == GlxDefaultImage ) {
+        if(!m_DefaultIcon->isNull()) {
+            // this image Creation is Slow. 
+            // But what to do, Q class's Does not undersatnd our Localised File names
         return m_DefaultIcon->pixmap().toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    }
+        else {
+            return QImage();
+        }
+            
     }
 
     HbIcon* itemIcon = NULL;
@@ -292,7 +331,18 @@ QVariant GlxMediaModel::data(const QModelIndex &index, int role) const
     if (role == GlxHdmiBitmap) {
         return mMLWrapper->RetrieveBitmap(itemIndex);
     }
-	    
+    
+    if (role == GlxTimeRole) {
+        return mMLWrapper->retrieveItemTime(itemIndex);
+    }
+	
+    if (role == GlxSizeRole) {
+            return mMLWrapper->retrieveItemSize(itemIndex);
+        }
+    
+    if (role == GlxDescRole) {
+              return mMLWrapper->retrieveListDesc(itemIndex);
+          }
     return QVariant();
 }
 
@@ -314,8 +364,30 @@ HbIcon* GlxMediaModel::GetGridIconItem(int itemIndex, GlxTBContextType tbContext
 
 HbIcon* GlxMediaModel::GetFsIconItem(int itemIndex, GlxTBContextType tbContextType) const
 {
-	HbIcon* itemIcon = itemFsIconCache[itemIndex];  //Initialize icon from the Cache will be NULL if Item not present
-	if (!itemIcon) {
+	HbIcon* itemIcon = NULL;  //Initialize icon from the Cache will be NULL if Item not present
+
+    bool drmProtected = mMLWrapper->IsDrmProtected(itemIndex);
+    if(drmProtected)
+        {
+        QString imagePath = mMLWrapper->retrieveItemUri(itemIndex);
+		bool rightValid = mMLWrapper->IsDrmValid(itemIndex);
+        if(!rightValid)
+            {
+            //show error note here
+            if(itemIndex == mFocusIndex )
+                mDRMUtilityWrapper->ShowRightsInfo(imagePath);
+            return itemIcon;
+            }
+        else
+            {
+            //consumeDrmRights(imagePath);
+            mDRMUtilityWrapper->ConsumeRights(imagePath);
+			bool rightValid = mDRMUtilityWrapper->ItemRightsValidityCheck(imagePath,true);
+			mMLWrapper->setDrmValid(itemIndex,rightValid);
+            }
+        }
+    itemIcon = itemFsIconCache[itemIndex];  //Initialize icon from the Cache will be NULL if Item not present
+    if (!itemIcon) {
 		itemIcon =  mMLWrapper->retrieveItemIcon(itemIndex, tbContextType);
 		if(itemIcon){
             emit iconAvailable(itemIndex,itemIcon, tbContextType);
@@ -357,6 +429,24 @@ void GlxMediaModel::itemCorrupted(int itemIndex)
 {
 	qDebug("GlxMediaModel::itemCorrupted %d", itemIndex);
 	emit dataChanged(index(itemIndex+externalDataCount,0),index(itemIndex+externalDataCount,0));	
+}
+
+void GlxMediaModel::modelpopulated()
+{
+    if ( mTempVisibleWindowIndex!=-1) {
+        mMLWrapper->setVisibleWindowIndex(mTempVisibleWindowIndex);
+        mTempVisibleWindowIndex = -1;
+	}
+    emit populated();
+}
+
+//------------------------------------------------------------------------------------------------------------
+//updateDetailItems
+//------------------------------------------------------------------------------------------------------------
+void GlxMediaModel::updateDetailItems()
+{
+    qDebug("GlxMediaModel::updateDetailItems");
+    emit updateDetailsView();
 }
 
 void GlxMediaModel::itemsAdded(int startIndex, int endIndex)
@@ -401,15 +491,19 @@ void GlxMediaModel::updateItemIcon(int itemIndex, HbIcon* itemIcon, GlxTBContext
 	}
 }
 
+void GlxMediaModel::albumTitleUpdated(QString aTitle)
+{
+    emit albumTitleAvailable(aTitle);
+}
 
 void GlxMediaModel::setFocusIndex(const QModelIndex &index)
 {
 	qDebug("GlxMediaModel::setFocusIndex%d", index.row());
 	int itemIndex = index.row();
-	
+	int mlIndex = -1;
 	if(itemIndex >=externalDataCount)
 	{
-		int mlIndex = itemIndex - externalDataCount;
+		mlIndex = itemIndex - externalDataCount;
 		mMLWrapper->setFocusIndex(mlIndex);
 		mFocusIndex = -1;
 	}
@@ -417,10 +511,22 @@ void GlxMediaModel::setFocusIndex(const QModelIndex &index)
 		mFocusIndex = itemIndex;
 		if(rowCount() > externalDataCount) {
 			mMLWrapper->setFocusIndex(0);
+			mlIndex = 0;
 		}
 		
 	}
-
+	if(mSubState != IMAGEVIEWER_S ){
+     if( mMLWrapper->IsDrmProtected(mlIndex) && (!mMLWrapper->IsDrmValid(mlIndex)) )
+            {
+            QString imagePath = mMLWrapper->retrieveItemUri(mlIndex);
+            mDRMUtilityWrapper->ShowRightsInfo(imagePath);
+            }
+	}else {
+        CGlxImageViewerManager* CGlxImageViewerManager = CGlxImageViewerManager::InstanceL();
+        const TDesC& title = CGlxImageViewerManager->ImageUri()->Des();
+        QString imagePath = QString::fromUtf16(title.Ptr(),title.Length());
+        mDRMUtilityWrapper->ShowRightsInfo(imagePath);
+	}
 }
 
 QModelIndex GlxMediaModel::getFocusIndex() const
@@ -455,6 +561,14 @@ bool GlxMediaModel::setData ( const QModelIndex & idx, const QVariant & value, i
         }
     }
     
+    if ( GlxRemoveContextRole == role ) {
+            if ( value.isValid() &&  value.canConvert <int> () ) {
+                removeContextMode( (GlxContextMode) value.value <int> () );
+                return TRUE;
+            }
+        }
+    
+    
     if ( GlxFocusIndexRole == role ) {
         if ( value.isValid() &&  value.canConvert <int> () ) {
             setFocusIndex( index( value.value <int> (), 0) );
@@ -481,6 +595,12 @@ bool GlxMediaModel::setData ( const QModelIndex & idx, const QVariant & value, i
     if ( role == GlxSubStateRole && value.isValid() &&  value.canConvert <int> ()) {
         mSubState = value.value <int> () ;
         return TRUE;
+    }
+    if ( GlxTempVisualWindowIndex == role ) {
+            if ( value.isValid() && value.canConvert<int> () ) {
+            mTempVisibleWindowIndex = value.value <int> (); 
+            return TRUE;
+            }
     }
 
     return FALSE;

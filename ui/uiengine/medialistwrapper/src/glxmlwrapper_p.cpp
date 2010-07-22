@@ -34,8 +34,6 @@
 #include <glxattributecontext.h>
 #include <glxuistd.h>
 #include <glxlistdefs.h>
-#include <hal.h>
-#include <hal_data.h>
 #include <glxmediaid.h>
 #include <caf/caferr.h>
 //internal includes 
@@ -46,6 +44,8 @@
 
 //#define GLXPERFORMANCE_LOG  
 #include <glxperformancemacro.h>
+#include "glxtitlefetcher.h"
+#include"glxdrmutility.h"
 
 //constant declaration
 const TInt KTBAttributeAvailable(1);
@@ -88,11 +88,15 @@ GlxMLWrapperPrivate* GlxMLWrapperPrivate::Instance(GlxMLWrapper* aMLWrapper,
 // might leave.
 // ---------------------------------------------------------------------------
 //
-GlxMLWrapperPrivate::GlxMLWrapperPrivate(GlxMLWrapper* aMLWrapper): iMLWrapper(aMLWrapper),
-								iGridContextActivated(EFalse), iLsFsContextActivated(EFalse),
-								iPtFsContextActivated(EFalse), iPtListContextActivated(EFalse),
-								iSelectionListContextActivated(EFalse)
-    {
+GlxMLWrapperPrivate::GlxMLWrapperPrivate(GlxMLWrapper* aMLWrapper)
+    : iMLWrapper(aMLWrapper),
+      iGridContextActivated(EFalse), 
+      iLsFsContextActivated(EFalse),
+      iPtFsContextActivated(EFalse), 
+      iPtListContextActivated(EFalse),
+      iSelectionListContextActivated(EFalse),
+	  iDetailsContextActivated(EFalse)
+{
     TRACER("GlxMLWrapperPrivate::GlxMLWrapperPrivate");
 	iGridThumbnailContext = NULL;
 	iPtFsThumbnailContext = NULL;
@@ -102,8 +106,9 @@ GlxMLWrapperPrivate::GlxMLWrapperPrivate(GlxMLWrapper* aMLWrapper): iMLWrapper(a
     iListThumbnailContext = NULL;
     iFocusGridThumbnailContext = NULL;
     iFocusFsThumbnailContext = NULL;
-    iFilmStripThumbnailContext = NULL;
-    iFavouriteContext = NULL;    
+    iFavouriteContext = NULL;
+    iTitleFetcher = NULL;
+    iViewTitle = QString();
     }
 
 // ---------------------------------------------------------------------------
@@ -128,6 +133,7 @@ void GlxMLWrapperPrivate::ConstructL(int aCollectionId, int aHierarchyId, TGlxFi
 		}
 	iMLGenericObserver = CGlxMLGenericObserver::NewL(*iMediaList,this);
 	iBlockyIteratorForFilmStrip.SetRangeOffsets(0,0);
+	iDrmUtility = CGlxDRMUtility::InstanceL();
     }
 
 // ---------------------------------------------------------------------------
@@ -137,6 +143,10 @@ void GlxMLWrapperPrivate::ConstructL(int aCollectionId, int aHierarchyId, TGlxFi
 GlxMLWrapperPrivate::~GlxMLWrapperPrivate()
     {
     TRACER("GlxMLWrapperPrivate::~GlxMLWrapperPrivate");
+	if ( iDrmUtility )
+		{
+		iDrmUtility->Close();
+		}
 	RemoveGridContext();
 	RemovePtFsContext();
 	RemoveLsFsContext();
@@ -161,9 +171,13 @@ void GlxMLWrapperPrivate::SetContextMode(GlxContextMode aContextMode)
 		{  
 		TRAP(err, SetThumbnailContextL(aContextMode) ); //todo add a trap here
 		}
-	else if(aContextMode == GlxContextFavorite)
+    else if(aContextMode == GlxContextFavorite)
+        {
+        TRAP(err,SetFavouriteContextL());
+        }
+	else if(aContextMode == GlxContextComment)
 	    {
-	    TRAP(err,SetFavouriteContextL());
+	    TRAP(err,SetDescontextL());
 	    }
 	else
 		{
@@ -174,6 +188,17 @@ void GlxMLWrapperPrivate::SetContextMode(GlxContextMode aContextMode)
 	iContextMode = aContextMode;
 	}
 
+// ---------------------------------------------------------------------------
+// RemoveContextMode
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapperPrivate::RemoveContextMode(GlxContextMode aContextMode)
+{
+  if(aContextMode == GlxContextComment) 
+      {
+       RemoveDescContext();
+      }
+}
 // ---------------------------------------------------------------------------
 // SetFavouriteContextL
 // ---------------------------------------------------------------------------
@@ -277,9 +302,9 @@ void GlxMLWrapperPrivate::SetThumbnailContextL(GlxContextMode aContextMode)
     }
 	
 	if(aContextMode == GlxContextLsFs && !iLsFsContextActivated) {
-		if(iGridContextActivated) {
-            RemoveGridContext();
-		}
+	    if(!iGridContextActivated) {
+	        CreateGridContextL();
+	    }
 		if(iPtFsContextActivated) {
 			RemovePtFsContext();
 		}
@@ -287,9 +312,9 @@ void GlxMLWrapperPrivate::SetThumbnailContextL(GlxContextMode aContextMode)
 	}
 	
 	if(aContextMode == GlxContextPtFs && !iPtFsContextActivated) {
-		if(iGridContextActivated) {
-            RemoveGridContext();
-		}
+        if(!iGridContextActivated) {
+            CreateGridContextL();
+        }
 		if(iLsFsContextActivated) {
 			RemoveLsFsContext();
 		}
@@ -318,7 +343,11 @@ void GlxMLWrapperPrivate::CreateGridContextL()
 	    iMediaList->AddContextL(iGridThumbnailContext, KGlxFetchContextPriorityNormal );
 		iGridContextActivated = ETrue;
 		}
-    
+
+	CMPXCollectionPath* path = iMediaList->PathLC( NGlxListDefs::EPathParent );
+	iTitleFetcher = CGlxTitleFetcher::NewL(*this, path);
+	CleanupStack::PopAndDestroy(path);
+
 	}
 
 // ---------------------------------------------------------------------------
@@ -352,18 +381,11 @@ void GlxMLWrapperPrivate::CreateLsFsContextL()
             iFocusGridThumbnailContext->SetDefaultSpec( KGridTNWIdth, KGridTNHeight );  //todo get these image sizes from  the layout.
             }
 
-        if(!iFilmStripThumbnailContext)
-            {
-            iFilmStripThumbnailContext = CGlxThumbnailContext::NewL( &iBlockyIteratorForFilmStrip ); // set the thumbnail context for Focus Grid
-            iFilmStripThumbnailContext->SetDefaultSpec( KGridTNWIdth, KGridTNHeight );  //todo get these image sizes from  the layout.
-            }
-
         // show static items if required
         iMediaList->SetStaticItemsEnabled(EFalse);
-        iMediaList->AddContextL(iFocusFsThumbnailContext, 8 );      // Temp will change this number  
-        iMediaList->AddContextL(iFocusGridThumbnailContext, 9 );    // Temp will change this number
-        iMediaList->AddContextL(iFilmStripThumbnailContext, 7 );    // Temp will change this number 
-        iMediaList->AddContextL(iLsFsThumbnailContext, KGlxFetchContextPriorityGridViewFullscreenVisibleThumbnail );
+        iMediaList->AddContextL(iFocusFsThumbnailContext, KGlxFetchContextPriorityNormal );      // Temp will change this number  
+        iMediaList->AddContextL(iFocusGridThumbnailContext, KGlxFetchContextPriorityNormal );    // Temp will change this number
+        iMediaList->AddContextL(iLsFsThumbnailContext, KGlxFetchContextPriorityNormal );
         iLsFsContextActivated = ETrue;
         }
     }
@@ -399,18 +421,11 @@ void GlxMLWrapperPrivate::CreatePtFsContextL()
             iFocusGridThumbnailContext->SetDefaultSpec( KGridTNWIdth, KGridTNHeight );  //todo get these image sizes from  the layout.
             }
 
-        if(!iFilmStripThumbnailContext)
-            {
-            iFilmStripThumbnailContext = CGlxThumbnailContext::NewL( &iBlockyIteratorForFilmStrip ); // set the thumbnail context for Focus Grid
-            iFilmStripThumbnailContext->SetDefaultSpec( KGridTNPTWIdth, KGridTNPTHeight );  //todo get these image sizes from  the layout.
-            }
-
         // show static items if required
         iMediaList->SetStaticItemsEnabled(EFalse);
-        iMediaList->AddContextL(iFocusFsThumbnailContext, 8 );      // Temp will change this number  
-        iMediaList->AddContextL(iFocusGridThumbnailContext, 9 );    // Temp will change this number  
-        iMediaList->AddContextL(iFilmStripThumbnailContext, 7 );    // Temp will change this number 
-        iMediaList->AddContextL(iPtFsThumbnailContext, KGlxFetchContextPriorityGridViewFullscreenVisibleThumbnail );
+        iMediaList->AddContextL(iFocusFsThumbnailContext, KGlxFetchContextPriorityNormal );      // Temp will change this number  
+        iMediaList->AddContextL(iFocusGridThumbnailContext, KGlxFetchContextPriorityNormal );    // Temp will change this number  
+        iMediaList->AddContextL(iPtFsThumbnailContext, KGlxFetchContextPriorityNormal );
         iPtFsContextActivated = ETrue;
         }
     }
@@ -428,6 +443,8 @@ void GlxMLWrapperPrivate::RemoveGridContext()
 		iGridThumbnailContext = NULL;
 		iGridContextActivated = EFalse;
 		}
+	delete iTitleFetcher;
+	iTitleFetcher = NULL;
 	}
 
 // ---------------------------------------------------------------------------
@@ -455,12 +472,6 @@ void GlxMLWrapperPrivate::RemoveLsFsContext()
             delete iFocusGridThumbnailContext;
             iFocusGridThumbnailContext = NULL;
 		    }
-		if(iFilmStripThumbnailContext)
-		    {
-		    iMediaList->RemoveContext(iFilmStripThumbnailContext);
-		    delete iFilmStripThumbnailContext;
-		    iFilmStripThumbnailContext = NULL;
-		    }		    
 	    
 		iLsFsContextActivated = EFalse;
 		}
@@ -490,12 +501,6 @@ void GlxMLWrapperPrivate::RemovePtFsContext()
             iMediaList->RemoveContext(iFocusGridThumbnailContext);
             delete iFocusGridThumbnailContext;
             iFocusGridThumbnailContext = NULL;
-            }
-        if(iFilmStripThumbnailContext)
-            {
-            iMediaList->RemoveContext(iFilmStripThumbnailContext);
-            delete iFilmStripThumbnailContext;
-            iFilmStripThumbnailContext = NULL;
             }
 	        
 		iPtFsContextActivated = EFalse;
@@ -592,7 +597,12 @@ void GlxMLWrapperPrivate::CreateMediaListL(int aCollectionId, int aHierarchyId, 
 		filter = TGlxFilterFactory::CreateCameraAlbumExclusionFilterL();
 		CleanupStack::PushL(filter);
 		}
-	else
+	else if(EGlxFilterImage == aFilterType)
+		{
+		filter = TGlxFilterFactory::CreateExcludeDrmImageTypeFilterL(aFilterType);   
+		CleanupStack::PushL(filter);
+		}
+	else 
 		{
 		filter = TGlxFilterFactory::CreateItemTypeFilterL(aFilterType);   //todo take actual filter type
 		CleanupStack::PushL(filter);
@@ -617,6 +627,8 @@ void GlxMLWrapperPrivate::CreateMediaListFavoritesItemL(int aCollectionId, int a
     {
     TRACER("GlxMLWrapperPrivate::CreateMediaListFavoritesItemL");
     Q_UNUSED(aHierarchyId); 
+    Q_UNUSED(aCollectionId); 
+    Q_UNUSED(aFilterType); 
     // Create path to the list of images and videos
     CMPXCollectionPath* path = CMPXCollectionPath::NewL();
     CleanupStack::PushL( path );
@@ -749,7 +761,18 @@ QImage GlxMLWrapperPrivate::RetrieveItemImage(int aItemIndex, GlxTBContextType a
         }
     else if( tnError ) 
         {
-        return QImage(GLXICON_CORRUPT);
+        if(iCorruptImage.isNull())
+            {
+            HbIcon *icon = new HbIcon(GLXICON_CORRUPT);
+            if(!icon->isNull())
+                {
+                // this image Creation is Slow. 
+                // But what to do, Q class's Does not undersatnd our Localised File names
+                iCorruptImage = icon->pixmap().toImage();
+                }
+            delete icon;
+            }
+        return iCorruptImage;
         }
 
      return QImage();
@@ -776,6 +799,18 @@ QString GlxMLWrapperPrivate::RetrieveListSubTitle(int aItemIndex)
 	const TDesC &subTitle = item.SubTitle();
     QString albumSubTitle =  QString::fromUtf16(subTitle.Ptr(), subTitle.Length());
 	return albumSubTitle;
+}
+
+// ---------------------------------------------------------------------------
+//  RetrieveListDesc
+// ---------------------------------------------------------------------------
+//
+QString GlxMLWrapperPrivate::RetrieveListDesc(int aItemIndex)
+{
+    const TGlxMedia& item = iMediaList->Item( aItemIndex );
+    const TDesC &commentstring = item.Comment();
+    QString descstring =  QString::fromUtf16(commentstring.Ptr(), commentstring.Length());
+	return  descstring;
 }
 
 // ---------------------------------------------------------------------------
@@ -843,6 +878,18 @@ QSize GlxMLWrapperPrivate::RetrieveItemDimension(int aItemIndex)
  }
 
 // ---------------------------------------------------------------------------
+//  RetrieveItemSize
+// ---------------------------------------------------------------------------
+//
+int GlxMLWrapperPrivate::RetrieveItemSize(int aItemIndex)
+{
+    const TGlxMedia& item = iMediaList->Item( aItemIndex );
+    int itemSize ;
+    item.GetSize(itemSize);
+    return itemSize;
+ }
+
+// ---------------------------------------------------------------------------
 //  RetrieveItemDate
 // ---------------------------------------------------------------------------
 //
@@ -861,6 +908,29 @@ QDate GlxMLWrapperPrivate::RetrieveItemDate(int index)
         }
      return date;
     }
+	
+// ---------------------------------------------------------------------------
+//  RetrieveItemTime
+// ---------------------------------------------------------------------------
+//
+QTime GlxMLWrapperPrivate::RetrieveItemTime(int index)
+    {
+    GLX_LOG_INFO1("GlxMLWrapperPrivate::RetrieveItemTime %d",index);
+    const TGlxMedia& item = iMediaList->Item( index );
+    TTime TimeValue;
+    QTime time = QTime();
+    TBool returnValue =item.GetDate(TimeValue);
+    
+    if(returnValue)
+        {
+        GLX_LOG_INFO1("GlxMLWrapperPrivate::RetrieveItemDate %d",returnValue);
+        TDateTime dateTime = TimeValue.DateTime();
+        time = QTime(dateTime.Hour(),dateTime.Minute());
+        }
+     return time;
+    }
+
+
 
 // ---------------------------------------------------------------------------
 //  RetrieveFsBitmap
@@ -870,9 +940,22 @@ CFbsBitmap* GlxMLWrapperPrivate::RetrieveBitmap(int aItemIndex)
     {
     GLX_LOG_INFO1("GlxMLWrapperPrivate::RetrieveBitmap %d",aItemIndex);
     const TGlxMedia& item = iMediaList->Item( aItemIndex );
+    TInt height =KFullScreenTNPTWidth; // default as portrait
+    TInt width =KFullScreenTNPTHeight;
+    if (iPtFsContextActivated )
+        {
+        GLX_LOG_INFO("GlxMLWrapperPrivate::RetrieveBitmap - CGlxHdmi :PT");
+        width = KFullScreenTNPTWidth;
+        height = KFullScreenTNPTHeight;
+        }
+    else if (iLsFsContextActivated)
+        {
+        GLX_LOG_INFO("GlxMLWrapperPrivate::RetrieveBitmap - CGlxHdmi :LS");
+        width = KFullScreenTNLSWidth;
+        height = KFullScreenTNLSHeight;
+        }
     TMPXAttribute fsTnAttrib= TMPXAttribute(KGlxMediaIdThumbnail,
-                GlxFullThumbnailAttributeId(ETrue, KFullScreenTNPTWidth,
-                        KFullScreenTNPTHeight));
+                GlxFullThumbnailAttributeId(ETrue, width, height));
     const CGlxThumbnailAttribute* fsTnValue = item.ThumbnailAttribute(
             fsTnAttrib);
     if (fsTnValue)
@@ -928,6 +1011,18 @@ void GlxMLWrapperPrivate::HandleItemRemovedL( TInt aStartIndex, TInt aEndIndex, 
     {
 	Q_UNUSED(aList);
 	iMLWrapper->itemsRemoved(aStartIndex,aEndIndex);
+	TInt mediaCount = aList->Count();
+    if (mediaCount <=0)
+        {
+        if(iMediaList->VisibleWindowIndex() > iMediaList->Count())
+            {
+            iMediaList->SetVisibleWindowIndexL(0);
+            }               
+        }
+    else if (iMediaList->VisibleWindowIndex() > iMediaList->Count())
+        {
+        iMediaList->SetVisibleWindowIndexL(iMediaList->Count()-1);
+        }
 	}
 // ---------------------------------------------------------------------------
 // HandleAttributesAvailableL
@@ -951,7 +1046,9 @@ void GlxMLWrapperPrivate::HandleAttributesAvailableL( TInt aItemIndex,
 	    CheckLsFsTBAttribute(aItemIndex, aAttributes);
 	if (iPtListContextActivated || iSelectionListContextActivated)
 	    CheckListAttributes(aItemIndex, aAttributes);
-	// }
+ 	if( iDetailsContextActivated && aItemIndex == iMediaList->FocusIndex() )
+ 	   CheckDetailsAttributes(aItemIndex, aAttributes);
+	
 	}
 // ---------------------------------------------------------------------------
 // CheckGridTBAttribute
@@ -1082,6 +1179,29 @@ TInt GlxMLWrapperPrivate::CheckTBAttributesPresenceandSanity( TInt aItemIndex,
 		return searchStatus;	
 
 	 }    
+
+// ---------------------------------------------------------------------------
+// CheckDetailsAttributes
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapperPrivate::CheckDetailsAttributes(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes)
+{
+    qDebug("GlxMLWrapperPrivate::CheckDetailsAttributes");
+    TBool attribPresent = EFalse;
+    TMPXAttribute titleAttrib(KMPXMediaGeneralComment);
+    TIdentityRelation< TMPXAttribute > match ( &TMPXAttribute::Match );
+
+    const TGlxMedia& item = iMediaList->Item(aItemIndex);
+
+    if (KErrNotFound != aAttributes.Find(titleAttrib, match))
+        {
+        qDebug("GlxMLWrapperPrivate::CheckDetailsAttributes TRUE");
+        attribPresent = ETrue;
+        iMLWrapper->handleDetailsItemAvailable(aItemIndex);
+        GLX_LOG_INFO1("### GlxMLWrapperPrivate::CheckDetailsAttributes title present %d",aItemIndex);
+        }     
+}
+
 // ---------------------------------------------------------------------------
 // GetItemCount
 // ---------------------------------------------------------------------------
@@ -1119,6 +1239,7 @@ Q_UNUSED(aList);
 //
 void GlxMLWrapperPrivate::HandleError( TInt aError )
 	{
+	Q_UNUSED(aError);
     GLX_LOG_INFO1("GlxMLWrapperPrivate::HandleError Error %d", aError);	
 	
     for ( TInt i = 0; i < iMediaList->Count(); i++ )
@@ -1160,6 +1281,12 @@ void GlxMLWrapperPrivate::HandleItemModifiedL( const RArray<TInt>& aItemIndexes,
 {
 	Q_UNUSED(aItemIndexes);
 	Q_UNUSED(aList);
+}
+
+void GlxMLWrapperPrivate::HandlePopulatedL(MGlxMediaList* aList)
+{
+    Q_UNUSED(aList);
+    iMLWrapper->handlepopulated();
 }
 
 // ---------------------------------------------------------------------------
@@ -1243,3 +1370,113 @@ HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap, TInt
      {
      iMediaList->SetVisibleWindowIndexL(aItemIndex);
      }
+
+// -----------------------------------------------------------------------------
+// HandleTitleAvailableL
+// -----------------------------------------------------------------------------
+//	
+void GlxMLWrapperPrivate::HandleTitleAvailableL(
+        const TDesC& aTitle)
+    {
+    iViewTitle = QString::fromUtf16(aTitle.Ptr(), aTitle.Length());	
+	iMLWrapper->handleTitleAvailable(iViewTitle);
+	}
+
+QString GlxMLWrapperPrivate::RetrieveViewTitle()
+    {
+    return iViewTitle;
+    }
+	 
+bool GlxMLWrapperPrivate::IsPopulated()
+    {
+    return iMediaList->IsPopulated();
+    }
+
+// ---------------------------------------------------------------------------
+// SetDescontextL
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapperPrivate::SetDescontextL()
+     {
+     iDescContext = CGlxDefaultAttributeContext::NewL();
+     iDescContext->AddAttributeL( KMPXMediaGeneralComment );
+     iMediaList->AddContextL( iDescContext, KGlxFetchContextPriorityLow );
+     iDetailsContextActivated = ETrue;     
+     }
+	
+// ---------------------------------------------------------------------------
+// RemoveDescContext
+// ---------------------------------------------------------------------------
+//
+void GlxMLWrapperPrivate::RemoveDescContext()
+    {
+    if(iDescContext )
+        {
+        iMediaList->RemoveContext(iDescContext);
+        delete iDescContext;
+        iDescContext = NULL;  
+        iDetailsContextActivated = EFalse;   
+        }
+    }
+
+bool GlxMLWrapperPrivate::IsDrmProtected(int index)
+    {
+    TInt itemIndex = index;
+    if(-1 == itemIndex)
+        {
+        itemIndex = iMediaList->FocusIndex();
+        }
+    const TGlxMedia& media = iMediaList->Item(itemIndex);
+    return media.IsDrmProtected();
+    }
+
+bool GlxMLWrapperPrivate::IsDrmValid(int index)
+    {
+    TInt itemIndex = index;
+    if(-1 == itemIndex)
+        {
+        itemIndex = iMediaList->FocusIndex();
+        }
+		
+    const TGlxMedia& media = iMediaList->Item(itemIndex);
+    TGlxMediaGeneralRightsValidity isValid = EGlxDrmRightsValidityUnknown;
+    TBool ret = media.GetDrmValidity(isValid);
+	if(ret && EGlxDrmRightsValidityUnknown == isValid )
+		{
+		// check rights           
+		TMPXGeneralCategory cat = media.Category();
+		const TDesC& uri = media.Uri();
+		if ( uri.Length() && cat != EMPXNoCategory )
+			{
+			TBool valid = iDrmUtility->ItemRightsValidityCheckL( uri, ( cat == EMPXImage ) );
+			CGlxMedia* properties = const_cast<CGlxMedia*>(media.Properties());
+			if( valid )
+				{
+				
+				isValid = EGlxDrmRightsValid;
+				}
+			else
+				{
+				
+				isValid = EGlxDrmRightsInvalid;
+				}
+			properties->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, isValid);
+			}
+		}
+    return ( EGlxDrmRightsValid == isValid );
+    }
+	
+void GlxMLWrapperPrivate::setDrmValid(int index,bool valid)	
+	{
+	const TGlxMedia& media = iMediaList->Item(index);
+	CGlxMedia* properties = const_cast<CGlxMedia*>(media.Properties());
+	if(valid)
+		{
+		properties->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, EGlxDrmRightsValid);
+		}
+	else
+		{
+		properties->SetTObjectValueL(KGlxMediaGeneralDRMRightsValid, EGlxDrmRightsInvalid);
+		}
+	}
+

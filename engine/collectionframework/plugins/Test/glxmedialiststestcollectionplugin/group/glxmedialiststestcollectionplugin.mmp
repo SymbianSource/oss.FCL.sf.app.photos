@@ -59,4 +59,5 @@ LIBRARY         fbscli.lib
 
 LIBRARY         glxthumbnailcreator.lib
 
+SMPSAFE
 // End of File

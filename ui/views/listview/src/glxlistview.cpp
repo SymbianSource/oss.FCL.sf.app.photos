@@ -43,7 +43,6 @@ GlxListView::GlxListView(HbMainWindow *window)
 {
     qDebug("GlxListView::GlxListView()");
     mDocLoader = new HbDocumentLoader();
-    setContentFullScreen( true );
 }
 
 void GlxListView::activate()
@@ -64,8 +63,12 @@ void GlxListView::deActivate()
 void GlxListView::setModel(QAbstractItemModel *model) 
 {
     qDebug("GlxListView::setModel()");
+    if ( mModel ) {
+        disconnect(mModel, SIGNAL(listPopulated()), this, SLOT( populated()));
+    }
     mModel =  model ;
     mListView->setModel(mModel);
+    connect(mModel, SIGNAL(listPopulated()), this, SLOT( populated()));
 }
 
 void GlxListView::addToolBar( HbToolBar *toolBar ) 
@@ -137,13 +140,13 @@ void GlxListView::loadListView()
             mView = static_cast<HbView*>(mDocLoader->findWidget(QString(GLX_LISTVIEW_VIEW)));
             mListView = static_cast<HbListView*>(mDocLoader->findWidget(QString(GLX_LISTVIEW_LIST)));
 
-            if(mListView) { 
+            if( mListView ) { 
                 //sets the widget
                 setWidget((QGraphicsWidget*) mView);
+                HbListViewItem *prototype = mListView->listItemPrototype();
+                prototype->setStretchingStyle(HbListViewItem::StretchLandscape);
             }
         }  
-        HbListViewItem *prototype = mListView->listItemPrototype();
-        prototype->setStretchingStyle(HbListViewItem::StretchLandscape);
     }
 }
 
@@ -181,6 +184,17 @@ GlxListView::~GlxListView()
     }
 }
 
+void GlxListView::populated()
+{
+    QVariant variant = mModel->data(mModel->index(0,0), GlxVisualWindowIndex );
+    int visualIndex = 0;
+    if ( variant.isValid() &&  variant.canConvert<int> () ) 
+    {
+        visualIndex = variant.value<int>();
+    }
+	//Scroll To the Visible Index as mentioned in the AM.
+    mListView->scrollTo(mModel->index(visualIndex, 0),  HbAbstractItemView::PositionAtTop );
+}
 void GlxListView::itemSelected(const QModelIndex &  index)
 {
     qDebug("GlxListView::itemSelected() index = %d", index.row() );

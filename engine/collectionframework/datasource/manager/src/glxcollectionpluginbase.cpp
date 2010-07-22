@@ -102,24 +102,38 @@ EXPORT_C void CGlxCollectionPluginBase::CommandL(CMPXCommand& aCmd)
 // ----------------------------------------------------------------------------
 //
 EXPORT_C void CGlxCollectionPluginBase::OpenL(const CMPXCollectionPath& aPath,
-                   const TArray<TMPXAttribute>& /*aAttrs*/,
+                   const TArray<TMPXAttribute>& aAttrs,
                    CMPXFilter* aFilter)
     {
     TRACER("void CGlxCollectionPluginBase::OpenL()");
     iPath = CMPXCollectionPath::NewL(aPath);
-    if(aFilter)
+    // When a collection is opened for browsing, 
+    // there are two queries executed with similar filter. 
+    // First query to open the collection from list / cloud view.
+    // Second one from grid view construction. To improve the grid opening
+    // performance, the first query will be completed with empty Id list.
+    TBool openRequest = EFalse;
+    for (TInt index = 0; index < aAttrs.Count(); index++)
         {
-        if(aFilter->IsSupported(KGlxFilterGeneralNavigationalStateOnly))
+        const TMPXAttribute attr = aAttrs[index];
+
+        if (attr == KGlxFilterGeneralNavigationalStateOnly)
             {
-            RArray<TMPXItemId> mpxIds;
-         	CleanupClosePushL(mpxIds);
-            iPath->AppendL(mpxIds.Array());
-            iObs->HandleOpen(iPath, KErrNone);
-            CleanupStack::PopAndDestroy(&mpxIds);
-            delete iPath;
-            iPath = NULL;
-            return;
+            openRequest = ETrue;
             }
+        }
+
+    if ((aFilter && aFilter->IsSupported(
+            KGlxFilterGeneralNavigationalStateOnly)) || openRequest)
+        {
+        RArray<TMPXItemId> mpxIds;
+        CleanupClosePushL(mpxIds);
+        iPath->AppendL(mpxIds.Array());
+        iObs->HandleOpen(iPath, KErrNone);
+        CleanupStack::PopAndDestroy(&mpxIds);
+        delete iPath;
+        iPath = NULL;
+        return;
         }
 
     TGlxMediaId targetId(aPath.Id());
@@ -218,7 +232,7 @@ EXPORT_C void CGlxCollectionPluginBase::MediaL(const CMPXCollectionPath& aPath,
 	    
 	    if(aSpecs->IsSupported(KMPXMediaGeneralSize))
 	    	{
-	    	tnFileInfo->iFileSize = aSpecs->ValueTObjectL<TInt>(KMPXMediaGeneralSize);
+	    	tnFileInfo->iFileSize = aSpecs->ValueTObjectL<TUint>(KMPXMediaGeneralSize);
 	    	countInfo++;
 	    	}
 	    if(aSpecs->IsSupported(KGlxMediaGeneralLastModifiedDate))
@@ -359,7 +373,7 @@ EXPORT_C TCollectionCapability CGlxCollectionPluginBase::GetCapabilities()
 EXPORT_C void CGlxCollectionPluginBase::HandleResponse(CMPXMedia* aResponse, CGlxRequest* aRequest, const TInt& aError)
 	{
     TRACER("void CGlxCollectionPluginBase::HandleResponse()");
-	
+    GLX_DEBUG2("CGlxCollectionPluginBase::HandleResponse()() aError=%d", aError);
     if (dynamic_cast<CGlxIdListRequest*>(aRequest))
 	// iRequest is a CGlxIdListRequest
 	    {
@@ -370,8 +384,20 @@ EXPORT_C void CGlxCollectionPluginBase::HandleResponse(CMPXMedia* aResponse, CGl
 	else if (dynamic_cast<CGlxThumbnailRequest*>(aRequest))
 	// iRequest is a CGlxThumbnailRequest
         {
- 		iObs->HandleMedia(aResponse, aError); 
-	    }
+        //when IAD update / sisx installation of S60 TNM is done and
+        //photos asks for the thumbnail, the thumbnail manager returns an 
+        //error KErrServerTerminated(-15)/KErrDied(-13) for which the MPX recreates
+        //the collection plugins and reconnects to the MPX server and goes into
+        //a invalid state. After this, the error is not propogated to the Medialist
+        //and no further requests are processed and it keeps returning KErrNotReady(-18)
+        //So, as a HACK we are changing the error code to KErrCompletion(-17), 
+        //for which the MPX collection does not take any action and propogates the error
+        //to the medialist. This error(KErrCompletion) is treated as a temporary error
+        //and the thumbnail request is made again from the medialist for which the
+        //S60 TNM returns the thumbnail properly.
+        iObs->HandleMedia(aResponse, ((aError == KErrServerTerminated
+                || aError == KErrDied) ? KErrCompletion : aError));
+        }
 	else if (dynamic_cast<CGlxGetRequest*>(aRequest))
 	// iRequest is a CGlxGetRequest
         {

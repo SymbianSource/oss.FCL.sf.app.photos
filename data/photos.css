@@ -55,7 +55,7 @@ HbListViewItem::selection-icon{
 }
 
 HbListViewItem::multiselection-toucharea{
-	fixed-width: 90.0un;
+	fixed-width: 0.0un;
 }
 
 HbListViewItem::icon-1{

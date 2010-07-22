@@ -18,8 +18,10 @@
 #include <graphics/surface.h>
 #include <graphics/surfacemanager.h>
 #include <graphics/surfaceupdateclient.h>
+#include <graphics/surface_hints.h>
 #include <e32math.h>
 #include <apgcli.h>
+#include "alf/alfcompositionclient.h" 
 
 #include <imageconversion.h> 
 #include <fbs.h>
@@ -33,10 +35,18 @@
 
 const TInt KMulFactorToCreateBitmap = 4;
 const TInt KZoomDelay = 10000;
+const TInt KAnimationTicker = 26000;
+const TInt KAnimationTickerFadeIn = 45000; 
 //100 , is decide for 20 steps of zooming , with each step being 5 pixels.
 const TInt KMaxZoomLimit = 100;
 //evey time we zoom , there is a increase in the ht amd width by 10 pixels.
 const TInt KSingleStepForZoom = 10;
+
+// constants for fade effect
+const TInt KFadeSteps = 19;
+const TReal32 KFadeEachStep = 0.05f;
+const TReal32 KFullTransparent = 0.0f;
+const TReal32 KFullOpaque = 1.0f;
 
 _LIT(KMimeJpeg,"image/jpeg");
 _LIT(KMimeJpg,"image/jpg");
@@ -46,10 +56,11 @@ _LIT(KMimeJpg,"image/jpg");
 // -----------------------------------------------------------------------------
 CGlxHdmiSurfaceUpdater* CGlxHdmiSurfaceUpdater::NewL(RWindow* aWindow, const TDesC& aImageFile, 
                                                       CFbsBitmap* aFsBitmap, 
-                                                      MGlxGenCallback* aCallBack)
+                                                      MGlxGenCallback* aCallBack,
+                                                      TBool aEffectsOn)
     {
     TRACER("CGlxHdmiSurfaceUpdater* CGlxHdmiSurfaceUpdater::NewL()");
-    CGlxHdmiSurfaceUpdater* self = new (ELeave) CGlxHdmiSurfaceUpdater(aWindow, aCallBack);
+    CGlxHdmiSurfaceUpdater* self = new (ELeave) CGlxHdmiSurfaceUpdater(aWindow, aCallBack, aEffectsOn);
     CleanupStack::PushL(self);
     self->ConstructL(aFsBitmap,aImageFile);
     CleanupStack::Pop(self);
@@ -63,6 +74,13 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
     {
     TRACER("CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()");
     ReleaseContent();
+    if(iAnimTimer && iAnimTimer->IsActive())             // Check for a CPeriodic Instance
+        {
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater() - cancel iAnimTimer");
+        iAnimTimer->Cancel();
+        }
+    GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater() - deleteing ialfCompositionSurface");
+    delete ialfCompositionSurface;
     if(iWindow)
         {
         iWindow->RemoveBackgroundSurface(ETrue);
@@ -72,11 +90,7 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
         iTimer->Cancel();
         }
     delete iTimer;   
-    if (iGlxDecoderAO)
-        {
-        delete iGlxDecoderAO;
-        }        
-    iGlxDecoderAO = NULL;
+    delete iGlxDecoderAO;
     iFsSession.Close();
     if (iSurfManager)
         {
@@ -151,9 +165,11 @@ void CGlxHdmiSurfaceUpdater::ReleaseContent()
 // CTor 
 // -----------------------------------------------------------------------------
 CGlxHdmiSurfaceUpdater::CGlxHdmiSurfaceUpdater(RWindow* aWindow,
-                          MGlxGenCallback* aCallBack): 
+                          MGlxGenCallback* aCallBack,TBool aEffectsOn): 
                           iWindow(aWindow), iCallBack(aCallBack), 
-                          iShwFsThumbnail(ETrue), iIsNonJpeg(EFalse)
+                          iEffectsOn(aEffectsOn),
+                          iShwFsThumbnail(ETrue), iIsNonJpeg(EFalse),
+                          iAnimCounter(0)
     {
     TRACER("CGlxHdmiSurfaceUpdater::CGlxHdmiSurfaceUpdater()");
     // Implement nothing here
@@ -167,7 +183,12 @@ void CGlxHdmiSurfaceUpdater::ConstructL(CFbsBitmap* aFsBitmap, const TDesC& aIma
     TRACER("CGlxHdmiSurfaceUpdater::ConstructL()");
     // Initiate the HDMI by assigning the necessary values
     InitiateHdmiL(aFsBitmap,aImageFile);
-    
+    if (iEffectsOn)
+        {
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::ConstructL() Creating iAnimTimer");
+        iAnimTimer = CPeriodic::NewL( CActive::EPriorityStandard-1 );
+        }
+
     TInt error = iFsSession.Connect ();
     GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::ConstructL() FsSession Connect error = %d", error);
     User::LeaveIfError(error);
@@ -213,7 +234,7 @@ void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile,CFbsBitmap*
     //Cancel the zoom timers if any
     if(iTimer->IsActive())
         {
-        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::UpdateNewImageL() - Cancel Timer");
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::UpdateNewImageL() - Cancel Zoom Timer");
         iTimer->Cancel();
         }
 
@@ -296,6 +317,15 @@ void CGlxHdmiSurfaceUpdater::CreateSurfaceL()
     GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::CreateSurfaceL Open Surface manager error = %d", error);
     User::LeaveIfError(error);
     
+    //Need to set the surface Hint for the surface to indicate
+    //that photos do not need overscan compensation and the image will
+    //be displayed in 720p resolution. 
+    //Refer error: HJVA-85DD25 for more info.
+    RSurfaceManager::THintPair surfHint;
+    TUid uid(KNullUid);
+    uid.iUid = surfaceHints::KSurfaceContent;
+    surfHint.Set(uid, surfaceHints::EStillImage, EFalse);
+    
     RSurfaceManager::TSurfaceCreationAttributesBuf attributes;
     attributes().iPixelFormat           = EUidPixelFormatARGB_8888;// EUidPixelFormatYUV_420Planar;
     attributes().iSize                  = iTvScreenSize;
@@ -305,7 +335,9 @@ void CGlxHdmiSurfaceUpdater::CreateSurfaceL()
     attributes().iAlignment             = KMulFactorToCreateBitmap;
     attributes().iContiguous            = EFalse;
     attributes().iMappable              = ETrue;
-        
+    attributes().iSurfaceHints          = &surfHint;
+    attributes().iHintCount             = 1;
+            
     error = iSurfManager->CreateSurface(attributes, iSurfId);
     GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::CreateSurfaceL, Creating surface error : %d",error);
     if(error == KErrNoMemory)
@@ -720,7 +752,24 @@ void CGlxHdmiSurfaceUpdater::ModifySurfacePostion()
 void CGlxHdmiSurfaceUpdater::ShiftToCloningMode()
 	{
 	TRACER("CGlxHdmiSurfaceUpdater::ShiftToCloningMode()");
-	iWindow->RemoveBackgroundSurface(ETrue);
+	if (iAnimTimer)
+	    {
+	    GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::ShiftToCloningMode() - cancel iAnimTimer");
+	    iAnimTimer->Cancel();
+	    delete iAnimTimer;
+	    iAnimTimer = NULL;
+	    }
+	if (ialfCompositionSurface)
+	    {
+	    GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::ShiftToCloningMode() - deleteing ialfCompositionSurface");
+	    delete ialfCompositionSurface;
+	    ialfCompositionSurface= NULL;
+	    }
+    if (iWindow)
+        {
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::ShiftToCloningMode() - window present");
+        iWindow->RemoveBackgroundSurface(ETrue);
+        }
 	}
 	
 // -----------------------------------------------------------------------------
@@ -729,6 +778,11 @@ void CGlxHdmiSurfaceUpdater::ShiftToCloningMode()
 void CGlxHdmiSurfaceUpdater::ShiftToPostingMode()
 	{
 	TRACER("CGlxHdmiSurfaceUpdater::ShiftToPostingMode()");
+    if (iEffectsOn && !iAnimTimer)
+        {
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() Creating iAnimTimer");
+        iAnimTimer = CPeriodic::NewL( CActive::EPriorityStandard-1 );
+        }
 	if(iSurfManager)
 		{
 #ifdef _DEBUG
@@ -762,6 +816,18 @@ void CGlxHdmiSurfaceUpdater::ShowFsThumbnailL()
     ProcessTvImage();
     // set the surface onto background
     iWindow->SetBackgroundSurface(iConfig, ETrue); 
+    if (iEffectsOn)
+        {
+        //Cancel the Animation timer if any
+        if(!iAnimTimer->IsActive())
+            {
+            iAnimCounter = 0;
+            GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::ShowFsThumbnailL() - Cancel iAnimTimer Timer");
+            iAnimTimer->Cancel();
+            }
+
+        FadeTheSurface(ETrue);
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -820,10 +886,96 @@ void CGlxHdmiSurfaceUpdater::ProcessTvImage()
         iSurfBufferAO->iStatus = KRequestPending;
         iSurfBufferAO->SetActive();
         iSurfUpdateSession.NotifyWhenAvailable(iSurfBufferAO->iStatus);
-        TInt err = iSurfUpdateSession.SubmitUpdate(1, iSurfId, 0, NULL);
+        TInt err = iSurfUpdateSession.SubmitUpdate(KAllScreens, iSurfId, 0, NULL);
         GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::ProcessTvImage() Surfaceupdatesession error %d",err);
         }
     }
 
+// -----------------------------------------------------------------------------
+// FadeTheSurface 
+// -----------------------------------------------------------------------------
+void CGlxHdmiSurfaceUpdater::FadeTheSurface(TBool aFadeInOut)
+    {
+    TRACER("CGlxHdmiSurfaceUpdater::FadeTheSurface()");
+    iFadeIn = aFadeInOut;
+    if (iEffectsOn && !iAnimTimer)
+        {
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::FadeTheSurface() Creating iAnimTimer");
+        iAnimTimer = CPeriodic::NewL( CActive::EPriorityStandard-1 );
+        }
+    if (!ialfCompositionSurface)
+        {
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::ShowFsThumbnailL() - Creating alfcompositionsurface");
+        ialfCompositionSurface = CAlfCompositionSource::NewL(*iWindow);
+        }
+    if(!iAnimTimer->IsActive())
+        {
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::FadeTheSurface() - Start Timer");
+        if (iFadeIn)
+            iAnimTimer->Start(0,KAnimationTickerFadeIn,TCallBack( AnimationTimeOut,this ));
+        else
+            {
+            for (TInt i=0;i<=KFadeSteps;i++)
+                {
+                GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::Animate - Fading Out %d",i);
+                ialfCompositionSurface->SetOpacity(KFullOpaque -(i*KFadeEachStep));
+                User::After(KAnimationTicker);
+                }
+            }
+        }
+    else
+        {
+        iAnimCounter = 0;
+        // this case can be when fast swipe in Slideshow
+        ialfCompositionSurface->SetOpacity(KFullOpaque);       // set the opacity to maximum when fast swipe
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::FadeTheSurface() - cancel iAnimTimer");
+        iAnimTimer->Cancel();
+        }
+    }
 
+// ---------------------------------------------------------------------------
+// AnimationTimeOut
+// ---------------------------------------------------------------------------
+//  
+TInt CGlxHdmiSurfaceUpdater::AnimationTimeOut(TAny* aSelf)
+    {
+    TRACER("CGlxHdmiSurfaceUpdater::AnimationTimeOut");
+    if(aSelf)
+        {
+        CGlxHdmiSurfaceUpdater* self = static_cast <CGlxHdmiSurfaceUpdater*> (aSelf);
+        if (self)
+            {            
+            self->Animate();
+            }
+        }
+    return KErrNone;
+    }
+
+// -----------------------------------------------------------------------------
+// Animate 
+// -----------------------------------------------------------------------------
+void CGlxHdmiSurfaceUpdater::Animate()
+    {
+    TRACER("CGlxHdmiSurfaceUpdater::Animate");
+    iAnimCounter++;
+    if (!ialfCompositionSurface)
+        {
+        // createing alfcompositiosource
+        ialfCompositionSurface = CAlfCompositionSource::NewL(*iWindow);
+        }
+    if (iAnimCounter <=KFadeSteps && iFadeIn)
+        {
+        GLX_LOG_INFO1("CGlxHdmiSurfaceUpdater::Animate - iAnimCounter=%d",iAnimCounter);
+        // gaining brightness
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::Animate - Fading In");
+        ialfCompositionSurface->SetOpacity( KFullTransparent +(iAnimCounter*KFadeEachStep));
+        }
+    else
+        {
+        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::Animate() - cancel iAnimTimer");
+        iAnimCounter = 0;
+        // end the timer , as animation of fade in/out is complete
+        iAnimTimer->Cancel();
+        }
+    }
 

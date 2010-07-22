@@ -29,7 +29,19 @@ EXPORT_C CMPXFilter* TGlxFilterFactory::CreateItemTypeFilterL(TGlxFilterItemType
     filterProperties.iItemType = aItemType;
     return CreateCombinedFilterL(filterProperties);
     }
-    
+
+// ---------------------------------------------------------------------------
+// Creates a eclude drm image filter object
+// ---------------------------------------------------------------------------
+//   
+EXPORT_C CMPXFilter* TGlxFilterFactory::CreateExcludeDrmImageTypeFilterL(TGlxFilterItemType aFilterType)
+    {
+    TGlxFilterProperties filterProperties;
+	filterProperties.iItemType = EGlxFilterImage;
+	filterProperties.iNoDRM = ETrue;
+    return CreateCombinedFilterL(filterProperties);
+    }
+
 // ---------------------------------------------------------------------------
 // Creates a URI filter object
 // ---------------------------------------------------------------------------

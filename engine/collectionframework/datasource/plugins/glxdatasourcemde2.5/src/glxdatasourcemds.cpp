@@ -20,6 +20,7 @@
 // INCLUDE FILES
 #include "glxdatasourcemds.h"
 
+#include <e32base.h>
 #include <fbs.h>
 #include <glxbackgroundtnmessagedefs.h>
 #include <glxcollectionmessagedefs.h>
@@ -48,13 +49,13 @@
 #include "glxdatasourcetaskmdsidlist.h"
 #include "glxdatasourcetaskmdsthumbnail.h"
 
-#ifndef USE_S60_TNM
+#ifdef USE_S60_TNM
+const TInt KMaxGridThumbnailWidth = 200;
+#else
 const TInt KGlxThumbnailCleanupAfterDeletions = 200;
 
 _LIT(KGlxMdeDataSourceThumbnailDatabase, "glxmdstn");
 #endif
-
-const TInt KMaxGridThumbnailWidth = 200;
 
 _LIT(KObjectDefLocation, "Location");
 _LIT(KObjectDefNameAlbum, "Album");
@@ -76,6 +77,8 @@ _LIT(KGlxMdeCameraAlbumUri, "defaultalbum_captured");
 _LIT(KGlxMdeFavoritesUri, "defaultalbum_favourites");
 
 #undef __USING_INTELLIGENT_UPDATE_FILTERING
+
+const TInt KHarvestUpdateChunkSize = 1000;
 
 // ---------------------------------------------------------------------------
 // MPXChangeEventType
@@ -100,6 +103,110 @@ TMPXChangeEventType MPXChangeEventType(const TObserverNotificationType& aType)
 		}
 	return type;
 	}
+
+
+// ---------------------------------------------------------------------------
+// CGlxMDSShutdownObserver::NewL()
+// ---------------------------------------------------------------------------
+//
+CGlxMDSShutdownObserver* CGlxMDSShutdownObserver::NewL( MGlxMDSShutdownObserver& aObserver,
+                                                const TUid& aKeyCategory,
+                                                const TInt aPropertyKey,
+                                                TBool aDefineKey)
+    {
+    TRACER("CGlxMDSShutdownObserver* CGlxMDSShutdownObserver::NewL");
+    CGlxMDSShutdownObserver* self = new( ELeave )CGlxMDSShutdownObserver( aObserver, 
+                                                                  aKeyCategory,
+                                                                  aPropertyKey,
+                                                                  aDefineKey);
+    CleanupStack::PushL( self );
+    self->ConstructL();
+    CleanupStack::Pop( self );
+    return self;
+    }
+
+// ---------------------------------------------------------------------------
+// CGlxMDSShutdownObserver::CGlxMDSShutdownObserver()
+// ---------------------------------------------------------------------------
+//
+CGlxMDSShutdownObserver::CGlxMDSShutdownObserver( MGlxMDSShutdownObserver& aObserver,
+                                          const TUid& aKeyCategory,
+                                          const TInt aPropertyKey,
+                                          TBool aDefineKey)
+    : CActive( CActive::EPriorityStandard ), iObserver( aObserver ),
+      iKeyCategory( aKeyCategory ), iPropertyKey(aPropertyKey), iDefineKey( aDefineKey )
+    {   
+    TRACER("CGlxMDSShutdownObserver::CGlxMDSShutdownObserver()");
+    CActiveScheduler::Add( this );
+    }
+
+// ---------------------------------------------------------------------------
+// CGlxMDSShutdownObserver::ConstructL()
+// ---------------------------------------------------------------------------
+//
+void CGlxMDSShutdownObserver::ConstructL()
+    { 
+    TRACER("void CGlxMDSShutdownObserver::ConstructL()");
+    // define P&S property types
+    if (iDefineKey)
+        {
+        RProperty::Define(iKeyCategory,iPropertyKey,
+                          RProperty::EInt,KAllowAllPolicy,KPowerMgmtPolicy);
+        }
+    
+    // attach to the property
+    TInt err = iProperty.Attach(iKeyCategory,iPropertyKey,EOwnerThread);
+    User::LeaveIfError(err);
+    
+    // wait for the previously attached property to be updated
+    iProperty.Subscribe(iStatus);
+    SetActive();
+    }
+
+// ---------------------------------------------------------------------------
+// CGlxMDSShutdownObserver::~CGlxMDSShutdownObserver()
+// ---------------------------------------------------------------------------
+//
+CGlxMDSShutdownObserver::~CGlxMDSShutdownObserver()
+    {
+    TRACER("CGlxMDSShutdownObserver::~CGlxMDSShutdownObserver()");
+    Cancel();
+    iProperty.Close();
+    }
+
+// ---------------------------------------------------------------------------
+// CGlxMDSShutdownObserver::RunL()
+// ---------------------------------------------------------------------------
+//
+void CGlxMDSShutdownObserver::RunL()
+    {
+    TRACER("void CGlxMDSShutdownObserver::RunL()");
+
+    // resubscribe before processing new value to prevent missing updates
+    iProperty.Subscribe(iStatus);
+    SetActive();
+    
+    // retrieve the value
+    TInt value = 0;
+    TInt err = iProperty.Get(value);
+    GLX_DEBUG2("CGlxMDSShutdownObserver::RunL(): iProperty.Get(value); returns %d", err);
+    
+    User::LeaveIfError(err);
+
+    iObserver.ShutdownNotification(value);
+    }
+
+// ---------------------------------------------------------------------------
+// CGlxMDSShutdownObserver::DoCancel()
+// ---------------------------------------------------------------------------
+//
+void CGlxMDSShutdownObserver::DoCancel()
+    {
+    TRACER("void CGlxMDSShutdownObserver::DoCancel()");
+    iProperty.Cancel();
+    }
+
+
 
 // ============================ MEMBER FUNCTIONS ==============================
 
@@ -143,14 +250,17 @@ CGlxDataSourceMde::~CGlxDataSourceMde()
     	}
     delete iThumbnailDatabase;
 #endif
-
     iFs.Close();
+    iHC.Close();
     RFbsSession::Disconnect();
     iMonthArray.Close();
     iMonthList.Close();
     iUpdateData.Close();
+    iAddedItems.Reset();
+    iAddedItems.Close();
     delete iUpdateCallback;
     delete iCreateSessionCallback;
+    delete iMDSShutdownObserver ;
 	}
 
 // ---------------------------------------------------------------------------
@@ -159,7 +269,7 @@ CGlxDataSourceMde::~CGlxDataSourceMde()
 //
 CGlxDataSourceMde::CGlxDataSourceMde()
 	{
-    TRACER("CGlxDataSourceMde::CGlxDataSourceMde()")
+    TRACER("CGlxDataSourceMde::CGlxDataSourceMde()");
     //No Implementation
 	}
 
@@ -169,7 +279,7 @@ CGlxDataSourceMde::CGlxDataSourceMde()
 //
 void CGlxDataSourceMde::ConstructL()
 	{
-    TRACER("CGlxDataSourceMde::ConstructL()")
+    TRACER("CGlxDataSourceMde::ConstructL()");
     
 	iDataSourceReady = EFalse;			
     User::LeaveIfError(iFs.Connect());
@@ -179,20 +289,27 @@ void CGlxDataSourceMde::ConstructL()
 
 #ifdef USE_S60_TNM
     iTnEngine = CThumbnailManager::NewL( *this);
-    iTnEngine->SetFlagsL(CThumbnailManager::EAllowAnySize);
-    iTnEngine->SetDisplayModeL( EColor64K );
+    iTnEngine->SetDisplayModeL( EColor16M );
     iTnRequestInProgress = EFalse;
 #else
 	iThumbnailCreator = CGlxtnThumbnailCreator::InstanceL();
 	iThumbnailDatabase = CGlxtnThumbnailDatabase::NewL(
             	                        KGlxMdeDataSourceThumbnailDatabase, this);
 #endif
-         	                        
+            	                        
     iCreateSessionCallback = new ( ELeave )
 	    CAsyncCallBack( TCallBack( CreateSession, this ), CActive::EPriorityHigh );
+    
+    iMDSShutdownObserver = CGlxMDSShutdownObserver::NewL( *this, KHarvesterPSShutdown, KMdSShutdown, EFalse );
+    
     iUpdateCallback = new ( ELeave )
 	    CAsyncCallBack( TCallBack( ProcessItemUpdate, this ), CActive::EPriorityLow );
     iUpdateData.Reserve(100); // ignore if it fails
+    
+    User::LeaveIfError(iHC.Connect());
+    iHC.AddHarvesterEventObserver(*this, EHEObserverTypePlaceholder, KHarvestUpdateChunkSize);
+
+    iHarvestingOngoing = EFalse;
 	}
 	
 // ----------------------------------------------------------------------------
@@ -202,20 +319,22 @@ void CGlxDataSourceMde::ConstructL()
 //    
 void CGlxDataSourceMde::HandleSessionOpened( CMdESession& aSession, TInt aError )    
     {
-    TRACER("CGlxDataSourceMde::HandleSessionOpened(CMdESession& aSession, TInt aError)")
+    TRACER("CGlxDataSourceMde::HandleSessionOpened(CMdESession& aSession, TInt aError)");
     if( KErrNone != aError )
         {
         HandleSessionError(aSession, aError);
         }
     TRAPD(err, DoSessionInitL());
-    if( KErrNone != err )
+    if (KErrNone == err)
+        {
+        iSessionOpen = ETrue;
+        iDataSourceReady = ETrue;
+        TryStartTask(ETrue);
+        }
+    else
         {
         HandleSessionError(aSession, err);
         }
-    
-    iSessionOpen = ETrue;
-    iDataSourceReady = ETrue;
-	TryStartTask(ETrue);
     }
     
 // ----------------------------------------------------------------------------
@@ -223,28 +342,37 @@ void CGlxDataSourceMde::HandleSessionOpened( CMdESession& aSession, TInt aError 
 // CMPXCollectionMdEPlugin::HandleSessionError
 // ----------------------------------------------------------------------------
 //     
-void CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt /*aError*/ )    
+void CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt aError )    
     {
-    TRACER("CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt /*aError*/)")
-    delete iSession;
-    iSession = NULL;
+    TRACER("CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt aError)")
+    GLX_DEBUG2("void CGlxDataSourceMde::HandleSessionError() aError(%d)", aError);
+
     iDataSourceReady = EFalse;
     iSessionOpen = EFalse;
-    iCreateSessionCallback->CallBack();
-    }
 
+    // We wait till MDS restarts before starting the session if the current session is locked.
+    // that is handled separately by the MDS Shutdown PUB SUB Framework.   
+    // for everything else we use the generic method and continue.
+    if ( (KErrLocked != aError) && ( KErrServerTerminated != aError) )
+        {
+        iCreateSessionCallback->CallBack();
+        }
+    }
 
 // ---------------------------------------------------------------------------
 // CreateTaskL
 // ---------------------------------------------------------------------------
 //
-CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest, MGlxDataSourceRequestObserver& aObserver)
+CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest, 
+        MGlxDataSourceRequestObserver& aObserver)
 	{
-    TRACER("CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest, MGlxDataSourceRequestObserver& aObserver)")	
+    TRACER("CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest,MGlxDataSourceRequestObserver& aObserver)")	;
 	if(dynamic_cast<CGlxCommandRequest*>(aRequest))
 		{
         CleanupStack::PushL(aRequest);
-        CGlxDataSourceTaskMdeCommand* task = new (ELeave) CGlxDataSourceTaskMdeCommand(static_cast<CGlxCommandRequest*>(aRequest), aObserver, this);
+        CGlxDataSourceTaskMdeCommand* task = new (ELeave) 
+        CGlxDataSourceTaskMdeCommand(static_cast<CGlxCommandRequest*>(aRequest),
+                aObserver, this);
 		CleanupStack::Pop(aRequest); // now owned by task
         CleanupStack::PushL(task);
         task->ConstructL();
@@ -253,17 +381,10 @@ CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest, MGlxDa
 		}
 	else if (dynamic_cast< CGlxGetRequest *>(aRequest))
 		{
-	    GLX_LOG_INFO("==> CGlxDataSourceMde::CreateTaskL - CGlxDataSourceTaskMdeAttributeMde+");
-#ifdef _DEBUG
-        _LIT( KFormatTimeStamp, "[%H:%T:%S.%*C5]");
-	    TTime time;
-	    time.HomeTime(); // Get home time
-	    TBuf<32> timeStampBuf;
-	    time.FormatL(timeStampBuf, KFormatTimeStamp);
-	    RDebug::Print(_L("%S"), &timeStampBuf);    
-#endif
         CleanupStack::PushL(aRequest);
-        CGlxDataSourceTaskMdeAttributeMde* task = new (ELeave) CGlxDataSourceTaskMdeAttributeMde(static_cast<CGlxGetRequest*>(aRequest), aObserver, this);
+        CGlxDataSourceTaskMdeAttributeMde* task = new (ELeave) 
+        CGlxDataSourceTaskMdeAttributeMde(static_cast<CGlxGetRequest*>(aRequest),
+                aObserver, this);
 		CleanupStack::Pop(aRequest); // now owned by task
         CleanupStack::PushL(task);
         task->ConstructL();
@@ -273,7 +394,9 @@ CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest, MGlxDa
 	else if (dynamic_cast< CGlxIdListRequest *>(aRequest))
 		{	
         CleanupStack::PushL(aRequest);
-        CGlxDataSourceTaskMdeIdList* task = new (ELeave) CGlxDataSourceTaskMdeIdList(static_cast<CGlxIdListRequest*>(aRequest), aObserver, this);
+        CGlxDataSourceTaskMdeIdList* task = new (ELeave) 
+        CGlxDataSourceTaskMdeIdList(static_cast<CGlxIdListRequest*>(aRequest), 
+                aObserver, this);
         CleanupStack::Pop(aRequest); // now owned by task
         CleanupStack::PushL(task); 
         task->ConstructL();
@@ -282,17 +405,10 @@ CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest, MGlxDa
 		}
 	else if (dynamic_cast< CGlxThumbnailRequest *>(aRequest))
 		{	
-	    GLX_LOG_INFO("==> CGlxDataSourceMde::CreateTaskL - CGlxDataSourceTaskMdeThumbnail+");
-#ifdef _DEBUG
-        _LIT( KFormatTimeStamp, "[%H:%T:%S.%*C5]");
-	    TTime time;
-	    time.HomeTime(); // Get home time
-	    TBuf<32> timeStampBuf;
-	    time.FormatL(timeStampBuf, KFormatTimeStamp);
-	    RDebug::Print(_L("%S"), &timeStampBuf);    
-#endif
         CleanupStack::PushL(aRequest);
-        CGlxDataSourceTaskMdeThumbnail* task = new (ELeave) CGlxDataSourceTaskMdeThumbnail(static_cast<CGlxThumbnailRequest*>(aRequest), aObserver, this);
+        CGlxDataSourceTaskMdeThumbnail* task = new (ELeave) 
+        CGlxDataSourceTaskMdeThumbnail(static_cast<CGlxThumbnailRequest*>(aRequest), 
+                aObserver, this);
         CleanupStack::Pop(aRequest); // now owned by task
         CleanupStack::PushL(task); 
         task->ConstructL();
@@ -311,9 +427,10 @@ CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest, MGlxDa
 // ThumbnailAvailable
 // ---------------------------------------------------------------------------
 //
-void CGlxDataSourceMde::ThumbnailAvailable(const TGlxMediaId& /*aId*/, const TSize& /*aSize*/)
+void CGlxDataSourceMde::ThumbnailAvailable(const TGlxMediaId& 
+        /*aId*/, const TSize& /*aSize*/)
 	{
-    TRACER("CGlxDataSourceMde::ThumbnailAvailable(const TGlxMediaId& /*aId*/, const TSize& /*aSize*/)")
+    TRACER("CGlxDataSourceMde::ThumbnailAvailable(const TGlxMediaId& /*aId*/, const TSize& /*aSize*/)");
 	//No implementation
 	}
 
@@ -323,7 +440,7 @@ void CGlxDataSourceMde::ThumbnailAvailable(const TGlxMediaId& /*aId*/, const TSi
 //
 void CGlxDataSourceMde::BackgroundThumbnailError(const TGlxMediaId& aId, TInt aError)
 	{
-    TRACER("CGlxDataSourceMde::BackgroundThumbnailError(const TGlxMediaId& aId, TInt aError)")
+    TRACER("CGlxDataSourceMde::BackgroundThumbnailError(const TGlxMediaId& aId, TInt aError)");
 	TSize size(0, 0);
 	TRAP_IGNORE(BackgroundThumbnailMessageL(aId, size, aError));
 	}
@@ -333,9 +450,10 @@ void CGlxDataSourceMde::BackgroundThumbnailError(const TGlxMediaId& aId, TInt aE
 // BackgroundThumbnailMessageL
 // ---------------------------------------------------------------------------
 //
-void CGlxDataSourceMde::BackgroundThumbnailMessageL(const TGlxMediaId& aId, const TSize& aSize, TInt aError)
+void CGlxDataSourceMde::BackgroundThumbnailMessageL(const TGlxMediaId& aId, 
+        const TSize& aSize, TInt aError)
 	{
-    TRACER("CGlxDataSourceMde::BackgroundThumbnailMessageL(const TGlxMediaId& aId, const TSize& aSize, TInt aError)")
+    TRACER("CGlxDataSourceMde::BackgroundThumbnailMessageL(const TGlxMediaId& aId, const TSize& aSize, TInt aError)");
 	CMPXMessage* message = CMPXMessage::NewL();
 	CleanupStack::PushL(message);
 	message->SetTObjectValueL(KMPXMessageGeneralId, KGlxMessageIdBackgroundThumbnail);
@@ -352,7 +470,7 @@ void CGlxDataSourceMde::BackgroundThumbnailMessageL(const TGlxMediaId& aId, cons
 //
 void CGlxDataSourceMde::DoSessionInitL()
 	{
-    TRACER("CGlxDataSourceMde::DoSessionInitL()")
+    TRACER("CGlxDataSourceMde::DoSessionInitL()");
 	/// @todo check schema version number
     iNameSpaceDef = &iSession->GetDefaultNamespaceDefL();
     
@@ -396,12 +514,23 @@ void CGlxDataSourceMde::DoSessionInitL()
 //
 void CGlxDataSourceMde::AddMdEObserversL()
     {
-    TRACER("CGlxDataSourceMde::AddMdEObserversL()")
+    TRACER("CGlxDataSourceMde::AddMdEObserversL()");
 	iSession->AddRelationObserverL(*this);
 	iSession->AddRelationPresentObserverL(*this);
 	
-	iSession->AddObjectObserverL(*this);
-	iSession->AddObjectPresentObserverL(*this);
+	//when setting observing conditions,
+	//add filters for all images, videos, Albums & Tags
+	CMdELogicCondition* addCondition = CMdELogicCondition::NewLC( ELogicConditionOperatorOr );
+	addCondition->AddObjectConditionL( *iImageDef );
+	addCondition->AddObjectConditionL( *iAlbumDef );
+	addCondition->AddObjectConditionL( *iTagDef );
+	
+	iSession->AddObjectObserverL(*this, addCondition );
+	iSession->AddObjectPresentObserverL(*this );
+		
+	// This addCondition should only be popped. 
+	// As the ownership is transferred, the same will be destroyed by MdS.
+	CleanupStack::Pop( addCondition ); 
     }
 
 // ---------------------------------------------------------------------------
@@ -413,13 +542,51 @@ void CGlxDataSourceMde::HandleObjectNotification(CMdESession& /*aSession*/,
 					TObserverNotificationType aType,
 					const RArray<TItemId>& aObjectIdArray)
 	{
-    TRACER("CGlxDataSourceMde::HandleObjectNotification()")
+    TRACER("CGlxDataSourceMde::HandleObjectNotification()");
+    GLX_LOG_INFO3("CGlxDataSourceMde::HandleObjectNotification() aType=%d, aObjectIdArray.Count()=%d, iHarvestingOngoing=%d", 
+															  aType, aObjectIdArray.Count(),
+															  iHarvestingOngoing);
+   	if (ENotifyAdd == aType)
+		{
+	    for ( TInt i = 0; i < aObjectIdArray.Count(); i++ )
+	        {
+            TInt ret = iAddedItems.Append(aObjectIdArray[i]);
+            if (ret != KErrNone)
+                {
+                GLX_DEBUG2("ENotifyAdd-iAddedItems.Append() failed i(%d)", i);
+                }
+	        }
+	    GLX_DEBUG2("ENotifyAdd - iAddedItems.Count()=%d", iAddedItems.Count());
+		}
+    
+   	if (ENotifyModify == aType)
+		{
+	    for ( TInt i = 0; i < aObjectIdArray.Count(); i++ )
+	        {
+	        if (iAddedItems.Find(aObjectIdArray[i]) != KErrNotFound)
+	        	{
+		        if (!iHarvestingOngoing)
+		        	{
+		        	GLX_DEBUG1("ENotifyModify - Harvesting Completed - "
+		        	        "Reset iAddedItems array");
+					iAddedItems.Reset();
+					break;
+		        	}
+                GLX_DEBUG1("ENotifyModify - Id found in iAddedItems array, DO NOT PROCESS");
+	        	return;
+	        	}
+	        }
+        }
+
+   	GLX_DEBUG1("HandleObjectNotification - ProcessUpdateArray");
 	ProcessUpdateArray(aObjectIdArray,  MPXChangeEventType(aType), ETrue);
 #ifndef USE_S60_TNM
 	if(MPXChangeEventType(aType) == EMPXItemDeleted )
 		{			
 		TInt count = aObjectIdArray.Count();
 		iDeletedCount += count;
+		GLX_DEBUG3("EMPXItemDeleted - aObjectIdArray.Count()=%d, iDeletedCount=%d", 
+		        count, iDeletedCount);
 		if(iDeletedCount > KGlxThumbnailCleanupAfterDeletions)
 		    {
 	    	TRAPD(err, ThumbnailCreator().CleanupThumbnailsL(iThumbnailDatabase));
@@ -429,9 +596,14 @@ void CGlxDataSourceMde::HandleObjectNotification(CMdESession& /*aSession*/,
 	    	    }
 		    }
 		}
+
+	if(MPXChangeEventType(aType) == EMPXItemModified )
+	    {
+	    GLX_DEBUG1("HandleObjectNotification - EMPXItemModified");
+	    TRAP_IGNORE(ThumbnailCreator().CleanupThumbnailsL(iThumbnailDatabase));
+		}
 #endif		
 	}
-
 
 // ---------------------------------------------------------------------------
 // CGlxDataSourceMde::HandleObjectPresentNotification
@@ -441,7 +613,7 @@ void CGlxDataSourceMde::HandleObjectNotification(CMdESession& /*aSession*/,
 void CGlxDataSourceMde::HandleObjectPresentNotification(CMdESession& /*aSession*/, 
 		TBool aPresent, const RArray<TItemId>& aObjectIdArray)
 	{
-    TRACER("CGlxDataSourceMde::HandleObjectPresentNotification()")
+    TRACER("CGlxDataSourceMde::HandleObjectPresentNotification()");
 	if (aPresent)
 		{
 		ProcessUpdateArray(aObjectIdArray, EMPXItemInserted, ETrue);
@@ -461,7 +633,7 @@ void CGlxDataSourceMde::HandleRelationNotification(CMdESession& /*aSession*/,
 			TObserverNotificationType aType,
 			const RArray<TItemId>& aRelationIdArray)
 	{
-    TRACER("CGlxDataSourceMde::HandleRelationNotification()")
+    TRACER("CGlxDataSourceMde::HandleRelationNotification()");
 	ProcessUpdateArray(aRelationIdArray, MPXChangeEventType(aType), EFalse);
 	}
 
@@ -473,7 +645,7 @@ void CGlxDataSourceMde::HandleRelationNotification(CMdESession& /*aSession*/,
 void CGlxDataSourceMde::HandleRelationPresentNotification(CMdESession& /*aSession*/,
 			TBool aPresent, const RArray<TItemId>& aRelationIdArray)
 	{
-    TRACER("CGlxDataSourceMde::HandleRelationPresentNotification()")
+    TRACER("CGlxDataSourceMde::HandleRelationPresentNotification()");
 	if (aPresent)
 		{
 		ProcessUpdateArray(aRelationIdArray, EMPXItemInserted, EFalse);
@@ -488,9 +660,10 @@ void CGlxDataSourceMde::HandleRelationPresentNotification(CMdESession& /*aSessio
 // ProcessUpdateArray
 // ---------------------------------------------------------------------------
 //
-void CGlxDataSourceMde::ProcessUpdateArray(const RArray<TItemId>& aArray, TMPXChangeEventType aType, TBool aIsObject)
+void CGlxDataSourceMde::ProcessUpdateArray(const RArray<TItemId>& aArray, 
+        TMPXChangeEventType aType, TBool aIsObject)
 	{
-    TRACER("CGlxDataSourceMde::ProcessUpdateArray(const RArray<TItemId>& aArray, TMPXChangeEventType aType, TBool aIsObject)")
+    TRACER("CGlxDataSourceMde::ProcessUpdateArray(const RArray<TItemId>& aArray,TMPXChangeEventType aType, TBool aIsObject)");
     // only need one message so process first item
     TUpdateData update;
     update.iId = aArray[0];
@@ -510,12 +683,22 @@ void CGlxDataSourceMde::ProcessUpdateArray(const RArray<TItemId>& aArray, TMPXCh
 	}
 	
 // ---------------------------------------------------------------------------
-// MPXChangeEventType
+// CreateSession
+// ---------------------------------------------------------------------------
+//
+void CGlxDataSourceMde::CreateSession()
+    {
+    TRACER("CGlxDataSourceMde::CreateSession()")
+    TRAP_IGNORE(CreateSessionL());
+    }
+    
+// ---------------------------------------------------------------------------
+// CreateSession
 // ---------------------------------------------------------------------------
 //
 TInt CGlxDataSourceMde::CreateSession(TAny* aPtr)
     {
-    TRACER("CGlxDataSourceMde::CreateSession(TAny* aPtr)")
+    TRACER("CGlxDataSourceMde::CreateSession(TAny* aPtr)");
     CGlxDataSourceMde* self
                     = reinterpret_cast<CGlxDataSourceMde*>( aPtr );
     TRAP_IGNORE(self->CreateSessionL());
@@ -528,7 +711,9 @@ TInt CGlxDataSourceMde::CreateSession(TAny* aPtr)
 //
 void CGlxDataSourceMde::CreateSessionL()
     {
-    TRACER("CGlxDataSourceMde::CreateSessionL()")
+    TRACER("CGlxDataSourceMde::CreateSessionL()");
+    delete iSession;
+    iSession = NULL;
 	iSession = CMdESession::NewL( *this );
     }
             
@@ -539,7 +724,7 @@ void CGlxDataSourceMde::CreateSessionL()
 //
 TInt CGlxDataSourceMde::ProcessItemUpdate(TAny* aPtr)
     {
-    TRACER("CGlxDataSourceMde::ProcessItemUpdate(TAny* aPtr)")
+    TRACER("CGlxDataSourceMde::ProcessItemUpdate(TAny* aPtr)");
     CGlxDataSourceMde* self
                     = reinterpret_cast<CGlxDataSourceMde*>( aPtr );
     TRAP_IGNORE(self->ProcessItemUpdateL());
@@ -552,8 +737,7 @@ TInt CGlxDataSourceMde::ProcessItemUpdate(TAny* aPtr)
 //
 void CGlxDataSourceMde::ProcessItemUpdateL()
     {
-    TRACER("CGlxDataSourceMde::ProcessItemUpdateL()")
-    //__ASSERT_DEBUG(iUpdateData.Count(), Panic(EGlxPanicIllegalState));
+    TRACER("CGlxDataSourceMde::ProcessItemUpdateL()");
 	if ( !iUpdateData.Count() || iPauseUpdate )
         {
         return;
@@ -561,7 +745,8 @@ void CGlxDataSourceMde::ProcessItemUpdateL()
     CMPXMessage* message = CMPXMessage::NewL();
     CleanupStack::PushL(message);
     message->SetTObjectValueL<TInt>(KMPXMessageGeneralId, KMPXMessageIdItemChanged);
-    message->SetTObjectValueL<TMPXChangeEventType>(KMPXMessageChangeEventType, iUpdateData[0].iType);
+    message->SetTObjectValueL<TMPXChangeEventType>(KMPXMessageChangeEventType,
+            iUpdateData[0].iType);
     TMPXGeneralCategory category = EMPXNoCategory;
 	TMPXItemId id = iUpdateData[0].iId;
 	
@@ -589,7 +774,8 @@ void CGlxDataSourceMde::ProcessItemUpdateL()
     		    __ASSERT_DEBUG(rightObject, Panic(EGlxPanicIllegalState));
     			TContainerType rightContainer = ContainerType(rightObject);
     			delete rightObject;
-   		    	__ASSERT_DEBUG(( EContainerTypeAlbum != rightContainer), Panic(EGlxPanicIllegalState));
+   		    	__ASSERT_DEBUG(( EContainerTypeAlbum != rightContainer), 
+   		    	        Panic(EGlxPanicIllegalState));
     			if( EContainerTypeTag == rightContainer )
     				{
         			id = leftId;
@@ -607,8 +793,10 @@ void CGlxDataSourceMde::ProcessItemUpdateL()
     			containerId = leftId;
     	    	containerCategory = EMPXAlbum;
     	    	}
-    		message->SetTObjectValueL<TMPXGeneralCategory>(KGlxCollectionMessageContainerCategory, containerCategory);
-    		message->SetTObjectValueL<TMPXItemId>(KGlxCollectionMessageContainerId, containerId);
+    		message->SetTObjectValueL<TMPXGeneralCategory>(KGlxCollectionMessageContainerCategory,
+    		        containerCategory);
+    		message->SetTObjectValueL<TMPXItemId>(KGlxCollectionMessageContainerId, 
+    		        containerId);
 			}
 	    else
 	        {
@@ -647,7 +835,8 @@ void CGlxDataSourceMde::ProcessItemUpdateL()
     		}
 	    }
 #endif // __USING_INTELLIGENT_UPDATE_FILTERING
-	message->SetTObjectValueL<TMPXGeneralCategory>(KMPXMessageMediaGeneralCategory, category);
+	message->SetTObjectValueL<TMPXGeneralCategory>(KMPXMessageMediaGeneralCategory,
+	        category);
    	message->SetTObjectValueL<TMPXItemId>(KMPXMessageMediaGeneralId, id);
     BroadcastMessage(*message); 
     CleanupStack::PopAndDestroy(message);
@@ -660,7 +849,7 @@ void CGlxDataSourceMde::ProcessItemUpdateL()
 //
 CGlxDataSource::TContainerType CGlxDataSourceMde::ContainerType(CMdEObject* aObject)
 	{
-    TRACER("CGlxDataSourceMde::ContainerType(CMdEObject* aObject)")
+    TRACER("CGlxDataSourceMde::ContainerType(CMdEObject* aObject)");
 	TContainerType containerType = EContainerTypeNotAContainer;
  	
 	if( 0 == aObject->Def().Compare(*iAlbumDef) )
@@ -684,9 +873,10 @@ CGlxDataSource::TContainerType CGlxDataSourceMde::ContainerType(CMdEObject* aObj
 // ContainerType
 // ---------------------------------------------------------------------------
 //	
-CGlxDataSource::TContainerType CGlxDataSourceMde::ContainerType(CMdEObjectDef* aObjectDef)
+CGlxDataSource::TContainerType CGlxDataSourceMde::ContainerType(CMdEObjectDef* 
+        aObjectDef)
 	{
-    TRACER("CGlxDataSourceMde::ContainerType(CMdEObjectDef* aObjectDef)")
+    TRACER("CGlxDataSourceMde::ContainerType()");
 	TContainerType containerType = EContainerTypeNotAContainer;
  	
 	if( 0 == aObjectDef->Compare(*iAlbumDef) )
@@ -711,7 +901,7 @@ CGlxDataSource::TContainerType CGlxDataSourceMde::ContainerType(CMdEObjectDef* a
 //
 CGlxDataSource::TItemType CGlxDataSourceMde::ItemType(CMdEObject* aObject)
 	{
-    TRACER("CGlxDataSourceMde::ItemType(CMdEObject* aObject)")
+    TRACER("CGlxDataSourceMde::ItemType(CMdEObject* aObject)");
 	TItemType itemType = EItemTypeNotAnItem;
 	
 	if( 0 == aObject->Def().Compare(*iImageDef) )
@@ -732,7 +922,7 @@ CGlxDataSource::TItemType CGlxDataSourceMde::ItemType(CMdEObject* aObject)
 //
 void CGlxDataSourceMde::PrepareMonthsL()
     {
-    TRACER("CGlxDataSourceMde::PrepareMonthsL()")
+    TRACER("CGlxDataSourceMde::PrepareMonthsL()");
     TTime month(0);
     iFirstMonth = month;
     }
@@ -743,7 +933,7 @@ void CGlxDataSourceMde::PrepareMonthsL()
 //
 const TGlxMediaId CGlxDataSourceMde::GetMonthIdL(const TTime& aMonth)
     {
-    TRACER("CGlxDataSourceMde::GetMonthIdL(const TTime& aMonth)")
+    TRACER("CGlxDataSourceMde::GetMonthIdL()");
     TTime monthStart = iFirstMonth + aMonth.MonthsFrom(iFirstMonth);
     const TTimeIntervalMonths KGlxOneMonth = 1;
     const TTimeIntervalMicroSeconds KGlxOneMicrosecond = 1;
@@ -775,7 +965,8 @@ const TGlxMediaId CGlxDataSourceMde::GetMonthIdL(const TTime& aMonth)
             month = iSession->NewObjectLC(*iMonthDef, title); 
             
             // A title property def of type text is required.
-            CMdEPropertyDef& titlePropertyDef = iObjectDef->GetPropertyDefL(KPropertyDefNameTitle);
+            CMdEPropertyDef& titlePropertyDef = iObjectDef->GetPropertyDefL(
+                    KPropertyDefNameTitle);
             if (titlePropertyDef.PropertyType() != EPropertyText)
             	{
             	User::Leave(KErrCorrupt);
@@ -784,7 +975,8 @@ const TGlxMediaId CGlxDataSourceMde::GetMonthIdL(const TTime& aMonth)
             month->AddTextPropertyL (titlePropertyDef, title);
 
             // A size property is required.
-            CMdEPropertyDef& sizePropertyDef = iObjectDef->GetPropertyDefL(KPropertyDefNameSize);
+            CMdEPropertyDef& sizePropertyDef = iObjectDef->GetPropertyDefL(
+                    KPropertyDefNameSize);
             if (sizePropertyDef.PropertyType() != EPropertyUint32)
             	{
             	User::Leave(KErrCorrupt);
@@ -793,7 +985,8 @@ const TGlxMediaId CGlxDataSourceMde::GetMonthIdL(const TTime& aMonth)
 
             
             // A creation date property is required.
-        	CMdEPropertyDef& creationDateDef = iObjectDef->GetPropertyDefL(KPropertyDefNameCreationDate);
+        	CMdEPropertyDef& creationDateDef = iObjectDef->GetPropertyDefL(
+        	        KPropertyDefNameCreationDate);
             if (creationDateDef.PropertyType() != EPropertyTime)
             	{
             	User::Leave(KErrCorrupt);
@@ -801,7 +994,8 @@ const TGlxMediaId CGlxDataSourceMde::GetMonthIdL(const TTime& aMonth)
         	month->AddTimePropertyL(creationDateDef, monthStart);
 
             // A last modified date property is required.
-        	CMdEPropertyDef& lmDateDef = iObjectDef->GetPropertyDefL(KPropertyDefNameLastModifiedDate);
+        	CMdEPropertyDef& lmDateDef = iObjectDef->GetPropertyDefL(
+        	        KPropertyDefNameLastModifiedDate);
             if (lmDateDef.PropertyType() != EPropertyTime)
             	{
             	User::Leave(KErrCorrupt);
@@ -865,8 +1059,14 @@ void CGlxDataSourceMde::TaskStartedL()
     }	
     
 #ifdef USE_S60_TNM
-void CGlxDataSourceMde::FetchThumbnailL(CGlxRequest* aRequest, MThumbnailFetchRequestObserver& aObserver)
+void CGlxDataSourceMde::FetchThumbnailL(CGlxRequest* aRequest, 
+        MThumbnailFetchRequestObserver& aObserver)
 	{
+    TRACER("CGlxDataSourceMde::FetchThumbnailL()");
+#ifdef _DEBUG
+    iStartTime.HomeTime(); // Get home time
+#endif
+    
 	iTnFetchObserver = &aObserver;
 	
     CGlxThumbnailRequest* request = static_cast<CGlxThumbnailRequest*>(aRequest);
@@ -877,64 +1077,114 @@ void CGlxDataSourceMde::FetchThumbnailL(CGlxRequest* aRequest, MThumbnailFetchRe
 
 	iTnHandle = tnReq.iBitmapHandle;
 	iMediaId = tnReq.iId;
-	if (tnReq.iSizeClass.iWidth < KMaxGridThumbnailWidth)
-	{
-	    iTnEngine->SetFlagsL(CThumbnailManager::ECropToAspectRatio);
+    if (tnReq.iSizeClass.iWidth < KMaxGridThumbnailWidth)
+    	{
+   		iTnEngine->SetFlagsL(CThumbnailManager::ECropToAspectRatio);
 	    iTnEngine->SetThumbnailSizeL(EGridThumbnailSize);
-	    GLX_LOG_INFO("CGlxDataSourceMde::FetchThumbnailL() - Fetch TN attrib - EGridThumbnailSize");
-	}
+	    GLX_LOG_INFO("CGlxDataSourceMde::FetchThumbnailL() - Fetch TN attrib -"
+	            " EGridThumbnailSize");
+    	}
     else
-	{
-	     iTnEngine->SetFlagsL(CThumbnailManager::EDefaultFlags);
-	     iTnEngine->SetThumbnailSizeL(EFullScreenThumbnailSize);
-	     GLX_LOG_INFO("CGlxDataSourceMde::FetchThumbnailL() - Fetch TN attrib - EFullScreenThumbnailSize");
-	}
-    CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(request->ThumbnailInfo()->FilePath(), 0);
-#ifdef _DEBUG
-    iStartTime.UniversalTime();
-#endif
+    	{
+   		iTnEngine->SetFlagsL(CThumbnailManager::EDefaultFlags);
+    	iTnEngine->SetThumbnailSizeL(EFullScreenThumbnailSize);
+    	GLX_LOG_INFO("CGlxDataSourceMde::FetchThumbnailL() - Fetch TN attrib - "
+    	        "EFullScreenThumbnailSize");
+    	}
+
+    if (tnReq.iPriorityMode == TGlxThumbnailRequest::EPrioritizeQuality)
+        {
+        iTnEngine->SetQualityPreferenceL(CThumbnailManager::EOptimizeForQuality);
+        GLX_LOG_INFO("CGlxDataSourceMde::FetchThumbnailL() - Fetch TN attrib -"
+                " EOptimizeForQuality");
+        }
+    else
+        {
+        iTnEngine->SetQualityPreferenceL(CThumbnailManager::EOptimizeForQualityWithPreview);
+        GLX_LOG_INFO("CGlxDataSourceMde::FetchThumbnailL() - Fetch TN attrib -"
+                " EOptimizeForQualityWithPreview");
+        }
+    
+    CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(
+                                     request->ThumbnailInfo()->FilePath(), 0);
     iTnThumbnailCbId = iTnEngine->GetThumbnailL(*source);
+    CleanupStack::PopAndDestroy(source);
+
     iTnRequestInProgress = ETrue;
-    CleanupStack::PopAndDestroy();
 	}
 
 TInt CGlxDataSourceMde::CancelFetchThumbnail()
 	{
+    TRACER("CGlxDataSourceMde::CancelFetchThumbnail");
 	TInt ret = KErrNone;
 	if (iTnRequestInProgress)
 		{
 		ret = iTnEngine->CancelRequest(iTnThumbnailCbId);
+		iTnRequestInProgress = EFalse;
+        iTnFetchObserver->ThumbnailFetchComplete(KErrCancel,EFalse);
 		}
 	return ret;
 	}
 
-void CGlxDataSourceMde::ThumbnailPreviewReady(MThumbnailData& /*aThumbnail*/, 
-                                                    TThumbnailRequestId /*aId*/)
+// Called when preview thumbnail is created
+void CGlxDataSourceMde::ThumbnailPreviewReady(MThumbnailData& aThumbnail, 
+                                              TThumbnailRequestId aId)
     {
+    TRACER("CGlxDataSourceMde::ThumbnailPreviewReady()");
+    
+    TInt error = KErrNotSupported;
+    if ( aThumbnail.Bitmap() )
+         {
+         GLX_DEBUG1("CGlxDataSourceMde::ThumbnailPreviewReady preview aval");
+         error = KErrNone;
+         }
+    //This function is called number of times as a callback ,
+    //hence not trapping the leaving function which costs time and memory.
+    //Ignoring this for code scanner warnings - Leaving functions called in non-leaving functions.
+    ThumbnailReadyL(error, aThumbnail, aId, EFalse);
     }
 
 // Called when real thumbnail is created
 void CGlxDataSourceMde::ThumbnailReady(TInt aError,
         MThumbnailData& aThumbnail, TThumbnailRequestId aId)
 	{
-	if (iTnThumbnailCbId == aId)
-		{
-		iTnRequestInProgress = EFalse;
+	TRACER("CGlxDataSourceMde::ThumbnailReady");
+	GLX_DEBUG2("GlxDataSourceMde::ThumbnailReady aError=%d", aError);
+	//This function is called number of times as a callback ,
+    //hence not trapping the leaving function which costs time and memory.
+    //Ignoring this for code scanner warnings - Leaving functions called in non-leaving functions.
+	ThumbnailReadyL(aError,aThumbnail, aId, ETrue);
+	}
+
+// ---------------------------------------------------------------------------
+// ThumbnailReadyL
+// ---------------------------------------------------------------------------
+//  
+void CGlxDataSourceMde::ThumbnailReadyL(TInt aError,
+        MThumbnailData& aThumbnail, TThumbnailRequestId aId, TBool aQuality)
+    {
+    TRACER("CGlxDataSourceMde::ThumbnailReadyL()");
+    GLX_DEBUG3("CGlxDataSourceMde::ThumbnailReadyL aError=%d, aQuality=%d",
+                                aError, aQuality);
 #ifdef _DEBUG
-		iStopTime.UniversalTime();
-		GLX_LOG_INFO1("==> S60 TNMan fetch took <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+    iStopTime.HomeTime(); // Get home time
+    GLX_DEBUG2("=>CGlxDataSourceMde::ThumbnailReadyL - TN Fetch took <%d> us",
+                        (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
 #endif
-	    if (aError == KErrNone && iTnHandle)
-	    	{
-	    	if (iTnHandle == KGlxMessageIdBackgroundThumbnail)
-	    		{
-	    		BackgroundThumbnailMessageL(iMediaId, TSize(), aError);
-	    		}
-	    	else
-	    		{
+    
+    if (iTnThumbnailCbId == aId)
+        {
+        if (aError == KErrNone && iTnHandle)
+            {
+            if (iTnHandle == KGlxMessageIdBackgroundThumbnail)
+                {
+                BackgroundThumbnailMessageL(iMediaId, TSize(), aError);
+                }
+            else
+                {
                 delete iTnThumbnail;
                 iTnThumbnail = NULL;
-			    iTnThumbnail = aThumbnail.DetachBitmap();
+                iTnThumbnail = aThumbnail.DetachBitmap();
 
 				delete iThumbnail;
                 iThumbnail = NULL;
@@ -948,15 +1198,75 @@ void CGlxDataSourceMde::ThumbnailReady(TInt aError,
 			    CleanupStack::PushL(context);
 			    context->BitBlt( TPoint(), iTnThumbnail);
 			    CleanupStack::PopAndDestroy(context); 
-			    CleanupStack::PopAndDestroy(device);
-	    		}
-	    	}
-
-		if (iTnFetchObserver)
-			{
-			iTnFetchObserver->ThumbnailFetchComplete(aError);
-			iTnHandle = KErrNone;
-			}
-		}
-	}
+                CleanupStack::PopAndDestroy(device);
+                }
+            }
+        }
+    
+    if (iTnFetchObserver && iTnRequestInProgress)
+        {
+        iTnFetchObserver->ThumbnailFetchComplete(aError, aQuality);
+        iTnHandle = KErrNone;
+        iTnRequestInProgress = EFalse;
+        }
+    }
 #endif
+
+// ---------------------------------------------------------------------------
+// CGlxDataSourceMde
+// HarvestingUpdated
+// ---------------------------------------------------------------------------
+//
+void CGlxDataSourceMde::HarvestingUpdated( 
+            HarvesterEventObserverType /*aHEObserverType*/, 
+            HarvesterEventState aHarvesterEventState,
+            TInt /*aItemsLeft*/)
+    {
+    TRACER("void CGlxDataSourceMde::HarvestingUpdated()");
+    GLX_LOG_INFO1("CGlxDataSourceMde::HarvestingUpdated() aHarvesterEventState=%d",
+            aHarvesterEventState);
+    
+    switch(aHarvesterEventState)
+        {
+        case EHEStateStarted:
+            GLX_LOG_INFO("CGlxDataSourceMde::HarvestingUpdated() - EHEStateStarted");
+        case EHEStateResumed:
+        case EHEStateHarvesting:
+        	 {
+             iHarvestingOngoing = ETrue;
+	         }
+             break;
+        case EHEStatePaused:
+        case EHEStateFinished:
+        	 {
+	         iHarvestingOngoing = EFalse;
+	         GLX_LOG_INFO("CGlxDataSourceMde::HarvestingUpdated() - EHEStateFinished");
+        	 }
+             break;
+        default:
+            break;
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// ShutdownNotification
+// ---------------------------------------------------------------------------
+//  
+void CGlxDataSourceMde::ShutdownNotification(TInt aShutdownState)
+    {
+    TRACER("void CGlxDataSourceMde::ShutdownNotification(TInt aShutdownState)")
+    GLX_DEBUG2("CGlxDataSourceMde::ShutdownNotification(aShutdownState=%d)", 
+            aShutdownState);
+
+    if (!iDataSourceReady && 0 == aShutdownState)
+        {
+        GLX_DEBUG1("Photos MdS ShutdownNotification - MdS Server restarted!");
+        CreateSession();
+        }
+
+    if (iDataSourceReady && 1 == aShutdownState)
+        {
+        GLX_DEBUG1("Photos MdS ShutdownNotification - MdS Server Shutdown!");
+        HandleSessionError(*iSession, KErrServerTerminated);
+        }
+    }

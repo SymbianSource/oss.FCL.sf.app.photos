@@ -28,8 +28,7 @@ GlxActionHandler::GlxActionHandler()
 
 GlxActionHandler::~GlxActionHandler()
 {
-    foreach( GlxCommandHandler *cmdhandler, mCommandHandlerList)
-        delete cmdhandler;
+    qDeleteAll( mCommandHandlerList );
     mCommandHandlerList.clear();
 }
 

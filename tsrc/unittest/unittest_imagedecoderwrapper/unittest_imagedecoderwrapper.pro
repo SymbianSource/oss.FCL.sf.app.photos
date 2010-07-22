@@ -21,6 +21,7 @@ DEPENDPATH += .
 INCLUDEPATH += . 
 INCLUDEPATH += ../../../commonutilities/imagedecoderwrapper/inc
 INCLUDEPATH += /epoc32/include/mw/QtTest
+INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 
 CONFIG += qtestlib \
           Hb
@@ -37,6 +38,7 @@ symbian: {
     TARGET.CAPABILITY = ALL -TCB
     TARGET.EPOCHEAPSIZE = 0x20000 0x1600000
     TARGET.UID3 = 0x20000A05
+    MMP_RULES += SMPSAFE 
 }
 #BLD_INF_RULES.prj_exports += "../../../gallery/data/Battle.jpg  c:/data/images/Battle.jpg"
 

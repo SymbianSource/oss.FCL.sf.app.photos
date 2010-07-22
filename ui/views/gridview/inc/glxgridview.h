@@ -30,6 +30,8 @@ class HgWidget;
 class GlxModelWrapper;
 class HbPushButton;
 class HbIconItem;
+class HbCheckBox;
+class HbLabel;
 
 class GlxGridView : public GlxView
 {
@@ -55,13 +57,25 @@ public slots:
     void scrollingStarted();
     void orientationchanged(Qt::Orientation orient);
     void visibleIndexChanged(const QModelIndex& current, const QModelIndex& previous);
+    void stateChanged(int state);
+    //show the marked item count
+    void showMarkedItemCount();
+    //show item count in the grid
+    void showItemCount();
+    //clear all the model connection
+    void clearCurrentModel();
+    //add the connection to the model
+    void initializeNewModel();
+    void showAlbumTitle(QString aTitle);
+    void populated();
 
 protected :
-    QVariant  itemChange (GraphicsItemChange change, const QVariant &value) ;
+   
 
 private slots:
     void indicateLongPress(const QModelIndex& index, QPointF coords);
     void uiButtonClicked(bool checked);
+    void cameraButtonClicked(bool checked);
 	
 private:
     void addViewConnection();
@@ -69,15 +83,25 @@ private:
     void hideorshowitems(Qt::Orientation orient);
     void scrolltofocus();
     void loadGridView();
-  
+    void showHbItems();
+    int getSubState();
+    void showNoImageString();
+
 	HbMainWindow        *mWindow;          // no ownership
 	QAbstractItemModel  *mModel ;
 	HgWidget            *mWidget;          // HG Grid Widget
 	QItemSelectionModel *mSelectionModel;  // Selected items model
     GlxModelWrapper     *mModelWrapper;    // Temp Model Wrapper, so That Role Change not a problem
     HbPushButton        *mUiOnButton;
+    HbPushButton        *mCameraButton;    // Camera Button, when item count is zero
     bool                 mScrolling;
     HbIconItem          *mIconItem;
+    HbCheckBox          *mMarkCheckBox;    // Mark All checkbox 
+    HbLabel             *mCountItem;       // Item count of the grid
+    HbLabel             *mMainLabel;       
+    HbLabel             *mCountLabel;      // Marked item count
+    HbLabel             *mZeroItemLabel;   // zero itemcount
+    HbLabel             *mAlbumName;
 };
 
 #endif /* GLXGRIDVIEW_H_ */

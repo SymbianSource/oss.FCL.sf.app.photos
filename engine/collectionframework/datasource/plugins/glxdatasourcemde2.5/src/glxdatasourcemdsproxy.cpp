@@ -22,7 +22,7 @@
  * @internal reviewed 11/07/2007 by M Byrne
  */
 
-#include <implementationproxy.h>
+#include <ecom/implementationproxy.h>
 #include "glxdatasourcemds.h"
 #include "glxdatasourcemds.hrh"
 

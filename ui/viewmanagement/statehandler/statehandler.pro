@@ -24,6 +24,7 @@ INCLUDEPATH += . \
             ../../inc \
             ../../../inc \
             ../../../loggers/loggerqt/inc \
+            ../../../commonutilities/common/inc \
             ../../uiengine/medialists/inc \
             ../../uiengine/medialistwrapper/inc \
             ../../uiengine/model/mediamodel/inc \
@@ -39,6 +40,7 @@ INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 TARGET.UID3 = 0x20000A07
 TARGET.CAPABILITY = ALL -TCB 
 TARGET.EPOCALLOWDLLDATA = 1
+MMP_RULES += SMPSAFE
 }
 
 LIBS += -lglxviewmanager.dll \
@@ -47,7 +49,8 @@ LIBS += -lglxviewmanager.dll \
         -lglxexternalutility.dll \
         -lglxloggerqt.dll \
         -lglxcommoncommandhandlers.dll \
-        -lglxlogging.dll
+        -lglxlogging.dll \
+        -lglxcommon.dll
 
 # Input
 HEADERS += inc/glxbasestate.h \
@@ -59,7 +62,8 @@ HEADERS += inc/glxbasestate.h \
            inc/glxstatemanager.h \
            inc/glxslideshowstate.h \
            inc/glxactionhandler.h \
-           inc/glxcommandhandlerfactory.h
+           inc/glxcommandhandlerfactory.h \
+           inc/glxtnobserver.h
 
 SOURCES += src/glxbasestate.cpp \
            src/glxfullscreenstate.cpp \
@@ -70,6 +74,17 @@ SOURCES += src/glxbasestate.cpp \
            src/glxstatemanager.cpp \
            src/glxslideshowstate.cpp \
            src/glxactionhandler.cpp \
-           src/glxcommandhandlerfactory.cpp
+           src/glxcommandhandlerfactory.cpp \
+           src/glxtnobserver.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
+defBlock = \      
+"$${LITERAL_HASH}if defined(EABI)" \
+"DEFFILE  ../eabi/glxstatehandler.def" \
+	 "$${LITERAL_HASH}else" \
+	 "DEFFILE  ../bwins/glxstatehandler.def" \
+             "$${LITERAL_HASH}endif"
+	
+MMP_RULES += defBlock
+

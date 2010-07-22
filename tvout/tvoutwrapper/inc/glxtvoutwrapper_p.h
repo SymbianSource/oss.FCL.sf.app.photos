@@ -27,16 +27,17 @@ class CGlxConnectionObserver;
 class CGlxHdmiController;
 
 // Converting the QVariant to CFbsBitmap*
-Q_DECLARE_METATYPE(CFbsBitmap*);
+Q_DECLARE_METATYPE(CFbsBitmap*)
 
 class GlxTvOutWrapperPrivate
     {
 public:
     /*
      * Static method to create an instance
+     * @param3 - to On the Effects of Slideshow - currently only fade in fade out
      */
     static GlxTvOutWrapperPrivate* Instance(GlxTvOutWrapper* aTvOutWrapper,
-            QAbstractItemModel* aModel);
+            QAbstractItemModel* aModel,bool aEfectsOn);
 
     /*
      * destructor
@@ -81,6 +82,14 @@ public:
      * Deactivate zoom in posting mode.
      */
     void DeactivateZoom();
+    
+    /*
+     * Fadeing of the Surface
+     * @param1 ETrue - FadeIn ( as in gaining brightness )
+     *         EFalse - FadeOut ( as in loosing brightness ) 
+     */
+    void FadeSurface(bool aFadeInOut);
+
 private:
     /*
      * constructor
@@ -90,8 +99,9 @@ private:
     
     /*
      * constructL()
+     * @param1 - to On the Effects of Slideshow - currently only fade in fade out
      */
-    void ConstructL();
+    void ConstructL(bool aEfectsOn);
     
     /*
      * SetNewImage
@@ -112,6 +122,7 @@ private:
     
     bool       iHdmiConnected;                          // To check if the HDMI is connected
     bool       isImageSetToHdmi;                        // to check if the image is set to HDMI
+    bool       iIsPhotosInForeground;                   // to check if the Photos is on foreground
     };
 
 #endif //GLXTVOUTWRAPPERPRIVATE_P_H 

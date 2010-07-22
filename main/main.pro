@@ -24,26 +24,29 @@ INCLUDEPATH += . \
                ../ui/inc \
                ../ui/uiengine/model/mediamodel/inc \
                ../ui/uiengine/medialistwrapper/inc \
+               ../ui/uiengine/medialists/inc \
                ../loggers/loggerqt/inc \
                ../ui/views/viewsfactory/inc \
                ../ui/views/viewbase/inc \
                ../ui/views/gridview/inc \
-	       ../engine/collectionframework/plugins/glxcollectionpluginall/inc \
+               ../engine/collectionframework/plugins/glxcollectionpluginall/inc \
                ../traces
+
+INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
 
 CONFIG += HB
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 
-
 symbian: { 
     TARGET.UID3 = 0x20000A14
-    ICON = ../data/qgn_menu_ovi_photos.svg
+    SKINICON = qtg_large_photos
     isEmpty(TARGET.EPOCSTACKSIZE):TARGET.EPOCSTACKSIZE = 0x14000
     isEmpty(TARGET.EPOCHEAPSIZE):TARGET.EPOCHEAPSIZE = 20480 \
         41943040
     TARGET.CAPABILITY = ALL \
         -TCB
+    MMP_RULES += SMPSAFE     
 }
 
 LIBS += -lglxstatehandler.dll \
@@ -51,13 +54,17 @@ LIBS += -lglxstatehandler.dll \
         -lglxviews.dll \
         -lglxmediamodel.dll \
         -lglxexternalutility.dll \
-	-lglximageviewermanager.dll
+        -lglximageviewermanager.dll \
+        -lglxmedialists.dll
 		
 
 # Input
 SOURCES += main.cpp \
-	   glxaiwservicehandler.cpp 
-HEADERS +=glxaiwservicehandler.h
+           glxaiwservicehandler.cpp \
+           glxapplication.cpp
+	         
+HEADERS += glxaiwservicehandler.h \
+           glxapplication.h
 
 RESOURCES += ../photos.qrc
 TRANSLATIONS= photos.ts

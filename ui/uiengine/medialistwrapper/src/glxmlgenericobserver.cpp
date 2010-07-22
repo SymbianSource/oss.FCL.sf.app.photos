@@ -206,3 +206,10 @@ void CGlxMLGenericObserver::HandleItemModifiedL( const RArray<TInt>& aItemIndexe
     iMLWrapperPrivate->HandleItemModifiedL(aItemIndexes, aList);
     }
                   
+void CGlxMLGenericObserver::HandlePopulatedL(MGlxMediaList* aList)
+    {
+    TRACER("CGlxMLGenericObserver::HandlePopulatedL()");
+    iMLWrapperPrivate->HandlePopulatedL(aList);
+    }
+     
+
