@@ -31,7 +31,6 @@
 "" - "z:\sys\bin\photos.exe"		
 "" - "z:\private\10003a3f\import\apps\photos_reg.rsc"
 "" - "z:\resource\apps\photos.rsc"
-"" - "z:\resource\apps\photos.mif"
 
 ; -------- files --------
 ; engines
@@ -101,10 +100,9 @@
 "" - "z:\sys\bin\glxviews.dll"
 "" - "z:\sys\bin\glxviewutilities.dll"
 "" - "z:\sys\bin\glxzoomwidget.dll"
-"" - "z:\sys\bin\detailsnamelabel.dll"
-"" - "z:\sys\bin\detailsnamelabelplugin.dll"
-"" - "z:\sys\bin\detailsdescriptionedit.dll"
-"" - "z:\sys\bin\detailsdescriptioneditplugin.dll"
+"" - "z:\sys\bin\glxdetailscustomwidgets.dll"
+"" - "z:\sys\bin\glxdetailscustomplugin.dll"
+
 
 "" - "z:\private\10202BE9\20007194.txt"
 "" - "z:\private\10202BE9\20007193.txt"

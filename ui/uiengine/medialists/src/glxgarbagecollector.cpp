@@ -163,6 +163,7 @@ TInt CGlxGarbageCollector::PeriodicCallbackL( TAny* aPtr )
 //
 void CGlxGarbageCollector::FlushPagesL(TInt aCount)
     {
+    TRACER("CGlxGarbageCollector::FlushPagesL");
     TBool reachedEnd = CleanupCaches(aCount);
     
     if ( reachedEnd )

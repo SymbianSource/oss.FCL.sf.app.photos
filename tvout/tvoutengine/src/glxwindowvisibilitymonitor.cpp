@@ -17,10 +17,6 @@
 
 
 
-/**
- * @internal reviewed 24/08/2007 by D Holland
- */
-
 //  CLASS HEADER
 #include "glxwindowvisibilitymonitor.h"
 

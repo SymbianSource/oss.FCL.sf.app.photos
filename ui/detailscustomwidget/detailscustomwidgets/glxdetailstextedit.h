@@ -20,20 +20,20 @@
 
 #include <hbtextedit.h>
 
-#ifdef BUILD_DESCEDIT
+#ifdef BUILD_DETAILSCUSTOM
 #define MY_EXPORT Q_DECL_EXPORT
 #else
 #define MY_EXPORT Q_DECL_IMPORT
 #endif
 
 class HbEditorInterface;
-class MY_EXPORT GlxDetailsDescriptionEdit : public HbTextEdit 
+class MY_EXPORT GlxDetailsTextEdit : public HbTextEdit 
 {	
     Q_OBJECT
     
 public:
-    GlxDetailsDescriptionEdit(QGraphicsItem *parent = NULL);
-    ~GlxDetailsDescriptionEdit();    	
+    GlxDetailsTextEdit(QGraphicsItem *parent = NULL);
+    ~GlxDetailsTextEdit();    	
     void setItemText( const QString &text );
 		
 protected:

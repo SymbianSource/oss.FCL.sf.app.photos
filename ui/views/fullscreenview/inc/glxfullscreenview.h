@@ -111,8 +111,10 @@ private:
     void loadFullScreenToolBar();
     void addToolBarAction( int commandId, const QString &iconName, const QString &name) ;
     void imageSelectionAnimation( const QModelIndex &index );
+    void cancelSelectionAnimation( );
     int getSubState();
     void setHdmiModel( QAbstractItemModel *model );
+    
 private:
     QAbstractItemModel  *mModel;   //no ownership
     HbMainWindow        *mWindow;  //no ownership

@@ -2,7 +2,7 @@
 <visual>
 
 <param name="translation_y" type="anim">
-<duration>0.4</duration>
+<duration>0.3</duration>
 <style>linear</style>
       <keyframe at="0">0</keyframe>
       <keyframe at="1">1</keyframe>

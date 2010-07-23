@@ -79,15 +79,13 @@ file=ABI_DIR/BUILD_DIR/glxlistmodel.dll                    	SHARED_LIB_DIR/glxli
 file=ABI_DIR/BUILD_DIR/glxviews.dll                        	SHARED_LIB_DIR/glxviews.dll
 file=ABI_DIR/BUILD_DIR/glxviewutilities.dll                	SHARED_LIB_DIR/glxviewutilities.dll
 file=ABI_DIR/BUILD_DIR/glxzoomwidget.dll                	SHARED_LIB_DIR/glxzoomwidget.dll
-file=ABI_DIR/BUILD_DIR/detailsnamelabel.dll                	SHARED_LIB_DIR/detailsnamelabel.dll
-file=ABI_DIR/BUILD_DIR/detailsnamelabelplugin.dll          	SHARED_LIB_DIR/detailsnamelabelplugin.dll
-file=ABI_DIR/BUILD_DIR/detailsdescriptionedit.dll          SHARED_LIB_DIR/detailsdescriptionedit.dll
-file=ABI_DIR/BUILD_DIR/detailsdescriptioneditplugin.dll    SHARED_LIB_DIR/detailsdescriptioneditplugin.dll
+file=ABI_DIR/BUILD_DIR/glxdetailscustomwidgets.dll         	SHARED_LIB_DIR/glxdetailscustomwidgets.dll
+file=ABI_DIR/BUILD_DIR/glxdetailscustomplugin.dll          	SHARED_LIB_DIR/glxdetailscustomplugin.dll
+
 
 
 S60_APP_EXE(photos)
 data=/epoc32/data/z/private/10003a3f/import/apps/photos_reg.rsc         private/10003a3f/import/apps/photos_reg.rsc
-data=DATAZ_/APP_RESOURCE_DIR/photos.mif                     			APP_RESOURCE_DIR/photos.mif  
 data=/epoc32/data/Z/private/10202BE9/20007194.txt						private/10202BE9/20007194.txt
 data=/epoc32/data/Z/private/10202BE9/20007193.txt						private/10202BE9/20007193.txt
 data=/epoc32/data/z/system/install/photos_stub.sis        				/system/install/photos_stub.sis

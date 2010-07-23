@@ -47,4 +47,5 @@ EXPORTS
 	_ZN13GlxZoomWidget14modelDestroyedEv @ 46 NONAME
 	_ZN13GlxZoomWidget13setZoomParamsEv @ 47 NONAME
 	_ZN13GlxZoomWidget21forceZoomToBackgroundEv @ 48 NONAME
+	_ZN13GlxZoomWidget21isFocussedItemCorruptEv @ 49 NONAME
 

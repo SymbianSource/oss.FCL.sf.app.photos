@@ -70,7 +70,7 @@
     #else
         // put full file paths off for __FILE__ macro to make the log entries shorter
         #pragma fullpath_file off*/
-        #define GLX_DEBUG_STR( cat, str ) __FILE__ "(%d) : " ##cat " : " ##str
+        #define GLX_DEBUG_STR( cat, str ) __FILE__ "(%d) : " cat " : " str
 //    #endif
 
     /**

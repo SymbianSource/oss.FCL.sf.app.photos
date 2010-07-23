@@ -16,7 +16,6 @@
 */
 
 #include <w32std.h>
-#include <alf/alfutil.h>
 #include <glxtracer.h>
 #include <glxlog.h>
 
@@ -28,10 +27,10 @@
 // -----------------------------------------------------------------------------
 // NewLC
 // -----------------------------------------------------------------------------
-EXPORT_C CGlxHdmiController* CGlxHdmiController::NewL(TBool aEfectsOn)
+EXPORT_C CGlxHdmiController* CGlxHdmiController::NewL(TRect aRect ,TBool aEfectsOn)
     {
     TRACER("CGlxHdmiController* CGlxHdmiController::NewL()");
-    CGlxHdmiController* self = new (ELeave) CGlxHdmiController(aEfectsOn);
+    CGlxHdmiController* self = new (ELeave) CGlxHdmiController(aRect,aEfectsOn);
     CleanupStack::PushL(self);
     self->ConstructL();
     CleanupStack::Pop(self);
@@ -183,9 +182,10 @@ EXPORT_C void CGlxHdmiController::FadeSurface(TBool aFadeInOut)
 // -----------------------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------------------
-CGlxHdmiController::CGlxHdmiController(TBool aEffectsOn):
+CGlxHdmiController::CGlxHdmiController(TRect aRect,TBool aEffectsOn):
             iFsBitmap(NULL),
             iStoredImagePath(NULL),
+            iRect(aRect),
             iEffectsOn(aEffectsOn)
     {
     TRACER("CGlxHdmiController::CGlxHdmiController()");
@@ -233,8 +233,7 @@ void CGlxHdmiController::DestroySurfaceUpdater()
 void CGlxHdmiController::CreateHdmiContainerL()
     {
     TRACER("CGlxHdmiController::CreateHdmiContainer()");
-    TRect rect = AlfUtil::ScreenSize();
-    iHdmiContainer = CGlxHdmiContainer::NewL(rect);
+    iHdmiContainer = CGlxHdmiContainer::NewL(iRect);
     }
 
 // -----------------------------------------------------------------------------

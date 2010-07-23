@@ -17,13 +17,16 @@
  
 
 
-#include "glxdetailsdescriptionedit.h"
+#include "glxdetailstextedit.h"
 #include <hbeditorinterface>
 #include <QEvent>
 
 
 
-void  GlxDetailsDescriptionEdit::focusInEvent (QFocusEvent *event)
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//focusInEvent
+//--------------------------------------------------------------------------------------------------------------------------------------------
+void  GlxDetailsTextEdit::focusInEvent (QFocusEvent *event)
     {
     if(event->reason() == Qt::MouseFocusReason )
         {
@@ -32,16 +35,21 @@ void  GlxDetailsDescriptionEdit::focusInEvent (QFocusEvent *event)
         }
     
     }
-void  GlxDetailsDescriptionEdit::focusOutEvent (QFocusEvent *event) 
+    
+    
+//--------------------------------------------------------------------------------------------------------------------------------------------
+//focusOutEvent
+//--------------------------------------------------------------------------------------------------------------------------------------------
+void  GlxDetailsTextEdit::focusOutEvent (QFocusEvent *event) 
     {
      event->setAccepted(TRUE);    
     }
 
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//GlxDetailsDescLabel
+//GlxDetailsTextEdit
 //--------------------------------------------------------------------------------------------------------------------------------------------
-GlxDetailsDescriptionEdit::GlxDetailsDescriptionEdit(QGraphicsItem *parent) : HbTextEdit( parent )
+GlxDetailsTextEdit::GlxDetailsTextEdit(QGraphicsItem *parent) : HbTextEdit( parent )
 {
    setAlignment(Qt::AlignLeft);
    mDesc = new HbEditorInterface(this);
@@ -49,9 +57,9 @@ GlxDetailsDescriptionEdit::GlxDetailsDescriptionEdit(QGraphicsItem *parent) : Hb
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//~GlxDetailsDescLabel
+//~GlxDetailsTextEdit
 //--------------------------------------------------------------------------------------------------------------------------------------------
-GlxDetailsDescriptionEdit::~GlxDetailsDescriptionEdit()
+GlxDetailsTextEdit::~GlxDetailsTextEdit()
 {
   delete mDesc;
    mDesc = NULL;
@@ -60,7 +68,7 @@ GlxDetailsDescriptionEdit::~GlxDetailsDescriptionEdit()
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //setItemText
 //--------------------------------------------------------------------------------------------------------------------------------------------
-void GlxDetailsDescriptionEdit::setItemText( const QString &text )
+void GlxDetailsTextEdit::setItemText( const QString &text )
 {
     setPlainText( text );
 }

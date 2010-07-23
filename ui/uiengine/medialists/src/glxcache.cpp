@@ -241,6 +241,7 @@ void CGlxCache::CopyNewAndModifiedL(CGlxMedia& aTarget, const CMPXMedia& aSource
         RArray<TMPXAttribute>& aNewAttributes)
     {
     TRACER("CGlxCache::CopyNewAndModifiedL");
+    CleanupClosePushL(aNewAttributes);
     
     /// @todo This is all temporary until global chunk based CMPXMedia is available
     TInt count = aSource.Count();
@@ -305,11 +306,14 @@ void CGlxCache::CopyNewAndModifiedL(CGlxMedia& aTarget, const CMPXMedia& aSource
                         }
                     else if (attrib == KGlxMediaGeneralLastModifiedDate)
                         {
-                        aTarget.SetTObjectValueL(attrib, aSource.ValueTObjectL<TInt64>(attrib));
+                        TTime modified = aSource.ValueTObjectL<TInt64>(attrib);
+                        TTimeIntervalSeconds utcOffset = User::UTCOffset();
+                        modified += utcOffset;
+                        aTarget.SetTObjectValueL(attrib, modified);
                         }
                     else if (attrib == KMPXMediaGeneralSize)
                         {
-                        aTarget.SetTObjectValueL(attrib, aSource.ValueTObjectL<TInt>(attrib));
+                        aTarget.SetTObjectValueL(attrib, aSource.ValueTObjectL<TUint>(attrib));
                         }
                     else if (attrib == KMPXMediaColDetailSpaceId)
                         {
@@ -373,6 +377,7 @@ void CGlxCache::CopyNewAndModifiedL(CGlxMedia& aTarget, const CMPXMedia& aSource
                 }
             }
         }
+    CleanupStack::Pop(&aNewAttributes);
     }
 
 // -----------------------------------------------------------------------------

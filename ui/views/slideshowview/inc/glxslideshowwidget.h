@@ -151,6 +151,7 @@ private:
     GlxEffectEngine          *mEffectEngine;
     GlxSettingInterface      *mSettings;               //no ownership
     HbIconItem               *mIconItems[ NBR_ITEM ]; 
+    HbIconItem               *mBackGroundItem;
     HbPushButton             *mContinueButton;
     HbLabel                  *mErrorNote ;               //when all the image are corrupted then show the no image label
     int                      mItemIndex;

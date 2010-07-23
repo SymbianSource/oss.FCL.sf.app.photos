@@ -29,12 +29,12 @@
 // Static method to create the private wrapper instance 
 // -----------------------------------------------------------------------------
 GlxTvOutWrapperPrivate* GlxTvOutWrapperPrivate::Instance(GlxTvOutWrapper* aTvOutWrapper,
-        QAbstractItemModel* aModel,bool aEfectsOn)
+        QAbstractItemModel* aModel,QSize aScreenSize,bool aEfectsOn)
     {
     TRACER("GlxTvOutWrapperPrivate::Instance()");
     GlxTvOutWrapperPrivate* self = new GlxTvOutWrapperPrivate(aTvOutWrapper,aModel);
     if (self){
-        TRAPD(err,self->ConstructL(aEfectsOn));
+        TRAPD(err,self->ConstructL(aScreenSize,aEfectsOn));
         if(err != KErrNone){
             delete self;
             self = NULL;
@@ -47,12 +47,14 @@ GlxTvOutWrapperPrivate* GlxTvOutWrapperPrivate::Instance(GlxTvOutWrapper* aTvOut
 // ConstructL
 // This creates the Connection observer and the Hdmi Controller
 // -----------------------------------------------------------------------------
-void GlxTvOutWrapperPrivate::ConstructL(bool aEfectsOn)
+void GlxTvOutWrapperPrivate::ConstructL(QSize aScreenSize,bool aEfectsOn)
     {
     TRACER("GlxTvOutWrapperPrivate::ConstructL()");
     iConnectionObserver = CGlxConnectionObserver::NewL(this);
     if (!iHdmiController) {
-        iHdmiController = CGlxHdmiController::NewL(aEfectsOn);
+        TRect rect(0,0,aScreenSize.width(),aScreenSize.height());
+        iHdmiController = CGlxHdmiController::NewL(rect,
+                aEfectsOn);
         iHdmiConnected = iConnectionObserver->IsHdmiConnected();
         }
     }

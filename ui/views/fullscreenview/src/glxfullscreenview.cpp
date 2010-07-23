@@ -183,6 +183,10 @@ void GlxFullScreenView::activate()
     }
     //Loads the widgets corresponding to the orientation.
     loadViewSection();
+	
+    HbView::HbViewFlags flags( HbView::ViewTitleBarTransparent | HbView::ViewStatusBarTransparent);
+    setViewFlags(flags);
+	
 	// In case of fetcher don't hide status pane and title bar
     if(!(XQServiceUtil::isService() && (0 == XQServiceUtil::interfaceName().compare(QLatin1String("com.nokia.symbian.IImageFetch"))))){
 	    setStatusBarVisible(FALSE);
@@ -223,6 +227,7 @@ void GlxFullScreenView::resetView()
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_RESETVIEW_ENTRY );    
 
+    cancelSelectionAnimation(); //cancel the image selection effect before cleaning the view
     //Clean up the rest of the resources allocated
     cleanUp(); 
         
@@ -236,6 +241,7 @@ void GlxFullScreenView::deActivate()
 { 
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_DEACTIVATE_ENTRY );    
     
+    cancelSelectionAnimation(); //cancel the image selection effect before cleaning the view
 	//Clean up the rest of the resources allocated
     cleanUp();
     QCoreApplication::instance()->removeEventFilter(this);
@@ -265,6 +271,7 @@ void GlxFullScreenView::cleanUp()
 
     if(mFullScreenToolBar) {
        mFullScreenToolBar->clearActions();
+       mFullScreenToolBar->hide();
        mFullScreenToolBar = NULL;
     }
     
@@ -315,7 +322,7 @@ void GlxFullScreenView::setModel( QAbstractItemModel *model )
 void GlxFullScreenView::setHdmiModel(QAbstractItemModel* model)
 {
     if (mTvOutWrapper) {
-        mTvOutWrapper->setModel(model); 
+        mTvOutWrapper->setModel(model, screenSize()); 
         mTvOutWrapper->setImagetoHDMI(); // for the first image on screen
     }    
 }
@@ -371,8 +378,8 @@ void GlxFullScreenView::activateUI()
         }
         
         mFullScreenToolBar->show();
-		setStatusBarVisible(TRUE);
-        setTitleBarVisible(TRUE);
+		setStatusBarVisible( TRUE );
+        setTitleBarVisible( TRUE );
        
         if ( mImageStrip && getSubState() != IMAGEVIEWER_S) {
             mImageStrip->show(); 
@@ -621,28 +628,28 @@ void GlxFullScreenView::addConnection()
     
     if ( mCoverFlow ) {    
         connect( mCoverFlow, SIGNAL( coverFlowEvent( GlxCoverFlowEvent ) ), this, SLOT( coverFlowEventHandle( GlxCoverFlowEvent ) ) );
-        connect( mCoverFlow, SIGNAL(changeSelectedIndex(const QModelIndex &)), this, SLOT( changeSelectedIndex( const QModelIndex & )));
+        connect( mCoverFlow, SIGNAL( changeSelectedIndex( const QModelIndex & ) ), this, SLOT( changeSelectedIndex( const QModelIndex & ) ) );
     }
 
     if ( mImageStrip ) {
-        connect(mImageStrip, SIGNAL( activated(const QModelIndex &) ), this, SLOT( indexChanged(const QModelIndex &) ));
-        connect(mImageStrip, SIGNAL( scrollingStarted()),  this, SLOT( scrollingStarted()));
-        connect(mImageStrip, SIGNAL( scrollingEnded()),    this, SLOT( scrollingEnded()));
-        connect(mImageStrip, SIGNAL( pressed(const QModelIndex &) ),      this, SLOT( pressed(const QModelIndex &) ));
-        connect(mImageStrip, SIGNAL( released(const QModelIndex &) ),     this, SLOT( released(const QModelIndex &) ));
+        connect( mImageStrip, SIGNAL( activated(const QModelIndex &) ), this, SLOT( indexChanged(const QModelIndex &) ) );
+        connect( mImageStrip, SIGNAL( scrollingStarted()), this, SLOT( scrollingStarted() ) );
+        connect( mImageStrip, SIGNAL( scrollingEnded()), this, SLOT( scrollingEnded() ) );
+        connect( mImageStrip, SIGNAL( pressed( const QModelIndex & ) ), this, SLOT( pressed( const QModelIndex & ) ) );
+        connect( mImageStrip, SIGNAL( released( const QModelIndex & ) ),     this, SLOT( released( const QModelIndex & ) ) );
     }
 
     if ( mUiOffTimer ) {
-        connect(mUiOffTimer, SIGNAL(timeout()), this, SLOT(hideUi()));
+        connect( mUiOffTimer, SIGNAL( timeout() ), this, SLOT( hideUi() ) );
     }
     
-    if(mCoverFlow && mZoomWidget) {
-		connect(mZoomWidget,SIGNAL( pinchGestureReceived(int) ), mCoverFlow, SLOT( zoomStarted(int) ) );
-		connect(mZoomWidget,SIGNAL( zoomWidgetMovedBackground(int) ), mCoverFlow, SLOT( zoomFinished(int) ) );
-        connect(mCoverFlow,SIGNAL( doubleTapEventReceived(QPointF) ), mZoomWidget, SLOT( animateZoomIn(QPointF) ) );
+    if( mCoverFlow && mZoomWidget ) {
+		connect( mZoomWidget, SIGNAL( pinchGestureReceived( int ) ), mCoverFlow, SLOT( zoomStarted( int ) ) );
+		connect( mZoomWidget, SIGNAL( zoomWidgetMovedBackground( int ) ), mCoverFlow, SLOT( zoomFinished( int ) ) );
+        connect( mCoverFlow, SIGNAL( doubleTapEventReceived( QPointF ) ), mZoomWidget, SLOT( animateZoomIn( QPointF ) ) );
 	}
 
-    connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
+    connect( mWindow, SIGNAL( orientationChanged( Qt::Orientation ) ), this, SLOT( orientationChanged( Qt::Orientation ) ) );
 
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_ADDCONNECTION_EXIT );
 }
@@ -749,6 +756,14 @@ void GlxFullScreenView::imageSelectionAnimation(const QModelIndex &index)
     HbEffect::start( mIconItems[ 1 ], QString( "HbGridViewItem" ), QString( "SelectShow" ), this, "imageSelectionEffectFinished" );
 
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_IMAGESELECTIONANIMATION_EXIT );
+}
+
+void GlxFullScreenView::cancelSelectionAnimation()
+{
+    if ( mIconItems[0] && HbEffect::effectRunning( mIconItems[1], QString( "SelectShow" ) ) ) {
+        HbEffect::cancel( mIconItems[0], QString( "SelectHide" ), false, false, true );
+        HbEffect::cancel( mIconItems[1], QString( "SelectShow" ), false, true, true );
+    }
 }
 	
 void GlxFullScreenView::handleToolBarAction()

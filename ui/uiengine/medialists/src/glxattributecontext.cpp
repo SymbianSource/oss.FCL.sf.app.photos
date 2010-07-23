@@ -236,12 +236,14 @@ void CGlxAttributeContext::AllAttributesL(const MGlxMediaList* aList, TInt aList
         return;
         }
 
+    CleanupClosePushL(aAttributes);
     // Just list all attributes specified for this context
     TInt count = iAttributes.Count();
     for (TInt i = 0; i < count; i++) 
         {
         aAttributes.AppendL(iAttributes[i]);
         }
+    CleanupStack::Pop(&aAttributes);
     }
 
 // -----------------------------------------------------------------------------
@@ -343,7 +345,7 @@ void CGlxAttributeContext::AddItemAttributeL(RArray<TMPXAttribute>& aAttributes,
         const TMPXAttribute& aAttribute) const
     {
     TRACER("CGlxAttributeContext::AddItemAttributeL");
-    
+    CleanupClosePushL(aAttributes);
     TIdentityRelation<TMPXAttribute> match(&TMPXAttribute::Match);
     TInt index = aAttributes.Find(aAttribute, match);
 
@@ -351,6 +353,7 @@ void CGlxAttributeContext::AddItemAttributeL(RArray<TMPXAttribute>& aAttributes,
         {
         aAttributes.AppendL(aAttribute);
         }
+    CleanupStack::Pop(&aAttributes);
     }
 
 // -----------------------------------------------------------------------------

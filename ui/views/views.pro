@@ -32,11 +32,9 @@ LIBS += -lglxfavmediamodel.dll \
         -lganeswidgets.dll \
         -lglxmodelwrapper.dll \
         -lglxviewutilities.dll \
-	 -lglxzoomwidget.dll \
-        -ldetailsnamelabel.dll \
-        -ldetailsnamelabelplugin.dll \
-        -ldetailsdescriptionedit.dll \
-        -ldetailsdescriptioneditplugin.dll
+	    -lglxzoomwidget.dll \
+        -lglxdetailscustomwidgets.dll \
+        -lglxdetailscustomplugin.dll
 
 DEFINES += BUILD_GLXVIEWS
 
@@ -55,8 +53,8 @@ INCLUDEPATH += . ../inc \
           ../viewutilities/effectengine/inc \
           ../viewutilities/settingutility/inc \
           /epoc32/include/mw/hgwidgets \
-          ../detailscustomwidget/detailsnamelabel/inc \
-          ../detailscustomwidget/detailsdescriptionedit/inc
+          ../detailscustomwidget/detailscustomwidgets 
+          
 
 symbian: { 
 TARGET.UID3 = 0x200009EF

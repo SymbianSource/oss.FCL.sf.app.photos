@@ -52,7 +52,7 @@ public:
         }
         
     /** Preparet the window to accept items */
-    void Initialize( const CGlxListWindow::TRange& aRange, TInt aTotalSize )
+    void InitializeL( const CGlxListWindow::TRange& aRange, TInt aTotalSize )
         {
         __TEST_INVARIANT;
         
@@ -68,7 +68,7 @@ public:
         for ( TInt i = iObjects.Count(); i < aRange.iLength; i++ ) 
             {
             // Append cannot fail since reservation has been made
-            ( void ) iObjects.Append( NULL );
+            ( void ) iObjects.AppendL( NULL );
             }
 
         // remove unnecessary pointers
@@ -276,12 +276,12 @@ EXPORT_C CGlxListWindow::~CGlxListWindow()
 // Cleans up remaining objects in the window
 // -----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxListWindow::Cleanup() 
+EXPORT_C void CGlxListWindow::CleanupL() 
 	{
-	TRACER("CGlxListWindow::Cleanup");
+	TRACER("CGlxListWindow::CleanupL");
 	
     // make the window empty. this will clean up all remaining objects.
-    Update( TChange( KErrNotFound, 0, EChangeObjectsRemoved, 0, iWindow->TotalSize() - 1 ) );
+    UpdateL( TChange( KErrNotFound, 0, EChangeObjectsRemoved, 0, iWindow->TotalSize() - 1 ) );
 	}
 	
 // -----------------------------------------------------------------------------
@@ -326,10 +326,10 @@ EXPORT_C void CGlxListWindow::SetRangeOffsetsL( TInt aFocusIndex,
     for ( TInt i = iWindow->Size() + iUnusedObjects.Count(); i < maxObjectCount; i++ )
         {
         // cannot fail since reservation made above
-        ( void ) iUnusedObjects.Append( iObjectFactory.CreateObjectL() );
+        ( void )iUnusedObjects.AppendL( iObjectFactory.CreateObjectL() );
         }
 	
-	Update( TChange( aFocusIndex, aTotalSize, EChangeNone, 0, 0 ) );
+	UpdateL( TChange( aFocusIndex, aTotalSize, EChangeNone, 0, 0 ) );
 	}
     
 // -----------------------------------------------------------------------------
@@ -347,27 +347,27 @@ EXPORT_C TGlxWindowIterator CGlxListWindow::Iterator() const
 // SetFocusIndexL
 // -----------------------------------------------------------------------------
 // DEPRICATED
-EXPORT_C void CGlxListWindow::SetFocusIndex( TInt aFocusIndex ) 
+EXPORT_C void CGlxListWindow::SetFocusIndexL( TInt aFocusIndex ) 
 	{
-	TRACER("CGlxListWindow::SetFocusIndex");
+	TRACER("CGlxListWindow::SetFocusIndexL");
 	
-	SetFocusIndex( aFocusIndex, iWindow->TotalSize() );
+	SetFocusIndexL( aFocusIndex, iWindow->TotalSize() );
 	}
 	
 // -----------------------------------------------------------------------------
 // SetFocusIndexL
 // -----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxListWindow::SetFocusIndex( TInt aFocusIndex, TInt aTotalSize ) 
+EXPORT_C void CGlxListWindow::SetFocusIndexL( TInt aFocusIndex, TInt aTotalSize ) 
 	{
-	TRACER("CGlxListWindow::SetFocusIndex");
+	TRACER("CGlxListWindow::SetFocusIndexL");
 	
 	__ASSERT_DEBUG( ( 0 <= aFocusIndex && aFocusIndex < aTotalSize ) ||
                     ( KErrNotFound == aFocusIndex && 0 == aTotalSize ), 
                     Panic( EGlxPanicIllegalArgument ) );
     __TEST_INVARIANT;
     
-	Update( TChange( aFocusIndex, aTotalSize, EChangeNone, 0, 0 ) );
+	UpdateL( TChange( aFocusIndex, aTotalSize, EChangeNone, 0, 0 ) );
     
     __TEST_INVARIANT;
 	}
@@ -376,9 +376,9 @@ EXPORT_C void CGlxListWindow::SetFocusIndex( TInt aFocusIndex, TInt aTotalSize )
 // AddObjects
 // -----------------------------------------------------------------------------
 // DEPRICATED
-EXPORT_C void CGlxListWindow::AddObjects( TInt aFirstNewIndex, TInt aLastNewIndex ) 
+EXPORT_C void CGlxListWindow::AddObjectsL( TInt aFirstNewIndex, TInt aLastNewIndex ) 
 	{
-	TRACER("CGlxListWindow::AddObjects");
+	TRACER("CGlxListWindow::AddObjectsL");
 	
 	TInt newItemCount = aLastNewIndex - aFirstNewIndex + 1;
 	TInt newTotalSize = iWindow->TotalSize() + newItemCount;
@@ -398,17 +398,17 @@ EXPORT_C void CGlxListWindow::AddObjects( TInt aFirstNewIndex, TInt aLastNewInde
 		newFocusIndex += newItemCount;
 		}
 		
-    AddObjects( newFocusIndex, newTotalSize, aFirstNewIndex, aLastNewIndex );
+    AddObjectsL( newFocusIndex, newTotalSize, aFirstNewIndex, aLastNewIndex );
 	}
 		
 // -----------------------------------------------------------------------------
 // AddObjects
 // -----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxListWindow::AddObjects( TInt aFocusIndex, 
+EXPORT_C void CGlxListWindow::AddObjectsL( TInt aFocusIndex, 
         TInt aTotalSize, TInt aFirstNewIndex, TInt aLastNewIndex ) 
 	{
-	TRACER("CGlxListWindow::AddObjects");
+	TRACER("CGlxListWindow::AddObjectsL");
 	
     __ASSERT_DEBUG( 0 <= aFirstNewIndex && aFirstNewIndex <= aLastNewIndex && 
                     aLastNewIndex < aTotalSize &&
@@ -416,7 +416,7 @@ EXPORT_C void CGlxListWindow::AddObjects( TInt aFocusIndex,
                     Panic( EGlxPanicIllegalArgument ) ); 
     __TEST_INVARIANT;
 	
-	Update( TChange( aFocusIndex, aTotalSize, EChangeObjectsAdded, 
+	UpdateL( TChange( aFocusIndex, aTotalSize, EChangeObjectsAdded, 
         aFirstNewIndex, aLastNewIndex ) );
 		
     __TEST_INVARIANT;
@@ -426,9 +426,9 @@ EXPORT_C void CGlxListWindow::AddObjects( TInt aFocusIndex,
 // RemoveObjects
 // -----------------------------------------------------------------------------
 // DEPRICATED
-EXPORT_C void CGlxListWindow::RemoveObjects( TInt aFirstRemovedIndex, TInt aLastRemovedIndex ) 
+EXPORT_C void CGlxListWindow::RemoveObjectsL( TInt aFirstRemovedIndex, TInt aLastRemovedIndex ) 
 	{
-	TRACER("CGlxListWindow::RemoveObjects");
+	TRACER("CGlxListWindow::RemoveObjectsL");
 	
 	TInt itemsRemovedCount = aLastRemovedIndex - aFirstRemovedIndex + 1;
 	TInt newTotalSize = iWindow->TotalSize() - itemsRemovedCount;
@@ -461,17 +461,17 @@ EXPORT_C void CGlxListWindow::RemoveObjects( TInt aFirstRemovedIndex, TInt aLast
 	    	}
 	    }
 
-	RemoveObjects( newFocusIndex, newTotalSize, aFirstRemovedIndex, aLastRemovedIndex );
+	RemoveObjectsL( newFocusIndex, newTotalSize, aFirstRemovedIndex, aLastRemovedIndex );
 	}	
 
 // -----------------------------------------------------------------------------
 // RemoveObjects
 // -----------------------------------------------------------------------------
 //	
-EXPORT_C void CGlxListWindow::RemoveObjects( TInt aFocusIndex, 
+EXPORT_C void CGlxListWindow::RemoveObjectsL( TInt aFocusIndex, 
         TInt aTotalSize, TInt aFirstRemovedIndex, TInt aLastRemovedIndex ) 
 	{
-	TRACER("CGlxListWindow::RemoveObjects");
+	TRACER("CGlxListWindow::RemoveObjectsL");
 	
     __ASSERT_DEBUG( 0 <= aFirstRemovedIndex && aFirstRemovedIndex <= aLastRemovedIndex &&
                     ( ( 0 <= aFocusIndex && aFocusIndex < aTotalSize ) || 
@@ -479,7 +479,7 @@ EXPORT_C void CGlxListWindow::RemoveObjects( TInt aFocusIndex,
                     Panic( EGlxPanicIllegalArgument ) ); 
     __TEST_INVARIANT;
     
-	Update( TChange( aFocusIndex, aTotalSize, EChangeObjectsRemoved, 
+	UpdateL( TChange( aFocusIndex, aTotalSize, EChangeObjectsRemoved, 
         aFirstRemovedIndex, aLastRemovedIndex ) );
 
     __TEST_INVARIANT;
@@ -489,9 +489,9 @@ EXPORT_C void CGlxListWindow::RemoveObjects( TInt aFocusIndex,
 // Update
 // -----------------------------------------------------------------------------
 //
-void CGlxListWindow::Update( const TChange& aChange )
+void CGlxListWindow::UpdateL( const TChange& aChange )
 	{
-	TRACER("CGlxListWindow::Update");
+	TRACER("CGlxListWindow::UpdateL");
 	
     // (in a list of:  |abcdefghijklm|
     // iWindow:        |----efghi----|
@@ -500,14 +500,14 @@ void CGlxListWindow::Update( const TChange& aChange )
     //                      is shorter than max window length)
     
     // Prepare the working window to accept objects
-    iWorkingWindow->Initialize( Range( aChange ), aChange.iNewTotalSize );
+    iWorkingWindow->InitializeL( Range( aChange ), aChange.iNewTotalSize );
 
     // iWindow:        |----efghi----|
     // iWorkingWindow: |------00000--|
     // iUnusedObjects: XXX 
     
     // move unused objects to pool, and reusable objects to working window
-    PopulateExistingAndUnuseOld( aChange );
+    PopulateExistingAndUnuseOldL( aChange );
 
     // iWindow:        |----efghi----|
     // iWorkingWindow: |------ghi00--|
@@ -537,9 +537,9 @@ void CGlxListWindow::Update( const TChange& aChange )
 // PopulateExistingAndUnuseOld
 // -----------------------------------------------------------------------------
 //	
-void CGlxListWindow::PopulateExistingAndUnuseOld( const TChange& aChange ) 
+void CGlxListWindow::PopulateExistingAndUnuseOldL( const TChange& aChange ) 
     {
-    TRACER("CGlxListWindow::PopulateExistingAndUnuseOld");
+    TRACER("CGlxListWindow::PopulateExistingAndUnuseOldL");
     
     // move objects that are needed after the change into the working window, 
     // and objects that are not needed into the object pool
@@ -563,7 +563,7 @@ void CGlxListWindow::PopulateExistingAndUnuseOld( const TChange& aChange )
             iObjectFactory.CleanupObject( index, *( *iWindow )[ index ] );
             // add the object to the unused objects pool
             // cannot fail since reservation made
-            ( void ) iUnusedObjects.Append( ( *iWindow )[ index ] );
+            ( void )iUnusedObjects.AppendL( ( *iWindow )[ index ] );
             }
             
         // clear the pointer in the existing window. it is not strictly necessary
@@ -732,7 +732,7 @@ TInt CGlxListWindow::IndexAfterChange( TInt aIndex,
 // ---------------------------------------------------------------------------
 // Test invariant
 // ---------------------------------------------------------------------------
-void CGlxListWindow::__DbgTestInvariant() const
+EXPORT_C void CGlxListWindow::__DbgTestInvariant() const
     {
     TRACER("CGlxListWindow::__DbgTestInvariant");
     

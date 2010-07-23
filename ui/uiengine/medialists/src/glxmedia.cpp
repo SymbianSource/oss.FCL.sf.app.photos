@@ -153,7 +153,7 @@ EXPORT_C TBool TGlxMedia::GetDimensions(TSize& aSize) const
 // -----------------------------------------------------------------------------
 // Gets the (file) size
 // -----------------------------------------------------------------------------
-EXPORT_C TBool TGlxMedia::GetSize(TInt& aSize) const
+EXPORT_C TBool TGlxMedia::GetSize(TUint& aSize) const
     {
     TRACER("TGlxMedia::GetSize");
     
@@ -580,7 +580,7 @@ void CGlxMedia::AddUser( MGlxMediaUser& aUser, TInt aIndex )
 
     __DEBUG_ONLY( _iUserReservationCount-- );
 
-	iUsers.Append( TMediaUser( &aUser, aIndex ) ); // Ignore error, cannot fail since reservation made 
+	iUsers.AppendL( TMediaUser( &aUser, aIndex ) ); // Ignore error, cannot fail since reservation made 
 	}
 
 // -----------------------------------------------------------------------------
@@ -984,7 +984,7 @@ CGlxMedia::TMediaUser::TMediaUser(MGlxMediaUser* aMediaUser, TInt aIndex) :
 // ---------------------------------------------------------------------------
 // Test invariant
 // ---------------------------------------------------------------------------
-void CGlxMedia::__DbgTestInvariant() const
+EXPORT_C void CGlxMedia::__DbgTestInvariant() const
     {
     TRACER("CGlxMedia::__DbgTestInvariant");
     

@@ -18,13 +18,14 @@
 
 #include <hbiconitem.h>
 #include <hbframeitem.h>
-#include <glxdetailscustomicon.h>
+#include "glxdetailsicon.h"
+#include <hbstackedlayout.h>
 #include <QEvent>
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //mousePressEvent
 //--------------------------------------------------------------------------------------------------------------------------------------------
-void GlxDetailsCustomIcon::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void GlxDetailsIcon::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED(event)
 }
@@ -32,64 +33,43 @@ void GlxDetailsCustomIcon::mousePressEvent(QGraphicsSceneMouseEvent *event)
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //clearCurrentModel
 //--------------------------------------------------------------------------------------------------------------------------------------------
-void GlxDetailsCustomIcon::mouseReleaseEvent (QGraphicsSceneMouseEvent *event) 
+void GlxDetailsIcon::mouseReleaseEvent (QGraphicsSceneMouseEvent *event) 
 {
   Q_UNUSED(event)  
   emit updateFavourites();
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//GlxDetailsCustomIcon
+//GlxDetailsIcon
 //--------------------------------------------------------------------------------------------------------------------------------------------
-GlxDetailsCustomIcon::GlxDetailsCustomIcon(QGraphicsItem *parent) : HbWidget(parent)
+GlxDetailsIcon::GlxDetailsIcon(QGraphicsItem *parent) : HbWidget(parent)
 {
   mFavIcon = new HbIconItem(this);
+  //add the layout to the icon or else the icon is not showed.
+  HbStackedLayout *stackedLayout = new HbStackedLayout;
+  stackedLayout->addItem( mFavIcon );
+  setLayout( stackedLayout );
+  
+  mFavIcon->setOpacity(0.7);
   HbFrameItem* frame = new HbFrameItem(this);
   frame->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
   frame->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");
-  frame->graphicsItem()->setOpacity(0.2); 
-  setBackgroundItem(frame->graphicsItem(),-1);
-  
+  frame->graphicsItem()->setOpacity(0.1); 
+  setBackgroundItem(frame->graphicsItem(),-1);   
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//~GlxDetailsCustomIcon
+//~GlxDetailsIcon
 //--------------------------------------------------------------------------------------------------------------------------------------------
-GlxDetailsCustomIcon::~GlxDetailsCustomIcon()
+GlxDetailsIcon::~GlxDetailsIcon()
 {
   delete mFavIcon;
   mFavIcon = NULL;
 }
-
-//--------------------------------------------------------------------------------------------------------------------------------------------
-//setItemGeometry
-//--------------------------------------------------------------------------------------------------------------------------------------------
-void GlxDetailsCustomIcon::setItemGeometry(QRect screenRect) 
-{
-     setGeometry(screenRect);    
-}
-
-//--------------------------------------------------------------------------------------------------------------------------------------------
-//setItemSize
-//--------------------------------------------------------------------------------------------------------------------------------------------
-void GlxDetailsCustomIcon::setItemSize(const QSizeF &size) 
-{
-     mFavIcon->setSize(size);
-} 
-
-//--------------------------------------------------------------------------------------------------------------------------------------------
-//setItemPos
-//--------------------------------------------------------------------------------------------------------------------------------------------
-void GlxDetailsCustomIcon::setItemPos(const qreal ax,const qreal ay)
-{
-    //place the FavIcon with respect to the parent i.e HbWidget 
-    mFavIcon->setPos(ax ,ay);    
-}
-
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //setItemIcon
 //--------------------------------------------------------------------------------------------------------------------------------------------
-void GlxDetailsCustomIcon::setItemIcon(const HbIcon &icon)
+void GlxDetailsIcon::setItemIcon(const HbIcon &icon)
 {
     mFavIcon->setIcon(icon);    
 } 

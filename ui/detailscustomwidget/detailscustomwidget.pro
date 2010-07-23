@@ -17,8 +17,7 @@
  
            
 TEMPLATE = subdirs
-SUBDIRS += detailsnamelabel
-SUBDIRS += detailsnamelabelplugin
-SUBDIRS += detailsdescriptionedit
-SUBDIRS += detailsdescriptioneditplugin
+
+SUBDIRS += detailscustomwidgets
+SUBDIRS += detailscustomplugin
 CONFIG += ordered

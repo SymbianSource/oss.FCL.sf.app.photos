@@ -881,7 +881,7 @@ QSize GlxMLWrapperPrivate::RetrieveItemDimension(int aItemIndex)
 int GlxMLWrapperPrivate::RetrieveItemSize(int aItemIndex)
 {
     const TGlxMedia& item = iMediaList->Item( aItemIndex );
-    int itemSize ;
+    TUint itemSize ;
     item.GetSize(itemSize);
     return itemSize;
  }
@@ -1316,9 +1316,8 @@ HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap, TInt
     QImage image(data, aBitmap->SizeInPixels().iWidth, aBitmap->SizeInPixels().iHeight, bytesPerLine, QImage::Format_RGB16);
         
     QPixmap pixmap = QPixmap::fromImage(image);
-    if ( aBitmap->SizeInPixels().iWidth > itemWidth || aBitmap->SizeInPixels().iHeight > itemHeight ) {
-        pixmap = pixmap.scaled( itemWidth, itemHeight, Qt::KeepAspectRatio );
-    }
+    pixmap = pixmap.scaled( itemWidth, itemHeight, Qt::KeepAspectRatio );
+  
     
     aBitmap->UnlockHeap();
     HbIcon* targetIcon = new HbIcon( QIcon( pixmap ) );

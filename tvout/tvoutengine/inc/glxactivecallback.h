@@ -11,7 +11,7 @@
 *
 * Contributors:
 *
-* Description:    Handles & propogates UI state change notifications.
+* Description:    
 *
 */
 
@@ -31,12 +31,12 @@ class CGlxActiveCallBack : public CActive
                                                                   iCallBack(aCallBack) {};
         CGlxActiveCallBack();
     	
-    public: // Functions from base classes
+    public: /// Functions CActive
 		void SetActive() { CActive::SetActive();}; 
 		void RunL() { iCallBack.CallBack();};
  		void DoCancel() {};
  		
-   	private: // Data
+   	private: /// Data
 		TCallBack iCallBack;
     };
 

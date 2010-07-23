@@ -4,9 +4,6 @@
         <widget name="mcontent" role="HbView:widget" type="HbWidget">
             <widget name="mCoverFlow" type="HbWidget">
                 <real name="z" value="5"/>
-                <string name="alignment" value="AlignLeft|AlignTop|AlignLeading"/>
-                <string name="scrollDirections" value="Horizontal"/>
-                <bool name="frictionEnabled" value="TRUE"/>
             </widget>
             <widget name="mImageStrip" type="HbGridView">
                 <bool name="itemRecycling" value="TRUE"/>
@@ -22,9 +19,10 @@
             <widget name="toolBar" type="HbToolBar">
                 <enums name="layoutDirection" value="RightToLeft"/>
                 <real name="z" value="7"/>
-                <real name="opacity" value="0.5"/>
+                <real name="opacity" value="1"/>
                 <sizehint height="60.44776un" type="PREFERRED" width="9.40299un"/>
                 <enums name="orientation" value="Vertical"/>
+                <bool name="visible" value="FALSE"/>
             </widget>
             <widget name="glxZoomWidget" type="HbWidget">
                 <string name="alignment" value="AlignVCenter|AlignHCenter"/>
@@ -52,7 +50,6 @@
         </widget>
         <string locid="txt_photos_title_photos" name="title" value="Photos"/>
         <bool name="contentFullScreen" value="TRUE"/>
-        <string name="titleBarFlags" value="TitleBarHidden|TitleBarTransparent"/>
     </widget>
     <section name="portrait">
         <widget name="mImageStrip" type="HbGridView">

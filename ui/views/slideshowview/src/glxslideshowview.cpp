@@ -117,7 +117,7 @@ void GlxSlideShowView::setModel(QAbstractItemModel *model)
     mSlideShowWidget->setModel(mModel);
     
     if (mTvOutWrapper){
-        mTvOutWrapper->setModel(mModel,true);
+        mTvOutWrapper->setModel(mModel, screenSize(), true);
         mTvOutWrapper->setImagetoHDMI();
     }
 }

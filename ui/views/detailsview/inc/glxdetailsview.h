@@ -29,8 +29,9 @@ class GlxFavMediaModel;
 class HbDocumentLoader;
 class HbLabel;
 class HbPushButton;
-class GlxDetailsNameLabel;
-class GlxDetailsDescriptionEdit;
+class GlxDetailsTextEdit;
+class GlxDetailsIcon;
+
 class GlxDetailsViewDocLoader;
 
 class GlxDetailsView : public GlxView  
@@ -82,6 +83,7 @@ public slots:
     void updateLayout(Qt::Orientation);
     void rowsRemoved(const QModelIndex &parent, int start, int end);
     void dataChanged(QModelIndex startIndex, QModelIndex endIndex);
+    void modelDestroyed();
     void updateFavourites();
     void UpdateDescription();
     void FillDetails();
@@ -153,7 +155,7 @@ private:
     HbLabel *mDetailsIcon;
     
     //Contains the favourite icon which adds or removes the image to favourite folder
-    HbPushButton *mFavIcon;
+    GlxDetailsIcon *mFavIcon;
    
     //The media Model to acess the attributes; not owned,dont delete.
     QAbstractItemModel *mModel; 
@@ -170,10 +172,10 @@ private:
     GlxDetailsViewDocLoader *mDocLoader;
   
     //Shows the Images
-    GlxDetailsNameLabel *mImageName;
+    GlxDetailsTextEdit *mImageName;
 	
 	//Shows the descriptions
-     GlxDetailsDescriptionEdit *mDescriptions;
+    GlxDetailsTextEdit *mDescriptions;
 	
 	//Shows the Date 
     HbLabel *mDateLabel;
@@ -183,5 +185,8 @@ private:
 	
 	//Shows the time 
     HbLabel *mTimeLabel;    
+    
+    HbIcon mFavIconEnabled;
+    HbIcon mFavIconDisabled;
 };
 #endif //GLXDETAILSVIEW_H

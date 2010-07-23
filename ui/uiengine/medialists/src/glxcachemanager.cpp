@@ -348,7 +348,7 @@ void CGlxCacheManager::HandleCollectionMediaL(const TGlxIdSpaceId& aIdSpaceId, c
             TInt userCount = item->UserCount();
             for ( TInt userIndex = 0; userIndex < userCount; userIndex++ )
                 {
-                users.InsertInAddressOrder( &item->User( userIndex ) );
+				users.InsertInAddressOrderL( &item->User( userIndex ) );
                 }
             }
 
@@ -661,7 +661,9 @@ void CGlxCacheManager::MaintainCacheL()
 						    iThumbnailRequestIds.AppendL(TLoadingTN(iTnEngine->GetThumbnailL(itemId.Value()), spaceId, tnSize, itemId));
 #else
 						    CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(item.Uri(), 0);
-						    iThumbnailRequestIds.AppendL(TLoadingTN(iTnEngine->GetThumbnailL(*source), spaceId, tnSize, itemId));
+                                iThumbnailRequestIds.AppendL(TLoadingTN(
+                                        iTnEngine->GetThumbnailL(*source), 
+                                        spaceId, tnSize, itemId));
 						    CleanupStack::PopAndDestroy(source);
 #endif
                                 }
@@ -738,7 +740,7 @@ void CGlxCacheManager::MaintainCacheL()
                                 RFile64& imageHandle = imageVwrMgr->ImageFileHandle();
                                 if ( &imageHandle != NULL )
                                     {
-                                    fileName.Append(imageHandle.FullName(fileName));
+                                    imageHandle.FullName(fileName);
                                     }
                                 else
                                     {
@@ -933,10 +935,7 @@ void CGlxCacheManager::MaintainCacheL()
                                 if(errInImage == KErrNone)
                                     {
                                     //need to fetch the original file dimensions
-                                    if(errInImage == KErrNone)
-                                        {
                                         dimensions = iReader->GetDimensions();
-                                        }
                                     iMPXMedia->SetTObjectValueL(KGlxMediaGeneralDimensions, dimensions);
                                     }
                                 else

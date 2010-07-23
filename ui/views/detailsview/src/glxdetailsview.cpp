@@ -44,8 +44,9 @@
 #include "glxfavmediamodel.h"
 #include "glxdocloaderdefs.h"
 #include <glxcommandhandlers.hrh>
-#include "glxdetailsdescriptionedit.h"
-#include "glxdetailsnamelabel.h"
+
+#include "glxdetailstextedit.h"
+#include "glxdetailsicon.h"
 
 
 #include "glxviewdocloader.h"
@@ -61,7 +62,8 @@
 #endif
 
 //SIZE OF THE IMAGE , LAYOUTS TEAM NEED TO GIVER THE SIZE IN UNITS
-#define GLX_IMAGE_SIZE 215 
+#define GLX_IMAGE_WIDTH 333
+#define GLX_IMAGE_HEIGHT 215 
 const int KBytesInKB = 1024;
 const int KBytesInMB = 1024 * 1024;
 const int KBytesInGB = 1024 * 1024 * 1024;
@@ -69,29 +71,39 @@ const int KBytesInGB = 1024 * 1024 * 1024;
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //GlxDetailsView
 //--------------------------------------------------------------------------------------------------------------------------------------------
-GlxDetailsView::GlxDetailsView(HbMainWindow *window) :
-GlxView(GLX_DETAILSVIEW_ID), mDetailsIcon(NULL), mFavIcon(NULL), mModel(
-        NULL), mFavModel(NULL), mWindow(window),
-        mSelIndex(0),mDocLoader(NULL),mImageName(NULL),mDescriptions(NULL),mDateLabel(NULL),mSizeLabel(NULL),mTimeLabel(NULL)
-   {
+GlxDetailsView::GlxDetailsView(HbMainWindow *window) 
+    : GlxView( GLX_DETAILSVIEW_ID ),
+      mDetailsIcon( NULL ),
+      mFavIcon( NULL ), 
+      mModel( NULL ), 
+      mFavModel( NULL ),
+      mWindow( window ),
+      mSelIndex( 0 ),
+      mDocLoader( NULL ),
+      mImageName( NULL ),
+      mDescriptions( NULL ),
+      mDateLabel( NULL ),
+      mSizeLabel( NULL ),
+      mTimeLabel( NULL )
+{
     GLX_LOG_INFO("GlxDetailsView::GlxDetailsView");
     OstTraceFunctionEntry0( GLXDETAILSVIEW_GLXDETAILSVIEW_ENTRY );
     setContentFullScreen(true);//for smooth transtion between grid to full screen and vice versa
     OstTraceFunctionExit0( GLXDETAILSVIEW_GLXDETAILSVIEW_EXIT );
-   }
+}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //~GlxDetailsView
 //--------------------------------------------------------------------------------------------------------------------------------------------
 GlxDetailsView::~GlxDetailsView()
-    {
+{
     OstTrace0( TRACE_IMPORTANT, GLXDETAILSVIEW_GLXDETAILSVIEW, "GlxDetailsView::~GlxDetailsView" );
     
     delete mDocLoader;
     mDocLoader = NULL;
     
     cleanUp();
-    }
+}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //activate
@@ -139,19 +151,16 @@ void GlxDetailsView::initializeView( QAbstractItemModel *model, GlxView *preView
     HbView *mView = static_cast<HbView*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_VIEW));
     
-    HbWidget *mwidget = static_cast<HbWidget*> (mDocLoader->findWidget(
-            "MainWidget"));
-
     mDetailsIcon = static_cast<HbLabel*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_IMAGE));
-    mFavIcon = static_cast<HbPushButton*> (mDocLoader->findWidget(
+    mFavIcon = static_cast<GlxDetailsIcon*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_FAVICON));
 
 
-    mDescriptions = static_cast<GlxDetailsDescriptionEdit*> (mDocLoader->findWidget(
+    mDescriptions = static_cast<GlxDetailsTextEdit*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_DESCRPTIONTEXT));
     
-    mImageName = static_cast<GlxDetailsNameLabel*> (mDocLoader->findWidget(
+    mImageName = static_cast<GlxDetailsTextEdit*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_IMGNAME));
     
     mDateLabel = static_cast<HbLabel*> (mDocLoader->findWidget(
@@ -163,22 +172,17 @@ void GlxDetailsView::initializeView( QAbstractItemModel *model, GlxView *preView
     mSizeLabel = static_cast<HbLabel*> (mDocLoader->findWidget(
             GLX_DETAILSVIEW_SIZETEXT));
 
-    
-        //Set the Model
+    mFavIconEnabled  =  HbIcon(GLXICON_ADD_TO_FAV);
+    mFavIconDisabled =  HbIcon(GLXICON_REMOVE_FAV);   
+        
+    //Set the Model
     mModel = model;  
    if(getSubState() == IMAGEVIEWER_DETAIL_S) {
        mFavIcon->hide();
     }
     else
     {
-        //set the frame graphics to the background of the fav icon
-        HbFrameItem* frame = new HbFrameItem(this);
-        frame->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
-        frame->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");
-        frame->graphicsItem()->setOpacity(0.2);
-        mFavIcon->setBackgroundItem(frame->graphicsItem(), -1);
-        mFavIcon->setBackground(HbIcon("qtg_fr_multimedia_trans"));
-        mFavIcon->setIcon(HbIcon(GLXICON_REMOVE_FAV));
+       mFavIcon->setItemIcon(HbIcon(GLXICON_REMOVE_FAV));
      }	
 	 
 	setWidget(mView);
@@ -186,8 +190,6 @@ void GlxDetailsView::initializeView( QAbstractItemModel *model, GlxView *preView
     //Set the Layout Correspondingly.
     updateLayout(mWindow->orientation());
 
-    //Shows the Image 
-    showImage();
     OstTraceFunctionExit0( GLXDETAILSVIEW_INITIALIZEVIEW_EXIT );
     }
 
@@ -229,7 +231,7 @@ void GlxDetailsView::cleanUp()
 
     delete mFavModel;
     mFavModel = NULL;
-
+       
     delete mFavIcon;
     mFavIcon = NULL;
 
@@ -262,55 +264,53 @@ void GlxDetailsView::setFavModel()
             mModel->index(0, 0), GlxFocusIndexRole).value<int> (), 0),
             GlxUriRole)).value<QString> ();
 
-    if (mFavModel == NULL)
-        {
+    if (mFavModel == NULL) {
         modelParm.setCollection(KGlxCollectionPluginFavoritesAlbumId);
         modelParm.setContextMode(GlxContextFavorite);
         modelParm.setPath(imagePath);
         mFavModel = new GlxFavMediaModel(modelParm);
-        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //initializeNewModel
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::initializeNewModel()
-    {
+{
     OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_INITIALIZENEWMODEL, "GlxDetailsView::initializeNewModel" );
-
-    if (mModel)
-        {
-    connect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this,
-            SLOT(rowsRemoved(QModelIndex,int,int)));
-        }
+    
+    if (mModel) {
+        connect( mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
+        connect( mModel, SIGNAL( updateDetailsView() ), this, SLOT( FillDetails() ));
+        connect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
     }
+}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //clearCurrentModel
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::clearCurrentModel()
-    {
+{
     OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_CLEARCURRENTMODEL, "GlxDetailsView::clearCurrentModel" );
 
-    if (mModel)
-        {
-        disconnect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this,
-                SLOT(rowsRemoved(QModelIndex,int,int)));
+    if (mModel) {
+        disconnect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
+        disconnect(mModel, SIGNAL( updateDetailsView() ), this, SLOT( FillDetails() ));
+        disconnect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
         mModel = NULL;
-        }
     }
+}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //setConnections
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::setConnections()
-    {
+{
     connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this,
             SLOT(updateLayout(Qt::Orientation)));
     
-    
     if(getSubState() != IMAGEVIEWER_DETAIL_S) {    
-    connect(mFavIcon, SIGNAL(clicked()), this, SLOT(updateFavourites()));
+    connect(mFavIcon, SIGNAL(updateFavourites()), this, SLOT(updateFavourites()));
     
     connect(mDescriptions, SIGNAL(labelPressed()), this,
             SLOT(UpdateDescription()));
@@ -318,34 +318,26 @@ void GlxDetailsView::setConnections()
     connect(mFavModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ),
                    this, SLOT( dataChanged(QModelIndex,QModelIndex) ));
     }
-    
-    connect(mModel, SIGNAL( updateDetailsView() ), this, SLOT( FillDetails() ));
-    
-        
-    }
+}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //clearConnections
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::clearConnections()
-    {
+{
     
     qDebug("GlxDetailsView:: clearConnections");
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this,
             SLOT(updateLayout(Qt::Orientation)));
            
     if(mModel && getSubState() != IMAGEVIEWER_DETAIL_S) {
-    disconnect(mFavIcon, SIGNAL(clicked()), this, SLOT(updateFavourites()));
+    disconnect(mFavIcon, SIGNAL(updateFavourites()), this, SLOT(updateFavourites()));
     disconnect(mDescriptions, SIGNAL(labelPressed()), this,
             SLOT(UpdateDescription()));
     disconnect(mFavModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ),
                     this, SLOT( dataChanged(QModelIndex,QModelIndex) ));
     }
-    
-    disconnect(mModel, SIGNAL( updateDetailsView() ), this, SLOT( FillDetails() ));
-    
-    
-    }
+}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //getAnimationItem
@@ -384,11 +376,11 @@ void GlxDetailsView::updateLayout(Qt::Orientation orient)
     //Load the Sections
     mDocLoader->load(GLX_DETAILSVIEW_DOCMLPATH, section, &loaded);
 
-    //This is just to over come the bug in docloader,once that is fixed we can remove the 
+    showImage();
+	//This is just to over come the bug in docloader,once that is fixed we can remove the 
     //below lines of code
-     setImageName();
-     setDate();
-
+    FillDetails();
+    
     GLX_LOG_INFO1("GlxDetailsView::updateLayout =%d\n",loaded);
     }
 
@@ -413,6 +405,11 @@ void GlxDetailsView::rowsRemoved(const QModelIndex &parent, int start,
         return emit actionTriggered(EGlxCmdBack);
         }
     }
+
+void GlxDetailsView::modelDestroyed()
+{
+    mModel = NULL;
+}
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //FillData
@@ -442,7 +439,7 @@ void GlxDetailsView::FillDetails()
 //showImage
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::showImage()
-    {
+ {
     OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_SHOWIMAGE, "GlxDetailsView::showImage" );
 
     QVariant variant = mModel->data(mModel->index(0, 0), GlxFocusIndexRole);
@@ -452,17 +449,12 @@ void GlxDetailsView::showImage()
         }
 
     variant = mModel->data(mModel->index(mSelIndex, 0), GlxFsImageRole);
+    
     if (variant.isValid() && variant.canConvert<HbIcon> ())
         {
-        QIcon itemIcon = variant.value<HbIcon> ().qicon();
-        QPixmap itemPixmap = itemIcon.pixmap(GLX_IMAGE_SIZE, GLX_IMAGE_SIZE);
-        QSize sz(GLX_IMAGE_SIZE, GLX_IMAGE_SIZE);
-        itemPixmap = itemPixmap.scaled(sz, Qt::IgnoreAspectRatio);
-
-        HbIcon tmp = HbIcon(QIcon(itemPixmap));
-        mDetailsIcon->setIcon(tmp);
+         mDetailsIcon->setIcon(variant.value<HbIcon> ());
         }
-    }
+   }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //setImageName
@@ -470,15 +462,12 @@ void GlxDetailsView::showImage()
 void GlxDetailsView::setImageName()
     {
     OstTraceFunctionEntry0( GLXDETAILSVIEW_SETIMAGENAME_ENTRY );
-    QString temp = "<u>";
     QString imagePath = (mModel->data(mModel->index(mModel->data(
             mModel->index(0, 0), GlxFocusIndexRole).value<int> (), 0),
             GlxUriRole)).value<QString> ();
     QString imageName = imagePath.section('\\', -1);
     
-    temp.append(imageName);
-    temp.append("</u>");
-    mImageName->setItemText(temp);    
+    mImageName->setItemText(imageName);    
     OstTraceFunctionExit0( GLXDETAILSVIEW_SETIMAGENAME_EXIT );
     }
 
@@ -487,10 +476,15 @@ void GlxDetailsView::setImageName()
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::setDesc()
     {
+    
+    //This is a hack , Initialize to some characters and then set the text
+    //as of know if the description text is Null , we cant see the Description edit box
+    //The issue has been informed to Application designer team.
+    mDescriptions->setItemText("a");
     QString description = (mModel->data(mModel->index(mModel->data(
             mModel->index(0, 0), GlxFocusIndexRole).value<int> (), 0),
             GlxDescRole)).value<QString> ();
-    mDescriptions->setItemText(description);
+     mDescriptions->setItemText(description);       
     }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -566,11 +560,11 @@ void GlxDetailsView::dataChanged(QModelIndex startIndex, QModelIndex endIndex)
         {
         if (variant.value<bool> ())
             {
-            mFavIcon->setIcon(HbIcon(GLXICON_ADD_TO_FAV));
+            mFavIcon->setItemIcon(mFavIconEnabled);
             }
         else
             {
-            mFavIcon->setIcon(HbIcon(GLXICON_REMOVE_FAV));
+            mFavIcon->setItemIcon(mFavIconDisabled);
             }
         }
     }

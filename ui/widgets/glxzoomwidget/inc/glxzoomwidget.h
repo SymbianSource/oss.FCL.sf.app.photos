@@ -98,22 +98,33 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     //set all the zoom parameters as per the circumstances
     void setZoomParams();
 
+    bool isFocussedItemCorrupt();
     //data members
-    private:
+private:
+    //to be in sync with the model
+    QAbstractItemModel *mModel;
+
+    //view Z values 
+    //might push to layouts later
+    int mMinZValue ;
+    int mMaxZValue ;
+    int mTimerId;
+
+    //status flags
+    //To check if the decode request has already been send or not
+    bool mImageDecodeRequestSend; 
+    //To check if the pinch gesture is in progress to block any events to HbScrollArea
+    bool mPinchGestureOngoing; 
+    //to check if decoded image is available
+    bool mDecodedImageAvailable;
+    //to check if the widget is actually in Foreground
+    bool mZoomOngoing;
+
     //view widgets
     QGraphicsPixmapItem *mZoomItem;   //Item containing the pixmap
     QGraphicsWidget *mZoomWidget;     //container :all scaling and transforms would be done on this widget
     HbIconItem* mBlackBackgroundItem; //for setting black background
 
-    //view Z values 
-    //might push to layouts later
-
-    int mMinZValue ;
-    int mMaxZValue ;
-
-
-    //to be in sync with the model
-    QAbstractItemModel *mModel;
     int mFocusIndex;
 
     //size parameter
@@ -131,17 +142,6 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
 	QTimeLine *m_AnimTimeLine;
     //for Decoder support
     GlxImageDecoderWrapper* mImageDecoder;
-
-    //status flags
-	//To check if the decode request has already been send or not
-    bool mImageDecodeRequestSend; 
-	//To check if the pinch gesture is in progress to block any events to HbScrollArea
-    bool mPinchGestureOngoing; 
-    //to check if decoded image is available
-    bool mDecodedImageAvailable;
-    //to check if the widget is actually in Foreground
-    bool mZoomOngoing;
-    int mTimerId;
 
 };
 #endif  //GLXZOOMWIDGET_H

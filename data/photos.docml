@@ -35,28 +35,17 @@
                 <ref object="action_2" role="HbWidget:addAction"/>
                 <ref object="action_3" role="HbWidget:addAction"/>
             </widget>
-            <string name="titleBarFlags"/>
             <bool name="enabled" value="TRUE"/>
             <bool name="visible" value="TRUE"/>
         </widget>
     </section>
     <section name="landscape">
-        <widget name="content" role="HbView:widget" type="HbWidget">
-            <widget name="pushButton" type="HbPushButton">
-                <icon iconName="qtg_mono_back" name="icon"/>
-                <real name="z" value="1"/>
-                <sizehint type="PREFERRED" width="10.59702un"/>
-                <sizehint height="5.5un" type="MINIMUM" width="5un"/>
-                <string name="text"/>
-            </widget>
-            <layout type="anchor">
-                <anchoritem dst="pushButton" dstEdge="TOP" spacing="0.14925un" src="" srcEdge="TOP"/>
-                <anchoritem dst="pushButton" dstEdge="RIGHT" spacing="-0.14925un" src="" srcEdge="RIGHT"/>
-            </layout>
-        </widget>
         <widget name="mainView" type="HbView">
-            <string name="titleBarFlags" value="TitleBarHidden"/>
             <bool name="contentFullScreen" value="FALSE"/>
+            <enums name="titleBarFlags" value="TitleBarFlagNone"/>
+        </widget>
+        <widget name="content" role="HbView:widget" type="HbWidget">
+            <layout type="anchor"/>
         </widget>
     </section>
     <metadata activeUIState="landscape" display="NHD-3.2-inch_landscape" unit="un">

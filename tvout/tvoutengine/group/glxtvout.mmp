@@ -53,7 +53,6 @@ LIBRARY         avkon.lib                       // for AppUi
 LIBRARY         cone.lib                        // for CCoeEnv
 LIBRARY         centralrepository.lib           // for Central Repository
 LIBRARY         accclient.lib                   // for RAccessoryServer 
-LIBRARY         alfclient.lib           		// For Alfred Hitchcock framework
 LIBRARY			fbscli.lib 
 LIBRARY         gdi.lib  			
 LIBRARY         surfaceupdateclient.lib 		// surface update client
@@ -61,11 +60,12 @@ LIBRARY         surfacemanager.lib				// surface manager
 LIBRARY         imageconversion.lib				// ICL 
 LIBRARY 		efsrv.lib
 LIBRARY         bitgdi.lib 
-LIBRARY                 apgrfx.lib // 
+LIBRARY         apgrfx.lib // 
 LIBRARY			apmime.lib // For ImageViewer mime type extraction
 LIBRARY 		glxlogging.lib
-LIBRARY		      alfdecoderserverclient.lib
-LIBRARY		AccPolicy.lib //For RAccessoryConnection status ID's	
+LIBRARY		    alfdecoderserverclient.lib
+LIBRARY			AccPolicy.lib //For RAccessoryConnection status ID's	
+
 // Other Dependency Libraries
 #ifdef __MARM
 LIBRARY 		GSServerEngine.lib  // FOr AspectRatio

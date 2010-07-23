@@ -21,16 +21,15 @@
 #include "glxtvconnectionmonitor.h"
 
 //  EXTERNAL INCLUDES
-
-//  INTERNAL INCLUDES
-
-#include <glxlog.h>
-#include <glxtracer.h>
-
-#include <glxpanic.h>
-#include "glxtv.h"
 #include <AccPolGenericIdDefinitions.h>
 #include <AccPolSubblockNameArray.h>
+
+//  INTERNAL INCLUDES
+#include <glxlog.h>
+#include <glxtracer.h>
+#include <glxpanic.h>
+#include "glxtv.h"
+
 //-----------------------------------------------------------------------------
 // Return new object
 //-----------------------------------------------------------------------------

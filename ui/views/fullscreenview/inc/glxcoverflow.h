@@ -160,6 +160,7 @@ private:
 	bool mZoomOn;
 	QGraphicsItem* mMultitouchFilter;
     int mTimerId;
+    bool mIsInit;
 };
 
 #endif /* GLXCOVERFLOW_H_ */

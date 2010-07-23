@@ -15,34 +15,43 @@
 *
 */
 
-#ifndef GlXDETAILSNAMELABEL_H
-#define GlXDETAILSNAMELABEL_H
+#ifndef GLXDETAILSICON_H
+#define GLXDETAILSICON_H
 
-#include <hblabel.h>
+#include <hbwidget.h>
 
-#ifdef BUILD_NAMELABEL
+
+#ifdef BUILD_DETAILSCUSTOM
 #define MY_EXPORT Q_DECL_EXPORT
 #else
 #define MY_EXPORT Q_DECL_IMPORT
 #endif
 
+class HbIconItem;
+class HbIcon;
 
-class MY_EXPORT GlxDetailsNameLabel : public HbLabel 
+class MY_EXPORT GlxDetailsIcon : public HbWidget 
 {	
     Q_OBJECT
     
 public:
-    GlxDetailsNameLabel(QGraphicsItem *parent = NULL);
-    ~GlxDetailsNameLabel();    	
-    void setItemText( const QString &text );
-		
+    GlxDetailsIcon(QGraphicsItem *parent = NULL);
+    ~GlxDetailsIcon();
+    	
+	/*
+	 * Sets the  Icon of Favourite IconItem.
+	 */
+	void setItemIcon(const HbIcon &icon);
+	
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);	
     void mouseReleaseEvent (QGraphicsSceneMouseEvent *event);
     
 signals :
-     void labelPressed();
-     
+     void updateFavourites();
+
+private:
+   HbIconItem *mFavIcon;   
 };
 
-#endif // GlXDETAILSNAMELABEL_H
+#endif // GLXDETAILSICON_H

@@ -35,25 +35,25 @@
 #define GLX_BOUNCEBACK_SPEED 16
 #define GLX_BOUNCEBACK_DELTA 8
 
-GlxCoverFlow::GlxCoverFlow(QGraphicsItem *parent ) 
-     : HbWidget(parent), 
-       mSelItemIndex (0),
-       mRows(0),
-       mSelIndex (0),
-       mStripLen (0),
-       mCurrentPos(0),
-       mItemSize (QSize(0,0)),
-       mModel ( NULL),
-       mMoveDir(NO_MOVE),
+GlxCoverFlow::GlxCoverFlow( QGraphicsItem *parent ) 
+     : HbWidget( parent ), 
+       mSelItemIndex ( 0 ),
+       mRows( 0 ),
+       mSelIndex ( 0 ),
+       mStripLen ( 0 ),
+       mCurrentPos( 0 ),
+       mItemSize ( QSize( 0, 0 ) ),
+       mModel ( NULL ),
+       mMoveDir( NO_MOVE ),
        mSpeed ( GLX_COVERFLOW_SPEED ),
-	   mZoomOn(false),
-	   mMultitouchFilter(NULL),
-       mTimerId(0)
+	   mZoomOn( false ),
+	   mMultitouchFilter( NULL ),
+       mTimerId( 0 ),
+       mIsInit( false )
 {
-//TO:DO through exception
-   qDebug("GlxCoverFlow::GlxCoverFlow");
-   grabGesture(Qt::PanGesture);
-   grabGesture(Qt::TapGesture);
+   qDebug( "GlxCoverFlow::GlxCoverFlow" );
+   grabGesture( Qt::PanGesture );
+   grabGesture( Qt::TapGesture );
    connect( this, SIGNAL( autoLeftMoveSignal() ), this, SLOT( autoLeftMove() ), Qt::QueuedConnection );
    connect( this, SIGNAL( autoRightMoveSignal() ), this, SLOT( autoRightMove() ), Qt::QueuedConnection );   
 }
@@ -62,6 +62,7 @@ void GlxCoverFlow::setMultitouchFilter(QGraphicsItem* mtFilter)
 {
 	mMultitouchFilter = mtFilter;
 }
+
 void GlxCoverFlow::setCoverFlow()
 {
     qDebug("GlxCoverFlow::setCoverFlow");
@@ -75,7 +76,8 @@ void GlxCoverFlow::setCoverFlow()
         mIconItem[i]->setObjectName( QString( "Cover%1" ).arg( i ) );
     }
     
-    mUiOn = FALSE;
+    mIsInit = true;
+    mUiOn = false;
     mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
 }
 
@@ -161,10 +163,11 @@ void GlxCoverFlow::gestureEvent(QGestureEvent *event)
 void GlxCoverFlow::panGesture ( const QPointF & delta )  
 {
     qDebug("GlxCoverFlow::panGesture deltaX= %d", (int)delta.x());  
-    if(getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S ) {
+   
+    if( !mIsInit || getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S ) {
         return;
     }
-    move((int) delta.x());    
+    move( ( int ) delta.x() );    
     if( delta.x() > 0 ) {     
         mMoveDir = RIGHT_MOVE;
     }
@@ -239,8 +242,11 @@ void GlxCoverFlow::autoLeftMove()
     int width = mItemSize.width() ;
     
     qDebug("GlxCoverFlow::autoLeftMove current pos = %d mBounceBackDeltaX x = %d", mCurrentPos, mBounceBackDeltaX);
+    if ( !mIsInit ) {
+        return;
+    }
     
-    if ( mSelIndex == ( mRows -1 )) {
+    if ( mSelIndex == ( mRows -1 ) ) {
         mSpeed = GLX_BOUNCEBACK_SPEED;
     }
     //for bounce back effect for last image ( it will do the back)
@@ -289,9 +295,12 @@ void GlxCoverFlow::autoLeftMove()
 void GlxCoverFlow::autoRightMove()
 {
     qDebug("GlxCoverFlow::autoRightMove ");
+    if ( !mIsInit ) {
+        return;
+    }
     int width = mItemSize.width()  ;
     int diffX = mStripLen - mCurrentPos ;
-    
+ 
     //slow the speed for bounce back effect
     if ( mSelIndex == 0 ) {
         mSpeed = GLX_BOUNCEBACK_SPEED;
@@ -401,6 +410,11 @@ int GlxCoverFlow::calculateIndex(int index)
 void GlxCoverFlow::loadIconItems()
 {  
     qDebug("GlxCoverFlow::loadIconItems ");
+    
+    if ( !mIsInit ) {
+        return ;
+    }
+
     int index = 0;
     stopAnimation();
     mSelIndex = getFocusIndex();
@@ -479,6 +493,7 @@ void GlxCoverFlow::partiallyClean()
 {
     qDebug("GlxCoverFlow::partiallyClean Enter");
     clearCurrentModel(); //during the animation data update will not cause the crash
+    mIsInit = false;
     for ( qint8 i = 0; i < NBR_ICON_ITEM ; i++ ) {
         if ( mSelItemIndex != i){
             delete mIconItem[i] ;
@@ -509,6 +524,7 @@ GlxCoverFlow::~GlxCoverFlow()
 void GlxCoverFlow::ClearCoverFlow()
 {
     qDebug("GlxCoverFlow::ClearCoverFlow  " );
+    mIsInit = false;
     clearCurrentModel();    
     for ( qint8 i = 0; i < NBR_ICON_ITEM ; i++ ) {
         if(mIconItem[i] != NULL ) {

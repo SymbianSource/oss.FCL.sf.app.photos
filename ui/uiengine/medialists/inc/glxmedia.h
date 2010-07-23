@@ -128,7 +128,7 @@ public:
      * @return EFalse if unable to get size - aSize is unchanged. 
      *         ETrue if size successfully put in aSize.
      */
-    IMPORT_C TBool GetSize(TInt& aSize) const;
+    IMPORT_C TBool GetSize(TUint& aSize) const;
     
     /**
      * Get the duration associated with the media.

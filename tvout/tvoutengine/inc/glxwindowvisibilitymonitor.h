@@ -16,11 +16,6 @@
 */
 
 
-
-/**
- * @internal reviewed 24/08/2007 by D Holland
- */
-
 #ifndef __GLXWINVISIBILITYMONITOR_H__
 #define __GLXWINVISIBILITYMONITOR_H__
 
@@ -33,12 +28,10 @@
 class MGlxWindowVisibilityObserver;       
 
 
-
 /**
  * Class Description
  * An Active object derived class is used to monitor the visibility of the
  * TV out window.
- * @author Loughlin
  */        
 NONSHARABLE_CLASS(CGlxWindowVisibilityMonitor) : public CBase, 
                                                  public MAknWsEventObserver
@@ -74,9 +67,9 @@ private:
      */
     void ConstructL(); 
 
-public: // class member functions
+public: /// class member functions
 
-    /*
+    /**
      * Provides the caller with the current visible state
      * @return ETrue if the window is visible or false otherwise
      */
@@ -86,14 +79,14 @@ public: // from MAknWsEventObserver
 
     void HandleWsEventL( const TWsEvent& aEvent, CCoeControl* aDestination );     
 
-private: // class member data
-    // Not ownded: The Akn event monitor
+private: /// class member data
+    /// Not ownded: The Akn event monitor
     CAknWsEventMonitor* iAknEventMonitor;
     
-    // Not owned: Window visibility observer
+    /// Not owned: Window visibility observer
     MGlxWindowVisibilityObserver& iVisibilityObserver;
 
-    // The visible state 
+    /// The visible state 
     TBool iIsVisible; 
     };
        

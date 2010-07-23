@@ -108,7 +108,7 @@ public:
      * classes implement MGlxWindowObjectFactory, since vtable would not
      * be valid in the destructor 
 	 */
-	IMPORT_C void Cleanup();
+	IMPORT_C void CleanupL();
 
 	/**
 	 * Updates range offset. The range is the span of indexes that defined 
@@ -128,16 +128,16 @@ public:
  	 * Sets the focus. 
  	 * @param aFocusIndex index of the object to be focused in the list
  	 */
-	/* @todo depricated */ IMPORT_C void SetFocusIndex( TInt aFocusIndex ); 
-	IMPORT_C void SetFocusIndex( TInt aFocusIndex, TInt aTotalSize );
+	/* @todo depricated */ IMPORT_C void SetFocusIndexL( TInt aFocusIndex ); 
+	IMPORT_C void SetFocusIndexL( TInt aFocusIndex, TInt aTotalSize );
 
 	/**
 	 * Adds objects to the list. Updates window if necessary.
 	 * The function assumes that the underlying data structure has
 	 * already changed.
 	 */
-	/* @todo depricated */ IMPORT_C void AddObjects( TInt aFirstNewIndex, TInt aLastNewIndex ); 
-	IMPORT_C void AddObjects( TInt aFocusIndex, TInt aTotalSize,
+	/* @todo depricated */ IMPORT_C void AddObjectsL( TInt aFirstNewIndex, TInt aLastNewIndex ); 
+	IMPORT_C void AddObjectsL( TInt aFocusIndex, TInt aTotalSize,
 	    TInt aFirstNewIndex, TInt aLastNewIndex );
 	
 	/**
@@ -145,8 +145,8 @@ public:
 	 * The function assumes that the underlying data structure has
 	 * already changed.
 	 */
-	/* @todo depricated */ IMPORT_C void RemoveObjects( TInt aFirstRemovedIndex, TInt aLastRemovedIndex ); 
-	IMPORT_C void RemoveObjects( TInt aFocusIndex, TInt aTotalSize, 
+	/* @todo depricated */ IMPORT_C void RemoveObjectsL( TInt aFirstRemovedIndex, TInt aLastRemovedIndex ); 
+	IMPORT_C void RemoveObjectsL( TInt aFocusIndex, TInt aTotalSize, 
 	    TInt aFirstRemovedIndex, TInt aLastRemovedIndex );
 	
 	/**
@@ -192,9 +192,9 @@ private:
         };
 
     /** Update the window based on the change */
-    void Update( const TChange& aChange );
+    void UpdateL( const TChange& aChange );
     /** Move objects from main window to working window, or object pool if not needed */
-    void PopulateExistingAndUnuseOld( const TChange& aChange );
+    void PopulateExistingAndUnuseOldL( const TChange& aChange );
     /** Populate main window with items from object pool */
     void PopulateNew();
     /** Make working window the main window and vice versa */

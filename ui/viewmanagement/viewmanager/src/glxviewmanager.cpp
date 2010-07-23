@@ -247,46 +247,14 @@ void GlxViewManager::updateProgressDialog( int currentValue )
     //To:Do temp code remove later
     if ( mProgressDialog ) {
         i = ++i % 10;
-        switch ( i ) {
-        case 0 :
-            icon = HbIcon( QString(":/data/Image1.jpg") );
-            break;
-        case 1 :
-            icon = HbIcon( QString(":/data/Image2.jpg") );
-            break;
-        case 2 :
-            icon = HbIcon( QString(":/data/Image3.jpg") );
-            break;
-        case 3 :
-            icon = HbIcon( QString(":/data/Image4.jpg") );
-            break;
-        case 4 :
-            icon = HbIcon( QString(":/data/Image5.jpg") );
-            break;
-        case 5 :
-            icon = HbIcon( QString(":/data/Image6.jpg") );
-            break;
-        case 6 :
-            icon = HbIcon( QString(":/data/Image7.jpg") );
-            break;
-        case 7 :
-            icon = HbIcon( QString(":/data/Image8.jpg") );
-            break;
-        case 8 :
-            icon = HbIcon( QString(":/data/Image9.jpg") );
-            break;
-        case 9 :
-            icon = HbIcon( QString(":/data/Image10.jpg") );
-            break;            
-        }
+        icon = HbIcon( QString( ":/data/wait/qgn_graf_ring_wait_%1.svg" ).arg( i + 1, 2, 10, QChar( '0' ) ) );
+        mProgressDialog->setIcon(icon);
         
         int max = mProgressDialog->maximum() ;
         if ( currentValue > max ) {
             mProgressDialog->setMaximum( currentValue );
             max = currentValue ;
         }
-        
-        mProgressDialog->setIcon(icon);
         
         if ( currentValue < 0 ) {
             mProgressDialog->setText( QString( GLX_REFRESHING ) ); //To:Do string will change later

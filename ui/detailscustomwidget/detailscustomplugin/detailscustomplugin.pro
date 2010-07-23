@@ -16,13 +16,13 @@
 #*/ 
 
 TEMPLATE = lib
-TARGET = detailsnamelabelplugin
+TARGET = glxdetailscustomplugin
 
 win32{
 CONFIG(release, debug|release){
-	TARGET = detailsnamelabelplugin
+	TARGET = glxdetailscustomplugin
 	} else {
-	TARGET = detailsnamelabelplugind
+	TARGET = glxdetailscustomplugind
 	}
 }
 
@@ -31,10 +31,10 @@ CONFIG += hb plugin
 win32{
 CONFIG(release, debug|release){
 		DESTDIR = ../release # for easy plugin loading
-		LIBS += -L../release -ldetailsnamelabel
+		LIBS += -L../release -lglxdetailscustomwidgets
 	} else {
 		DESTDIR = ../debug # for easy plugin loading
-		LIBS += -L../debug -ldetailsnamelabeld
+		LIBS += -L../debug -lglxdetailscustomwidgetsd
 	}
 }
 
@@ -42,8 +42,7 @@ SOURCES += \
         main.cpp
 
 INCLUDEPATH += \
-            ../detailsnamelabel \ 
-            ../detailsnamelabel/inc
+            ../detailscustomwidgets
 
 symbian: { 
     TARGET.UID3 = 0x200071B7
@@ -53,9 +52,9 @@ symbian: {
 	
 	  
 	LIBS += \
-	    -ldetailsnamelabel.dll
+	    -lglxdetailscustomwidgets.dll
 
-	pluginstub.sources = detailsnamelabelplugin.dll
+	pluginstub.sources = glxdetailscustomplugin.dll
 	pluginstub.path = /resource/plugins
 	DEPLOYMENT += pluginstub
 	DESTDIR = $$HB_PLUGINS_DIR

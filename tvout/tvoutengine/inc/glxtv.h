@@ -68,7 +68,6 @@ public:
 /**
  * Class Description
  * A class that handles and propagates UI change notifications
- * @author Loughlin
  */        
 NONSHARABLE_CLASS (CGlxTv) : public CBase,
                              public MGlxWindowVisibilityObserver,
@@ -94,12 +93,12 @@ private:
      */
     CGlxTv(MGlxTvObserver& aTvObserver);
     
-    /*
+    /**
      * Symbian second stage construction
      */
     void ConstructL(); 
    
-public: // class public method   
+public: /// class public method   
    
     /**
      * Get the current screen size
@@ -158,28 +157,28 @@ private: // new private methods
     void StopMonitoringEnvironment();
     
 private: // class member data    
-    // Not Owned: The TV out observer 
+    /// Not Owned: The TV out observer 
     MGlxTvObserver& iTvObserver;
 
-    // Owned: The Window visibility monitor
+    /// Owned: The Window visibility monitor
     CGlxWindowVisibilityMonitor* iWindowVisibilityMonitor;
 
-    // Owned: The TV connection monitor
+    /// Owned: The TV connection monitor
     CGlxTvConnectionMonitor* iTvConnectionMonitor;
  
-    // Size of the TV Out display size
+    /// Size of the TV Out display size
     TSize iSzInPixels;
     
-    // Owned: The central repository where TV display ratio is held.
+    /// Owned: The central repository where TV display ratio is held.
     CRepository* iCenRep;
     
-     // The implementation of the class, hidden from clients
+    /// The implementation of the class, hidden from clients
 	class CGlxTvOutCenRepMonitor;
 	
-	// Owned: Monitoring class for Tv Ratio Values
+	/// Owned: Monitoring class for Tv Ratio Values
 	CGlxTvOutCenRepMonitor* iTvDisplayAspectRatioMonitor; 
 	
-	// The TV aspect ratio
+	/// The TV aspect ratio
 	TInt iAspectRatio;
     };
     

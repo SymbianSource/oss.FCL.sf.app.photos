@@ -50,44 +50,44 @@ void GlxTransitionEffectSetting::init()
             break;
             
         case GRID_TO_ALBUMLIST:
-            mEffectFileList.append( QString(":/data/gridtoalbumlisthide.fxml"));
-            mItemType.append( QString("HbView") );
-            mEventType.append(QString("click4") );
+            mEffectFileList.append( QString( "view_hide_normal" ) );
+            mItemType.append( QString( "HbView" ) );
+            mEventType.append(QString( "click4" ) );
                         
-            mEffectFileList.append( QString(":/data/gridtoalbumlist.fxml"));
-            mItemType.append( QString("HbListView") );
-            mEventType.append(QString("click5") );
+            mEffectFileList.append( QString( "view_show_normal" ) );
+            mItemType.append( QString( "HbListView" ) );
+            mEventType.append( QString( "click5" ) );
             break;
              
         case ALBUMLIST_TO_GRID:
-            mEffectFileList.append( QString(":/data/albumlisttogrid.fxml"));
-            mItemType.append( QString("HbListView") );
-            mEventType.append(QString("click6") );
+            mEffectFileList.append( QString( "view_hide_back" ) );
+            mItemType.append( QString( "HbListView" ) );
+            mEventType.append( QString( "click6" ) );
                         
-            mEffectFileList.append( QString(":/data/albumlisttogridshow.fxml"));
-            mItemType.append( QString("HbView") );
-            mEventType.append(QString("click7") );
+            mEffectFileList.append( QString( "view_show_back" ) );
+            mItemType.append( QString( "HbView" ) );
+            mEventType.append( QString( "click7" ) );
             break;
             
         case FULLSCREEN_TO_DETAIL :
-            mEffectFileList.append( QString(":/data/view_flip_hide.fxml"));
-            mItemType.append( QString("HbView") );
-            mEventType.append(QString("click8") );
+            mEffectFileList.append( QString( "view_hide_normal_alt" ) );
+            mItemType.append( QString( "HbView" ) );
+            mEventType.append( QString( "click8" ) );
                         
-            mEffectFileList.append( QString(":/data/view_flip_show.fxml"));
-            mItemType.append( QString("HbView") );
-            mEventType.append(QString("click9") );
+            mEffectFileList.append( QString( "view_show_normal_alt" ) );
+            mItemType.append( QString( "HbView" ) );
+            mEventType.append(QString( "click9" ) );
             mTransitionLater = true;
             break;
             
         case DETAIL_TO_FULLSCREEN :
-            mEffectFileList.append( QString(":/data/view_flip_hide.fxml"));
-            mItemType.append( QString("HbView") );
-            mEventType.append(QString("click10") );
+            mEffectFileList.append( "view_hide_back_alt" );
+            mItemType.append( QString( "HbView" ) );
+            mEventType.append( QString( "click10" ) );
                         
-            mEffectFileList.append( QString(":/data/view_flip_show.fxml"));
-            mItemType.append( QString("HbView") );
-            mEventType.append(QString("click11") );
+            mEffectFileList.append( "view_show_back_alt" );
+            mItemType.append( QString( "HbView" ) );
+            mEventType.append( QString( "click11" ) );
             mTransitionLater = true;
             break;            
             

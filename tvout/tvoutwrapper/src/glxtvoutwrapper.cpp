@@ -43,11 +43,11 @@ GlxTvOutWrapper::~GlxTvOutWrapper()
 // setModel 
 // and Create the private instance to pass the model
 // -----------------------------------------------------------------------------
-void GlxTvOutWrapper::setModel(QAbstractItemModel* aModel,bool aEfectsOn)
+void GlxTvOutWrapper::setModel(QAbstractItemModel* aModel,QSize aScreenSize,bool aEfectsOn)
     {
     if (!mTvOutWrapperPrivate)
         {
-        mTvOutWrapperPrivate = GlxTvOutWrapperPrivate::Instance(this,aModel,aEfectsOn);
+        mTvOutWrapperPrivate = GlxTvOutWrapperPrivate::Instance(this,aModel,aScreenSize,aEfectsOn);
         }
     else
         {

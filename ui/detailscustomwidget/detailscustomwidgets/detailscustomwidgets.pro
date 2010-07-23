@@ -16,16 +16,16 @@
 #*/ 
 
 TEMPLATE = lib
-TARGET = detailsnamelabel
+TARGET = glxdetailscustomwidgets
 CONFIG += hb
-DEFINES += BUILD_NAMELABEL
+DEFINES += BUILD_DETAILSCUSTOM
 
 win32{
 CONFIG(release, debug|release){
-  TARGET = detailsnamelabel
+  TARGET = glxdetailscustomwidgets
   DESTDIR = ../release # for easy plugin loading
 }else{
-  TARGET = detailsnamelabeld
+  TARGET = glxdetailscustomwidgetsd
   DESTDIR = ../debug # for easy plugin loading
   }
 }
@@ -36,10 +36,13 @@ DEPENDPATH += ./inc \
 INCLUDEPATH += ./inc
 
 SOURCES += \
-		glxdetailsnamelabel.cpp
+		   glxdetailsicon.cpp \
+		   glxdetailstextedit.cpp
 
 HEADERS += \
-        glxdetailsnamelabel.h 
+		   glxdetailsicon.h \
+		   glxdetailstextedit.h
+        
             
 symbian {
     TARGET.UID3 = 0x2000A7BC
@@ -52,9 +55,9 @@ symbian {
 
 defBlock = \      
 "$${LITERAL_HASH}if defined(EABI)" \
-"DEFFILE  ../eabi/detailsnamelabel.def" \
+"DEFFILE  ../eabi/glxdetailscustomwidgets.def" \
 	 "$${LITERAL_HASH}else" \
-	 "DEFFILE  ../bwins/detailsnamelabel.def" \
+	 "DEFFILE  ../bwins/glxdetailscustomwidgets.def" \
              "$${LITERAL_HASH}endif"
 	
 MMP_RULES += defBlock

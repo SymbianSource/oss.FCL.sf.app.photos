@@ -32,7 +32,6 @@
 #include "glxmedialist.h"
 #include "glxerrormanager.h"
 #include "glxthumbnailutility.h"
-//#include "mglxcache.h"
 #include "glxlistutils.h"
 
 /**
@@ -80,10 +79,7 @@ EXPORT_C CGlxThumbnailContext::CGlxThumbnailContext(MGlxMediaListIterator* aIter
 void CGlxThumbnailContext::ConstructL()    
     {
     TRACER( "CGlxThumbnailContext::ConstructL");
-    
-    //iCache = MGlxCache::InstanceL();
     iResolutionUtility = CGlxResolutionUtility::InstanceL();
-  //  iResolutionUtility->AddObserverL( *this );
 
     iDrmUtility = CGlxDRMUtility::InstanceL();
 
@@ -130,16 +126,9 @@ EXPORT_C CGlxThumbnailContext::~CGlxThumbnailContext()
 
     iSpecs.Close();
 
-    if ( iResolutionUtility )
-        {
-      //  iResolutionUtility->RemoveObserver( *this );
-        iResolutionUtility->Close();
-        }
 
-    /*if ( iCache )
-        {
-        iCache->Close();
-        }*/
+
+
     }
 
 // -----------------------------------------------------------------------------
@@ -363,17 +352,7 @@ TInt CGlxThumbnailContext::RequestCountL(const MGlxMediaList* aList) const
     return requestCount;
     }
 
-// -----------------------------------------------------------------------------
-// HandleResolutionChanged
-// -----------------------------------------------------------------------------
-//
-/*void CGlxThumbnailContext::HandleResolutionChangedL()
-    {
-    TRACER( "CGlxThumbnailContext::HandleResolutionChanged");
-    
-    // Ask cache manager to refresh, to fetch thumbnails in new size
-    iCache->RefreshL();
-    }*/
+
 
 // -----------------------------------------------------------------------------
 // SelectItemL

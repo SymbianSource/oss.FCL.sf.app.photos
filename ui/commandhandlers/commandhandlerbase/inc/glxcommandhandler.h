@@ -19,6 +19,7 @@
 #define GLXCOMMANDHANDLER_H
 
 #include <QObject>
+#include <QModelIndex>
 
 #ifdef BUILD_COMMANDHANDLERBASE
 #define GLX_COMMANDHANDLERBASE_EXPORT Q_DECL_EXPORT
@@ -26,7 +27,6 @@
 #define GLX_COMMANDHANDLERBASE_EXPORT Q_DECL_IMPORT
 #endif
 
-class QModelIndex;
 class GLX_COMMANDHANDLERBASE_EXPORT GlxCommandHandler : public QObject
 {
 public:

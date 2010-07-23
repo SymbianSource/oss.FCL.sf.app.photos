@@ -24,7 +24,12 @@
 #include "glxmodelparm.h"
 #include "glxzoomwidget.h"
 
-GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), mModel(NULL), mMinZValue(MINZVALUE), mMaxZValue(MAXZVALUE), mImageDecodeRequestSend(false), mPinchGestureOngoing(false), mDecodedImageAvailable(false),mZoomOngoing(false), mTimerId(0)
+GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), 
+            mModel(NULL), mMinZValue(MINZVALUE), 
+            mMaxZValue(MAXZVALUE), mTimerId(0),
+            mImageDecodeRequestSend(false), 
+            mPinchGestureOngoing(false), mDecodedImageAvailable(false),
+            mZoomOngoing(false)
 {
     grabGesture(Qt::PinchGesture);
     grabGesture(Qt::TapGesture);
@@ -189,6 +194,9 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
         return true;
     }
      if (QGesture *pinch = event->gesture(Qt::PinchGesture))  {
+         if (isFocussedItemCorrupt()){
+         return true;
+         }
        QPinchGesture* pinchG = static_cast<QPinchGesture *>(pinch);
        QPinchGesture::ChangeFlags changeFlags = pinchG->changeFlags();
        if (changeFlags & QPinchGesture::ScaleFactorChanged) {
@@ -519,15 +527,18 @@ void GlxZoomWidget::setZoomParams()
 
 void GlxZoomWidget::animateZoomIn(QPointF animRefPoint)
 {
-      emit pinchGestureReceived(mFocusIndex);
-            //bring the zoom widget to foreground
-            mZoomOngoing = true;
-            setZValue(mMaxZValue);
-            //show the black background
-            mBlackBackgroundItem->setParentItem(parentItem());
-            mBlackBackgroundItem->setZValue(mMaxZValue - 1);
-            mBlackBackgroundItem->show();
-	m_AnimRefPoint = animRefPoint;
+    if (isFocussedItemCorrupt()){
+    return;
+    }
+    emit pinchGestureReceived(mFocusIndex);
+    //bring the zoom widget to foreground
+    mZoomOngoing = true;
+    setZValue(mMaxZValue);
+    //show the black background
+    mBlackBackgroundItem->setParentItem(parentItem());
+    mBlackBackgroundItem->setZValue(mMaxZValue - 1);
+    mBlackBackgroundItem->show();
+    m_AnimRefPoint = animRefPoint;
     QSizeF requiredSize = mItemSize;
     requiredSize.scale(mWindowSize*3.5, Qt::KeepAspectRatio);
 	m_FinalAnimatedScaleFactor = requiredSize.width()/mMinDecScaleSize.width();
@@ -579,3 +590,13 @@ void GlxZoomWidget::timerEvent(QTimerEvent *event)
         mTimerId = 0;
     }
 }
+
+bool GlxZoomWidget::isFocussedItemCorrupt()
+{
+    QVariant variant = mModel->data( mModel->index( mFocusIndex, 0 ), GlxImageCorruptRole );
+    if ( variant.isValid() && variant.canConvert< bool> () ) {
+        return variant.value< bool > () ;
+    }
+    return false ;    
+}
+

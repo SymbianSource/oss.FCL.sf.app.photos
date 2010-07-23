@@ -16,11 +16,6 @@
 */
 
 
-
-/**
- * @internal reviewed 24/08/2007 by D Holland
- */
-
 #ifndef __GLX_WNDWCONNECTION_MONITOR_H__
 #define __GLX_WNDWCONNECTION_MONITOR_H__
 
@@ -40,7 +35,6 @@ class MGlxTvConnectionObserver;
 /**
  * Class Description
  * An Active object derived class is used to monitor the TV out connection
- * @author Loughlin
  */
 NONSHARABLE_CLASS(CGlxTvConnectionMonitor) : public CActive
     {
@@ -65,20 +59,20 @@ private:
     CGlxTvConnectionMonitor(
                         MGlxTvConnectionObserver& aConnectionObserver);
 
-    /*
+    /**
      * Symbian second stage construction
      */
     void ConstructL();
 
 public: // class member functions
 
-    /*
+    /**
      * Provides the caller with the current TV connetion state
      * @return The TV connection state
      */
     TBool IsConnected() const;
 
-    /*
+    /**
      * Provides the caller with the current HDMI connetion state
      * @return The HDMI connection state
      */
@@ -120,28 +114,28 @@ private:
 
 private: // class member data
 
-    // Not owned: TV connection observer
+    /// Not owned: TV connection observer
     MGlxTvConnectionObserver& iConnectionObserver;
 
-    // TVout The Connection state
+    /// TVout The Connection state
     TBool iIsTvOutConnected;
 
-    // TVout The Connection state
+    /// TVout The Connection state
     TBool iIsHDMIConnected;
 
-    // Headset The Connection state
+    /// Headset The Connection state
     TBool iIsHeadSetConnected;
 
-    // The (external device) Accessory Server
+    /// The (external device) Accessory Server
     RAccessoryServer iTvAccServer;
 
-    // Accessory mode
+    /// Accessory mode
     RAccessoryMode iTvAccMode;
 
-    // Accessory Connection - details the type of accessory
+    /// Accessory Connection - details the type of accessory
     RAccessoryConnection iTvAccCon;
 
-    //Class gives Generic ID
+    ///Class gives Generic ID
     TAccPolGenericIDArray iCurrentAccArray;
     };
 

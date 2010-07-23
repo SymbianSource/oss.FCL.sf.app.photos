@@ -19,7 +19,12 @@
 
 
 #include <glxcommandfactory.h>
-#include <photoeditor_highway.hrh>
+
+
+#ifdef FF_IMAGE_EDITOR
+    #include <photoeditor_highway.hrh>
+#endif //FF_IMAGE_EDITOR
+
 #include "glxcommandhandlereditimage.h"
 #include <glxcommandhandlers.hrh>
 #include <glxmodelparm.h>
@@ -66,6 +71,7 @@ void GlxCommandHandlerEditImage::executeCommand(int commandId,int collectionId, 
     
     QList<QVariant> args;
     args << imagePath;
+#ifdef FF_IMAGE_EDITOR    
 	if(EGlxCmdSetWallpaper == commandId)
 		{
 		args << EEditorHighwayWallpaperCrop;
@@ -83,6 +89,7 @@ void GlxCommandHandlerEditImage::executeCommand(int commandId,int collectionId, 
         args << EEditorHighwayRotateCCW;
         }
     mReq->setArguments(args);
+#endif //FF_IMAGE_EDITOR
     
     // Send the request
     bool res = mReq->send();

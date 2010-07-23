@@ -46,6 +46,7 @@ GlxSlideShowWidget::GlxSlideShowWidget( QGraphicsItem *parent )
     : HbWidget( parent ), 
       mEffectEngine( NULL ), 
       mSettings( NULL ),
+      mBackGroundItem( NULL ),
       mContinueButton( NULL ), 
       mErrorNote( NULL ),
       mItemIndex( 1 ),  
@@ -66,6 +67,9 @@ void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
     
     //create the effect engine
     mEffectEngine = new GlxEffectEngine();
+    
+    mBackGroundItem = new HbIconItem( this );
+    mBackGroundItem->setBrush( QBrush( Qt::black ) );
 
     // Now load the view and the contents.
     // and then set the play icon to the button
@@ -77,11 +81,10 @@ void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
     for ( int i = 0; i < NBR_ITEM ; i++) {
         mSelIndex[ i ] = -1;
         mIconItems[ i ] = new HbIconItem( this );
-        mIconItems[ i ]->setBrush( QBrush( Qt::black ) );
         mIconItems[ i ]->setAlignment( Qt::AlignCenter );
         mIconItems[ i ]->setObjectName( QString( "SlideShowIcon%1" ).arg( i ) );
-    }
-
+    }    
+    
     mSlideTimer = new QTimer();
     mItemList.clear();    
 
@@ -125,6 +128,9 @@ void GlxSlideShowWidget::cleanUp()
         delete mIconItems[i] ;
         mIconItems[i] = NULL;
     }
+    
+    delete mBackGroundItem ;
+    mBackGroundItem = NULL;
 
     if( mSlideTimer ) {
         delete mSlideTimer;
@@ -142,7 +148,7 @@ void GlxSlideShowWidget::cleanUp()
     HbEffect::remove( QString("HbIconItem"), QString(":/data/transitionright.fxml"), QString( "RightMove" ));
 }
 
-void GlxSlideShowWidget::setModel (QAbstractItemModel *model)
+void GlxSlideShowWidget::setModel ( QAbstractItemModel *model )
 {
     TRACER("GlxSlideShowWidget::setModel()");
     if ( model == mModel ) {
@@ -154,16 +160,17 @@ void GlxSlideShowWidget::setModel (QAbstractItemModel *model)
     resetSlideShow();
 }
 
-void GlxSlideShowWidget::setItemGeometry(QRect screenRect)
+void GlxSlideShowWidget::setItemGeometry( QRect screenRect )
 {
     TRACER("GlxSlideShowWidget::setItemGeometry()");
     int index = mItemIndex;
     mScreenRect = screenRect;   
-    mIconItems[index]->setGeometry(mScreenRect);
-    index = ( mItemIndex + 1) % NBR_ITEM;
-    mIconItems[index]->setGeometry( QRect( mScreenRect.width(), mScreenRect.top(), mScreenRect.width(), mScreenRect.height() ) );
+    mIconItems[ index ]->setGeometry( mScreenRect );
+    index = ( mItemIndex + 1 ) % NBR_ITEM;
+    mIconItems[ index ]->setGeometry( QRect( mScreenRect.width(), mScreenRect.top(), mScreenRect.width(), mScreenRect.height() ) );
     index = mItemIndex ? mItemIndex - 1 : NBR_ITEM - 1;    
-    mIconItems[index]->setGeometry( QRect( -mScreenRect.width(), mScreenRect.top(), mScreenRect.width(), mScreenRect.height() ) );     
+    mIconItems[ index ]->setGeometry( QRect( -mScreenRect.width(), mScreenRect.top(), mScreenRect.width(), mScreenRect.height() ) );
+    mBackGroundItem->setGeometry( mScreenRect );
 }
 
 void GlxSlideShowWidget::triggeredEffect()

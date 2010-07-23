@@ -2,323 +2,214 @@
 <hbdocument version="1.1">
     <widget name="view" type="HbView">
         <widget name="content" role="HbView:widget" type="HbWidget">
-            <widget name="MainWidget" type="HbWidget">
-                <widget name="ImageIcon" type="HbLabel">
-                    <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-                    <icon iconName="qtg_small_smiley_very_cool" name="icon"/>
-                    <sizepolicy horizontalPolicy="Preferred" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-                    <sizehint height="31.95un" type="PREFERRED" width="31.95un"/>
-                    <sizehint height="31.95un" type="MINIMUM" width="31.95un"/>
-                    <sizehint height="31.95un" type="MAXIMUM" width="31.95un"/>
+            <widget name="ImageIcon" type="HbLabel">
+                <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
+                <icon iconName="qtg_small_smiley_very_cool" name="icon"/>
+                <real name="z" value="1"/>
+                <sizehint height="21.19403un" type="PREFERRED" width="39.55224un"/>
+            </widget>
+            <widget name="FavIcon" plugin="glxdetailscustomplugin" type="GlxDetailsIcon">
+                <real name="z" value="2"/>
+            </widget>
+            <widget name="ImageName" plugin="glxdetailscustomplugin" type="GlxDetailsTextEdit">
+                <real name="z" value="3"/>
+                <sizehint type="PREFERRED" width="44.92537un"/>
+            </widget>
+            <widget name="container" type="HbWidget">
+                <widget name="DateText" type="HbLabel">
+                    <rect height="3.28358un" name="geometry" width="6.71un" x="0un" y="0un"/>
+                    <string name="plainText" value="Label"/>
                 </widget>
-                <widget name="FavIcon" type="HbPushButton">
-                    <real name="z" value="1"/>
-                    <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-                    <real name="opacity" value="0.6"/>
-                    <sizehint type="MINIMUM" width="5un"/>
-                    <sizehint height="5un" type="MAXIMUM" width="5un"/>
-                    <string name="text"/>
+                <widget name="TimeText" type="HbLabel">
+                    <rect height="3.28358un" name="geometry" width="6.71un" x="0un" y="0un"/>
+                    <string name="plainText" value="Label"/>
                 </widget>
-                <widget name="ImageName" plugin="detailsnamelabelplugin" type="GlxDetailsNameLabel"/>
-                <widget name="container" type="HbWidget">
-                    <widget name="DateContainer" type="HbWidget">
-                        <widget name="DateText" type="HbLabel">
-                            <string name="plainText"/>
-                        </widget>
-                        <real name="z" value="0"/>
-                        <sizehint height="11.9403un" type="PREFERRED" width="23.8806un"/>
-                        <layout orientation="Horizontal" type="linear">
-                            <linearitem itemname="DateText"/>
-                        </layout>
-                    </widget>
-                    <widget name="TimeContainer" type="HbWidget">
-                        <widget name="TimeText" type="HbLabel">
-                            <string name="plainText"/>
-                        </widget>
-                        <real name="z" value="0"/>
-                        <sizehint height="11.9403un" type="PREFERRED" width="23.8806un"/>
-                        <layout orientation="Horizontal" type="linear">
-                            <linearitem itemname="TimeText"/>
-                        </layout>
-                    </widget>
-                    <widget name="SizeContainer" type="HbWidget">
-                        <widget name="SizeText" type="HbLabel">
-                            <string name="plainText"/>
-                        </widget>
-                        <real name="z" value="0"/>
-                        <sizehint height="11.9403un" type="PREFERRED" width="23.8806un"/>
-                        <layout orientation="Horizontal" type="linear">
-                            <linearitem itemname="SizeText"/>
-                        </layout>
-                    </widget>
-                    <widget name="DescLabelContainer" type="HbWidget">
-                        <widget name="Descriptions" type="HbLabel">
-                            <string name="plainText"/>
-                        </widget>
-                        <real name="z" value="0"/>
-                        <sizehint height="11.9403un" type="PREFERRED" width="23.8806un"/>
-                        <layout orientation="Horizontal" type="linear">
-                            <linearitem itemname="Descriptions"/>
-                        </layout>
-                    </widget>
-                    <widget name="DescTextContainer" type="HbWidget">
-                        <widget name="DescriptionsText" plugin="detailsdescriptioneditplugin" type="GlxDetailsDescriptionEdit">
-                            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-                        </widget>
-                        <real name="z" value="0"/>
-                        <sizehint height="11.9403un" type="PREFERRED" width="23.8806un"/>
-                        <layout orientation="Horizontal" type="linear">
-                            <linearitem itemname="DescriptionsText"/>
-                        </layout>
-                    </widget>
-                    <real name="z" value="0"/>
-                    <sizehint height="23.8806un" type="PREFERRED" width="11.9403un"/>
-                    <layout orientation="Vertical" type="linear">
-                        <linearitem itemname="DateContainer"/>
-                        <linearitem itemname="TimeContainer"/>
-                        <linearitem itemname="SizeContainer"/>
-                        <linearitem itemname="DescLabelContainer"/>
-                        <linearitem itemname="DescTextContainer"/>
-                    </layout>
+                <widget name="SizeText" type="HbLabel">
+                    <rect height="3.28358un" name="geometry" width="6.71un" x="0un" y="0un"/>
+                    <string name="plainText" value="Label"/>
                 </widget>
-                <real name="z" value="0"/>
-                <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-                <sizehint height="expr(var(hb-param-screen-height) - (2*var(hb-param-margin-gene-screen) )-var(hb-param-widget-chrome-height))" type="FIXED" width="expr(var(hb-param-screen-width) -(2*var(hb-param-margin-gene-screen) ))"/>
-                <sizehint height="expr(var(hb-param-screen-height) - (2*var(hb-param-margin-gene-screen) )-var(hb-param-widget-chrome-height))" type="MINIMUM" width="expr(var(hb-param-screen-width) -(2*var(hb-param-margin-gene-screen) ))"/>
-                <sizehint height="expr(var(hb-param-screen-height) - (2*var(hb-param-margin-gene-screen) )-var(hb-param-widget-chrome-height))" type="MAXIMUM" width="expr(var(hb-param-screen-width) -(2*var(hb-param-margin-gene-screen) ))"/>
-                <layout type="anchor">
-                    <anchoritem dst="ImageIcon" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
-                    <anchoritem dst="ImageIcon" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
-                    <anchoritem dst="FavIcon" dstEdge="TOP" spacing="29.85075un" src="" srcEdge="TOP"/>
-                    <anchoritem dst="FavIcon" dstEdge="RIGHT" spacing="-10.85075un" src="" srcEdge="RIGHT"/>
-                    <anchoritem dst="ImageName" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
-                    <anchoritem dst="ImageName" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
-                    <anchoritem dst="container" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
-                    <anchoritem dst="container" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
-                </layout>
+                <widget name="Descriptions" type="HbLabel">
+                    <rect height="3.28358un" name="geometry" width="6.71un" x="0un" y="0un"/>
+                    <string locid="txt_photos_formlabel_description" name="plainText" value="Description :"/>
+                </widget>
+                <widget name="DescriptionsText" plugin="glxdetailscustomplugin" type="GlxDetailsTextEdit"/>
+                <sizehint height="23.8806un" type="PREFERRED" width="23.8806un"/>
             </widget>
             <layout type="anchor">
-                <anchoritem dst="MainWidget" dstEdge="LEFT" spacing="expr(var(hb-param-margin-gene-screen) )" src="" srcEdge="LEFT"/>
-                <anchoritem dst="MainWidget" dstEdge="TOP" spacing="expr(var(hb-param-margin-gene-screen) )" src="" srcEdge="TOP"/>
-            </layout>
-        </widget>
-        <string name="title" value="View"/>
-    </widget>
-    <section name="portrait">
-        <widget name="DescriptionsText" plugin="detailsdescriptioneditplugin" type="GlxDetailsDescriptionEdit">
-            <sizehint height="10.5un" type="PREFERRED" width="48un"/>
-            <sizehint height="10.5un" type="MAXIMUM" width="48un"/>
-            <sizehint height="10.5un" type="MINIMUM" width="48un"/>
-        </widget>
-        <widget name="DateContainer" type="HbWidget">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="7.5un" type="MAXIMUM" width="48.38806un"/>
-            <sizehint height="5un" type="FIXED" width="48.38806un"/>
-            <sizehint height="5un" type="MINIMUM" width="48.38806un"/>
-            <layout orientation="Horizontal" spacing="3px" type="linear">
-                <contentsmargins bottom="3px" left="3px" right="3px" top="3px"/>
-                <linearitem itemname="DateText"/>
-            </layout>
-        </widget>
-        <widget name="content" role="HbView:widget" type="HbWidget">
-            <layout type="anchor">
-                <anchoritem dst="MainWidget" dstEdge="LEFT" spacing="expr(var(hb-param-margin-gene-screen) )" src="" srcEdge="LEFT"/>
-                <anchoritem dst="MainWidget" dstEdge="TOP" spacing="expr(var(hb-param-margin-gene-screen) + var(hb-param-widget-chrome-height)  + var(hb-param-widget-chrome-height) /3)" src="" srcEdge="TOP"/>
-            </layout>
-        </widget>
-        <widget name="DescLabelContainer" type="HbWidget">
-            <sizehint height="4.5un" type="MAXIMUM" width="48.38806un"/>
-            <sizehint height="4.5un" type="MINIMUM" width="48.38806un"/>
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="4.5un" type="FIXED" width="48.38806un"/>
-            <layout orientation="Horizontal" spacing="3px" type="linear">
-                <contentsmargins bottom="3px" left="3px" right="3px" top="3px"/>
-                <linearitem itemname="Descriptions"/>
-            </layout>
-        </widget>
-        <widget name="DateText" type="HbLabel">
-            <string name="plainText"/>
-        </widget>
-        <widget name="TimeContainer" type="HbWidget">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="5un" type="MAXIMUM" width="48.38806un"/>
-            <sizehint height="5un" type="FIXED" width="48.38806un"/>
-            <sizehint height="5un" type="MINIMUM" width="48.38806un"/>
-            <layout orientation="Horizontal" spacing="3px" type="linear">
-                <contentsmargins bottom="3px" left="3px" right="3px" top="3px"/>
-                <linearitem itemname="TimeText"/>
-            </layout>
-        </widget>
-        <widget name="container" type="HbWidget">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="37.82239un" type="MAXIMUM" width="49.73134un"/>
-            <sizehint height="37.82239un" type="FIXED" width="49.73134un"/>
-            <sizehint height="37.82239un" type="MINIMUM" width="49.73134un"/>
-            <layout orientation="Vertical" spacing="0un" type="linear">
-                <contentsmargins bottom="0un" left="0un" right="0un" top="0un"/>
-                <linearitem itemname="DateContainer"/>
-                <linearitem itemname="TimeContainer"/>
-                <linearitem itemname="SizeContainer"/>
-                <linearitem itemname="DescLabelContainer"/>
-                <linearitem itemname="DescTextContainer"/>
-            </layout>
-        </widget>
-        <widget name="SizeContainer" type="HbWidget">
-            <sizehint height="7.5un" type="MINIMUM" width="48.38806un"/>
-            <sizehint height="5un" type="MAXIMUM" width="48.38806un"/>
-            <sizehint height="7.5un" type="FIXED" width="48.38806un"/>
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <layout orientation="Horizontal" spacing="3px" type="linear">
-                <contentsmargins bottom="3px" left="3px" right="3px" top="3px"/>
-                <linearitem itemname="SizeText"/>
-            </layout>
-        </widget>
-        <widget name="MainWidget" type="HbWidget">
-            <layout type="anchor">
-                <anchoritem dst="ImageIcon" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
-                <anchoritem dst="ImageIcon" dstEdge="CENTERH" spacing="0un" src="" srcEdge="CENTERH"/>
-                <anchoritem dst="FavIcon" dstEdge="RIGHT" spacing="0un" src="ImageIcon" srcEdge="RIGHT"/>
-                <anchoritem dst="FavIcon" dstEdge="BOTTOM" spacing="0un" src="ImageIcon" srcEdge="BOTTOM"/>
-                <anchoritem dst="ImageName" dstEdge="LEFT" spacing="0.44776un" src="" srcEdge="LEFT"/>
-                <anchoritem dst="ImageName" dstEdge="TOP" spacing="expr(31.95un +var(hb-param-margin-gene-middle-vertical))" src="" srcEdge="TOP"/>
+                <anchoritem dst="ImageIcon" dstEdge="TOP" spacing="1.64179un" src="" srcEdge="TOP"/>
+                <anchoritem dst="ImageIcon" dstEdge="RIGHT" spacing="-12.83582un" src="" srcEdge="RIGHT"/>
+                <anchoritem dst="FavIcon" dstEdge="TOP" spacing="14.32836un" src="" srcEdge="TOP"/>
+                <anchoritem dst="FavIcon" dstEdge="RIGHT" spacing="-10.59702un" src="" srcEdge="RIGHT"/>
+                <anchoritem dst="ImageName" dstEdge="LEFT" spacing="3.13433un" src="" srcEdge="LEFT"/>
+                <anchoritem dst="ImageName" dstEdge="TOP" spacing="25.52239un" src="" srcEdge="TOP"/>
                 <anchoritem dst="container" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
-                <anchoritem dst="container" dstEdge="TOP" spacing="expr(31.95un +var(hb-param-margin-gene-middle-vertical) + var(hb-param-margin-gene-bottom) + 5un)" src="" srcEdge="TOP"/>
-            </layout>
-        </widget>
-        <widget name="DescTextContainer" type="HbWidget">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="14un" type="MAXIMUM" width="48.38806un"/>
-            <sizehint height="14un" type="FIXED" width="48.38806un"/>
-            <sizehint height="7.5un" type="MINIMUM" width="48.38806un"/>
-            <layout orientation="Horizontal" spacing="3px" type="linear">
-                <contentsmargins bottom="3px" left="3px" right="3px" top="3px"/>
-                <linearitem itemname="DescriptionsText"/>
-            </layout>
-        </widget>
-        <widget name="ImageName" plugin="detailsnamelabelplugin" type="GlxDetailsNameLabel">
-            <enums name="textWrapping" value="TextWordWrap"/>
-            <enums name="alignment" value="AlignVCenter|AlignHCenter"/>
-            <real name="z" value="2"/>
-            <sizehint height="6un" type="FIXED" width="48.50746un"/>
-            <sizehint height="6un" type="MINIMUM" width="48.50746un"/>
-            <sizehint height="7un" type="MAXIMUM" width="48.50746un"/>
-            <string name="plainText"/>
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-        </widget>
-        <widget name="FavIcon" type="HbPushButton">
-            <sizehint type="PREFERRED" width="expr(var(hb-param-graphic-size-primary-small) + 2un)"/>
-            <sizehint type="MINIMUM" width="expr(var(hb-param-graphic-size-primary-small) + 2un)"/>
-            <sizehint height="5un" type="MAXIMUM" width="expr(var(hb-param-graphic-size-primary-small) + 2un)"/>
-            <real name="opacity" value="0.6"/>
-        </widget>
-        <widget name="Descriptions" type="HbLabel">
-            <string name="plainText" value="Description:"/>
-        </widget>
-    </section>
-    <section name="landscape">
-        <widget name="DescriptionsText" plugin="detailsdescriptioneditplugin" type="GlxDetailsDescriptionEdit">
-            <sizehint height="12un" type="MINIMUM" width="56un"/>
-            <sizehint height="12un" type="PREFERRED" width="56un"/>
-            <sizehint height="12un" type="MAXIMUM" width="56un"/>
-        </widget>
-        <widget name="DateContainer" type="HbWidget">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="5un" type="FIXED" width="expr(var(hb-param-screen-width) -  (2*var(hb-param-margin-gene-screen)) -31.95un -var(hb-param-margin-gene-left) )"/>
-            <sizehint height="5un" type="MAXIMUM" width="expr(var(hb-param-screen-width) -  (2*var(hb-param-margin-gene-screen)) -31.95un -var(hb-param-margin-gene-left) )"/>
-            <sizehint height="5un" type="MINIMUM" width="expr(var(hb-param-screen-width) -  (2*var(hb-param-margin-gene-screen)) -31.95un -var(hb-param-margin-gene-left) )"/>
-        </widget>
-        <widget name="content" role="HbView:widget" type="HbWidget">
-            <layout type="anchor">
-                <anchoritem dst="MainWidget" dstEdge="LEFT" spacing="expr(var(hb-param-margin-gene-screen) )" src="" srcEdge="LEFT"/>
-                <anchoritem dst="MainWidget" dstEdge="TOP" spacing="expr(var(hb-param-margin-gene-screen) + var(hb-param-widget-chrome-height))" src="" srcEdge="TOP"/>
-            </layout>
-        </widget>
-        <widget name="DescLabelContainer" type="HbWidget">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="4.5un" type="MINIMUM" width="57.57239un"/>
-            <sizehint height="4.5un" type="FIXED" width="57.57239un"/>
-            <sizehint height="4.5un" type="MAXIMUM" width="57.57239un"/>
-        </widget>
-        <widget name="DateText" type="HbLabel">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint type="MINIMUM" width="55un"/>
-            <sizehint type="MAXIMUM" width="55un"/>
-        </widget>
-        <widget name="TimeContainer" type="HbWidget">
-            <sizehint height="5un" type="MINIMUM" width="57.57239un"/>
-            <sizehint height="5un" type="FIXED" width="57.57239un"/>
-            <sizehint height="5un" type="MAXIMUM" width="57.57239un"/>
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-        </widget>
-        <widget name="SizeText" type="HbLabel">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="3.28358un" type="MINIMUM" width="55un"/>
-            <sizehint height="3.28358un" type="MAXIMUM" width="55un"/>
-        </widget>
-        <widget name="container" type="HbWidget">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="49.73134un" type="MINIMUM" width="57.57239un"/>
-            <sizehint height="49.73134un" type="FIXED" width="57.57239un"/>
-            <sizehint type="MAXIMUM" width="57.57239un"/>
-            <layout orientation="Vertical" type="linear">
-                <contentsmargins bottom="1un" left="0un" right="0un" top="0un"/>
-                <linearitem itemname="DateContainer"/>
-                <linearitem itemname="TimeContainer"/>
-                <linearitem itemname="SizeContainer"/>
-                <linearitem itemname="DescLabelContainer"/>
-                <linearitem itemname="DescTextContainer"/>
-            </layout>
-        </widget>
-        <widget name="SizeContainer" type="HbWidget">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint height="5un" type="MINIMUM" width="57.57239un"/>
-            <sizehint height="5un" type="FIXED" width="57.57239un"/>
-            <sizehint height="5un" type="MAXIMUM" width="57.57239un"/>
-        </widget>
-        <widget name="MainWidget" type="HbWidget">
-            <layout type="anchor">
-                <anchoritem dst="ImageIcon" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
-                <anchoritem dst="ImageIcon" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
-                <anchoritem dst="FavIcon" dstEdge="RIGHT" spacing="0un" src="ImageIcon" srcEdge="RIGHT"/>
-                <anchoritem dst="FavIcon" dstEdge="BOTTOM" spacing="0un" src="ImageIcon" srcEdge="BOTTOM"/>
-                <anchoritem dst="ImageName" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
-                <anchoritem dst="ImageName" dstEdge="TOP" spacing="expr(31.95un +var(hb-param-margin-gene-middle-vertical))" src="" srcEdge="TOP"/>
-                <anchoritem dst="container" dstEdge="LEFT" spacing="expr(31.95un +var(hb-param-margin-gene-left))" src="" srcEdge="LEFT"/>
                 <anchoritem dst="container" dstEdge="TOP" spacing="0un" src="" srcEdge="TOP"/>
             </layout>
         </widget>
-        <widget name="TimeText" type="HbLabel">
-            <sizehint type="FIXED" width="55un"/>
-            <sizehint type="MINIMUM" width="55un"/>
-            <sizehint height="3.28358un" type="MAXIMUM" width="55un"/>
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-        </widget>
-        <widget name="ImageName" plugin="detailsnamelabelplugin" type="GlxDetailsNameLabel">
-            <real name="z" value="2"/>
-            <sizehint height="7.5un" type="PREFERRED" width="31.95un"/>
-            <sizehint height="7.5un" type="MINIMUM" width="31.95un"/>
-            <sizehint height="7.5un" type="MAXIMUM" width="31.95un"/>
-        </widget>
-        <widget name="DescTextContainer" type="HbWidget">
-            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
-            <sizehint type="MAXIMUM" width="57.57239un"/>
-            <sizehint height="12un" type="FIXED" width="57.57239un"/>
-            <sizehint height="12un" type="MINIMUM" width="57.57239un"/>
-            <layout orientation="Horizontal" spacing="0un" type="linear">
-                <contentsmargins bottom="1.34328un" left="0un" right="1.34328un" top="0un"/>
-                <linearitem itemname="DescriptionsText"/>
-            </layout>
-        </widget>
-        <widget name="FavIcon" type="HbPushButton">
-            <sizehint type="PREFERRED" width="expr(var(hb-param-graphic-size-primary-small) + 2un)"/>
-            <sizehint type="MINIMUM" width="expr(var(hb-param-graphic-size-primary-small) + 2un)"/>
-            <sizehint height="5un" type="MAXIMUM" width="expr(var(hb-param-graphic-size-primary-small) + 2un)"/>
+        <string name="title" value="View"/>
+        <bool name="contentFullScreen" value="TRUE"/>
+    </widget>
+    <section name="portrait">
+        <widget name="view" type="HbView">
+            <bool name="contentFullScreen" value="TRUE"/>
         </widget>
         <widget name="Descriptions" type="HbLabel">
-            <string name="plainText" value="Descriptions:"/>
+            <rect height="40.2" name="geometry" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)" x="0.5un" y="expr(6un +var(hb-param-margin-gene-bottom)  + 6un +var(hb-param-margin-gene-bottom)  + 6un +var(hb-param-margin-gene-bottom) )"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="6un" type="FIXED" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MINIMUM" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MAXIMUM" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <string name="plainText" value="Description :"/>
+        </widget>
+        <widget name="SizeText" type="HbLabel">
+            <rect height="6un" name="geometry" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)" x="0.5un" y="expr(6un +var(hb-param-margin-gene-bottom) + 6un +var(hb-param-margin-gene-bottom) )"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="6un" type="FIXED" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MINIMUM" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MAXIMUM" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <string name="plainText"/>
+        </widget>
+        <widget name="ImageIcon" type="HbLabel">
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="31.95un" type="FIXED" width="expr( var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) )"/>
+            <sizehint height="31.95un" type="MINIMUM" width="expr( var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) )"/>
+            <sizehint height="31.95un" type="MAXIMUM" width="expr( var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) )"/>
+        </widget>
+        <widget name="container" type="HbWidget">
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="40.74627un" type="FIXED" width="expr(  var(hb-param-screen-width) -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) )"/>
+            <sizehint height="40.74627un" type="MINIMUM" width="expr(  var(hb-param-screen-width) -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) )"/>
+            <sizehint height="40.74627un" type="MAXIMUM" width="expr( var(hb-param-screen-width) -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) )"/>
+        </widget>
+        <widget name="DescriptionsText" plugin="glxdetailscustomplugin" type="GlxDetailsTextEdit">
+            <real name="z" value="5"/>
+            <rect height="11.49254un" name="geometry" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)" x="0.5un" y="29un"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="11.49254un" type="FIXED" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="11.49254un" type="MINIMUM" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="11.49254un" type="MAXIMUM" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+        </widget>
+        <widget name="TimeText" type="HbLabel">
+            <rect height="6un" name="geometry" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)" x="0.5un" y="expr(6un +var(hb-param-margin-gene-bottom) )"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="6un" type="FIXED" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MINIMUM" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MAXIMUM" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <string name="plainText"/>
+        </widget>
+        <widget name="ImageName" plugin="glxdetailscustomplugin" type="GlxDetailsTextEdit">
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="6un" type="FIXED" width="expr(    var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MINIMUM" width="expr(    var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MAXIMUM" width="expr(    var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+        </widget>
+        <widget name="DateText" type="HbLabel">
+            <rect height="6un" name="geometry" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)" x="0.5un" y="0un"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint type="FIXED" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MINIMUM" width="expr(   var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <sizehint height="6un" type="MAXIMUM" width="expr(  var(hb-param-screen-width)  -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 2un)"/>
+            <string name="plainText"/>
+        </widget>
+        <widget name="content" role="HbView:widget" type="HbWidget">
+            <layout type="anchor">
+                <anchoritem dst="ImageName" dstEdge="LEFT" spacing="expr(var(hb-param-margin-gene-screen) + 0.5un)" src="" srcEdge="LEFT"/>
+                <anchoritem dst="ImageName" dstEdge="TOP" spacing="expr(var(hb-param-margin-gene-screen) + 0.5un)" src="ImageIcon" srcEdge="BOTTOM"/>
+                <anchoritem dst="container" dstEdge="LEFT" spacing="expr(var(hb-param-margin-gene-screen) )" src="" srcEdge="LEFT"/>
+                <anchoritem dst="container" dstEdge="TOP" spacing="expr(var(hb-param-margin-gene-bottom) )" src="ImageName" srcEdge="BOTTOM"/>
+                <anchoritem dst="FavIcon" dstEdge="RIGHT" spacing="0un" src="ImageIcon" srcEdge="RIGHT"/>
+                <anchoritem dst="FavIcon" dstEdge="BOTTOM" spacing="0un" src="ImageIcon" srcEdge="BOTTOM"/>
+                <anchoritem dst="ImageIcon" dstEdge="LEFT" spacing="expr(var(hb-param-margin-gene-screen) )" src="" srcEdge="LEFT"/>
+                <anchoritem dst="ImageIcon" dstEdge="TOP" spacing="expr(var(hb-param-widget-chrome-height) +var(hb-param-margin-gene-screen))" src="" srcEdge="TOP"/>
+            </layout>
+        </widget>
+        <widget name="FavIcon" plugin="glxdetailscustomplugin" type="GlxDetailsIcon">
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )" type="FIXED" width="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )"/>
+            <sizehint height="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )" type="MINIMUM" width="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )"/>
+            <sizehint height="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )" type="MAXIMUM" width="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )"/>
         </widget>
     </section>
-    <metadata activeUIState="Common ui state" display="NHD-3.2-inch_portrait" unit="un">
+    <section name="landscape">
+        <widget name="view" type="HbView">
+            <bool name="contentFullScreen" value="TRUE"/>
+        </widget>
+        <widget name="Descriptions" type="HbLabel">
+            <rect height="6un" name="geometry" width="56un" x="0.5un" y="expr(6un +var(hb-param-margin-gene-bottom)  + 6un +var(hb-param-margin-gene-bottom)  + 6un +var(hb-param-margin-gene-bottom) )"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="6un" type="FIXED" width="56un"/>
+            <sizehint height="6un" type="MINIMUM" width="56un"/>
+            <sizehint height="6un" type="MAXIMUM" width="56un"/>
+        </widget>
+        <widget name="SizeText" type="HbLabel">
+            <rect height="6un" name="geometry" width="56un" x="0.5un" y="expr(6un +var(hb-param-margin-gene-bottom) + 6un +var(hb-param-margin-gene-bottom) )"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="6un" type="FIXED" width="56un"/>
+            <sizehint height="6un" type="MINIMUM" width="56un"/>
+            <sizehint height="6un" type="MAXIMUM" width="56un"/>
+            <string name="plainText"/>
+        </widget>
+        <widget name="ImageIcon" type="HbLabel">
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="31.95un" type="FIXED" width="31.95un"/>
+            <sizehint height="31.95un" type="MINIMUM" width="31.95un"/>
+            <sizehint height="31.95un" type="MAXIMUM" width="31.95un"/>
+        </widget>
+        <widget name="container" type="HbWidget">
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="40.74627un" type="FIXED" width="expr( var(hb-param-screen-width) -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 31.95un - var(hb-param-margin-gene-left) )"/>
+            <sizehint height="40.74627un" type="MINIMUM" width="expr( var(hb-param-screen-width) -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 31.95un - var(hb-param-margin-gene-left) )"/>
+            <sizehint height="40.74627un" type="MAXIMUM" width="expr( var(hb-param-screen-width) -var(hb-param-margin-gene-screen) -var(hb-param-margin-gene-screen) - 31.95un - var(hb-param-margin-gene-left) )"/>
+        </widget>
+        <widget name="DescriptionsText" plugin="glxdetailscustomplugin" type="GlxDetailsTextEdit">
+            <real name="z" value="6"/>
+            <rect height="11.49254un" name="geometry" width="56un" x="0.5un" y="28.95522un"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="11.49254un" type="FIXED" width="56un"/>
+            <sizehint height="11.49254un" type="MINIMUM" width="56un"/>
+            <sizehint height="11.49254un" type="MAXIMUM" width="56un"/>
+        </widget>
+        <widget name="TimeText" type="HbLabel">
+            <rect height="6un" name="geometry" width="56un" x="0.5un" y="expr(6un +var(hb-param-margin-gene-bottom) )"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="6un" type="FIXED" width="55un"/>
+            <sizehint height="6un" type="MINIMUM" width="55un"/>
+            <sizehint height="6un" type="MAXIMUM" width="56un"/>
+            <string name="plainText"/>
+        </widget>
+        <widget name="ImageName" plugin="glxdetailscustomplugin" type="GlxDetailsTextEdit">
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="6un" type="MINIMUM" width="31.95un"/>
+            <sizehint height="6un" type="MAXIMUM" width="31.95un"/>
+        </widget>
+        <widget name="DateText" type="HbLabel">
+            <rect height="6un" name="geometry" width="56un" x="0.5un" y="0un"/>
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint type="FIXED" width="56un"/>
+            <sizehint height="6un" type="MINIMUM" width="56un"/>
+            <sizehint height="6un" type="MAXIMUM" width="56un"/>
+            <string name="plainText"/>
+        </widget>
+        <widget name="content" role="HbView:widget" type="HbWidget">
+            <layout type="anchor">
+                <anchoritem dst="ImageName" dstEdge="LEFT" spacing="expr(var(hb-param-margin-gene-screen) )" src="" srcEdge="LEFT"/>
+                <anchoritem dst="ImageName" dstEdge="TOP" spacing="expr(var(hb-param-margin-gene-middle-vertical) )" src="ImageIcon" srcEdge="BOTTOM"/>
+                <anchoritem dst="FavIcon" dstEdge="RIGHT" spacing="0un" src="ImageIcon" srcEdge="RIGHT"/>
+                <anchoritem dst="FavIcon" dstEdge="BOTTOM" spacing="0un" src="ImageIcon" srcEdge="BOTTOM"/>
+                <anchoritem dst="ImageIcon" dstEdge="LEFT" spacing="expr(var(hb-param-margin-gene-screen) )" src="" srcEdge="LEFT"/>
+                <anchoritem dst="ImageIcon" dstEdge="TOP" spacing="expr(var(hb-param-widget-chrome-height) +var(hb-param-margin-gene-screen))" src="" srcEdge="TOP"/>
+                <anchoritem dst="container" dstEdge="LEFT" spacing="expr(var(hb-param-margin-gene-screen) + 31.95un + var(hb-param-margin-gene-left))" src="" srcEdge="LEFT"/>
+                <anchoritem dst="container" dstEdge="TOP" spacing="expr(var(hb-param-widget-chrome-height) +var(hb-param-margin-gene-screen))" src="" srcEdge="TOP"/>
+            </layout>
+        </widget>
+        <widget name="FavIcon" plugin="glxdetailscustomplugin" type="GlxDetailsIcon">
+            <sizepolicy horizontalPolicy="Fixed" horizontalStretch="0" verticalPolicy="Fixed" verticalStretch="0"/>
+            <sizehint height="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )" type="FIXED" width="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )"/>
+            <sizehint height="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )" type="MINIMUM" width="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )"/>
+            <sizehint height="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )" type="MAXIMUM" width="expr(var(hb-param-graphic-size-primary-small) + var(hb-param-graphic-size-primary-small) )"/>
+        </widget>
+    </section>
+    <metadata activeUIState="portrait" display="NHD-3.2-inch_portrait" unit="un">
         <uistate name="Common ui state" sections="#common"/>
         <uistate name="portrait" sections="#common portrait"/>
         <uistate name="landscape" sections="#common landscape"/>

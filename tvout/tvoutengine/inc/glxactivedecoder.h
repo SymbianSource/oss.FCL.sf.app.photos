@@ -11,7 +11,7 @@
 *
 * Contributors:
 *
-* Description:    
+* Description:    This is the decoder class used to decode Images to HDMI quality.
 *
 */
 
@@ -24,44 +24,55 @@
 #include <imageconversion.h>
 #include "glxhdmisurfaceupdater.h"
 
+// Fwd decleration
 class CImageDecoder;
-// CLASS DECLARATION
+
+/**
+ * Class Description
+ * This is the decoder class used to decode Images to HDMI quality.
+ * 
+ * Clients should create an instance of this class from CGlxHdmiSurfaceUpdater , with an 
+ * instance of it and call ConvertImageL() with approprriate parameters
+ */        
 
 class CGlxHdmiDecoderAO : public CActive
     {
 public:
-    /*
+    
+    /**
      * NewL()
-     * @Param1 CGlxHdmiSurfaceUpdater
+     * @param CGlxHdmiSurfaceUpdater
+     * @return CGlxHdmiDecoderAO object
      */
     static CGlxHdmiDecoderAO* NewL(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater);
     
-    /*
+    /**
      * Destructor
      */
     ~CGlxHdmiDecoderAO();
     
-    /*
+    /**
      * ConvertImageL() 
      * This calls the asyncronous service request to ICL convert
-     * @param1 - Destination Bitmap
-     * @param2 - Image decoder 
+     * @param - Destination Bitmap
+     * @param - Image decoder 
      */
     void ConvertImageL(CFbsBitmap& iBitmap,CImageDecoder* aDecoder);
     
-protected:
-    // from CActive
+protected:/// from CActive
     void RunL();
     void DoCancel();
     
 private:
-    /*
+    /**
      * Constructor
      */
     CGlxHdmiDecoderAO(CGlxHdmiSurfaceUpdater* aHdmiSurfaceUpdater);
 
 private:
-    CGlxHdmiSurfaceUpdater* iHdmiSurfaceUpdater; // not owned
+    /// not owned
+    CGlxHdmiSurfaceUpdater* iHdmiSurfaceUpdater; 
+    /// Image decoder instance
     CImageDecoder* iDecoder;
     };
 

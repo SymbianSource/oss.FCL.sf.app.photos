@@ -23,7 +23,6 @@
         <file>data/albumlisttogrid.fxml</file>
         <file>data/albumlisttogridshow.fxml</file>
         <file>data/photos.css</file>
-        <file>data/grid.docml</file>
         <file>data/listview.docml</file>
         <file>data/fullscreen.docml</file>
         <file>data/slideshow.docml</file>

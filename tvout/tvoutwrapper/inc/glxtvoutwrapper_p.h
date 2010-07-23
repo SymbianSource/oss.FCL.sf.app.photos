@@ -21,6 +21,7 @@
 #include <QAbstractItemModel>
 #include <fbs.h>
 #include <QMetaType>
+#include <QSize>
 
 class GlxTvOutWrapper;
 class CGlxConnectionObserver;
@@ -29,88 +30,104 @@ class CGlxHdmiController;
 // Converting the QVariant to CFbsBitmap*
 Q_DECLARE_METATYPE(CFbsBitmap*)
 
+/**
+ * Class Description This is Private Wrapper class for HDMI
+ * 
+ * Client shouldnt access this directly, instead access through GlxTvOutWrapper 
+ * 
+ */
+
 class GlxTvOutWrapperPrivate
     {
 public:
-    /*
+    /**
      * Static method to create an instance
-     * @param3 - to On the Effects of Slideshow - currently only fade in fade out
+     * @param aTvOutWrapper GlxTvOutWrapper Instance 
+     * @param aModel item model
+     * @param aScreenSize screensize of the phone
+     * @param aEfectsOn to ON the Effects for Slideshow on TV- currently only 
+     *                  fade in fade out is supported
+     * 
+     * @return GlxTvOutWrapperPrivate Instance
      */
     static GlxTvOutWrapperPrivate* Instance(GlxTvOutWrapper* aTvOutWrapper,
-            QAbstractItemModel* aModel,bool aEfectsOn);
+            QAbstractItemModel* aModel,QSize aScreenSize,bool aEfectsOn);
 
-    /*
+    /**
      * destructor
      */
     ~GlxTvOutWrapperPrivate();
 
-    /*
+    /**
      *  HandleConnectionChange
-     *  @param1 true if connected, false if disconnected
+     *  @param aConnected true if connected, false if disconnected
      *  Note this is only being done for HDMI as there is no 
      *  implementation for Analog TV. 
      */
     void HandleConnectionChange(bool aConnected);
     
-    /*
-     * SetImagetoHDMI()
+    /**
+     * SetImagetoHDMI
      */
     void SetImagetoHDMI();
 
-    /*
+    /**
      * Sets HDMI to cloning mode
      */
     void SetToCloningMode();
     
-    /*
+    /**
      * Sets HDMI to Native posting mode
      */
     void SetToNativeMode();
     
-    /*
+    /**
      * views should call this if for any item it doesnt want to move to 
      * HDMI posting mode
      */
     void ItemNotSupported();
     
-    /*
+    /**
      * Activate zoom in posting mode
      */
     void ActivateZoom(bool autoZoomOut);
     
-    /*
+    /**
      * Deactivate zoom in posting mode.
      */
     void DeactivateZoom();
     
-    /*
+    /**
      * Fadeing of the Surface
-     * @param1 ETrue - FadeIn ( as in gaining brightness )
-     *         EFalse - FadeOut ( as in loosing brightness ) 
+     * @param aFadeInOut - ETrue - FadeIn ( as in gaining brightness )
+     *                     EFalse - FadeOut ( as in loosing brightness ) 
      */
     void FadeSurface(bool aFadeInOut);
 
 private:
-    /*
+    /**
      * constructor
+     * @param tvoutwrapper GlxTvOutWrapper instance
+     * @param model QAbstractItemModel instance
      */
     GlxTvOutWrapperPrivate(GlxTvOutWrapper* aTvOutWrapper,
             QAbstractItemModel* aModel);
     
-    /*
+    /**
      * constructL()
-     * @param1 - to On the Effects of Slideshow - currently only fade in fade out
+     * @param aScreenSize screensize 
+     * @param aEffectsOn to On the Effects of Slideshow - currently only fade in fade out
      */
-    void ConstructL(bool aEfectsOn);
+    void ConstructL(QSize aScreenSize,bool aEfectsOn);
     
-    /*
+    /**
      * SetNewImage
      * Get the uri and bmp from the media model 
      * and pass it to HDMI controller
      */
     void SetNewImage();
     
-    /*
+    /**
      * getsubstate
      */
     int getSubState();
