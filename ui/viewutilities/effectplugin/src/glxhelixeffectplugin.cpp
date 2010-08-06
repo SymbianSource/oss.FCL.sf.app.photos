@@ -37,7 +37,7 @@ void GlxHelixEffectPlugin::setUpItems( QList< QGraphicsItem * > &  items )
 
 QString GlxHelixEffectPlugin::effectName() 
 { 
-    return ( "Helix" ) ; 
+    return ( GLX_EFFECTS_ZOOM_AND_PAN ) ; 
 }
 
 GlxHelixEffectPlugin::~GlxHelixEffectPlugin()

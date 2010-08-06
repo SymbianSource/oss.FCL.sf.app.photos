@@ -51,17 +51,18 @@ GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent),
     //initializing the image decoder
     mImageDecoder = new GlxImageDecoderWrapper;
 
-	//inititalizing the timer for animation
-	m_AnimTimeLine = new QTimeLine(500, this);
-	m_AnimTimeLine->setFrameRange(0, 100);
-	connect(m_AnimTimeLine, SIGNAL(frameChanged(int)), this, SLOT(animationFrameChanged(int)));
-	connect(m_AnimTimeLine, SIGNAL(finished()), this, SLOT(animationTimeLineFinished()));
+	
+	//AA: signal and slot to perform double tap animation
+    //after every step redraw, signal is emitted to perform the next step
+	connect( this, SIGNAL( stepZoom() ), this, SLOT( animateDoubleTap() ), Qt::QueuedConnection );
 }
 
 GlxZoomWidget::~GlxZoomWidget()
 {
     //disconnect all existing signals
     disconnect(this,SIGNAL( pinchGestureReceived(int) ), this, SLOT( sendDecodeRequest(int) ) );
+    //AA
+    disconnect( this, SIGNAL( stepZoom() ), this, SLOT( animateDoubleTap()));
     //no Null checks required
     delete mZoomItem;
 //    delete mZoomWidget; //as this is a content widegt it will automatically be deleted
@@ -164,7 +165,7 @@ bool GlxZoomWidget::sceneEvent(QEvent *event)
 
 bool GlxZoomWidget::sceneEventFilter(QGraphicsItem *watched,QEvent *event)
 {
-     qDebug("GlxCoverFlow::eventFilter " );
+    qDebug( "GlxZoomWidget::sceneEventFilter enter event type %d ", event->type() );
     bool consume = false;
     if (event->type() == QEvent::Gesture) {
         consume = executeGestureEvent(watched, static_cast<QGestureEvent*>(event));
@@ -293,6 +294,7 @@ void GlxZoomWidget::limitRequiredSize(QSizeF &requiredSize)
 //makes sure that the gesture is on the screen center if the image is smaller than the screen
 void GlxZoomWidget::adjustGestureCenter(QPointF & gestureCenter, qreal& zoomFactor)
 {
+    /* commenting this tweak, not necessary, needs to be reimplemented for pinch: IN progress
     if(zoomFactor > 1 &&zoomFactor > 1.2 )  {
         zoomFactor = 1.2;
     }
@@ -300,6 +302,7 @@ void GlxZoomWidget::adjustGestureCenter(QPointF & gestureCenter, qreal& zoomFact
     if(zoomFactor < 1 &&zoomFactor < 0.8 )   {
         zoomFactor = 0.8;
     }
+	*/
     QSizeF requiredSize(mCurrentSize.width()*zoomFactor, mCurrentSize.height()*zoomFactor);
     //keep smaller image centered
     if(mCurrentSize.width() <= mWindowSize.width() )
@@ -540,33 +543,68 @@ void GlxZoomWidget::animateZoomIn(QPointF animRefPoint)
     mBlackBackgroundItem->show();
     m_AnimRefPoint = animRefPoint;
     QSizeF requiredSize = mItemSize;
-    requiredSize.scale(mWindowSize*3.5, Qt::KeepAspectRatio);
+    //MAXDTZOOMIN size is set to 3.5 times window size
+    requiredSize.scale(mWindowSize*MAXDTZOOMIN, Qt::KeepAspectRatio);
 	m_FinalAnimatedScaleFactor = requiredSize.width()/mMinDecScaleSize.width();
-	m_AnimTimeLine->setDirection(QTimeLine::Forward);
-	m_AnimTimeLine->start();
-  //  zoomImage(5, m_AnimRefPoint);
+	//initiale variable for double tap animation
+    mIncSF = 1;
+    //preserve the size when zoom out was initiated, requried for calculates applicable/req scale factor
+    //SF has to always greater than 1 for upscaling, hence range for zoomout is [1,m_FinalAnimatedScaleFactor]
+    msfInc = (m_FinalAnimatedScaleFactor-1)/NOOFSTEPS;
+    //set the no. of steps for double tap animation 
+    mdoubletapSteps = NOOFSTEPS;
+    animateDoubleTap();
 
 }
 void GlxZoomWidget::animateZoomOut(QPointF animRefPoint)
 {
-	m_AnimRefPoint = animRefPoint;
-	m_FinalAnimatedScaleFactor = mMinDecScaleSize.width()/mCurrentSize.width();
-	//m_AnimTimeLine->setDirection(QTimeLine::Backward);
-	m_AnimTimeLine->start();
+    m_AnimRefPoint = animRefPoint;
+    //Zoom out to FS (mMinDecScaleSize) from the currentsize
+    m_FinalAnimatedScaleFactor = mMinDecScaleSize.width()/mCurrentSize.width();
+    //initiale variable for double tap animation
+    mIncSF = 1;
+    //calculate the step increment SF for each step
+    msfInc = (1 - m_FinalAnimatedScaleFactor)/NOOFSTEPS;
+    //preserve the size when zoom out was initiated, requried for calculates applicable/req scale factor
+    mzoSize = mCurrentSize;
+    //set the no. of steps for double tap animation 
+    //AA:: the no.of steps are kept the same for zoomin/zoomout, however tweaking them can be considered
+    mdoubletapSteps = NOOFSTEPS;
+    animateDoubleTap();
+    //AA
+   
 }
-void GlxZoomWidget::animationFrameChanged(int frameNumber)
-{
-qreal scaleFactor = 1;
-	if(m_FinalAnimatedScaleFactor > 1) {
-        scaleFactor = (1.0 + (((m_FinalAnimatedScaleFactor - 1)/100)*frameNumber))/(mCurrentSize.width()/mMinDecScaleSize.width());
-	}
-	if(m_FinalAnimatedScaleFactor < 1) {
-        scaleFactor = (m_FinalAnimatedScaleFactor+ (((1 - m_FinalAnimatedScaleFactor)/100)*frameNumber))/(mCurrentSize.width()/mMinDecScaleSize.width());
-	}
 
-	zoomImage(scaleFactor, m_AnimRefPoint);
 
-}
+void GlxZoomWidget::animateDoubleTap()
+    {
+    //calculate increamental scale factor based on the step and then calculate the applicable scale factor this step
+    //increamental SF works on the ImageSize when double tap started, applicable(required) SF calculates the delate SF
+    if(m_FinalAnimatedScaleFactor > 1) {
+        //AA::zoomin case
+        mIncSF += msfInc;
+        qreal reqSF = (mItemSize.width()*(mIncSF))/mCurrentSize.width();
+        zoomImage(reqSF, m_AnimRefPoint);
+        }
+    if(m_FinalAnimatedScaleFactor < 1) {
+        //AA::zoomout case
+        mIncSF -= msfInc;
+        qreal reqSF = (mzoSize.width()* mIncSF)/mCurrentSize.width();
+        zoomImage(reqSF, m_AnimRefPoint);
+        }   
+    //check if all steps are done,if not emit signal to continue the animation
+    if(mdoubletapSteps >= 1 ){
+        mdoubletapSteps -= 1;
+        emit stepZoom();    
+        }
+    else {
+        //animation is complete, finalize the widget transform using setgeometry
+        //reset the counter
+        mdoubletapSteps = 0;
+        animationTimeLineFinished();
+        }
+        
+    }
 void GlxZoomWidget::animationTimeLineFinished()
 {
 	finalizeWidgetTransform();

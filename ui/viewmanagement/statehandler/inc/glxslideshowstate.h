@@ -21,21 +21,56 @@
 #include <glxbasestate.h>
 
 class GlxStateManager;
+class GlxOrientationSensorFilter;
 
+/**
+ * Class Description
+ * This is slide show state corresponding to slide show view.
+ */
 class GlxSlideShowState : public GlxState
 {
 public :
+    /**
+     * constructor
+     * @param pointer of state manager.
+     * @param pointer of perivious state.
+     */
 	GlxSlideShowState(GlxStateManager *stateManager, GlxState *preState = NULL);
+	
+	/**
+	 * state()
+	 * @return return the substate.
+	 */
 	int state() const { return (int) mState; }
+	
+	/**
+	 * setState() - set the current substate
+	 * @param substate of the this state
+	 */
 	void setState(int internalState) { mState = (SlideShowState) internalState; }
-	void eventHandler(qint32 &id);
+	
+	/**
+	 * eventHandler() - A command handler of this state
+	 * @param command id 
+	 */
+	void eventHandler(qint32 &commandId);
+	
+	/**
+	 * albumItemEventHandler() - A command handle for album substate
+	 * @param command id 
+	 */
 	void albumItemEventHandler( qint32 &id );
-	~GlxSlideShowState() {}	
+	
+	/**
+	 * Destructor
+	 */
+	~GlxSlideShowState();	
 	
 private:
     //slide show internal state
     SlideShowState mState;
     GlxStateManager *mStateManager;
+    GlxOrientationSensorFilter *mOrientSensorFilter;
 };
 
 #endif /* GLXSLIDESHOWSTATE_H */

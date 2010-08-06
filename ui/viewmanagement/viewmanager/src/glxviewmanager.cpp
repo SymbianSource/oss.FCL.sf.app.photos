@@ -40,7 +40,8 @@
 #include <glxmainwindoweventfilter.h>
 #include <xqsettingsmanager.h>
 #include <xqsettingskey.h>
-
+#include <glxviewids.h>
+#include "glxmodelroles.h"
 
 GlxViewManager::GlxViewManager() 
     : mBackAction( NULL ), 
@@ -52,22 +53,23 @@ GlxViewManager::GlxViewManager()
       mProgressDialog( NULL )
 {
     qDebug("GlxViewManager::GlxViewManager() ");
-    PERFORMANCE_ADV ( viewMgrD1, "main window creation time" ) {
-        //check the case when application launch through some other application (view plugin)
-        mMainWindow = GlxExternalUtility::instance()->getMainWindow();
-        if(mMainWindow == NULL)	{
-            mMainWindow = new HbMainWindow();
-            connect(mMainWindow, SIGNAL( viewReady() ), this, SLOT( handleReadyView() ));
-        }
-		//Without this Zoom Does not work
 
-		mWindowEventFilter = new GlxMainWindowEventFilter;
-		mMainWindow->scene()->installEventFilter(mWindowEventFilter);
-		mMainWindow->viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
-		mMainWindow->viewport()->grabGesture(Qt::PinchGesture);
+    //check the case when application launch through some other application (view plugin)
+    mMainWindow = GlxExternalUtility::instance()->getMainWindow();
+    if(mMainWindow == NULL)	{
+        mMainWindow = new HbMainWindow();
     }
+    connect(mMainWindow, SIGNAL( viewReady() ), this, SLOT( handleReadyView() ));
+    //Without this Zoom Does not work
+
+    mWindowEventFilter = new GlxMainWindowEventFilter;
+    mMainWindow->scene()->installEventFilter(mWindowEventFilter);
+    mMainWindow->viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
+    mMainWindow->viewport()->grabGesture(Qt::PinchGesture);
+
     HbStyleLoader::registerFilePath(":/data/photos.css");
 }
+
 void GlxViewManager::handleReadyView()
 {
     emit actionTriggered( EGlxCmdSetupItem );
@@ -77,21 +79,18 @@ void GlxViewManager::handleReadyView()
 
 void GlxViewManager::setupItems( )
 {
-    mMenuManager = new GlxMenuManager(mMainWindow);
     addBackSoftKeyAction();    
-    addConnection();    
-    mMenuManager->addMenu( mView->viewId(), mView->menu() );
-    mMenuManager->setModel( mModel );
+    addConnection();
 }
 
 void GlxViewManager::launchApplication(qint32 id, QAbstractItemModel *model)
 {
     mModel = model;
-    PERFORMANCE_ADV ( viewMgrD1, "View Creation time" ) {
-        mView = resolveView(id);
-    }
+    mMenuManager = new GlxMenuManager( mMainWindow );  //menu manager should be created before view.
+    mMenuManager->setModel( mModel );
+    mView = resolveView( id );
+
     createToolBar();
-    mView->addToolBar(mViewToolBar);
     
     /* We are showing the toolBar before activating the 
      * view. This is done to avoid the animation effect seen otherwise 
@@ -103,14 +102,11 @@ void GlxViewManager::launchApplication(qint32 id, QAbstractItemModel *model)
      * 
      */
     mView->activate();
-    
-    PERFORMANCE_ADV ( viewMgrD3, "Set Model time")  
-        mView->setModel(mModel);
-        
-    PERFORMANCE_ADV( viewMgrD4, "View Display time") {
-        mMainWindow->setCurrentView(mView, false);
-        mMainWindow->showFullScreen();           
-    }    
+    mView->setModel( mModel );
+    //visibility of tool bar dependes of view internal state so add the toolbar after setting model
+    mView->addToolBar( mViewToolBar ); 
+    mMainWindow->setCurrentView( mView, false );
+    mMainWindow->showFullScreen();
 }
 
 void GlxViewManager::handleMenuAction(qint32 commandId)
@@ -121,6 +117,7 @@ void GlxViewManager::handleMenuAction(qint32 commandId)
 void GlxViewManager::handleAction()
 {
     HbAction *action = qobject_cast<HbAction*>(sender());
+    action->setChecked( TRUE );
     qint32 commandId = action->data().toInt();
     emit actionTriggered(commandId);
 }
@@ -140,16 +137,13 @@ Qt::Orientation GlxViewManager::orientation() const
     return mMainWindow->orientation();
 }
 
-void GlxViewManager::launchView(qint32 id, QAbstractItemModel *model)
+void GlxViewManager::launchView( qint32 id, QAbstractItemModel *model )
 {
-    qDebug("GlxViewManager::launchView Id = %d ", id);
+    qDebug( "GlxViewManager::launchView Id = %d ", id );
     mModel = model;
     deActivateView();
-    
-    PERFORMANCE_ADV ( viewMgrD1, "View Creation time" ) {
-        mView = resolveView(id);
-    }
-    
+    mMenuManager->setModel( mModel ); //set the model to get the item type info and row count info
+    mView = resolveView( id );
     activateView();
 }
 
@@ -176,7 +170,8 @@ void GlxViewManager::launchView (qint32 id, QAbstractItemModel *model, GlxEffect
     //partially clean the view so that animation run smoothly
     GlxView *curr_view = (GlxView *) mMainWindow->currentView();
     curr_view->resetView();
-    
+
+    mMenuManager->setModel( model ); //set the model to get the item type info and row count info
     mView = resolveView(id);
     //partially initialise the view so that animation run smoothly
     mView->initializeView( model, curr_view );
@@ -199,6 +194,10 @@ void GlxViewManager::launchView (qint32 id, QAbstractItemModel *model, GlxEffect
             item->show();        
             itemList.append(item);
         }
+    }
+    
+    if ( effect == GRID_TO_FULLSCREEN ) {
+        mViewToolBar->setZValue( item->zValue() - 5 );
     }
     
     //error check
@@ -247,7 +246,7 @@ void GlxViewManager::updateProgressDialog( int currentValue )
     //To:Do temp code remove later
     if ( mProgressDialog ) {
         i = ++i % 10;
-        icon = HbIcon( QString( ":/data/wait/qgn_graf_ring_wait_%1.svg" ).arg( i + 1, 2, 10, QChar( '0' ) ) );
+        icon = HbIcon( QString( ":/data/Wait/qgn_graf_ring_wait_%1.svg" ).arg( i + 1, 2, 10, QChar( '0' ) ) );
         mProgressDialog->setIcon(icon);
         
         int max = mProgressDialog->maximum() ;
@@ -285,22 +284,18 @@ void GlxViewManager::updateToolBarIcon(int id)
     
     qDebug("GlxViewManager::updateToolBarIcon() action ID list %d count %d", id, count);
     
-    for ( int i = 0; i < count ; i++ )
-        {
+    for ( int i = 0; i < count ; i++ ) {
         qDebug("GlxViewManager::updateToolBarIcon() toolBarActionId %d value %d", toolBarActionId, ( id & toolBarActionId ) );
         //check and get the icon path
-        if ( ( id & toolBarActionId ) == toolBarActionId )
-            {
-            mActionList[i]->setCheckable(TRUE);
+        if ( ( id & toolBarActionId ) == toolBarActionId ) {
             mActionList[i]->setChecked(TRUE);                        
-            }
-        else 
-            {
+        }
+        else {
             mActionList[i]->setChecked(FALSE);
-            }
+        }
         //to get it the next action id to verify it is selecter or not
         toolBarActionId = toolBarActionId << 1; 
-        }
+    }
 }
 
 void GlxViewManager::checkMarked()
@@ -384,23 +379,22 @@ void GlxViewManager::setModel( QAbstractItemModel *model )
     }    
 }
 
-GlxView * GlxViewManager::resolveView(qint32 id)
+GlxView * GlxViewManager::resolveView( qint32 id )
 {
-    qDebug("GlxViewManager::resolveView %d", id);
+    qDebug("GlxViewManager::resolveView %d", id );
     GlxView *view = findView ( id );
     if ( view ) {
         return view ;
     }
     
-    view = GlxViewsFactory::createView(id, mMainWindow);
+    view = GlxViewsFactory::createView( id, mMainWindow );
     if ( view ) {
-        connect ( view, SIGNAL(actionTriggered(qint32 )), this, SLOT(actionProcess(qint32 )), Qt::QueuedConnection );
-        connect ( view, SIGNAL(itemSpecificMenuTriggered(qint32,QPointF ) ), this, SLOT( itemSpecificMenuTriggered(qint32,QPointF ) ), Qt::QueuedConnection );
-        mViewList.append(view);
-        mMainWindow->addView(view);
-        if ( mMenuManager ) {
-            mMenuManager->addMenu( id, view->menu());
-        }
+        connect ( view, SIGNAL( actionTriggered( qint32 ) ), this, SLOT( actionProcess( qint32 ) ), Qt::QueuedConnection );
+        connect ( view, SIGNAL( itemSpecificMenuTriggered( qint32, QPointF ) ), this, SLOT( itemSpecificMenuTriggered( qint32, QPointF ) ), Qt::QueuedConnection );
+        mViewList.append( view );
+        mMainWindow->addView( view );
+        mMenuManager->addMenu( id, view->menu() );
+        
         if ( mBackAction ) {
             view->setNavigationAction( mBackAction );
         }
@@ -455,42 +449,53 @@ void GlxViewManager::deActivateView()
 void GlxViewManager::activateView()
 {
     qDebug("GlxViewManager::activateView()");
-        
-    PERFORMANCE_ADV ( viewMgrD2, "View Activation time") {
-        mView->addToolBar(mViewToolBar);
-        mView->activate();
-        mView->show();
-        mMenuManager->setModel( mModel ); //set the model to get the item type info and row count info
-    }        
-      
-    PERFORMANCE_ADV ( viewMgrD3, "Set Model time")  
-        mView->setModel(mModel);
-        
-    PERFORMANCE_ADV( viewMgrD4, "View Display time") {
-        mMainWindow->setCurrentView(mView, false);
-        mMainWindow->showFullScreen();           
-    }
+
+    mView->activate();
+    mView->show();
+    mView->setModel( mModel );
+    //visibility of tool bar dependes of view internal state so add the toolbar after setting model
+    mView->addToolBar( mViewToolBar );
+    mMainWindow->setCurrentView(mView, false);
+    mMainWindow->showFullScreen(); 
 }
 
 void GlxViewManager::createActions()
 {
     qDebug("GlxViewManager::createActions() " );
     mActionList.clear();  
+
+    int curSubstate = getSubState();    
     
     //create the All tool bar button action
     HbAction* allAction = new HbAction( this );
-    allAction->setData( EGlxCmdAllGridOpen );
+
+    if( curSubstate == FETCHER_ITEM_S ) {
+        allAction->setData( EGlxCmdFetcherAllGridOpen );
+    }else{
+        allAction->setData( EGlxCmdAllGridOpen );
+    }
+
     mActionList.append( allAction );    
     allAction->setIcon( HbIcon( GLXICON_ALL ) ) ;
     allAction->setObjectName( "All Action" );
        
     //create the Album tool bar button action
     HbAction* albumAction = new HbAction( this );
-    albumAction->setData( EGlxCmdAlbumListOpen );
+
+    if( curSubstate == FETCHER_ITEM_S ) {
+        albumAction->setData( EGlxCmdFetcherAlbumListOpen );
+    }else{
+        albumAction->setData( EGlxCmdAlbumListOpen );
+    }
+
     mActionList.append( albumAction );
     albumAction->setIcon( HbIcon( GLXICON_ALBUMS ) ) ;
     albumAction->setObjectName( "Album Action" );
-   
+	
+	//in case of fetcher no need to create other actions
+	if( curSubstate == FETCHER_ITEM_S ) {
+		return;
+		}	
     //create the album tool bar button action
     HbAction* cameraAction = new HbAction( this );
     cameraAction->setData( EGlxCmdCameraOpen );
@@ -574,6 +579,7 @@ void GlxViewManager::createToolBar()
     int count = mActionList.count();
     for ( int i = 0; i < count; i++ ) {
         connect( mActionList.at(i), SIGNAL(triggered( )), this, SLOT(handleAction( )) );
+        mActionList.at(i)->setCheckable( TRUE );
         mViewToolBar->addAction( mActionList.at(i) );      
     }
     qDebug("GlxViewManager::createToolBar() exit" );
@@ -672,7 +678,7 @@ GlxViewManager::~GlxViewManager()
     }
  
     if( mMainWindow != GlxExternalUtility::instance()->getMainWindow() ){
-        qDebug("GlxViewManager::~GlxViewManager remove view");
+        qDebug("GlxViewManager::~GlxViewManager delete mainwindow");
         delete mMainWindow;
     }
     delete mWindowEventFilter;
@@ -680,3 +686,15 @@ GlxViewManager::~GlxViewManager()
     qDebug("GlxViewManager::~GlxViewManager Exit");
 }
 
+int GlxViewManager::getSubState()
+{
+    int curSubstate = NO_GRID_S;    
+    
+    if ( mModel  ) {    
+        QVariant variant = mModel->data( mModel->index(0,0), GlxSubStateRole );    
+        if ( variant.isValid() &&  variant.canConvert<int> ()  ) {
+            curSubstate = variant.value<int>();
+        }
+    }
+    return curSubstate;
+}

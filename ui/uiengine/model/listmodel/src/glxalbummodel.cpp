@@ -28,7 +28,7 @@
 GlxAlbumModel::GlxAlbumModel(GlxModelParm & modelParm):mContextMode(GlxContextInvalid)
 {
     qDebug("GlxAlbumModel::GlxAlbumModel()");
-    
+    mSubState = -1;
     mMLWrapper = new GlxMLWrapper(modelParm.collection(),modelParm.depth(),modelParm.filterType());
     // mMLWrapper->setContextMode(GlxContextPtList);
     // mContextMode = GlxContextPtList;
@@ -101,6 +101,10 @@ QVariant GlxAlbumModel::data(const QModelIndex &index, int role) const
     HbIcon* itemIcon = NULL;
     QModelIndex idx;
     
+    if ( role == GlxSubStateRole ){
+        return mSubState;
+    }
+    
     if ( (!index.isValid()) || (rowIndex >= rowCount()) ) {
         return QVariant();
     }
@@ -164,6 +168,11 @@ bool GlxAlbumModel::setData ( const QModelIndex & idx, const QVariant & value, i
             setContextMode( (GlxContextMode) value.value <int> () );
             return TRUE;
         }
+    }
+
+    if ( role == GlxSubStateRole && value.isValid() &&  value.canConvert <int> ()) {
+        mSubState = value.value <int> () ;
+        return TRUE;
     }
     
     if ( GlxFocusIndexRole == role ) {
@@ -266,6 +275,7 @@ void GlxAlbumModel::itemsAdded(int startIndex, int endIndex)
 {
     qDebug("GlxAlbumModel::itemsAdded %d %d", startIndex, endIndex);
     beginInsertRows(QModelIndex(), startIndex, endIndex);
+	itemIconCache.clear();
     endInsertRows();	
 }
 
@@ -273,6 +283,7 @@ void GlxAlbumModel::itemsRemoved(int startIndex, int endIndex)
 {
 	qDebug("GlxAlbumModel::itemsRemoved %d %d", startIndex, endIndex);
 	beginRemoveRows(QModelIndex(), startIndex, endIndex);
+	itemIconCache.clear();
    	endRemoveRows();
 	//emit rowsRemoved(index(startIndex,0), startIndex, endIndex );
 	

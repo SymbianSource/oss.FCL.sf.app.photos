@@ -20,6 +20,7 @@
 #define GLXZOOMINOUTEFFECTPLUGIN_H
 
 #include "glxeffectpluginbase.h"
+#include "glxlocalisationstrings.h"
 
 class GlxZoomInOutEffectPlugin : public GlxEffectPluginBase
 {
@@ -47,7 +48,7 @@ public :
     /*
      * get the name of the effect, use to shown in the slide show setting view
      */
-    static QString effectName() { return QString ("ZoomInOut") ; }
+    static QString effectName() { return   (GLX_EFFECTS_ZOOMIN_ZOOMOUT) ; }
     
 private :
     QList <QString > mEffectFileList;

@@ -33,6 +33,7 @@ class XQAiwRequest;
 
 class GLX_COMMONCOMMANDHANDLERS_EXPORT GlxCommandHandlerEditImage : public GlxModelCommandHandler
 {
+  Q_OBJECT
   
 public:
     GlxCommandHandlerEditImage();
@@ -40,9 +41,18 @@ public:
     void executeCommand(int commandId,int collectionId, QList<QModelIndex> indexList = QList<QModelIndex>() );
     void doHandleUserAction(GlxMediaModel* model,QList<QModelIndex> indexList) const ;
 
+public slots:
+    void handleOk(const QVariant& result);
+    void handleError(int errorCode, const QString& errorMessage);
+    void storeItems(const QModelIndex &parent, int start, int end);
+
+private:
+    void clearMediaModel();
+    
 private:
     XQAiwRequest* mReq;
     XQApplicationManager mAppmgr;
+	GlxMediaModel* mMediaModel;
 };
 
 

@@ -57,7 +57,6 @@ void GlxListView::activate()
 void GlxListView::deActivate()
 {
     qDebug("GlxListView::deActivate()");
-    disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
 }
 
 void GlxListView::setModel(QAbstractItemModel *model) 
@@ -206,7 +205,19 @@ void GlxListView::itemSelected(const QModelIndex &  index)
     if ( mModel ) {
         mModel->setData( index, index.row(), GlxFocusIndexRole );
     }
-    emit actionTriggered( EGlxCmdAlbumGridOpen );
+    
+    int curstate = NO_LIST_S; 
+    qDebug() << "GlxListView::itemSelected READING STATE ";
+    QVariant variant = mModel->data( mModel->index(0,0), GlxSubStateRole );    
+    if ( variant.isValid() &&  variant.canConvert<int> () ) {
+        curstate = variant.value<int>();
+    }
+    qDebug() << "GlxMenuManager::viewSubState = " << curstate ;
+    if(curstate == FETCHER_ALBUM_S ){
+        emit actionTriggered( EGlxCmdFetcherAlbumGridOpen );
+    }else {        
+        emit actionTriggered( EGlxCmdAlbumGridOpen );
+    }
 }
 
 

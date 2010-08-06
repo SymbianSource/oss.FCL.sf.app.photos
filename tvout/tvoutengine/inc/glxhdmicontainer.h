@@ -25,7 +25,6 @@
  * Class Description
  * A class that creates a CCoeControl window for Screen 1 with screendevice
  * used 
- * @author tapadar
  */        
 class CGlxHdmiContainer : public CCoeControl, public MGlxGenCallback
     {

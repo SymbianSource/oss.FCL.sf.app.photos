@@ -62,7 +62,7 @@ QString GlxCommandHandlerDelete::CompletionTextL() const
 
 QString GlxCommandHandlerDelete::ProgressTextL() const
     {
-    return QString("Deleting...");
+    return (GLX_DELETE_PROGRESS);
     }
 
 QString GlxCommandHandlerDelete::ConfirmationTextL(bool multiSelection ) const
@@ -70,7 +70,7 @@ QString GlxCommandHandlerDelete::ConfirmationTextL(bool multiSelection ) const
     QString retString;
     if(multiSelection)
         {
-        retString = QString("Delete selected images");
+        retString = GLX_MULTIPLE_DELETE;
         }
     else
         {

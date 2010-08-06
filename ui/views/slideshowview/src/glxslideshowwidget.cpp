@@ -46,6 +46,7 @@ GlxSlideShowWidget::GlxSlideShowWidget( QGraphicsItem *parent )
     : HbWidget( parent ), 
       mEffectEngine( NULL ), 
       mSettings( NULL ),
+      mAnimItem( NULL ),
       mBackGroundItem( NULL ),
       mContinueButton( NULL ), 
       mErrorNote( NULL ),
@@ -67,10 +68,13 @@ void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
     
     //create the effect engine
     mEffectEngine = new GlxEffectEngine();
+    mItemIndex = 1;
     
     mBackGroundItem = new HbIconItem( this );
     mBackGroundItem->setBrush( QBrush( Qt::black ) );
-
+    mAnimItem = new HbIconItem( this );
+    mAnimItem->setAlignment( Qt::AlignCenter );
+    
     // Now load the view and the contents.
     // and then set the play icon to the button
     mContinueButton = static_cast<HbPushButton*>( DocLoader->findWidget( GLXSLIDESHOW_PB ) );
@@ -131,6 +135,9 @@ void GlxSlideShowWidget::cleanUp()
     
     delete mBackGroundItem ;
     mBackGroundItem = NULL;
+    
+    delete mAnimItem;
+    mAnimItem = NULL;
 
     if( mSlideTimer ) {
         delete mSlideTimer;
@@ -146,6 +153,18 @@ void GlxSlideShowWidget::cleanUp()
     HbEffect::remove( QString("HbIconItem"), QString(":/data/transition.fxml"), QString( "Move" ));
     HbEffect::remove( QString("HbIconItem"), QString(":/data/transitionleft.fxml"), QString( "LeftMove" ));
     HbEffect::remove( QString("HbIconItem"), QString(":/data/transitionright.fxml"), QString( "RightMove" ));
+}
+
+QGraphicsItem * GlxSlideShowWidget::animationItem() 
+{ 
+    mAnimItem->setIcon( getIcon( mSelIndex[ mItemIndex ] ) ); 
+    return mAnimItem;
+}
+
+void GlxSlideShowWidget::updateAnimationItem() 
+{
+    mIconItems[ mItemIndex ]->setIcon( HbIcon() );
+    mAnimItem->setZValue( mAnimItem->zValue() + 10 );
 }
 
 void GlxSlideShowWidget::setModel ( QAbstractItemModel *model )
@@ -171,6 +190,8 @@ void GlxSlideShowWidget::setItemGeometry( QRect screenRect )
     index = mItemIndex ? mItemIndex - 1 : NBR_ITEM - 1;    
     mIconItems[ index ]->setGeometry( QRect( -mScreenRect.width(), mScreenRect.top(), mScreenRect.width(), mScreenRect.height() ) );
     mBackGroundItem->setGeometry( mScreenRect );
+    int xPos = ( mScreenRect.width() - mScreenRect.height() ) >> 1 ;
+    mAnimItem->setGeometry( QRect( xPos, -xPos, mScreenRect.height(), mScreenRect.width() ) );
 }
 
 void GlxSlideShowWidget::triggeredEffect()
@@ -241,6 +262,10 @@ void GlxSlideShowWidget::dataChanged(QModelIndex startIndex, QModelIndex endInde
     Q_UNUSED( endIndex )
     TRACER("GlxSlideShowWidget::dataChanged()");
     GLX_LOG_INFO2("GlxSlideShowWidget::dataChanged startIndex = %d mSelIndex = %d ", startIndex.row(), mSelIndex  );
+
+    if ( HbEffect::effectRunning( mAnimItem ) ) {
+        return ;
+    }
     
     for( int i = 0; i < NBR_ITEM; ++i ) {
         if ( mSelIndex[ i ] == startIndex.row() ) {
@@ -255,6 +280,9 @@ void GlxSlideShowWidget::rowsInserted(const QModelIndex &parent, int start, int 
     Q_UNUSED(parent);
     Q_UNUSED(start);
     Q_UNUSED(end);
+    if ( HbEffect::effectRunning( mAnimItem ) ) {
+        return ;
+    }
     resetSlideShow();  
 }
 
@@ -286,6 +314,8 @@ void GlxSlideShowWidget::modelDestroyed()
 void GlxSlideShowWidget::orientationChanged(QRect screenRect)
 {
     TRACER("GlxSlideShowWidget::orientationChanged()");
+    mAnimItem->setIcon( HbIcon() );
+    mAnimItem->setZValue( mAnimItem->zValue() - 10 );
     cancelEffect();
     setItemGeometry( screenRect);
     resetSlideShow();
@@ -494,7 +524,7 @@ bool GlxSlideShowWidget::isCorrupt( int index )
     if ( variant.isValid() && variant.canConvert< bool> () ) {
         return variant.value< bool > () ;
     }
-    return false ;    
+    return false ;
 }
 
 bool GlxSlideShowWidget::setFocusItemIcon( )
@@ -507,10 +537,8 @@ bool GlxSlideShowWidget::setFocusItemIcon( )
             qDebug( "GlxSlideShowWidget::setFocusItemIcon1 focus index %d" , focusIndex );
             mIconItems[ mItemIndex ]->setIcon( getIcon( focusIndex ) ) ;
             mSelIndex[ mItemIndex ] = focusIndex ;
-            if (  i != 0 ) {
-                mModel->setData( mModel->index( 0, 0 ), focusIndex, GlxFocusIndexRole );
-                mModel->setData( mModel->index( 0, 0 ), focusIndex, GlxVisualWindowIndex );
-            }
+            mModel->setData( mModel->index( 0, 0 ), focusIndex, GlxFocusIndexRole );
+            mModel->setData( mModel->index( 0, 0 ), focusIndex, GlxVisualWindowIndex );
             return true;
         }
         focusIndex = ( focusIndex + 1 ) % nbrItem;
@@ -547,7 +575,7 @@ bool GlxSlideShowWidget::setPreItemIcon()
 {
     int nbrItem = mModel->rowCount() ;
     int imageIndex = mSelIndex[ mItemIndex ] > 0 ? mSelIndex[ mItemIndex ] - 1 : nbrItem - 1 ;
-    int itemIndex = mItemIndex > 0 ? mItemIndex - 1 : mItemIndex  ;
+    int itemIndex = mItemIndex > 0 ? mItemIndex - 1 : NBR_ITEM - 1  ;
     
     for( int i = 1; i < nbrItem; ++i ) {
         if ( isCorrupt( imageIndex ) == false ) {

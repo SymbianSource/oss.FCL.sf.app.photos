@@ -20,12 +20,43 @@
 
 #include <glxbasestate.h>
 
+/**
+ * class to manage list state
+ */
 class GlxListState : public GlxState
 {
 public :
+    /**
+     * constructor
+     */
 	GlxListState(GlxState *preState = NULL);
+
+	/**
+	 * return current state of list
+	 * @return current state
+	 */
+	int state() const { return (int) mState; }
+	/**
+	 * set current state
+	 * @param internalState substate of list to be set
+	 */
+    void setState(int internalState) { mState = (ListState) internalState; }
+	
+    /**
+     * event handler
+     */
 	void eventHandler(qint32 &id);
-	void setTranstionParameter(NavigationDir dir, GlxEffect &effect, GlxViewEffect &viewEffect);	
+	/**
+	 * set transition parameter
+	 * @param dir navigation direction
+	 * @param effect effect to be run on view transition
+	 * @param viewEffect 
+	 */
+	void setTranstionParameter(NavigationDir dir, GlxEffect &effect, GlxViewEffect &viewEffect);
+private:
+    ///list internal state
+	ListState mState;   
+	
 };
 
 #endif /* GLXLISTSTATE_H */

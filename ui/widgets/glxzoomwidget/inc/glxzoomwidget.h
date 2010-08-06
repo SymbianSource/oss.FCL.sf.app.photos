@@ -33,6 +33,8 @@ class QTimeLine;
 
 const int MAXZVALUE = 100;
 const int MINZVALUE = 0;
+const int NOOFSTEPS = 20;
+const float MAXDTZOOMIN = 3.5;
 
 class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
 {
@@ -58,7 +60,8 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     signals:
     void pinchGestureReceived(int index);
     void zoomWidgetMovedBackground(int index);
-
+    void stepZoom();
+    
     public slots:
     //for Decoder support
     void decodedImageAvailable();
@@ -67,9 +70,11 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
 	//for animation effects
 	void animateZoomIn(QPointF animRefPoint);
 	void animateZoomOut(QPointF animRefPoint);
-	void animationFrameChanged(int frameNumber);
 	void animationTimeLineFinished();
 
+	//animate double tap
+	void animateDoubleTap();
+	
     protected:
     bool sceneEvent(QEvent *event);
     bool sceneEventFilter(QGraphicsItem *watched,QEvent *event);
@@ -143,5 +148,13 @@ private:
     //for Decoder support
     GlxImageDecoderWrapper* mImageDecoder;
 
+    //stores the incremental scalingfactor(sf) while performing double tap animation
+    qreal mIncSF;
+    //stores the scalingfactor increment applicable for each step of double tap animation
+    qreal msfInc;
+    //stores the item size before performing zoomout(zo)
+    QSizeF mzoSize;
+    //counter to track the double tap animation steps
+    int mdoubletapSteps;
 };
 #endif  //GLXZOOMWIDGET_H

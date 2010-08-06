@@ -85,6 +85,7 @@ private:
     QCache<int, HbIcon> itemIconCache;
     int mTempVisibleWindowIndex;
     HbIcon* m_CorruptIcon;
+    int mSubState;
 };
 
 #endif /* GLXALBUMMODEL_H */

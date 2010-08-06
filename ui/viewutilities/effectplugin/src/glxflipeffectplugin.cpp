@@ -18,6 +18,7 @@
 
 #include "glxflipeffectplugin.h"
 #include "glxuistd.h"
+#include "glxlocalisationstrings.h"
 
 GlxFlipEffectPlugin::GlxFlipEffectPlugin() : GlxEffectPluginBase( FLIP_EFFECT )
 {
@@ -36,7 +37,7 @@ void GlxFlipEffectPlugin::setUpItems( QList< QGraphicsItem * > &  items )
 
 QString GlxFlipEffectPlugin::effectName() 
 { 
-    return ( "FLip" ) ; 
+    return GLX_EFFECTS_FLIP ; 
 }
 
 GlxFlipEffectPlugin::~GlxFlipEffectPlugin()

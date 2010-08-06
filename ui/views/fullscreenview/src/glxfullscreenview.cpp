@@ -44,7 +44,7 @@
 #include "glxfullscreenview.h" 
 #include "glxcommandhandlers.hrh"
 #include "glxzoomwidget.h"
-
+#include "glxlocalisationstrings.h"
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
 #include "glxfullscreenviewTraces.h"
@@ -70,10 +70,13 @@ GlxFullScreenView::GlxFullScreenView(HbMainWindow *window,HbDocumentLoader *DocL
     mIconItems[1] = NULL;
     mDocLoader = DocLoader;
     setContentFullScreen( true );
+    
     HbEffect::add( QString( "HbGridView" ), QString( ":/data/transitionup.fxml" ), QString( "TapShow" ) );
     HbEffect::add( QString( "HbGridView" ), QString( ":/data/transitiondown.fxml" ), QString( "TapHide" ) );
     HbEffect::add( QString( "HbGridViewItem" ), QString( ":/data/zoomin.fxml" ), QString( "SelectHide" ) );
     HbEffect::add( QString( "HbGridViewItem" ), QString( ":/data/zoomout.fxml" ), QString( "SelectShow" ) );
+    HbEffect::add( QString( "HbIconItem" ), QString( ":/data/rotatefslandscape.fxml" ), QString( "RotateFSLS" ) );
+    HbEffect::add( QString( "HbIconItem" ), QString( ":/data/rotatefsprotrait.fxml" ), QString( "RotateFSPT" ) );
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_EXIT );
 }
@@ -188,11 +191,22 @@ void GlxFullScreenView::activate()
     setViewFlags(flags);
 	
 	// In case of fetcher don't hide status pane and title bar
-    if(!(XQServiceUtil::isService() && (0 == XQServiceUtil::interfaceName().compare(QLatin1String("com.nokia.symbian.IImageFetch"))))){
-	    setStatusBarVisible(FALSE);
-	    setTitleBarVisible(FALSE);
+    if(!(XQServiceUtil::isService() && (0 == XQServiceUtil::interfaceName().compare(QLatin1String("com.nokia.symbian.IImageFetch"))))) {
+        setViewFlags( viewFlags() | HbView::ViewTitleBarHidden | HbView::ViewStatusBarHidden );
 		mUiOff = true;
 	}
+    else
+        {
+        HbAction* selectAction = new HbAction(GLX_BUTTON_SELECT);
+        selectAction->setObjectName( "FS Select" );
+        
+        connect(selectAction, SIGNAL(triggered()), this, SLOT(handleFSSelect()));
+        HbToolBar* toolBar = new HbToolBar();
+        toolBar->setOrientation( Qt::Horizontal );
+        toolBar->setVisible(true);
+        toolBar->addAction(selectAction);
+        setToolBar(toolBar);
+        }
         
     mUiOffTimer = new QTimer();
     mUiOffTimer->stop();        
@@ -200,10 +214,17 @@ void GlxFullScreenView::activate()
     addConnection(); 
     setLayout();
      
-    if (!mTvOutWrapper){
+    if (!mTvOutWrapper) {
         mTvOutWrapper = new GlxTvOutWrapper();
     }
+    
+    mWindow->setAutomaticOrientationEffectEnabled( false );
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_ACTIVATE_EXIT );
+}
+
+void GlxFullScreenView::handleFSSelect()
+{
+    emit actionTriggered( EGlxCmdFetcherSelect );
 }
 
 void GlxFullScreenView::loadViewSection()
@@ -252,7 +273,7 @@ void GlxFullScreenView::deActivate()
     //the coverflow is initialised to null 
     //to just reset to the initial state
     mCoverFlow = NULL;
-    
+    mWindow->setAutomaticOrientationEffectEnabled( true );
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_DEACTIVATE_EXIT );
 }
 
@@ -311,7 +332,7 @@ void GlxFullScreenView::setModel( QAbstractItemModel *model )
     mCoverFlow->setModel(mModel);
     setImageStripModel();
     if(getSubState() == IMAGEVIEWER_S) {
-        setTitle("Image Viewer");
+        setTitle(GLX_IMAGE_VIEWER);
     }
 	else if(getSubState() == FETCHER_S){ //do not zoom in case of fetcher
 		disconnect(mCoverFlow,SIGNAL( doubleTapEventReceived(QPointF) ), mZoomWidget, SLOT( animateZoomIn(QPointF) ) );
@@ -357,6 +378,7 @@ void GlxFullScreenView::orientationChanged(Qt::Orientation orient)
     setModelContext();
     loadViewSection();
     setLayout();
+    playOrientChangeAnim();
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_ORIENTATIONCHANGED_EXIT );
 }
@@ -365,7 +387,7 @@ void GlxFullScreenView::activateUI()
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_ACTIVATEUI_ENTRY );
     
-    if ( mUiOff && getSubState() != FETCHER_S){      
+    if ( mUiOff && getSubState() != FETCHER_S ){      
         if( !mFullScreenToolBar ) {
             loadFullScreenToolBar();
         }
@@ -376,18 +398,18 @@ void GlxFullScreenView::activateUI()
             mImageStrip->setCurrentIndex ( mModel->index( variant.value<int>(), 0) );    
             mImageStrip->scrollTo( mModel->index( variant.value<int>(), 0), HbGridView::PositionAtTop ); 
         }
-        
-        mFullScreenToolBar->show();
-		setStatusBarVisible( TRUE );
-        setTitleBarVisible( TRUE );
+
+        setItemVisible( Hb::AllItems, TRUE );
+        setViewFlags( viewFlags() &~ HbView::ViewTitleBarHidden &~ HbView::ViewStatusBarHidden );
        
         if ( mImageStrip && getSubState() != IMAGEVIEWER_S) {
             mImageStrip->show(); 
             HbEffect::start(mImageStrip, QString("HbGridView"), QString("TapShow"), this, "effectFinished" );
         }
         else if( getSubState() == IMAGEVIEWER_S){
-            setTitle("Image Viewer");
+            setTitle(GLX_IMAGE_VIEWER);
         }
+        mFullScreenToolBar->show();
     }
     else {
         hideUi();
@@ -409,11 +431,10 @@ void GlxFullScreenView::hideUi()
     
     mUiOff = TRUE;
 	if ( getSubState() != FETCHER_S ) {
-		setStatusBarVisible(FALSE);
-        setTitleBarVisible(FALSE);
+	    setViewFlags( viewFlags() | HbView::ViewTitleBarHidden | HbView::ViewStatusBarHidden );
 	}
-    if ( mImageStrip && ( getSubState() != IMAGEVIEWER_S && getSubState() != FETCHER_S )) {
-        HbEffect::start(mImageStrip, QString("HbGridView"), QString("TapHide"), this, "effectFinished" );
+    if ( mImageStrip && ( getSubState() != IMAGEVIEWER_S && getSubState() != FETCHER_S ) ) {
+        HbEffect::start( mImageStrip, QString("HbGridView"), QString("TapHide"), this, "effectFinished" );
     }
 
     if(mFullScreenToolBar) {
@@ -555,9 +576,20 @@ void GlxFullScreenView::coverFlowEventHandle( GlxCoverFlowEvent e )
         break ;
         
     case PANNING_START_EVENT :
-    case ZOOM_START_EVENT :
         hideUi();
         break ;
+        
+    //hide the ui component without animation  
+    case ZOOM_START_EVENT : {
+        HbEffect::EffectStatus e;
+        mUiOff = TRUE;
+        if( mFullScreenToolBar ) {
+           mFullScreenToolBar->hide();
+        }
+        setViewFlags( viewFlags() | HbView::ViewTitleBarHidden | HbView::ViewStatusBarHidden );
+        effectFinished( e );
+    }
+        break;
         
     case EMPTY_ROW_EVENT :
         emit actionTriggered( EGlxCmdEmptyData );
@@ -582,6 +614,7 @@ void GlxFullScreenView::effectFinished( const HbEffect::EffectStatus  )
         mUiOffTimer->stop();        
         mCoverFlow->setUiOn(FALSE);
         mImageStrip->hide();
+        setItemVisible( Hb::AllItems, FALSE );
     }
     else {
         mUiOffTimer->start(KUiOffTime);
@@ -608,6 +641,15 @@ void GlxFullScreenView::imageSelectionEffectFinished( const HbEffect::EffectStat
     mZoomWidget->setVisible( true );
 
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_IMAGESELECTIONEFFECTFINISHED_EXIT );
+}
+
+void GlxFullScreenView::orientChangeAnimFinished( const HbEffect::EffectStatus status )
+{
+    qDebug( "GlxFullScreenView::LsOrientChangeAnimFinished reason %d ", status.reason );
+    mIconItems[ 0 ]->resetTransform();   
+    mIconItems[ 0 ]->setVisible( false );
+    mCoverFlow->setVisible( true );
+    mZoomWidget->setVisible( true );
 }
 
 void GlxFullScreenView::setLayout()
@@ -724,24 +766,30 @@ GlxFullScreenView::~GlxFullScreenView()
     HbEffect::remove( QString("HbGridView"), QString(":/data/transitiondown.fxml"), QString( "TapHide" ));
     HbEffect::remove( QString( "HbGridViewItem" ), QString( ":/data/zoomin.fxml" ), QString( "SelectHide" ) );
     HbEffect::remove( QString( "HbGridViewItem" ), QString( ":/data/zoomout.fxml" ), QString( "SelectShow" ) );
+    HbEffect::remove( QString( "HbIconItem" ), QString( ":/data/rotatefslandscape.fxml" ), QString( "RotateFSLS" ) );
+    HbEffect::remove( QString( "HbIconItem" ), QString( ":/data/rotatefsprotrait.fxml" ), QString( "RotateFSPT" ) );
         
     OstTraceFunctionExit0( DUP1_GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_EXIT );
+}
+
+void GlxFullScreenView::initAnimationItem()
+{
+    if( mIconItems[0] == NULL ) {
+        for( int i = 0; i < NBR_ANIM_ITEM; i++ ) {
+            mIconItems[ i ] = new HbIconItem( mImageStrip->parentItem() );
+            mIconItems[ i ]->setBrush( QBrush( Qt::black ) );
+            mIconItems[ i ]->setZValue( mImageStrip->zValue() - 2 );
+            mIconItems[ i ]->setPos( 0, 0 );
+            mIconItems[ i ]->setAlignment( Qt::AlignCenter );
+        }
+    }
 }
 
 void GlxFullScreenView::imageSelectionAnimation(const QModelIndex &index)
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_IMAGESELECTIONANIMATION_ENTRY );
-
-    if ( mIconItems[0] == NULL ) {
-        for ( int i = 0; i < NBR_ANIM_ITEM; i++ ) {
-            mIconItems[ i ] = new HbIconItem( mFullScreenToolBar->parentItem() );
-            mIconItems[ i ]->setBrush( QBrush( Qt::black ) );
-            mIconItems[ i ]->setZValue( mFullScreenToolBar->zValue() - 2 );
-            mIconItems[ i ]->setPos( 0, 0 );
-            mIconItems[ i ]->setAlignment( Qt::AlignCenter );
-        }
-    }
     
+    initAnimationItem();
     for ( int i = 0; i < NBR_ANIM_ITEM; i++ ) {
         mIconItems[ i ]->setVisible( true );
         mIconItems[ i ]->setSize( screenSize() );
@@ -763,6 +811,25 @@ void GlxFullScreenView::cancelSelectionAnimation()
     if ( mIconItems[0] && HbEffect::effectRunning( mIconItems[1], QString( "SelectShow" ) ) ) {
         HbEffect::cancel( mIconItems[0], QString( "SelectHide" ), false, false, true );
         HbEffect::cancel( mIconItems[1], QString( "SelectShow" ), false, true, true );
+    }
+}
+
+void GlxFullScreenView::playOrientChangeAnim()
+{
+    qDebug("GlxFullScreenView::playOrientChangeAnim()");
+    initAnimationItem();
+    mIconItems[ 0 ]->setOpacity( 1 );
+    mIconItems[ 0 ]->setSize( screenSize() );
+    mIconItems[ 0 ]->setVisible( true );
+    mIconItems[ 0 ]->setIcon( mCoverFlow->getIcon( mCoverFlow->getFocusIndex() ) );
+    
+    mCoverFlow->setVisible( false );
+    mZoomWidget->setVisible( false );
+    if ( mWindow->orientation() == Qt::Horizontal ) {
+        HbEffect::start( mIconItems[0], QString( "HbIconItem" ), QString( "RotateFSLS" ), this, "orientChangeAnimFinished" );
+    }
+    else {
+        HbEffect::start( mIconItems[0], QString( "HbIconItem" ), QString( "RotateFSPT" ), this, "orientChangeAnimFinished" );
     }
 }
 	

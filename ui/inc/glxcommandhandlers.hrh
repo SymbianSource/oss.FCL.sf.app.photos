@@ -96,14 +96,19 @@ enum TGlxCommandId
     EGlxCmdShowImages,
     EGlxCmdShowVideos,
     EGlxCmdAllGridOpen,
+    EGlxCmdFetcherAllGridOpen,  //open fetcher grid in all collection
     EGlxCmdFullScreenOpen,
+    EGlxCmdFetcherFullScreenOpen,  //open fetcher in fullscreen
     EGlxCmdAlbumGridOpen,
+    EGlxCmdFetcherAlbumGridOpen,  //open fetcher album grid
     EGlxCmdAlbumListOpen,
+    EGlxCmdFetcherAlbumListOpen,  //open fetcher album list
     EGlxCmdCameraOpen,
     EGlxCmdDetailsOpen,
     EGlxCmdEmptyData,
     EGlxCmdOviOpen,
     EGlxCmdBack,
+    EGlxCmdSlideShowBack,
     EGlxCmdSelect,
     EGlxCmdCancel,
     EGlxCmdMarkAll,
@@ -122,6 +127,8 @@ enum TGlxCommandId
     EGlxCmd3DEffectOn,
     EGlxCmd3DEffectOff,
     EGlxCmdSetWallpaper,
+    EGlxCmdPlayBackAnim,
+    EGlxCmdFetcherSelect,
     EGlxCmdAiwBase = 0x6000
     };
 

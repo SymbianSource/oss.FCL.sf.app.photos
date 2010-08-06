@@ -51,7 +51,7 @@
 #include "glxplugincommandid.hrh"
 #include "glxlog.h"
 #include "glxtracer.h"
-
+#include <glximageviewermanager.h>
 
 GlxStateManager::GlxStateManager() 
     : mAllMediaModel( NULL ), 
@@ -121,38 +121,50 @@ bool GlxStateManager::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
+void GlxStateManager::launchFetcher()
+{
+    qDebug("GlxStateManager::launchFetcher");
+    mCurrentState = createState(GLX_GRIDVIEW_ID);
+    mCurrentState->setState(FETCHER_ITEM_S);
+    
+    createModel(GLX_GRIDVIEW_ID);
+    mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
+}
+
 void GlxStateManager::launchApplication()
 {
     qDebug("GlxStateManager::launchApplication");   
-     bool activitySuccess = false;  
+    bool activitySuccess = false;  
     //To:Do use it in future once performance code is removed nextState(GLX_GRIDVIEW_ID, ALL_ITEM_S)
-     HbApplication* app = qobject_cast<HbApplication*>(qApp);
-     if(app->activateReason() == Hb::ActivationReasonActivity) {
-          activitySuccess = launchActivity();
-     }
-     if( !activitySuccess ) { 
-    mCurrentState = createState( GLX_GRIDVIEW_ID );
-    mCurrentState->setState( ALL_ITEM_S );
-       
-    int leftCount = mTNObserver->getTNLeftCount() ;
-    if (  leftCount > 0  ) {
-        mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
-        launchProgressDialog();
-    }
-    else {
-        createModel( GLX_GRIDVIEW_ID );
-        mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
+    HbApplication* app = qobject_cast<HbApplication*>(qApp);
+    if(app->activateReason() == Hb::ActivationReasonActivity) {
+        activitySuccess = launchActivity();
     }
     
-    mTNObserver->startTNObserving() ; 
-}
-     HbActivityManager* activityManager = app->activityManager();
-     bool ok = activityManager->removeActivity("PhotosMainView");
-     if ( !ok )
-     {
+    if( !activitySuccess ) { 
+        mCurrentState = createState( GLX_GRIDVIEW_ID );
+        mCurrentState->setState( ALL_ITEM_S );
+       
+        int leftCount = mTNObserver->getTNLeftCount() ;
+        if (  leftCount > 0  ) {
+            mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel );
+            launchProgressDialog();
+        }
+        else {
+            createModel( GLX_GRIDVIEW_ID );
+            mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel );
+        }    
+        mTNObserver->startTNObserving() ; 
+    }
+    
+    HbActivityManager* activityManager = app->activityManager();
+    bool ok = activityManager->removeActivity("PhotosMainView");
+    if ( !ok )
+    {
          qDebug("launchapplication::Remove activity failed" );
-     } 
+    } 
 }
+
 bool GlxStateManager::launchActivity()
 {
     HbApplication* app = qobject_cast<HbApplication*>(qApp);
@@ -207,14 +219,15 @@ void GlxStateManager::setupItems()
     mActionHandler = new GlxActionHandler();
     connect ( mViewManager, SIGNAL(externalCommand(int )), this, SIGNAL(externalCommand(int )) );
     mViewManager->setupItems();
-        switch(mSaveActivity.value("ID")){
+    switch( mSaveActivity.value( "ID" ) ){
         case GLX_LISTVIEW_ID:
             mViewManager->updateToolBarIcon(GLX_ALBUM_ACTION_ID);
             break;
+            
         case GLX_GRIDVIEW_ID:
         default:
-    		mViewManager->updateToolBarIcon(GLX_ALL_ACTION_ID);
-        }
+            mViewManager->updateToolBarIcon(GLX_ALL_ACTION_ID);
+    }
 }
 
 void GlxStateManager::updateTNProgress( int count)
@@ -231,8 +244,6 @@ void GlxStateManager::updateTNProgress( int count)
     
     if ( isProgressbarRunning ){
         if ( count == 0 ) {
-            createModel( mCurrentState->id() );
-            mViewManager->setModel( mCurrentModel );
             vanishProgressDialog();
         }
         else {
@@ -240,32 +251,43 @@ void GlxStateManager::updateTNProgress( int count)
         }
     }   
 }
+
+void GlxStateManager::thumbnailPopulated()
+{
+    mViewManager->setModel( mCurrentModel );
+    isProgressbarRunning = false;
+    mViewManager->updateProgressDialog( 0 );  
+    disconnect ( mCurrentModel, SIGNAL( thumbnailPopulated() ), this, SLOT( thumbnailPopulated() ) );
+}
+
 void GlxStateManager::saveData()
 {
     if( (mCurrentState->id() == GLX_GRIDVIEW_ID && mCurrentState->state() == ALL_ITEM_S) || mCurrentState->id() == GLX_LISTVIEW_ID ) {
-    mSaveActivity.insert("ID",mCurrentState->id()); 
-    mSaveActivity.insert("InternalState",mCurrentState->state());
-    if(mCurrentModel)
-    {
-    	QVariant variant = mCurrentModel->data( mCurrentModel->index(0,0), GlxVisualWindowIndex );
-    	if ( variant.isValid() &&  variant.canConvert<int> () ) {
-         mSaveActivity.insert("VisibleIndex",variant.value<int>());
-    }
+        mSaveActivity.insert("ID",mCurrentState->id()); 
+        mSaveActivity.insert("InternalState",mCurrentState->state());
+        if(mCurrentModel) {
+            QVariant variant = mCurrentModel->data( mCurrentModel->index(0,0), GlxVisualWindowIndex );
+            if ( variant.isValid() &&  variant.canConvert<int> () ) {
+                mSaveActivity.insert("VisibleIndex",variant.value<int>());
+            }
  		}
- 		else
- 			   mSaveActivity.insert("VisibleIndex",0);
-    HbActivityManager* activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
-    QVariantHash metadata;
-    HbMainWindow *window = hbInstance->allMainWindows().first();
-    metadata.insert("screenshot", QPixmap::grabWidget(window, window->rect()));
-
-     QByteArray serializedModel;
-     QDataStream stream(&serializedModel, QIODevice::WriteOnly | QIODevice::Append);
-     stream << mSaveActivity;
-    bool ok = activityManager->addActivity("PhotosMainView", serializedModel, metadata);
-     if ( !ok )
-     {
-        qDebug("SaveData::Add activity failed" );
+ 		else {
+ 			mSaveActivity.insert("VisibleIndex",0);
+ 		}
+    
+        HbActivityManager* activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
+        QVariantHash metadata;
+        HbMainWindow *window = hbInstance->allMainWindows().first();
+        metadata.insert("screenshot", QPixmap::grabWidget(window, window->rect()));
+        
+        QByteArray serializedModel;
+        QDataStream stream(&serializedModel, QIODevice::WriteOnly | QIODevice::Append);
+        stream << mSaveActivity;
+        
+        bool ok = activityManager->addActivity("PhotosMainView", serializedModel, metadata);
+        if ( !ok )
+        {
+            qDebug("SaveData::Add activity failed" );
         }
     }
 }
@@ -303,6 +325,7 @@ void GlxStateManager::previousState()
     GlxState *state = mCurrentState; // To delete the current state later  
 
     if ( mCurrentState->previousState() == NULL ) { //In the case only one state in stack then exit from the application
+        saveImage(); // save image if it is in private folder
         exitApplication() ;
         return ;
     }
@@ -321,7 +344,34 @@ void GlxStateManager::previousState()
     }
     delete state;
 }
-   
+
+void GlxStateManager::saveImage()
+    {
+    CGlxImageViewerManager *imageViewerInstance = CGlxImageViewerManager::InstanceL();
+    if(imageViewerInstance->IsPrivate())
+        {
+        HBufC* imagePath = imageViewerInstance->ImageUri();
+		QString srcPath = QString::fromUtf16(imagePath->Des().Ptr(),imagePath->Length());
+		QString imageName = srcPath.section('\\', -1);
+		QString imagesFolderPath("c:/data/images/");
+		QString destPath;
+		destPath.append(imagesFolderPath);
+		destPath.append(imageName);
+		int cnt = 1;
+		qDebug() << "GlxStateManager::saveImage path before while = "<< destPath;
+		while(!QFile::copy(srcPath,destPath))
+			{
+			QString filename = imageName.section('.', 0,0);
+			QString ext = imageName.section('.', -1);
+			destPath.clear();
+			destPath = imagesFolderPath + filename + QString::number(cnt) + "." + ext;
+			qDebug() << "GlxStateManager::saveImage path = "<< destPath;
+			cnt++;
+			}
+        }
+    imageViewerInstance->Close();
+    }
+	
 void GlxStateManager::goBack(qint32 stateId, int internalState)
 {
     qDebug("GlxStateManager::goBack()");
@@ -422,23 +472,23 @@ void GlxStateManager::cleanAllModel()
 void GlxStateManager::launchProgressDialog()
 {
     TRACER("GlxStateManager::launchProgressDialog() ");
-    //HbMainWindow *window = hbInstance->allMainWindows().first();
-    //window->setAutomaticOrientationEffectEnabled( true );
     
     QCoreApplication::instance()->installEventFilter( this );
-    mViewManager->launchProgressDialog( mTNObserver->getTNLeftCount() );
+    if ( isProgressbarRunning ) {
+        mViewManager->updateProgressDialog( mTNObserver->getTNLeftCount() );
+    }
+    else {
+        mViewManager->launchProgressDialog( mTNObserver->getTNLeftCount() );
+    }
     isProgressbarRunning = true ;
 }
 
 void GlxStateManager::vanishProgressDialog()
 {
     TRACER("GlxStateManager::vanishProgressDialog() ");
-    //HbMainWindow *window = hbInstance->allMainWindows().first();
-    //window->setAutomaticOrientationEffectEnabled( false );
-    
     QCoreApplication::instance()->removeEventFilter( this );
-    isProgressbarRunning = false;
-    mViewManager->updateProgressDialog( 0 );    
+    createModel( mCurrentState->id() );
+    connect ( mCurrentModel, SIGNAL( thumbnailPopulated() ), this, SLOT( thumbnailPopulated() ) );
 }
 
 GlxState * GlxStateManager::createState(qint32 stateId)
@@ -538,6 +588,7 @@ void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
     
     switch( internalState) {
     case ALL_ITEM_S :
+	case FETCHER_ITEM_S:
         if ( mAllMediaModel == NULL ) {
             modelParm.setCollection( KGlxCollectionPluginAllImplementationUid );
             modelParm.setDepth(0);
@@ -550,6 +601,7 @@ void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
         break;
         
     case ALBUM_ITEM_S :
+    case FETCHER_ALBUM_ITEM_S :    
         if ( dir != BACKWARD_DIR ) { 
             modelParm.setCollection( KGlxAlbumsMediaId );
             modelParm.setDepth(0);
@@ -586,17 +638,30 @@ void GlxStateManager::eventHandler(qint32 &id)
         changeState( GLX_GRIDVIEW_ID, ALL_ITEM_S );
         id = EGlxCmdHandled;
         break;
+
+    case EGlxCmdFetcherAllGridOpen :
+        changeState( GLX_GRIDVIEW_ID, FETCHER_ITEM_S );
+        id = EGlxCmdHandled;
+        break;
     	
     case EGlxCmdAlbumListOpen:
         changeState( GLX_LISTVIEW_ID, -1 );
         id = EGlxCmdHandled;
         break;
-    	
+    case EGlxCmdFetcherAlbumListOpen:
+        changeState( GLX_LISTVIEW_ID, FETCHER_ALBUM_S );
+        id = EGlxCmdHandled;
+        break;
+        
     case EGlxCmdAlbumGridOpen:
         nextState( GLX_GRIDVIEW_ID, ALBUM_ITEM_S );
         id = EGlxCmdHandled;
         break;
-      
+    case EGlxCmdFetcherAlbumGridOpen:
+        nextState( GLX_GRIDVIEW_ID, FETCHER_ALBUM_ITEM_S );
+        id = EGlxCmdHandled;
+        break;
+        
     case EGlxCmdFirstSlideshow :
         //play the slide show with first item
         mCurrentModel->setData( mCurrentModel->index(0, 0), 0, GlxFocusIndexRole );
@@ -639,6 +704,7 @@ void GlxStateManager::eventHandler(qint32 &id)
     }
     	
     case EGlxCmdBack :
+    case EGlxCmdSlideShowBack :
     	previousState();
     	id = EGlxCmdHandled;
     	break;
@@ -678,19 +744,28 @@ void GlxStateManager::eventHandler(qint32 &id)
 		}
         break;
         
-   case EGlxCmdMarkAll:
-   case EGlxCmdUnMarkAll:
-   case EGlxCmd3DEffectOn:
-   case EGlxCmd3DEffectOff:
-       mViewManager->handleUserAction(mCurrentState->id(), id);
+   case EGlxCmdMarkAll :
+   case EGlxCmdUnMarkAll :
+   case EGlxCmd3DEffectOn :
+   case EGlxCmd3DEffectOff :
+   case EGlxCmdPlayBackAnim :
+       mViewManager->handleUserAction( mCurrentState->id(), id );
        id = EGlxCmdHandled;
        break;
        
    case EGlxCmdSetupItem :
        emit setupItemsSignal();
        break;
+   
+   case EGlxCmdFetcherSelect: 
+       {
+       QModelIndex selectedIndex = mCurrentModel->index(mCurrentModel->data(mCurrentModel->index(0,0),GlxFocusIndexRole).value<int>(),0);
+       emit gridItemSelected(selectedIndex,*mCurrentModel);
+       id = EGlxCmdHandled;
+       }
+       break;
        
-    default :
+   default :
         mActionHandler->handleAction(id,mCollectionId);
     	break;
     }	

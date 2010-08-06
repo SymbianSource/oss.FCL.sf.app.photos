@@ -444,6 +444,7 @@ void GlxCoverFlow::playAnimation()
 void GlxCoverFlow::stopAnimation()
 {
     mIconItem[ mSelItemIndex ]->animator().stopAnimation();
+    mIconItem[ mSelItemIndex ]->setIcon( getIcon( mSelIndex ) );
 }
 
 void GlxCoverFlow::updateIconItem (qint16 selIndex, qint16 selItemIndex, qint16 posX)

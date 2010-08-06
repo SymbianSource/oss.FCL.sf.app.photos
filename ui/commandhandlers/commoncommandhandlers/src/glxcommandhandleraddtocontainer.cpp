@@ -130,7 +130,7 @@ CMPXCommand* GlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
     mAlbumName.clear();
     if(aCommandId == EGlxCmdAddToFav)
         {
-		   mAlbumName = GLX_SUBTITLE_MYFAV_GRIDVIEW;
+		   mAlbumName = GLX_ALBUM_FAV;
            CMPXCollectionPath* targetCollection = CMPXCollectionPath::NewL();
            CleanupStack::PushL(targetCollection);
            // The target collection has to be appeneded with the albums plugin id
@@ -241,8 +241,7 @@ void GlxCommandHandlerAddToContainer::createNewMedia() const
 
     while (error == KErrAlreadyExists)
         {
-        HbMessageBox::warning("Name Already Exist!!!", new HbLabel(
-                "New Album"));
+        HbMessageBox::warning(GLX_NAME_ALREADY_EXIST);
         error = KErrNone;
         error = commandHandlerNewMedia->ExecuteLD(newMediaId,newTitle);
         }
@@ -266,12 +265,12 @@ void GlxCommandHandlerAddToContainer::createNewMedia() const
 QString GlxCommandHandlerAddToContainer::CompletionTextL() const
     {
     if(!mAlbumName.isNull()){
-        return QString("Added to %1").arg(mAlbumName);
+        return (hbTrId(GLX_IMAGES_ADDED).arg(mAlbumName)); 
         }
 	return 	QString();
     }
 
 QString GlxCommandHandlerAddToContainer::ProgressTextL() const
     {
-    return QString("Adding Images...");
+    return GLX_ADDING_IMAGES;
     }

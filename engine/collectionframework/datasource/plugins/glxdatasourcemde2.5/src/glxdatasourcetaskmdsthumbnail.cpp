@@ -594,6 +594,9 @@ void CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL()
         iFilterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
         iFilterProperties.iSortDirection = EGlxFilterSortDirectionOverrideToDescendingIfDate;
         iFilterProperties.iLastCaptureDate = ETrue;
+        // for 10.1 we need first image thumbnail which is not DRM
+        iFilterProperties.iNoDRM = ETrue;
+        iFilterProperties.iItemType = EGlxFilterImage;
 
         if( CGlxDataSource::EContainerTypeMonth == containerType )
             {

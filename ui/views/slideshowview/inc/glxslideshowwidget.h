@@ -49,101 +49,254 @@ typedef enum
     EFFECT_STARTED  // sends the signal when effect is started.
 } GlxSlideShowEvent;
 
+/**
+ * Class Description
+ * This is Slideshow widget class used to play the slide show animation and ahndle the user action like pause and play.
+ */
 class GlxSlideShowWidget : public HbWidget
 {
 Q_OBJECT
 
 public :
-    GlxSlideShowWidget (QGraphicsItem *parent = NULL);
+    /**
+     * Constructor
+     * @param - QGraphicsItem
+     */    
+    GlxSlideShowWidget ( QGraphicsItem *parent = NULL );
+    
+    /**
+     * Destructor
+     */    
     ~GlxSlideShowWidget ();
-    void setModel (QAbstractItemModel *model);
-    void setItemGeometry(QRect screenRect);
-    void startSlideShow();
-    void stopSlideShow();
-    /*
-     * Initialise the slideshow widget
-     * creation of the icons are done here
+    
+    /**
+     * setmodel() - To set the model of the widget.
+     * @param - QAbstractItemModel.
+     */    
+    void setModel ( QAbstractItemModel *model );
+    
+    /**
+     * setItemGeometry() - To Set the layout data of widgets item.
+     * @param scrren gemoetry
      */
-    void setSlideShowWidget(HbDocumentLoader *DocLoader);
+    void setItemGeometry( QRect screenRect );
+    
+    /**
+     * startSlideShow() - To start the slide show timer to run the slide show.
+     */
+    void startSlideShow();
+    
+    /**
+     * stopSlideShow() - To stop slide show timer.
+     */
+    void stopSlideShow();
     
     /*
-     * Cleans up the slide show widget
+     * setSlideShowWidget() - Initialise the slideshow widget and creation of the icons are done here.
+     * @param - docloader
+     */
+    void setSlideShowWidget( HbDocumentLoader *DocLoader );
+    
+    /*
+     * cleanUp() -Cleans up the slide show widget
      */
     void cleanUp();
     
+    /*
+     * animationItem() - Return the icon to use for some transition effect
+     */
+    QGraphicsItem * animationItem();
+    
+    /**
+     * updateAnimationItem() - upadte the z value of anition item for smooth effect.
+     */    
+    void updateAnimationItem();
+    
+    
 signals:
-    void slideShowEvent(GlxSlideShowEvent e);
+    /**
+     * slideShowEvent() - This signal is emitted when slide show event happend lide ui on/off
+     * @param - GlxSlideShowEvent.
+     */
+    void slideShowEvent( GlxSlideShowEvent e );
+    
+    /**
+     * indexchanged() - This signal is emmitted when image selected index is changed. 
+     */
     void indexchanged();
     
 public slots :
+    /**
+     * triggeredEffect() - To start the slide show animation.
+     */
     void triggeredEffect();
-    void effectFinshed();
-    void cancelEffect();
-    void pauseSlideShow();
-    void continueSlideShow(bool check);
-    void dataChanged(QModelIndex startIndex, QModelIndex endIndex);
-    void rowsInserted(const QModelIndex &parent, int start, int end);
-    void rowsRemoved(const QModelIndex &parent, int start, int end);
-    void modelDestroyed();
-    void orientationChanged(QRect screenRect);
 
+    /**
+     * continueSlideShow() - Play the slide show.
+     * @param - From HbAbstractButton.
+     */
+    void continueSlideShow( bool check );
+    
+    /**
+     * effectFinshed() -  Call back to get notification of slide show animation has been finshed.
+     */
+    void effectFinshed();
+    
+    /**
+     * dataChanged() - call back to monitor the widget data changed.
+     * @param - start index of data changed.
+     * @param - end index of data changed.
+     */
+    void dataChanged( QModelIndex startIndex, QModelIndex endIndex );
+    
+    /**
+     * rowsInserted() - call back of new row inserted in the model.
+     * @param - Items are inserted under parent.
+     * @param - start index of items inserted.
+     * @param - end index of items removed.
+     */
+    void rowsInserted( const QModelIndex &parent, int start, int end );
+    
+    /**
+     * rowsRemoved() - call back of new row removed in the model.
+     * @param - Items are removed from parent item.
+     * @param - start index of items inserted.
+     * @param - end index of items removed.
+     */    
+    void rowsRemoved( const QModelIndex &parent, int start, int end );
+    
+    /**
+     * modelDestroyed() - call back to monitor the model destroy.
+     */
+    void modelDestroyed();
+    
+    /**
+     * orientationChanged() - relayout the data when orientation has been changed
+     * @param - Screen Geometry
+     */
+    void orientationChanged( QRect screenRect );
+
+    /**
+     * leftMoveEffectFinished() - call back, when animation of browse the image in forward direction
+     * has been finished.
+     * @param - staus of effect
+     */
     void leftMoveEffectFinished( const HbEffect::EffectStatus &status );
+
+    /**
+     * leftMoveEffectFinished() - call back, when animation of browse the image in backward direction
+     * has been finished.
+     * @param - staus of effect
+     */
     void rightMoveEffectFinished( const HbEffect::EffectStatus &status );
     
 protected slots :
-    void leftGesture (int value);
-    void rightGesture (int value);
+    /**
+     * leftGesture() - To handle the left move event
+     * @parma number of pixel  move.
+     */
+    void leftGesture ( int value );
+    
+    /**
+     * rightGesture() - To handle the right move event
+     * @parma number of pixel  move.
+     */
+    void rightGesture ( int value );
     
 protected :
-    void gestureEvent(QGestureEvent *event);
+    /**
+     * gestureEvent() - gesture event handler.
+     * @param - QGestureEvent
+     */
+    void gestureEvent( QGestureEvent *event );
     
 private :
-    //clear all the model connection
+    /**
+     * clearCurrentModel() - clear all the model call backs
+     */
     void clearCurrentModel();
-    //add the connection to the model
+    
+    /**
+     * initializeNewModel() - register the model data change call backs
+     */
     void initializeNewModel();
+    
+    /**
+     * resetSlideShow() - Reinitialise the widget property.
+     */
     void resetSlideShow();
+    
+    /**
+     * moveImage() - Sopport function to handle the user browsing.
+     * @param -  next selected image index.
+     * @param - position of next image index.
+     * @param - effect event
+     * @param - animation finished callback function
+     */
     void moveImage( int nextIndex, int posX, const QString & move, char * callBack );
+    
+    /**
+     * addConnections() - register the internal and effect engine callback.
+     */
     void addConnections();
+	
+    /**
+     * removeConnections() - deregister the internal and effect engine callback.
+     */
     void removeConnections();
     
-    /*
-     * To get the focus index
+    /**
+     * cancelEffect() - To cancel the currnet effect running.
+     */
+    void cancelEffect();
+    
+    /**
+     * pauseSlideShow() - Pause the slide show.
+     */
+    void pauseSlideShow();
+    
+    /**
+     * getFocusIndex() -To get the focus index
      */
     int getFocusIndex( );
 
     /*
-     * To get the full screen icon of the image
+     * getIcon() - To get the full screen icon of the image
+     * @param - index of the icon
      */
     HbIcon getIcon( int index );
     
-    /*
-     * To check the itemis corrupted or not
+    /**
+     * isCorrupt() - To check the itemis corrupted or not
+     * @param - index of the icon
      */
     bool isCorrupt( int index );
     
-    /*
-     * To set the current ( focus ) item icon
+    /**
+     * setFocusItemIcon() - To set the current ( focus ) item icon
+     * @return - return the success or failure status
      */
     bool setFocusItemIcon();
     
-    /*
-     * To set the next itme icon in the list
+    /**
+     * setNextItemIcon() - To set the next itme icon in the list
+     * @return - return the success or failure status
      */
     bool setNextItemIcon();
     
-    /*
-     * To set the previous icon in the list
+    /**
+     * setPreItemIcon() - To set the previous icon in the list
+     * @return - return the success or failure status
      */
     bool setPreItemIcon();
     
-    /*
-     * In the case of all the image are corrupted then show the error notes
+    /**
+     * showErrorNote() - In the case of all the image are corrupted then show the error notes
      */
     void showErrorNote();
     
-    /*
-     * It will hide the corrupted images note
+    /**
+     * hideErrorNote() - It will hide the corrupted images note
      */
     void hideErrorNote();    
 
@@ -151,6 +304,7 @@ private:
     GlxEffectEngine          *mEffectEngine;
     GlxSettingInterface      *mSettings;               //no ownership
     HbIconItem               *mIconItems[ NBR_ITEM ]; 
+    HbIconItem               *mAnimItem;
     HbIconItem               *mBackGroundItem;
     HbPushButton             *mContinueButton;
     HbLabel                  *mErrorNote ;               //when all the image are corrupted then show the no image label

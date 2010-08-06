@@ -22,23 +22,20 @@
 #include <xqserviceprovider.h>
 #include <QStringList>
 #include <xqsharablefile.h>
+#include <QModelIndex>
+#include <QAbstractItemModel>
 
 //FORWARD CLASS DECLARATION
-class GlxView;
-class HbPushButton;
-class HbMenu;
-class QGraphicsGridLayout; 
 class GlxGetImageService;
-class GlxMediaModel;
-class QModelIndex;
 class GlxImageViewerService;
 class GlxStateManager;
 class CGlxImageViewerManager;
 class GlxGetImageServiceNSDI;
 class GlxGetImageServiceDSDI;
 
+class GlxExternalUtility;
 /**
- *  GlxAiwServiceHandler
+ * This is qthigway service handler class for all services provide by photos.
  * 
  */
 class GlxAiwServiceHandler: public HbMainWindow
@@ -54,57 +51,103 @@ public:
      * Destructor.
      */
     ~GlxAiwServiceHandler();
+
+    /**
+     * launch image fetcher view
+     * @param viewTitle title for image fetcher
+     */
 	void launchFetcher(QString viewTitle);
-	void launchImageViewer();
+
+	/**
+     * launch image viewer 
+     * @param viewTitle title for image fetcher
+     */
+	void launchImageViewer(QString viewTitle);
+	
 public slots:  
-    void itemSelected(const QModelIndex &  index);    
+    /**
+     * This slot is called when image to be returned to fetcher 
+     * client is selected
+     * @param index index of the selected image
+     * @param model model for the current view where image is selected 
+     */
+    void itemSelected(const QModelIndex &  index,QAbstractItemModel & model);
+
+    /**
+     * This slot is called when service client is closed
+     * 
+     */
     void handleClientDisconnect();
-	void itemSpecificMenuTriggered(qint32,QPointF );
-    void openFSView();
-	void handleFSSelect();
-    void closeContextMenu();
     
 private:
-    GlxMediaModel *mModel;
-    GlxView* mView;
+    /// state manager for the services
 	GlxStateManager *mStateMgr;
-	GlxView* mFSView;
-    HbMenu *mFetcherContextMenu;
-
+	/// image fetcher service provider
     GlxGetImageService* mFetcherService;
+    /// image fetcher service provider with new service name and depricated interface name
     GlxGetImageServiceNSDI* mNSDIService;
+    /// image fetcher service provider with depricated name and depricated inaterface name
     GlxGetImageServiceDSDI* mDSDIService;
     GlxImageViewerService* mImageViewerService;
+    GlxExternalUtility *mUtil;
     };
 
 /**
- *  GlxGetImageService
+ *  GlxGetImageService : Image fetcher service provider
  * 
  */	
 class GlxGetImageService : public XQServiceProvider
 {
     Q_OBJECT
 public:
+    /**
+     * Constructor
+     */
     GlxGetImageService( GlxAiwServiceHandler *parent = 0 );
+
+    /**
+     * Destructor.
+     */
     ~GlxGetImageService();
+
+    /**
+     * check if service is active
+     */
     bool isActive();
+
+    /**
+     * called to complete fetch service and return to client
+     * @param fileList list of Uri to be returned to client 
+     */
     void complete( QStringList filesList);
     
-public slots://for QTHighway to notify provider about request
+public slots:
+    /**
+     * slot for qthighway to notify provider about request
+     */
     void fetch();
     
-public slots://for provider to notify client
+    /**
+     * slot for service provider to notify client about error
+     */
     void fetchFailed( int errorCode );
     
 private:
+    /**
+     * called to complete qthighway service
+     * @param fileList list of Uri to be returned to client
+     */
     void doComplete( QStringList filesList);
     
 private:
+    /// current service request id
     int mImageRequestIndex;
+    /// service handler for all photos services
     GlxAiwServiceHandler* mServiceApp;
 };
 
 /**
+ * Class Description
  *  GlxGetImageServiceDSDI
  *  Service provide for new service and depricated interface
  */ 
@@ -112,23 +155,54 @@ class GlxGetImageServiceNSDI : public XQServiceProvider
 {
     Q_OBJECT
 public:
+    /**
+     * Constructor
+     */
     GlxGetImageServiceNSDI( GlxAiwServiceHandler *parent = 0 );
+    /**
+     * Destructor.
+     */
     ~GlxGetImageServiceNSDI();
+
+    /**
+     * check if service is active
+     */
     bool isActive();
+
+    /**
+     * called to complete fetch service and return to client
+     * @param fileList list of Uri to be returned to client 
+     */
     void complete( QStringList filesList);
     
-public slots://for QTHighway to notify provider about request
+public slots:
+    /**
+     * slot for qthighway to notify provider about request
+     */
     void fetch( QVariantMap filter , QVariant flag );
+
+    /**
+     * slot for qthighway to notify provider about request
+     */
     void fetch();
     
-public slots://for provider to notify client
+public slots:
+    /**
+     * slot for service provider to notify client about error
+     */
     void fetchFailed( int errorCode );
     
 private:
+    /**
+     * called to complete fetch service and return to client
+     * @param fileList list of Uri to be returned to client 
+     */
     void doComplete( QStringList filesList);
     
 private:
+    /// current service request id
     int mImageRequestIndex;
+    /// service handler for all photos services
     GlxAiwServiceHandler* mServiceApp;
 };
 
@@ -140,45 +214,101 @@ class GlxGetImageServiceDSDI : public XQServiceProvider
 {
     Q_OBJECT
 public:
+    /**
+     * Constructor
+     */
     GlxGetImageServiceDSDI( GlxAiwServiceHandler *parent = 0 );
+    /**
+     * Destructor.
+     */
     ~GlxGetImageServiceDSDI();
+
+    /**
+     * check if service is active
+     */
     bool isActive();
+
+    /**
+     * called to complete fetch service and return to client
+     * @param fileList list of Uri to be returned to client 
+     */
     void complete( QStringList filesList);
     
-public slots://for QTHighway to notify provider about request
+public slots:
+    /**
+     * slot for qthighway to notify provider about request
+     */
     void fetch( QVariantMap filter, QVariant flag);
     
-public slots://for provider to notify client
+public slots:
+    /**
+     * slot for service provider to notify client about error
+     */
     void fetchFailed( int errorCode );
     
 private:
+    /**
+     * called to complete fetch service and return to client
+     * @param fileList list of Uri to be returned to client 
+     */
     void doComplete( QStringList filesList);
     
 private:
+    /// current service request id
     int mImageRequestIndex;
+    /// service handler for all photos services
     GlxAiwServiceHandler* mServiceApp;
 };
 
-
+/**
+ * Image viewer service provider 
+ */
 class GlxImageViewerService : public XQServiceProvider
 {
     Q_OBJECT
-    public:
-        GlxImageViewerService( GlxAiwServiceHandler *parent = 0 );
-        ~GlxImageViewerService();
-        void complete(bool ok);
+public:
+    /**
+     * Constructor
+     */
+    GlxImageViewerService( GlxAiwServiceHandler *parent = 0 );
 
-    public slots:
-        bool view(QString file);
-        bool view(XQSharableFile file);
-        bool asyncRequest() {return mAsyncRequest;}
+    /**
+     * Destructor.
+     */
+    ~GlxImageViewerService();
 
-    private:
-        GlxAiwServiceHandler* mServiceApp;
-        int mAsyncReqId;
-        bool mRetValue;
-		bool mAsyncRequest;
-		CGlxImageViewerManager* mImageViewerInstance;
+    /**
+     * compete request 
+     * @param ok true id success else false
+     */
+    void complete(bool ok);
+
+    /**
+     * check if request is aSync
+     * @return true if async else false
+     */
+    bool asyncRequest() {return mAsyncRequest;}
+
+public slots:
+    /**
+     * slot for qthighway to notify provider about request
+     */
+    bool view(QString file);
+
+    /**
+     * slot for qthighway to notify provider about request
+     */
+    bool view(XQSharableFile file);
+
+private:
+    /// service handler for all photos services
+    GlxAiwServiceHandler* mServiceApp;
+    /// current request id
+    int mAsyncReqId;
+    bool mRetValue;
+    bool mAsyncRequest;
+    /// image viewer manager instance to get info regarding file
+    CGlxImageViewerManager* mImageViewerInstance;
 };
 
     

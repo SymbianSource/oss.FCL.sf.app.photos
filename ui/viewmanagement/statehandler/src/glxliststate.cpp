@@ -30,6 +30,7 @@ void GlxListState::eventHandler(qint32 &id)
     qDebug("GlxListState::eventHandler action id = %d", id);
     switch(id) {
     case EGlxCmdAlbumListOpen :
+    case EGlxCmdFetcherAlbumListOpen:
 	    id = EGlxCmdHandled;
 	    break ;
 	

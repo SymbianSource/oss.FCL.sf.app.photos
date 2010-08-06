@@ -33,17 +33,23 @@
 #include <glxperformancemacro.h>
 
 #include "glxicondefs.h" //Contains the icon names/Ids
-#include<glxviewids.h>
+#include "glxcollectionpluginall.hrh"
+#include "glxviewids.h"
+
+#define DELTA_IMAGE 5
+#define INITIAL_POPULATE_IMAGE_COUNT 30
 
 GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 {
 	qDebug("GlxMediaModel::GlxMediaModel");
 	
+	thumbnailPopulatedFlag = modelParm.collection() == KGlxCollectionPluginAllImplementationUid ? false : true;
 	mMLWrapper = new GlxMLWrapper(modelParm.collection(),0,EGlxFilterImage);
 	mMLWrapper->setContextMode( modelParm.contextMode() );
 	mContextMode = modelParm.contextMode( ) ; 
 	mDRMUtilityWrapper = new GlxDRMUtilityWrapper();
-	int err = connect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
+	
+	int err = connect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated(int, GlxTBContextType)));
 	qDebug("updateItem() connection status %d", err);
 	err = connect(mMLWrapper, SIGNAL(itemCorrupted(int)), this, SLOT(itemCorrupted(int)));
 	qDebug("itemCorrupted() connection status %d", err);
@@ -62,7 +68,7 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	itemFsIconCache.setMaxCost(5);
 	itemExternalIconCache.setMaxCost(0);
 	
-	m_DefaultIcon = new HbIcon(GLXICON_DEFAULT);
+	m_DefaultIcon = new HbIcon( GLXICON_DEFAULT );
 	m_CorruptIcon = new HbIcon( GLXICON_CORRUPT );
 	mExternalItems = NULL;
 	externalDataCount = 0;
@@ -82,14 +88,6 @@ GlxMediaModel::~GlxMediaModel()
 	delete m_CorruptIcon;
 	m_CorruptIcon = NULL;
 	clearExternalItems();
-    int err = disconnect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
-	err = disconnect(mMLWrapper, SIGNAL(itemCorrupted(int)), this, SLOT(itemCorrupted(int)));
-	err = disconnect(mMLWrapper, SIGNAL(insertItems(int, int)), this, SLOT(itemsAdded(int, int)));
-	err = disconnect(mMLWrapper, SIGNAL(removeItems(int, int)), this, SLOT(itemsRemoved(int, int)));
-	err = disconnect(this, SIGNAL(iconAvailable(int, HbIcon*, GlxTBContextType)), this, SLOT(updateItemIcon(int, HbIcon*, GlxTBContextType)));
-	err = disconnect(mMLWrapper, SIGNAL(updateAlbumTitle(QString)), this, SLOT(albumTitleUpdated(QString)));	    
-	err = disconnect(mMLWrapper, SIGNAL(populated()), this, SLOT(modelpopulated()));
-	err = disconnect(mMLWrapper, SIGNAL(updateDetails()), this, SLOT(updateDetailItems()));
     delete mMLWrapper;
 	delete mDRMUtilityWrapper;
 }
@@ -248,7 +246,7 @@ QVariant GlxMediaModel::data( const QModelIndex &index, int role ) const
                 QPixmap tempPixmap = tempIcon->qicon().pixmap(128, 128);
                 QSize itemSize = mMLWrapper->retrieveItemDimension(itemIndex);
                 QSize sz = ( mContextMode == GlxContextLsFs ) ? QSize ( 640, 360) : QSize ( 360, 640 );
-                if(!((itemSize.width() < sz.width()) && (itemSize.height() < sz.height()))); {
+                if( !( ( itemSize.width() < sz.width() ) && ( itemSize.height() < sz.height() ) ) ) {
                     itemSize.scale(sz, Qt::KeepAspectRatio);
                 }
                 tempPixmap = tempPixmap.scaled(itemSize, Qt::IgnoreAspectRatio );
@@ -398,24 +396,29 @@ HbIcon* GlxMediaModel::GetExternalIconItem(int itemIndex,GlxTBContextType tbCont
 }
 
 
-void GlxMediaModel::itemUpdated1(int mlIndex,GlxTBContextType tbContextType  )
+void GlxMediaModel::itemUpdated(int mlIndex,GlxTBContextType tbContextType  )
 {
 	qDebug("GlxMediaModel::itemUpdated %d", mlIndex);
 	//clear the grid and FS cache if they have any icons with them for that index
-	if(tbContextType == GlxTBContextGrid) {
-		itemIconCache.remove(mlIndex);
+	if( tbContextType == GlxTBContextGrid ) {
+	    if ( !thumbnailPopulatedFlag ) {
+	        thumbnailPopulatedCheck( mlIndex ); 
+	    }		
+	    itemIconCache.remove(mlIndex);
 	}
 	if(tbContextType == GlxTBContextLsFs || tbContextType == GlxTBContextPtFs) {
 		itemFsIconCache.remove(mlIndex);
 	}
-	emit dataChanged(index(mlIndex+externalDataCount,0),index(mlIndex+externalDataCount,0));
-	
+	emit dataChanged( index( mlIndex , 0 ), index( mlIndex, 0 ) );	
 }
 
 void GlxMediaModel::itemCorrupted(int itemIndex)
 {
 	qDebug("GlxMediaModel::itemCorrupted %d", itemIndex);
-	emit dataChanged(index(itemIndex+externalDataCount,0),index(itemIndex+externalDataCount,0));	
+    if ( !thumbnailPopulatedFlag ) {
+        thumbnailPopulatedCheck( itemIndex ); 
+    }
+	emit dataChanged( index( itemIndex , 0 ), index( itemIndex, 0 ) );	
 }
 
 void GlxMediaModel::modelpopulated()
@@ -549,6 +552,16 @@ HbIcon * GlxMediaModel::getCorruptDefaultIcon( const QModelIndex &index ) const
         return m_CorruptIcon ;
     }
     return m_DefaultIcon ;
+}
+
+void GlxMediaModel::thumbnailPopulatedCheck( int index )
+{
+    int count = rowCount() - DELTA_IMAGE ;
+    int maxRange = INITIAL_POPULATE_IMAGE_COUNT + DELTA_IMAGE ;
+    if ( index >= count ||  ( index >= INITIAL_POPULATE_IMAGE_COUNT && index < maxRange ) ) {
+        thumbnailPopulatedFlag = TRUE;
+        emit thumbnailPopulated();
+    }
 }
 
 bool GlxMediaModel::setData ( const QModelIndex & idx, const QVariant & value, int role )

@@ -24,6 +24,7 @@
 #include <QList>
 #include <hbeffect.h>
 #include "glxuistd.h"
+#include <QModelIndex>
 
 class GlxView;
 class HbMainWindow;
@@ -54,97 +55,132 @@ typedef enum
     GLX_ALL_ID             = 0xFF
 } glxToolBarActionIds;
 
+/**
+ * view manager class
+ */
 class GLX_VIEWMANAGER_EXPORT GlxViewManager : public QObject
 {
 Q_OBJECT
 
 public :
+    /**
+     * Constructor
+     */
     GlxViewManager();
+    /**
+     * Destructor
+     */
     ~GlxViewManager();
+
     void setupItems( );
+
+    /**
+     * launch application
+     * @param id viewId
+     * @param model model to be used for the view
+     */
     void launchApplication(qint32 id, QAbstractItemModel *model);
+
+    /**
+     * add back key action
+     */
     void addBackSoftKeyAction();
-/*
- * This will return the orientation of main window
- */    
+
+    /**
+     * This will return the orientation of main window
+     */    
     Qt::Orientation orientation() const;
-/*
- * This will deactivate the current function
- * to be used only in cases where External launch was done
- */     
+
+    /**
+     * This will deactivate the current function
+     * to be used only in cases where External launch was done
+     */     
     void deactivateCurrentView();
-/*
- *  To update the tool bar enable and disable icon
- *  id = This should be selected toolbar tab id
- */    
+
+    /**
+     *  To update the tool bar enable and disable icon
+     *  id = This should be selected toolbar tab id
+     */    
     void updateToolBarIcon(int id);
-/*
- * Enable the marking mode of the view to select multiple item
- */    
+
+    /**
+     * Enable the marking mode of the view to select multiple item
+     */    
     void enterMarkingMode(qint32 viewId);
-/*
- * Enable the normal mode of the view
- */    
+
+    /**
+     * Enable the normal mode of the view
+     */    
     void exitMarkingMode(qint32 viewId);
-/*
- * Pass the user action to the view
- */    
+
+    /**
+     * Pass the user action to the view
+     */    
     void handleUserAction(qint32 viewId, qint32 commandId);
-/*
- *  Return the selection model to the user
- */    
+
+    /**
+     *  Return the selection model to the user
+     */    
     QItemSelectionModel * getSelectionModel(qint32 viewId);
-/*
- * To set the model of current view
- */
+
+    /**
+     * To set the model of current view
+     */
     void setModel( QAbstractItemModel *model );
 	    
 signals :
-/*
- *  emit the user action
- */
+    /**
+     *  emit the user action
+     */
     void actionTriggered(qint32 id);
     void externalCommand(int cmdId);
     void applicationReady();
 
 public slots:
-/*
- *  This public slot is used to launch the view
- */
+    /**
+     *  This public slot is used to launch the view
+     */
     void launchView (qint32 id, QAbstractItemModel *model);
-/*
- *  It is over load slot and used to run the animation for view transition and launch the view
- */    
+
+    /**
+     *  It is over load slot and used to run the animation for view transition and launch the view
+     */    
     void launchView (qint32 id, QAbstractItemModel *model, GlxEffect effect, GlxViewEffect viewEffect);
     
     void launchProgressDialog( int maxValue );
     void updateProgressDialog( int currentValue);
-/*
- *  It will removed and deleted the view.
- *  Currently It is not used so may be in future, It will be removed.
- */    
+
+    /**
+     *  It will removed and deleted the view.
+     *  Currently It is not used so may be in future, It will be removed.
+     */    
     void destroyView (qint32 id);
-/*
- *  It will pass the user action to the state manager
- */    
+
+    /**
+     *  It will pass the user action to the state manager
+     */    
     void actionProcess(qint32 id);
-/*
- *  It will pass the user selected menu action to state manager 
- *  check for depricated with actionProcess api
- */    
+
+    /**
+     *  It will pass the user selected menu action to state manager 
+     *  check for depricated with actionProcess api
+     */    
     void handleMenuAction(qint32 commandId);
-/*
- *  It will pass the user action ( tool bar + back ) to state manager
- */    
+
+    /**
+     *  It will pass the user action ( tool bar + back ) to state manager
+     */    
     void handleAction();
     void cancelTimer();
-/*
- *  This is slot used for the animation finished call back
- */    
+
+    /**
+     *  This is slot used for the animation finished call back
+     */    
     void effectFinished( );
-/*
- *  This will open the item specifc Menu
- */    
+
+    /**
+     *  This will open the item specifc Menu
+     */    
     void itemSpecificMenuTriggered(qint32,QPointF );
     
     void handleReadyView();
@@ -156,46 +192,60 @@ private slots:
    void hideProgressDialog();
    
 private:
-/*
- * It will create and return the view
- */
+    /**
+     * It will create and return the view
+     */
     GlxView * resolveView (qint32 id);
-/*
- *  It will find a view from the view list and return it
- */    
+
+    /**
+     *  It will find a view from the view list and return it
+     */    
     GlxView * findView (qint32 id);
-/*
- *  It will deativate the current view
- */    
+
+    /**
+     *  It will deativate the current view
+     */    
     void deActivateView();
-/*
- *  It will activate and show the view
- */
+
+    /**
+     *  It will activate and show the view
+     */
     void activateView();
-/*
- *  It will create the grid and list view tool bar action
- */    
+
+    /**
+     *  It will create the grid and list view tool bar action
+     */    
     void createActions();
-/*
- *  It will create the marking mode toll bar action
- */    
+
+    /**
+     *  It will create the marking mode toll bar action
+     */    
     void createMarkingModeActions(); 
-/*
- *  It will create the grid and list view tool bar
- */    
+
+    /**
+     *  It will create the grid and list view tool bar
+     */    
     void createToolBar();
-/*
- *  It will create the marking mode tool bar
- */    
+
+    /**
+     *  It will create the marking mode tool bar
+     */    
     void createMarkingModeToolBar();
-/*
- *  It will add all the view manager related connection
- */    
+
+    /**
+     *  It will add all the view manager related connection
+     */    
     void addConnection();
-/*
- *  It will remove all the view manager releted connection
- */    
+
+    /**
+     *  It will remove all the view manager releted connection
+     */    
     void removeConnection();
+    
+    /**
+     * 
+     */    
+    int getSubState();
 
 private:
     QList<GlxView *> mViewList;  //It contains all the view created by it self.

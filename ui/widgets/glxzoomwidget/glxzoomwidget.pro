@@ -49,6 +49,8 @@ BLD_INF_RULES.prj_exports += exportfile
 HEADERS += inc/glxzoomwidget.h inc/glxzoomwidget_global.h
 SOURCES += src/glxzoomwidget.cpp
 
+DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
+
 defBlock = \      
 "$${LITERAL_HASH}if defined(EABI)" \
 "DEFFILE  ../eabi/glxzoomwidget.def" \

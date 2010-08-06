@@ -68,7 +68,6 @@ public :
 signals:
     void actionTriggered( qint32 id );
     void itemSpecificMenuTriggered( qint32,QPointF );
-    void gridItemSelected( const QModelIndex &);   
     
 private :
 	qint32 mId;	

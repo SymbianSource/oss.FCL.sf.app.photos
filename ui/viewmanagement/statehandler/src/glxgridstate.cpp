@@ -43,10 +43,12 @@ void GlxGridState::eventHandler(qint32 &id)
     
     switch ( mState ) {
     case ALL_ITEM_S :
+	case FETCHER_ITEM_S :
         allItemEventHandler ( id ) ;
         break;
         
     case ALBUM_ITEM_S :
+    case FETCHER_ALBUM_ITEM_S :
     	albumItemEventHandler ( id ) ;
     	break;
     	
@@ -60,11 +62,10 @@ void GlxGridState::defaultEventHandler ( qint32 &id )
    qDebug("GlxGridState::defaultEventHandler() action id = %d", id);
    
    switch(id) { 
-   case EGlxCmdFullScreenOpen :
-        id = EGlxCmdHandled;
-        mStateManager->nextState( GLX_FULLSCREENVIEW_ID, -1 );
-        break;
-        
+   case EGlxCmdFetcherFullScreenOpen:
+       id = EGlxCmdHandled;
+       mStateManager->nextState( GLX_FULLSCREENVIEW_ID, FETCHER_S );
+       break;
    case EGlxCmdAddToAlbum :
    case EGlxCmdDelete :
    case EGlxCmdRemoveFrom :
@@ -110,9 +111,13 @@ void GlxGridState::allItemEventHandler ( qint32 &id )
     
     switch(id) {
     case EGlxCmdAllGridOpen :
+    case EGlxCmdFetcherAllGridOpen :   
     	id = EGlxCmdHandled;
     	break ;
-    	
+    case EGlxCmdFullScreenOpen :
+        mStateManager->nextState( GLX_FULLSCREENVIEW_ID, ALL_FULLSCREEN_S );
+        id = EGlxCmdHandled;
+    	break;
     default :
     	break;    
     }
@@ -128,14 +133,25 @@ void GlxGridState::albumItemEventHandler ( qint32 &id )
         mStateManager->goBack( GLX_GRIDVIEW_ID, ALL_ITEM_S );
         id = EGlxCmdHandled;
         break ;
+
+    case EGlxCmdFetcherAllGridOpen :
+        mStateManager->removeCurrentModel();
+        mStateManager->goBack( GLX_GRIDVIEW_ID, FETCHER_ITEM_S );
+        id = EGlxCmdHandled;
+        break ;
         
     case EGlxCmdAlbumListOpen :
+    case EGlxCmdFetcherAlbumListOpen:        
     case EGlxCmdBack :
         mStateManager->removeCurrentModel();
         mStateManager->previousState();
         id = EGlxCmdHandled;
         break;
-    	
+
+    case EGlxCmdFullScreenOpen :
+        mStateManager->nextState( GLX_FULLSCREENVIEW_ID, ALBUM_FULLSCREEN_S );
+        id = EGlxCmdHandled;
+    	break;
     default :
         break;
     }

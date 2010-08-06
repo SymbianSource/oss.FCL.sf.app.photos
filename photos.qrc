@@ -9,8 +9,6 @@
         <file>data/opacity_deactivate.fxml</file>
         <file>data/zoomin.fxml</file>
         <file>data/zoomout.fxml</file>
-        <file>data/view_flip_hide.fxml</file>
-        <file>data/view_flip_show.fxml</file>        
         <file>data/helix.fxml</file>
         <file>data/fadein.fxml</file>  
         <file>data/uphide.fxml</file>
@@ -18,10 +16,10 @@
         <file>data/fullscreentogrid.fxml</file>
         <file>data/gridtofullscreenhide.fxml</file>
         <file>data/gridtofullscreenshow.fxml</file>
-        <file>data/gridtoalbumlist.fxml</file>
-        <file>data/gridtoalbumlisthide.fxml</file>
-        <file>data/albumlisttogrid.fxml</file>
-        <file>data/albumlisttogridshow.fxml</file>
+        <file>data/rotatelandscape.fxml</file>
+        <file>data/rotateprotrait.fxml</file>
+        <file>data/rotatefslandscape.fxml</file>
+        <file>data/rotatefsprotrait.fxml</file>
         <file>data/photos.css</file>
         <file>data/listview.docml</file>
         <file>data/fullscreen.docml</file>

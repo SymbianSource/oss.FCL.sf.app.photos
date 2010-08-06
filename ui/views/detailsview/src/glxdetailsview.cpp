@@ -34,7 +34,7 @@
 #include <hbdocumentloader.h>
 #include <hbdataformmodelitem.h>
 #include <hbdataformviewitem.h>
-
+#include <hbparameterlengthlimiter.h>
 //--------------------------------------------------------------------------------------------------------------------------------------------
 #include "glxviewids.h"
 #include "glxicondefs.h" //Contains the icon names/Ids
@@ -44,7 +44,7 @@
 #include "glxfavmediamodel.h"
 #include "glxdocloaderdefs.h"
 #include <glxcommandhandlers.hrh>
-
+#include  "glxlocalisationstrings.h"
 #include "glxdetailstextedit.h"
 #include "glxdetailsicon.h"
 
@@ -499,12 +499,12 @@ void GlxDetailsView::setDate()
     QDate date = (mModel->data(mModel->index(mModel->data(
             mModel->index(0, 0), GlxFocusIndexRole).value<int> (), 0),
             GlxDateRole)).value<QDate> ();
-    
-    datestring = QString("Date: ");
+        
     if (date.isNull() == FALSE)
         {
         OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_SETDATE, "GlxDetailsView::setDate is not NULL" );
-        datestring.append(date.toString(dateFormat));
+        QString dateStringValue = date.toString(dateFormat);
+        datestring = hbTrId(GLX_DETAILS_DATE).arg(dateStringValue);
         }
 
     mDateLabel->setPlainText(datestring);
@@ -522,13 +522,14 @@ void GlxDetailsView::setTime()
     QTime timevalue = (mModel->data(mModel->index(mModel->data(mModel->index(
             0, 0), GlxFocusIndexRole).value<int> (), 0), GlxTimeRole)).value<
             QTime> ();
-    timestring = QString("Time: ");
+        
     if (timevalue.isNull() == FALSE)
         {
         OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_SETDATE, "GlxDetailsView::setTime is not NULL" );
-        timestring.append(timevalue.toString(timeFormat));
+        QString timeStringValue = timevalue.toString(timeFormat);
+        timestring = hbTrId(GLX_DETAILS_TIME).arg(timeStringValue);
         }
-    mTimeLabel->setPlainText(timestring);
+     mTimeLabel->setPlainText(timestring);
     }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -539,12 +540,10 @@ void GlxDetailsView::setSize()
     int size = 0;
     size = (mModel->data(mModel->index(mModel->data(mModel->index(0, 0),
             GlxFocusIndexRole).value<int> (), 0), GlxSizeRole)).value<int> ();
-    QString sizelabel;
-    QString sizestring;
-    sizelabel = QString("Size  : ");
-    sizestring = sizeinStrings(size);
-    sizelabel.append(sizestring);
-    mSizeLabel->setPlainText(sizelabel);
+    
+    QString sizeString;
+    sizeString = sizeinStrings(size);
+    mSizeLabel->setPlainText(sizeString);
     
    }
 
@@ -607,25 +606,21 @@ QString GlxDetailsView::sizeinStrings(int size)
     if (size >= KBytesInGB)
         {
         int gbSize = size / KBytesInGB; // Size in GB
-        sizeString.setNum(gbSize);
-        sizeString.append("GB");
+        sizeString = HbParameterLengthLimiter(GLX_DETAILS_SIZE_GB, gbSize);         
         }
     else if (size >= KBytesInMB)
         {
         int mbSize = size / KBytesInMB; // Size in MB
-        sizeString.setNum(mbSize);
-        sizeString.append("MB");
+        sizeString = HbParameterLengthLimiter(GLX_DETAILS_SIZE_MB, mbSize);         
         }
     else if (size >= KBytesInKB)
         {
-        TInt kBsize = size / KBytesInKB; // bytes to kB
-        sizeString.setNum(kBsize);
-        sizeString.append("KB");
+        int kbSize = size / KBytesInKB; // Size in KB
+        sizeString = HbParameterLengthLimiter(GLX_DETAILS_SIZE_KB, kbSize);
         }
     else
         {
-        sizeString.setNum(size);
-        sizeString.append("Bytes");
+         sizeString = HbParameterLengthLimiter(GLX_DETAILS_SIZE_BYTES, size);
         }
     return sizeString;
     }

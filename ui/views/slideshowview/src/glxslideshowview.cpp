@@ -43,6 +43,8 @@ GlxSlideShowView::GlxSlideShowView(HbMainWindow *window,HbDocumentLoader *DocLoa
 {
     TRACER("GlxSlideShowView::GlxSlideShowView()");
     mDocLoader = DocLoader;
+    HbEffect::add( QString( "HbIconItem" ), QString( ":/data/rotatelandscape.fxml" ), QString( "RotateLS" ) );
+    HbEffect::add( QString( "HbIconItem" ), QString( ":/data/rotateprotrait.fxml" ), QString( "RotatePT" ) );
 }
 
 GlxSlideShowView::~GlxSlideShowView()
@@ -59,12 +61,13 @@ GlxSlideShowView::~GlxSlideShowView()
         delete mDocLoader;
         mDocLoader = NULL;
     }
+    HbEffect::remove( QString( "HbIconItem" ), QString( ":/data/rotate.fxml" ), QString( "RotateStart" ) );
+    HbEffect::remove( QString( "HbIconItem" ), QString( ":/data/rotate1.fxml" ), QString( "RotateEnd" ) );
 }
 
 void GlxSlideShowView::activate()
 {
     TRACER("GlxSlideShowView::activate()");
-    mWindow->setOrientation(Qt::Horizontal, false);
 
     //finds the widgets from the docml
     loadObjects();
@@ -72,6 +75,7 @@ void GlxSlideShowView::activate()
     setStatusBarVisible(FALSE);
     connect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) ); 
     connect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
+    connect( mWindow, SIGNAL( viewReady() ), this, SLOT( playLsOrientChangeAnim() ) );
     
     QCoreApplication::instance()->installEventFilter(this);
     
@@ -83,14 +87,14 @@ void GlxSlideShowView::activate()
 void GlxSlideShowView::deActivate()
 {
     TRACER("GlxSlideShowView::deActivate()");
-    mWindow->unsetOrientation(false);
+    mWindow->unsetOrientation( false );
     
     setStatusBarVisible(TRUE);
-    setTitleBarVisible(TRUE);
-    
+    setTitleBarVisible(TRUE);    
                 
     disconnect( mSlideShowWidget, SIGNAL( slideShowEvent( GlxSlideShowEvent ) ), this, SLOT( slideShowEventHandler( GlxSlideShowEvent ) ) );
     disconnect( mSlideShowWidget, SIGNAL( indexchanged() ), this, SLOT( indexchanged() ) );
+    disconnect( mWindow, SIGNAL( viewReady() ), this, SLOT( playLsOrientChangeAnim() ) );
         
     //Delete the Items in the slide show widget
     mSlideShowWidget->cleanUp();
@@ -107,12 +111,13 @@ void GlxSlideShowView::setModel(QAbstractItemModel *model)
 {
     TRACER("GlxSlideShowView::setModel()");
     GLX_LOG_INFO2("GlxSlideShowView::setModel() model %u mModel %u", model, mModel);
-    if ( mModel != model ) {
     
-    modelDestroyed();
-    mModel = model;
-    connect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
+    if ( mModel != model ) {    
+        modelDestroyed();
+        mModel = model;
+        connect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
     } 
+    
     setModelContext();    
     mSlideShowWidget->setModel(mModel);
     
@@ -127,14 +132,24 @@ void GlxSlideShowView::setModelContext()
     TRACER("GlxSlideShowView::setModelContext()");
     if ( mModel && mWindow ) {
         GLX_LOG_INFO1("GlxSlideShowView::setModelContext %d", mWindow->orientation() );
-    
-            mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
-      /* if ( mWindow->orientation() == Qt::Horizontal ) {
+        if ( mWindow->orientation() == Qt::Horizontal ) {
             mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
         }
         else {
             mModel->setData(QModelIndex(), (int)GlxContextPtFs, GlxContextRole );
-        } */
+        }
+    }
+}
+
+void GlxSlideShowView::handleUserAction( qint32 commandId )
+{
+    switch( commandId ){
+    case EGlxCmdPlayBackAnim :
+        playPtOrientChangeAnim();
+        break;
+        
+    default :
+        break;
     }
 }
 
@@ -189,6 +204,40 @@ void GlxSlideShowView::modelDestroyed()
         disconnect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
         mModel = NULL; 
     }
+}
+
+void GlxSlideShowView::playLsOrientChangeAnim()
+{
+    qDebug( "GlxSlideShowView::playLsOrientChangeAnim() enter ");
+    if ( mWindow->orientation( ) == Qt ::Vertical ) {
+        mModel->setData(QModelIndex(), (int)GlxContextLsFs, GlxContextRole );
+        mSlideShowWidget->updateAnimationItem();
+        HbEffect::start( mSlideShowWidget->animationItem(), QString( "HbIconItem" ), QString( "RotateLS" ), this, "LsOrientChangeAnimFinished" );
+        qDebug( "GlxSlideShowView::playLsOrientChangeAnim() exit1 ");
+    }
+    else {
+        mWindow->setOrientation( Qt::Horizontal, false );
+    }
+}
+
+void GlxSlideShowView::playPtOrientChangeAnim()
+{
+    mModel->setData( QModelIndex(), ( int )GlxContextPtFs, GlxContextRole );
+    setTitleBarVisible( FALSE );
+    setStatusBarVisible( FALSE );
+    mSlideShowWidget->updateAnimationItem();
+    HbEffect::start( mSlideShowWidget->animationItem(), QString( "HbIconItem" ), QString( "RotatePT" ), this, "PtOrientChangeAnimFinished" );   
+}
+
+void GlxSlideShowView::LsOrientChangeAnimFinished( const HbEffect::EffectStatus )
+{
+    mWindow->setOrientation( Qt::Horizontal, false );
+    orientationChanged( Qt::Horizontal );
+}
+
+void GlxSlideShowView::PtOrientChangeAnimFinished( const HbEffect::EffectStatus )
+{
+    emit actionTriggered( EGlxCmdSlideShowBack );
 }
 
 bool GlxSlideShowView::eventFilter(QObject *obj, QEvent *event)

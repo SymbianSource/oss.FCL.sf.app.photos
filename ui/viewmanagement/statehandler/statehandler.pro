@@ -19,6 +19,8 @@ TARGET = glxstatehandler
 DEPENDPATH += . inc src
 
 CONFIG += hb
+CONFIG += mobility
+MOBILITY += sensors
 
 INCLUDEPATH += . \
             ../../inc \
@@ -30,8 +32,8 @@ INCLUDEPATH += . \
             ../../uiengine/model/mediamodel/inc \
             ../../uiengine/model/listmodel/inc \
             ../viewmanager/inc \
-            ../../commandhandlers\commandhandlerbase\inc \
-            ../../commandhandlers\commoncommandhandlers\inc
+            ../../commandhandlers/commandhandlerbase/inc \
+            ../../commandhandlers/commoncommandhandlers/inc
             
 DEFINES += BUILD_STATEMANAGER
 
@@ -50,7 +52,9 @@ LIBS += -lglxviewmanager.dll \
         -lglxloggerqt.dll \
         -lglxcommoncommandhandlers.dll \
         -lglxlogging.dll \
-        -lglxcommon.dll
+        -lglxcommon.dll \
+	-lglximageviewermanager.dll
+
 
 # Input
 HEADERS += inc/glxbasestate.h \
@@ -63,7 +67,8 @@ HEADERS += inc/glxbasestate.h \
            inc/glxslideshowstate.h \
            inc/glxactionhandler.h \
            inc/glxcommandhandlerfactory.h \
-           inc/glxtnobserver.h
+           inc/glxtnobserver.h \
+           inc/glxorientationsensorfilter.h
 
 SOURCES += src/glxbasestate.cpp \
            src/glxfullscreenstate.cpp \
@@ -75,7 +80,8 @@ SOURCES += src/glxbasestate.cpp \
            src/glxslideshowstate.cpp \
            src/glxactionhandler.cpp \
            src/glxcommandhandlerfactory.cpp \
-           src/glxtnobserver.cpp
+           src/glxtnobserver.cpp \
+           src/glxorientationsensorfilter.cpp
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 

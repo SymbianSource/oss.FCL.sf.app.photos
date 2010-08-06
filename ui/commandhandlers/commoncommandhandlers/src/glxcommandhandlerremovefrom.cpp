@@ -21,6 +21,7 @@
 #include <glxcommandhandlerremovefrom.h>
 #include <glxcollectionpluginalbums.hrh>
 #include <glxcommandhandlers.hrh>
+#include "glxlocalisationstrings.h"
 #include "OstTraceDefinitions.h"
 #ifdef OST_TRACE_COMPILER_IN_USE
 #include "glxcommandhandlerremovefromTraces.h"
@@ -74,5 +75,5 @@ QString GlxCommandHandlerRemoveFrom::CompletionTextL() const
 
 QString GlxCommandHandlerRemoveFrom::ProgressTextL() const
     {
-    return QString("Removing...");
+    return GLX_REMOVE_IMAGES;
     }

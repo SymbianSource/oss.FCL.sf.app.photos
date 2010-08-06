@@ -73,6 +73,10 @@ void GlxMenuManager::disableAction(HbMenu* menu, bool disable)
 
 void GlxMenuManager::addMenu(qint32 viewId, HbMenu* menu)
 {
+    int curState = viewSubState();
+    if( curState == FETCHER_ITEM_S || curState == FETCHER_S || curState == FETCHER_ALBUM_S ||  curState == IMAGEVIEWER_S)
+        return;
+    
     switch(viewId) {
     case GLX_GRIDVIEW_ID:
         CreateGridMenu( menu );
@@ -152,16 +156,16 @@ void GlxMenuManager::CreateGridMenu(HbMenu* menu)
     action->setObjectName( "GridMenu Delete" );
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
     
-    m3DEffectSubMenu = menu->addMenu("3D Effect");
+    m3DEffectSubMenu = menu->addMenu(GLX_GRID_OPT_EFFECT);
     m3DEffectSubMenu->setObjectName( "GridMenu 3DEffect" );
     
-    action = m3DEffectSubMenu->addAction("On"); 
+    action = m3DEffectSubMenu->addAction(GLX_GRID_OPT_ON); 
     action->setCheckable(ETrue);
     action->setData(EGlxCmd3DEffectOn);
     action->setObjectName( "GridMenu 3DOn" );
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
     
-    action = m3DEffectSubMenu->addAction("Off");
+    action = m3DEffectSubMenu->addAction(GLX_GRID_OPT_OFF);
     action->setCheckable(ETrue);
     action->setData(EGlxCmd3DEffectOff);
     action->setObjectName( "GridMenu 3DOff" );
@@ -208,17 +212,17 @@ void GlxMenuManager::CreateFullscreenMenu(HbMenu* menu)
 	CFeatureDiscovery* featManager = CFeatureDiscovery::NewL();
     if(featManager->IsFeatureSupportedL(KFeatureIdFfImageEditor))
         {
-        mSubMenu = menu->addMenu(GLX_MENU_USE_IMAGE);
-        action = mSubMenu->addAction(GLX_MENU_SET_WALLPAPER); 
+        mUseImgSubMenu = menu->addMenu(GLX_MENU_USE_IMAGE);
+        action = mUseImgSubMenu->addAction(GLX_MENU_SET_WALLPAPER); 
         action->setData(EGlxCmdSetWallpaper);
         connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected())); 
         
             
-		mSubMenu = menu->addMenu(GLX_MENU_ROTATE);
-		action = mSubMenu->addAction(GLX_MENU_90_CW); 
+        mRotateSubMenu = menu->addMenu(GLX_MENU_ROTATE);
+		action = mRotateSubMenu->addAction(GLX_MENU_90_CW); 
 		action->setData(EGlxCmdRotateImgCW);
 		connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected())); 
-		action = mSubMenu->addAction(GLX_MENU_90_CCW);
+		action = mRotateSubMenu->addAction(GLX_MENU_90_CCW);
 		action->setData(EGlxCmdRotateImgCCW);
 		connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
 		
@@ -233,6 +237,10 @@ void GlxMenuManager::CreateFullscreenMenu(HbMenu* menu)
     action->setData(EGlxCmdAddToAlbum);
     action->setObjectName( "FSMenu AddToAlbum" );
     connect(action, SIGNAL(triggered()), this, SLOT(menuItemSelected()));
+	action = menu->addAction( GLX_OPTION_REMOVE_FROM_ALBUM );
+	action->setData( EGlxCmdRemoveFrom );
+	action->setObjectName( "FSMenu RemoveAlbum" );
+	connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
 }
 
 void GlxMenuManager::createSlideShowMenu( HbMenu* menu )
@@ -256,9 +264,11 @@ void GlxMenuManager::setAllActionVisibility( QList<QAction*> actionList, bool vi
 
 int GlxMenuManager::viewSubState()
 {
-    QVariant variant = mModel->data( mModel->index(0,0), GlxSubStateRole );    
-    if ( variant.isValid() &&  variant.canConvert<int> () ) {
-        return variant.value<int>() ;
+    if(mModel){
+        QVariant variant = mModel->data( mModel->index(0,0), GlxSubStateRole );
+        if ( variant.isValid() &&  variant.canConvert<int> () ) {
+            return variant.value<int>() ;
+        }
     }
     return -1;
 }
@@ -335,6 +345,34 @@ void GlxMenuManager::updateFullscreenMenu()
         setAllActionVisibility( actionList, TRUE );
         isAllActionDisable = FALSE;
     }    
+    
+
+
+#ifndef __WINSCW__
+    if ( state != IMAGEVIEWER_S)
+        {
+        int frameCount = (mModel->data(mModel->index((
+                mModel->data(mModel->index(0, 0),GlxFocusIndexRole)).value<int> (), 0),
+                        GlxFrameCount)).value<int>();
+        bool setVisible = true;
+        if (frameCount > 1) 
+            {
+            //Check for animated image, if found hide editor specific menu
+            setVisible = false;
+            }
+		//If Use Image contains any sub menu item other then related to Editor
+		//then individual sub menu item needs to be hidden rather then
+		//complete "Use Image"menu
+        actionList[GlxFullScreenViewUseImage]->setVisible(setVisible);
+        actionList[GlxFullScreenViewMenuRotate]->setVisible(setVisible);
+        actionList[GlxFullScreenViewCrop]->setVisible(setVisible);
+        }
+#endif    
+	if( state != ALBUM_FULLSCREEN_S ){
+		actionList[GlxFullScreenViewRemoveoAlbum]->setVisible(false);
+	}else{
+		actionList[GlxFullScreenViewRemoveoAlbum]->setVisible(true);
+	}
 }
 
 void GlxMenuManager::menuItemSelected()
@@ -351,9 +389,16 @@ void GlxMenuManager::ShowItemSpecificMenu(qint32 viewId,QPointF pos)
     mContextMenu = new HbMenu();
     mContextMenu->setObjectName( "ContextMenu" );
     HbAction *action = NULL;
-
     switch ( viewId ) {
 	    case GLX_GRIDVIEW_ID :
+			if ( viewSubState() == FETCHER_ITEM_S || viewSubState() == FETCHER_ALBUM_ITEM_S) {        
+                action = mContextMenu->addAction( GLX_MENU_OPEN );
+                action->setData( EGlxCmdFetcherFullScreenOpen );
+                action->setObjectName( "CM Open1" );
+                connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
+				break;
+	        }
+			
 	        action = mContextMenu->addAction( GLX_MENU_OPEN );
             action->setData( EGlxCmdFullScreenOpen );
             action->setObjectName( "CM Open" );
@@ -369,6 +414,11 @@ void GlxMenuManager::ShowItemSpecificMenu(qint32 viewId,QPointF pos)
 	        action->setObjectName( "CM SlideShow" );
 	        connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
 
+	        action = mContextMenu->addAction( GLX_MENU_ADD_TO_ALBUM );
+		    action->setData( EGlxCmdContextAddToAlbum );
+		    action->setObjectName( "CM AddToAlbum" );
+		    connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
+		    
 	        if ( viewSubState() == ALBUM_ITEM_S ) {        
                 action = mContextMenu->addAction( GLX_OPTION_REMOVE_FROM_ALBUM );
                 action->setData( EGlxCmdContextRemoveFrom );
@@ -376,11 +426,6 @@ void GlxMenuManager::ShowItemSpecificMenu(qint32 viewId,QPointF pos)
                 connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
 	        }
 	        
-	        action = mContextMenu->addAction( GLX_MENU_ADD_TO_ALBUM );
-		    action->setData( EGlxCmdContextAddToAlbum );
-		    action->setObjectName( "CM AddToAlbum" );
-		    connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
-		    
 		    action = mContextMenu->addAction( GLX_MENU_DELETE );
 		    action->setData( EGlxCmdContextDelete );
 		    action->setObjectName( "CM Delete" );
@@ -388,6 +433,14 @@ void GlxMenuManager::ShowItemSpecificMenu(qint32 viewId,QPointF pos)
 			break;
 	    	
 	    case GLX_LISTVIEW_ID : {
+            if ( viewSubState() == FETCHER_ALBUM_S ) {        
+                action = mContextMenu->addAction( GLX_MENU_OPEN );
+                action->setData( EGlxCmdFetcherAlbumGridOpen );
+                action->setObjectName( "CM Open1" );
+                connect( action, SIGNAL( triggered() ), this, SLOT( menuItemSelected() ) );
+                break;
+            }
+	    
 	        int count = 0;
             QVariant variant = mModel->data( mModel->index(0,0), GlxListItemCount );    
 	        if ( variant.isValid() &&  variant.canConvert<int> () ) {

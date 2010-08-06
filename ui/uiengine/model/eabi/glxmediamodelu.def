@@ -1,8 +1,8 @@
 EXPORTS
 	_ZN13GlxMediaModel10itemsAddedEii @ 1 NONAME
-	_ZN13GlxMediaModel11qt_metacallEN11QMetaObject4CallEiPPv @ 2 NONAME
-	_ZN13GlxMediaModel11qt_metacastEPKc @ 3 NONAME
-	_ZN13GlxMediaModel12itemUpdated1Ei16GlxTBContextType @ 4 NONAME
+	_ZN13GlxMediaModel11itemUpdatedEi16GlxTBContextType @ 2 NONAME
+	_ZN13GlxMediaModel11qt_metacallEN11QMetaObject4CallEiPPv @ 3 NONAME
+	_ZN13GlxMediaModel11qt_metacastEPKc @ 4 NONAME
 	_ZN13GlxMediaModel12itemsRemovedEii @ 5 NONAME
 	_ZN13GlxMediaModel13itemCorruptedEi @ 6 NONAME
 	_ZN13GlxMediaModel13setFocusIndexERK11QModelIndex @ 7 NONAME
@@ -13,31 +13,33 @@ EXPORTS
 	_ZN13GlxMediaModel16setSelectedIndexERK11QModelIndex @ 12 NONAME
 	_ZN13GlxMediaModel16staticMetaObjectE @ 13 NONAME DATA 16
 	_ZN13GlxMediaModel17albumTitleUpdatedE7QString @ 14 NONAME
-	_ZN13GlxMediaModel18clearExternalItemsEv @ 15 NONAME
-	_ZN13GlxMediaModel19albumTitleAvailableE7QString @ 16 NONAME
-	_ZN13GlxMediaModel19getStaticMetaObjectEv @ 17 NONAME
-	_ZN13GlxMediaModel7setDataERK11QModelIndexRK8QVarianti @ 18 NONAME
-	_ZN13GlxMediaModel9populatedEv @ 19 NONAME
-	_ZN13GlxMediaModelC1ER12GlxModelParm @ 20 NONAME
-	_ZN13GlxMediaModelC2ER12GlxModelParm @ 21 NONAME
-	_ZN13GlxMediaModelD0Ev @ 22 NONAME
-	_ZN13GlxMediaModelD1Ev @ 23 NONAME
-	_ZN13GlxMediaModelD2Ev @ 24 NONAME
-	_ZNK13GlxMediaModel10metaObjectEv @ 25 NONAME
-	_ZNK13GlxMediaModel11columnCountERK11QModelIndex @ 26 NONAME
-	_ZNK13GlxMediaModel13GetFsIconItemEi16GlxTBContextType @ 27 NONAME
-	_ZNK13GlxMediaModel13getFocusIndexEv @ 28 NONAME
-	_ZNK13GlxMediaModel13iconAvailableEiP6HbIcon16GlxTBContextType @ 29 NONAME
-	_ZNK13GlxMediaModel15GetGridIconItemEi16GlxTBContextType @ 30 NONAME
-	_ZNK13GlxMediaModel19GetExternalIconItemEi16GlxTBContextType @ 31 NONAME
-	_ZNK13GlxMediaModel4dataERK11QModelIndexi @ 32 NONAME
-	_ZNK13GlxMediaModel5indexEiiRK11QModelIndex @ 33 NONAME
-	_ZNK13GlxMediaModel6parentERK11QModelIndex @ 34 NONAME
-	_ZNK13GlxMediaModel8rowCountERK11QModelIndex @ 35 NONAME
-	_ZTI13GlxMediaModel @ 36 NONAME
-	_ZTV13GlxMediaModel @ 37 NONAME
-	_ZN13GlxMediaModel17removeContextModeE14GlxContextMode @ 38 NONAME
-	_ZN13GlxMediaModel17updateDetailItemsEv @ 39 NONAME
-	_ZN13GlxMediaModel17updateDetailsViewEv @ 40 NONAME
-	_ZNK13GlxMediaModel21getCorruptDefaultIconERK11QModelIndex @ 41 NONAME
+	_ZN13GlxMediaModel17removeContextModeE14GlxContextMode @ 15 NONAME
+	_ZN13GlxMediaModel17updateDetailItemsEv @ 16 NONAME
+	_ZN13GlxMediaModel17updateDetailsViewEv @ 17 NONAME
+	_ZN13GlxMediaModel18clearExternalItemsEv @ 18 NONAME
+	_ZN13GlxMediaModel18thumbnailPopulatedEv @ 19 NONAME
+	_ZN13GlxMediaModel19albumTitleAvailableE7QString @ 20 NONAME
+	_ZN13GlxMediaModel19getStaticMetaObjectEv @ 21 NONAME
+	_ZN13GlxMediaModel23thumbnailPopulatedCheckEi @ 22 NONAME
+	_ZN13GlxMediaModel7setDataERK11QModelIndexRK8QVarianti @ 23 NONAME
+	_ZN13GlxMediaModel9populatedEv @ 24 NONAME
+	_ZN13GlxMediaModelC1ER12GlxModelParm @ 25 NONAME
+	_ZN13GlxMediaModelC2ER12GlxModelParm @ 26 NONAME
+	_ZN13GlxMediaModelD0Ev @ 27 NONAME
+	_ZN13GlxMediaModelD1Ev @ 28 NONAME
+	_ZN13GlxMediaModelD2Ev @ 29 NONAME
+	_ZNK13GlxMediaModel10metaObjectEv @ 30 NONAME
+	_ZNK13GlxMediaModel11columnCountERK11QModelIndex @ 31 NONAME
+	_ZNK13GlxMediaModel13GetFsIconItemEi16GlxTBContextType @ 32 NONAME
+	_ZNK13GlxMediaModel13getFocusIndexEv @ 33 NONAME
+	_ZNK13GlxMediaModel13iconAvailableEiP6HbIcon16GlxTBContextType @ 34 NONAME
+	_ZNK13GlxMediaModel15GetGridIconItemEi16GlxTBContextType @ 35 NONAME
+	_ZNK13GlxMediaModel19GetExternalIconItemEi16GlxTBContextType @ 36 NONAME
+	_ZNK13GlxMediaModel21getCorruptDefaultIconERK11QModelIndex @ 37 NONAME
+	_ZNK13GlxMediaModel4dataERK11QModelIndexi @ 38 NONAME
+	_ZNK13GlxMediaModel5indexEiiRK11QModelIndex @ 39 NONAME
+	_ZNK13GlxMediaModel6parentERK11QModelIndex @ 40 NONAME
+	_ZNK13GlxMediaModel8rowCountERK11QModelIndex @ 41 NONAME
+	_ZTI13GlxMediaModel @ 42 NONAME
+	_ZTV13GlxMediaModel @ 43 NONAME
 

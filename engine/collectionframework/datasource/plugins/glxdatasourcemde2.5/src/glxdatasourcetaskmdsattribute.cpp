@@ -624,8 +624,17 @@ void CGlxDataSourceTaskMdeAttributeMde::AddContainerAttributesL(CMPXMedia* aEntr
                 case CGlxDataSource::EContainerTypeAlbum:
                 case CGlxDataSource::EContainerTypeTag:
                     {                                                           
-                    TUint32 countTypeIndex = aContainer->UsageCount();
-                    aEntry->SetTObjectValueL(request->Attributes()[i], countTypeIndex);
+                    // for 10.1 we need just images - so just getting images inside an album will do
+                    TGlxFilterProperties filterProperties = iFilterProperties;
+                    filterProperties.iItemType = EGlxFilterImage;
+                    filterProperties.iNoDRM = ETrue;
+                    
+                    QueueObjectQueryL(aContainer->Def(), ETrue, EAttributeQuery,
+                                      EQueryResultModeCount, TGlxMediaId(aContainer->Id()),
+                                      request->Attributes()[i], aEntry, filterProperties);
+                    
+                    //TUint32 countTypeIndex = aContainer->UsageCount();
+                    //aEntry->SetTObjectValueL(request->Attributes()[i], countTypeIndex);
                     break;
                     }
                 case CGlxDataSource::EContainerTypeMonth:

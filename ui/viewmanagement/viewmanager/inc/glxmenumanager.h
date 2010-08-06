@@ -34,6 +34,19 @@ enum {
    GlxGridView3DEffect
 };
 
+//Fullscreen view option menu
+enum {
+   GlxFullScreenViewSend,
+   GlxFullScreenViewSlideShow,
+#ifndef __WINSCW__
+   GlxFullScreenViewUseImage,
+   GlxFullScreenViewMenuRotate,
+   GlxFullScreenViewCrop,
+#endif
+   GlxFullScreenViewAddToAlbum,
+   GlxFullScreenViewRemoveoAlbum
+};
+
 class GlxMenuManager : public QObject
 {
 Q_OBJECT
@@ -71,5 +84,7 @@ private:
 	HbMenu *mContextMenu;
 	HbMenu* mSubMenu;
 	HbMenu* m3DEffectSubMenu;
+	HbMenu* mRotateSubMenu;
+	HbMenu* mUseImgSubMenu;
 	GlxSettingInterface *mSettings;
 };

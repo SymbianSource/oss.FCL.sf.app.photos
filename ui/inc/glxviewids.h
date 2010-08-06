@@ -38,13 +38,17 @@ typedef enum
 {
     NO_GRID_S = 0,
     ALL_ITEM_S,
-    ALBUM_ITEM_S,    
+    ALBUM_ITEM_S,
+	FETCHER_ITEM_S,  // all grid fetcher
+	FETCHER_ALBUM_ITEM_S,  //album grid getcher
     MAX_GRID_S
 } GridState;
 
 typedef enum 
 {
     NO_FULLSCREEN_S = MAX_GRID_S + 1,
+	ALL_FULLSCREEN_S,
+	ALBUM_FULLSCREEN_S,
     EXTERNAL_S,
     IMAGEVIEWER_S,
 	FETCHER_S,  
@@ -65,5 +69,10 @@ typedef enum
     IMAGEVIEWER_DETAIL_S,
     MAX_DETAIL_S
 } DetailState;
-
+typedef enum
+{
+    NO_LIST_S  = MAX_DETAIL_S+1,
+    FETCHER_ALBUM_S,  // album list fetcher
+    MAX_LIST_S
+} ListState;
 #endif /* GLXVIEWIDS_H */

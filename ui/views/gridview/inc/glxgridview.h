@@ -33,6 +33,8 @@ class HbIconItem;
 class HbCheckBox;
 class HbLabel;
 class GlxSettingInterface;
+class HbGroupBox;
+class QGraphicsLinearLayout;
 
 class GlxGridView : public GlxView
 {
@@ -87,23 +89,28 @@ private:
     void showHbItems();
     int getSubState();
     void showNoImageString();
+    
+    //It is used to hide and show the toolbar
+    //In album grid it is not required to show the tool bar
+    void updateToolBar();
 
 	HbMainWindow        *mWindow;          // no ownership
 	QAbstractItemModel  *mModel ;
 	HgGrid              *mWidget;          // HG Grid Widget
 	QItemSelectionModel *mSelectionModel;  // Selected items model
     GlxModelWrapper     *mModelWrapper;    // Temp Model Wrapper, so That Role Change not a problem
-    HbPushButton        *mUiOnButton;
-    HbPushButton        *mCameraButton;    // Camera Button, when item count is zero
+    HbPushButton        *mUiOnButton;    
     bool                 mScrolling;
     HbIconItem          *mIconItem;
     HbCheckBox          *mMarkCheckBox;    // Mark All checkbox 
-    HbLabel             *mCountItem;       // Item count of the grid
-    HbLabel             *mMainLabel;       
-    HbLabel             *mCountLabel;      // Marked item count
+    HbGroupBox          *mTotalImagesCount;       // Item count of the grid
+    HbGroupBox          *mMarkSelectHeading;    
+    HbLabel             *mMarkCountLabel;      // Marked item count
     HbLabel             *mZeroItemLabel;   // zero itemcount
-    HbLabel             *mAlbumName;
-    GlxSettingInterface *mSettings;      
+    HbGroupBox          *mAlbumNameHeading;
+    QGraphicsLinearLayout *mMarkContainer;
+    GlxSettingInterface *mSettings;    
+    HbWidget *mMarkingWidget;
 };
 
 #endif /* GLXGRIDVIEW_H_ */
