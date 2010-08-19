@@ -90,6 +90,11 @@ private:
      * MMC state
      */
     TGlxMMCState istate;
+    
+    /**
+     * Default Memory Card drive identifier specified by TDriveNumber 
+     */
+    TInt iDefaultMemoryCardDrive;
     };
 
 #endif /* GLXMMCNOTIFIER_H_ */

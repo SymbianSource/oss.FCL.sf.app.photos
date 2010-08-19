@@ -215,7 +215,9 @@ void TGlxCommandParser::ArrayValueL(const TMPXAttribute & aAttribute,
         User::Leave(KErrArgument);
         }
   
-    const CMPXCollectionPath* path = aCommand.ValueCObjectL<CMPXCollectionPath>(aAttribute);
+    CMPXCollectionPath* path = aCommand.ValueCObjectL<CMPXCollectionPath>(aAttribute);
+	// ValueCObjectL returns the ownership of path, hence we need to delete
+    CleanupStack::PushL(path);
 	RArray<TMPXItemId> list;
     path->SelectionL(list);
   
@@ -230,6 +232,7 @@ void TGlxCommandParser::ArrayValueL(const TMPXAttribute & aAttribute,
     		aArray.AppendL(TGlxMediaId(list[i]));
     		}
     	}
+    CleanupStack::PopAndDestroy(path);
     CleanupStack::Pop(&aArray);
     }
 

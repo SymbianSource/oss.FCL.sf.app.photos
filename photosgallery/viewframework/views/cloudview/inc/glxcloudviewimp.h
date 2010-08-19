@@ -32,6 +32,7 @@
 
 #include "glxtagscontextmenucontrol.h"  // MGlxItemMenuObserver
 #include "glxmmcnotifier.h"
+#include <alf/alfcompositionutility.h> // MAlfEffectObserver
 
 // FORWARD DECLARATIONS
 class CGlxCloudViewControl;
@@ -54,7 +55,8 @@ NONSHARABLE_CLASS(CGlxCloudViewImp): public CGlxCloudView,
 									public MGlxEnterKeyEventObserver,
 									public MGlxCloudViewLayoutObserver,
 									public MGlxItemMenuObserver,
-									public MStorageNotifierObserver
+									public MStorageNotifierObserver,
+									public CAlfEffectObserver::MAlfEffectObserver
 	{
 public:
 
@@ -120,6 +122,9 @@ public:
 	 * @param aCommand command to be handled
 	 */
 	void HandleGridMenuListL(TInt aCommand);
+public://From MAlfEffectObserver
+	void HandleEffectCallback(TInt aType, TInt aHandle, TInt aStatus);
+	
 public:    
     void HandleForegroundEventL(TBool aForeground); 
 	
@@ -258,6 +263,11 @@ private:
 	CGlxMMCNotifier* iMMCNotifier;
 	
 	TBool iMMCState;
+	
+	//For Alf Effects
+	CAlfEffectObserver* iAlfEffectObs;
+	TInt iEffectHandle;
+		
 	};
 }
 #endif // C_GLXTESTTILEVIEWIMP_H

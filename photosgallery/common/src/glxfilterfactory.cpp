@@ -230,16 +230,20 @@ EXPORT_C CMPXFilter* TGlxFilterFactory::CreateSlideShowFilterL( CMPXCollectionPa
 // Creates a filter most suited for the SlideShow
 // ---------------------------------------------------------------------------
 //   
-EXPORT_C CMPXFilter* TGlxFilterFactory::CreateSlideShowFilterFromExistingFilterL(   CMPXFilter* aOriginalFilter,
-                                                                                    CMPXCollectionPath* aSelectedListPath,
-                                                                                    TBool aReverseSortDirection)
-    {     
+EXPORT_C CMPXFilter* TGlxFilterFactory::CreateSlideShowFilterFromExistingFilterL(
+        CMPXFilter* aOriginalFilter, CMPXCollectionPath* aSelectedListPath,
+        TBool aReverseSortDirection)
+    {
     TGlxFilterProperties filterProperties;
-    filterProperties.iSortDirection = aReverseSortDirection ? EGlxFilterSortDirectionReverse : EGlxFilterSortDirectionNotUsed;
+    // Ref:NShwSlideshow::TPlayDirection
+	// EPlayForwards = 0; Chronological Order (Older to newer)
+    // EPlayBackwards = 1; Reverse Chronological Order (Newer to older)
+    filterProperties.iSortDirection = aReverseSortDirection ? 
+            EGlxFilterSortDirectionNotUsed : EGlxFilterSortDirectionReverse;
     filterProperties.iItemType = EGlxFilterImage;
     filterProperties.iPath = aSelectedListPath;
-    filterProperties.iNoDRM = ETrue;;
-    filterProperties.iExcludeAnimation = ETrue;;
+    filterProperties.iNoDRM = ETrue;
+    filterProperties.iExcludeAnimation = ETrue;
     return CreateCombinedFilterL(filterProperties, aOriginalFilter);
     }
     
@@ -455,18 +459,25 @@ EXPORT_C CMPXFilter* TGlxFilterFactory::CreateCombinedFilterL(  const TGlxFilter
         }
         
 	CMPXCollectionPath* path = aFilterProperties.iPath;
+	TBool deletePath = EFalse;
 	if( aOriginalFilter->IsSupported(KGlxFilterGeneralMPXCollectionPath) )
         {
         if( !aOverrideOriginal || !aFilterProperties.iPath )
         	{
         	path = aOriginalFilter->ValueCObjectL<CMPXCollectionPath>(KGlxFilterGeneralMPXCollectionPath);
+        	CleanupStack::PushL(path);
+        	deletePath = ETrue;
         	}
         }
     if( path )
         {
+		// SetCObjectValueL creates a copy of path, so safe to destroy path after this call.
         filter->SetCObjectValueL<CMPXCollectionPath>(KGlxFilterGeneralMPXCollectionPath, path);    
         }
-   
+    if(deletePath)
+        {
+        CleanupStack::PopAndDestroy(path);
+        }
 	TBool promoteSystemItems = aFilterProperties.iPromoteSystemItems;
 	if( aOriginalFilter->IsSupported(KGlxFilterGeneralSortOrderPromoteSystemItems) )
         {

@@ -20,19 +20,16 @@
 
 #include "glxmulmodelproviderbase.h"
 
-#include <e32err.h>
 #include <alf/alfenv.h>
 #include <alf/alfevent.h>
 #include <alf/ialfwidgetfactory.h>
 #include <alf/alfwidgetenvextension.h>
-//#include <osn/ustring.h>
 #include <mul/imulwidget.h>
 #include <mul/mulevent.h>
 #include <mul/mulvisualitem.h>
+#include <mul/imulcoverflowwidget.h>               // An interface for Multimedia coverflow Widget
 #include <glxlog.h>  //Logging
 #include <glxtracer.h>
-#include "glxbinding.h"
-#include "glxcommandbindingutility.h"
 #include <glxnavigationalstate.h>
 #include <glxnavigationalstatedefs.h>
 
@@ -42,17 +39,15 @@
 #include <glxtexturemanager.h>
 #include <glxicons.mbg>
 #include <glxuistd.h>
-#include <mul/imulcoverflowwidget.h>               // An interface for Multimedia coverflow Widget
 #include "glxdrmgiftexturecreator.h"
+#include "glxbinding.h"
+#include "glxcommandbindingutility.h"
 
 using namespace Alf;
 
 static const char* const KListWidget = "ListWidget";
 static const char* const KGridWidget = "GridWidget";
 static const char* const KCoverFlowWidget = "CoverflowWidget";
-
-//@todo to be uncommented when using command binding
-//#include "glxboundcommand.h"
 
 // ----------------------------------------------------------------------------
 // BaseConstructL
@@ -189,6 +184,7 @@ AlfEventStatus CGlxMulModelProviderBase::offerEvent( Alf::CAlfWidgetControl&
 	AlfEventStatus response = EEventNotHandled;
 	if ( aEvent.IsCustomEvent() )
 		{
+		GLX_LOG_INFO1("CGlxMulModelProviderBase::offerEvent() aEvent.CustomParameter(%d)", aEvent.CustomParameter());    
 		switch ( aEvent.CustomParameter() ) 
 			{
 			case KAlfActionIdDeviceLayoutChanged:
@@ -206,9 +202,29 @@ AlfEventStatus CGlxMulModelProviderBase::offerEvent( Alf::CAlfWidgetControl&
 				response = EEventHandled;
 				}
 				break;
-			default:
-				break;
-			}
+            case Alf::ETypeItemRemoved:
+                {
+                GLX_LOG_INFO("CGlxMulModelProviderBase::offerEvent - ETypeItemRemoved!");
+                CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
+                CleanupClosePushL(*uiUtility);
+                if (iModel->Count() == 0 && UString(KCoverFlowWidget)
+                        == UString(iWidget.widgetName())
+                        && iNavigationalState->ViewingMode()
+                                == NGlxNavigationalState::EView
+                        && uiUtility->GetForegroundStatus())
+                    {
+                    uiUtility->SetViewNavigationDirection(
+                            EGlxNavigationBackwards);
+
+                    iNavigationalState->ActivatePreviousViewL();
+                    response = EEventHandled;
+                    }
+                CleanupStack::PopAndDestroy(uiUtility);
+                }
+                break;
+            default:
+                break;
+            }
 		}
 	return response;
 	}
@@ -306,12 +322,12 @@ void CGlxMulModelProviderBase::SetDataT( const CGlxBinding& aBinding,
         TGlxMediaGeneralRightsValidity isValid = EGlxDrmRightsValidityUnknown;
         if (aMedia.GetDrmProtected(drm))
             {
-            GLX_DEBUG1("CGlxMulModelProviderBase::SetDataT GetDrmValidity");
             aMedia.GetDrmValidity(isValid);
+            GLX_DEBUG2("CGlxMulModelProviderBase::SetDataT DrmValidity(%d)", isValid);
             }
         TInt frameCount;
         aMedia.GetFrameCount(frameCount);
-        
+        GLX_DEBUG2("CGlxMulModelProviderBase::SetDataT framecount=%d", frameCount);
         //Create the DRM gif texture intance only if the DRM gif image is
         //valid and focused
         if (frameCount > 1 && drm && isValid == EGlxDrmRightsValid)
@@ -444,6 +460,7 @@ void CGlxMulModelProviderBase::RemoveItems( TInt aIndex, TInt aCount )
     {
     TRACER("CGlxMulModelProviderBase::RemoveItems");
     // RemoveItems does not throw according to model documentation
+    GLX_LOG_INFO2("CGlxMulModelProviderBase::RemoveItems() aIndex(%d), aCount(%d)", aIndex, aCount);    
     iModel->Remove( aIndex, aCount );
     }    
 

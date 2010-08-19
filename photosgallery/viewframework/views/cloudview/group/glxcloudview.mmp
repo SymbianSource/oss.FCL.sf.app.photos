@@ -84,4 +84,6 @@ LIBRARY		gdi.lib
 LIBRARY		charconv.lib         // For UtfConverter
 LIBRARY         commonengine.lib
 LIBRARY 	gfxtrans.lib
+LIBRARY		alfdecoderserverclient.lib //For CAlfEffectObserver
+LIBRARY		akntransitionutils.lib //For CAknTransitionUtils
 // End of File

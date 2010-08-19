@@ -28,6 +28,7 @@
 #include <akntoolbar.h>
 #include <glxcommandhandleraddtocontainer.h>         // For CGlxCommandHandlerAddToContainer
 #include <aknphysics.h> // For Kinetic Scrolling
+#include <eikdialogext.h>
 
 //User includes
 #include <glxmetadatadialog.rsg>
@@ -54,83 +55,85 @@
 // NewL
 // -----------------------------------------------------------------------------
 //
-EXPORT_C CGlxMetadataDialog* CGlxMetadataDialog::NewL( const TDesC& aUri  )
-	{
-	TRACER("CGlxMetadataDialog::NewL");
-	
-	CGlxMetadataDialog* self = new(ELeave) CGlxMetadataDialog(aUri );
-	CleanupStack::PushL( self );
-	self->ConstructL();
-	CleanupStack::Pop( self );
-	return self;
-	}
+EXPORT_C CGlxMetadataDialog* CGlxMetadataDialog::NewL(const TDesC& aUri)
+    {
+    TRACER("CGlxMetadataDialog::NewL");
 
-CGlxMetadataDialog::CGlxMetadataDialog(const TDesC& aUri):iUri(aUri)
-{
+    CGlxMetadataDialog* self = new (ELeave) CGlxMetadataDialog(aUri);
+    CleanupStack::PushL(self);
+    self->ConstructL();
+    CleanupStack::Pop(self);
+    return self;
+    }
 
-}
+CGlxMetadataDialog::CGlxMetadataDialog(const TDesC& aUri) :
+    iUri(aUri)
+    {
+    }
+
 // -----------------------------------------------------------------------------
 // ConstructL
 // -----------------------------------------------------------------------------
 //
 void CGlxMetadataDialog::ConstructL()
 	{
-	TRACER("CGlxMetadataDialog::ConstructL");
+    TRACER("CGlxMetadataDialog::ConstructL");
 
-	// Load dialog's resource file
-	InitResourceL();
+    // Load dialog's resource file
+    InitResourceL();
 
-	iStatusPaneAvailable = EFalse;
-	// set the title to the dialog, Note that avkon dialogs do not support
-	// setting the title in the status pane so we need to do it the hard way
-	// get status pane
-	CEikStatusPane* statusPane = iEikonEnv->AppUiFactory()->StatusPane();
+    iStatusPaneAvailable = EFalse;
+    // set the title to the dialog, Note that avkon dialogs do not support
+    // setting the title in the status pane so we need to do it the hard way
+    // get status pane
+    CEikStatusPane* statusPane = iEikonEnv->AppUiFactory()->StatusPane();
 
-	if (statusPane && statusPane->IsVisible())
-		{
-		iStatusPaneAvailable = ETrue;
-		}
+    if (statusPane && statusPane->IsVisible())
+        {
+        iStatusPaneAvailable = ETrue;
+        }
 
-	// make the toolbar disabled
-	SetDetailsDlgToolbarVisibility(EFalse);
+    // make the toolbar disabled
+    SetDetailsDlgToolbarVisibility(EFalse);
 
-	// do we have status pane
-	if (statusPane)
-		{
-		GLX_LOG_INFO1("GLX_UMP::CGlxMetadataDialog::ConstructL::STATUS PANE = %d",statusPane->IsVisible());
-		// load the title text
-		HBufC* text = StringLoader::LoadL(R_GLX_METADATA_VIEW_TITLE_DETAILS,
-				iEikonEnv );
-		SetTitleL(*text);
-		if (text)
-			{
-			delete text;
-			}
-		iAvkonAppUi->StatusPane()->MakeVisible(ETrue);
-		}
+    // do we have status pane
+    if (statusPane)
+        {
+        GLX_LOG_INFO1("GLX_UMP::CGlxMetadataDialog::ConstructL::STATUS PANE = %d",statusPane->IsVisible());
+        // load the title text
+        HBufC* text = StringLoader::LoadL(R_GLX_METADATA_VIEW_TITLE_DETAILS,
+                iEikonEnv);
+        SetTitleL(*text);
+        if (text)
+            {
+            delete text;
+            }
+        iAvkonAppUi->StatusPane()->MakeVisible(ETrue);
+        }
 
-	iUiUtility = CGlxUiUtility::UtilityL();
-	TFileName uiutilitiesrscfile;
-	uiutilitiesrscfile.Append(CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
+    iUiUtility = CGlxUiUtility::UtilityL();
+    TFileName uiutilitiesrscfile;
+    uiutilitiesrscfile.Append(
+            CGlxResourceUtilities::GetUiUtilitiesResourceFilenameL());
 
-	iAddToTag = CGlxCommandHandlerAddToContainer::NewL(this, EGlxCmdAddTag,
-			EFalse, uiutilitiesrscfile);
-	iAddToAlbum = CGlxCommandHandlerAddToContainer::NewL(this,
-			EGlxCmdAddToAlbum, EFalse, uiutilitiesrscfile);
+    iAddToTag = CGlxCommandHandlerAddToContainer::NewL(this, EGlxCmdAddTag,
+            EFalse, uiutilitiesrscfile);
+    iAddToAlbum = CGlxCommandHandlerAddToContainer::NewL(this,
+            EGlxCmdAddToAlbum, EFalse, uiutilitiesrscfile);
 
-	// Call the base class' two-phased constructor
-	CAknDialog::ConstructL(R_METADATA_MENUBAR);
+    // Call the base class' two-phased constructor
+    CAknDialog::ConstructL(R_METADATA_MENUBAR);
 
-	// Instantiate the command handler
-	iMetadataCmdHandler = CGlxMetadataCommandHandler::NewL(this);
+    // Instantiate the command handler
+    iMetadataCmdHandler = CGlxMetadataCommandHandler::NewL(this);
 
-	//steps to find kinetic scroll threshold value
-	CAknPhysics* physics = CAknPhysics::NewL(*this, NULL);
-	CleanupStack::PushL(physics);
-	iKineticDragThreshold = physics->DragThreshold();
-	CleanupStack::PopAndDestroy(physics);
-	physics = NULL;
-	}
+    //steps to find kinetic scroll threshold value
+    CAknPhysics* physics = CAknPhysics::NewL(*this, NULL);
+    CleanupStack::PushL(physics);
+    iKineticDragThreshold = physics->DragThreshold();
+    CleanupStack::PopAndDestroy(physics);
+    physics = NULL;
+    }
 
 // -----------------------------------------------------------------------------
 // ~CGlxMetadataDialog
@@ -217,74 +220,76 @@ EXPORT_C TInt CGlxMetadataDialog::ExecuteLD()
     // return the refernce of media list
     return iContainer->MediaList();
     }
+ 
 // -----------------------------------------------------------------------------
 // ProcessCommandL
 // -----------------------------------------------------------------------------
 //
 void CGlxMetadataDialog::ProcessCommandL( TInt aCommandId )
 	{
-	TRACER("CGlxMetadataDialog::ProcessCommandL");
-	
-	// hide menu bar
-	iMenuBar->StopDisplayingMenuBar();
+    TRACER("CGlxMetadataDialog::ProcessCommandL");
 
-	switch( aCommandId )
-		{
-		case EAknSoftkeyEdit:
-		case EAknSoftkeyCancel:
-		case EAknSoftkeySelect:
-		case EAknSoftkeyOk:
-			{
-			TryExitL( aCommandId );
-			break;
-			}
+    // hide menu bar
+    iMenuBar->StopDisplayingMenuBar();
 
-		case EAknCmdHelp:
-			{
-			TCoeHelpContext helpContext;
-			helpContext.iMajor = TUid::Uid( KGlxGalleryApplicationUid );
-			helpContext.iContext.Copy( LGAL_HLP_DETAILS_VIEW );
-			const TInt KListSz = 1;
-			CArrayFix<TCoeHelpContext>* contextList =
-			new (ELeave) CArrayFixFlat<TCoeHelpContext>( KListSz );
-			CleanupStack::PushL(contextList);
-			contextList->AppendL(helpContext);
-			HlpLauncher::LaunchHelpApplicationL(
-			iEikonEnv->WsSession(), contextList );
-			CleanupStack::Pop( contextList );
-			break;
-			}
-		case KGlxDeleteBoundMenuCommandId:
-	    {
-	    //Event passed on to container to handle	
-      //Delete the location information of the data.	  
-	    iContainer->RemoveLocationL();
-	    break;
-	    }	      
-		case KGlxEditBoundMenuCommandId:
-		case KGlxViewBoundMenuCommandId:
-	    {
-	    //To edit the details - forward the event to container to edit
-  		//Both edit and view details command are handled in the same function based on the item.	
-	    iContainer->HandleListboxChangesL();
-	    break;
-	    }
-		case EGlxCmdAiwBase:
-			{
-			// pass aCommandId to command handler
-			iMetadataCmdHandler->DoExecuteL( aCommandId, MediaList() );
-			}
-		default:
-			break;
-		}
-	}
+    switch (aCommandId)
+        {
+        case EAknSoftkeyEdit:
+        case EAknSoftkeyCancel:
+        case EAknSoftkeySelect:
+        case EAknSoftkeyOk:
+            {
+            TryExitL(aCommandId);
+            break;
+            }
+
+        case EAknCmdHelp:
+            {
+            TCoeHelpContext helpContext;
+            helpContext.iMajor = TUid::Uid(KGlxGalleryApplicationUid);
+            helpContext.iContext.Copy(LGAL_HLP_DETAILS_VIEW);
+            const TInt KListSz = 1;
+            CArrayFix<TCoeHelpContext>* contextList =
+                    new (ELeave) CArrayFixFlat<TCoeHelpContext> (KListSz);
+            CleanupStack::PushL(contextList);
+            contextList->AppendL(helpContext);
+            HlpLauncher::LaunchHelpApplicationL(iEikonEnv->WsSession(),
+                    contextList);
+            CleanupStack::Pop(contextList);
+            break;
+            }
+        case KGlxDeleteBoundMenuCommandId:
+            {
+            //Event passed on to container to handle	
+            //Delete the location information of the data.	  
+            iContainer->RemoveLocationL();
+            break;
+            }
+        case KGlxEditBoundMenuCommandId:
+        case KGlxViewBoundMenuCommandId:
+            {
+            //To edit the details - forward the event to container to edit
+            //Both edit and view details command are handled in the same function based on the item.	
+            iContainer->HandleListboxChangesL();
+            break;
+            }
+        case EGlxCmdAiwBase:
+            {
+            // pass aCommandId to command handler
+            iMetadataCmdHandler->DoExecuteL(aCommandId, MediaList());
+            }
+        default:
+            break;
+        }
+    }
+
 //-----------------------------------------------------------------------------
 // CGlxMetadataDialog::CreateCustomControlL
 //-----------------------------------------------------------------------------
 SEikControlInfo CGlxMetadataDialog::CreateCustomControlL(TInt 
                                                                 aControlType)
     {
-    GLX_LOG_INFO("CShwSlideshowSettingsDialog::CreateCustomControlL");
+    TRACER("CGlxMetadataDialog::CreateCustomControlL");
     
     // create control info, no flags or trailer text set
     SEikControlInfo controlInfo;
@@ -300,7 +305,6 @@ SEikControlInfo CGlxMetadataDialog::CreateCustomControlL(TInt
     return controlInfo; // returns ownership of ItemList
     }
 
-
 // -----------------------------------------------------------------------------
 // CGlxMetadataDialog::OfferKeyEventL
 // -----------------------------------------------------------------------------
@@ -308,34 +312,34 @@ SEikControlInfo CGlxMetadataDialog::CreateCustomControlL(TInt
 TKeyResponse CGlxMetadataDialog::OfferKeyEventL( const TKeyEvent& aKeyEvent,
                                                 TEventCode aType )
 	{
-	TRACER("CGlxMetadataDialog::OfferKeyEventL");
-	TKeyResponse response = EKeyWasNotConsumed;
-		switch(aKeyEvent.iCode)
-			{
-			case EKeyUpArrow:
-			case EKeyDownArrow:
-				{
-				if(!iUiUtility->IsPenSupported())
-				    {
-                        iContainer->ChangeMskL();
-				    }
-				iContainer->EnableMarqueingL();
-				break;
-				}
-			default:
-				break;
-			}
-    if ( response == EKeyWasNotConsumed )
-         {
-         // container didn't consume the key so try the base class
-         // this is crucial as platform uses a key event to dismiss dialog
-         // when a view changes to another. the base class also consumes all
-         // the keys we dont want to handle automatically as this is a 
-         // blocking dialog
-         response = CAknDialog::OfferKeyEventL( aKeyEvent, aType );
-         }
-     return response;
-	}
+    TRACER("CGlxMetadataDialog::OfferKeyEventL");
+    TKeyResponse response = EKeyWasNotConsumed;
+    switch (aKeyEvent.iCode)
+        {
+        case EKeyUpArrow:
+        case EKeyDownArrow:
+            {
+            if (!iUiUtility->IsPenSupported())
+                {
+                iContainer->ChangeMskL();
+                }
+            iContainer->EnableMarqueingL();
+            break;
+            }
+        default:
+            break;
+        }
+    if (response == EKeyWasNotConsumed)
+        {
+        // container didn't consume the key so try the base class
+        // this is crucial as platform uses a key event to dismiss dialog
+        // when a view changes to another. the base class also consumes all
+        // the keys we dont want to handle automatically as this is a 
+        // blocking dialog
+        response = CAknDialog::OfferKeyEventL(aKeyEvent, aType);
+        }
+    return response;
+    }
 
 // -----------------------------------------------------------------------------
 // CGlxMetadataDialog::DynInitMenuPaneL
@@ -400,14 +404,6 @@ TBool CGlxMetadataDialog::OkToExitL( TInt aKeycode )
 	return retVal;
 	}
 
-//-----------------------------------------------------------------------------
-// CGlxMetadataDialog::SizeChanged
-//-----------------------------------------------------------------------------
-void CGlxMetadataDialog::SizeChanged()
-	{
-	TRACER("CGlxMetadataDialog::SizeChanged");
-  CAknDialog::SizeChanged();
-	}
 // -----------------------------------------------------------------------------
 // CGlxMetadataDialog::InitResourceL
 // -----------------------------------------------------------------------------
@@ -415,7 +411,6 @@ void CGlxMetadataDialog::SizeChanged()
 void CGlxMetadataDialog::InitResourceL()    
 	{
 	TRACER("CGlxMetadataDialog::InitResourceL");
-	
 	_LIT(KGlxMetadataDialogResource,"glxmetadatadialog.rsc");
 	//add resource file
 	TParse parse;
@@ -426,7 +421,6 @@ void CGlxMetadataDialog::InitResourceL()
 	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
 	}  
 
-
 // -----------------------------------------------------------------------------
 // CGlxMetadataDialog::HandleViewCommandL
 // -----------------------------------------------------------------------------
@@ -436,44 +430,21 @@ TBool CGlxMetadataDialog::HandleViewCommandL( TInt /*aCommand*/ )
 	TRACER("CGlxMetadataDialog::HandleViewCommandL");
 	return EFalse;
 	}
-// ---------------------------------------------------------------------------
-// CGlxMetadataDialog::PreLayoutDynInitL
-// ---------------------------------------------------------------------------
-//
-void CGlxMetadataDialog::PreLayoutDynInitL()
-	{
-	// No Implementation
-	}
-	
+
 //-----------------------------------------------------------------------------
 // CGlxMetadataDialog::PostLayoutDynInitL
 //-----------------------------------------------------------------------------
 //
 void CGlxMetadataDialog::PostLayoutDynInitL()
-	{
-	TRACER("CGlxMetadataDialog::PostLayoutDynInitL");
-	if(!iUiUtility->IsPenSupported())
-		{
-		iUiUtility->ScreenFurniture()->ModifySoftkeyIdL(CEikButtonGroupContainer::EMiddleSoftkeyPosition,
-															EAknSoftkeyEdit,R_GLX_METADATA_MSK_EDIT);	
-		}		
-	}
-
-//-----------------------------------------------------------------------------
-// CGlxMetadataDialog::Draw
-//-----------------------------------------------------------------------------
-//
-void CGlxMetadataDialog::Draw( const TRect& /*aRect*/ ) const
-	{
-	TRACER("CGlxMetadataDialog::Draw");
-    TRect rect;
-    AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
-
-	// Get the standard graphics context
-	CWindowGc& gc = SystemGc();
-	gc.SetBrushColor(KRgbWhite);
-	gc.DrawRect(rect);
-	}
+    {
+    TRACER("CGlxMetadataDialog::PostLayoutDynInitL");
+    if (!iUiUtility->IsPenSupported())
+        {
+        iUiUtility->ScreenFurniture()->ModifySoftkeyIdL(
+                CEikButtonGroupContainer::EMiddleSoftkeyPosition,
+                EAknSoftkeyEdit, R_GLX_METADATA_MSK_EDIT);
+        }
+    }
 
 //-----------------------------------------------------------------------------
 // CGlxMetadataDialog::HandlePointerEventL
@@ -482,50 +453,51 @@ void CGlxMetadataDialog::Draw( const TRect& /*aRect*/ ) const
 void CGlxMetadataDialog::HandlePointerEventL(
     const TPointerEvent& aPointerEvent)
 	{
-
     TRACER("CGlxMetadataDialog::HandlePointerEventL");
 
     //This has to be called first, as base class implementation sets the flag 
     // of settings dialog with EDisableMarquee 
-    CCoeControl::HandlePointerEventL( aPointerEvent );
-    
+    CCoeControl::HandlePointerEventL(aPointerEvent);
+
     //After the above call we can call our implementation to reset the marque 
     // flag and start marqueeing if needed
-    if(aPointerEvent.iType == TPointerEvent::EButton1Down
+    if (aPointerEvent.iType == TPointerEvent::EButton1Down
             || aPointerEvent.iType == TPointerEvent::EButton2Down
             || aPointerEvent.iType == TPointerEvent::EButton3Down
             || aPointerEvent.iType == TPointerEvent::EDrag)
         {
-            if(aPointerEvent.iType != TPointerEvent::EDrag)
+        if (aPointerEvent.iType != TPointerEvent::EDrag)
             {
-                iViewDragged = EFalse;
+            iViewDragged = EFalse;
             }
-            
-            if(aPointerEvent.iType == TPointerEvent::EDrag)
+
+        if (aPointerEvent.iType == TPointerEvent::EDrag)
             {
-                TInt delta = iPrev.iY - aPointerEvent.iPosition.iY;
-                //Check for physics threshold, if not more than threshold, we can
-                //still continue marqueeing
-                TInt deltaAbs = delta < 0 ? -delta : delta;
-                if(!iViewDragged && deltaAbs >= iKineticDragThreshold)
-                    iViewDragged = ETrue;
+            TInt delta = iPrev.iY - aPointerEvent.iPosition.iY;
+            //Check for physics threshold, if not more than threshold, we can
+            //still continue marqueeing
+            TInt deltaAbs = delta < 0 ? -delta : delta;
+            if (!iViewDragged && deltaAbs >= iKineticDragThreshold)
+                {
+                iViewDragged = ETrue;
+                }
             }
-            
-            //This has to done at every above mentioned event, since the  
-            //disable marquee flag is set by base implementation, forcing 
-            //us the need to reset it everytime.
-            if(!iViewDragged)
+
+        //This has to done at every above mentioned event, since the  
+        //disable marquee flag is set by base implementation, forcing 
+        //us the need to reset it everytime.
+        if (!iViewDragged)
             {
-                iContainer->EnableMarqueingL();
+            iContainer->EnableMarqueingL();
             }
         }
-    
+
     //record positions unless it is drag event
-    if(aPointerEvent.iType != TPointerEvent::EDrag)
+    if (aPointerEvent.iType != TPointerEvent::EDrag)
         {
         iPrev = aPointerEvent.iPosition;
         }
-	}
+    }
 
 // ---------------------------------------------------------------------------
 // CGlxMetadataDialog::OnLocationEditL
@@ -538,28 +510,43 @@ void  CGlxMetadataDialog::OnLocationEditL()
 	}
 	
 // ---------------------------------------------------------------------------
-// CGlxMetadataDialog::AddTag
+// CGlxMetadataDialog::AddTagL
 // ---------------------------------------------------------------------------
 //
 void CGlxMetadataDialog::AddTagL()
-{
+    {
+    TRACER("CGlxMetadataDialog::AddTagL");    
     iAddToTag->ExecuteL(EGlxCmdAddTag);
-}
+    }
+
 // ---------------------------------------------------------------------------
-// CGlxMetadataDialog::AddAlbum
+// CGlxMetadataDialog::AddAlbumL
 // ---------------------------------------------------------------------------
 //
 void CGlxMetadataDialog::AddAlbumL()
-{
+    {
+    TRACER("CGlxMetadataDialog::AddAlbumL");
     iAddToAlbum->ExecuteL(EGlxCmdAddToAlbum);
-}
+    }
+
+// ---------------------------------------------------------------------------
+// CGlxMetadataDialog::HandleItemRemovedL
+// ---------------------------------------------------------------------------
+//
+void CGlxMetadataDialog::HandleItemRemovedL()
+    {
+    TRACER("CGlxMetadataDialog::HandleItemRemovedL");
+    Extension()->iPublicFlags.Set(CEikDialogExtension::EDelayedExit);
+    ProcessCommandL(EAknSoftkeyCancel);
+    Extension()->iPublicFlags.Clear(CEikDialogExtension::EDelayedExit);
+    }
 
 // ---------------------------------------------------------------------------
 // CGlxMetadataDialog::SetTitleL()
 // ---------------------------------------------------------------------------
 void CGlxMetadataDialog::SetTitleL(const TDesC& aTitleText)
     {
-    TRACER("CGlxFetcherContainer::SetTitleL");
+    TRACER("CGlxMetadataDialog::SetTitleL");
     CEikStatusPane* statusPane = iEikonEnv->AppUiFactory()->StatusPane();
     CleanupStack::PushL(statusPane);
     // get pointer to the default title pane control
@@ -583,7 +570,7 @@ void CGlxMetadataDialog::SetTitleL(const TDesC& aTitleText)
 // ---------------------------------------------------------------------------
 void CGlxMetadataDialog::SetPreviousTitleL()
     {
-    TRACER("CGlxFetcherContainer::SetPreviousTitleL");
+    TRACER("CGlxMetadataDialog::SetPreviousTitleL");
     CEikStatusPane* prevStatusPane = iEikonEnv->AppUiFactory()->StatusPane();
     CleanupStack::PushL(prevStatusPane);
     CAknTitlePane* prevTitlePane = ( CAknTitlePane* )prevStatusPane->ControlL(
@@ -597,16 +584,6 @@ void CGlxMetadataDialog::SetPreviousTitleL()
     CleanupStack::Pop(prevTitlePane);
     CleanupStack::Pop(prevStatusPane);
     }
-// -----------------------------------------------------------------------------
-// CGlxMetadataDialog::HandleResourceChange
-// -----------------------------------------------------------------------------
-//
-void CGlxMetadataDialog::HandleResourceChange( TInt aType )
-    {
-    TRACER("CGlxMetadataDialog::HandleResourceChange");
-    //Handle global resource changes, such as scalable UI or skin events and orientation change (override)
-    CAknDialog::HandleResourceChange( aType );
-    }
 
 // -----------------------------------------------------------------------------
 // CGlxMetadataDialog::HandleToolbarResetting
@@ -615,7 +592,6 @@ void CGlxMetadataDialog::HandleResourceChange( TInt aType )
 void CGlxMetadataDialog::HandleToolbarResetting(TBool aVisible)
     {
     TRACER("CGlxMetadataDialog::HandleToolbarResetting");
-
     CAknToolbar* popupToolbar = iAvkonAppUi->PopupToolbar();
     if(popupToolbar)
         {
@@ -635,7 +611,8 @@ void CGlxMetadataDialog::HandleToolbarResetting(TBool aVisible)
         }
     }
 
-void CGlxMetadataDialog::ViewPositionChanged( const TPoint& /*aNewPosition*/, TBool /*aDrawNow*/, TUint /*aFlags*/ )
+void CGlxMetadataDialog::ViewPositionChanged(const TPoint& /*aNewPosition*/,
+        TBool /*aDrawNow*/, TUint /*aFlags*/)
     {
     //Dummy implementation
     }

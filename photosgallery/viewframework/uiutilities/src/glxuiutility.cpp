@@ -148,6 +148,7 @@ void CGlxUiUtility::ConstructL()
 		
     GridIconSizeL();
     iScreenFurniture = CGlxScreenFurniture::NewL(*this);
+    iIsForeground = EFalse;
     }
 
 // -----------------------------------------------------------------------------
@@ -589,6 +590,27 @@ EXPORT_C void CGlxUiUtility::HandleTvStatusChangedL( TTvChangeType aChangeType )
 EXPORT_C void CGlxUiUtility::SetRotatedImageSize(TSize aRotatedImageSize)
     {
     iRotatedImageSize = aRotatedImageSize;
+    }
+
+// -----------------------------------------------------------------------------
+// SetForegroundStatus
+// -----------------------------------------------------------------------------
+//
+EXPORT_C void CGlxUiUtility::SetForegroundStatus(TBool aForeground)
+    {
+    TRACER("CGlxUiUtility::SetForegroundStatus()");
+    iIsForeground = aForeground;
+    }
+
+// -----------------------------------------------------------------------------
+// GetForegroundStatus
+// -----------------------------------------------------------------------------
+//
+EXPORT_C TBool CGlxUiUtility::GetForegroundStatus()
+    {
+    TRACER("CGlxUiUtility::GetForegroundStatus()");
+    GLX_DEBUG2("CGlxUiUtility::GetForegroundStatus() iIsForeground=%d", iIsForeground);
+    return iIsForeground;
     }
 
 // -----------------------------------------------------------------------------

@@ -75,6 +75,7 @@ SYSTEMINCLUDE   ../../../viewframework/medialists/inc
 SYSTEMINCLUDE   ../../../viewframework/visuallistmanager/inc
 SYSTEMINCLUDE   ../../../viewframework/uiutilities/inc
 SYSTEMINCLUDE   ../../../viewframework/texturemanager/inc
+SYSTEMINCLUDE   ../../../viewframework/commandhandlers/inc
 SYSTEMINCLUDE   ../../../viewframework/commandhandlers/commoncommandhandlers/inc
 SYSTEMINCLUDE   ../../../viewframework/commandhandlers/commandhandlerbase/inc
 SYSTEMINCLUDE   ../../engine/inc // slideshow engine
@@ -105,8 +106,6 @@ LIBRARY         mpxviewplugin.lib
 LIBRARY         mpxcommon.lib
 LIBRARY         ecom.lib
 
-LIBRARY         hitchcock.lib	// HUI
-
 LIBRARY         glxviewbase.lib
 LIBRARY         glxmedialists.lib
 LIBRARY         glxvisuallistmanager.lib
@@ -123,7 +122,7 @@ LIBRARY         aknswallpaperutils.lib  //  MAknsSkinInstance
 LIBRARY         aknicon.lib             //  AknIconUtils
 
 LIBRARY         etel3rdparty.lib // for CTelephony
-LIBRARY 		alfclient.lib
+LIBRARY         alfclient.lib
 LIBRARY         gesturehelper.lib
 
 LIBRARY         remconcoreapi.lib
@@ -131,4 +130,5 @@ LIBRARY         remconinterfacebase.lib
 //LIBRARY 		hgcontextutility.lib 					// For Teleport
 LIBRARY			glxtvout.lib
 LIBRARY			fbscli.lib
+LIBRARY         ws32.lib      // RWindowGroup
 // End of File

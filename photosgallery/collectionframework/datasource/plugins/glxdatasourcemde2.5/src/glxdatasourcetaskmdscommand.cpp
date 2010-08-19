@@ -1019,11 +1019,19 @@ void CGlxDataSourceTaskMdeCommand::DoHandleDeleteItemsQueryCompletedL
         fs.SetAtt(object.Uri(), 0, KEntryAttReadOnly);
         TInt err = manager->DeleteFile(object.Uri());
         if (err != KErrNone)
-        	{
-        	lastErr = err;
-        	}    
+            {
+            const TInt KDelayInterval = 250000;
+            const TInt KMaxRetries = 4;
+            for (TInt i = 0; ((i < KMaxRetries) && err == KErrInUse
+                    && queryCount == 1); i++)
+                {
+                User::After(KDelayInterval);
+                err = manager->DeleteFile(object.Uri());
+                }
+            lastErr = err;
+            }
         else
-            {    
+            {
             // On successful deletion, delete the same from database
             objectsForRemoval.AppendL(object.Id());
             }

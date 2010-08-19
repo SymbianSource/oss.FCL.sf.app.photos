@@ -44,5 +44,7 @@ LIBRARY         euser.lib
 LIBRARY         drmhelper.lib
 LIBRARY         caf.lib
 LIBRARY         cafutils.lib
+LIBRARY         drmuihandling.lib
+LIBRARY         efsrv.lib
 
 // End of File

@@ -44,9 +44,6 @@
 #include "glxgridviewimp.h"
 #include "glxgridviewmlobserver.h"                      // medialist observer for Hg Grid
 
-const TInt KNoOfPages(3);
-const TInt KBufferTresholdSize(3); 						// in rows
-
 // ======== MEMBER FUNCTIONS ========
 
 // ---------------------------------------------------------------------------
@@ -343,7 +340,7 @@ void CGlxGridViewContainer::HandleOpenL( TInt aIndex )
 	{
     TRACER("CGlxGridViewContainer::HandleOpenL()");
 	// Make sure that the Selection Index is inside medialist count
-	if (aIndex <iMediaList->Count() && aIndex >=0)
+	if (!iIsDialogLaunched && aIndex <iMediaList->Count() && aIndex >=0)
 		{
 		if (!(iHgGrid->Flags() && CHgScroller::EHgScrollerSelectionMode))
 			{
@@ -526,7 +523,8 @@ void CGlxGridViewContainer::CreateGridMediaListObserverL()
 	{
 	TRACER("CGlxGridViewContainer::CreateGridMediaListObserverL()");
 	// Creating the Medialist observer for HG Grid
-	iGlxGridMLObserver = CGlxGridViewMLObserver::NewL(*iMediaList, iHgGrid);
+	iGlxGridMLObserver = CGlxGridViewMLObserver::NewL(*this, *iMediaList,
+            iHgGrid);
 	}
     
 // ---------------------------------------------------------------------------
@@ -962,6 +960,17 @@ TBool CGlxGridViewContainer::HandleViewCommandL(TInt aCommand)
 		    iIsDialogLaunched = ETrue;
             break;
    		    }
+		case EGlxCmdDialogDismissed:
+		    {
+            if (iIsDialogLaunched && iIsMMCRemoved)
+                {
+                iGlxGridViewObserver.HandleGridEventsL(EAknSoftkeyExit);
+                }
+
+            iIsDialogLaunched = EFalse;
+            retVal = ETrue;
+            break;
+            }
 		default:
 			break;
 		}

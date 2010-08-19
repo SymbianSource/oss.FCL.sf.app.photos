@@ -50,7 +50,7 @@ public:
     /*
      * Start Memory release process
      */
-    IMPORT_C void RequestMemory();
+    IMPORT_C void RequestMemory(TBool aRequest = ETrue);
 private:
     /**
      * Default constructor
@@ -80,7 +80,7 @@ private:
     MGoomNotifierObserver& iNotify;
     RGOomMonitorSession iGoom;
     TBool iIsFirstRequest;
-    
+    TBool iNotifyCaller;
 #ifdef _DEBUG
     TTime iStartTime;
     TTime iStopTime;

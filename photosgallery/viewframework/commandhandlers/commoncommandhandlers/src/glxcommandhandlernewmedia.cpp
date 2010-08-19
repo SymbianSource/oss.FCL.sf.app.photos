@@ -45,12 +45,11 @@
 #include <mpxcollectionpath.h>
 #include <mpxcommonframeworkdefs.h>
 #include <StringLoader.h>
-
+#include <glxmediageneraldefs.h>    // for KMaxMediaPopupTextLength
 #include <data_caging_path_literals.hrh>
 #include <glxuiutilities.rsg>
+#include <e32const.h> //For TDigitType
 
-const TInt KMaxMediaPopupTitleLength = 0x28;    // Accepts only 40 characters
-const TInt KMaxNewMediaItemTitleLength = 0x28;  // Accepts only 40 characters
 const TInt KMaxNumberLength = 10;
 
 _LIT(KOpenBracket, "(");
@@ -192,7 +191,7 @@ CMPXCommand* CGlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
     CMPXCollectionPath* path = aMediaList.PathLC( NGlxListDefs::EPathParent );
     CMPXCommand* command = NULL;
 
-    TBuf <KMaxNewMediaItemTitleLength> defaultNewMediaItemTitle;
+    TBuf <KMaxMediaPopupTextLength> defaultNewMediaItemTitle;
     
     TRAPD(error, TitlesL(TGlxMediaId(path->Id(0)), defaultNewMediaItemTitle));
     if(error != KErrNone)
@@ -216,8 +215,6 @@ CMPXCommand* CGlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
     TPtr newMediaItemTitleDes = iNewMediaItemTitle->Des();
     
     CGlxTextEntryPopup* dialog = CGlxTextEntryPopup::NewL(*mediaPopupTitle, newMediaItemTitleDes);
-    
-    
     if(dialog->ExecuteLD() == EEikBidOk)
     	{
         command = TGlxCommandFactory::AddContainerCommandLC(*iNewMediaItemTitle, path->Id(0));
@@ -320,7 +317,7 @@ void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId,
         {
         aDefaultNewMediaItemTitle.Copy(media->ValueText(
                 KGlxMediaCollectionPluginSpecificDefaultMediaTitle).Left(
-                KMaxMediaPopupTitleLength));
+                        KMaxMediaPopupTextLength));
         }
 
     CleanupStack::PopAndDestroy(attributeContext);
@@ -387,12 +384,17 @@ HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL(
                                 - KCloseBracket().Length();
                         if (length > 0)
                             {
-                            TLex lex = title.Mid(pos, length);
+							HBufC* num = title.Mid(pos, length).AllocLC();
+							TPtr numPtr = num->Des();
+							//Change to Western numeric for determining next numeral
+							AknTextUtils::ConvertDigitsTo(numPtr,EDigitTypeWestern);
+                            TLex lex(numPtr);
                             TInt val = 0;
                             if (lex.Val(val) == KErrNone)
                                 {
                                 numbers.InsertInOrderL(val);
                                 }
+                            CleanupStack::PopAndDestroy(num);
                             }
                         }
                     }
@@ -420,18 +422,21 @@ HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL(
     TInt defaultTitleLength = aDefaultNewMediaItemTitle.Length()
             + KFileNameFormatString().Length() + KCloseBracket().Length()
             + KMaxNumberLength;
-    // If the default title length is bigger than KMaxMediaPopupTitleLength, 
+    // If the default title length is bigger than KMaxMediaPopupTextLength, 
     // make sure we allocate enough space for it.
-    TInt titleLength = defaultTitleLength > KMaxMediaPopupTitleLength ? 
+    TInt titleLength = defaultTitleLength > KMaxMediaPopupTextLength ? 
                                             defaultTitleLength
-                                            : KMaxMediaPopupTitleLength;
+                                            : KMaxMediaPopupTextLength;
     HBufC* newMediaItemTitle = HBufC::NewL(titleLength);
     TPtr newMediaItemTitleDes = newMediaItemTitle->Des();
     newMediaItemTitleDes.Append(aDefaultNewMediaItemTitle);
 
     if (nextNumber > 0)
         {
-        newMediaItemTitleDes.AppendFormat(KFileNameFormatString, nextNumber);
+		newMediaItemTitleDes.AppendFormat(KFileNameFormatString, nextNumber);
+		//Change numeric according to current input language here
+		AknTextUtils::ConvertDigitsTo(newMediaItemTitleDes,
+				AknTextUtils::TextEditorDigitType());
         }
     else
         {

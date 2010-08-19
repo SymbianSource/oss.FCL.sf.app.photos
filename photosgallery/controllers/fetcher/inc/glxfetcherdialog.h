@@ -75,12 +75,7 @@ NONSHARABLE_CLASS (CGlxFetcherDialog) : public CAknDialog ,
          * @ref CEikDialog
          */
         TBool OkToExitL(TInt aKeycode);
-    
-        /**  
-         *   From MEikMenuObserver
-         */
-        void  DynInitMenuPaneL (TInt aResourceId, CEikMenuPane *aMenuPane) ;
-        
+
 	protected: // From CAknDialog
         /**  
          *   From MEikMenuObserver
@@ -126,9 +121,6 @@ NONSHARABLE_CLASS (CGlxFetcherDialog) : public CAknDialog ,
          */
         SEikControlInfo CreateCustomControlL(TInt aControlType);
     
-    private: // CAknDialog
-        void HandlePointerEventL(const TPointerEvent& aPointerEvent);
-    
     private:// From MGlxEventObserver
     
         virtual void HandleDoubleTapEventL(TInt aCommandId);          
@@ -145,12 +137,10 @@ NONSHARABLE_CLASS (CGlxFetcherDialog) : public CAknDialog ,
 	     */
 	    void HandleMMCRemovalL();
 
-    
     private:
         CGlxFetcherContainer* iFetcherContainer ;              //Container Object
         CGlxUiUtility* iUiUtility;                             // UiUtility
-        CAlfEnv* iEnv;                                         // Alf Environment
-    
+
         // Selected items array
         // Not Own. Owned by the client
         CDesCArray& iSelectedFiles;

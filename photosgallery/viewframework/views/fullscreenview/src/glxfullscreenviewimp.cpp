@@ -209,6 +209,8 @@ void  CGlxFullScreenViewImp::ConstructL(
 		iPeriodic = CPeriodic::NewL(CActive::EPriorityStandard);
 		}
 	iGlxTvOut = CGlxTv::NewL(*this);
+	
+	iNaviState = CGlxNavigationalState::InstanceL();
     }
 
 // ---------------------------------------------------------------------------
@@ -261,6 +263,11 @@ CGlxFullScreenViewImp::~CGlxFullScreenViewImp()
  		iPeriodic->Cancel();
  		delete iPeriodic;
  		}
+    
+    if (iNaviState)
+        {
+        iNaviState->Close();
+        }    
 	}
  // ---------------------------------------------------------------------------
 // From CGlxViewBase
@@ -326,33 +333,34 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
     // hide the toolbar
     EnableFSToolbar(EFalse);
     
-    CGlxNavigationalState* navigationalState =  CGlxNavigationalState::InstanceL();
-    CleanupClosePushL( *navigationalState );
-    CMPXCollectionPath* naviState = navigationalState->StateLC();
-    
-    if(!iMediaList->Count())
-		{
-        //Fix For EPKA-7U5DT7-slideshow launched from FullScreen and connect USB in mass storage mode results in Photos crash
-        navigationalState->ActivatePreviousViewL();
-        }  
-	else
-		{
-		//fix for ESLM-7YYDXC: When in FullScreen View, view mode must be 'EView'
-		//While coming back from SlideShow to FullScreen view, need to set view mode.
-		if(navigationalState->ViewingMode() != NGlxNavigationalState::EView)
-		   	{
-		   	navigationalState->SetToViewMode();
-		   	}
-		}
-		
-    if(naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
+    if (iMediaList->Count() == 0)
+        {
+        GLX_LOG_INFO("CGlxFullScreenViewImp::DoMLViewActivateL() - No items!");	
+		// While in slideshow from fullscreen view,
+        // 1) Connect USB in mass storage mode or 
+        // 2) Delete items through file manager 
+        // shall result in activating fullscreen view with no items; so, goto grid view.
+        iNaviState->ActivatePreviousViewL();
+        }
+    else
+        {
+        //fix for ESLM-7YYDXC: When in FullScreen View, view mode must be 'EView'
+        //While coming back from SlideShow to FullScreen view, need to set view mode.
+        if (iMediaList->Count() && iNaviState->ViewingMode()
+                != NGlxNavigationalState::EView)
+            {
+            iNaviState->SetToViewMode();
+            }
+        }
+
+    CMPXCollectionPath* collPath = iNaviState->StateLC();
+    if (collPath->Id() == TMPXItemId(
+            KGlxCollectionPluginImageViewerImplementationUid))
         {
         iImgViewerMode = ETrue;
         CreateImageViewerInstanceL();
         }
-    //destroy and close navistate and navipath
-    CleanupStack::PopAndDestroy( naviState );
-    CleanupStack::PopAndDestroy( navigationalState );
+    CleanupStack::PopAndDestroy(collPath);
 
     iScrnSize = iUiUtility->DisplaySize();
     iGridIconSize = iUiUtility->GetGridIconSize();
@@ -495,6 +503,7 @@ void CGlxFullScreenViewImp::CreateSliderWidgetL()
         iSliderModel = widgetFactory.createModel<IMulSliderModel> ("mulslidermodel");
         iSliderModel->SetTemplate(ESliderTemplate3);
         iSliderWidget->setModel(iSliderModel);
+        iSliderWidget->control()->disableState(IAlfWidgetControl::Focusable);
     
         //adding the range and slider tick value 
         if(iSliderModel)
@@ -672,7 +681,6 @@ void  CGlxFullScreenViewImp::DeactivateFullScreen()
 	        HideUi(iSliderWidget->IsHidden());
 	        }
 		}
-    iViewWidget->show(ETrue);
     }
 
 // ---------------------------------------------------------------------------
@@ -692,7 +700,6 @@ void CGlxFullScreenViewImp::ActivateFullScreenL()
         {
         iSliderWidget->AddEventHandler(*this);
         }
-    iViewWidget->show(ETrue);
     iViewWidget->setRect(TRect(TPoint(0,0),AlfUtil::ScreenSize()));
 	GlxSetAppState::SetState(EGlxInFullScreenView);   
     }
@@ -930,6 +937,9 @@ void CGlxFullScreenViewImp::HandleForegroundEventL(TBool aForeground)
     {
     TRACER("CGlxFullScreenViewImp::HandleForegroundEventL");
     CAknView::HandleForegroundEventL(aForeground);
+
+    iUiUtility->SetForegroundStatus(aForeground);
+
     if(iMMCState)
         {
         iMMCState =EFalse;
@@ -954,15 +964,13 @@ void CGlxFullScreenViewImp::HandleForegroundEventL(TBool aForeground)
 		if (iMediaList)
 			{
 			/** if there is no image to show go back to the previous view */
-			if (!iMediaList->Count())
-				{
-				iUiUtility->SetViewNavigationDirection(EGlxNavigationBackwards);
-				CGlxNavigationalState* navigationalState =
-						CGlxNavigationalState::InstanceL();
-				CleanupClosePushL(*navigationalState);
-				navigationalState ->ActivatePreviousViewL();
-				CleanupStack::PopAndDestroy(navigationalState);
-				}
+			if (!iMediaList->Count() && iNaviState->ViewingMode()
+                    == NGlxNavigationalState::EView)
+                {
+                iUiUtility->SetViewNavigationDirection(
+                        EGlxNavigationBackwards);
+                iNaviState->ActivatePreviousViewL();
+                }
 			else if (iMediaListMulModelProvider)
 				{
 	            UpdateItems();
@@ -1119,11 +1127,17 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 
             case ETypeRemove:
                 {
-                // Handle the "C" key or the BackSpace key to Delete an item.
-                ProcessCommandL(EGlxCmdDelete);
-                return EEventConsumed;
+                // If From photos, delete the img.
+                // If Image-Viewer collection and not in private Path 
+                // handle the "C" or BackSpace key to delete the item
+                if (!iImgViewerMode || (iImageViewerInstance
+                        && !iImageViewerInstance->IsPrivate()))
+                    {
+                    ProcessCommandL(EGlxCmdDelete);
+                    return EEventConsumed;
+                    }
+                return EEventNotHandled;
                 }               
-                
             case ETypeDoubleTap:
                 {
                 GLX_LOG_INFO("CGlxFullScreenViewImp::OfferEventL ETypeDoubleTap");   
@@ -1148,8 +1162,19 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 }
             case ETypeItemRemoved:
                 {
-                SetItemToHDMIL();
+                GLX_LOG_INFO("CGlxFullScreenViewImp::OfferEventL ETypeItemRemoved");
                 TInt focusIndex = iMediaList->FocusIndex();
+                TInt mlCount = iMediaList->Count();
+                GLX_LOG_INFO2("CGlxFullScreenViewImp::OfferEventL focusIndex=%d, iOldFocusIndex=%d",
+                        focusIndex, iOldFocusIndex);
+                if (mlCount && (iOldFocusIndex == focusIndex
+                        || iOldFocusIndex == mlCount) && iZoomControl
+                        && iZoomControl->Activated())
+                    {
+                    GLX_LOG_INFO("Fcused item is removed, Exit zoom view!");
+                    DeactivateZoomControlL();
+                    }
+                SetItemToHDMIL();
                 if (focusIndex != KErrNotFound && EUiOn == GetUiState())
                     {
                     // show/hide the slider
@@ -1159,20 +1184,20 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                         }
                     }
                 /** if this is the last image deleted when Photo is in foreground, go back to the previous view*/
-				if (!iMediaList->Count() && IsForeground())
-					{
-					iUiUtility->SetViewNavigationDirection(
-							EGlxNavigationBackwards);
-					CGlxNavigationalState* navigationalState =
-							CGlxNavigationalState::InstanceL();
-					CleanupClosePushL(*navigationalState);
-					navigationalState ->ActivatePreviousViewL();
-					CleanupStack::PopAndDestroy(navigationalState);
-					}
+                if (mlCount == 0 && IsForeground()
+                        && iNaviState->ViewingMode()
+                                == NGlxNavigationalState::EView)
+                    {
+                    iUiUtility->SetViewNavigationDirection(
+                            EGlxNavigationBackwards);
+                    iNaviState->ActivatePreviousViewL();
+                    }
+                TRAP_IGNORE(ShowDrmExpiryNoteL());
                 return EEventConsumed;
                 }
             case ETypeHighlight:
                 {
+                GLX_LOG_INFO("CGlxFullScreenViewImp::OfferEventL ETypeHighlight");
                 iMediaList->SetFocusL( NGlxListDefs::EAbsolute,(aEvent.CustomEventData())); 
                 if (AknLayoutUtils::PenEnabled())
                 	{
@@ -1196,6 +1221,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 if(item.Category() == EMPXVideo)
                     {                                 
                     ProcessCommandL(EGlxCmdPlay);
+                    iViewWidget->show(false);
                     } 
                 else
                     { 
@@ -1278,6 +1304,21 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
             iIsDialogLaunched = ETrue;
             break;
             }
+        case EGlxCmdDialogDismissed:
+            {
+            if (iIsDialogLaunched && iIsMMCRemoved)
+                {
+                ProcessCommandL(EAknSoftkeyExit);
+                }
+            consumed = ETrue;
+            iIsDialogLaunched = EFalse;
+            break;
+            }
+		case EAknSoftkeyBack:
+            {
+            HideUi(ETrue);
+            break;
+            }                        
         } 
     return consumed;
     }

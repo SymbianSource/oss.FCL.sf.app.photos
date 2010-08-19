@@ -36,6 +36,7 @@
 #include <alf/alfframebrush.h>
 
 #include <StringLoader.h>
+#include <touchfeedback.h>
 
 // Photos Headers
 #include "glxtagscontextmenucontrol.h"
@@ -345,6 +346,7 @@ TBool CGlxTagsContextMenuControl::OfferEventL(const TAlfEvent& aEvent)
 
     if (aEvent.IsPointerEvent() && iItemMenuVisibility )
         {
+        MTouchFeedback* feedback = MTouchFeedback::Instance();
         if (aEvent.PointerDown())
             {
             iCommandId = KErrNotFound;
@@ -389,6 +391,10 @@ TBool CGlxTagsContextMenuControl::OfferEventL(const TAlfEvent& aEvent)
                     iCommandId = EGlxCmdRename;
                     }
                 consumed = ETrue;
+                if (feedback)
+                    {
+                    feedback->InstantFeedback(ETouchFeedbackBasic);
+                    }
                 CleanupStack::Pop(brush);
                 }//End of iItemMenuVisibility check
             }//End of Pointer down event 
@@ -420,6 +426,10 @@ TBool CGlxTagsContextMenuControl::OfferEventL(const TAlfEvent& aEvent)
             if (!eventInsideControl)
                 {
                 HandleUpEventL();
+                }
+            else if (eventInsideControl && feedback)
+                {
+                feedback->InstantFeedback(ETouchFeedbackBasic);
                 }
             consumed = ETrue;
             }

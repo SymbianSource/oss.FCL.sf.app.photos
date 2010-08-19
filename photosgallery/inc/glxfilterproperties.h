@@ -24,9 +24,8 @@
 // INCLUDES
 #include <glxmediaid.h>
 #include <glxfiltergeneraldefs.h>
-
+#include <mpxcollectionpath.h>	// for deep copying the path
 // FORWARD DECLARATIONS
-class CMPXCollectionPath;
 
 // CONSTANTS
 
@@ -56,6 +55,89 @@ public:
 				iNoDRM(EFalse)
 				  {}
 
+    /**
+    * Destructor
+    */	
+	inline ~TGlxFilterProperties ()
+	    {	
+        delete iPath;        
+	    }
+
+    /**
+    * overloaded assignment operator
+	*
+	* @param aFilterProperties, assigned object
+	* @return TGlxFilterProperties object after deep copying the path.
+    */		
+    inline TGlxFilterProperties& operator=(const TGlxFilterProperties& aFilterProperties) 
+        { 
+        if(this != &aFilterProperties)
+            {
+            iSortOrder = aFilterProperties.iSortOrder;
+            iSortDirection = aFilterProperties.iSortDirection;
+            iIncludeCameraAlbum = aFilterProperties.iIncludeCameraAlbum;
+            iMinCount = aFilterProperties.iMinCount;
+            iContainsItem = aFilterProperties.iContainsItem;
+            iExcludeAnimation = aFilterProperties.iExcludeAnimation;
+            iLastCaptureDate = aFilterProperties.iLastCaptureDate;
+			iMaxCount = aFilterProperties.iMaxCount;
+            iThumbnailLoadability = aFilterProperties.iThumbnailLoadability;
+            iItemType = aFilterProperties.iItemType;
+            iPromoteSystemItems = aFilterProperties.iPromoteSystemItems;
+            iOrigin = aFilterProperties.iOrigin;
+            iUri = aFilterProperties.iUri;
+            iStartDate = aFilterProperties.iStartDate;
+            iEndDate = aFilterProperties.iEndDate;
+            iNoDRM = aFilterProperties.iNoDRM;
+            
+			// creating a copy of iPath
+            if(aFilterProperties.iPath)
+                {
+                const CMPXCollectionPath* path = aFilterProperties.iPath; 
+                iPath = CMPXCollectionPath::NewL(*path);                                    
+                }
+            else
+                {
+                iPath = NULL;
+                }
+            }        
+        return *this;
+        }
+	/**
+    * Copy constructor
+	*
+	* @param aFilterProperties, assigned object
+    */
+    inline TGlxFilterProperties(const TGlxFilterProperties& aFilterProperties)
+        {
+        iSortOrder = aFilterProperties.iSortOrder;
+        iSortDirection = aFilterProperties.iSortDirection;
+        iIncludeCameraAlbum = aFilterProperties.iIncludeCameraAlbum;
+        iMinCount = aFilterProperties.iMinCount;
+        iContainsItem = aFilterProperties.iContainsItem;
+        iExcludeAnimation = aFilterProperties.iExcludeAnimation;
+        iLastCaptureDate = aFilterProperties.iLastCaptureDate;
+		iMaxCount = aFilterProperties.iMaxCount;
+        iThumbnailLoadability = aFilterProperties.iThumbnailLoadability;
+        iItemType = aFilterProperties.iItemType;
+        iPromoteSystemItems = aFilterProperties.iPromoteSystemItems;
+        iOrigin = aFilterProperties.iOrigin;
+        iUri = aFilterProperties.iUri;
+        iStartDate = aFilterProperties.iStartDate;
+        iEndDate = aFilterProperties.iEndDate;
+        iNoDRM = aFilterProperties.iNoDRM;
+        
+		// creating a copy of iPath
+        if(aFilterProperties.iPath)
+            {
+            const CMPXCollectionPath* path = aFilterProperties.iPath; 
+            iPath = CMPXCollectionPath::NewL(*path);                   
+            }
+        else
+            {
+            iPath = NULL;
+            }
+        }
 public:
 	TGlxFilterSortOrder iSortOrder;
 	TGlxFilterSortDirection iSortDirection;

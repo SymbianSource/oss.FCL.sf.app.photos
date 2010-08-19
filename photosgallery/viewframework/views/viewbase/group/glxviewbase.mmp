@@ -109,7 +109,8 @@ LIBRARY          mulmodelutility.lib //For Visual Item and Filter action item
 LIBRARY 		  libc.lib
 LIBRARY		      libglib.lib
 LIBRARY				glxcommandhandlerbase.lib
-LIBRARY         glxcommonui.lib     //added as per single clk chngs
+LIBRARY         glxcommonui.lib		//added as per single clk chngs
+LIBRARY			gfxtrans.lib //For GfxTransEffect
 // End of File
 
 SOURCEPATH ../src

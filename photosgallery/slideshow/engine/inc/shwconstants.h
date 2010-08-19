@@ -34,9 +34,10 @@ namespace NShwSlideshow
     {
     enum TPlayDirection
         {
-        EPlayForwards = 1,	// default
-        EPlayBackwards,
-        EPlayRandom
+        // Chronological Order (Older to newer)
+        EPlayForwards = 0,
+        // Reverse Chronological Order (Newer to older)
+        EPlayBackwards = 1 // default
         };
 
     // Named constants for navigation directions 

@@ -44,7 +44,6 @@
 #include <glxattributecontext.h> //attribute context
 #include <mglxmedialist.h> //for medialist
 
-#include "glxcontainerinfobubble.h" //intelligent class for data of infobubble
 #include "glxcloudview.hrh"
 #include "mglxcloudviewmskobserver.h" // For Msk Observer
 #include "mglxenterkeyeventobserver.h" // For enterkey observer
@@ -62,7 +61,7 @@ const TInt KFontLargest = 44;
 const TInt KRowHeight = 72;
 const TInt KLeftMargin = 10;
 const TInt KNumMinRowSpace = 2;
-const TInt KColSpace = 20;
+const TInt KColSpace = 30;
 const TInt KRightmargin = 10;//Aligning Right margin
 const TInt KMinTagSize = 77;
 const TInt KTagScreenHeight = 460;
@@ -272,20 +271,23 @@ CGlxCloudViewControl::~CGlxCloudViewControl()
 TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIndex
         , TInt aRowEndIndex)
     {
-    TRACER("GLX_CLOUD::CGlxCloudViewControl::DrawRow");
+    TRACER("CGlxCloudViewControl::LayoutVisibleRows");
     TSize vsize;
     TPoint tl, br;
     tl = aStartPoint;
+    br.iX = 0;
     br.iY = tl.iY + KRowHeight;
+    const TInt KMaxScreenWidth = iTagScreenWidth - iScrollPaneHandle.iW;
     //drawing in reverse for arabic hebrew support
     if ( GlxGeneralUiUtilities::LayoutIsMirrored ())
         {
-        br.iX =  aStartPoint.iX; 
-        const TInt KMaxScreenWidth = iTagScreenWidth - iScrollPaneHandle.iW;
+		GLX_LOG_INFO("Mirrorred Layout");
+		//In Mirrored layout, 'BottomRight' considers scrollpane width for each row
+        br.iX =  aStartPoint.iX  - iScrollPaneHandle.iW;
         //Set the positions of tags in a row.
         for (TInt j = aRowStartIndex; j <= aRowEndIndex; j++)
             {
-            vsize = iLabels[j]->TextExtents ();
+            vsize = iLabels[j]->TextExtents();
             if ( vsize.iWidth < KMinTagSize )
                 {
                 vsize.iWidth = KMinTagSize;
@@ -295,15 +297,15 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
                 {
                 TAlfRealSize tagSize( KMaxScreenWidth, br.iY );
                 iLabels[j]->SetWrapping( CAlfTextVisual::ELineWrapTruncate );
-                vsize = iLabels[j]->TextExtents ();
                 tl.iX -= aStartPoint.iX;
                 tl.iY = aStartPoint.iY;
                 br.iX = tagSize.iWidth;              
                 }
             else
                 {
-                tl.iX -= (vsize.iWidth + KColSpace);
+				tl.iX = br.iX - vsize.iWidth;
                 }
+            
             //Set the anchor points for the tags 	            	        
             iLayout->SetAnchor (EAlfAnchorTopLeft, iLayoutIndex,
                     EAlfAnchorOriginLeft, EAlfAnchorOriginTop,
@@ -313,17 +315,17 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
                     EAlfAnchorOriginLeft, EAlfAnchorOriginTop,
                     EAlfAnchorMetricAbsolute, EAlfAnchorMetricAbsolute,
                     TAlfTimedPoint (br.iX, br.iY));
+            //Bottom-Right corner for next tag in same row
             br.iX -= (vsize.iWidth + KColSpace); 
             iLayoutIndex += 1;
             }
-
         }
     else
         {
-        const TInt KMaxScreenWidth = iTagScreenWidth - iScrollPaneHandle.iW;
+		GLX_LOG_INFO("NOT Mirrorred Layout");
         for (TInt j = aRowStartIndex; j <= aRowEndIndex; j++)
             {
-            vsize = iLabels[j]->TextExtents ();
+            vsize = iLabels[j]->TextExtents();
             if( vsize.iWidth < KMinTagSize )
                 {
                 vsize.iWidth = KMinTagSize;
@@ -331,7 +333,6 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
             if (vsize.iWidth > KMaxScreenWidth)
                 {
                 TAlfRealSize tagSize( KMaxScreenWidth, br.iY );
-                TAlfRealPoint startPos( aStartPoint.iX, 0 );
                 iLabels[j]->SetWrapping( CAlfTextVisual::ELineWrapTruncate );
                 tl.iX = aStartPoint.iX;
                 tl.iY = aStartPoint.iY;
@@ -339,8 +340,9 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
                 }
             else
                 {
-                br.iX += vsize.iWidth + KColSpace;
+                br.iX = tl.iX + vsize.iWidth;
                 }
+            
             iLayout->SetAnchor (EAlfAnchorTopLeft, iLayoutIndex,
                     EAlfAnchorOriginLeft, EAlfAnchorOriginTop,
                     EAlfAnchorMetricAbsolute, EAlfAnchorMetricAbsolute,
@@ -349,15 +351,13 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
                     EAlfAnchorOriginLeft, EAlfAnchorOriginTop,
                     EAlfAnchorMetricAbsolute, EAlfAnchorMetricAbsolute,
                     TAlfTimedPoint (br.iX, br.iY));
-            tl.iX = br.iX;
+            //Top-Left Corner for next tag in same row
+            tl.iX += (vsize.iWidth + KColSpace);
             iLayoutIndex += 1;
             }
         }
     return 0;
     }
-
-
-
 
 // --------------------------------------------------------------------------- 
 // LayoutVisibleArea()
@@ -365,6 +365,7 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
 // ---------------------------------------------------------------------------
 void CGlxCloudViewControl::LayoutVisibleArea()
     {
+	TRACER("CGlxCloudViewControl::LayoutVisibleArea");
     //screen height for boundary check:how many rows fit in.
     //find out how many rows can fit in.
     //add upper and lower margin spacing 5 pixels
@@ -377,13 +378,13 @@ void CGlxCloudViewControl::LayoutVisibleArea()
         {
         startpoint.iX = iTagScreenWidth - KRightmargin;        
         }
-
-    //else start from biginning
+    //else start from beginning
     else
         {
         startpoint.iX = KLeftMargin;
         }
         startpoint.iY = KNumMinRowSpace;
+    
     //associate the active visuals with anchor layout
     GLX_LOG_INFO("GLX_CLOUD ::CGlxCloudViewControl::::LayoutVisibleArea Layout reset");
     GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::::LayoutVisibleArea layout Count after reset  %d ", iLayout->Count ());
@@ -393,7 +394,6 @@ void CGlxCloudViewControl::LayoutVisibleArea()
     for (TInt j = iCloudInfo[0].iStartIndex; j <=iCloudInfo[endindex].iEndIndex; j++)
         {
         GLX_LOG_INFO("GLX_CLOUD ::CGlxCloudViewControl::::FindEndRowIndex Entering layout append");
-
 
         TAlfTimedValue opacity;
         opacity.SetValueNow(1.0); // immediate change
@@ -447,9 +447,7 @@ void CGlxCloudViewControl::LayoutVisibleArea()
                 iScrollEventData.mViewLength,
                 0);
         DisplayScrollBar();
-        }
-    //constructing the bubblecontainer
-    CreateBubleContainer();   	
+        }   	
 
     iLayout->UpdateChildrenLayout (); //update layout
 
@@ -457,7 +455,6 @@ void CGlxCloudViewControl::LayoutVisibleArea()
     
     MoveDownIfRequired();
     }
-
 
 // --------------------------------------------------------------------------- 
 // OfferEventL()
@@ -649,7 +646,6 @@ void CGlxCloudViewControl::HandleKeyUpL()
     iScrollDirection = 1;
     }
 
-
 // --------------------------------------------------------------------------- 
 // HandleKeyDown()
 // --------------------------------------------------------------------------- 
@@ -691,7 +687,6 @@ void CGlxCloudViewControl::HandleLayoutFocusChange()
         }
     }
 
-
 // --------------------------------------------------------------------------- 
 // FocusUpdate()
 // --------------------------------------------------------------------------- 
@@ -705,7 +700,6 @@ void CGlxCloudViewControl::FocusUpdate()
     iEndRowIndex = iCloudInfo.Count()-1;
     LayoutVisibleArea();
     }
-
 
 // --------------------------------------------------------------------------- 
 // ResetLayout()
@@ -723,25 +717,23 @@ void CGlxCloudViewControl::UpdateLayout()
     iLabels.Reset();
     }
 
-
 // --------------------------------------------------------------------------- 
 // GetRownum()
 // --------------------------------------------------------------------------- 
 //
 TInt CGlxCloudViewControl::RowNumber(TInt aItemIndex) const
-{
-
-TRACER("GLX_CLOUD::CGlxCloudViewControl::GetRownum");
-//Get the rownumber of the given item index.
-TInt i;
-for (i = 0; i < iCloudInfo.Count (); i++)
-    {
-    if ( (aItemIndex >= iCloudInfo[i].iStartIndex) && (aItemIndex <=iCloudInfo[i].iEndIndex))
-        break;
-    }
-return i;
-
-}
+	{
+	TRACER("GLX_CLOUD::CGlxCloudViewControl::GetRownum");
+	//Get the rownumber of the given item index.
+	TInt i;
+	for (i = 0; i < iCloudInfo.Count(); i++)
+		{
+		if ((aItemIndex >= iCloudInfo[i].iStartIndex) && (aItemIndex
+				<= iCloudInfo[i].iEndIndex))
+			break;
+		}
+	return i;
+	}
 
 // --------------------------------------------------------------------------- 
 // FetchAttributeFromCacheL()
@@ -774,7 +766,6 @@ void CGlxCloudViewControl::FetchAttributeFromCacheL()
         iLabels[i]->SetTextL( item.Title() );
         }
     }
-
 
 //medialist Observers
 
@@ -813,7 +804,6 @@ void CGlxCloudViewControl::HandleItemAddedL(TInt aStartIndex, TInt aEndIndex,
 
     InitPhysicsL();
     }
-
 
 // ---------------------------------------------------------------------------
 // HandleMediaL().
@@ -969,7 +959,6 @@ void CGlxCloudViewControl::HandlePopulatedL(MGlxMediaList* /*aList*/)
 // ---------------------------------------------------------------------------
 //
 void CGlxCloudViewControl::UpdateRowDataL()
-
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::UpdateRowData()");
 
@@ -991,7 +980,7 @@ void CGlxCloudViewControl::UpdateRowDataL()
     //Setting the Font Styles based on association counts
     //Finding the maximum value of image association
     //Determining the Font(Style) for each visual
-    TInt maxCount= MaxUsageCount (); //Maximum Association count 
+    TInt maxCount = MaxUsageCount (); //Maximum Association count 
     GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::UpdateRowData  mediaCount %d ", maxCount);
     GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::UpdateRowData  iLabels.Count()  %d ",iLabels.Count());
     if ( 0 == maxCount )
@@ -1030,7 +1019,7 @@ void CGlxCloudViewControl::UpdateRowDataL()
             }
 
         // Current row width will be progressively incremented to fit as many tags as possible
-        rowWidth += currentTagSize.iWidth + 10;
+        rowWidth += currentTagSize.iWidth + KColSpace;
         GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::UpdateRowData   currentTagSize.iWidth %d ", currentTagSize.iWidth);
         GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::UpdateRowData  rowWidth %d ", rowWidth);
 
@@ -1054,7 +1043,7 @@ void CGlxCloudViewControl::UpdateRowDataL()
         // then we must fit the current visual into the next row.
         // Do that check now and adjust accordingly.
         // Fix for EAHN-7BZD78 is to exclude the gap value between the row's tags from the logic
-        else if ( rowWidth - 10 > KMaxScreenWidth )
+        else if ( rowWidth - KColSpace > KMaxScreenWidth )
             {
             GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::UpdateRowData Row added");
             lastRowStartTagIndex = currentTagIndex - 1;
@@ -1267,7 +1256,6 @@ void  CGlxCloudViewControl::SetFocusColor()
     iLabels[iMediaList.FocusIndex()]->SetColor (KAknsIIDQsnHighlightColors ,EAknsCIQsnHighlightColorsCG3); 
     }
 
-
 // ---------------------------------------------------------------------------
 // SetBubleMidPoint()
 // ---------------------------------------------------------------------------
@@ -1278,14 +1266,6 @@ void  CGlxCloudViewControl::SetBubleMidPoint(TPoint& aMidPoint)
     //Substract the viewport position so as to set the buble at the right position on the screen     
     aMidPoint.iX-=iViewPortPosition.iX;
     aMidPoint.iY-=iViewPortPosition.iY;
-    }
-
-// ---------------------------------------------------------------------------
-// CreateBubleContainer()
-// ---------------------------------------------------------------------------
-//   
-void CGlxCloudViewControl::CreateBubleContainer()
-    {   
     }
 
 // ---------------------------------------------------------------------------
@@ -1322,7 +1302,6 @@ void CGlxCloudViewControl::MoveUpIfRequired()
     iScrollEventData.mViewStartPos = iViewPortPosition.iY;
     Scroll();  
     }
-
 
 // ---------------------------------------------------------------------------
 // MoveDownIfRequired()
@@ -1868,30 +1847,31 @@ void CGlxCloudViewControl::UpdateLayoutL()
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
     if ((rect.Width() != (iTagScreenWidth + KRightmargin)) || (rect.Height() != iScreenHeight))
         {
-        //set the new screen dimensions
-        iScreenHeight=rect.Height();
-       iTagScreenWidth = rect.Width()- KRightmargin;
-        if(IsLandscape())
-            {   
-            iTagScreenHeight = rect.Height();   
-            }
-        else 
-            {
-            iTagScreenHeight = KTagScreenHeight;
-            }
+		//set the new screen dimensions
+		iScreenHeight = rect.Height();
+		iTagScreenWidth = rect.Width() - KRightmargin;
+		if (IsLandscape())
+			{
+			iTagScreenHeight = rect.Height();
+			}
+		else
+			{
+			iTagScreenHeight = KTagScreenHeight;
+			}
 
-        iViewPortLayout->SetSize(TAlfRealSize(iTagScreenWidth,iTagScreenHeight), 0);
-        //delete all layout associations
-        if ( iCloudInfo.Count ()!= 0)//check for the empty cloud view
-            {
-            UpdateLayout();
-            FetchAttributeFromCacheL();
-            //generate row structures and draw rows on screen
-            UpdateRowDataL ();                                    
+		iViewPortLayout->SetSize(
+				TAlfRealSize(iTagScreenWidth, iTagScreenHeight), 0);
+		//delete all layout associations
+		if (iCloudInfo.Count() != 0)//check for the empty cloud view
+			{
+			UpdateLayout();
+			FetchAttributeFromCacheL();
+			//generate row structures and draw rows on screen
+			UpdateRowDataL();
 
-            InitPhysicsL();
-            }
-        }
+			InitPhysicsL();
+			}
+		}
     }
 
 // ---------------------------------------------------------------------------
@@ -1963,6 +1943,7 @@ TBool CGlxCloudViewControl::IsLandscape()
         return EFalse;
         }
     }
+
 // ---------------------------------------------------------------------------
 // TimerCompleteL()
 // ---------------------------------------------------------------------------
@@ -1990,6 +1971,7 @@ void CGlxCloudViewControl::TimerCompleteL()
         iTagsContextMenuControl->SetDisplay(midpoint);
         }
    }
+
 // ---------------------------------------------------------------------------
 // ShowContextItemMenuL()
 // ---------------------------------------------------------------------------

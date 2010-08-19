@@ -23,7 +23,7 @@
 #include <e32std.h>
 #include <e32base.h>
 #include <caf/manager.h>
-
+#include <imageconversion.h>
 // CLASS DECLARATION
 class RFile;
 class RFile64;
@@ -55,6 +55,8 @@ public:
     IMPORT_C void SetImageUriL(const TDesC& aFileName);
     IMPORT_C void SetImageFileHandleL(const RFile& aFileHandle);
     IMPORT_C void Reset();
+    IMPORT_C void CreateImageDecoderL();    
+    IMPORT_C void CloseImageDecoder();
 
 private:
 
@@ -95,6 +97,9 @@ private:
     /// Flag that stores if the gif file is in a private folder. 
     /// ETrue means the gif is from private path, else EFalse 
     TBool iIsPrivateGif;
+
+    /// Image Decoder, which keeps the file in use while viewing
+    CImageDecoder* iImageDecoder;
     };
 
 #endif // GLXIMAGEVIEWERMANAGER_H

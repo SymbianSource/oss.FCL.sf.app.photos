@@ -39,6 +39,8 @@
 #include <mpxcollectionpath.h>
 #include <glxcollectionpluginimageviewer.hrh>
 #include "glxcommandfactory.h"
+#include <glximageviewermanager.h>
+
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
@@ -214,35 +216,31 @@ TBool CGlxCommandHandlerDelete::DoIsDisabled(TInt aCommandId,
         MGlxMediaList& aList) const 
         {
         TRACER( "CGlxCommandHandlerDelete::DoIsDisabled" );
-        TBool fullscreenViewingMode = EFalse;
-        CGlxNavigationalState* aNavigationalState = CGlxNavigationalState::InstanceL();
-        CMPXCollectionPath* naviState = aNavigationalState->StateLC();
+        TBool disable = EFalse;
+
+        CGlxNavigationalState* navState = CGlxNavigationalState::InstanceL();
+		CleanupClosePushL(*navState);
+        CMPXCollectionPath* path = navState->StateLC();
         
-        if ( naviState->Levels() >= 1)
+        if ( path->Levels() >= 1)
             {
-            if (aNavigationalState->ViewingMode() == NGlxNavigationalState::EBrowse) 
+			CGlxImageViewerManager* viewerInstance = CGlxImageViewerManager::InstanceL();
+            if (path->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid)
+                        && viewerInstance->IsPrivate())
                 {
-                // For image viewer collection, goto view mode
-                if (naviState->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid))
-                    {
-                    //it means we are in img viewer.
-                    fullscreenViewingMode = ETrue;
-                    }
-                } 
-            else 
-                {
-                //it means we are in Fullscreen.
-                fullscreenViewingMode = ETrue;
-                }                
+                //it means we are in image viewer private path.
+                disable = ETrue;
+                }
+			viewerInstance->DeleteInstance();
             }
-        CleanupStack::PopAndDestroy( naviState );
-        aNavigationalState->Close();
-        if (EGlxCmdDelete==aCommandId && 0 == aList.Count() &&
-		                                 !fullscreenViewingMode)
+        CleanupStack::PopAndDestroy(path);
+        CleanupStack::PopAndDestroy(navState);
+
+        if (EGlxCmdDelete==aCommandId && 0 == aList.Count())
             {   
-            return ETrue;
+            disable = ETrue;
             }     
-        return EFalse;
+        return disable;
         }
 //end of file
 		

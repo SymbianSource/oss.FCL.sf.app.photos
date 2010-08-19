@@ -52,6 +52,7 @@ class CGlxHdmiController;
 class CGestureHelper;
 class TGlxMedia;
 class CGlxFullScreenBusyIcon;
+class CGlxNavigationalState;
 
 namespace Alf
 	{
@@ -357,6 +358,8 @@ private:
     CPeriodic* iPeriodic;
     CGlxFullScreenBusyIcon* iBusyIcon;
 	
+    CGlxNavigationalState* iNaviState;
+    
     GestureHelper::CGestureHelper* iGestureHelper;
     TBool   iMultiTouchGestureOngoing   ;
     

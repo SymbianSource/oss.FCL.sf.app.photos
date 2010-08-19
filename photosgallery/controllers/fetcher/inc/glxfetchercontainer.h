@@ -178,7 +178,7 @@ private:
     /**
      * Set the Icons
      */
-    void SetIconsL(TInt index);
+    void SetIconsL(TInt aIndex);
 	
     /**
      * This doesnt add up any value to the code, just to satisfy the compiler

@@ -182,22 +182,6 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
     {
     TRACER("CGlxListViewImp::DoMLViewActivateL");  
     
-    TUint transitionID = (iUiUtility->ViewNavigationDirection()==
-         EGlxNavigationForwards)?KActivateTransitionId:KDeActivateTransitionId;
-		
-    //Do the activate animation only for views other than mainlist view and
-	//on backward navigation from any other views to main list view, since 
-	//for the app start the animation effect is by default provided.
-    if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot || 
-           transitionID == KDeActivateTransitionId) 
-        {
-    	GfxTransEffect::BeginFullScreen( transitionID, TRect(),
-                                   AknTransEffect::EParameterType, 
-                         AknTransEffect::GfxTransParam( KPhotosUid, 
-                         AknTransEffect::TParameter::EEnableEffects) );   
-    	GfxTransEffect::EndFullScreen();
-    	}
-    
     iNextViewActivationEnabled = ETrue;
     if(StatusPane())
         {
@@ -306,6 +290,23 @@ void CGlxListViewImp::DoMLViewActivateL(const TVwsViewId& /* aPrevViewId */,
     CreateListL();
     iProgressIndicator = CGlxProgressIndicator::NewL(*this);
     iMMCNotifier = CGlxMMCNotifier::NewL(*this);
+    
+    TUint transitionID = (iUiUtility->ViewNavigationDirection()==
+             EGlxNavigationForwards)?KActivateTransitionId:KDeActivateTransitionId;
+    		
+	//Do the activate animation only for views other than mainlist view and
+	//on backward navigation from any other views to main list view, since 
+	//for the app start the animation effect is by default provided.
+	if (iMediaList->IdSpaceId(0) != KGlxIdSpaceIdRoot || 
+		   transitionID == KDeActivateTransitionId) 
+		{
+		GfxTransEffect::BeginFullScreen( transitionID, TRect(),
+								   AknTransEffect::EParameterType, 
+						 AknTransEffect::GfxTransParam( KPhotosUid, 
+						 AknTransEffect::TParameter::EEnableEffects) ); 
+		iIsTransEffectStarted = ETrue;
+		}
+        
     }
 
 // ---------------------------------------------------------------------------

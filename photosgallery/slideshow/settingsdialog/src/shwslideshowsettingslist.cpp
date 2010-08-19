@@ -1203,25 +1203,26 @@ void CShwSlideShowSettingsList::SetMusicStateL(TBool aNewMusicState)
 //-----------------------------------------------------------------------------
 void CShwSlideShowSettingsList::SetPlayDirectionL(TBool aNewPlayDirection)
 	{
-	TRACER("CShwSlideShowSettingsList::SetPlayDirectionL");
-	GLX_LOG_INFO("CShwSlideShowSettingsList::SetMusicStateL");	
-    if (aNewPlayDirection != iPlayDirection)
-        {
-    	// retrieve play direction setting
-    	(*SettingItemArray())[EPlayDirectionItem]->EditItemL(EFalse);
-    	// updates play direction 
-    	iPlayDirection = aNewPlayDirection;
-    	// internalise new state to settings item
-    	(*(SettingItemArray()))[EPlayDirectionItem]->StoreL();
-    	
-    	// persist direction
-    	iShwSettings.SavePlayOrderL(iPlayDirection);
-    	//@TODO cenrep update
-    	
-    	// redraw music on/off control
-    	ListBox()->DrawItem(EPlayDirectionItem);
-        }
-	}
+    TRACER("CShwSlideShowSettingsList::SetPlayDirectionL");
+    GLX_LOG_INFO1("CShwSlideShowSettingsList::SetPlayDirectionL(%d)",
+            aNewPlayDirection);
+
+    // retrieve play direction setting
+    (*SettingItemArray())[EPlayDirectionItem]->EditItemL(EFalse);
+
+    // updates play direction 
+    iPlayDirection = aNewPlayDirection;
+
+    // internalise new state to settings item
+    (*(SettingItemArray()))[EPlayDirectionItem]->StoreL();
+
+    // persist direction
+    iShwSettings.SavePlayOrderL(iPlayDirection);
+
+    // redraw music on/off control
+    ListBox()->DrawItem(EPlayDirectionItem);
+    }
+
 //-----------------------------------------------------------------------------
 // CShwSlideShowSettingsList::ConfirmationQueryL
 //-----------------------------------------------------------------------------

@@ -94,10 +94,11 @@ LIBRARY                 glxcommonui.lib					//For CGlxCommandHandlerAddToContain
 LIBRARY                 glxcommon.lib
 LIBRARY                 flogger.lib
 LIBRARY                 exiflib.lib                     //For CExifModify
-LIBRARY			avkon.lib                       //For AknUtils.h
-LIBRARY			eikcore.lib  
+LIBRARY                 avkon.lib                       //For AknUtils.h
+LIBRARY                 eikcore.lib  
 LIBRARY                 glximageviewermanager.lib
 LIBRARY                 imageconversion.lib		// ICL 
 LIBRARY                 fbscli.lib 
+LIBRARY                 bitgdi.lib
 // End of File
  

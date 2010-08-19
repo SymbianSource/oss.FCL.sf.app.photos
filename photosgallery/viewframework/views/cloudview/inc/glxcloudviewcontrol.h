@@ -370,11 +370,6 @@ private:
 	 * Set the middle point of the infobuble
 	 **/
     void SetBubleMidPoint(TPoint& aMidPoint);
-  
-   /** 
-	 * Create the infobublecontainer
-	 **/  
-    void CreateBubleContainer();
     
    /** 
 	 * Move the viewport up depending on the condition

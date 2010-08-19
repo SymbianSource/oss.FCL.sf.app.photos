@@ -96,7 +96,6 @@ public:
    
    //Enable disble the options based on the current selected item
    TBool IsItemModifiable();
-   TBool IsLicenseItem();
    TBool IsLocationItem();
    
    //Delete the location information

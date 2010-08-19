@@ -282,6 +282,9 @@ EXPORT_C void CGlxZoomControl::ActivateL(TInt aInitialZoomRatio, TZoomStartMode 
     {
     TRACER("CGlxZoomControl::ActivateL()");
 
+    //Request to release GPU mem parallelly
+    iGPUMemMonitor->RequestMemory(EFalse);
+    
     if ( !iZoomActive )
         {
         //To Retrive the image details

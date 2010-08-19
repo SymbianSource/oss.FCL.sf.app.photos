@@ -161,6 +161,7 @@ public:
     * Creates a filter that most suited for the SlideShow
     * 
     * @param aSelectedListPath - this contains the list of Id's required. If NULL it is ignored
+    *                           Takes ownership of aSelectedListPath
     * @param aSortDirection - Acsending or Descending
     * @param aSortFilter - Alphabetic, Item Count, Capture date, Modified date,
     * @param aItemTypeFilter - All, Image, Video, Video and Images, Album
@@ -177,6 +178,7 @@ public:
     * 
     * @param aOriginalFilter - Use values in this filter but overide with other parameters
     * @param aSelectedListPath - this contains the list of Id's required. If NULL it is ignored
+    *                            Takes ownership of aSelectedListPath
     * @param aSortDirection - Acsending, Descending or use value in aOriginalFilter
     * @param aItemTypeFilter - All, Image, Video, Video and Images, Album or use value in aOriginalFilter
     * @Param aExcludeAnimation - Exlude images with FrameCount > 1, include all images or use value in aOriginalFilter

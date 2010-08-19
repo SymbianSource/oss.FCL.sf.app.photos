@@ -103,6 +103,13 @@ public:
     void Hide();
     
     /**
+     * Initilize the control textures
+     * e.g. When slideshow engine started or
+     * textures are removed due to foreground lost event
+     */
+    void InitControlTextureL();
+
+    /**
      * Called when the control should be shown.
      * e.g. Key press and tap event
      */

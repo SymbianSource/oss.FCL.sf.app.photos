@@ -199,18 +199,11 @@ TBool CGlxFetcher::LaunchL( CDesCArray& aSelectedFiles,
 	        }
 	    }
 	// create the dialog first
-	iDialog =
-	    CGlxFetcherDialog::NewL( aSelectedFiles, iVerifier ,iFilterType ,*iTitle, iIsMultiSelection );
+	iDialog = CGlxFetcherDialog::NewL(aSelectedFiles, iVerifier, iFilterType,
+            *iTitle, iIsMultiSelection);
 	// Returns zero when Fetcher is cancelled by User.
 	
-	if( iIsMultiSelection )
-		{
-		buttonId = iDialog->ExecuteLD( R_MODAL_MULTI_DIALOG );
-		}
-	else
-		{
-		buttonId = iDialog->ExecuteLD( R_MODAL_SINGLE_DIALOG );	
-		}
+	buttonId = iDialog->ExecuteLD( R_GLX_FETCHER_DIALOG );
     // Return false if the fetcher was canceled by user
 	return ( 0 != buttonId && aSelectedFiles.Count()!=0);
   	}

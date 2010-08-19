@@ -118,7 +118,8 @@ LIBRARY         libglib.lib
 LIBRARY         libstdcpp.lib
 LIBRARY         flogger.lib
 //LIBRARY       hgcontextutility.lib 					// For Teleport
-LIBRARY		akntransitionutils.lib
-LIBRARY		goommonitor.lib      //For GOOM
+LIBRARY         akntransitionutils.lib
+LIBRARY         goommonitor.lib      //For GOOM
+LIBRARY         platformenv.lib      //For DriveInfo
 
 // End of File

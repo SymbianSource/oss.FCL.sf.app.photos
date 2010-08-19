@@ -164,7 +164,24 @@ public:
 	void HandleListBoxEventL (CEikListBox *aListBox, TListBoxEvent aEventType) ;
 	void HandlePointerEventL(const TPointerEvent& aPointerEvent);
     };
-    
+
+/**
+ * CGlxSingleGraphicPopupMenuStyleList
+ * 
+ * Adds behaviour to CAknSingleGraphicPopupMenuStyleListBox:
+ * For 'Add Album', default functionality is performed.
+ * For Tags editor, If a static item or user-defined item is selected 
+ * then we show 'OK' & 'Cancel' as SoftKeys(SK). Otherwise 'Cancel' SK.
+ * If 'static Item' is selected, sends 'EnterKeyPressed' event to ListBox observer.  
+ */
+NONSHARABLE_CLASS( CGlxSingleGraphicPopupMenuStyleListBox )
+   : public CAknSingleGraphicPopupMenuStyleListBox 					
+    {
+public:
+	/** See @ref CCoeControl::OfferKeyEventL */
+    TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType); 
+    };
+
 /**
  * CGlxMediaSelectionPopup 
  * 

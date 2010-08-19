@@ -122,8 +122,9 @@ EXPORT_C TInt CGlxTextEntryPopup::ExecuteLD()
     else
 	    {
 	    uiUtility->SetAppOrientationL( EGlxOrientationTextEntry );
-	    }       
-      
+	    }
+    // Enable predictiveTextInput option in the query dialog!       
+    SetPredictiveTextInputPermitted( ETrue ); 
     TInt retVal = CAknTextQueryDialog::ExecuteLD(R_GLX_TEXT_ENTRY_QUERY);
 
     CleanupStack::PopAndDestroy( &rollbackState ); // cleanupItem

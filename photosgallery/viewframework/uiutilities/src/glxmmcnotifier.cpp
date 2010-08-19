@@ -18,7 +18,7 @@
 
 #include <glxtracer.h>
 #include <glxlog.h>
-
+#include <driveinfo.h>
 #include "glxmmcnotifier.h"
 
 // ---------------------------------------------------------
@@ -92,6 +92,11 @@ void CGlxMMCNotifier::ConstructL()
     TRACER("CGlxMMCNotifier::ConstructL()");
     TInt err = iFs.Connect();
     GLX_LOG_INFO1("CGlxMMCNotifier::ConstructL iFs.Connect err %d",err );
+
+    User::LeaveIfError(DriveInfo::GetDefaultDrive(
+            DriveInfo::EDefaultRemovableMassStorage, iDefaultMemoryCardDrive));
+    GLX_LOG_INFO1("CGlxMMCNotifier::ConstructL iFs.Connect iDrive %d",
+			 iDefaultMemoryCardDrive );
     IssueRequest();
     }
 
@@ -114,11 +119,13 @@ void CGlxMMCNotifier::RunL()
     TRACER("CGlxMMCNotifier::RunL()");
     TDriveInfo driveInfo;
     // Get the drive info for memory card     
-    TInt err = iFs.Drive( driveInfo, EDriveF );
-    GLX_LOG_INFO1("CGlxMMCNotifier::RunL err %d",err );
-    if( err == KErrNone )      
-        {      
-        switch( driveInfo.iType )        
+    TInt err = iFs.Drive(driveInfo, iDefaultMemoryCardDrive);
+    GLX_LOG_INFO1("CGlxMMCNotifier::RunL driveInfo err=%d", err);
+    if (err == KErrNone && (driveInfo.iDriveAtt & KDriveAttRemovable))
+        {
+        GLX_LOG_INFO1("CGlxMMCNotifier::RunL driveInfo.iDriveAtt=%d",
+                driveInfo.iDriveAtt);
+        switch (driveInfo.iType)
             {        
             case EMediaNotPresent:          
                 {          

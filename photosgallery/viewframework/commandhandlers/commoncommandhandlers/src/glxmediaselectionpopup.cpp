@@ -206,14 +206,16 @@ void CGlxSingleGraphicPopupMenuStyleList::HandleListBoxEventL(
 
     TBool staticItemSelected = EFalse;
     TInt currItemIndx = listBox->View()->CurrentItemIndex();
+    GLX_LOG_INFO1("Glx Pop-up listbox - HandleListBoxEventL() currItemIndx=%d",
+            currItemIndx);
 
     switch (aEventType)
         {
         case EEventItemClicked:
         case EEventItemSingleClicked:
             {
-
-            if (mediaListAdaptor->MultiSelectionEnabled() && currItemIndx >= 0)
+            if (mediaListAdaptor->MultiSelectionEnabled() && currItemIndx
+                    >= 0)
                 {
                 const TGlxMedia& item = mediaListAdaptor->MediaList()->Item(
 						currItemIndx);
@@ -224,18 +226,21 @@ void CGlxSingleGraphicPopupMenuStyleList::HandleListBoxEventL(
                 if (!staticItemSelected)
                     {
 					//Mark or UnMark the user-defined item
-                    TBool isMarked = listBox->View()->ItemIsSelected(currItemIndx);
+                    TBool isMarked = listBox->View()->ItemIsSelected(
+                            currItemIndx);
                     (isMarked == (TBool) ETrue) ? (listBox->View()->DeselectItem(
-							currItemIndx))
-							: (listBox->View()->SelectItemL(currItemIndx));
+                                                  currItemIndx))
+                                                : (listBox->View()->SelectItemL(currItemIndx));
                     }
 
                 //Show Command Set based on selected items
-                TInt selectCount = listBox->View()->SelectionIndexes()->Count();
-				CEikButtonGroupContainer* cbaContainer = ButtonGroupContainer();
+                TInt selectCount =
+                        listBox->View()->SelectionIndexes()->Count();
+                CEikButtonGroupContainer* cbaContainer =
+                        ButtonGroupContainer();
 				//Show 'OK' only if a static item or more than
 				//1 user-defined item is selected
-				if(staticItemSelected || selectCount)
+                if (staticItemSelected || selectCount)
 					{
 					cbaContainer->SetCommandSetL(R_GLX_SOFTKEYS_OK_CANCEL);
 					}
@@ -253,7 +258,7 @@ void CGlxSingleGraphicPopupMenuStyleList::HandleListBoxEventL(
 			if (staticItemSelected
 					|| (!mediaListAdaptor->MultiSelectionEnabled()))
 				{
-				CAknPopupList::HandleListBoxEventL( aListBox, aEventType);
+                CAknPopupList::HandleListBoxEventL(aListBox, aEventType);
 				}
 
 			//After Scrolling, then Select "New Tag" i.e Static item is selected
@@ -266,20 +271,22 @@ void CGlxSingleGraphicPopupMenuStyleList::HandleListBoxEventL(
             }
         case EEventEnterKeyPressed:
             {
-            //Check for MultipleSelection is Disbaled
-            if (!(mediaListAdaptor->MultiSelectionEnabled()))
+            // Check for multiselection is disbaled(i.e. for Albums) 
+            // and valid index
+            if (!(mediaListAdaptor->MultiSelectionEnabled()) && currItemIndx
+                    >= 0)
                 {
                 //Set if its a static item
                 const TGlxMedia& item = mediaListAdaptor->MediaList()->Item(
                         currItemIndx);
                 mediaListAdaptor->SetStaticItemSelected(item.IsStatic());
                 }
-            CAknPopupList::HandleListBoxEventL( aListBox, aEventType);
+            CAknPopupList::HandleListBoxEventL(aListBox, aEventType);
             break;
             }
         default:
         	{
-        	CAknPopupList::HandleListBoxEventL( aListBox, aEventType);
+            CAknPopupList::HandleListBoxEventL(aListBox, aEventType);
         	break;
         	}
         }
@@ -315,10 +322,84 @@ void CGlxSingleGraphicPopupMenuStyleList::HandlePointerEventL(
 			mediaListAdaptor->SetStaticItemSelected( item.IsStatic() );
 			}
         }
-
     //Forward for default processing
     CAknPopupList::HandlePointerEventL( aPointerEvent);
+    }
 
+// ---------------------------------------------------------------------------
+// CGlxSingleGraphicPopupMenuStyleListBox::OfferKeyEventL
+// ---------------------------------------------------------------------------
+//  
+TKeyResponse CGlxSingleGraphicPopupMenuStyleListBox::OfferKeyEventL(
+		const TKeyEvent& aKeyEvent, TEventCode aType)
+	{
+    TRACER("CGlxSingleGraphicPopupMenuStyleListBox::OfferKeyEventL");
+
+    //Based on the selected item index, disable the MultipleSelection flag
+    //to stop the flickering of 'marked box', when Highlighted 'New Tag' is selected.
+    CGlxMediaListAdaptor* mediaListAdaptor =
+            static_cast<CGlxMediaListAdaptor*> (Model()->ItemTextArray());
+    TInt currItemIndx = View()->CurrentItemIndex();
+    GLX_LOG_INFO1("Glx Pop-up listbox - OfferKeyEventL(1) currItemIndx=%d",
+            currItemIndx);
+
+    if (mediaListAdaptor->MultiSelectionEnabled() && currItemIndx >= 0)
+        {
+        const TGlxMedia& oldItem = mediaListAdaptor->MediaList()->Item(
+                currItemIndx);
+        if (oldItem.IsStatic())
+            {
+            iListBoxFlags &= (~EMultipleSelection); // turn off multiple selection
+            }
+        else
+            {
+            iListBoxFlags |= EMultipleSelection; // turn on multiple selection
+            }
+        }
+
+    //Forward for default processing
+    TKeyResponse response =
+            CAknSingleGraphicPopupMenuStyleListBox::OfferKeyEventL(aKeyEvent,
+                    aType);
+
+    currItemIndx = View()->CurrentItemIndex();
+    GLX_LOG_INFO1("Glx Pop-up listbox - OfferKeyEventL(2) currItemIndx=%d",
+            currItemIndx);
+    //Check if 'Enter'/'Ok' key was consumed for 'MultipleSelection' List Box i.e for Tags
+    if ((response == EKeyWasConsumed) && ((aKeyEvent.iCode == EKeyEnter)
+            || (aKeyEvent.iCode == EKeyOK))
+            && mediaListAdaptor->MultiSelectionEnabled() && currItemIndx >= 0)
+        {
+        //current selected item
+        const TGlxMedia& item = mediaListAdaptor->MediaList()->Item(
+                currItemIndx);
+        TBool staticItemSelected = item.IsStatic();
+        mediaListAdaptor->SetStaticItemSelected(staticItemSelected);
+
+        TInt selectCount = View()->SelectionIndexes()->Count();
+        CEikButtonGroupContainer* cbaContainer =
+                CEikButtonGroupContainer::Current();
+        //Check if selected Item is static or other item is selected
+        if (staticItemSelected || selectCount)
+            {
+            cbaContainer->SetCommandSetL(R_GLX_SOFTKEYS_OK_CANCEL);
+            }
+        //no item is selected
+        else
+            {
+            cbaContainer->SetCommandSetL(R_AVKON_SOFTKEYS_CANCEL);
+            }
+        cbaContainer->DrawDeferred();
+
+        //Enter Key is Pressed and Static Item is selected
+        if (staticItemSelected)
+            {
+            //Report 'Enter' key is pressed to ListBox observers
+            ReportListBoxEventL(MEikListBoxObserver::EEventEnterKeyPressed);
+            }
+        }
+
+    return response;
     }
 
 // ---------------------------------------------------------------------------
@@ -841,7 +922,7 @@ void CGlxMediaSelectionPopup::ConstructPopupListL(TBool aMultiSelection)
     {
     TRACER("CGlxMediaSelectionPopup::ConstructPopupListL");
     // create the list box
-    iListBox = new (ELeave) CAknSingleGraphicPopupMenuStyleListBox;
+    iListBox = new (ELeave) CGlxSingleGraphicPopupMenuStyleListBox;
 
     // create the popup list
     iPopupList = CGlxSingleGraphicPopupMenuStyleList::NewL( iListBox, R_AVKON_SOFTKEYS_CANCEL) ;

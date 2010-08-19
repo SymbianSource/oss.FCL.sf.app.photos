@@ -51,8 +51,13 @@
 #include <akntranseffect.h>                             
 #include <gfxtranseffect/gfxtranseffect.h>
 #include "glxgfxtranseffect.h"  // For transition effects
-    
+#include <akntransitionutils.h> //For CAknTransitionUtils
+
 const TInt KViewId = 0x200071B7;
+
+//Transition animation used for Cloud view activation
+_LIT( KTfxResourceActivate , "z:\\resource\\effects\\photos_gridview_appear.fxml");
+_LIT( KTfxResourceNoEffect, "");
 
 using namespace Alf;
 // ======== MEMBER FUNCTIONS ========
@@ -139,7 +144,11 @@ void CGlxCloudViewImp::ConstructL(MGlxMediaListFactory *aMediaListFactory,
 CGlxCloudViewImp::~CGlxCloudViewImp()
     {
     TRACER("GLX_CLOUD::CGlxCloudViewImp::~CGlxCloudViewImp");
-        
+    if(iAlfEffectObs)
+		{
+		delete iAlfEffectObs;
+		}  
+    
     CleanupVisuals ();
     delete iEmptyListText;
     if ( iResourceOffset )
@@ -212,27 +221,33 @@ void CGlxCloudViewImp::DoMLViewActivateL(const TVwsViewId & /* aPrevViewId */,
     {
     TRACER("GLX_CLOUD::CGlxCloudViewImp::DoMLViewActivateL");
         
-    TUint transitionID = (iUiUtility->ViewNavigationDirection()==
-          EGlxNavigationForwards)?KActivateTransitionId:KDeActivateTransitionId; 
-    
-    GfxTransEffect::BeginFullScreen( transitionID, TRect(),
-            AknTransEffect::EParameterType, 
-            AknTransEffect::GfxTransParam( KPhotosUid,
-            AknTransEffect::TParameter::EEnableEffects) );   
-
-    
     if(StatusPane())
         {
         StatusPane()->MakeVisible(ETrue);
         }
+    
     ConstructCloudControlL();
     GLX_LOG_INFO("CGlxCloudViewImp::DoMLViewActivateL Cloud View Control Created" );  
     
-    GfxTransEffect::EndFullScreen();
-	
     // set app state to tag-browser view
     GlxSetAppState::SetState (EGlxInTagBrowserView);
     iMMCNotifier = CGlxMMCNotifier::NewL(*this);
+    
+    //Set the ALF animation effect to CAlfAnchorLayout since the animation
+    //does not work for both avkon and alf together.
+    //Check if the transitions are enabled from themes
+    if (CAknTransitionUtils::TransitionsEnabled( AknTransEffect::EFullScreenTransitionsOff ))
+		{
+		if(!iAlfEffectObs)
+			{
+			iAlfEffectObs = CAlfEffectObserver::NewL();
+			}
+		
+		iAnchorlayout->SetEffectL( KTfxResourceActivate );
+		iEffectHandle = iAnchorlayout->Identifier();
+		iAlfEffectObs->SubscribeCallbackL(this,iEffectHandle);
+		}
+
     }
 
 // ---------------------------------------------------------------------------
@@ -334,13 +349,13 @@ void CGlxCloudViewImp::ConstructCloudControlL()
 
 	IAlfWidgetFactory& widgetFactory = AlfWidgetEnvExtension::widgetFactory(*(iUiUtility->Env ())); 
 
-    iViewWidget = widgetFactory.createViewWidget("viewwidget", 0,0,iDisplay);
-    
-    iViewWidget->setRect( ClientRect() );
-   iViewWidget->show(true); 
-    
-    IAlfLayoutManager* layoutmanager = IAlfInterfaceBase::makeInterface<IAlfLayoutManager>(iViewWidget->control());
-    iViewWidget->setRect(ClientRect());
+    iViewWidget = widgetFactory.createViewWidget("viewwidget", 0, 0, iDisplay);
+	iViewWidget->setRect(ClientRect());
+	iViewWidget->show(true);
+
+	IAlfLayoutManager* layoutmanager = IAlfInterfaceBase::makeInterface<
+			IAlfLayoutManager>(iViewWidget->control());
+	iViewWidget->setRect(ClientRect());
    
     // parent layout handle for scrollbar
     iScrollPaneHandle = AknLayoutScalable_UiAccel::aa_scroll_pane(0).LayoutLine();
@@ -492,3 +507,19 @@ void CGlxCloudViewImp::HandleForegroundEventL(TBool aForeground)
         ProcessCommandL(EAknSoftkeyClose);
         }
     }
+
+// ---------------------------------------------------------------------------
+// HandleEffectCallback
+// 
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewImp::HandleEffectCallback(TInt aType, TInt aHandle, TInt /*aStatus*/)
+    {
+    TRACER("CGlxCloudViewImp::HandleEffectCallback()");
+    if (aHandle == iEffectHandle && aType == EAlfEffectComplete
+			&& iAnchorlayout)
+        {
+        TRAP_IGNORE(iAnchorlayout->SetEffectL(KTfxResourceNoEffect));
+        }
+    }
+

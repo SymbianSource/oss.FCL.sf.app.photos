@@ -258,6 +258,18 @@ public:
      */
     IMPORT_C TInt GetKeyguardStatus();
 
+    /**
+     * This method returns the foreground status
+     * @return ETrue if forground; otherwise EFalse.
+     */
+    IMPORT_C TBool GetForegroundStatus();
+
+    /**
+     * This method will store the foreground status
+     * @param aForeground the foreground status.
+     */
+    IMPORT_C void SetForegroundStatus(TBool aForeground);
+
 public: // from class MGlxTvObserver
 
     /**
@@ -395,6 +407,9 @@ private:
     CAknToolbar* iToolbar;
     CPeriodic* iPeriodic;
     CAknLocalScreenClearer* iClearer;
+
+    /** The foreground status flag */
+    TBool iIsForeground;
     };
 
 

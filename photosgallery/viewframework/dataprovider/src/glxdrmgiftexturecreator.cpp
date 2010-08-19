@@ -11,7 +11,7 @@
  *
  * Contributors:
  *
- * Description:    Gif Texture creator implementation
+ * Description:    DRM Gif Texture creator implementation
  *
  */
 
@@ -30,7 +30,8 @@
 #include "glxdrmgiftexturecreator.h"
 #include "glxdrmgifactivedecoder.h"
 
-const TInt KTimerInterval = 200000;
+// Default frame interval for animation, in microseconds
+const TInt KDefaultFrameInterval = 100000;
 
 // -----------------------------------------------------------------------------
 // NewLC
@@ -49,13 +50,13 @@ CGlxDrmGifTextureCreator* CGlxDrmGifTextureCreator::NewL(
     }
 
 // -----------------------------------------------------------------------------
-// destructor 
+// Destructor 
 // -----------------------------------------------------------------------------
 CGlxDrmGifTextureCreator::~CGlxDrmGifTextureCreator()
     {
     TRACER("CGlxDrmGifTextureCreator::~CGlxDrmGifTextureCreator()");
     ReleaseContent();
-    
+
     // Delete the animation timer
     if (iAnimationTimer)
         {
@@ -66,7 +67,7 @@ CGlxDrmGifTextureCreator::~CGlxDrmGifTextureCreator()
     iUiUtility->Close();
 
     delete iGlxDecoderAO;
-	
+
     iFsSession.Close();
     }
 
@@ -76,25 +77,36 @@ CGlxDrmGifTextureCreator::~CGlxDrmGifTextureCreator()
 void CGlxDrmGifTextureCreator::ReleaseContent()
     {
     TRACER("void CGlxDrmGifTextureCreator::ReleaseContent()");
+    iBitmapReady = EFalse;
+    iAnimCount = 0;
+    iAnimateFlag = EFalse;
+    iTransparencyPossible = EFalse;
+    iFrameShift = EFalse;
+
     if (iGlxDecoderAO)
         {
         iGlxDecoderAO->Cancel();
         }
 
+    if (iAnimationTimer)
+        {
+        iAnimationTimer->Cancel();
+        }
+
     for (TInt i = 0; i < iFrameCount; i++)
         {
-        GLX_LOG_INFO1("CGlxDrmGifTextureCreator::ReleaseContent(). Releasing AnimBitmaps %d", i);
+        GLX_LOG_INFO1("DrmGif: ReleaseContent() Releasing AnimBitmaps %d", i);
         delete (iDecodedBitmap[i]);
         iDecodedBitmap[i] = NULL;
         delete (iDecodedMask[i]);
         iDecodedMask[i] = NULL;
         }
-	
+
     if (iUiUtility && iMedia)
         {
         iUiUtility->GlxTextureManager().RemoveTexture(iMedia->Id());
         }
-    
+
     if (iImageDecoder)
         {
         delete iImageDecoder;
@@ -126,7 +138,9 @@ void CGlxDrmGifTextureCreator::ConstructL()
     iBitmapReady = EFalse;
     iAnimCount = 0;
     iAnimateFlag = EFalse;
-    
+    iTransparencyPossible = EFalse;
+    iFrameShift = EFalse;
+
     //Set the initial texture, it could be default or the FS texture
     SetTexture();
     // Create the active object
@@ -145,20 +159,24 @@ void CGlxDrmGifTextureCreator::UpdateNewImageL(const TGlxMedia& aMedia,
         TInt aItemIndex)
     {
     TRACER("CGlxDrmGifTextureCreator::UpdateNewImageL()");
-    GLX_LOG_INFO1("CGlxDrmGifTextureCreator::UpdateNewImageL() aItemIndex=%d", aItemIndex);    
-	if(aItemIndex == iItemIndex)
+    GLX_LOG_INFO1("DrmGif: UpdateNewImageL() aItemIndex=%d", aItemIndex);
+    if (aItemIndex == iItemIndex)
         {
         return;
         }
-	iTransparencyPossible = EFalse;
-	iItemIndex = aItemIndex;
-    iMedia = &aMedia;
+
     // First release the contents before proceeding further
     ReleaseContent();
+
+    iItemIndex = aItemIndex;
+    iMedia = &aMedia;
 
     iBitmapReady = EFalse;
     iAnimCount = 0;
     iAnimateFlag = EFalse;
+    iTransparencyPossible = EFalse;
+    iFrameShift = EFalse;
+
     //Set the initial texture, it could be default or the FS texture
     SetTexture();
 #ifdef _DEBUG
@@ -178,16 +196,17 @@ void CGlxDrmGifTextureCreator::AnimateDRMGifItem(TBool aAnimate)
         {
         return;
         }
-    
+
     if (aAnimate && iBitmapReady)
         {
         if (!iAnimationTimer->IsActive())
             {
-            GLX_LOG_INFO1("CGlxDrmGifTextureCreator::AnimateDRMGifItem() - Gif iAnimCount =%d", iAnimCount);
-            GLX_LOG_INFO1("=>CGlxDrmGifTextureCreator::AnimateDRMGifItem() - Gif Frame Interval <%d> us",
+            GLX_LOG_INFO1("DrmGif: AnimateDRMGifItem() - iAnimCount=%d", iAnimCount);
+            GLX_LOG_INFO1("DrmGif: AnimateDRMGifItem() - Frame Interval <%d> us",
                     (TInt)iFrameInfo.iDelay.Int64());
-            TInt interval =((TInt)iFrameInfo.iDelay.Int64())?((TInt)iFrameInfo.iDelay.Int64())
-                                                                                    :KTimerInterval;
+            TInt interval =((TInt)iFrameInfo.iDelay.Int64()) ? 
+                ((TInt)iFrameInfo.iDelay.Int64()) : KDefaultFrameInterval;
+            GLX_LOG_INFO1("DrmGif: AnimateDRMGifItem() interval=<%d> us", interval);
             iAnimationTimer->Start(interval, interval, TCallBack(TimerCallbackL, this));
             }
         iAnimateFlag = ETrue;
@@ -208,9 +227,10 @@ void CGlxDrmGifTextureCreator::AnimateDRMGifItem(TBool aAnimate)
 void CGlxDrmGifTextureCreator::RefreshL()
     {
     TRACER("CGlxDrmGifTextureCreator::RefreshL()");
-    GLX_LOG_INFO1("CGlxDrmGifTextureCreator::RefreshL() iAnimCount = %d",iAnimCount);
+    GLX_LOG_INFO2("DrmGif: RefreshL() iAnimCount=%d, iFrameShift=%d",
+            iAnimCount, iFrameShift);
     TInt textureId = KErrNotFound;
-    if (iTransparencyPossible)
+    if (iTransparencyPossible && !iFrameShift)
         {
         textureId
                 = (iUiUtility->GlxTextureManager().CreateDRMAnimatedGifTextureL(
@@ -226,14 +246,14 @@ void CGlxDrmGifTextureCreator::RefreshL()
         }
 
     SetTexture(textureId);
+    // Advance animation
     iAnimCount++;
-    // Advance animation if the animation count is becoming maximum, 
-	// then set it to zero, such that it can animate again frm begining
+    // if animation count is becoming maximum, then reset to animate again 
     if (iAnimCount >= iFrameCount)
         {
-        GLX_LOG_INFO("CGlxDrmGifTextureCreator::RefreshL() Reset iAnimCount");
+        GLX_LOG_INFO("DrmGif: RefreshL() Reset iAnimCount");
         iAnimCount = 0;
-        }    
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -242,44 +262,27 @@ void CGlxDrmGifTextureCreator::RefreshL()
 void CGlxDrmGifTextureCreator::CreateBitmapAndStartDecodingL()
     {
     TRACER("CGlxDrmGifTextureCreator::CreateBitmapAndStartDecodingL()");
-    TSize scrnSize = AlfUtil::ScreenSize();
-    TSize targetBitmapSize;
+    GLX_LOG_INFO1("CreateBitmapAndDecodingL() iAnimCount=%d", iAnimCount);
+    // Create the bitmap and mask as of original image size, and let the 
+    // coverflow widget do the scaling, if required.
+    // This is needed for the transparent gifs frames as the
+    // frame co-ordinates would mismatch if downscaling is applied.
+    TSize frameSize = iImageDecoder->FrameInfo(iAnimCount).iFrameSizeInPixels;
+    GLX_LOG_INFO3("DrmGif: CreateBitmapAndStartDecodingL() - Frame[%d] size=%d,%d",
+            iAnimCount, frameSize.iWidth, frameSize.iHeight);
 
-    GLX_LOG_INFO2("CGlxDrmGifTextureCreator::CreateBitmapAndDecodingL() - bitmapsize=%d, %d",
-            iOrigImageDimensions.iWidth,iOrigImageDimensions.iHeight);
-    TReal32 scaleFactor = 0.0f;
-    if (scrnSize.iWidth * iOrigImageDimensions.iHeight > scrnSize.iHeight
-            * iOrigImageDimensions.iWidth)
-        {
-        scaleFactor = (TReal32) scrnSize.iHeight
-                / (TReal32) iOrigImageDimensions.iHeight;
-        }
-    else
-        {
-        scaleFactor = (TReal32) scrnSize.iWidth
-                / (TReal32) iOrigImageDimensions.iWidth;
-        }
-    GLX_LOG_INFO1("CGlxDrmGifTextureCreator::CreateBitmapAndDecodingL() - scaleFactor=%f",scaleFactor);
-    targetBitmapSize.iHeight = iOrigImageDimensions.iHeight * scaleFactor;
-    targetBitmapSize.iWidth = iOrigImageDimensions.iWidth * scaleFactor;
-    GLX_LOG_INFO2("CGlxDrmGifTextureCreator::CreateBitmapAndDecodingL() - targetBitmapSize=%d, %d",
-            targetBitmapSize.iWidth,targetBitmapSize.iHeight);
-    GLX_LOG_INFO1("CGlxDrmGifTextureCreator::CreateBitmapAndDecodingL() iAnimCount =%d", iAnimCount);
-
-    //create the bitmap for the required size
     iDecodedBitmap[iAnimCount] = new (ELeave) CFbsBitmap();
-    iDecodedBitmap[iAnimCount]->Create(ReCalculateSizeL(targetBitmapSize),
+    iDecodedBitmap[iAnimCount]->Create(frameSize,
             iFrameInfo.iFrameDisplayMode);
     User::LeaveIfNull(iDecodedBitmap[iAnimCount]);
 
     if (iFrameInfo.iFlags & TFrameInfo::ETransparencyPossible)
-        {    
+        {
         iDecodedMask[iAnimCount] = new (ELeave) CFbsBitmap();
-        iDecodedMask[iAnimCount]->Create(ReCalculateSizeL(
-                targetBitmapSize), iFrameInfo.iFlags
+        iDecodedMask[iAnimCount]->Create(frameSize, iFrameInfo.iFlags
                 & TFrameInfo::EAlphaChannel ? EGray256 : EGray2);
         User::LeaveIfNull(iDecodedMask[iAnimCount]);
-        
+
         // decoding the image
         iGlxDecoderAO->ConvertImageL(iDecodedBitmap[iAnimCount],
                 iDecodedMask[iAnimCount], iAnimCount, iImageDecoder);
@@ -291,7 +294,6 @@ void CGlxDrmGifTextureCreator::CreateBitmapAndStartDecodingL()
         iGlxDecoderAO->ConvertImageL(iDecodedBitmap[iAnimCount], NULL,
                 iAnimCount, iImageDecoder);
         }
-    iAnimCount++;    
     }
 
 // -----------------------------------------------------------------------------
@@ -300,13 +302,91 @@ void CGlxDrmGifTextureCreator::CreateBitmapAndStartDecodingL()
 void CGlxDrmGifTextureCreator::HandleRunL(TRequestStatus& aStatus)
     {
     TRACER("CGlxDrmGifTextureCreator::HandleRunL()");
-    GLX_LOG_INFO2("CGlxDrmGifTextureCreator::HandleRunL() - gif image frame=%d/%d",
-                                                                     iAnimCount,iFrameCount);
+    TInt err = aStatus.Int();
+    GLX_LOG_INFO1("DrmGif: HandleRunL : err=%d", err);
+    if (err != KErrNone)
+        {
+        ReleaseContent();
+        return;
+        }
 
-    if (iAnimCount < iFrameCount  )
+    GLX_LOG_INFO2("DrmGif: HandleRunL() - Frame=%d/%d",
+            iAnimCount, iFrameCount-1);
+    if (iAnimCount > 0 && iAnimCount < iFrameCount)
+        {
+        TPoint point =
+                iImageDecoder->FrameInfo(iAnimCount).iFrameCoordsInPixels.iTl;
+        GLX_LOG_INFO2("DrmGif: HandleRunL() point=(%d, %d)",
+                point.iX, point.iY );
+        TSize frameSize = iImageDecoder->FrameInfo(iAnimCount).iFrameSizeInPixels;
+        GLX_LOG_INFO2("DrmGif: HandleRunL() - frameSize(%d, %d)",
+                frameSize.iWidth, frameSize.iHeight);
+        // Frame shift is checked,
+        // 1) If the subsequent frame sizes differ from the first frame (or)
+        // 2) If the subsequent frame co-ordinates differ from the first frame
+        if (point != iFrameInfo.iFrameCoordsInPixels.iTl
+                || iFrameInfo.iFrameSizeInPixels != frameSize)
+            {
+            iFrameShift = ETrue;
+            }
+
+        if (iFrameShift)
+            {
+            TSize firstFrameSize = iDecodedBitmap[0]->SizeInPixels();
+            GLX_LOG_INFO2("DrmGif: HandleRunL() - first bitmap size (%d, %d)",
+                    firstFrameSize.iWidth, firstFrameSize.iHeight);
+
+            TDisplayMode dispMode = iDecodedBitmap[0]->DisplayMode();
+            TInt scanLineLength = CFbsBitmap::ScanLineLength(
+                    firstFrameSize.iWidth, dispMode);
+
+            CFbsBitmap* bitmap = new (ELeave) CFbsBitmap();
+            CleanupStack::PushL(bitmap);
+            User::LeaveIfError(bitmap->Create(firstFrameSize, dispMode));
+            bitmap->LockHeap();
+            iDecodedBitmap[0]->LockHeap();
+            if (bitmap && bitmap->DataAddress())
+                {
+                memcpy((void*) bitmap->DataAddress(),
+                        (void*) iDecodedBitmap[0]->DataAddress(),
+                        scanLineLength * firstFrameSize.iHeight);
+                }
+            iDecodedBitmap[0]->UnlockHeap();
+            bitmap->UnlockHeap();
+
+            CFbsBitmapDevice* bitmapDevice = CFbsBitmapDevice::NewL(bitmap);
+            CleanupStack::PushL(bitmapDevice);
+
+            CFbsBitGc* bitmapGc = CFbsBitGc::NewL();
+            CleanupStack::PushL(bitmapGc);
+            bitmapGc->Activate(bitmapDevice);
+
+            if (iTransparencyPossible)
+                {
+                GLX_LOG_INFO("DrmGif: HandleRunL() BitBltMasked");
+                bitmapGc->BitBltMasked(point, iDecodedBitmap[iAnimCount],
+                        iOrigImageDimensions, iDecodedMask[iAnimCount],
+                        EFalse);
+                }
+            else
+                {
+                GLX_LOG_INFO("DrmGif: HandleRunL() BitBlt");
+                bitmapGc->BitBlt(point, iDecodedBitmap[iAnimCount]);
+                }
+
+            delete iDecodedBitmap[iAnimCount];
+            iDecodedBitmap[iAnimCount] = bitmap;
+            CleanupStack::PopAndDestroy(bitmapGc);
+            CleanupStack::PopAndDestroy(bitmapDevice);
+            CleanupStack::Pop(bitmap);
+            }
+        }
+
+    if (iAnimCount < iFrameCount - 1)
         {
         if (!iGlxDecoderAO->IsActive())
-            {          
+            {
+            iAnimCount++;
             CreateBitmapAndStartDecodingL();
             }
         }
@@ -314,20 +394,14 @@ void CGlxDrmGifTextureCreator::HandleRunL(TRequestStatus& aStatus)
         {
 #ifdef _DEBUG
         iStopTime.HomeTime();
-        GLX_LOG_INFO1("CGlxDrmGifTextureCreator::HandleRunL() ConvertImageL took"
-                " <%d> us", (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+        GLX_LOG_INFO1("DrmGif: HandleRunL() ConvertImageL took <%d> us",
+                (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
 #endif
-        TInt err = aStatus.Int();
-        GLX_LOG_INFO1("CGlxDrmGifTextureCreator::HandleRunL : err=%d", err);
+        iBitmapReady = ETrue;
+        iAnimateFlag = ETrue;
+        iAnimCount = 0;
+        ProcessImageL();
 
-        if (err == KErrNone)
-            {
-            iBitmapReady = ETrue;
-            iAnimateFlag = ETrue;
-            iAnimCount = 0;
-            ProcessImageL();
-            }
-        
         //release imagedecoder after the conversion is over     
         if (iImageDecoder)
             {
@@ -344,17 +418,16 @@ void CGlxDrmGifTextureCreator::ProcessImageL()
     {
     TRACER("CGlxDrmGifTextureCreator::ProcessImageL()");
     RefreshL();
-
-    GLX_LOG_INFO1("CGlxDrmGifTextureCreator::ProcessImageL() iAnimCount =%d", iAnimCount);
-    GLX_LOG_INFO1("=>CGlxDrmGifTextureCreator::ProcessImageL() - Gif Frame Interval <%d> us",
-            (TInt)iFrameInfo.iDelay.Int64());
     iAnimationTimer->Cancel();
     if (iAnimateFlag)
         {
-        // Next frame
-        TInt interval =((TInt)iFrameInfo.iDelay.Int64())?((TInt)iFrameInfo.iDelay.Int64())
-                                                                           :KTimerInterval;
-        iAnimationTimer->Start(interval,interval, TCallBack(TimerCallbackL, this));
+        GLX_LOG_INFO1("DrmGif: ProcessImageL() - Frame Interval <%d> us",
+                (TInt)iFrameInfo.iDelay.Int64());
+        TInt interval =((TInt)iFrameInfo.iDelay.Int64()) ? 
+            ((TInt)iFrameInfo.iDelay.Int64()) : KDefaultFrameInterval;
+        GLX_LOG_INFO1("DrmGif: ProcessImageL() interval=<%d> us", interval);
+        iAnimationTimer->Start(interval, interval, TCallBack(TimerCallbackL,
+                this));
         }
     }
 
@@ -364,7 +437,7 @@ void CGlxDrmGifTextureCreator::ProcessImageL()
 void CGlxDrmGifTextureCreator::CreateImageDecoderL(const TDesC& aImageFile)
     {
     TRACER("CGlxDrmGifTextureCreator::CreateImageDecoderL()");
-    GLX_LOG_URI("CGlxDrmGifTextureCreator::CreateImageDecoderL(%S)", &aImageFile);
+    GLX_LOG_URI("DrmGif::CreateImageDecoderL(%S)", &aImageFile);
 
     CImageDecoder::TOptions options =
             (CImageDecoder::TOptions) (CImageDecoder::EOptionNoDither
@@ -378,11 +451,11 @@ void CGlxDrmGifTextureCreator::CreateImageDecoderL(const TDesC& aImageFile)
         }
     iFrameInfo = iImageDecoder->FrameInfo();
     iOrigImageDimensions = iImageDecoder->FrameInfo().iOverallSizeInPixels;
-    GLX_LOG_INFO1("=>CGlxDrmGifTextureCreator::CreateImageDecoderL() - Gif Frame Interval <%d> us",
+    GLX_LOG_INFO1("DrmGif::CreateImageDecoderL() - Gif Frame Interval <%d> us",
             (TInt)iFrameInfo.iDelay.Int64());
     iFrameCount = iImageDecoder->FrameCount();
-    
-	// We are creating array of KGlxMaxFrameCount frames
+
+    // We are creating array of KGlxMaxFrameCount frames
     // So re-setting the array-count with the no.
     // It will animate till that no. of frames.
     if (iFrameCount > KGlxMaxFrameCount)
@@ -390,7 +463,7 @@ void CGlxDrmGifTextureCreator::CreateImageDecoderL(const TDesC& aImageFile)
         iFrameCount = KGlxMaxFrameCount;
         }
     //dont create the timer if it is a singleframe.no need to animate
-	if (iFrameCount > 1)
+    if (iFrameCount > 1)
         {
         iAnimationTimer = CPeriodic::NewL(CActive::EPriorityLow);
         }
@@ -413,24 +486,6 @@ void CGlxDrmGifTextureCreator::ProcessTimerEventL()
     {
     TRACER("CGlxDrmGifTextureCreator::ProcessTimerEventL()");
     ProcessImageL();
-    }
-
-// -----------------------------------------------------------------------------
-// ReCalculateSize 
-// -----------------------------------------------------------------------------
-TSize CGlxDrmGifTextureCreator::ReCalculateSizeL(TSize& aTargetBitmapSize)
-    {
-    TRACER("CGlxDrmGifTextureCreator::ReCalculateSizeL()");
-    // calculate the reduction factor on what size we need
-    TInt reductionFactor = iImageDecoder->ReductionFactor(iOrigImageDimensions,
-            aTargetBitmapSize);
-    // get the reduced size onto destination size
-    TSize destSize;
-    User::LeaveIfError(iImageDecoder->ReducedSize(iOrigImageDimensions,
-            reductionFactor, destSize));
-    GLX_LOG_INFO2("CGlxDrmGifTextureCreator::ReCalculateSizeL() destSize=%d, %d",
-                                                    destSize.iWidth,destSize.iHeight);
-    return destSize;
     }
 
 // -----------------------------------------------------------------------------

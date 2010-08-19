@@ -17,11 +17,14 @@
 
 
 
+#include    "glxdetailsboundcommand.hrh"
+#include    "glxdetailsboundcommand.h"                  // Handles user commands
+#include    "glxuiutility.h"
+/** Error Id EMPY-7MKDHP **/ 
+#include    "mglxmetadatadialogobserver.h"              //for call back to dailog
 
 #include    <e32base.h>                                 // Base class for all classes to be instantiated on the heap
 #include    <ExifModify.h>                              //For CExifModify
-#include    "glxdetailsboundcommand.hrh"
-#include    "glxdetailsboundcommand.h"                  // Handles user commands
 #include    <glxmetadatadialog.rsg>
 #include    <glxuiutilities.rsg>
 #include    <glxuiutilities.rsg>
@@ -37,15 +40,10 @@
 #include    <glxlog.h>                                  // Logging
 #include    <glxtracer.h>
 #include    <glxviewbase.rsg>
-#include    "glxuiutility.h"
-#include <glxscreenfurniture.h>
-#include <glxresourceutilities.h>                // for CGlxResourceUtilities
-/** Error Id EMPY-7MKDHP **/ 
-#include 	"mglxmetadatadialogobserver.h" 				//for call back to dailog
+#include    <glxscreenfurniture.h>
+#include    <glxresourceutilities.h>                    // for CGlxResourceUtilities
+#include    <glxmediageneraldefs.h>                     // for KMaxMediaPopupTextLength
 
-
-//CONSTANTS
-const TInt KMaxMediaPopupTitleLength = 0x100;
 
 // ----------------------------------------------------------------------------
 // CGlxTitleBoundCommand::NewL
@@ -91,11 +89,11 @@ TBool CGlxTitleBoundCommand::OfferCommandL( TInt aCommandId , MGlxMediaList& aMe
 	        {
 	        ///@todo - remove popup when editable template is avaliable
 	        //Popup for testing
-	        HBufC* textBuf = HBufC::NewLC( KMaxMediaPopupTitleLength );
+	        HBufC* textBuf = HBufC::NewLC( KMaxMediaPopupTextLength );
 	        (textBuf->Des()).Copy((media->ValueText(KMPXMediaGeneralTitle)));
 	        TPtr textPtr = textBuf->Des();
 	        /// bug fix - EMPY-7MCKD6 
-	        TBuf<KMaxMediaPopupTitleLength> titleText(*textBuf);
+	        TBuf<KMaxMediaPopupTextLength> titleText(*textBuf);
 	        /// bug fix - EMPY-7MCKD6
 	        ///@todo - remove literal for popup title when resource string is avaliable
 			HBufC *buf = StringLoader::LoadLC(R_GLX_METADATA_VIEW_TITLE_NSERIES);
@@ -386,11 +384,11 @@ TBool CGlxDescriptionBoundCommand::OfferCommandL( TInt aCommandId , MGlxMediaLis
 		{
 		///@todo - remove popup when editable template is avaliable
 		//Popup for testing
-		HBufC* textBuf = HBufC::NewLC( KMaxMediaPopupTitleLength );
+		HBufC* textBuf = HBufC::NewLC( KMaxMediaPopupTextLength );
 		(textBuf->Des()).Copy((media->ValueText(KMPXMediaGeneralComment)));
 		TPtr textPtr = textBuf->Des();
 		/// bug fix - EMPY-7MCKD6
-		TBuf<KMaxMediaPopupTitleLength> descText(*textBuf);
+		TBuf<KMaxMediaPopupTextLength> descText(*textBuf);
 		/// bug fix - EMPY-7MCKD6
 		///@todo - remove literal for popup title when resource string is avaliable
 		
@@ -1022,7 +1020,6 @@ TBool CGlxUsageRightsBoundCommand::OfferCommandL( TInt aCommandId , MGlxMediaLis
 void CGlxUsageRightsBoundCommand::InitMenuL( CEikMenuPane& aMenu ) const
 	{
 	TRACER("CGlxUsageRightsBoundCommand::InitMenuL");
-	aMenu.SetItemTextL( KGlxViewBoundMenuCommandId, R_GLX_METADATA_VIEW_OPTIONS_VIEW ); 
 	aMenu.SetItemDimmed( KGlxViewBoundMenuCommandId, EFalse );
 	}
 

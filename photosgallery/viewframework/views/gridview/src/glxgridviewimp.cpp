@@ -127,23 +127,10 @@ void CGlxGridViewImp::DoMLViewActivateL(
 	{
 	TRACER("CGlxGridViewImp::DoMLViewActivateL()");
 
-    TUint transitionID = (iUiUtility->ViewNavigationDirection()==
-          EGlxNavigationForwards)?KActivateTransitionId:KFSDeActivateTransitionId; 
-    
     HBufC8* activationParam = HBufC8::NewLC(KMaxUidName);
     activationParam->Des().AppendNum(KGlxActivationCmdShowAll);    
 
-    // Start Animating the view when launched from other views 
-    // except if launched from Camera App.
-    if (aCustomMessage.Compare(activationParam->Des()) != 0) 
-        {
-        GfxTransEffect::BeginFullScreen( transitionID, TRect(),
-                                    AknTransEffect::EParameterType, 
-                                    AknTransEffect::GfxTransParam( KPhotosUid,
-                                    AknTransEffect::TParameter::EEnableEffects) );	
-        GfxTransEffect::EndFullScreen();
-        }
-    else
+    if (aCustomMessage.Compare(activationParam->Des()) == 0) 
     	{
 		// Launched from Camera App, Check if there is any existing filter
     	// and clear the 'MaxCount' filter, if supported to show all images.
@@ -159,7 +146,6 @@ void CGlxGridViewImp::DoMLViewActivateL(
 			}
     	}
     
-	CleanupStack::PopAndDestroy(activationParam);
 	
 	if(StatusPane())
 		{
@@ -191,14 +177,29 @@ void CGlxGridViewImp::DoMLViewActivateL(
         iToolbar = CAknToolbar::NewL(R_GLX_GRID_VIEW_TOOLBAR);
         SetGridToolBar(iToolbar);
         SetToolbarObserver(this);
-        //Make the toolbar visible only when the medialist is populated
-        iToolbar->SetToolbarVisibility(iMediaList->IsPopulated());
+        iToolbar->SetDimmed(ETrue);
+        iToolbar->SetToolbarVisibility(ETrue);
         }
 	//Create gridview container
 	iGlxGridViewContainer = CGlxGridViewContainer::NewL(iMediaList,
             iUiUtility, *this, iToolbar);
 	iEikonEnv->AppUi()->AddToStackL(*this,iGlxGridViewContainer);
 	iUiUtility->DestroyScreenClearer();
+	
+    // Start Animating the view when launched from other views 
+    // except if launched from Camera App.
+    if (aCustomMessage.Compare(activationParam->Des()) != 0) 
+        {
+		TUint transitionID = (iUiUtility->ViewNavigationDirection()
+				== EGlxNavigationForwards) ? KActivateTransitionId
+				: KFSDeActivateTransitionId;
+        GfxTransEffect::BeginFullScreen( transitionID, TRect(),
+                                    AknTransEffect::EParameterType, 
+                                    AknTransEffect::GfxTransParam( KPhotosUid,
+                                    AknTransEffect::TParameter::EEnableEffects) );
+        iIsTransEffectStarted = ETrue;
+        }	
+	CleanupStack::PopAndDestroy(activationParam);
 	}
 
 // ---------------------------------------------------------------------------
@@ -334,12 +335,10 @@ void CGlxGridViewImp::HandleLatchToolbar()
             static_cast<CAknButton*> (iToolbar->ControlOrNull(
                     EGlxCmdStartMultipleMarking));
 
-    if (markButton && !markButton->IsDimmed())
+	if(markButton)
         {
         GLX_DEBUG1("CGlxGridViewImp::HandleLatchToolbar() - UnLatch");
-        markButton->SetCurrentState(KGlxToolbarButtonUnLatched, ETrue);
-        // Force to update the frame IDs 
-        markButton->SetDimmed(EFalse);
+		markButton->SetCurrentState( KGlxToolbarButtonUnLatched, ETrue );
         }
     }
 //  End of File

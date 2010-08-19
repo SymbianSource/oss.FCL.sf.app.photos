@@ -23,6 +23,7 @@
 #include <glxviewbase.h>
 #include <mglxmedialistobserver.h>
 #include <AknProgressDialog.h>
+#include <AknWsEventObserver.h>
 #include <gestureobserver.h>
 #include <gesturehelper.h>
 #include "shwengineobserver.h"
@@ -73,7 +74,8 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
                                        public MShwGestureObserver,
                                        public MStorageNotifierObserver,
                                        public MGlxTvObserver,
-									   public MGlxHDMIDecoderObserver
+									   public MGlxHDMIDecoderObserver,
+									   public MAknWsEventObserver
     {
     public:
 
@@ -138,6 +140,9 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
          * @ref CAknView::HandleForegroundEventL
          */
         void HandleForegroundEventL(TBool aForeground);
+
+    public: // From MAknWsEventObserver
+        void HandleWsEventL(const TWsEvent& aEvent, CCoeControl* aDestination);
 
     public: // From CGlxViewBase
     	
@@ -341,6 +346,11 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
 		 * for which HDMI advance decoding will be done
 		 */
 		TInt GetNextIndex();
+		/**
+         * Returns the application foreground status.
+		 * Foreground status is found using WindowsGroupID
+		 */
+		TBool IsAppInForegroundL();
 	public:
 	//to keep in track which of the command set is active/on top
 		enum TShwState
@@ -425,7 +435,6 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
 		
 	TShwState iShwState;
 	TShwFurniture iShwFurniture;	
-	TInt iCurrentActiveCommandSet;
 	CShwGestureControl* iShwGestureControl;
 	GestureHelper::CGestureControl* iGestureControl;
 	CAlfControlGroup* iGestureControlGroup;
@@ -444,6 +453,7 @@ NONSHARABLE_CLASS(CShwSlideshowView) : public CGlxViewBase,
 
 	TInt iHdmiWidth;
     TInt iHdmiHeight;
+    CAknWsEventMonitor* iAknEventMonitor;// not owned
     };
 
 #endif  // C_SHWSLIDESHOWVIEW_H

@@ -20,7 +20,7 @@
 
 #include "glxrequestfreegoom.h"
 
-const TInt KMinMemoryRequest = 3145728; // 3 MB
+const TInt KMinMemoryRequest = 16000000; // 2000 x 2000 x 4 (32 bit display mode)
 
 // ----------------------------------------------------------------------------
 // CGlxRelaseGPUMemory::NewL
@@ -55,7 +55,7 @@ CGlxRelaseGPUMemory* CGlxRelaseGPUMemory::NewLC(
 //
 CGlxRelaseGPUMemory::CGlxRelaseGPUMemory(MGoomNotifierObserver& aNotify) :
     CActive(CActive::EPriorityStandard), iNotify(aNotify), iIsFirstRequest(
-            ETrue)
+            ETrue),iNotifyCaller(ETrue)
     {
     TRACER("CGlxRelaseGPUMemory::CGlxRelaseGPUMemory()");
     CActiveScheduler::Add(this);
@@ -104,9 +104,10 @@ void CGlxRelaseGPUMemory::ConstructL()
 // CGlxRelaseGPUMemory::RequestMemory()
 // ----------------------------------------------------------------------------
 //
-EXPORT_C void CGlxRelaseGPUMemory::RequestMemory()
+EXPORT_C void CGlxRelaseGPUMemory::RequestMemory(TBool aRequest)
     {
     TRACER("CGlxRelaseGPUMemory::RequestMemory()");
+    iNotifyCaller = aRequest;
     IssueRequest();
     }
 
@@ -143,5 +144,9 @@ void CGlxRelaseGPUMemory::RunL()
         }
 
     // Notify observer on the RequestFreeMemory() status
-    iNotify.HandleGoomMemoryReleased(iStatus.Int());
+    if(iNotifyCaller || (iStatus.Int() != KErrNone))
+        {
+    	iNotify.HandleGoomMemoryReleased(iStatus.Int());
+        }
+    iNotifyCaller = EFalse;
     }

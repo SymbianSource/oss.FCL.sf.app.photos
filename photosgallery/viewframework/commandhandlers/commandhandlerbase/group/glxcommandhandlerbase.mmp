@@ -47,7 +47,7 @@ SYSTEMINCLUDE   ../../inc
 SYSTEMINCLUDE   ../../../medialists/inc
 SYSTEMINCLUDE   ../../../uiutilities/inc
 SYSTEMINCLUDE	../../../../common/inc            // for CGlxResourceUtilities
-
+SYSTEMINCLUDE   ../../../../commonui/inc
 
 LIBRARY         aknicon.lib
 LIBRARY         aknlayout2.lib
@@ -73,7 +73,8 @@ LIBRARY         glxmedialists.lib
 LIBRARY         glxuiutilities.lib
 LIBRARY         glxvisuallistmanager.lib
 LIBRARY         glxcommon.lib                   // for CResourceUtilities
-
+LIBRARY         glxcommonui.lib
+LIBRARY         glximageviewermanager.lib
 LIBRARY         hlplch.lib
 
 LIBRARY         hitchcock.lib // HUI framework
@@ -83,7 +84,7 @@ LIBRARY         mpxcommon.lib
 LIBRARY         mpxviewutility.lib
 LIBRARY         ws32.lib 
 LIBRARY         commonengine.lib
-
-LIBRARY					libpthread.lib
+LIBRARY         caf.lib
+LIBRARY         libpthread.lib
 // End of File
 

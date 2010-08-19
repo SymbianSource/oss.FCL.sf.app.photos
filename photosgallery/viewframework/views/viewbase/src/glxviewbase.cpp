@@ -43,6 +43,9 @@
 
 #include <aknbutton.h>                      // for getting the button state
 
+// For transition effects                           
+#include <gfxtranseffect/gfxtranseffect.h>
+
 _LIT(KGlxViewBaseResource, "glxviewbase.rsc");
 
 /// Length of time a view-switch animation should take
@@ -54,6 +57,7 @@ const TInt KGlxViewSwitchAnimationDuration = 1000 * KGlxAnimationSlowDownFactor;
 //	
 EXPORT_C CGlxViewBase::CGlxViewBase(TBool aSyncActivation) :
     iViewAnimationTime(KGlxViewSwitchAnimationDuration),
+    iIsTransEffectStarted(EFalse),
     iViewAnimationInProgress(EGlxViewAnimationNone),
     iSyncActivation(aSyncActivation)
     {
@@ -156,6 +160,8 @@ EXPORT_C void CGlxViewBase::HandleCommandL(TInt aCommand)
         {
     if ( EAknSoftkeyBack == aCommand ) 
         {
+		// Pass it to view
+        DoHandleCommandL(aCommand);
         iUiUtility->SetViewNavigationDirection(EGlxNavigationBackwards);
         }
     else if ( EAknCmdOpen == aCommand ) 
@@ -708,6 +714,14 @@ void CGlxViewBase::ViewActivateL()
         iCommandHandlerList[i]->ActivateL(Id().iUid);
         i++;
         }
+    
+    //Check if transition effect is already started.
+    //Calling the 'EndFullScreen()' actually starts the FS transition effect.
+    if(iIsTransEffectStarted)
+		{
+		GfxTransEffect::EndFullScreen();
+		iIsTransEffectStarted = EFalse;
+		}
 
     InitAnimationL(EGlxViewAnimationEntry); 
     }

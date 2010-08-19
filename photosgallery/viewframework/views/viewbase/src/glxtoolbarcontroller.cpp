@@ -192,10 +192,6 @@ void CGlxToolbarController::HandleItemSelectedL(TInt /*aIndex*/, TBool /*aSelect
         {
         EnableLatch(EGlxCmdStartMultipleMarking, ETrue);
         }
-    else if (aList->SelectionCount() == 0)
-        {
-        EnableLatch(EGlxCmdStartMultipleMarking, EFalse);
-        }
     }
 
 //----------------------------------------------------------------------------
@@ -229,7 +225,10 @@ void CGlxToolbarController::SetStatusOnViewActivationL( MGlxMediaList* aList )
     TRAPD(err, CheckShareonlineVersionL());
     GLX_LOG_INFO2("CGlxToolbarController::SetStatusOnViewActivationL(%d),"
             " err(%d)", aList->Count(), err);
-
+    if (iToolbar->IsDimmed())
+    	{
+        iToolbar->SetDimmed(EFalse);
+    	}
     CGlxNavigationalState* navigationalState =
             CGlxNavigationalState::InstanceL();
     CleanupClosePushL(*navigationalState);
@@ -348,11 +347,9 @@ void CGlxToolbarController::EnableLatch( TInt aCommandId, TInt aLatched )
     CAknButton* toolbarButton =
             static_cast<CAknButton*> (iToolbar->ControlOrNull(aCommandId));
 
-    if (toolbarButton && !toolbarButton->IsDimmed())
+    if( toolbarButton )
         {
         toolbarButton->SetCurrentState(aLatched, ETrue);
-        // Force to update the frame IDs 
-        toolbarButton->SetDimmed(EFalse);
         }
     }
 

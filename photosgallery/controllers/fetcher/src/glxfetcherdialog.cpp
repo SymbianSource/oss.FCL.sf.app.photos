@@ -142,7 +142,6 @@ void CGlxFetcherDialog::ConstructL()
     
 	// Get the Hitchcock environment.
     iUiUtility = CGlxUiUtility::UtilityL();
-    iEnv = iUiUtility->Env();
     iFetchUri = EFalse;
     iMMCNotifier = CGlxMMCNotifier::NewL(*this);
     }
@@ -208,6 +207,7 @@ void CGlxFetcherDialog::ProcessCommandL(TInt aCommandId)
 		    }
 		}
 	}
+
 //-----------------------------------------------------------------------------
 // CGlxFetcherDialog::OkToExitL
 //-----------------------------------------------------------------------------
@@ -394,16 +394,6 @@ void CGlxFetcherDialog::PostLayoutDynInitL()
     }
 
 //-----------------------------------------------------------------------------
-// CGlxFetcherDialog::DynInitMenuPaneL
-//-----------------------------------------------------------------------------
-void CGlxFetcherDialog::DynInitMenuPaneL(
-        TInt /*aResourceId*/, CEikMenuPane* /*aMenuPane*/ )
-    {
-    TRACER("CGlxFetcherDialog::DynInitMenuPaneL");
-    // No Implementation
-    }
-
-//-----------------------------------------------------------------------------
 // CGlxFetcherDialog::OfferKeyEventL
 //-----------------------------------------------------------------------------
 TKeyResponse CGlxFetcherDialog::OfferKeyEventL(const TKeyEvent& aKeyEvent,
@@ -414,28 +404,15 @@ TKeyResponse CGlxFetcherDialog::OfferKeyEventL(const TKeyEvent& aKeyEvent,
     response = iFetcherContainer->OfferKeyEventL(aKeyEvent,aType);
  
     if(response == EKeyWasNotConsumed)
+        {
         response = CAknDialog::OfferKeyEventL(aKeyEvent,aType);
+        }
 
     return response;    
     }
 
 //-----------------------------------------------------------------------------
-// CGlxFetcherDialog::HandlePointerEventL
-// Handles all pointer events to the screen.
-// Offers the events to the primary display control (container - widgets)
-// and also finally calls handlescreenbufferevent and draws the bitmap onto
-// the screen
-//-----------------------------------------------------------------------------
-void CGlxFetcherDialog::HandlePointerEventL(
-    const TPointerEvent& aPointerEvent)
-    {
-    TRACER("CGlxFetcherDialog::HandlePointerEventL");
-    CCoeControl::HandlePointerEventL( aPointerEvent );
-    iEnv->PrimaryDisplay().HandlePointerEventL( aPointerEvent );
-    }
-
-//-----------------------------------------------------------------------------
-// CGlxFetcherDialog::HandleDoubleTapEvent
+// CGlxFetcherDialog::HandleDoubleTapEventL
 // Callback from the container for double tap events
 // Offers the event from container to Dialog
 //-----------------------------------------------------------------------------

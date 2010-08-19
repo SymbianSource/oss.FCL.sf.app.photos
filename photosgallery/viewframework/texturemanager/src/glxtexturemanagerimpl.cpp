@@ -39,6 +39,7 @@
 #include <glxresolutionutility.h>
 #include <glxlog.h>
 #include <glxtracer.h>
+#include <glxuiutility.h>
 #include "mglxtextureobserver.h"
 
 namespace
@@ -1236,6 +1237,18 @@ void CGlxTextureManagerImpl::HandleBitmapDecodedL(TInt aThumbnailIndex,CFbsBitma
         {
         iZoomedList[aThumbnailIndex].iBitmap = aBitmap;
 
+        CGlxUiUtility* uiUtility = CGlxUiUtility::UtilityL();
+        CleanupClosePushL(*uiUtility);
+        TBool foregroundStatus = uiUtility->GetForegroundStatus();
+        CleanupStack::PopAndDestroy(uiUtility);
+        
+        // Photos not in foreground; do not create zoom texture 
+        if (!foregroundStatus)
+            {
+			GLX_LOG_INFO("CGlxTextureManagerImpl HandleBitmapDecodedL - Not in foreground; do not create zoom texture");
+            return;
+            }
+        
         //if we already have a texture then dont unload the texture before creating 
         //the next one. It might happen that because of low memory we might not be able
         //to create a new texture.

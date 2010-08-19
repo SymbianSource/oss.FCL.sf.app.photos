@@ -127,17 +127,8 @@ protected:  // Functions from base classes
     * @param aMenuPane  Pointer to menupane
     */
     void DynInitMenuPaneL(TInt aMenuId, CEikMenuPane* aMenuPane);
-		//hanldes orientation changes.
-    void HandleResourceChange( TInt aType );
-    void SizeChanged();
 
 private:        
-		/**
-		* Initializes the dialog's controls before the dialog is sized and 
-		* layed out. Empty by default.
-		*/
-		void PreLayoutDynInitL();
-		
 		/**
 		 * Initializes the dialog's controls after the dialog has been sized 
 		 * but before it has been activated.
@@ -149,11 +140,6 @@ private:
 		* @param aURI
 		*/
 		void ConstructL();
-		
-		/**
-		 * Constructs the Alf Environment and display
-		 */
-		void ConstructAlfEnvL();
 		
 		/**
 		* Initalise the resource
@@ -177,8 +163,6 @@ private:
 		MGlxMediaList& MediaList();
         
 private:
-
-		void Draw( const TRect& /*aRect*/ ) const;    
 		void HandlePointerEventL(const TPointerEvent& aPointerEvent);   	
 		/**
 		* SetTitleL
@@ -191,14 +175,23 @@ private:
 		* Sets title of previous view
 		*/
 		void SetPreviousTitleL();
-			/**
-		* Find out the items nature to set the corresponding options
+
+		/** 
+		* Sets the dialog toolbar visibility
+		* @param aVisible - ETrue for visible; EFalse otherwise.
 		*/
-		void OnLocationEditL();
-		void AddTagL();
-		void AddAlbumL();    
 		void SetDetailsDlgToolbarVisibility(TBool aVisible);
-		
+
+public:
+    // from MGlxMetadataDialogObserver	
+    /**
+     * Find out the items nature to set the corresponding options
+     */
+    void OnLocationEditL();
+    void AddTagL();
+    void AddAlbumL();
+    void HandleItemRemovedL();
+
 public: // from MEikDialogPageObserver
     /**
     * @ref MEikDialogPageObserver::CreateCustomControlL

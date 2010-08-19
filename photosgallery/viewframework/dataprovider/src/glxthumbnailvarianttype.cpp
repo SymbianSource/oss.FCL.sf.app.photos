@@ -83,18 +83,33 @@ GlxThumbnailVariantType::GlxThumbnailVariantType( const TGlxMedia& /*aMedia*/,
 void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& aSize, 
 		TBool aIsFocused, TInt aTextureId )   
 	{
-
 	TRACER("GlxThumbnailVariantType::ConstructL");    
     GLX_DEBUG2("GlxThumbnailVariantType::ConstructL Media Id=%d", aMedia.Id().Value());
-    
+    TInt err = KErrNone;
+
     if(aTextureId != KErrNotFound)
         {
         mTextureId = aTextureId;
+        GLX_DEBUG1("GlxThumbnailVariantType::ConstructL valid aTextureId");
         return;
         }
     
     iUiUtility = CGlxUiUtility::UtilityL();
+    TSize defaultSize = iUiUtility->GetGridIconSize();
+    TFileName resFile(KDC_APP_BITMAP_DIR);
+	resFile.Append(KGlxIconsFilename);
+
+	const TDesC& uri = aMedia.Uri();
+    GLX_LOG_URI( "GlxThumbnailVariantType::ConstructL(uri=%S)", &uri );
     
+    if (!iUiUtility->GetForegroundStatus() || uri.Length() == 0)
+        {        
+        GLX_DEBUG1("GlxThumbnailVariantType::Create default texture & return");
+        TRAP(err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL(
+                        EMbmGlxiconsQgn_prop_image_notcreated, resFile, defaultSize).Id());
+        return;
+        }
+
     TBool drm = EFalse;
     TGlxMediaGeneralRightsValidity isValid = EGlxDrmRightsValidityUnknown;
 	
@@ -107,47 +122,26 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
 
 	TBool fsTnmAvailable = HasRelevantThumbnail(aMedia,aSize);    
     
-    TIconInfo icon;
-    
-    TSize defaultSize = iUiUtility->GetGridIconSize();
-    
-    TFileName resFile(KDC_APP_BITMAP_DIR);
-	resFile.Append(KGlxIconsFilename);
-	
 	TInt frameCount = 0;
 	aMedia.GetFrameCount(frameCount);
 	
-	const TDesC& uri = aMedia.Uri();
-    GLX_DEBUG2("GlxThumbnailVariantType::ConstructL() uri.Length()=%d", uri.Length());  
-    
 	TInt thumbnailError = GlxErrorManager::HasAttributeErrorL(
                                 aMedia.Properties(), KGlxMediaIdThumbnail );
                                 	
-	TInt err = KErrNone;
+    TIconInfo icon;
 	TBool expired = EFalse;
   
-    if ( aIsFocused && frameCount > 1 && (fsTnmAvailable) )
+    if (aIsFocused && frameCount > 1 && fsTnmAvailable && !drm)
         {
         GLX_DEBUG1("GlxThumbnailVariantType::CreateAnimatedGifTextureL");
 
-        // If the image is DRM gif, we'll not animate.
-        // Only display the 1st frame. Otherwise animate for normal gif.
-        if (drm)
-            {
-            TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL(
-                            aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
-            }
-        else
-            {
-            TRAP( err, mTextureId = iUiUtility->GlxTextureManager().
-                    CreateAnimatedGifTextureL( uri, aSize, aMedia,
-                            aMedia.IdSpaceId() ).Id() );
-            }
+        TRAP( err, mTextureId = iUiUtility->GlxTextureManager().
+                CreateAnimatedGifTextureL( uri, aSize, aMedia,
+                        aMedia.IdSpaceId() ).Id() );
         }
     //URI length could be zero for Media Id based Thumbnail fetch
     else if ( fsTnmAvailable ) 
 	    {
-        GLX_DEBUG1("GlxThumbnailVariantType::CreateThumbnailTextureL");
         TMPXGeneralCategory cat = aMedia.Category();
         //Check if media is DRM rights protected
         if (drm)
@@ -191,6 +185,7 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
             //Check If DRM rights have expired.
             if (expired)
                 {
+                GLX_DEBUG1("GlxThumbnailVariantType::CreateIconTextureL:Default (expired)");
                 TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateIconTextureL(
                                 EMbmGlxiconsQgn_prop_image_notcreated, resFile, defaultSize ).Id() );
                 }
@@ -200,6 +195,7 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
                     {
                     // Fix for EABI-7RL9DD
                     // Replaced defaultSize with aSize
+                    GLX_DEBUG1("GlxThumbnailVariantType::CreateThumbnailTextureL:EGlxDrmRightsValid");
                     TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL(
                                     aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
                     }
@@ -208,6 +204,7 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
             }
         else
             {
+            GLX_DEBUG1("GlxThumbnailVariantType::CreateThumbnailTextureL");
             TRAP( err, mTextureId = iUiUtility->GlxTextureManager().CreateThumbnailTextureL(
                             aMedia, aMedia.IdSpaceId(), aSize, this ).Id() );
             }
@@ -223,8 +220,7 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
         //show larger (twice) default icon for videos, which has errors
         TSize newSize = defaultSize;
         newSize += defaultSize;
-        GLX_DEBUG1(
-                "GlxThumbnailVariantType::CreateThumbnailTextureL::Default (video)");
+        GLX_DEBUG1("GlxThumbnailVariantType::CreateIconTextureL::Default (video)");
         TRAP(err, mTextureId
                 = iUiUtility->GlxTextureManager().CreateIconTextureL(
                         EMbmGlxiconsQgn_prop_image_notcreated, resFile,
@@ -293,7 +289,7 @@ void GlxThumbnailVariantType::ConstructL( const TGlxMedia& aMedia, const TSize& 
 TBool GlxThumbnailVariantType::ConsumeRightsBasedOnSize(
                                        TSize aImageSize, TSize aBitmapSize)
     {
-    TRACER("CGlxCommandHandlerDrm::ConsumeRightsBasedOnSize");
+    TRACER("GlxThumbnailVariantType::ConsumeRightsBasedOnSize");
     
     TBool drmRightsChecked = EFalse;
     // minimum size (111 x 83)

@@ -111,8 +111,6 @@ private:
 	 */
 	void ProcessImageL();
 	
-	TSize ReCalculateSizeL(TSize& aTargetBitmapSize);
-	
 	void SetTexture(TInt aTextureId=KErrNotFound);
 
 private:
@@ -145,5 +143,6 @@ private:
     TBool iAnimateFlag;
     TBool iTransparencyPossible;
     TFrameInfo iFrameInfo;
+    TBool iFrameShift;
     };
 #endif /* GLXDRMGIFTEXTURECREATOR_H_ */

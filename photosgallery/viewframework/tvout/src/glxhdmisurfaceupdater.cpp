@@ -704,7 +704,7 @@ void CGlxHdmiSurfaceUpdater::CreateImageDecoderL()
     TRACER("CGlxHdmiController::CreateImageDecoderL()");
     // Create a decoder for the image in the named file
     TRAPD(error, iImageDecoder = CImageDecoder::FileNewL(iFsSession,
-            iImagePath->Des(), CImageDecoder::EOptionNone, KNullUid));
+            iImagePath->Des(), CImageDecoder::EOptionAlwaysThread, KNullUid));
     GLX_LOG_INFO1("CreateImageDecoderL CImageDecoder:FileNewL error %d",
             error);
     User::LeaveIfError( error);

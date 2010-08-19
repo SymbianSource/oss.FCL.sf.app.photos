@@ -26,6 +26,7 @@
 #include <caf/content.h>
 #include <driveinfo.h>
 #include <coeutils.h>
+#include <coemain.h>
 
 _LIT( KPrivateFolder, "\\Private\\" );
 _LIT( KGifFileMime, "image/gif" );
@@ -121,6 +122,7 @@ EXPORT_C void CGlxImageViewerManager::SetImageUriL(const TDesC& aFileName)
         User::Leave(KErrNotSupported);    
         }
     iImageUri = aFileName.AllocL();  
+    CreateImageDecoderL();
     }
 
 // ---------------------------------------------------------------------------
@@ -136,6 +138,8 @@ EXPORT_C void CGlxImageViewerManager::Reset()
         }
     delete iFile;
     iFile = NULL;
+
+	CloseImageDecoder();
 
     if (iIsPrivateGif)
         {
@@ -207,4 +211,52 @@ EXPORT_C void CGlxImageViewerManager::SetImageFileHandleL(const RFile& aFileHand
             }
         }
     SetImageUriL( filePath );
+    }
+
+// ---------------------------------------------------------------------------
+// CloseImageDecoder
+// ---------------------------------------------------------------------------
+//
+EXPORT_C void CGlxImageViewerManager::CloseImageDecoder()
+    {
+    TRACER("void CGlxImageViewerManager::CloseImageDecoder()");
+    if (iImageDecoder)
+        {
+        delete iImageDecoder;
+        iImageDecoder = NULL;
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// CreateImageDecoderL
+// ---------------------------------------------------------------------------
+//
+EXPORT_C void CGlxImageViewerManager::CreateImageDecoderL()
+    {
+    TRACER("void CGlxImageViewerManager::CreateImageDecoderL()");
+
+    CloseImageDecoder();
+
+    TInt err = KErrNone;
+    if (IsPrivate())
+        {
+        if (&ImageFileHandle())
+            {
+            GLX_DEBUG1("CGlxImageViewerManager::CreateImageDecoderL() FH");
+            TRAP(err, iImageDecoder = CImageDecoder::FileNewL(
+                    ImageFileHandle(), ContentAccess::EPeek));
+            }
+        }
+    else
+        {
+        if (ImageUri())
+            {
+            GLX_DEBUG1("CGlxImageViewerManager::CreateImageDecoderL() FN");
+            TRAP(err, iImageDecoder = CImageDecoder::FileNewL(
+                    CCoeEnv::Static()->FsSession(), ImageUri()->Des()));
+            }
+        }
+
+    GLX_DEBUG2("CGlxImageViewerManager::CreateImageDecoderL() err(%d)", err);
+    User::LeaveIfError(err);
     }
