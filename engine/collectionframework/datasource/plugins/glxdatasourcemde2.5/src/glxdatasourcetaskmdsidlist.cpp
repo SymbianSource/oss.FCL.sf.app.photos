@@ -67,6 +67,9 @@
 #include "glxdatasourcemds.hrh"
 #include "glxdatasourcemdsutility.h"
 
+// CONSTANTS
+const TInt KGlxCameraAlbumPromotionPosition = 0;
+const TInt KGlxfavoritesAlbumPromotionPosition = 1;
 
 _LIT(KPropertyDefNameCreationDate, "CreationDate");
 
@@ -307,14 +310,39 @@ void CGlxDataSourceTaskMdeIdList::PostFilterL(const RArray<TGlxMediaId>&
 	if( aFilterProperties.iPromoteSystemItems )
 		{
 		RArray<TGlxMediaId> list = aFilteredList;
-		/*
-		TInt favoritesIndex = list.Find(DataSource()->FavoritesId());
-		if( KErrNotFound != favoritesIndex )
-			{
-			list.Remove(favoritesIndex);
-			list.Insert(DataSource()->FavoritesId(), KGlxAlbumPromotionPosition);
+		// Here we don't have to push list in cleanup stack as caller function,
+		// CGlxDataSourceTaskMdeIdList::DoHandleListQueryCompletedL is already
+		// doing that.
+		TInt cameraAlbumIndex = list.Find(DataSource()->CameraAlbumId());
+		
+		// If Camera Index is not KErrNotFound, 1st Album should be Captured and 
+		// 2nd should be Favourites(In Albums List View)		
+		
+		if( KErrNotFound != cameraAlbumIndex )
+			{	
+			list.Remove(cameraAlbumIndex);	
+			list.InsertL(DataSource()->CameraAlbumId(), KGlxCameraAlbumPromotionPosition);    			
+
+			TInt favoritesIndex = list.Find(DataSource()->FavoritesId());			
+			if( KErrNotFound != favoritesIndex )
+				{
+				list.Remove(favoritesIndex);
+				list.InsertL(DataSource()->FavoritesId(),KGlxfavoritesAlbumPromotionPosition);		
+				} 
 			}
-		*/			
+		else
+			{
+			// In Selection popup, 1st item should be Favourites(from grid view/fullscreen view
+			// and Camera post captured mode) 
+			
+			TInt favoritesIndex = list.Find(DataSource()->FavoritesId());
+			if( KErrNotFound != favoritesIndex )
+				{
+				list.Remove(favoritesIndex);
+				list.InsertL(DataSource()->FavoritesId(),KGlxfavoritesAlbumPromotionPosition - 1);		
+				} 			
+			}
+					
 		DoPostFilterComplete(list, KErrNone);
 		}
 	else

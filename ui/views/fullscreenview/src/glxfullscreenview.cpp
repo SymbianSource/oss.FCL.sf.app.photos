@@ -60,10 +60,11 @@ GlxFullScreenView::GlxFullScreenView(HbMainWindow *window,HbDocumentLoader *DocL
     mCoverFlow( NULL ) , 
     mImageStrip( NULL ), 
     mUiOffTimer( NULL ),
+    mBackGroundItem( NULL ),
     mTvOutWrapper( NULL ),
     mFullScreenToolBar( NULL ),
 	mZoomWidget( NULL ),
-	mUiOff ( false)
+	mUiOff ( false )
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_GLXFULLSCREENVIEW_ENTRY );
     mIconItems[0] = NULL;
@@ -168,7 +169,7 @@ void GlxFullScreenView::addToolBarAction( int commandId, const QString &iconName
     action->setData( commandId );
     action->setIcon( HbIcon( iconName ) ); 
     action->setObjectName( name );
-    mFullScreenToolBar->addAction( action);
+    mFullScreenToolBar->addAction( action );
     connect(action, SIGNAL(triggered( )), this, SLOT(handleToolBarAction( )) ); 
 }
 
@@ -378,7 +379,13 @@ void GlxFullScreenView::orientationChanged(Qt::Orientation orient)
     setModelContext();
     loadViewSection();
     setLayout();
-    playOrientChangeAnim();
+    
+    if ( mZoomWidget->zValue() >= mCoverFlow->zValue() ) {
+        playZoomOrientChangeAnim();
+    }
+    else {
+        playOrientChangeAnim();
+    }
     
     OstTraceFunctionExit0( GLXFULLSCREENVIEW_ORIENTATIONCHANGED_EXIT );
 }
@@ -409,6 +416,7 @@ void GlxFullScreenView::activateUI()
         else if( getSubState() == IMAGEVIEWER_S){
             setTitle(GLX_IMAGE_VIEWER);
         }
+        mFullScreenToolBar->setOpacity( 1 );
         mFullScreenToolBar->show();
     }
     else {
@@ -574,17 +582,20 @@ void GlxFullScreenView::coverFlowEventHandle( GlxCoverFlowEvent e )
     case TAP_EVENT :
         activateUI();
         break ;
-        
-    case PANNING_START_EVENT :
-        hideUi();
-        break ;
-        
+                
     //hide the ui component without animation  
+    case PANNING_START_EVENT :
     case ZOOM_START_EVENT : {
         HbEffect::EffectStatus e;
         mUiOff = TRUE;
         if( mFullScreenToolBar ) {
-           mFullScreenToolBar->hide();
+            /** 
+             * Browsing has higer priority then playing animation of hiding tool bar
+             * so it is taking time to hide the toolbar during browsing of images 
+             * so set the opacity value to 0 to immediate hide the tool bar 
+             */
+            mFullScreenToolBar->setOpacity( 0 );
+            mFullScreenToolBar->hide();
         }
         setViewFlags( viewFlags() | HbView::ViewTitleBarHidden | HbView::ViewStatusBarHidden );
         effectFinished( e );
@@ -632,6 +643,7 @@ void GlxFullScreenView::imageSelectionEffectFinished( const HbEffect::EffectStat
         mIconItems[ i ]->resetTransform();
         mIconItems[ i ]->setVisible( false );
     }
+    mBackGroundItem->setVisible( false );
     
     QVariant variant = mModel->data( mModel->index(0,0), GlxFocusIndexRole );    
     if ( variant.isValid() &&  variant.canConvert<int> ()  ) {
@@ -648,8 +660,14 @@ void GlxFullScreenView::orientChangeAnimFinished( const HbEffect::EffectStatus s
     qDebug( "GlxFullScreenView::LsOrientChangeAnimFinished reason %d ", status.reason );
     mIconItems[ 0 ]->resetTransform();   
     mIconItems[ 0 ]->setVisible( false );
+    mBackGroundItem->setVisible( false );
     mCoverFlow->setVisible( true );
     mZoomWidget->setVisible( true );
+}
+
+void GlxFullScreenView::zoomOrientChangeAnimFinished( const HbEffect::EffectStatus status )
+{
+    mZoomWidget->resetTransform();
 }
 
 void GlxFullScreenView::setLayout()
@@ -752,6 +770,7 @@ GlxFullScreenView::~GlxFullScreenView()
 	for ( int i = 0; i < NBR_ANIM_ITEM; i++ ) {
 	    delete mIconItems[ i ] ;
 	}
+	delete mBackGroundItem;
     delete mImageStrip;
     delete mFullScreenToolBar;
     delete mCoverFlow;
@@ -775,13 +794,16 @@ GlxFullScreenView::~GlxFullScreenView()
 void GlxFullScreenView::initAnimationItem()
 {
     if( mIconItems[0] == NULL ) {
+        mBackGroundItem = new HbIconItem( mImageStrip->parentItem() );
+        mBackGroundItem->setBrush( QBrush( Qt::black ) );
+        mBackGroundItem->setZValue( mImageStrip->zValue() - 3 );
+        mBackGroundItem->setPos( 0, 0 );
         for( int i = 0; i < NBR_ANIM_ITEM; i++ ) {
             mIconItems[ i ] = new HbIconItem( mImageStrip->parentItem() );
-            mIconItems[ i ]->setBrush( QBrush( Qt::black ) );
             mIconItems[ i ]->setZValue( mImageStrip->zValue() - 2 );
             mIconItems[ i ]->setPos( 0, 0 );
             mIconItems[ i ]->setAlignment( Qt::AlignCenter );
-        }
+        }        
     }
 }
 
@@ -794,6 +816,8 @@ void GlxFullScreenView::imageSelectionAnimation(const QModelIndex &index)
         mIconItems[ i ]->setVisible( true );
         mIconItems[ i ]->setSize( screenSize() );
     }
+    mBackGroundItem->setVisible( true );
+    mBackGroundItem->setSize( screenSize() );
     
     mIconItems[ 0 ]->setIcon( mCoverFlow->getIcon( mCoverFlow->getFocusIndex() ) );    
     mIconItems[ 1 ]->setIcon( mCoverFlow->getIcon( index.row() ) );   
@@ -823,6 +847,9 @@ void GlxFullScreenView::playOrientChangeAnim()
     mIconItems[ 0 ]->setVisible( true );
     mIconItems[ 0 ]->setIcon( mCoverFlow->getIcon( mCoverFlow->getFocusIndex() ) );
     
+    mBackGroundItem->setVisible( true );
+    mBackGroundItem->setSize( screenSize() );
+    
     mCoverFlow->setVisible( false );
     mZoomWidget->setVisible( false );
     if ( mWindow->orientation() == Qt::Horizontal ) {
@@ -831,6 +858,16 @@ void GlxFullScreenView::playOrientChangeAnim()
     else {
         HbEffect::start( mIconItems[0], QString( "HbIconItem" ), QString( "RotateFSPT" ), this, "orientChangeAnimFinished" );
     }
+}
+
+void GlxFullScreenView::playZoomOrientChangeAnim()
+{
+    if ( mWindow->orientation() == Qt::Horizontal ) {
+        HbEffect::start( mZoomWidget, QString( "HbIconItem" ), QString( "RotateFSLS" ), this, "zoomOrientChangeAnimFinished" );
+    }
+    else {
+        HbEffect::start( mZoomWidget, QString( "HbIconItem" ), QString( "RotateFSPT" ), this, "zoomOrientChangeAnimFinished" );
+    }    
 }
 	
 void GlxFullScreenView::handleToolBarAction()

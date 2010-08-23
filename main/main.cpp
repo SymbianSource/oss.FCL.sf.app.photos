@@ -61,13 +61,14 @@ int main(int argc, char *argv[])
     if(!XQServiceUtil::isService()){
         HbSplashScreen::start();
         stateMgr = new GlxStateManager();
-        app.setApplicationName(GLX_TITLE);          
+        app.setApplicationName( GLX_TITLE );
         stateMgr->launchApplication();  
     }
     else {
         mainWindow = new GlxAiwServiceHandler();
         mainWindow->show();
     }
+    app.initMattiAutomation();
     OstTraceEventStop( EVENT_DUP1__MAIN_STOP, "launch", EVENT_DUP1__MAIN_START );
 
     int ret = app.exec();

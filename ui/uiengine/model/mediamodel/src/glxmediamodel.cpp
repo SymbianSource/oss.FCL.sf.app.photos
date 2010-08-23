@@ -44,6 +44,7 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	qDebug("GlxMediaModel::GlxMediaModel");
 	
 	thumbnailPopulatedFlag = modelParm.collection() == KGlxCollectionPluginAllImplementationUid ? false : true;
+	mPaintPage = modelParm.collection() == KGlxCollectionPluginAllImplementationUid ? true : false;
 	mMLWrapper = new GlxMLWrapper(modelParm.collection(),0,EGlxFilterImage);
 	mMLWrapper->setContextMode( modelParm.contextMode() );
 	mContextMode = modelParm.contextMode( ) ; 
@@ -197,6 +198,10 @@ QVariant GlxMediaModel::data( const QModelIndex &index, int role ) const
     
     if ( role == Qt::DisplayRole ) {
         return QVariant();
+    }
+    
+    if (role == GlxPaintPageFlag) {
+       return mPaintPage;
     }
     
     if ( role == GlxDefaultImage ) {

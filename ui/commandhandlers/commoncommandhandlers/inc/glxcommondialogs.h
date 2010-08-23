@@ -27,7 +27,7 @@ class GlxTextInputDialog : public QObject
 {
 	Q_OBJECT    
 public:
-    GlxTextInputDialog();
+    GlxTextInputDialog(bool disableOkForEmptyText = true);
     ~GlxTextInputDialog();
     QString getText(const QString &label,const QString &text = QString(),bool *ok = 0);
 
@@ -39,6 +39,7 @@ private:
     HbInputDialog* mDialog;
     QEventLoop *mEventLoop;
     bool mResult;
+    bool mDisableOkForEmptyText;
 };
 
 #endif // GLXCOMMONDIALOGS_H

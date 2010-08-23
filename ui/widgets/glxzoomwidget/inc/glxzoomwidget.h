@@ -31,10 +31,7 @@ class HbIconItem;
 class GlxImageDecoderWrapper;
 class QTimeLine;
 
-const int MAXZVALUE = 100;
-const int MINZVALUE = 0;
-const int NOOFSTEPS = 20;
-const float MAXDTZOOMIN = 3.5;
+
 
 class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
 {
@@ -152,8 +149,8 @@ private:
     qreal mIncSF;
     //stores the scalingfactor increment applicable for each step of double tap animation
     qreal msfInc;
-    //stores the item size before performing zoomout(zo)
-    QSizeF mzoSize;
+    //stores the item size before performing zoomout or zoomin
+    QSizeF minitSize;
     //counter to track the double tap animation steps
     int mdoubletapSteps;
 };

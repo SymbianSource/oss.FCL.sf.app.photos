@@ -53,6 +53,7 @@ GlxDetailsTextEdit::GlxDetailsTextEdit(QGraphicsItem *parent) : HbTextEdit( pare
 {
    setAlignment(Qt::AlignLeft);
    mDesc = new HbEditorInterface(this);
+   clearContextMenuFlag(Hb::ShowTextContextMenuOnLongPress);
    mDesc->setInputConstraints (HbEditorConstraintIgnoreFocus);
 }
 

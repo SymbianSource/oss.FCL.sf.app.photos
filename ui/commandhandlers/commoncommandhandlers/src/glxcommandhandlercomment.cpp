@@ -47,7 +47,7 @@ CMPXCommand* GlxCommandHandlerComment::CreateCommandL(TInt aCommandId,
     QString title(GLX_DETAILS_DESCRIPTION);
     QString mediaTitle = NULL;
     bool ok = false;    
-    GlxTextInputDialog* dlg = new GlxTextInputDialog();
+    GlxTextInputDialog* dlg = new GlxTextInputDialog(false);
     mediaTitle = dlg->getText(title, mainPane, &ok);
     delete dlg;
 

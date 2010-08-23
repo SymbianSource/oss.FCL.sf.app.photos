@@ -77,6 +77,7 @@ private:
    QAbstractItemModel  *mModel;
    int                  mOriginalRole;
    int                  mConvertRole;
+   bool                 mPaintPage;  // Flag to determine painting First page  Together
 };
 
 #endif /* GLXMODELWRAPPER_H */

@@ -73,4 +73,17 @@ EXPORTS
 	??1GlxCommandHandlerDelete@@UAE@XZ @ 72 NONAME ; GlxCommandHandlerDelete::~GlxCommandHandlerDelete(void)
 	?CreateCommandL@GlxCommandHandlerNewMedia@@MBEPAVCMPXMedia@@HAAVMGlxMediaList@@AAH@Z @ 73 NONAME ; class CMPXMedia * GlxCommandHandlerNewMedia::CreateCommandL(int, class MGlxMediaList &, int &) const
 	??0GlxCommandHandlerRotate@@QAE@XZ @ 74 NONAME ; GlxCommandHandlerRotate::GlxCommandHandlerRotate(void)
+	?qt_metacast@GlxCommandHandlerEditImage@@UAEPAXPBD@Z @ 75 NONAME ; void * GlxCommandHandlerEditImage::qt_metacast(char const *)
+	?staticMetaObject@GlxCommandHandlerEditImage@@2UQMetaObject@@B @ 76 NONAME ; struct QMetaObject const GlxCommandHandlerEditImage::staticMetaObject
+	?clearMediaModel@GlxCommandHandlerEditImage@@AAEXXZ @ 77 NONAME ; void GlxCommandHandlerEditImage::clearMediaModel(void)
+	?metaObject@GlxCommandHandlerEditImage@@UBEPBUQMetaObject@@XZ @ 78 NONAME ; struct QMetaObject const * GlxCommandHandlerEditImage::metaObject(void) const
+	?handleOk@GlxCommandHandlerEditImage@@QAEXABVQVariant@@@Z @ 79 NONAME ; void GlxCommandHandlerEditImage::handleOk(class QVariant const &)
+	?getStaticMetaObject@GlxCommandHandlerEditImage@@SAABUQMetaObject@@XZ @ 80 NONAME ; struct QMetaObject const & GlxCommandHandlerEditImage::getStaticMetaObject(void)
+	?trUtf8@GlxCommandHandlerEditImage@@SA?AVQString@@PBD0@Z @ 81 NONAME ; class QString GlxCommandHandlerEditImage::trUtf8(char const *, char const *)
+	?storeItems@GlxCommandHandlerEditImage@@QAEXABVQModelIndex@@HH@Z @ 82 NONAME ; void GlxCommandHandlerEditImage::storeItems(class QModelIndex const &, int, int)
+	?tr@GlxCommandHandlerEditImage@@SA?AVQString@@PBD0H@Z @ 83 NONAME ; class QString GlxCommandHandlerEditImage::tr(char const *, char const *, int)
+	?qt_metacall@GlxCommandHandlerEditImage@@UAEHW4Call@QMetaObject@@HPAPAX@Z @ 84 NONAME ; int GlxCommandHandlerEditImage::qt_metacall(enum QMetaObject::Call, int, void * *)
+	?handleError@GlxCommandHandlerEditImage@@QAEXHABVQString@@@Z @ 85 NONAME ; void GlxCommandHandlerEditImage::handleError(int, class QString const &)
+	?trUtf8@GlxCommandHandlerEditImage@@SA?AVQString@@PBD0H@Z @ 86 NONAME ; class QString GlxCommandHandlerEditImage::trUtf8(char const *, char const *, int)
+	?tr@GlxCommandHandlerEditImage@@SA?AVQString@@PBD0@Z @ 87 NONAME ; class QString GlxCommandHandlerEditImage::tr(char const *, char const *)
 

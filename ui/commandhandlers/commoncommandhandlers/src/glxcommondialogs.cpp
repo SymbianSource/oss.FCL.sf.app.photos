@@ -20,10 +20,11 @@
 #include <hbaction.h>
 #include <QEventLoop>
 
-GlxTextInputDialog::GlxTextInputDialog() 
+GlxTextInputDialog::GlxTextInputDialog(bool disableOkForEmptyText) 
     : mDialog ( NULL ),
       mEventLoop ( 0 ),
-      mResult ( false )
+      mResult ( false ),
+      mDisableOkForEmptyText(disableOkForEmptyText)
 {
 }
 
@@ -41,9 +42,10 @@ QString GlxTextInputDialog::getText(const QString &label,
     mDialog->setPromptText(label);
     mDialog->setInputMode(HbInputDialog::TextInput);
     mDialog->setValue(text);
-    connect(mDialog->lineEdit(0), SIGNAL( textChanged (const QString &) ),
-            this, SLOT( textChanged (const QString &)));
-    
+    if(mDisableOkForEmptyText){
+        connect(mDialog->lineEdit(0), SIGNAL( textChanged (const QString &) ),
+                this, SLOT( textChanged (const QString &)));
+    }
     mDialog->open( this, SLOT( dialogClosed( HbAction* ) ) ); 
     eventLoop.exec( );
     mEventLoop = 0 ;
@@ -55,9 +57,10 @@ QString GlxTextInputDialog::getText(const QString &label,
     if ( mResult ) {
         retText = mDialog->value().toString().trimmed();
     }
-    
-    disconnect(mDialog->lineEdit(0), SIGNAL( textChanged (const QString &) ),
-                this, SLOT( textChanged (const QString &)));
+    if(mDisableOkForEmptyText){
+        disconnect(mDialog->lineEdit(0), SIGNAL( textChanged (const QString &) ),
+                    this, SLOT( textChanged (const QString &)));
+    }
     delete mDialog;
     mDialog = NULL;
     return retText;

@@ -53,7 +53,8 @@ GlxSlideShowWidget::GlxSlideShowWidget( QGraphicsItem *parent )
       mItemIndex( 1 ),  
       mSlideTimer( NULL ), 
       mModel( NULL ), 
-      mSlideShowItemCount( 0 )
+      mSlideShowItemCount( 0 ),
+      mIsAutoMoving ( false )
 {
     TRACER("GlxSlideShowWidget::GlxSlideShowWidget()");
     mSettings = GlxSettingInterface::instance() ; //no owner ship
@@ -350,6 +351,7 @@ void GlxSlideShowWidget::leftMoveEffectFinished( const HbEffect::EffectStatus &s
     mModel->setData( mModel->index( 0, 0 ), mSelIndex[ mItemIndex ], GlxVisualWindowIndex );
     setNextItemIcon();
     startSlideShow();
+    mIsAutoMoving = false;
     emit indexchanged(); // on left swipe
 }
 
@@ -364,6 +366,7 @@ void GlxSlideShowWidget::rightMoveEffectFinished( const HbEffect::EffectStatus &
     mModel->setData( mModel->index( 0, 0 ), mSelIndex[ mItemIndex ], GlxVisualWindowIndex );
     setPreItemIcon();
     startSlideShow();
+    mIsAutoMoving = false;
     emit indexchanged(); // on right swipe
 } 
  
@@ -378,10 +381,10 @@ void GlxSlideShowWidget::gestureEvent(QGestureEvent *event)
         }
     }
       
-    if (QPanGesture *panningGesture = qobject_cast<QPanGesture*>(event->gesture(Qt::PanGesture))) {
-        HbPanGesture *hbPanGesture = qobject_cast<HbPanGesture *>(panningGesture);
+    if ( QPanGesture *panningGesture = qobject_cast<QPanGesture*>( event->gesture( Qt::PanGesture ) ) ) {
+        HbPanGesture *hbPanGesture = qobject_cast<HbPanGesture *>( panningGesture );
         if ( hbPanGesture ) {
-            if( hbPanGesture->state() == Qt::GestureFinished ) {
+            if( hbPanGesture->state() == Qt::GestureFinished && mIsAutoMoving == FALSE ) {
                 QPointF delta( hbPanGesture->sceneDelta() );
                 if ( delta.x() > 0 ) {
                     rightGesture( delta.x() );
@@ -464,11 +467,12 @@ void GlxSlideShowWidget::moveImage(int nextIndex, int posX, const QString & move
     if ( mSlideShowItemCount <= 1 || mEffectEngine->isEffectRuning( mItemList ) ) {
         return ;
     }
-
+    
     mSlideTimer->stop();
     HbEffect::start( mIconItems[mItemIndex], QString("HbIconItem"), move );
     mIconItems[nextIndex]->setPos( posX, mScreenRect.top());
     mIconItems[nextIndex]->setOpacity(1);
+    mIsAutoMoving = true;
     HbEffect::start(mIconItems[nextIndex], QString("HbIconItem"), QString("Move"), this, callBack );    
 }
 

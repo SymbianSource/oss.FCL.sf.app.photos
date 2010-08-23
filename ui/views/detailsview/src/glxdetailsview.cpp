@@ -525,7 +525,6 @@ void GlxDetailsView::setTime()
         
     if (timevalue.isNull() == FALSE)
         {
-        OstTrace0( TRACE_NORMAL, GLXDETAILSVIEW_SETDATE, "GlxDetailsView::setTime is not NULL" );
         QString timeStringValue = timevalue.toString(timeFormat);
         timestring = hbTrId(GLX_DETAILS_TIME).arg(timeStringValue);
         }

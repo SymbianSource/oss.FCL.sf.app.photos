@@ -51,11 +51,14 @@ GlxCoverFlow::GlxCoverFlow( QGraphicsItem *parent )
        mTimerId( 0 ),
        mIsInit( false )
 {
-   qDebug( "GlxCoverFlow::GlxCoverFlow" );
-   grabGesture( Qt::PanGesture );
-   grabGesture( Qt::TapGesture );
-   connect( this, SIGNAL( autoLeftMoveSignal() ), this, SLOT( autoLeftMove() ), Qt::QueuedConnection );
-   connect( this, SIGNAL( autoRightMoveSignal() ), this, SLOT( autoRightMove() ), Qt::QueuedConnection );   
+    qDebug( "GlxCoverFlow::GlxCoverFlow" );
+    mIsAutoMoving = FALSE;
+    grabGesture( Qt::PanGesture );
+    grabGesture( Qt::TapGesture );
+    connect( this, SIGNAL( autoLeftMoveSignal() ), this, SLOT( autoLeftMove() ), Qt::QueuedConnection );
+    connect( this, SIGNAL( autoRightMoveSignal() ), this, SLOT( autoRightMove() ), Qt::QueuedConnection );
+    connect( this, SIGNAL( moveNextSignal() ), this, SLOT( moveNextImage() ), Qt::QueuedConnection );
+    connect( this, SIGNAL( movePreviousSignal() ), this, SLOT( movePreviousImage() ), Qt::QueuedConnection ); 
 }
 
 void GlxCoverFlow::setMultitouchFilter(QGraphicsItem* mtFilter)
@@ -117,7 +120,7 @@ void GlxCoverFlow::gestureEvent(QGestureEvent *event)
     if(QTapGesture *gesture = static_cast<QTapGesture *>(event->gesture(Qt::TapGesture))) {        
         if (gesture->state() == Qt::GestureFinished) {
             if(!mTimerId) {
-                mTimerId = startTimer(500);
+                mTimerId = startTimer( DOUBLETAP_TIMEINTERVAL );
             }
             else {
                 killTimer(mTimerId);
@@ -137,23 +140,27 @@ void GlxCoverFlow::gestureEvent(QGestureEvent *event)
                 event->accept(panningGesture);            
             }
             
-            if(hbPanGesture->state() == Qt::GestureFinished) {
-                switch( mMoveDir ) {
-                    case LEFT_MOVE : 
-                        mMoveDir = NO_MOVE;
-                        mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
-                        emit autoLeftMoveSignal();
-                        break ;
-                
-                    case RIGHT_MOVE :
-                        mMoveDir = NO_MOVE;
-                        mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
-                        emit autoRightMoveSignal();
-                        break;
-                
-                    default:
-                        break;
-                } 
+            if( hbPanGesture->state() == Qt::GestureFinished  ) {
+                if( mIsAutoMoving == FALSE ) {
+                    switch( mMoveDir ) {
+                        case LEFT_MOVE : 
+                            mMoveDir = NO_MOVE;
+                            mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
+                            emit autoLeftMoveSignal();
+                            mIsAutoMoving = TRUE;
+                            break ;
+                    
+                        case RIGHT_MOVE :
+                            mMoveDir = NO_MOVE;
+                            mBounceBackDeltaX = ( mItemSize.width() >> 2 )  + ( mItemSize.width() >> 3 );
+                            emit autoRightMoveSignal();
+                            mIsAutoMoving = TRUE;
+                            break;
+                    
+                        default:
+                            break;
+                    } 
+                }
                 event->accept(panningGesture);
             }
         }
@@ -164,9 +171,10 @@ void GlxCoverFlow::panGesture ( const QPointF & delta )
 {
     qDebug("GlxCoverFlow::panGesture deltaX= %d", (int)delta.x());  
    
-    if( !mIsInit || getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S ) {
+    if( !mIsInit || getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S || mIsAutoMoving == TRUE ) {
         return;
     }
+    
     move( ( int ) delta.x() );    
     if( delta.x() > 0 ) {     
         mMoveDir = RIGHT_MOVE;
@@ -179,12 +187,6 @@ void GlxCoverFlow::panGesture ( const QPointF & delta )
         emit coverFlowEvent( PANNING_START_EVENT );
         mUiOn = FALSE;
     }
-}
-
-void GlxCoverFlow::longPressGesture(const QPointF &point)
-{
-     qDebug("GlxCoverFlow::longPressGesture x = %d  y = %d", point.x(), point.y());
-     mMoveDir = LONGPRESS_MOVE;
 }
 
 void GlxCoverFlow::dataChanged(QModelIndex startIndex, QModelIndex endIndex)
@@ -272,23 +274,10 @@ void GlxCoverFlow::autoLeftMove()
         //for bounce back of first image
         if ( mMoveDir == RIGHT_MOVE ) {
             emit autoRightMoveSignal();
-            return;
         }
-        int selIndex = mCurrentPos / width ;
-        if ( mRows == 1 || selIndex != mSelIndex ) {
-            stopAnimation();
-            mSelIndex = selIndex;
-            mSelItemIndex = ( ++mSelItemIndex ) % NBR_ICON_ITEM;
-            selIndex = ( mSelItemIndex + 2 ) % NBR_ICON_ITEM;
-            updateIconItem( mSelIndex + 2, selIndex, width * 2 ) ;
-            playAnimation();
-			if(!mZoomOn) {
-                emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
-			}
-        }
-        mMoveDir = NO_MOVE;
-        mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
-        mSpeed = GLX_COVERFLOW_SPEED;
+        else {
+            emit moveNextSignal();
+        }        
     }   
 }
 
@@ -331,24 +320,53 @@ void GlxCoverFlow::autoRightMove()
         //for bounce back of last image
         if ( mMoveDir == LEFT_MOVE ) {
             emit autoLeftMoveSignal();
-            return;
         }
-        int selIndex = mCurrentPos / width ;
-        if ( mRows == 1 || selIndex != mSelIndex ) {
-            stopAnimation();
-            mSelIndex = selIndex;
-            mSelItemIndex = ( mSelItemIndex == 0 ) ?  NBR_ICON_ITEM -1 : --mSelItemIndex;
-            selIndex = ( mSelItemIndex + 3 ) % NBR_ICON_ITEM;
-            updateIconItem( mSelIndex - 2, selIndex, - width * 2 ) ;
-            playAnimation();
-			if(!mZoomOn) {
-                emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
-			}
+        else {
+            emit movePreviousSignal();
         }
-        mMoveDir = NO_MOVE;
-        mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
-        mSpeed = GLX_COVERFLOW_SPEED;
     }
+}
+
+void GlxCoverFlow::moveNextImage()
+{
+    int width = mItemSize.width() ;
+    int selIndex = mCurrentPos / width ;
+    if ( mRows == 1 || selIndex != mSelIndex ) {
+        stopAnimation() ;
+        mSelIndex = selIndex ;
+        mSelItemIndex = ( ++mSelItemIndex ) % NBR_ICON_ITEM ;
+        selIndex = ( mSelItemIndex + 2 ) % NBR_ICON_ITEM ;
+        updateIconItem( mSelIndex + 2, selIndex, width * 2 ) ;
+        playAnimation() ;
+        if( !mZoomOn ) {
+            emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
+        }
+    }
+    mMoveDir = NO_MOVE;
+    mIsAutoMoving = FALSE;
+    mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA ;
+    mSpeed = GLX_COVERFLOW_SPEED ;
+}
+
+void GlxCoverFlow::movePreviousImage()
+{
+    int width = mItemSize.width();
+    int selIndex = mCurrentPos / width;
+    if ( mRows == 1 || selIndex != mSelIndex ) {
+        stopAnimation();
+        mSelIndex = selIndex;
+        mSelItemIndex = ( mSelItemIndex == 0 ) ?  NBR_ICON_ITEM -1 : --mSelItemIndex;
+        selIndex = ( mSelItemIndex + 3 ) % NBR_ICON_ITEM;
+        updateIconItem( mSelIndex - 2, selIndex, - width * 2 ) ;
+        playAnimation();
+        if(!mZoomOn) {
+            emit changeSelectedIndex ( mModel->index ( mSelIndex, 0 ) ) ;
+        }
+    }
+    mMoveDir = NO_MOVE;
+    mIsAutoMoving = FALSE;
+    mBounceBackDeltaX = GLX_BOUNCEBACK_DELTA;
+    mSpeed = GLX_COVERFLOW_SPEED;
 }
 
 void GlxCoverFlow::move(int value)
@@ -357,9 +375,9 @@ void GlxCoverFlow::move(int value)
     QPointF pos(0,0);
 
     for ( qint8 i = 0; i < NBR_ICON_ITEM ; i++ ) {
-        pos.setX( mIconItem[i]->pos().x() + value);
-        pos.setY(mIconItem[i]->pos().y());
-        mIconItem[i]->setPos(pos);
+        pos.setX( mIconItem[i]->pos().x() + value );
+        pos.setY( mIconItem[i]->pos().y() );
+        mIconItem[i]->setPos( pos );
     }
     
     mCurrentPos -= value;
@@ -553,24 +571,23 @@ void GlxCoverFlow::zoomStarted(int index)
 	mZoomOn = true;	
 }
 
-void GlxCoverFlow::zoomFinished(int index)
+void GlxCoverFlow::zoomFinished( int index )
 { 
 	mZoomOn = false;
 	playAnimation();
 	indexChanged(index);
 }
 
-void GlxCoverFlow::timerEvent(QTimerEvent *event)
+void GlxCoverFlow::timerEvent( QTimerEvent *event )
 {
-    if(mTimerId == event->timerId())
-    {
-        killTimer(mTimerId);
+    if(mTimerId == event->timerId()) {
+        killTimer( mTimerId );
         mTimerId = 0;
         emit coverFlowEvent( TAP_EVENT );
     }
 }
 
-int GlxCoverFlow::getFocusIndex( )
+int GlxCoverFlow::getFocusIndex()
 {
     QVariant variant = mModel->data( mModel->index( 0, 0 ), GlxFocusIndexRole ) ;
     if ( variant.isValid() && variant.canConvert< int > () ) {

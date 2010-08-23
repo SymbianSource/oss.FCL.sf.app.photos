@@ -73,8 +73,7 @@ GlxViewManager::GlxViewManager()
 void GlxViewManager::handleReadyView()
 {
     emit actionTriggered( EGlxCmdSetupItem );
-    emit applicationReady();
-    disconnect(mMainWindow, SIGNAL( viewReady() ), this, SLOT( handleReadyView() ));
+    disconnect( mMainWindow, SIGNAL( viewReady() ), this, SLOT( handleReadyView() ) );
 }
 
 void GlxViewManager::setupItems( )

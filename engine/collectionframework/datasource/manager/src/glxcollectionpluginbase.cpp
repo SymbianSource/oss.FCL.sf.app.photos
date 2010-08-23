@@ -47,6 +47,8 @@
 
 // CONSTANTS
 const TGlxThumbnailRequest::TPriorityMode KGlxDefaultThumbnailPriority = TGlxThumbnailRequest::EPrioritizeQuality;
+const TInt KFavoriteAlbumId = 1 ;
+const TInt KCapturedAlbumId = 2 ;
 
 // ============================ LOCAL FUNCTIONS ==============================
     
@@ -447,7 +449,18 @@ CGlxRequest* CGlxCollectionPluginBase::GetRequestFactoryL(const CMPXCollectionPa
 			for (TInt i = 0; i < selectedCount; i++)
 				{
 				const TMPXItemId& itemId = aPath.IdOfIndex(selection[i]);
-				mediaIdArray.AppendL(TGlxMediaId(itemId));
+				if(itemId.operator ==(KCapturedAlbumId))//captured
+				    {
+                    mediaIdArray.Insert(TGlxMediaId(itemId),0);
+				    }
+				else if(itemId.operator ==(KFavoriteAlbumId))//favourites
+				    {
+                    mediaIdArray.Insert(TGlxMediaId(itemId),0);
+				    }
+				else
+				    {
+                    mediaIdArray.AppendL(TGlxMediaId(itemId));
+				    }
 				}
 			}
 		else // No items are selected; We will use the current item

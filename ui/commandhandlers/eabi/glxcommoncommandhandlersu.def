@@ -107,4 +107,13 @@ EXPORTS
 	_ZTV31GlxCommandHandlerAddToContainer @ 106 NONAME
 	_ZThn8_N25GlxCommandHandlerNewMedia11HandleErrorEi @ 107 NONAME
 	_ZThn8_N25GlxCommandHandlerNewMedia16HandleItemAddedLEiiP13MGlxMediaList @ 108 NONAME
+	_ZN26GlxCommandHandlerEditImage10storeItemsERK11QModelIndexii @ 109 NONAME
+	_ZN26GlxCommandHandlerEditImage11handleErrorEiRK7QString @ 110 NONAME
+	_ZN26GlxCommandHandlerEditImage11qt_metacallEN11QMetaObject4CallEiPPv @ 111 NONAME
+	_ZN26GlxCommandHandlerEditImage11qt_metacastEPKc @ 112 NONAME
+	_ZN26GlxCommandHandlerEditImage15clearMediaModelEv @ 113 NONAME
+	_ZN26GlxCommandHandlerEditImage16staticMetaObjectE @ 114 NONAME DATA 16
+	_ZN26GlxCommandHandlerEditImage19getStaticMetaObjectEv @ 115 NONAME
+	_ZN26GlxCommandHandlerEditImage8handleOkERK8QVariant @ 116 NONAME
+	_ZNK26GlxCommandHandlerEditImage10metaObjectEv @ 117 NONAME
 

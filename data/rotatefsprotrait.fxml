@@ -9,8 +9,8 @@
 			<keyframe at="0.0">60</keyframe>
 			<keyframe at="1.0">0</keyframe>
 		</param>
-		<param name="rotation_origin_x" ref="visual.width">0.5</param>
-		<param name="rotation_origin_y" ref="visual.height">0.5</param>
+		<param name="rotation_origin_x" ref="screen.width">0.5</param>
+		<param name="rotation_origin_y" ref="screen.height">0.5</param>
 		
 	</visual>
 </layers>

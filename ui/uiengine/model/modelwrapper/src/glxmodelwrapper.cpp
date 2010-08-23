@@ -21,7 +21,8 @@
 
 GlxModelWrapper::GlxModelWrapper(): mModel ( NULL),
     mOriginalRole(Qt::DecorationRole),
-    mConvertRole(Qt::DecorationRole)
+    mConvertRole(Qt::DecorationRole),
+    mPaintPage(false)
     {
 
     }
@@ -32,6 +33,11 @@ void GlxModelWrapper::setModel(QAbstractItemModel *model)
         {
         disConnectFromModel();
         mModel = model;
+        QVariant variant = mModel->data(mModel->index(0,0),GlxPaintPageFlag);
+        if (variant.isValid() &&  variant.canConvert<bool> () )
+            {
+            mPaintPage = variant.value<bool>();
+            }
         connectToModel();
         resetTheModel();
         }	
@@ -175,17 +181,21 @@ void GlxModelWrapper::dataChangedinModel(QModelIndex startIndex, QModelIndex end
     {
     int aStartRow = startIndex.row();
 
+    if(mPaintPage)
+        {
     if((aStartRow  == 14) || (aStartRow+1 == rowCount()))
         {
         emit dataChanged(index(0,0),index(endIndex.row(),0));
+            mPaintPage = false;
         }
     else if(aStartRow  >= 15)
         {
         emit dataChanged(index(aStartRow,0),index(endIndex.row(),0));
         }
+        }
     else
         {
-        // Do Nothing
+        emit dataChanged(index(aStartRow,0),index(endIndex.row(),0));
         }
     }
 

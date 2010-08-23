@@ -199,6 +199,12 @@ public slots:
     void orientChangeAnimFinished( const HbEffect::EffectStatus );
     
     /**
+     * zoomOrientChangeAnimFinished() -  call back when zoom orientation change effect has been finished.
+     * @param - staus of effect
+     */
+     void zoomOrientChangeAnimFinished( const HbEffect::EffectStatus status );
+    
+    /**
      * effectFinished -  call back when ui on\off effect has finished
      * @param - staus of effect
      */
@@ -281,6 +287,11 @@ private:
     void playOrientChangeAnim();
     
     /**
+     * playZoomOrientChangeAnim() - To trigger the custom orientation change animation for zoom image.
+     */
+    void playZoomOrientChangeAnim();
+    
+    /**
      * get the substate of fullscreen state.
      */
     int getSubState();
@@ -298,6 +309,7 @@ private:
     HbGridView          *mImageStrip;
     QTimer              *mUiOffTimer;  //use for ui off after 30 sec
     HbIconItem          *mIconItems[ NBR_ANIM_ITEM ] ;   //temporary item for play the image strip select animation
+    HbIconItem          *mBackGroundItem;
     GlxTvOutWrapper     *mTvOutWrapper;
     HbToolBar           *mFullScreenToolBar; //Fullscreen Toolbar
     //for Zoom

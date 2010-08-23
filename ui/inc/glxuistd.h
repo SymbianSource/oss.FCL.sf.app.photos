@@ -77,6 +77,7 @@ typedef enum
  MEDIUM,
  FAST
 }GlxSlideShowDelay;
+
 typedef enum
 {
     NO_VIEW,
@@ -85,6 +86,7 @@ typedef enum
     BOTH_VIEW    
 } GlxViewEffect;
 
+#define DOUBLETAP_TIMEINTERVAL 300
 
 _LIT(KGlxUiUtilitiesResource, "glxuiutilities.rsc");
 

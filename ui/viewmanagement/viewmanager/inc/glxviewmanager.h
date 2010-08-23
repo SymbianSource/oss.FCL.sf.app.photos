@@ -134,7 +134,6 @@ signals :
      */
     void actionTriggered(qint32 id);
     void externalCommand(int cmdId);
-    void applicationReady();
 
 public slots:
     /**
@@ -184,7 +183,6 @@ public slots:
     void itemSpecificMenuTriggered(qint32,QPointF );
     
     void handleReadyView();
-protected:
 	
 private slots:
 

@@ -249,8 +249,12 @@ void GlxGridView::disableMarking()
 
     if (mMarkingWidget) {
         mMarkingWidget->hide();
-    }        
+    }     
     
+    if (mMarkCheckBox) {
+       mMarkCheckBox->setCheckState(Qt::Unchecked);
+    }
+	
     showHbItems();
 }
 
@@ -368,7 +372,7 @@ void GlxGridView::showAlbumTitle(QString aTitle)
         }
     else
         { //handle album tiltle and count display logic here
-        if (count && isItemVisible(Hb::TitleBarItem))
+        if (isItemVisible(Hb::TitleBarItem))
             {
             mAlbumNameHeading->setGeometry(QRectF(0, 0, screenSize.width(),deviceSize.height() / 24));
             QString text = HbParameterLengthLimiter(GLX_ALBUM_NAME_COUNT_LABEL).arg(aTitle).arg(count);            

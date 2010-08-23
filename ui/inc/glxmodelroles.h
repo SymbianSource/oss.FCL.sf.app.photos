@@ -46,7 +46,8 @@ enum
 	GlxDescRole,                         //to get the description of the images
 	GlxRemoveContextRole,                 //to remove the context
 	GlxTempVisualWindowIndex,              //to store the visual index obtained from AM temporarily
-	GlxImageCorruptRole                 //To get the corrupt image status
+	GlxImageCorruptRole,                 //To get the corrupt image status
+	GlxPaintPageFlag
 };
 
 

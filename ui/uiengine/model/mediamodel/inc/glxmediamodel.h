@@ -274,6 +274,7 @@ private:
 	GlxDRMUtilityWrapper* mDRMUtilityWrapper;
 	int mTempVisibleWindowIndex;
 	bool thumbnailPopulatedFlag;
+	bool mPaintPage;
 };
 
 

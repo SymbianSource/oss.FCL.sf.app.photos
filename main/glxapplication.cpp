@@ -18,6 +18,7 @@
 //include
 #include <qsymbianevent.h>
 #include <oommonitorplugin.h>
+#include <hbinstance.h>
 #include <w32std.h>
 
 //userinclude
@@ -43,6 +44,21 @@ bool GlxApplication::symbianEventFilter(const QSymbianEvent *aQSEvent)
         }
     }
     return HbApplication::symbianEventFilter( aQSEvent );
+}
+
+void GlxApplication::initMattiAutomation()
+{
+    //For Matti Automation 
+    //Monitor the first view ready signal to emit the application ready signal.
+    HbMainWindow *window = hbInstance->allMainWindows().first();
+    connect( window, SIGNAL( viewReady() ), this, SLOT( handleAppReady() ) );    
+}
+
+void GlxApplication::handleAppReady()
+{
+    emit applicationReady();
+    HbMainWindow *window = hbInstance->allMainWindows().first();
+    disconnect( window, SIGNAL( viewReady() ), this, SLOT( handleAppReady() ) ); 
 }
 
 void GlxApplication::cleanUpCache()

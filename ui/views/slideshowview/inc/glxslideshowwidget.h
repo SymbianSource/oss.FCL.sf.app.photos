@@ -316,6 +316,7 @@ private:
     QList <QGraphicsItem *>  mItemList;
     bool                     mIsPause;
     int                      mSlideShowItemCount;
+    bool                     mIsAutoMoving;
 };
 
 #endif /* GLXSLIDESHOWWIDGET_H */

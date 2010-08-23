@@ -24,6 +24,12 @@
 #include "glxmodelparm.h"
 #include "glxzoomwidget.h"
 
+const int MAXZVALUE = 100;
+const int MINZVALUE = 0;
+const int NOOFSTEPSZI = 24;
+const int NOOFSTEPSZO = 18;
+const float MAXDTZOOMIN = 3.5;
+
 GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), 
             mModel(NULL), mMinZValue(MINZVALUE), 
             mMaxZValue(MAXZVALUE), mTimerId(0),
@@ -34,7 +40,7 @@ GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent),
     grabGesture(Qt::PinchGesture);
     grabGesture(Qt::TapGesture);
     setAcceptTouchEvents(true) ;
-    setFrictionEnabled(false);
+    setFrictionEnabled(true);
     setZValue(mMinZValue);
     //create the child items and background
     mZoomWidget = new QGraphicsWidget(this);
@@ -51,7 +57,8 @@ GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent),
     //initializing the image decoder
     mImageDecoder = new GlxImageDecoderWrapper;
 
-	
+    setVerticalScrollBarPolicy(HbScrollArea::ScrollBarAlwaysOff);
+    setHorizontalScrollBarPolicy(HbScrollArea::ScrollBarAlwaysOff);
 	//AA: signal and slot to perform double tap animation
     //after every step redraw, signal is emitted to perform the next step
 	connect( this, SIGNAL( stepZoom() ), this, SLOT( animateDoubleTap() ), Qt::QueuedConnection );
@@ -183,7 +190,7 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
          if(QTapGesture *gesture = static_cast<QTapGesture *>(event->gesture(Qt::TapGesture))) {        
             if (gesture->state() == Qt::GestureFinished) {
                 if(!mTimerId) {
-                    mTimerId = startTimer(500);
+                    mTimerId = startTimer( DOUBLETAP_TIMEINTERVAL );
                 }
             else {
                 killTimer(mTimerId);
@@ -203,13 +210,7 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
        if (changeFlags & QPinchGesture::ScaleFactorChanged) {
             mPinchGestureOngoing = true;
             mZoomOngoing = true;
-            //bring the zoom widget to foreground
-            setZValue(mMaxZValue);
-            //show the black background
-            mBlackBackgroundItem->setParentItem(parentItem());
-            mBlackBackgroundItem->setZValue(mMaxZValue - 1);
-            mBlackBackgroundItem->show();
-
+            
             //retreive the gesture values
             qreal value = pinchG->scaleFactor() / pinchG->lastScaleFactor();
             QPointF center = pinchG->property("centerPoint").toPointF();
@@ -220,10 +221,15 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
         }
        if (pinchG->state() == Qt::GestureStarted) {
            emit pinchGestureReceived(mFocusIndex);
+           //bring the zoom widget to foreground
+            setZValue(mMaxZValue);
+            //show the black background
+            mBlackBackgroundItem->setParentItem(parentItem());
+            mBlackBackgroundItem->setZValue(mMaxZValue - 1);
+            mBlackBackgroundItem->show();
        }
 
        if (pinchG->state() == Qt::GestureFinished) {
-           if(mStepCurrentSize != mCurrentSize) {
                //For giving a spring effect when user has zoomed more than normal.
                if(mStepCurrentSize.width() > mMaxScaleDecSize.width())   {
                    //scale the image to limited size
@@ -235,7 +241,7 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
                mPinchGestureOngoing = false;
                 //finalize the transforms to the geometry else panning will not work
                 finalizeWidgetTransform();
-           }
+       
 //push the Zoom widget to background when zoomed image size nears FS image
            if(mStepCurrentSize.width() <= mMinDecScaleSize.width()*1.3)  {
                mBlackBackgroundItem->hide();
@@ -294,94 +300,79 @@ void GlxZoomWidget::limitRequiredSize(QSizeF &requiredSize)
 //makes sure that the gesture is on the screen center if the image is smaller than the screen
 void GlxZoomWidget::adjustGestureCenter(QPointF & gestureCenter, qreal& zoomFactor)
 {
-    /* commenting this tweak, not necessary, needs to be reimplemented for pinch: IN progress
-    if(zoomFactor > 1 &&zoomFactor > 1.2 )  {
+    
+    //clip zoom factor for pinch zoom. Double tap zoomfactor should never exceed
+    //1.2 or 0.8 in any given step  
+/*    if(zoomFactor > 1.2 )  {
         zoomFactor = 1.2;
     }
-
-    if(zoomFactor < 1 &&zoomFactor < 0.8 )   {
+    if(zoomFactor < 0.7 )   {
         zoomFactor = 0.8;
-    }
-	*/
-    QSizeF requiredSize(mCurrentSize.width()*zoomFactor, mCurrentSize.height()*zoomFactor);
-    //keep smaller image centered
-    if(mCurrentSize.width() <= mWindowSize.width() )
-    {
-        gestureCenter.setX(mWindowSize.width()/2);
+    }*/
 
-    }
-    if(mCurrentSize.height() <= mWindowSize.height())
-    {
-        gestureCenter.setY(mWindowSize.height()/2);
+    qDebug("AA::adjustGestureCenter::ZoomFactor (%f)",zoomFactor);
+    QPointF itemOriginPos = mZoomWidget->sceneTransform().map(QPointF(0,0)); 
+    QPointF gesCenter = mZoomWidget->sceneTransform().map(gestureCenter); 
 
+    
+    //keep smaller image centered irrespective of zoomin or zoom out
+    //note, only if the image is smaller than window size, else preserve the 
+    //gesture center. Adjustments need to be done for both height/width
+    //only one of them will be applicable, unless the image is smaller than
+    //fullscreen size on both dimensions
+    if( (mCurrentSize.width() <= mWindowSize.width()))  {
+       //requires adjustment only in portrait orientation 
+       if(mWindowSize.width() > mWindowSize.height())
+           gestureCenter.setX(mWindowSize.width()/2);
     }
-    //maintains the boundary of the edges for zoom out conditions
-    if(zoomFactor < 1) {
-        QPointF itemOriginPos = mZoomWidget->sceneTransform().map(QPointF(0,0));
-        bool hasWidthExceededWindow = mCurrentSize.width() > mWindowSize.width();
-        bool hasHeightExceededWindow = mCurrentSize.height() > mWindowSize.height();
-        if(hasWidthExceededWindow) {
-            bool hasItemCrossedBoundary = false;
-            if(itemOriginPos.x() >= -5)  {
-                //image has crossed left boundry leaving blank space
-                //stick the gesture to the left corner
-                gestureCenter.setX(itemOriginPos.x());
-                hasItemCrossedBoundary = true;
-            }
+    //handle the case when CurrentSize is grater than window size
+    //this applies to zoomout flow
+    else  {
+        //when the image is positioned beyond the left edge of the window
+        //clamp the image to left edge
+        if(itemOriginPos.x() >= 0) {
+            gestureCenter.setX(itemOriginPos.x());    
+        }
+        //same applies when the image needs clamping on right edge
+        else if(itemOriginPos.x()+ mCurrentSize.width() <= mWindowSize.width()){
+            gestureCenter.setX(itemOriginPos.x() + mCurrentSize.width());
+        }
+        //else no clamping is required, theg esture center can be preserved
+        //as is for the zoom step
+   }
         
-            //Check if the right boundry can be adjusted
-            if(itemOriginPos.x()+ mCurrentSize.width() <= mWindowSize.width()+5) {
-                //Image is before the right boundry leaving blank space
-                gestureCenter.setX(itemOriginPos.x()+ mCurrentSize.width() );
-                hasItemCrossedBoundary = true;
+    //same logic applied for Y axis
+    if( (mCurrentSize.height() <= mWindowSize.height())  )  {
+        //requires adjustment only in landscape orientation
+        if(mWindowSize.width() < mWindowSize.height())
+                   gestureCenter.setY(mWindowSize.height()/2);
+    }     
+    else  {
+            if(itemOriginPos.y() >= 0) {
+               gestureCenter.setY(itemOriginPos.y());    
             }
-            if((mCurrentSize.width() - mWindowSize.width() <= 20) && !hasItemCrossedBoundary) {
-                gestureCenter.setX(mWindowSize.width()/2 + (qAbs(itemOriginPos.x()) - 10));
-            }
-        }
-
-        if(hasHeightExceededWindow) {
-             bool hasItemCrossedBoundary = false;
-            //check if the upper boundry could be adjusted
-            if(itemOriginPos.y() >= -5) {
-                //image has crossed the upper boundry leaving blank space
-                //stick the image to the upper boundry
-                gestureCenter.setY(itemOriginPos.y());
-                hasItemCrossedBoundary = true;
-            }
-            //check if the lower boundry could be adjusted
-            if(itemOriginPos.y()+ mCurrentSize.height() <= mWindowSize.height()+5) {
-                //Image is before the right boundry leaving blank space
-                //stick the image to the right corner
-                gestureCenter.setY(itemOriginPos.y()+ mCurrentSize.height());
-                hasItemCrossedBoundary = true;
-            }
-            if((mCurrentSize.height() - mWindowSize.height() <= 20) && !hasItemCrossedBoundary) {
-                gestureCenter.setY(mWindowSize.height()/2 + (qAbs(itemOriginPos.y()) - 10));
+            else if(itemOriginPos.y()+ mCurrentSize.height() <= mWindowSize.height()){
+                gestureCenter.setY(itemOriginPos.y() + mCurrentSize.height());
             }
         }
+    
+    //special case for images that are smaller on both sides
+    //centering of the gesture is important to prevent movement of the image
+    //while zoom in or out
+    if( (mCurrentSize.height() <= mWindowSize.height()) && (mCurrentSize.width() <= mWindowSize.width()) ) {
+        gestureCenter.setX(mWindowSize.width()/2);
+        gestureCenter.setY(mWindowSize.height()/2);
     }
-    //control the zoom Factor to boundaries
-    if(mCurrentSize.width() > mWindowSize.width() && requiredSize.width() <= mWindowSize.width())
-    {
-        zoomFactor =  mWindowSize.width()/mCurrentSize.width();
-
-    }
-    else if(mCurrentSize.height() > mWindowSize.height() && requiredSize.height() <= mWindowSize.height())
-    {
-        zoomFactor =  mWindowSize.height()/mCurrentSize.height();
-
-    }
-
+        
     //reduce the ZF so as to show a decelerated effect at max/min levels
-
+/*
     if(mCurrentSize.width() > mMaxScaleDecSize.width() && zoomFactor > 1 ) {
         zoomFactor = 1.0 + ((zoomFactor-1.0)/6) ;
     }
         if(mCurrentSize.width() < mMinDecScaleSize.width() && zoomFactor < 1 ) {
         zoomFactor = 1.0 - ((1.0-zoomFactor)/6) ;
     }
-
+*/
 
 }
 
@@ -425,6 +416,7 @@ void GlxZoomWidget::dataChanged(QModelIndex startIndex, QModelIndex endIndex)
         mMaxScaleDecSize.scale(mWindowSize*7, Qt::KeepAspectRatio);
         mMinScaleSize = mItemSize* 0.7;
         mMinDecScaleSize = mItemSize;
+        mCurrentSize = mItemSize;
         mZoomItem->setPixmap(targetPixmap);
         finalizeWidgetTransform();
         }
@@ -542,7 +534,7 @@ void GlxZoomWidget::animateZoomIn(QPointF animRefPoint)
     mBlackBackgroundItem->setZValue(mMaxZValue - 1);
     mBlackBackgroundItem->show();
     m_AnimRefPoint = animRefPoint;
-    QSizeF requiredSize = mItemSize;
+    QSizeF requiredSize = mMinDecScaleSize;
     //MAXDTZOOMIN size is set to 3.5 times window size
     requiredSize.scale(mWindowSize*MAXDTZOOMIN, Qt::KeepAspectRatio);
 	m_FinalAnimatedScaleFactor = requiredSize.width()/mMinDecScaleSize.width();
@@ -550,9 +542,11 @@ void GlxZoomWidget::animateZoomIn(QPointF animRefPoint)
     mIncSF = 1;
     //preserve the size when zoom out was initiated, requried for calculates applicable/req scale factor
     //SF has to always greater than 1 for upscaling, hence range for zoomout is [1,m_FinalAnimatedScaleFactor]
-    msfInc = (m_FinalAnimatedScaleFactor-1)/NOOFSTEPS;
+    msfInc = (m_FinalAnimatedScaleFactor-1)/(NOOFSTEPSZI);
+    //preserve the size when zoom out was initiated, requried for calculates applicable/req scale factor
+    minitSize = mCurrentSize;
     //set the no. of steps for double tap animation 
-    mdoubletapSteps = NOOFSTEPS;
+    mdoubletapSteps = NOOFSTEPSZI;
     animateDoubleTap();
 
 }
@@ -564,12 +558,12 @@ void GlxZoomWidget::animateZoomOut(QPointF animRefPoint)
     //initiale variable for double tap animation
     mIncSF = 1;
     //calculate the step increment SF for each step
-    msfInc = (1 - m_FinalAnimatedScaleFactor)/NOOFSTEPS;
+    msfInc = (1 - m_FinalAnimatedScaleFactor)/(NOOFSTEPSZO);
     //preserve the size when zoom out was initiated, requried for calculates applicable/req scale factor
-    mzoSize = mCurrentSize;
+    minitSize = mCurrentSize;
     //set the no. of steps for double tap animation 
     //AA:: the no.of steps are kept the same for zoomin/zoomout, however tweaking them can be considered
-    mdoubletapSteps = NOOFSTEPS;
+    mdoubletapSteps = NOOFSTEPSZO;
     animateDoubleTap();
     //AA
    
@@ -583,17 +577,17 @@ void GlxZoomWidget::animateDoubleTap()
     if(m_FinalAnimatedScaleFactor > 1) {
         //AA::zoomin case
         mIncSF += msfInc;
-        qreal reqSF = (mItemSize.width()*(mIncSF))/mCurrentSize.width();
+        qreal reqSF = (minitSize.width()*(mIncSF))/mCurrentSize.width();
         zoomImage(reqSF, m_AnimRefPoint);
         }
     if(m_FinalAnimatedScaleFactor < 1) {
         //AA::zoomout case
         mIncSF -= msfInc;
-        qreal reqSF = (mzoSize.width()* mIncSF)/mCurrentSize.width();
+        qreal reqSF = (minitSize.width()* mIncSF)/mCurrentSize.width();
         zoomImage(reqSF, m_AnimRefPoint);
         }   
     //check if all steps are done,if not emit signal to continue the animation
-    if(mdoubletapSteps >= 1 ){
+    if(mdoubletapSteps > 1 ){
         mdoubletapSteps -= 1;
         emit stepZoom();    
         }
@@ -626,6 +620,9 @@ void GlxZoomWidget::timerEvent(QTimerEvent *event)
     {
         killTimer(mTimerId);
         mTimerId = 0;
+    }
+    else {
+        HbScrollArea::timerEvent( event );
     }
 }
 
