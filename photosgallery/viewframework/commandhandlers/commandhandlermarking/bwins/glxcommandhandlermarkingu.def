@@ -1,4 +1,0 @@
-EXPORTS
-	??1CGlxCommandHandlerMarking@@UAE@XZ @ 1 NONAME ; CGlxCommandHandlerMarking::~CGlxCommandHandlerMarking(void)
-	?NewL@CGlxCommandHandlerMarking@@SAPAV1@PAVMGlxMediaListProvider@@H@Z @ 2 NONAME ; class CGlxCommandHandlerMarking * CGlxCommandHandlerMarking::NewL(class MGlxMediaListProvider *, int)
-

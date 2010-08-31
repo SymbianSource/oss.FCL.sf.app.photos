@@ -1,6 +1,0 @@
-EXPORTS
-	??1CGlxCommandHandlerDrm@@UAE@XZ @ 1 NONAME ; CGlxCommandHandlerDrm::~CGlxCommandHandlerDrm(void)
-	?NewL@CGlxCommandHandlerDrm@@SAPAV1@PAVMGlxMediaListProvider@@H@Z @ 2 NONAME ; class CGlxCommandHandlerDrm * CGlxCommandHandlerDrm::NewL(class MGlxMediaListProvider *, int)
-	??1CGlxDrmIconManager@@UAE@XZ @ 3 NONAME ; CGlxDrmIconManager::~CGlxDrmIconManager(void)
-	?NewL@CGlxDrmIconManager@@SAPAV1@AAVMGlxMediaList@@AAVMGlxVisualList@@@Z @ 4 NONAME ; class CGlxDrmIconManager * CGlxDrmIconManager::NewL(class MGlxMediaList &, class MGlxVisualList &)
-

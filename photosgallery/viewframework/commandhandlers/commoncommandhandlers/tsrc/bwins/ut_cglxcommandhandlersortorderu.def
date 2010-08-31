@@ -1,5 +1,0 @@
-EXPORTS
-	??1CGlxCommandHandlerSortOrder@@UAE@XZ @ 1 NONAME ; CGlxCommandHandlerSortOrder::~CGlxCommandHandlerSortOrder(void)
-	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 2 NONAME ; class MEUnitTest * CreateTestSuiteL(void)
-	?NewL@CGlxCommandHandlerSortOrder@@SAPAV1@PAVMGlxMediaListProvider@@K@Z @ 3 NONAME ; class CGlxCommandHandlerSortOrder * CGlxCommandHandlerSortOrder::NewL(class MGlxMediaListProvider *, unsigned long)
-

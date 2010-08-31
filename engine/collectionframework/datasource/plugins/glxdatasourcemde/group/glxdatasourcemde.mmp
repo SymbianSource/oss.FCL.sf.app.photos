@@ -1,0 +1,86 @@
+/*
+* Copyright (c) 2006 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:   Project definition file for project glxdatasourcemanager.
+*
+*/
+
+
+
+/**
+ * @internal reviewed 11/07/2007 by M Byrne
+ */
+
+#include   <bldvariant.hrh>
+#include  <data_caging_paths.hrh>
+#include  <platform_paths.hrh>   //APP_LAYER_SYSTEMINCLUDE
+
+#include "../../../../../../group/glxbuildcommon.mmh"
+
+
+TARGET          glxdatasourcemde.dll
+TARGETTYPE      PLUGIN
+UID             0x10009D8D 0x20000A16
+
+#ifndef WINSCW
+EPOCALLOWDLLDATA
+#endif 
+CAPABILITY      CAP_ECOM_PLUGIN
+
+SOURCEPATH      ../src
+SOURCE          glxdatasourcemde.cpp
+SOURCE          glxdatasourcemdeproxy.cpp
+SOURCE          glxdatasourcetaskmde.cpp
+SOURCE          glxdatasourcetaskmdeattribute.cpp
+SOURCE          glxdatasourcetaskmdecommand.cpp
+SOURCE          glxdatasourcetaskmdeidlist.cpp
+SOURCE          glxdatasourcetaskmdethumbnail.cpp
+
+// System includes from the source tree
+SYSTEMINCLUDE   ../../../../../../commonutilities/common/inc
+SYSTEMINCLUDE   ../../../../../../inc
+SYSTEMINCLUDE   ../../../../thumbnailcreator/inc
+SYSTEMINCLUDE   ../../../manager/inc
+SYSTEMINCLUDE   ../inc
+
+// System includes from epoc32/include
+APP_LAYER_SYSTEMINCLUDE
+
+SYSTEMINCLUDE   /epoc32/include/caf
+SYSTEMINCLUDE   /epoc32/include/ecom
+
+SOURCEPATH      ../data
+START RESOURCE  20000A16.rss
+TARGET          glxdatasourcemde.rsc
+END
+
+LIBRARY         bafl.lib
+LIBRARY         caf.lib
+LIBRARY         ecom.lib
+LIBRARY         efsrv.lib
+LIBRARY         estor.lib
+LIBRARY         euser.lib
+LIBRARY         fbscli.lib 
+LIBRARY         glxcommon.lib
+LIBRARY         glxdatasourcemanager.lib
+LIBRARY         glxthumbnailcreator.lib
+LIBRARY         inetprotutil.lib
+LIBRARY         lbs.lib
+LIBRARY         mdeclient.lib
+LIBRARY         mpxcommon.lib
+LIBRARY         platformenv.lib
+LIBRARY         iclextjpegapi.lib
+LIBRARY         imageconversion.lib
+
+SMPSAFE
+// End of File

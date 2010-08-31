@@ -1,7 +1,0 @@
-EXPORTS
-	_Z16CreateTestSuiteLv @ 1 NONAME
-	_ZN15GlxUpnpRenderer12StopShowingLEv @ 2 NONAME
-	_ZN15GlxUpnpRenderer6StatusEv @ 3 NONAME
-	_ZTI16CUpnpShowCommand @ 4 NONAME ; #<TI>#
-	_ZTV16CUpnpShowCommand @ 5 NONAME ; #<VT>#
-

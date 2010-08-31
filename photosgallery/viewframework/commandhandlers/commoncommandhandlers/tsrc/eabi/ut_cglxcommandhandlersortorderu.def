@@ -1,9 +1,0 @@
-EXPORTS
-	_Z16CreateTestSuiteLv @ 1 NONAME
-	_ZN27CGlxCommandHandlerSortOrder4NewLEP21MGlxMediaListProviderm @ 2 NONAME
-	_ZN27CGlxCommandHandlerSortOrderD0Ev @ 3 NONAME
-	_ZN27CGlxCommandHandlerSortOrderD1Ev @ 4 NONAME
-	_ZN27CGlxCommandHandlerSortOrderD2Ev @ 5 NONAME
-	_ZThn4_N27CGlxCommandHandlerSortOrderD0Ev @ 6 NONAME ; #<thunk>#
-	_ZThn4_N27CGlxCommandHandlerSortOrderD1Ev @ 7 NONAME ; #<thunk>#
-

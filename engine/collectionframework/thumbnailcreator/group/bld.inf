@@ -1,0 +1,53 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:   Build information file for project glxthumbnailcreator.
+*
+*/
+
+
+// Lines removed while reverting task 8396
+//#include <platform_paths.hrh>
+
+PRJ_MMPFILES
+../group/glxthumbnailcreator.mmp
+../thumbnailcomposerplugin/glxthumbnailcomposerplugin.mmp
+
+PRJ_TESTEXPORTS
+../../../../gallery/data/Battle.jpg    /epoc32/winscw/c/TncTest/test.jpg
+../../../../gallery/data/Image1.jpg    /epoc32/winscw/c/TncTest/no_exif.jpg
+../test/data/tall.jpg               /epoc32/winscw/c/TncTest/tall.jpg
+../test/data/wide.jpg               /epoc32/winscw/c/TncTest/wide.jpg
+../test/data/red_1x1.jpg            /epoc32/winscw/c/TncTest/red_1x1.jpg
+../test/data/corrupt.jpg            /epoc32/winscw/c/TncTest/corrupt.jpg
+
+// Lines removed while reverting task 8396
+//PRJ_EXPORTS
+//../cenrep/02000A09.txt              /epoc32/data/z/private/10202be9/02000A09.txt
+//../cenrep/02000A09.txt              /epoc32/release/winscw/udeb/z/private/10202be9/02000A09.txt
+//../conf/thumbnailcreator.confml                 CONFML_EXPORT_PATH(thumbnailcreator.confml,customsw)
+//../conf/thumbnailcreator_02000A09.crml 	        CRML_EXPORT_PATH(thumbnailcreator_02000A09.crml,customsw)
+
+// Generic configuration interface for component cenrep settings  
+// component_1000292B implementation specifics for cenrep data
+// component_12345678 implementation specifics for genconf ml data
+
+//gnumakefile bld_cenrep_entry.mk
+
+
+PRJ_TESTMMPFILES
+../test/group/ut_cglxtndeletethumbnailstask.mmp
+../test/group/ut_cglxtnfilteravailabletask.mmp
+../test/group/ut_cglxtngeneratethumbnailtask.mmp
+../test/group/ut_cglxtnquickthumbnailtask.mmp
+../test/group/ut_cglxtnzoomedimagetask.mmp

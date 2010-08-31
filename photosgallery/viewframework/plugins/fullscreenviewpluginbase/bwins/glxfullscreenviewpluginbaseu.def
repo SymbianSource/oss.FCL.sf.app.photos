@@ -1,7 +1,0 @@
-EXPORTS
-	?AddCommandHandlersL@CGlxFullScreenViewPluginBase@@MAEXXZ @ 1 NONAME ; void CGlxFullScreenViewPluginBase::AddCommandHandlersL(void)
-	??1CGlxFullScreenViewPluginBase@@UAE@XZ @ 2 NONAME ; CGlxFullScreenViewPluginBase::~CGlxFullScreenViewPluginBase(void)
-	??0CGlxFullScreenViewPluginBase@@QAE@XZ @ 3 NONAME ; CGlxFullScreenViewPluginBase::CGlxFullScreenViewPluginBase(void)
-	?GetResourceFilenameL@CGlxFullScreenViewPluginBase@@MAEXAAV?$TBuf@$0BAA@@@@Z @ 4 NONAME ; void CGlxFullScreenViewPluginBase::GetResourceFilenameL(class TBuf<256> &)
-	?ConstructViewLC@CGlxFullScreenViewPluginBase@@MAEPAVCAknView@@XZ @ 5 NONAME ; class CAknView * CGlxFullScreenViewPluginBase::ConstructViewLC(void)
-
