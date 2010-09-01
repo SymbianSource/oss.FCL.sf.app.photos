@@ -1,0 +1,107 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Project definition file 
+*
+*/
+
+
+
+
+#include <data_caging_paths.hrh>
+#include <platform_paths.hrh>
+
+#include "../../../../group/glxbuildcommon.mmh"
+#include "../../../../inc/glxalfhelper.mmh"
+
+TARGET			glxmetadatadialog.dll
+TARGETTYPE		dll
+UID				0x1000008D 0x20007193    
+#ifndef WINSCW
+EPOCALLOWDLLDATA
+#endif 
+
+CAPABILITY		CAP_GENERAL_DLL
+
+SOURCEPATH		../src
+SOURCE			glxmetadatadialog.cpp
+SOURCE			glxmetadatacontainer.cpp
+SOURCE			glxmetadataviewutility.cpp
+SOURCE			glxmetadatacommandhandler.cpp
+SOURCE                  glximgvwrmetadatadialog.cpp
+SOURCE                  glximgvwrmetadatacontainer.cpp
+
+SOURCEPATH		../data
+
+START RESOURCE	../data/glxmetadatadialog.rss
+HEADER
+TARGETPATH		APP_RESOURCE_DIR
+LANGUAGE_IDS
+END 
+
+APP_LAYER_SYSTEMINCLUDE
+
+SYSTEMINCLUDE		../inc
+SYSTEMINCLUDE		../../viewbase/inc
+SYSTEMINCLUDE		../../../inc
+SYSTEMINCLUDE		../../../texturemanager/inc
+SYSTEMINCLUDE		../../../dataprovider/inc
+SYSTEMINCLUDE		../../../medialists/inc
+SYSTEMINCLUDE		../../../uiutilities/inc  //for attribute retrival
+SYSTEMINCLUDE		../../../drmutility/inc  //for drm utility
+SYSTEMINCLUDE		../../../commandhandlers/inc
+SYSTEMINCLUDE		../../../commandhandlers/commoncommandhandlers/inc
+SYSTEMINCLUDE		../../../commandhandlers/commandhandlerbase/inc
+SYSTEMINCLUDE		../../../../inc
+SYSTEMINCLUDE		../../../../gallery/loc
+SYSTEMINCLUDE		../../../../collectionframework/plugins/glxcollectionplugincamera/inc
+SYSTEMINCLUDE		../../../../collectionframework/plugins/tagcollectionplugin/inc
+SYSTEMINCLUDE		../../../../collectionframework/plugins/glxcollectionpluginall/inc
+SYSTEMINCLUDE		../../../../common/inc     // for CGlxResourceUtilities
+SYSTEMINCLUDE		../../../../commonui/inc
+
+LIBRARY      	aknphysics.lib
+LIBRARY			euser.lib
+LIBRARY			avkon.lib						//for Avkon conrols
+LIBRARY			eikcoctl.lib					//for eik controls
+LIBRARY			eikcore.lib						//for eik controls
+LIBRARY			eikctl.lib						//for eik controls
+
+LIBRARY			cone.lib						//for CCoeEnv
+LIBRARY			commonengine.lib				//for String loader
+LIBRARY			efsrv.lib						//for TParse
+LIBRARY			glxmedialists.lib				//for CGlxMedia
+LIBRARY			mpxcommon.lib					//for TMPXAttribute
+LIBRARY			glxcommon.lib					//for filter factory, CResourceUtilities
+LIBRARY			glxuiutilities.lib				//for ui utility
+LIBRARY			glxcommoncommandhandlers.lib	//For CGlxCommandHandlerAddToContainer
+LIBRARY			glxcommandhandlerbase.lib		// Base command handlers
+LIBRARY			bafl.lib						//for BaflUtils
+LIBRARY			hlplch.lib						// for HlpLauncher
+LIBRARY			glxdrmutility.lib
+// Uiaccelerator related libraries  
+LIBRARY			osncore.lib						// CAlfString
+LIBRARY			alfclient.lib					// MAlfWidgetFactory
+LIBRARY			alfwidgetmodel.lib
+
+// MUL related libraries  
+LIBRARY			libstdcpp.lib					//for STL code
+LIBRARY			glxdataprovider.lib				//data provider
+
+LIBRARY			eikcdlg.lib
+LIBRARY			eikdlg.lib						//for eik dialog
+LIBRARY			lbs.lib
+LIBRARY			exiflib.lib                     //For CExifModify
+LIBRARY         	caf.lib							//For ContentAccess
+LIBRARY			glximageviewermanager.lib
+// End of File

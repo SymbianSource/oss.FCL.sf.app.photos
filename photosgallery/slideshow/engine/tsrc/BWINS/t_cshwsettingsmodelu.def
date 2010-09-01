@@ -1,0 +1,15 @@
+EXPORTS
+	??1CShwSettingsModel@@UAE@XZ @ 1 NONAME ; CShwSettingsModel::~CShwSettingsModel(void)
+	?SaveTransitionTypeL@CShwSettingsModel@@QAEXVTUid@@I@Z @ 2 NONAME ; void CShwSettingsModel::SaveTransitionTypeL(class TUid, unsigned int)
+	?SaveMusicNamePathL@CShwSettingsModel@@QAEXABVTDesC16@@@Z @ 3 NONAME ; void CShwSettingsModel::SaveMusicNamePathL(class TDesC16 const &)
+	?NewL@CShwSettingsModel@@SAPAV1@XZ @ 4 NONAME ; class CShwSettingsModel * CShwSettingsModel::NewL(void)
+	?MusicNamePathL@CShwSettingsModel@@QBEXAAVTDes16@@@Z @ 5 NONAME ; void CShwSettingsModel::MusicNamePathL(class TDes16 &) const
+	?MusicOnL@CShwSettingsModel@@QBEHXZ @ 6 NONAME ; int CShwSettingsModel::MusicOnL(void) const
+	?TransitionTypeL@CShwSettingsModel@@QBEXAAVTUid@@AAI@Z @ 7 NONAME ; void CShwSettingsModel::TransitionTypeL(class TUid &, unsigned int &) const
+	?SavePlayOrderL@CShwSettingsModel@@QAEXH@Z @ 8 NONAME ; void CShwSettingsModel::SavePlayOrderL(int)
+	?PlayOrderL@CShwSettingsModel@@QAEHXZ @ 9 NONAME ; int CShwSettingsModel::PlayOrderL(void)
+	?SaveMusicStateL@CShwSettingsModel@@QAEXH@Z @ 10 NONAME ; void CShwSettingsModel::SaveMusicStateL(int)
+	?SaveTransDelayL@CShwSettingsModel@@QAEXH@Z @ 11 NONAME ; void CShwSettingsModel::SaveTransDelayL(int)
+	?TransDelayL@CShwSettingsModel@@QBEHXZ @ 12 NONAME ; int CShwSettingsModel::TransDelayL(void) const
+	?CreateTestSuiteL@@YAPAVMEUnitTest@@XZ @ 13 NONAME ; class MEUnitTest * CreateTestSuiteL(void)
+

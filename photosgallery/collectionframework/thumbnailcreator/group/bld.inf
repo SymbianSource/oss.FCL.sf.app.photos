@@ -1,0 +1,54 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Build information file for project glxthumbnailcreator.
+*
+*/
+
+
+
+
+PRJ_MMPFILES
+../group/glxthumbnailcreator.mmp
+
+// Don't build glxthumbnailcomposerplugin as S60 TNM is enabled and has this feature.
+//../thumbnailcomposerplugin/glxthumbnailcomposerplugin.mmp
+
+PRJ_TESTEXPORTS
+../../../gallery/data/Battle.jpg    /epoc32/winscw/c/tnctest/test.jpg
+../../../gallery/data/Image1.jpg    /epoc32/winscw/c/tnctest/no_exif.jpg
+//../tsrc/data/tall.jpg               /epoc32/winscw/c/TncTest/tall.jpg
+//../tsrc/data/wide.jpg               /epoc32/winscw/c/TncTest/wide.jpg
+//../tsrc/data/red_1x1.jpg            /epoc32/winscw/c/TncTest/red_1x1.jpg
+//../tsrc/data/corrupt.jpg            /epoc32/winscw/c/TncTest/corrupt.jpg
+
+// Don't build glxthumbnailcomposerplugin as S60 TNM is enabled and has this feature.
+//PRJ_EXPORTS
+//../cenrep/02000A09.txt              /epoc32/data/z/private/10202be9/02000A09.txt
+//../cenrep/02000A09.txt              /epoc32/release/winscw/udeb/z/private/10202be9/02000A09.txt
+//../conf/thumbnailcreator.confml                 CONFML_EXPORT_PATH(thumbnailcreator.confml,customsw)
+//../conf/thumbnailcreator_02000A09.crml 	        CRML_EXPORT_PATH(thumbnailcreator_02000A09.crml,customsw)
+
+// Generic configuration interface for component cenrep settings  
+// component_1000292B implementation specifics for cenrep data
+// component_12345678 implementation specifics for genconf ml data
+
+//gnumakefile bld_cenrep_entry.mk
+
+
+PRJ_TESTMMPFILES
+//../tsrc/group/ut_cglxtndeletethumbnailstask.mmp
+//../tsrc/group/ut_cglxtnfilteravailabletask.mmp
+//../tsrc/group/ut_cglxtngeneratethumbnailtask.mmp
+//../tsrc/group/ut_cglxtnquickthumbnailtask.mmp
+//../tsrc/group/ut_cglxtnzoomedimagetask.mmp

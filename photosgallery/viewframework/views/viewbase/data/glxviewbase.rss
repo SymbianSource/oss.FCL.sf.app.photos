@@ -1,0 +1,223 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Resource definitions 
+*
+*/
+
+
+
+
+#include <eikon.rh>
+#include <avkon.rsg>
+#include <avkon.rh>
+#include <avkon.loc>
+#include <appinfo.rh>
+
+#include <data_caging_paths_strings.hrh>
+
+#include <photos.loc>
+#include <bldvariant.hrh>
+
+NAME GLVB    // 4 letter ID
+
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE TBUF { buf="GLVB"; }
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_query_viewbase_ok_cancel
+// Confirmation query.
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE DIALOG r_glx_query_viewbase_ok_cancel
+    {
+    flags = EGeneralQueryFlags;
+    buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtQuery;
+            id = EAknCtQuery;
+            control = AVKON_CONFIRMATION_QUERY
+                {
+                layout = EConfirmationLayout;
+                };
+            }
+        };
+    }
+
+	
+RESOURCE DIALOG r_glx_viewbase_progress_dialog
+    {
+    flags = EAknProgressNoteFlags;
+    buttons = R_AVKON_SOFTKEYS_CANCEL;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtNote;
+            id = EAknCtNote;
+            control = AVKON_NOTE
+                {
+                layout = EProgressLayout;
+                };
+            }
+        };
+    }
+
+
+//
+// Days for details pane
+//
+
+
+
+RESOURCE TBUF r_qtn_lgal_metapane_weekday_monday
+	{
+	buf = qtn_lgal_metapane_weekday_monday;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_weekday_tuesday
+	{
+	buf = qtn_lgal_metapane_weekday_tuesday;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_weekday_wednesday
+	{
+	buf = qtn_lgal_metapane_weekday_wednesday;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_weekday_thursday
+	{
+	buf = qtn_lgal_metapane_weekday_thursday;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_weekday_friday
+	{
+	buf = qtn_lgal_metapane_weekday_friday;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_weekday_saturday
+	{
+	buf = qtn_lgal_metapane_weekday_saturday;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_weekday_sunday
+	{
+	buf = qtn_lgal_metapane_weekday_sunday;
+	}
+
+//
+// Months for details pane
+//
+RESOURCE TBUF r_qtn_lgal_metapane_month_january
+	{
+	buf = qtn_month_three_chars_jan;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_february
+	{
+	buf = qtn_month_three_chars_feb;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_march
+	{
+	buf = qtn_month_three_chars_mar;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_april
+	{
+	buf = qtn_month_three_chars_apr;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_may
+	{
+	buf = qtn_month_three_chars_may;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_june
+	{
+	buf = qtn_month_three_chars_jun;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_july
+	{
+	buf = qtn_month_three_chars_jul;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_august
+	{
+	buf = qtn_month_three_chars_aug;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_september
+	{
+	buf = qtn_month_three_chars_sep;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_october
+	{
+	buf = qtn_month_three_chars_oct;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_november
+	{
+	buf = qtn_month_three_chars_nov;
+	}
+
+RESOURCE TBUF r_qtn_lgal_metapane_month_december
+	{
+	buf = qtn_month_three_chars_dec;
+	}
+
+RESOURCE TBUF r_glx_msk_open
+    {
+    buf = qtn_msk_open;
+    }
+
+RESOURCE TBUF r_glx_msk_edit
+    {
+    buf = qtn_msk_edit;
+    }
+
+RESOURCE TBUF r_glx_msk_play
+    {
+    buf = qtn_msk_play;
+    }
+
+RESOURCE TBUF r_glx_msk_add
+    {
+    buf = qtn_msk_add;
+    }
+
+RESOURCE TBUF r_glx_msk_blank
+    {
+    buf = " ";
+    }
+
+#ifdef GLX_TILE_VIEW_SHOW_DURATION_AND_WEEK_DAY
+RESOURCE TBUF r_qtn_lgal_metapane_length_min
+    {
+    buf = qtn_lgal_metapane_length_min;
+    }
+
+RESOURCE TBUF r_qtn_lgal_metapane_length_hrs
+    {
+    buf = qtn_lgal_metapane_length_hrs;
+    }
+#endif
+

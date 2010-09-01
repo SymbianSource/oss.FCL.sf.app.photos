@@ -1,0 +1,59 @@
+/*
+* Copyright (c) 2006 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  Testing glxexclusioniterator
+*
+*/
+
+
+#include   <platform_paths.hrh>
+#include "../../../../group/glxbuildcommon.mmh"
+
+TARGET          t_tglxexclusioniterator.dll
+TARGETTYPE      dll
+UID             0x1000af5a 0x01700000
+
+CAPABILITY      ALL -TCB
+ 
+#ifndef WINSCW
+EPOCALLOWDLLDATA
+#endif 
+
+// Sources required by the test suite
+SOURCEPATH              ../t_tglxexclusioniterator
+SOURCE                  t_tglxexclusioniterator.cpp
+SOURCE                  t_tglxexclusioniterator_DllMain.cpp
+SOURCEPATH              ../../src
+SOURCE                  glxmedialistiterator.cpp
+SOURCE                  glxlistwindow.cpp
+SOURCE                  glxlistutils.cpp
+USERINCLUDE             ../t_tglxexclusioniterator
+USERINCLUDE             ../inc
+
+SYSTEMINCLUDE           ../../inc
+SYSTEMINCLUDE           ../../../../inc
+
+APP_LAYER_SYSTEMINCLUDE
+
+LIBRARY                 EUnit.lib
+LIBRARY                 EUnitUtil.lib
+LIBRARY                 euser.lib
+LIBRARY        			mpxcommon.lib
+//LIBRARY               glxmedialists.lib
+LIBRARY					hal.lib
+LIBRARY                 featmgr.lib       // Feature Manager
+
+
+EXPORTUNFROZEN 
+
+// End of file

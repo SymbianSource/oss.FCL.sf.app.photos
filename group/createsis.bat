@@ -11,14 +11,12 @@ rem Nokia Corporation - initial contribution.
 rem
 rem Contributors:
 rem
-rem Description: 
+rem Description:  Batch file to create sis file for photos application
 rem
 
-
-
 pushd .
-cd ..\gallery\sis\
+cd ..\photosgallery\gallery\sis\
 call makesis glxgallery.pkg
 call signsis -s glxgallery.sis glxgallery.sisx RDTest_02.der RDTest_02.key
-copy glxgallery.sisx ..\..\group\
+copy glxgallery.sisx ..\..\..\group\
 popd

@@ -1,0 +1,152 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Common command handlers
+*
+*/
+
+
+
+
+#include <data_caging_paths.hrh>
+#include <platform_paths.hrh>
+
+#include "../../../../group/glxbuildcommon.mmh"
+#include "../../../../inc/glxalfhelper.mmh"
+
+TARGET          glxcommoncommandhandlers.dll
+TARGETTYPE      dll
+UID             0x1000008d 0x2000719F
+
+#ifndef WINSCW
+EPOCALLOWDLLDATA
+#endif 
+CAPABILITY      CAP_GENERAL_DLL
+
+SOURCEPATH      ../data
+START RESOURCE  glxcommoncommandhandlers.rss
+HEADER
+TARGETPATH      /resource/apps
+LANGUAGE_IDS
+END       // RESOURCE
+
+SOURCEPATH      ../src
+SOURCE          glxcommandhandleraddtocontainer.cpp
+SOURCE          glxcommandhandleraiwassign.cpp
+SOURCE          glxcommandhandleraiwbase.cpp
+SOURCE          glxcommandhandleraiwedit.cpp
+SOURCE          glxcommandhandleraiwprintpreview.cpp
+SOURCE          glxcommandhandleraiwshowmap.cpp
+SOURCE		glxcommandhandleraiwshareonovi.cpp
+SOURCE          glxcommandhandlerback.cpp
+SOURCE          glxcommandhandlercopyandmove.cpp
+SOURCE          glxcommandhandlerdelete.cpp
+SOURCE          glxcommandhandlersave.cpp
+SOURCE          glxcommandhandlerdownload.cpp
+SOURCE          glxcommandhandlerhelp.cpp
+SOURCE          glxcommandhandlerhideui.cpp
+SOURCE          glxcommandhandlernewmedia.cpp
+SOURCE          glxcommandhandlerdetails.cpp
+SOURCE          glxcommandhandlerremovefrom.cpp
+SOURCE          glxcommandhandlerrename.cpp
+SOURCE          glxcommandhandlerrotate.cpp
+SOURCE          glxcommandhandlersend.cpp
+SOURCE          glxcommandhandlerslideshow.cpp
+SOURCE          glxcommandhandlersortorder.cpp
+SOURCE          glxcommandhandlerupload.cpp
+SOURCE          glxcommandhandlervideoplayback.cpp
+SOURCE          glxmediaselectionpopup.cpp
+SOURCE          glxaiwservicehandler.cpp
+SOURCE          glxaiwmedia.cpp
+SOURCE          glxcommandhandlerfilterimagesorvideos.cpp
+SOURCE		glxcommandhandleropen.cpp
+SOURCE		glxcommandhandleraiwshowonmaphardkey.cpp 
+SOURCE		glxuploadcenrepwatcher.cpp
+
+USERINCLUDE     ../inc
+
+SYSTEMINCLUDE   ../../../../common/inc      // for CGlxResourceUtilities
+SYSTEMINCLUDE   ../../../../gallery/inc      // for CGlxResourceUtilities
+SYSTEMINCLUDE   ../../../../commonui/inc
+SYSTEMINCLUDE   ../../../../inc
+SYSTEMINCLUDE   ../../../../slideshow/engine/inc
+SYSTEMINCLUDE   ../../../inc
+SYSTEMINCLUDE   ../../../layouts/inc
+SYSTEMINCLUDE   ../../../medialists/inc
+SYSTEMINCLUDE   ../../../uiutilities/inc
+SYSTEMINCLUDE   ../../../visuallistmanager/inc
+SYSTEMINCLUDE   ../../commandhandlerbase/inc
+SYSTEMINCLUDE   ../../inc
+SYSTEMINCLUDE   ../../commandhandlerupnp/inc
+SYSTEMINCLUDE   ../../../../slideshow/view/inc
+SYSTEMINCLUDE   ../../../../slideshow/settingsdialog/inc
+SYSTEMINCLUDE   ../../../views/metadatadialog/inc //for Details dialog
+SYSTEMINCLUDE   ../../../texturemanager/inc
+
+APP_LAYER_SYSTEMINCLUDE
+
+
+
+LIBRARY         aknskins.lib 
+LIBRARY         aknskinsrv.lib
+LIBRARY         aknswallpaperutils.lib
+LIBRARY         apparc.lib
+LIBRARY         avkon.lib
+LIBRARY         bafl.lib
+LIBRARY         bitgdi.lib
+LIBRARY         browserlauncher.lib
+LIBRARY			 		centralrepository.lib  //for CRepository
+LIBRARY         charconv.lib // for CnvUtfConverter::ConvertFromUnicodeToUtf8L
+LIBRARY         commondialogs.lib
+LIBRARY         commonengine.lib
+LIBRARY         cone.lib
+LIBRARY         efsrv.lib
+LIBRARY         egul.lib
+LIBRARY         eikcoctl.lib
+LIBRARY         eikcore.lib 
+LIBRARY         estor.lib 	// for RBufWriteStream
+LIBRARY         euser.lib
+LIBRARY         fbscli.lib
+LIBRARY         featdiscovery.lib 
+LIBRARY         glxcommandhandlerbase.lib
+LIBRARY         glxupnpcommandhandler.lib   // for CGlxUpnpRenderer
+LIBRARY         glxcommon.lib                   // for CResourceUtilities
+LIBRARY         glxlayouts.lib
+LIBRARY         glxcommonui.lib
+LIBRARY         glxmedialists.lib
+LIBRARY         glxuiutilities.lib
+LIBRARY         glxvisuallistmanager.lib
+LIBRARY         hitchcock.lib // HUI framework
+LIBRARY         hlplch.lib // Help Launcher
+LIBRARY         mpxcollectionutility.lib
+LIBRARY         mpxcommon.lib
+LIBRARY         mpxviewutility.lib // for MPXViewUtility
+LIBRARY         sendui.lib				// for CSendUi
+LIBRARY         servicehandler.lib
+LIBRARY         eposlandmarks.lib       // for show on map
+LIBRARY         eposlmsearchlib.lib     // for show on map
+LIBRARY         lbs.lib                 // for show on map
+LIBRARY         glxmetadatadialog.lib
+LIBRARY         flogger.lib						// For Logging Tracer
+LIBRARY	        apmime.lib 
+LIBRARY	        commonui.lib  // CDocumentHandler
+LIBRARY		alfclient.lib					// MAlfWidgetFactory
+LIBRARY		alfwidgetmodel.lib
+LIBRARY         exiflib.lib
+LIBRARY         glxtexturemanager.lib
+LIBRARY         glximageviewermanager.lib
+LIBRARY         mpxplaybackutility.lib    // MPX playback utility
+LIBRARY         thumbnailmanager.lib
+LIBRARY         svgengine.lib
+LIBRARY         gdi.lib
+// End of File

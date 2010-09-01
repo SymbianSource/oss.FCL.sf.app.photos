@@ -11,13 +11,11 @@ rem Nokia Corporation - initial contribution.
 rem
 rem Contributors:
 rem
-rem Description: 
+rem Description:  Batch file to clean build photos components
 rem
 
-
-
 ECHO "Running ABLD reallyclean"
-call abld reallyclean
+call abld reallyclean -k
 ECHO "Removing Gallery files (glx*.*)"
 call del /F /S %EPOCROOT%epoc32\glx*.*
 ECHO "Removing Slideshow files (shw*.*)"

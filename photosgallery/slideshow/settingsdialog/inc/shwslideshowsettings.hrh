@@ -1,0 +1,45 @@
+/*
+* Copyright (c) 2007 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Project definition file 
+*
+*/
+
+
+
+
+#ifndef __SHWSETTINGS_HRH__
+#define __SHWSETTINGS_HRH__
+
+#include <avkon.hrh>	// for KAknCtLastControlId
+
+
+
+#define	EShwControlIdSettingList KAknCtLastControlId + 1
+#define	EShwCtSettingListBox 	 KAknCtLastControlId + 2 
+
+#define EPlayDirectionItem		0
+#define EMusicEnabledItem       1
+#define	EFileNamePathItem       2
+#define ETransDelayItem         3
+#define ETransEffectItem        4
+#define ETransEffectListItem    5
+
+
+
+#define EShwCmdHelp	            0x6001	
+#define EShwCmdExit	            0x6002
+
+
+	
+#endif // __SHWSETTINGS_HRH__	

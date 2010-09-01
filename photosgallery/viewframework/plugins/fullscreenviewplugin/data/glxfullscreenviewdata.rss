@@ -1,0 +1,560 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Resource definitions for fullscreen View plugin
+*
+*/
+
+
+
+
+//	RESOURCE IDENTIFIER
+NAME	MPXF
+
+//	INCLUDES
+
+#include "glxcommandhandlers.hrh"
+#include <eikon.rsg>
+#include <avkon.rsg>
+#include <avkon.rh>
+#include <avkon.loc>
+#include <avkon.mbg>
+#include <glxicons.mbg>
+#include <eikon.rh>
+#include <AiwCommon.hrh>
+#include <drmcommon.loc>
+#include <photos.loc>
+
+//	RESOURCE DEFINITIONS 
+
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE TBUF { buf="GLFV"; }
+
+
+// -----------------------------------------------------------------------------------
+// Resource Definitions
+// -----------------------------------------------------------------------------------
+
+// Downloads, Captured and Months Fullscreen View
+RESOURCE AVKON_VIEW r_glx_fullscreen_view
+	{
+	menubar = r_glx_fullscreen_menubar;
+	cba = r_glx_fullscreen_emptysoftkeys;
+	toolbar = r_glx_fullscreen_view_toolbar;
+	}
+
+// Albums Fullscreen View
+RESOURCE AVKON_VIEW r_glx_album_fullscreen_view
+    {
+    menubar = r_glx_album_fullscreen_menubar;
+    cba = r_glx_fullscreen_softkeys; 
+    toolbar = r_glx_fullscreen_view_toolbar;
+    }
+
+// Tags Fullscreen View
+RESOURCE AVKON_VIEW r_glx_tagfullscreen_view
+    {
+    menubar = r_glx_tagfullscreen_menubar;
+    cba = r_glx_fullscreen_softkeys;
+    toolbar = r_glx_fullscreen_view_toolbar;
+    }
+
+// ImageViewer Fullscreen View
+RESOURCE AVKON_VIEW r_glx_imageviewer_fullscreen_view
+    {
+    menubar = r_glx_imageviewer_fullscreen_menubar;
+    cba = r_glx_fullscreen_softkeys;
+    toolbar = r_glx_imageviewer_fullscreen_view_toolbar;
+    }
+
+
+// ------------------------------------------------------------------------------------
+// Menu Bar Resources 
+// ------------------------------------------------------------------------------------
+
+// Downloads, Captured and Months Fullscreen View
+RESOURCE MENU_BAR r_glx_fullscreen_menubar
+	{
+	titles=
+		{
+		MENU_TITLE { menu_pane=r_glx_fullscreen_menu; txt=""; }
+		};
+	}
+
+// Albums Fullscreen View
+RESOURCE MENU_BAR r_glx_album_fullscreen_menubar
+    {
+    titles=
+        {
+        MENU_TITLE { menu_pane=r_glx_album_fullscreen_menu; txt=""; }
+        };
+    }
+
+//Tag fullscreen View
+RESOURCE MENU_BAR r_glx_tagfullscreen_menubar
+    {
+    titles=
+        {
+        MENU_TITLE { menu_pane=r_glx_tagfullscreen_menu; txt=""; }
+        };
+    }
+
+//ImageViewer fullscreen View
+RESOURCE MENU_BAR r_glx_imageviewer_fullscreen_menubar
+    {
+    titles=
+        {
+        MENU_TITLE { menu_pane=r_glx_imageviewer_fullscreen_menu; txt=""; }
+        };
+    }
+
+
+// ------------------------------------------------------------------------------------
+// Menu Contents for Fullscreen views
+// ------------------------------------------------------------------------------------
+//
+// Basic fullscreen views
+RESOURCE MENU_PANE r_glx_fullscreen_menu
+    {
+        items=
+                {
+                MENU_ITEM { command = EGlxCmdPlay;
+                            txt = qtn_lgal_options_play; },
+                MENU_ITEM { command = EGlxCmdSend;
+                            txt = qtn_options_send_via; },   
+                MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
+                         /* txt comes from ShareOnline 4.3 */}, 
+                MENU_ITEM { command = EGlxCmdDelete;
+                            txt = qtn_lgal_options_delete; }, 
+                MENU_ITEM { command = EGlxCmdSlideshow;
+                            txt = qtn_lgal_options_slideshow; 
+                            cascade = r_glx_fullscreen_shw_menu;},
+                MENU_ITEM { command = EGlxCmdAiwEdit; 
+                            txt = qtn_lgal_options_edit; },
+                MENU_ITEM { command = EGlxCmdDetails;
+                            txt = qtn_lgal_options_details; },  
+                MENU_ITEM { command = EGlxCmdAddToAlbum;
+                            txt = qtn_lgal_options_add_to_album; },
+                MENU_ITEM { command = EGlxCmdAddTag; 
+                            txt = qtn_lgal_options_properties_add_tag; }, 
+                MENU_ITEM { command = EGlxCmdAiwAssign; 
+                            txt = qtn_lgal_options_use_items; 
+                            cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
+                MENU_ITEM { command = EGlxCmdAiwPrint; 
+                            txt = qtn_lgal_options_print_menu; 
+                            cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },             
+                MENU_ITEM { command = EAknCmdHelp; 
+                            txt = qtn_options_help; },
+                MENU_ITEM { command = EAknCmdExit; 
+                            txt = qtn_options_exit; }
+                };
+    }
+
+
+// Albums Fullscreen view
+RESOURCE MENU_PANE r_glx_album_fullscreen_menu
+    {
+    items=
+            {
+            MENU_ITEM { command = EGlxCmdPlay;
+                        txt = qtn_lgal_options_play; },
+            MENU_ITEM { command = EGlxCmdSend;
+                        txt = qtn_options_send_via; }, 
+            MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
+                     /* txt comes from ShareOnline 4.3 */}, 
+            MENU_ITEM { command = EGlxCmdRemoveFrom;
+                        txt = qtn_lgal_options_remove_from_album; },
+            MENU_ITEM { command = EGlxCmdDelete;
+                        txt = qtn_lgal_options_delete; }, 
+            MENU_ITEM { command = EGlxCmdSlideshow;
+                        txt = qtn_lgal_options_slideshow; 
+                        cascade = r_glx_fullscreen_shw_menu;},
+            MENU_ITEM { command = EGlxCmdAiwEdit; 
+                        txt = qtn_lgal_options_edit; },
+            MENU_ITEM { command = EGlxCmdDetails;
+                        txt = qtn_lgal_options_details; },  
+            MENU_ITEM { command = EGlxCmdAddToAlbum;
+                        txt = qtn_lgal_options_add_to_album; },
+            MENU_ITEM { command = EGlxCmdAddTag; 
+                        txt = qtn_lgal_options_properties_add_tag; }, 
+            MENU_ITEM { command = EGlxCmdAiwAssign; 
+                        txt = qtn_lgal_options_use_items; 
+                        cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
+            MENU_ITEM { command = EGlxCmdAiwPrint; 
+                        txt = qtn_lgal_options_print_menu; 
+                        cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },             
+            MENU_ITEM { command = EAknCmdHelp; 
+                        txt = qtn_options_help; },
+            MENU_ITEM { command = EAknCmdExit; 
+                        txt = qtn_options_exit; }
+            };
+    }
+    
+// Tag Fullscreen view
+RESOURCE MENU_PANE r_glx_tagfullscreen_menu
+   {
+   items=
+           {
+           MENU_ITEM { command = EGlxCmdPlay;
+                       txt = qtn_lgal_options_play; },
+           MENU_ITEM { command = EGlxCmdSend;
+                       txt = qtn_options_send_via; },   
+           MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
+                    /* txt comes from ShareOnline 4.3 */}, 
+           MENU_ITEM { command=EGlxCmdRemoveFrom; 
+                       txt = qtn_lgal_options_remove_from_tag; }, 
+           MENU_ITEM { command = EGlxCmdDelete;
+                       txt = qtn_lgal_options_delete; }, 
+           MENU_ITEM { command = EGlxCmdSlideshow;
+                       txt = qtn_lgal_options_slideshow; 
+                       cascade = r_glx_fullscreen_shw_menu;},
+           MENU_ITEM { command = EGlxCmdAiwEdit; 
+                       txt = qtn_lgal_options_edit; },
+           MENU_ITEM { command = EGlxCmdDetails;
+                       txt = qtn_lgal_options_details; },  
+           MENU_ITEM { command = EGlxCmdAddToAlbum;
+                       txt = qtn_lgal_options_add_to_album; },
+           MENU_ITEM { command = EGlxCmdAddTag; 
+                       txt = qtn_lgal_options_properties_add_tag; }, 
+           MENU_ITEM { command = EGlxCmdAiwAssign; 
+                       txt = qtn_lgal_options_use_items; 
+                       cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
+           MENU_ITEM { command = EGlxCmdAiwPrint; 
+                       txt = qtn_lgal_options_print_menu; 
+                       cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },             
+           MENU_ITEM { command = EAknCmdHelp; 
+                       txt = qtn_options_help; },
+           MENU_ITEM { command = EAknCmdExit; 
+                       txt = qtn_options_exit; }
+           };
+    }
+
+// ImageViewer Fullscreen view
+RESOURCE MENU_PANE r_glx_imageviewer_fullscreen_menu
+    {
+        items=
+                {
+                MENU_ITEM { command = EGlxCmdSave;
+                            txt= qtn_lgal_options_save; },
+                MENU_ITEM { command = EGlxCmdSend;
+                            txt = qtn_options_send_via; },
+                MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
+                            /* txt comes from ShareOnline 4.3 */},
+                MENU_ITEM { command = EGlxCmdDelete;
+                            txt = qtn_lgal_options_delete; }, 
+                MENU_ITEM { command = EGlxCmdAiwEdit; 
+                            txt = qtn_lgal_options_edit; },
+                MENU_ITEM { command = EGlxCmdDetails;
+                            txt = qtn_lgal_options_details; },  
+                MENU_ITEM { command = EGlxCmdAiwAssign; 
+                            txt = qtn_lgal_options_use_items; 
+                            cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
+                MENU_ITEM { command = EGlxCmdAiwPrint; 
+                            txt = qtn_lgal_options_print_menu; 
+                            cascade = AIW_INTELLIGENT_CASCADE_ID|AIW_LOCK_SUBMENU_TITLE; },
+                MENU_ITEM { command = EAknCmdHelp; 
+                            txt = qtn_options_help; },
+                MENU_ITEM { command = EAknCmdExit; 
+                            txt = qtn_options_exit; }
+                };
+    }
+
+
+
+
+// ------------------------------------------------------------------------------------
+// Submenu Contents
+// ------------------------------------------------------------------------------------
+
+// Slideshow sub menu
+RESOURCE MENU_PANE r_glx_fullscreen_shw_menu
+    {
+    items=
+        {
+		MENU_ITEM { command=EGlxCmdSlideshowPlay; txt=qtn_lgal_options_slideshow_play; },
+		MENU_ITEM { command=EGlxCmdSlideshowSettings; txt=qtn_lgal_options_slideshow_settings_general; }        
+        };
+    }
+
+// Rotate Sub menu
+//RESOURCE MENU_PANE r_rotate_sub_menu
+//    {
+//    items = 
+//        {
+//        MENU_ITEM
+//            {
+//             command = EGlxCmdRotateLeft;
+//             txt = qtn_lgal_options_rotate_left;
+//            },
+//        MENU_ITEM
+//            {
+//             command = EGlxCmdRotateRight;
+//             txt = qtn_lgal_options_rotate_right;
+//            }
+//        };
+//    }
+
+
+// ------------------------------------------------------------------------------------
+// Softkey Resources
+// ------------------------------------------------------------------------------------
+
+// Fullscreen Empty softkeys
+RESOURCE CBA r_glx_fullscreen_emptysoftkeys
+    {
+    flags = EEikCbaFlagTransparent;
+    buttons =
+        {
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyEmpty;
+            txt = " ";
+            },
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyEmpty;
+            txt = " ";
+            },
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyEmpty;
+            txt = " ";
+            }
+        };
+    }
+
+// Fullscreen softkeys
+RESOURCE CBA r_glx_fullscreen_softkeys
+    {
+    flags = EEikCbaFlagTransparent;
+    buttons =
+        {
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyOptions;
+            txt = text_softkey_option;
+            },
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyBack;
+            txt = text_softkey_back;
+            },
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyEmpty;
+            txt = " ";
+            }
+        };
+    }
+    
+// Zoom control softkeys
+RESOURCE CBA r_glx_fullscreen_softkeys_zoom
+    {
+    flags = EEikCbaFlagTransparent;
+    buttons =
+        {
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyEmpty;
+            txt = " ";
+            },
+        CBA_BUTTON
+            {
+            id = EGlxCmdFullScreenBack;
+            txt = text_softkey_back;
+            },
+        CBA_BUTTON
+            {
+            id = EAknSoftkeyEmpty;
+            txt = " ";
+            }
+        };
+    }
+
+
+// ------------------------------------------------------------------------------------
+// Toolbar Resource (if it is a touch screen device)
+// ------------------------------------------------------------------------------------
+
+// For all FullScreen views
+RESOURCE AVKON_TOOLBAR r_glx_fullscreen_view_toolbar
+    {
+    flags = KAknToolbarFixed|KAknToolbarTransparent|KAknToolbarNoBackground;
+    items =
+        {
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdUpload;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxicons1click_default_icon_active;
+                        bmpmask = EMbmGlxicons1click_default_icon_active_mask;
+                        press_bmpid = EMbmGlxicons1click_default_icon_active;
+                        press_bmpmask = EMbmGlxicons1click_default_icon_active_mask;
+                        }
+                    };
+                };
+            },
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdSlideshowPlay;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                        bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                        press_bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                        press_bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                        helptxt = qtn_lgal_tooltip_slideshow;
+                        }
+                    };
+                };
+            },
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdDelete;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
+                        bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                        press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
+                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                        helptxt = qtn_lgal_tooltip_delete;
+                        }
+                    };
+                };
+            },
+        TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdSend;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                        bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                        press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                        helptxt = qtn_lgal_tooltip_send;
+                        }
+                    };
+                };
+            }
+        };
+    }
+
+// For ImageViewer Fullscreen views
+RESOURCE AVKON_TOOLBAR r_glx_imageviewer_fullscreen_view_toolbar
+    {
+    flags = KAknToolbarFixed|KAknToolbarTransparent|KAknToolbarNoBackground;
+    items =
+        {
+        TBAR_CTRL
+              {
+              type = EAknCtButton;
+              id = EGlxCmdSave;
+              control = AVKON_BUTTON
+                  {
+                  flags = 0;
+                  states =
+                      {
+                      AVKON_BUTTON_STATE
+                          {
+                          bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                          bmpid = EMbmGlxiconsSave; 
+                          bmpmask = EMbmGlxiconsSave_mask;
+                          press_bmpid = EMbmGlxiconsSave;
+                          press_bmpmask = EMbmGlxiconsSave_mask;
+                          helptxt = qtn_lgal_tooltip_save;
+                          }
+                      };
+                  };
+              },
+          TBAR_CTRL
+              {
+              type = EAknCtButton;
+              id = EGlxCmdSend;
+              control = AVKON_BUTTON
+                  {
+                  flags = 0;
+                  states =
+                      {
+                      AVKON_BUTTON_STATE
+                          {
+                          bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                          bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send; 
+                          bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                          press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                          press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                          helptxt = qtn_lgal_tooltip_send;
+                          }
+                      };
+                  };
+              },
+          TBAR_CTRL
+            {
+            type = EAknCtButton;
+            id = EGlxCmdAiwAssign;
+            control = AVKON_BUTTON
+                {
+                flags = 0;
+                states =
+                    {
+                    AVKON_BUTTON_STATE
+                        {
+                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                        bmpid = EMbmGlxiconsUse_as;
+                        bmpmask = EMbmGlxiconsUse_as_mask;
+                        press_bmpid = EMbmGlxiconsUse_as;
+                        press_bmpmask = EMbmGlxiconsUse_as_mask;   
+                        helptxt = qtn_lgal_options_use_image_as;
+                        }
+                    };
+                };
+            }
+        };
+    }
+// ------------------------------------------------------------------------------------
+// Single Line meta pane resource
+// ------------------------------------------------------------------------------------
+RESOURCE TBUF r_fullscreen_no_location_info
+    {
+//    buf = qtn_lgal_no_location_info;
+    buf = "#No Location info";
+    }

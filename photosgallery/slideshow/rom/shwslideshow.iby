@@ -1,0 +1,31 @@
+/*
+* Copyright (c) 2007-2008 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    (ROM) Image description file for Slideshow
+*
+*/
+
+
+
+
+#ifndef SHW_IBY
+#define SHW_IBY
+
+data = \epoc32\data\Z\private\10202be9\200071d3.txt   private\10202be9\200071d3.txt
+
+file=ABI_DIR\BUILD_DIR\shwslideshowengine.dll SHARED_LIB_DIR\shwslideshowengine.dll
+
+ECOM_PLUGIN( shwslideshowviewplugin.dll, shwslideshowviewplugin.rsc )
+ECOM_PLUGIN( shwsettingsplugin.dll, shwsettingsplugin.rsc )
+
+#endif // SHW_IBY

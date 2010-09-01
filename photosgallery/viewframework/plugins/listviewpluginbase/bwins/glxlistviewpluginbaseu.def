@@ -1,0 +1,7 @@
+EXPORTS
+	??0CGlxListViewPluginBase@@QAE@XZ @ 1 NONAME ; CGlxListViewPluginBase::CGlxListViewPluginBase(void)
+	??1CGlxListViewPluginBase@@UAE@XZ @ 2 NONAME ; CGlxListViewPluginBase::~CGlxListViewPluginBase(void)
+	?AddCommandHandlersL@CGlxListViewPluginBase@@MAEXXZ @ 3 NONAME ; void CGlxListViewPluginBase::AddCommandHandlersL(void)
+	?ConstructViewLC@CGlxListViewPluginBase@@EAEPAVCAknView@@XZ @ 4 NONAME ; class CAknView * CGlxListViewPluginBase::ConstructViewLC(void)
+	?GetResourceFilenameL@CGlxListViewPluginBase@@MAEXAAV?$TBuf@$0BAA@@@@Z @ 5 NONAME ; void CGlxListViewPluginBase::GetResourceFilenameL(class TBuf<256> &)
+

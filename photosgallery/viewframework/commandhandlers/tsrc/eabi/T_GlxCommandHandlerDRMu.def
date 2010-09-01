@@ -1,0 +1,102 @@
+EXPORTS
+	_Z16CreateTestSuiteLv @ 1 NONAME
+	_Z20CreateZoomedTextureLRK9TGlxMediaRK13TMPXAttribute6TGlxIdI17TGlxIdSpaceIdBaseERi @ 2 NONAME
+	_Z23CreateThumbnailTextureL11TGlxMediaId6TGlxIdI17TGlxIdSpaceIdBaseERK5TSizeP19MGlxTextureObserverRi @ 3 NONAME
+	_ZN14CGlxHuiUtility12TextStyleIdLEii @ 4 NONAME
+	_ZN14CGlxHuiUtility15HideHuiDisplayLEv @ 5 NONAME
+	_ZN14CGlxHuiUtility15ScreenFurnitureEv @ 6 NONAME
+	_ZN14CGlxHuiUtility15ShowHuiDisplayLEv @ 7 NONAME
+	_ZN14CGlxHuiUtility17GlxTextureManagerEv @ 8 NONAME
+	_ZN14CGlxHuiUtility22HandleTvStatusChangedLE13TTvChangeType @ 9 NONAME
+	_ZN14CGlxHuiUtility23ViewNavigationDirectionEv @ 10 NONAME
+	_ZN14CGlxHuiUtility26SetViewNavigationDirectionE23TGlxNavigationDirection @ 11 NONAME
+	_ZN14CGlxHuiUtility26UploadFlatColourToTextureLE4TRgbP11CHuiTexture @ 12 NONAME
+	_ZN14CGlxHuiUtility27NotifyDisplayRefreshStartedER11CHuiDisplay @ 13 NONAME
+	_ZN14CGlxHuiUtility5CloseEv @ 14 NONAME
+	_ZN14CGlxHuiUtility8UtilityLEv @ 15 NONAME
+	_ZN15CGlxIconManager14AddIconToItemLEP10CHuiVisuali @ 16 NONAME
+	_ZN15CGlxIconManager14AddIconToItemLEii @ 17 NONAME
+	_ZN15CGlxIconManager14BaseConstructLEv @ 18 NONAME
+	_ZN15CGlxIconManager14RemoveFromItemEP10CHuiVisuali @ 19 NONAME
+	_ZN15CGlxIconManager14RemoveFromItemEii @ 20 NONAME
+	_ZN15CGlxIconManager21BrushPositionInVisualEP10CHuiVisuali @ 21 NONAME
+	_ZN15CGlxIconManager21BrushPositionInVisualEii @ 22 NONAME
+	_ZN15CGlxIconManager21CreateVisualFromIconLEiR7TDesC16 @ 23 NONAME
+	_ZN15CGlxIconManager21CreateVisualFromIconLEiR7TDesC16R21TGlxIconManagerParams @ 24 NONAME
+	_ZN15CGlxIconManager24CreateVisualFromTextureLEP11CHuiTexture @ 25 NONAME
+	_ZN15CGlxIconManager24CreateVisualFromTextureLEP11CHuiTextureR21TGlxIconManagerParams @ 26 NONAME
+	_ZN15CGlxIconManagerC1ER13MGlxMediaListR14MGlxVisualList @ 27 NONAME
+	_ZN15CGlxIconManagerC2ER13MGlxMediaListR14MGlxVisualList @ 28 NONAME
+	_ZN15CGlxIconManagerD0Ev @ 29 NONAME
+	_ZN15CGlxIconManagerD1Ev @ 30 NONAME
+	_ZN15CGlxIconManagerD2Ev @ 31 NONAME
+	_ZN18CGlxTextureManager13RemoveTextureEi @ 32 NONAME
+	_ZN18CGlxTextureManager18CreateIconTextureLEiR7TDesC165TSize @ 33 NONAME
+	_ZN18CGlxTextureManager23CreateAvkonIconTextureLERK11TAknsItemIDi5TSize @ 34 NONAME
+	_ZN18CGlxTextureManager24SetPreferredTextureSizeLERK20MHuiSegmentedTextureR5TSize @ 35 NONAME
+	_ZN18CGlxTextureManager25CreateAnimatedGifTextureLERK7TDesC16 @ 36 NONAME
+	_ZN18CGlxTextureManager26HandleAttributesAvailableLERK6TGlxIdI17TGlxIdSpaceIdBaseERK11TGlxMediaIdRK6RArrayI13TMPXAttributeEPK9CGlxMedia @ 37 NONAME
+	_ZN18CGlxTextureManager4NewLER18CHuiTextureManager @ 38 NONAME
+	_ZN18CGlxTextureManager5NewLCER18CHuiTextureManager @ 39 NONAME
+	_ZN19CGlxScreenFurniture26IsActivePaletteItemVisibleEi @ 40 NONAME
+	_ZN21CGlxCommandHandlerDrm4NewLEP21MGlxMediaListProvideri @ 41 NONAME
+	_ZN21CGlxCommandHandlerDrmD0Ev @ 42 NONAME
+	_ZN21CGlxCommandHandlerDrmD1Ev @ 43 NONAME
+	_ZN21CGlxCommandHandlerDrmD2Ev @ 44 NONAME
+	_ZN21CGlxVisualListManager10AllocListLEP13MGlxMediaListR7CHuiEnvR11CHuiDisplayN15CHuiImageVisual10TScaleModeE @ 45 NONAME
+	_ZN21CGlxVisualListManager11ReleaseListEP14MGlxVisualList @ 46 NONAME
+	_ZN21CGlxVisualListManager5CloseEv @ 47 NONAME
+	_ZN21CGlxVisualListManager5ListLEP13MGlxMediaListR7CHuiEnvR11CHuiDisplayN15CHuiImageVisual10TScaleModeE @ 48 NONAME
+	_ZN21CGlxVisualListManager8ManagerLEv @ 49 NONAME
+	_ZN21TGlxIconManagerParamsC1Efffff @ 50 NONAME
+	_ZN21TGlxIconManagerParamsC2Efffff @ 51 NONAME
+	_ZN27CGlxMediaListCommandHandler10DeactivateEv @ 52 NONAME
+	_ZN27CGlxMediaListCommandHandler11AddCommandLERKNS_12TCommandInfoE @ 53 NONAME
+	_ZN27CGlxMediaListCommandHandler11CommandInfoEi @ 54 NONAME
+	_ZN27CGlxMediaListCommandHandler12TCommandInfoC1Ei @ 55 NONAME
+	_ZN27CGlxMediaListCommandHandler12TCommandInfoC2Ei @ 56 NONAME
+	_ZN27CGlxMediaListCommandHandler14OfferKeyEventLERK9TKeyEvent10TEventCode @ 57 NONAME
+	_ZN27CGlxMediaListCommandHandler16DynInitMenuPaneLEiP12CEikMenuPane @ 58 NONAME
+	_ZN27CGlxMediaListCommandHandler18DoDynInitMenuPaneLEiP12CEikMenuPane @ 59 NONAME
+	_ZN27CGlxMediaListCommandHandler19PreDynInitMenuPaneLEi @ 60 NONAME
+	_ZN27CGlxMediaListCommandHandler8ExecuteLEi @ 61 NONAME
+	_ZN27CGlxMediaListCommandHandler9ActivateLEi @ 62 NONAME
+	_ZN27CGlxMediaListCommandHandler9MediaListEv @ 63 NONAME
+	_ZN27CGlxMediaListCommandHandlerC2EP21MGlxMediaListProvider @ 64 NONAME
+	_ZN27CGlxMediaListCommandHandlerD0Ev @ 65 NONAME
+	_ZN27CGlxMediaListCommandHandlerD1Ev @ 66 NONAME
+	_ZN27CGlxMediaListCommandHandlerD2Ev @ 67 NONAME
+	_ZNK14CGlxHuiUtility11DisplaySizeEv @ 68 NONAME
+	_ZNK14CGlxHuiUtility3EnvEv @ 69 NONAME
+	_ZNK14CGlxHuiUtility7DisplayEv @ 70 NONAME
+	_ZNK27CGlxMediaListCommandHandler11IsDisabledLEiR13MGlxMediaList @ 71 NONAME
+	_ZNK27CGlxMediaListCommandHandler11IsSupportedEi @ 72 NONAME
+	_ZNK27CGlxMediaListCommandHandler12DoIsDisabledEiR13MGlxMediaList @ 73 NONAME
+	_ZNK27CGlxMediaListCommandHandler12ViewingStateEv @ 74 NONAME
+	_ZNK27CGlxMediaListCommandHandler15SelectionLengthEv @ 75 NONAME
+	_ZNK27CGlxMediaListCommandHandler16CommandInfoIndexEi @ 76 NONAME
+	_ZNK27CGlxMediaListCommandHandler20BypassFiltersForMenuEv @ 77 NONAME
+	_ZNK27CGlxMediaListCommandHandler22GetRequiredAttributesLER6RArrayI13TMPXAttributeEiii @ 78 NONAME
+	_ZNK27CGlxMediaListCommandHandler23BypassFiltersForExecuteEv @ 79 NONAME
+	_ZNK27CGlxMediaListCommandHandler24DoGetRequiredAttributesLER6RArrayI13TMPXAttributeEi @ 80 NONAME
+	_ZNK27CGlxMediaListCommandHandler9MediaListEv @ 81 NONAME
+	_ZTI14CGlxHuiUtility @ 82 NONAME ; #<TI>#
+	_ZTI15CGlxIconManager @ 83 NONAME ; #<TI>#
+	_ZTI27CGlxMediaListCommandHandler @ 84 NONAME ; #<TI>#
+	_ZTV14CGlxHuiUtility @ 85 NONAME ; #<VT>#
+	_ZTV15CGlxIconManager @ 86 NONAME ; #<VT>#
+	_ZTV27CGlxMediaListCommandHandler @ 87 NONAME ; #<VT>#
+	_ZThn4_N14CGlxHuiUtility22HandleTvStatusChangedLE13TTvChangeType @ 88 NONAME ; #<thunk>#
+	_ZThn4_N21CGlxCommandHandlerDrmD0Ev @ 89 NONAME ; #<thunk>#
+	_ZThn4_N21CGlxCommandHandlerDrmD1Ev @ 90 NONAME ; #<thunk>#
+	_ZThn4_N27CGlxMediaListCommandHandler10DeactivateEv @ 91 NONAME ; #<thunk>#
+	_ZThn4_N27CGlxMediaListCommandHandler14OfferKeyEventLERK9TKeyEvent10TEventCode @ 92 NONAME ; #<thunk>#
+	_ZThn4_N27CGlxMediaListCommandHandler16DynInitMenuPaneLEiP12CEikMenuPane @ 93 NONAME ; #<thunk>#
+	_ZThn4_N27CGlxMediaListCommandHandler19PreDynInitMenuPaneLEi @ 94 NONAME ; #<thunk>#
+	_ZThn4_N27CGlxMediaListCommandHandler8ExecuteLEi @ 95 NONAME ; #<thunk>#
+	_ZThn4_N27CGlxMediaListCommandHandler9ActivateLEi @ 96 NONAME ; #<thunk>#
+	_ZThn4_N27CGlxMediaListCommandHandlerD0Ev @ 97 NONAME ; #<thunk>#
+	_ZThn4_N27CGlxMediaListCommandHandlerD1Ev @ 98 NONAME ; #<thunk>#
+	_ZThn4_NK27CGlxMediaListCommandHandler22GetRequiredAttributesLER6RArrayI13TMPXAttributeEiii @ 99 NONAME ; #<thunk>#
+	_ZThn8_N14CGlxHuiUtility27NotifyDisplayRefreshStartedER11CHuiDisplay @ 100 NONAME ; #<thunk>#
+

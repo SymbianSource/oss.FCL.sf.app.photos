@@ -1,0 +1,158 @@
+;
+; Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies).
+; All rights reserved.
+; This component and the accompanying materials are made available
+; under the terms of "Eclipse Public License v1.0"
+; which accompanies this distribution, and is available
+; at the URL "http://www.eclipse.org/legal/epl-v10.html".
+;
+; Initial Contributors:
+; Nokia Corporation - initial contribution.
+;
+; Contributors:
+;
+; Description:    Stub package file for project Gallery
+;
+
+; -------- general --------
+
+; Languages
+&EN
+
+; Package header
+#{"Photos"},(0x200009EE),9,20,0,TYPE=SA
+
+
+;Localised Vendor name
+%{"Nokia"}
+
+;Unique Vendor name
+:"Nokia"
+
+; -------- files --------
+
+""-"z:\private\10003a3f\import\apps\glx_reg.rsc"
+
+""-"z:\sys\bin\glx.exe"		
+""-"z:\resource\apps\glx_loc.Rsc"
+""-"z:\resource\apps\glx.Rsc"
+
+
+""-"z:\resource\apps\glxicons.mif"
+""-"z:\resource\apps\glx_aif.mif"
+
+
+;; language-dependent resource files
+
+;; engines
+
+""-"z:\sys\bin\glxsimplelistview.dll"
+""-"z:\sys\bin\glxtagsmanagerviewplugin.dll"
+""-"z:\resource\plugins\glxtagsmanagerviewplugin.rsc"
+""-"z:\resource\apps\glxtagsmanagerview.RSC"
+""-"z:\resource\plugins\glxlistviewplugin.rsc"
+""-"z:\sys\bin\glxmetadatadialog.dll"
+""-"z:\resource\apps\glxmetadatadialog.rsc"
+""-"z:\sys\bin\glxcloudview.dll"
+""-"z:\sys\bin\glxtagsbrowserviewplugin.dll"
+""-"z:\resource\plugins\glxtagsbrowserviewplugin.rsc"
+""-"z:\resource\apps\glxtagsbrowserview.RSC"
+""-"z:\sys\bin\glxupnpcommandhandler.dll"
+""-"z:\sys\bin\glxcollectionplugintags.dll"
+""-"z:\resource\plugins\glxcollectionplugintags.rsc"
+""-"z:\resource\plugins\glxplugintags.rsc"
+""-"z:\sys\bin\glxtexturemanager.dll"
+""-"z:\sys\bin\glxfetcher.dll"
+""-"z:\resource\plugins\glxfetcher.rsc"
+""-"z:\resource\apps\glxfetcherdialog.rsc"
+""-"z:\sys\bin\glxcollectionmanager.dll"
+;""-"z:\sys\bin\glxactivedataplugin.dll"
+;""-"z:\resource\plugins\glxactivedataplugin.rsc"
+""-"z:\sys\bin\glxviewbase.dll"
+""-"z:\resource\apps\glxviewbase.rsc"
+""-"z:\sys\bin\glxcommandhandlerbase.dll"
+""-"z:\sys\bin\glxcommoncommandhandlers.dll"
+""-"z:\resource\apps\glxcommoncommandhandlers.rsc"
+""-"z:\sys\bin\glxcommandhandlermarking.dll"
+""-"z:\sys\bin\glxcommandhandlerdrm.dll"
+""-"z:\sys\bin\glxcommandhandlermoreinfo.dll"
+""-"z:\resource\apps\glxcommandhandlermarking.rsc"
+""-"z:\sys\bin\glxcommon.dll"
+""-"z:\sys\bin\glximageviewermanager.dll"
+""-"z:\sys\bin\glxcommonui.dll"
+""-"z:\sys\bin\shwslideshowengine.dll"
+""-"z:\resource\apps\shwslideshowengine.rsc"
+""-"z:\sys\bin\shwslideshowviewplugin.dll"
+""-"z:\resource\plugins\shwslideshowviewplugin.rsc"
+""-"z:\resource\apps\shwslideshowview.rsc"
+""-"z:\sys\bin\shwsettingsplugin.dll"
+""-"z:\resource\plugins\shwsettingsplugin.rsc"
+""-"z:\resource\apps\shwsettingsdialog.rsc"
+""-"z:\sys\bin\glxthumbnailcreator.dll"
+""-"z:\sys\bin\glxdatasourcemanager.dll"
+""-"z:\sys\bin\glxdatasourcemde.dll"
+""-"z:\resource\plugins\glxdatasourcemde.rsc"
+""-"z:\sys\bin\glxcollectionpluginalbums.dll"
+""-"z:\resource\plugins\glxcollectionpluginalbums.rsc"
+""-"z:\resource\plugins\glxpluginalbums.rsc"
+""-"z:\sys\bin\glxcollectionpluginall.dll"
+""-"z:\resource\plugins\glxcollectionpluginall.rsc"
+""-"z:\resource\plugins\glxpluginall.rsc"
+""-"z:\sys\bin\glxcollectionplugincamera.dll"
+""-"z:\resource\plugins\glxcollectionplugincamera.rsc"
+""-"z:\resource\plugins\glxplugincamera.rsc"
+""-"z:\sys\bin\glxcollectionpluginimageviewer.dll"
+""-"z:\resource\plugins\glxcollectionpluginimageviewer.rsc"
+""-"z:\resource\plugins\glxpluginimageviewer.rsc"
+""-"z:\sys\bin\glxzoomview.dll"
+
+;""-"z:\sys\bin\glxthumbnailcomposerplugin.dll"
+;""-"z:\resource\plugins\glxthumbnailcomposerplugin.rsc"
+
+;""-"z:\sys\bin\glxtvout.dll"
+
+""-"z:\sys\bin\glxlayouts.dll"
+""-"z:\sys\bin\glxmedialists.dll"
+""-"z:\sys\bin\glxvisuallistmanager.dll"
+""-"z:\sys\bin\glxuiutilities.dll"
+""-"z:\resource\apps\glxuiutilities.rsc"
+""-"z:\sys\bin\glxdrmutility.dll"
+
+""-"z:\sys\bin\glxgridview.dll"
+""-"z:\resource\apps\glxgridviewdata.rsc"
+""-"z:\sys\bin\glxgridviewpluginbase.dll"
+""-"z:\sys\bin\glxgridviewplugin.dll"
+""-"z:\resource\plugins\glxgridviewplugin.rsc"
+""-"z:\resource\apps\glxdownloadtext.rsc" 
+
+
+""-"z:\sys\bin\glxfullscreenview.dll"
+
+""-"z:\sys\bin\glxlistview.dll"
+""-"z:\resource\apps\glxlistviewplugin.rsc"
+""-"z:\sys\bin\glxlistviewpluginbase.dll"
+""-"z:\sys\bin\glxlistviewplugin.dll"
+""-"z:\resource\plugins\glxlistviewplugin.rsc"
+
+""-"z:\system\data\10202BE9\200071d3.txt"
+""-"z:\system\data\10202BE9\200009EE.txt"
+
+; Glx logging client
+""-"z:\sys\bin\glxlogging.dll"
+
+
+""-"z:\sys\bin\glxtileview.dll"
+""-"z:\sys\bin\glxtileviewpluginbase.dll"
+""-"z:\sys\bin\glxtileviewplugin.dll"
+""-"z:\sys\bin\glxtagcollectionplugin.dll"
+""-"z:\sys\bin\glxalbumcollectionplugin.dll"
+""-"z:\sys\bin\glxfullscreenviewpluginbase.dll"
+""-"z:\sys\bin\glxfullscreenviewplugin.dll"
+""-"z:\sys\bin\glxdataprovider.dll"
+""-"z:\sys\bin\glxuitilities.dll"
+""-"z:\sys\bin\glxaddtoalbumhandler.dll"
+
+""-"z:\resource\xhtml\01\0x200009EE\contents.zip"
+""-"z:\resource\xhtml\01\0x200009EE\index.xml"
+""-"z:\resource\xhtml\01\0x200009EE\keywords.xml"
+""-"z:\resource\xhtml\01\0x200009EE\meta.xml"

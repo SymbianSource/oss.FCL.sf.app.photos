@@ -11,10 +11,8 @@ rem Nokia Corporation - initial contribution.
 rem
 rem Contributors:
 rem
-rem Description: 
+rem Description:  build release clean command
 rem
-
-
 
 REM clean up the environment
 call clearbuild.cmd

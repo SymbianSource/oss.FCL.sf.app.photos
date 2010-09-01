@@ -1,0 +1,4 @@
+EXPORTS
+	??1CGlxCommandHandlerMoreInfo@@UAE@XZ @ 1 NONAME ; CGlxCommandHandlerMoreInfo::~CGlxCommandHandlerMoreInfo(void)
+	?NewL@CGlxCommandHandlerMoreInfo@@SAPAV1@PAVMGlxMediaListProvider@@H@Z @ 2 NONAME ; class CGlxCommandHandlerMoreInfo * CGlxCommandHandlerMoreInfo::NewL(class MGlxMediaListProvider *, int)
+

@@ -1,0 +1,170 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Resource definitions for Fetcher Plugin
+*
+*/
+
+
+
+
+//  RESOURCE IDENTIFIER
+NAME GLFP    // 4 letter ID
+
+//  INCLUDES
+#include "glxcommandhandlers.hrh"
+#include <eikon.rh>
+#include <avkon.rh>
+#include <avkon.loc>
+#include <avkon.rsg>
+#include <appinfo.rh>
+#include <photos.loc>
+
+//  RESOURCE DEFINITIONS
+// -----------------------------------------------------------------------------
+//
+//    Define the resource file signature
+//    This resource should be empty.
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE RSS_SIGNATURE { }
+
+RESOURCE TBUF { buf="FETC"; }
+    
+RESOURCE AVKON_VIEW r_fetcher_dialog
+	{
+	menubar = r_fetcher_menubar;
+	}
+	
+RESOURCE MENU_BAR r_fetcher_menubar
+	{
+	titles = 
+		{
+		MENU_TITLE {menu_pane=r_fetcher_menu; txt="";}
+		};
+	}
+
+RESOURCE MENU_PANE r_fetcher_menu
+	{
+	items=
+		{
+		};
+	}
+
+RESOURCE TBUF r_fetcher_dialog_title_image
+	{
+	buf = qtn_lgal_title_fetcher_select_image;
+	}	
+	
+RESOURCE TBUF r_fetcher_dialog_title_video
+	{
+	buf = qtn_lgal_title_fetcher_select_video;
+	}
+	
+//MultiSelect
+
+RESOURCE MENU_BAR r_multiselect_fetcher_menubar
+	{
+	titles = 
+		{
+		MENU_TITLE {menu_pane=r_multiselect_fetcher_menu; txt="";}
+		};
+	}
+
+RESOURCE MENU_PANE r_multiselect_fetcher_menu
+	{
+	items=
+		{
+		
+		//should be Select  Select marked
+		MENU_ITEM 
+			{
+			command=EAknSoftkeySelect; 
+			txt = qtn_cffh_options_select; 
+			},
+
+		MENU_ITEM
+			{
+			command=EGlxCmdSelectMarked; 
+			txt = qtn_cffh_select_marked; 
+			},      
+        
+		MENU_ITEM
+			{
+			command=EGlxCmdMarkingSubmenu;
+			txt = qtn_options_list; 
+			cascade = r_multiselect_marking_submenu; 
+			},
+
+		MENU_ITEM 
+			{
+			command=EAknCmdHelp; 
+			txt = qtn_options_help; 
+			}
+		};
+	}
+	
+RESOURCE TBUF r_fetcher_dialog_title_images
+	{
+	buf = qtn_lgal_title_fetcher_select_images;
+	}	
+	
+RESOURCE TBUF r_fetcher_dialog_title_videos
+	{
+	buf = qtn_lgal_title_fetcher_select_videos;
+	}
+
+RESOURCE MENU_PANE r_multiselect_marking_submenu
+  {
+    items=
+        {
+        MENU_ITEM
+            {
+            command = EAknCmdMark;
+            txt = qtn_options_list_mark_one;
+            },
+        MENU_ITEM
+            {
+            command = EAknMarkAll;
+            txt = qtn_options_list_mark_all;
+            },
+        MENU_ITEM
+            {
+            command = EAknCmdUnmark;
+            txt = qtn_options_list_unmark_one;
+            },
+	    MENU_ITEM
+            {
+            command = EAknUnmarkAll;
+            txt = qtn_options_list_unmark_all;
+            }      
+        };
+    }
+	
+RESOURCE DIALOG r_glx_fetcher_dialog
+    {
+    // blocking dialog with CBA and no border please
+    flags=EEikDialogFlagNoDrag | EEikDialogFlagFillAppClientRect |
+    EEikDialogFlagCbaButtons | EEikDialogFlagWait |
+    EEikDialogFlagNoBackgroundFade |EEikDialogFlagNoBorder;
+    buttons = R_AVKON_SOFTKEYS_CANCEL;
+    // Do not add any items
+    }
+
+RESOURCE TBUF r_glx_softkey_cancel
+    {buf = text_softkey_cancel;}
+
+RESOURCE TBUF r_glx_marking_mark
+    {buf=qtn_msk_mark;}
+

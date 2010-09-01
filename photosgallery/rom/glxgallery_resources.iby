@@ -1,0 +1,60 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Image description file for project GLX.
+*
+*/
+
+
+
+
+#ifndef __GLXGALLERY_RESOURCES_IBY__
+#define __GLXGALLERY_RESOURCES_IBY__
+
+
+
+
+  		
+data=DATAZ_\APP_RESOURCE_DIR\glx_loc.Rsc                      APP_RESOURCE_DIR\glx_loc.Rsc  
+data=DATAZ_\APP_RESOURCE_DIR\glx.Rsc                          APP_RESOURCE_DIR\glx.Rsc
+ 
+data=DATAZ_\APP_RESOURCE_DIR\glxivwr_loc.Rsc                      APP_RESOURCE_DIR\glxivwr_loc.Rsc  
+data=DATAZ_\APP_RESOURCE_DIR\glxivwr.Rsc                          APP_RESOURCE_DIR\glxivwr.Rsc 
+
+//data=DATAZ_\APP_RESOURCE_DIR\glxtagsmanagerview.rsc         APP_RESOURCE_DIR\glxtagsmanagerview.rsc  
+
+data=DATAZ_\APP_RESOURCE_DIR\glxtagsbrowserview.rsc           APP_RESOURCE_DIR\glxtagsbrowserview.rsc  
+
+data=DATAZ_\resource\plugins\glxplugintags.rsc                resource\plugins\glxplugintags.rsc
+
+data=DATAZ_\APP_RESOURCE_DIR\glxviewbase.rsc                  APP_RESOURCE_DIR\glxviewbase.rsc  
+
+data=DATAZ_\APP_RESOURCE_DIR\glxcommandhandlermarking.rsc     APP_RESOURCE_DIR\glxcommandhandlermarking.rsc  
+
+data=DATAZ_\resource\plugins\glxpluginalbums.rsc              resource\plugins\glxpluginalbums.rsc
+
+data=DATAZ_\resource\plugins\glxpluginall.rsc                 resource\plugins\glxpluginall.rsc
+
+data=DATAZ_\APP_RESOURCE_DIR\glxuiutilities.rsc               APP_RESOURCE_DIR\glxuiutilities.rsc  
+
+data=DATAZ_\APP_RESOURCE_DIR\glxgridviewdata.rsc              APP_RESOURCE_DIR\glxgridviewdata.rsc
+
+data=DATAZ_\APP_RESOURCE_DIR\glxfullscreenviewdata.rsc        APP_RESOURCE_DIR\glxfullscreenviewdata.rsc
+data=DATAZ_\APP_RESOURCE_DIR\glxlistviewplugin.rsc            APP_RESOURCE_DIR\glxlistviewplugin.rsc  
+
+data=DATAZ_\APP_RESOURCE_DIR\glxdownloadtext.rsc              APP_RESOURCE_DIR\glxdownloadtext.rsc 
+data=DATAZ_\APP_RESOURCE_DIR\glxmetadatadialog.rsc              APP_RESOURCE_DIR\glxmetadatadialog.rsc   
+#endif  // __GLXGALLERY_RESOURCES_IBY__
+
+ 
+ 

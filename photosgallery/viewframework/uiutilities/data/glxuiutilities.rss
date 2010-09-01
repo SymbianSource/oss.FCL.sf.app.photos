@@ -1,0 +1,868 @@
+/*
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Resource definitions 
+*
+*/
+
+
+
+
+#include <eikon.rh>
+#include <avkon.rsg>
+#include <avkon.rh>
+#include <avkon.loc>
+#include <appinfo.rh>
+
+#include <AiwCommon.rh>
+
+#include <data_caging_paths_strings.hrh>
+#include <glxicons.mbg>
+#include <photos.loc>
+#include "glxutilities.hrh"
+#include <glxcommandhandlers.hrh>
+
+NAME GLXR    // 4 letter ID
+
+//  RESOURCE DEFINITIONS
+// -----------------------------------------------------------------------------
+//
+// Resource signature
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE RSS_SIGNATURE {}
+
+// Active palette tooltips
+
+RESOURCE TBUF r_glx_ap_tooltip_slideshow
+    {
+    buf = qtn_lgal_tooltip_slideshow;
+    }
+
+RESOURCE TBUF r_glx_ap_tooltip_add_to_album
+	{
+	buf = qtn_lgal_tooltip_add_to_album;
+	}
+
+RESOURCE TBUF r_glx_ap_tooltip_remove_from_album
+	{
+	buf = qtn_lgal_ap_tooltip_remove_from_album;
+	}
+	
+RESOURCE TBUF r_glx_ap_tooltip_landscape
+    {
+    buf = qtn_lgal_tooltip_view_in_landscape;
+    }
+
+RESOURCE TBUF r_glx_ap_tooltip_portrait
+    {
+    buf = qtn_lgal_tooltip_view_in_portrait;
+    }
+
+RESOURCE TBUF r_glx_ap_tooltip_send
+	{
+	buf = qtn_lgal_tooltip_send;
+	}
+
+RESOURCE TBUF r_glx_ap_tooltip_delete
+	{
+	buf = qtn_lgal_tooltip_delete;
+	}
+	
+RESOURCE TBUF r_glx_ap_tooltip_properties
+	{
+	buf = qtn_lgal_tooltip_details;
+	}
+
+// No images to play slideshow pop-up when empty containers are in focus.
+RESOURCE TBUF r_glx_no_images_to_play_slideshow
+    {
+    buf = qtn_lgal_note_no_images_to_play_slideshow;
+    }
+
+// the album selection popup title
+RESOURCE TBUF r_glx_album_selection_popup_title
+	{
+	buf = qtn_lgal_title_select_albums;
+	}
+
+// the default album name
+RESOURCE TBUF r_glx_default_album_name
+	{
+	buf = qtn_lgal_name_album;
+	}
+
+// the name prompt
+RESOURCE TBUF r_glx_prompt_name
+	{
+	buf = qtn_lgal_query_enter_name;
+	}
+
+// the album popup empty list text
+RESOURCE TBUF r_glx_album_selection_popup_empty_list
+	{
+	buf = "";
+	}
+
+// the new album selection name
+RESOURCE TBUF r_glx_new_album_selection_name
+	{
+	buf = qtn_lgal_album_create;
+	}
+
+// Add to container completion note for one item album
+RESOURCE TBUF r_glx_completion_add_to_container_one_item_album
+	{
+	buf = qtn_lgal_note_added_one_item_album;
+	}
+
+// Add to container completion note for multi item album
+RESOURCE TBUF r_glx_completion_add_to_container_multi_item_album
+	{
+	buf = qtn_lgal_note_added_multi_item_album;
+	}
+
+// Add to container completion note for one item tag
+RESOURCE TBUF r_glx_completion_add_to_container_one_item_tag
+	{
+	buf = qtn_lgal_note_added_one_item_tag;
+	}
+
+// Add to container completion note for multi item tag
+RESOURCE TBUF r_glx_completion_add_to_container_multi_item_tag
+	{
+	buf = qtn_lgal_note_added_multi_item_tag;
+	}
+		
+// General processing note
+RESOURCE TBUF r_glx_progress_general
+	{
+	buf = qtn_lgal_note_wait_processing;
+	}
+
+// General navi counter
+RESOURCE TBUF r_glx_navi_counter
+	{
+	buf = qtn_lgal_item_counter;
+	}
+
+// General navi counter on static item
+RESOURCE TBUF r_glx_navi_counter_dl
+	{
+	buf = qtn_lgal_navi_counter_dl;
+	}
+	
+// General counter on static item in counter box in portrait tile view
+RESOURCE TBUF r_glx_tile_counter_dash
+	{
+	buf = qtn_lgal_tile_counter_dash;
+	}
+	
+// General navi zoom percentage
+RESOURCE TBUF r_glx_navi_zoom_percent
+    {
+    buf = qtn_lgal_zoom_ratio;
+    }
+
+//
+// Delete confirmation notes
+//
+
+// Delete single item confirmation note
+RESOURCE TBUF r_glx_confirmation_delete_single
+	{
+	//buf = qtn_lgal_note_delete_image;
+	buf = qtn_query_common_conf_delete;
+	}
+
+// Delete multiple items confirmation note
+RESOURCE TBUF r_glx_confirmation_delete_multiple
+	{
+	buf = qtn_lgal_note_delete_items;
+	}
+
+// Delete single container confirmation note
+RESOURCE TBUF r_glx_confirmation_delete_container_single
+	{
+	buf = qtn_lgal_note_delete_container;
+	}
+
+// Delete multiple containers confirmation note
+RESOURCE TBUF r_glx_confirmation_delete_container_multiple
+	{
+	buf = qtn_lgal_note_delete_container_multi;
+	}
+
+// Remove single item from album confirmation note
+RESOURCE TBUF r_glx_confirmation_remove_name_album
+	{
+	buf = qtn_lgal_note_remove_name_album;
+	}
+
+// Remove multiple items from album confirmation note
+RESOURCE TBUF r_glx_confirmation_remove_items_album
+	{
+	buf = qtn_lgal_note_remove_items_album;
+	}
+
+// Remove single item from tag confirmation note
+RESOURCE TBUF r_glx_confirmation_remove_name_tag
+	{
+	buf = qtn_lgal_note_remove_name_tag;
+	}
+
+// Remove multiple items from album confirmation note
+RESOURCE TBUF r_glx_confirmation_remove_items_tag
+	{
+	buf = qtn_lgal_note_remove_items_tag;
+	}
+	
+// Play 
+RESOURCE TBUF r_glx_options_play
+	{
+	buf = qtn_lgal_tooltip_play;
+	}
+
+
+// Send media item pop-up title
+RESOURCE TBUF r_qtn_lgal_popup_send
+	{
+	//buf = qtn_lgal_popup_send;
+	buf = qtn_query_heading_send;
+	}
+
+// Use Image menu item, for AIW Assign handler
+RESOURCE TBUF r_qtn_lgal_options_use_image_as
+	{
+	buf = qtn_lgal_options_use_image_as;
+	}
+
+// Use Video menu item, for AIW Assign handler
+RESOURCE TBUF r_qtn_lgal_options_use_video_as
+	{
+	buf = qtn_lgal_options_use_video_as;
+	}
+
+// Use items menu item, for AIW Assign handler
+RESOURCE TBUF r_qtn_lgal_options_use_items
+	{
+	buf = qtn_lgal_options_use_items;
+	}
+
+//use print menu item, for AIW print preview handler
+RESOURCE TBUF r_qtn_lgal_options_print_menu
+	{
+	buf = qtn_lgal_options_print_menu;
+	}
+
+//single clk chng
+//use items menu item, for Edit options
+RESOURCE TBUF r_qtn_lgal_options_edit
+    {
+    buf = qtn_lgal_options_edit;
+    }
+//
+// Rename popup
+//
+
+// Popup title text
+RESOURCE TBUF r_glx_popup_rename_title
+	{
+	buf = qtn_lgal_options_rename;
+	}
+	
+// Show on Map No Location Info Popup
+RESOURCE TBUF r_glx_popup_no_location_info
+	{
+	buf = qtn_lgal_note_no_location;
+	}
+	
+RESOURCE DIALOG r_glx_text_entry_query
+    {
+    flags = EGeneralQueryFlags;
+    buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtQuery;
+            id = EGeneralQuery;
+            control = AVKON_DATA_QUERY
+                {
+                layout = EDataLayout;
+                control=EDWIN
+                    {
+                    maxlength = 40; // KMaxMediaPopupTextLength
+                    lines = 1;
+                    };
+                };
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_query_yes_no
+// Confirmation query.
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE DIALOG r_glx_query_yes_no
+    {
+    flags = EGeneralQueryFlags;
+    buttons = R_AVKON_SOFTKEYS_YES_NO;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtQuery;
+            id = EAknCtQuery;
+            control = AVKON_CONFIRMATION_QUERY
+                {
+                layout = EConfirmationLayout;
+                };
+            }
+        };
+    }
+
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_query_ok_cancel
+// Confirmation query.
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE DIALOG r_glx_query_ok_cancel
+    {
+    flags = EGeneralQueryFlags;
+    buttons = R_AVKON_SOFTKEYS_OK_CANCEL;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtQuery;
+            id = EAknCtQuery;
+            control = AVKON_CONFIRMATION_QUERY
+                {
+                layout = EConfirmationLayout;
+                };
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_progress_note
+// Progress note
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE DIALOG r_glx_progress_note
+    {
+    flags = EAknProgressNoteFlags;
+    buttons = R_AVKON_SOFTKEYS_CANCEL;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtNote;
+            id = EAknCtNote;
+            control = AVKON_NOTE
+                {
+                layout = EProgressLayout;
+                animation = R_QGN_GRAF_WAIT_BAR_ANIM;                
+                };
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_wait_note
+// Confirmation query.
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE DIALOG r_glx_wait_note
+    {
+    flags = EAknWaitNoteFlags | EEikDialogFlagWait;
+    buttons = R_AVKON_SOFTKEYS_CANCEL;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtNote;
+            id = EGlxDlgWaitNote;
+            control = AVKON_NOTE
+                {
+                layout = EWaitLayout;
+                animation = R_QGN_GRAF_WAIT_BAR_ANIM;
+                singular_label = r_glx_wait_dlg_processing;
+                };
+            }
+        };
+    }
+    
+// -----------------------------------------------------------------------------
+//
+// r_glx_wait_note
+// Confirmation query.
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE DIALOG r_glx_wait_note_blocking
+    {
+    flags = EAknWaitNoteFlags | EEikDialogFlagWait;
+    buttons = R_AVKON_SOFTKEYS_CANCEL;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtNote;
+            id = EGlxDlgWaitNote;
+            control = AVKON_NOTE
+                {
+                layout = EWaitLayout;
+                animation = R_QGN_GRAF_WAIT_BAR_ANIM;
+                singular_label = r_glx_wait_dlg_processing;
+                };
+            }
+        };
+    }
+    
+    
+// -----------------------------------------------------------------------------
+//
+// r_glx_aiw_assign_to_contact_interest
+// AIW interest structure for assign
+//
+// -----------------------------------------------------------------------------
+
+RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest_mediaeditor
+    {
+    items=
+        {
+        AIW_CRITERIA_ITEM
+            {
+            id = EGlxCmdAiwAssign;
+            serviceCmd = KAiwCmdAssign;
+            contentType = "MediaEditor/*";
+            serviceClass = KAiwClassMenu;
+            }
+        };
+    }
+
+RESOURCE AIW_INTEREST r_glx_aiw_assign_to_contact_interest
+    {
+    items=
+        {
+        AIW_CRITERIA_ITEM
+            {
+            id = EGlxCmdAiwAssign;
+            serviceCmd = KAiwCmdAssign;
+            contentType = "*";
+            serviceClass = KAiwClassMenu;
+            defaultProvider = 0x101F85BB; // Phonebook, uid not exported anywhere
+            }
+        };
+    }
+
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_aiw_edit_interest
+// AIW interest structure for edit
+//
+// -----------------------------------------------------------------------------
+RESOURCE AIW_INTEREST r_glx_aiw_edit_interest
+    {
+    items=
+        {
+        AIW_CRITERIA_ITEM
+            {
+            id = EGlxCmdAiwEdit;
+            serviceCmd = KAiwCmdEdit;
+            contentType = "*";
+            serviceClass = KAiwClassMenu;
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_aiw_print_interest
+// AIW interest structure for print preview
+//
+// -----------------------------------------------------------------------------
+RESOURCE AIW_INTEREST r_glx_aiw_print_interest
+    {
+    items=
+        {
+        AIW_CRITERIA_ITEM
+            {
+            id = EGlxCmdAiwPrint;
+            serviceCmd = KAiwCmdPrint;
+            contentType = "image/*";
+            serviceClass = KAiwClassMenu;
+            }
+		};
+	}
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_aiw_showmap_interest
+// AIW interest structure for show on map
+//
+// -----------------------------------------------------------------------------
+RESOURCE AIW_INTEREST r_glx_aiw_showmap_interest
+    {
+    items=
+        {
+        AIW_CRITERIA_ITEM
+            {
+            id = KGlxCmdMnShowMap;
+            serviceCmd = KAiwCmdMnShowMap;
+            contentType = "*";
+            serviceClass = KAiwClassMenu;
+            }
+        };
+    }
+    
+    
+//----------------------------------------------------
+//   
+//    r_glx_aiw_showmap_interest_hardkey
+//    AIW interest for show on map hardkey
+//
+//----------------------------------------------------
+//
+RESOURCE AIW_INTEREST r_glx_aiw_showmap_interest_hardkey
+    {
+    items =
+        {
+        AIW_CRITERIA_ITEM
+            {
+            id = KGlxCmdMnShowMap;
+            serviceCmd = KAiwCmdMnShowMap;
+            contentType = "application/x-landmark";
+            serviceClass = KAiwClassBase;
+            }
+        };
+    }
+    
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_name_already_used
+// Used by new media command handler
+//
+// -----------------------------------------------------------------------------
+RESOURCE TBUF r_glx_name_already_used
+	{
+	buf = qtn_fldr_name_already_used;
+	}
+
+// -----------------------------------------------------------------------------
+//
+// r_glx_rename_query
+// Rename query when item already exists
+//
+// -----------------------------------------------------------------------------
+RESOURCE TBUF r_glx_rename_query
+    {
+    buf = qtn_fldr_rename_query;
+    }
+
+
+// -----------------------------------------------------------------------------
+//
+//	r_aiw_share_base_interest
+//  One Click Upload resource
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE AIW_INTEREST r_glx_aiw_share_base_interest
+    {
+    items=
+            {
+            AIW_CRITERIA_ITEM
+                {
+                id = EGlxCmdUpload;
+                serviceCmd = KAiwCmdUpload;
+                serviceClass = KAiwClassBase;
+                contentType = "image/*";                               
+                }
+            };
+    }
+
+// -----------------------------------------------------------------------------
+//
+//  r_aiw_share_interest
+//  Share On Ovi resource 
+//
+// -----------------------------------------------------------------------------
+//
+RESOURCE AIW_INTEREST r_aiw_share_interest
+    {
+    items=
+        {
+        AIW_CRITERIA_ITEM
+            {
+            id = EGlxCmdAiwShareOnOvi;
+            serviceCmd = KAiwCmdUpload;
+            contentType = "*";
+            serviceClass = KAiwClassMenu;
+            maxProviders    = 1;
+            }
+        };
+    }
+
+// -----------------------------------------------------------------------------
+// R_GLX_FLOATING_TOOLBAR
+// Used by ScreenFurniture to create the avkon toolbar for non-touch fullscreen
+// -----------------------------------------------------------------------------
+//
+RESOURCE AVKON_TOOLBAR r_glx_fullscreen_floating_toolbar
+    {
+    lines = 2;
+    flags = ( KAknToolbarWithoutCba | KAknToolbarTransparent | KAknToolbarFlexiblePosition ); 
+
+    items =
+    {
+            TBAR_CTRL
+                {
+                type = EAknCtButton;
+                id = EGlxCmdPlay;
+                control = AVKON_BUTTON
+                    {
+                    flags = KAknButtonNoFrame;
+                    states =
+                    {
+                            AVKON_BUTTON_STATE
+                                {
+                                bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                                bmpid = EMbmGlxiconsQgn_indi_media_thumbnail;
+                                bmpmask = EMbmGlxiconsQgn_indi_media_thumbnail_mask;
+                                dim_bmpid = EMbmGlxiconsQgn_indi_media_thumbnail;
+                                dim_bmpmask = EMbmGlxiconsQgn_indi_media_thumbnail_mask;
+                                hover_bmpid = EMbmGlxiconsQgn_indi_media_thumbnail;
+                                hover_bmpmask = EMbmGlxiconsQgn_indi_media_thumbnail_mask;
+                                press_bmpid = EMbmGlxiconsQgn_indi_media_thumbnail;
+                                press_bmpmask = EMbmGlxiconsQgn_indi_media_thumbnail_mask;
+                                helptxt = qtn_lgal_tooltip_play;
+                                }
+                    };
+                    };
+                },
+                TBAR_CTRL
+                    {
+                    type = EAknCtButton;
+                    id = EGlxCmdSlideshowPlay;
+                    control = AVKON_BUTTON
+                        {
+                        flags = KAknButtonNoFrame;
+                        states =
+                        {
+                                AVKON_BUTTON_STATE
+                                    {
+                                    bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                                    bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                                    bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                                    dim_bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                                    dim_bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                                    hover_bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                                    hover_bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                                    press_bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                                    press_bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                                    helptxt = qtn_lgal_ap_tooltip_slideshow_start;
+                                    }
+                        };
+                        };
+                    },
+                    TBAR_CTRL
+                        {
+                        type = EAknCtButton;
+                        id = EGlxCmdSend;
+                        control = AVKON_BUTTON
+                            {
+                            flags = KAknButtonNoFrame;
+                            states =
+                            {
+                                    AVKON_BUTTON_STATE
+                                        {
+                                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                                        bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                                        bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                                        dim_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                                        dim_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                                        hover_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                                        hover_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                                        press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_send;
+                                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_send_mask;
+                                        helptxt = qtn_lgal_tooltip_send;
+                                        }
+                            };
+                            };
+                        },                        
+                        TBAR_CTRL
+                            {
+                            type = EAknCtButton;
+                            id = EGlxCmdUpload;
+                            control = AVKON_BUTTON
+                                {
+                                flags = KAknButtonNoFrame;
+                                states =
+                                {
+                                        AVKON_BUTTON_STATE
+                                            {
+                                            bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                                            bmpid = EMbmGlxiconsQgn_indi_cam4_tb_upload;
+                                            bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_upload_mask;
+                                            dim_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_upload;
+                                            dim_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_upload_mask;
+                                            hover_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_upload;
+                                            hover_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_upload_mask;
+                                            press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_upload;
+                                            press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_upload_mask;                                            
+                                            }
+                                };
+                                };
+                            },
+                            TBAR_CTRL
+                                {
+                                type = EAknCtButton;
+                                id = EGlxCmdDelete;
+                                control = AVKON_BUTTON
+                                    {
+                                    flags = KAknButtonNoFrame;
+                                    states =
+                                    {
+                                            AVKON_BUTTON_STATE
+                                                {
+                                                bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                                                bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
+                                                bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                                                dim_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
+                                                dim_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                                                hover_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
+                                                hover_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                                                press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_delete;
+                                                press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_delete_mask;
+                                                helptxt = qtn_lgal_tooltip_delete;
+                                                }
+                                    };
+                                    };
+                                }                          
+
+    };
+    }
+// -----------------------------------------------------------------------------
+// resource for metadata msk edit
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_msk_edit
+    {
+    buf = qtn_msk_edit;
+    }  
+    
+// -----------------------------------------------------------------------------
+// resource for metadata msk add
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_msk_add
+    {
+    buf = qtn_msk_add;
+    }        
+
+// -----------------------------------------------------------------------------
+// resource for metadata msk blank
+// -----------------------------------------------------------------------------
+//
+RESOURCE TBUF r_glx_metadata_msk_blank
+    {
+    buf = " ";
+    }   
+
+// ------------------------------------------------------------------------------------
+// Single Line meta pane resource
+// ------------------------------------------------------------------------------------
+RESOURCE TBUF r_glx_completion_add_to_favourites
+    {
+    //buf = qtn_lgal_note_added_to_favourites;
+    buf = "#Added to Favourites";
+    }
+
+RESOURCE TBUF r_glx_completion_rem_from_favourites
+    {
+    //buf = qtn_lgal_note_remove_from_favourites;
+    buf = "#Removed from Favourites";
+    }
+
+// Completion note for "File saved to"
+RESOURCE TBUF r_glx_completion_file_saved_to
+    {
+    buf = qtn_lgal_note_file_saved_to;
+    }
+
+// Error note when the image can not be opened
+RESOURCE TBUF r_glx_err_format_unknown
+    {
+    buf = qtn_lgal_format_unknown;
+    }
+
+RESOURCE CBA r_glx_progressbar_softkey_hide
+    {
+    buttons =
+            {
+            CBA_BUTTON { txt = text_softkey_empty; },
+            CBA_BUTTON { id = EAknSoftkeyHide; txt = qtn_softkey_hide; },
+            CBA_BUTTON { txt = text_softkey_empty; }
+            };
+    }
+//resource for waiting dialog
+RESOURCE TBUF r_glx_main_list_view_processing_dialog
+    { 
+    buf = qtn_lgal_refreshing_media_note; 
+    }
+RESOURCE DIALOG r_progress_note
+    {
+    flags = EAknProgressNoteFlags;
+    buttons = r_glx_progressbar_softkey_hide;
+    items =
+        {
+        DLG_LINE
+            {
+            type = EAknCtNote;
+            id = EAknCtNote;
+            control = AVKON_NOTE
+                {
+                layout = EProgressLayout;
+                singular_label =qtn_lgal_refreshing_media_note;
+                };
+            }
+        };
+    }
+
+//resource for image viewer deletion failure note
+RESOURCE TBUF r_glx_deletion_failure_note
+    { 
+    buf = qtn_fldr_cant_delete_item; 
+    }
+
+//resource for illegal characters in file name note
+RESOURCE TBUF r_glx_qtn_fldr_illegal_characters
+    { 
+    buf = qtn_fldr_illegal_characters; 
+    }

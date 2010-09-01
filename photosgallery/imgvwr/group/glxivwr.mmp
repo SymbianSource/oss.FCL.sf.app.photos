@@ -1,0 +1,89 @@
+/*
+* Copyright (c) 2008 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Project definition file for project Photos Image Viewer
+*
+*/
+
+
+
+ 
+#include <data_caging_paths.hrh>
+#include <platform_paths.hrh>
+
+#include "../../inc/glxcapabilities.hrh"
+#include "../../group/glxbuildcommon.mmh"
+
+TARGET                  glxivwr.exe
+TARGETTYPE              exe
+UID                     0x100039CE 0x200104E7
+
+CAPABILITY              CAP_APPLICATION
+
+SOURCEPATH              ../src
+SOURCE                  glxivwrapplication.cpp 
+SOURCE                  glxivwrappui.cpp 
+SOURCE                  glxivwrdocument.cpp
+
+SOURCEPATH              ../group
+
+START RESOURCE          glxivwr.rss
+HEADER
+TARGETPATH              /resource/apps
+LANGUAGE_IDS
+END // RESOURCE
+
+USERINCLUDE             ../inc
+USERINCLUDE             ../../viewframework/medialists/inc
+
+APP_LAYER_SYSTEMINCLUDE
+
+// System includes from the source tree
+SYSTEMINCLUDE           ../../inc
+SYSTEMINCLUDE           ../../commonui/inc
+SYSTEMINCLUDE           ../../viewframework/inc
+SYSTEMINCLUDE           ../../viewframework/uiutilities/inc
+SYSTEMINCLUDE           ../../controllers/imageviewer/inc
+
+LIBRARY                 apparc.lib
+LIBRARY                 avkon.lib  
+LIBRARY                 cone.lib 
+LIBRARY                 eikcoctl.lib
+LIBRARY                 eikcore.lib
+LIBRARY                 ws32.lib
+LIBRARY                 euser.lib
+LIBRARY                 mpxcommon.lib
+LIBRARY                 mpxviewutility.lib
+LIBRARY                 glxuiutilities.lib
+LIBRARY                 glxcommonui.lib // for NGlxZoomStatePublisher::PublishStateL
+LIBRARY                 glxmedialists.lib // to get the cache manager handle
+LIBRARY                 apgrfx.lib 
+LIBRARY                 glximageviewermanager.lib
+LIBRARY                 efsrv.lib // for RFile
+LIBRARY                 oommonitor.lib
+LIBRARY                 hal.lib   // HAL, HALData
+
+EPOCHEAPSIZE 0x1000 0xC00000 //HEAP SIZE SET TO DEFAULT MIN OF 4KB AND MAX OF 12 MB
+
+START RESOURCE glxivwr_loc.rss
+HEADER
+TARGETPATH              /resource/apps
+LANGUAGE_IDS
+END // RESOURCE
+
+START RESOURCE glxivwr_reg.rss
+DEPENDS glx_loc.rsg
+// Do not change the UID 10003a3f below.
+TARGETPATH              /private/10003a3f/import/apps
+LANGUAGE_IDS
+END // RESOURCE

@@ -11,10 +11,8 @@ rem Nokia Corporation - initial contribution.
 rem
 rem Contributors:
 rem
-rem Description: 
+rem Description:  Batch file to Builds all the photos components
 rem
-
-
 
 call bldmake bldfiles
 

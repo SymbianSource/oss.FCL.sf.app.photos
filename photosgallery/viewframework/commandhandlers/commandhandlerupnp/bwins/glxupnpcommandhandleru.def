@@ -1,0 +1,8 @@
+EXPORTS
+	?StopShowingL@GlxUpnpRenderer@@SAXXZ @ 1 NONAME ; void GlxUpnpRenderer::StopShowingL(void)
+	?NewL@CGlxCommandHandlerShowViaUpnp@@SAPAV1@PAVMGlxMediaListProvider@@H@Z @ 2 NONAME ; class CGlxCommandHandlerShowViaUpnp * CGlxCommandHandlerShowViaUpnp::NewL(class MGlxMediaListProvider *, int)
+	??1CGlxCommandHandlerCopyToHomeNetwork@@UAE@XZ @ 3 NONAME ; CGlxCommandHandlerCopyToHomeNetwork::~CGlxCommandHandlerCopyToHomeNetwork(void)
+	?Status@GlxUpnpRenderer@@SA?AW4TStatus@NGlxUpnpRenderer@@XZ @ 4 NONAME ; enum NGlxUpnpRenderer::TStatus GlxUpnpRenderer::Status(void)
+	?NewL@CGlxCommandHandlerCopyToHomeNetwork@@SAPAV1@AAVMGlxMediaListProvider@@@Z @ 5 NONAME ; class CGlxCommandHandlerCopyToHomeNetwork * CGlxCommandHandlerCopyToHomeNetwork::NewL(class MGlxMediaListProvider &)
+	??1CGlxCommandHandlerShowViaUpnp@@UAE@XZ @ 6 NONAME ; CGlxCommandHandlerShowViaUpnp::~CGlxCommandHandlerShowViaUpnp(void)
+

@@ -1,0 +1,34 @@
+/*
+* Copyright (c) 2007-2008 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    The effect interface
+ *
+*/
+
+
+
+
+#ifndef __SHWCONSTANTS_HRH__
+#define __SHWCONSTANTS_HRH__
+
+
+// Note: KMaxTransDelay is defined in the shwconstants.h for the 
+// standard c++ files. If this value is changed so too must the .h value
+// be changed.
+
+#define KMaxTransDelay 15
+#define KMinTransDelay  2
+#define KTransDelayStep 1
+
+
+#endif // __SHWCONSTANTS_HRH__
