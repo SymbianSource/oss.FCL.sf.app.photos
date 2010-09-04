@@ -121,19 +121,25 @@
 #define GLX_ALBUM_NAME_COUNT_LABEL      "txt_photos_subhead_1_l2"
 
 //to show the total image count in grid view
-#define GLX_GRID_VIEW_COUNT_LABEL       "txt_photos_subtitle_ln_images" 
+#define GLX_GRID_VIEW_COUNT_LABEL       "txt_photos_subhead_all_l2" 
 
 //mark all label to be shown in marking mode view
-#define GLX_LABEL_MARK_ALL            hbTrId("txt_photos_list_mark_all")
+#define GLX_LABEL_MARK_ALL              hbTrId("txt_photos_list_mark_all")
 
 
 //mark all label to be shown in marking mode view
-#define GLX_LABEL_MARK_COUNT            hbTrId("txt_photos_list_lnln")
+#define GLX_LABEL_MARK_COUNT            "txt_photos_list_l1l2" 
+
+#define GLX_GRID_NO_IMAGE               hbTrId("txt_photos_info_no_content")
 
 //*******************************DETAILS VIEW**********************************************
 
-//Description field
-#define GLX_DETAILS_DESCRIPTION        hbTrId("txt_photos_formlabel_description")
+//Name Field inside the text editor in the Details View
+#define GLX_DETAILS_NAME              hbTrId("txt_photos_list_name")
+
+//Description Field inside the text editor in the Details View
+#define GLX_DETAILS_DESCRIPTION       hbTrId("txt_photos_list_description")
+
 //Details view "Date" Label to show the captured date of the image, where %1 is the date
 #define GLX_DETAILS_DATE               "txt_photos_list_date_1"
 
@@ -183,14 +189,21 @@
 // progressing not to be shown while removing selected images from an album
 #define GLX_REMOVE_IMAGES                hbTrId("txt_photos_info_removing_images")    
 
-#define GLX_DIALOG_NAME_PROMPT           hbTrId("txt_photos_title_enter_name")
+#define GLX_DIALOG_ALBUM_PROMPT           hbTrId("txt_photos_title_enter_name")
+
+//Name Prompt
+#define GLX_DIALOG_NAME_PROMPT            hbTrId("txt_photos_dialog_image_name")
+
+//Description Prompt
+#define GLX_DIALOG_DESCRIPTION            hbTrId("txt_photos_dialog_description")
+
 
 #define GLX_DIALOG_ALBUM_NAME_DEFAULT    hbTrId("txt_photos_dialog_enter_name_entry_album")
 
-#define GLX_DIALOG_DELETE_ONE_ITEM       hbTrId("txt_photos_info_deleting_1")
+#define GLX_DIALOG_DELETE_ONE_ITEM       hbTrId("txt_photos_info_delete_1")
 
 //Name already in use alert when user tries to name/reanme the album with an already existing album name
-#define GLX_NAME_ALREADY_EXIST           hbTrId("txt_photos_dpopinfo_name_1_already_in_use") 
+#define GLX_NAME_ALREADY_EXIST           "txt_photos_info_name_1_already_in_use" 
 
 #define GLX_PROCESSING                   hbTrId( "txt_common_info_processing" ) 
 
@@ -234,7 +247,6 @@
 #define GLX_ITEMS_MYFAV                "txt_photos_subtitle_ln_items"
 #define GLX_SUBTITLE_CAM_GRIDVIEW      hbTrId("txt_photos_subtitle_my_camera")
 #define GLX_SUBTITLE_MYFAV_GRIDVIEW    hbTrId("txt_photos_subtitle_my_favorites")
-#define GLX_GRID_NO_IMAGE              hbTrId("txt_photos_info_no_content")
 #define GLX_ALBUM_SELECTION_TITLE      hbTrId("txt_photos_dialog_select_album") 
 #define GLX_IMAGE_VIEWER               hbTrId("txt_photos_title_image_viewer")  
 

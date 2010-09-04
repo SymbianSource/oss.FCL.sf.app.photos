@@ -59,6 +59,7 @@ enum TGlxCommandId
     EGlxCmdSelectSlideshow,  //play the slide show with selected item
     EGlxCmdAlbumSlideShow,   //play the slide show for a album
     EGlxCmdRename,
+    EGlxCmdRenameFile,
     EGlxCmdAddToFav,
     EGlxCmdRemoveFromFav,
     EGlxCmdPlay,

@@ -108,7 +108,7 @@ void GlxAlbumSelectionPopup::dialogClosed(HbAction *action)
 }
 
 GlxCommandHandlerAddToContainer::GlxCommandHandlerAddToContainer() :
-    mNewMediaAdded(false),mAlbumName(QString())
+    mNewMediaAdded(false),mAlbumName(QString()),mIsAddtoFavCmd(false)
     {
     OstTraceFunctionEntry0( GLXCOMMANDHANDLERADDTOCONTAINER_GLXCOMMANDHANDLERADDTOCONTAINER_ENTRY );
     mTargetContainers = NULL;
@@ -128,8 +128,10 @@ CMPXCommand* GlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
     OstTraceFunctionEntry0( GLXCOMMANDHANDLERADDTOCONTAINER_CREATECOMMANDL_ENTRY );
     CMPXCommand* command = NULL;
     mAlbumName.clear();
+    mIsAddtoFavCmd = false;
     if(aCommandId == EGlxCmdAddToFav)
         {
+           mIsAddtoFavCmd = TRUE;
 		   mAlbumName = GLX_ALBUM_FAV;
            CMPXCollectionPath* targetCollection = CMPXCollectionPath::NewL();
            CleanupStack::PushL(targetCollection);
@@ -241,7 +243,8 @@ void GlxCommandHandlerAddToContainer::createNewMedia() const
 
     while (error == KErrAlreadyExists)
         {
-        HbMessageBox::warning(GLX_NAME_ALREADY_EXIST);
+        QString stringToDisplay = hbTrId(GLX_NAME_ALREADY_EXIST).arg(newTitle);
+        HbMessageBox::warning(stringToDisplay);
         error = KErrNone;
         error = commandHandlerNewMedia->ExecuteLD(newMediaId,newTitle);
         }
@@ -264,7 +267,7 @@ void GlxCommandHandlerAddToContainer::createNewMedia() const
 
 QString GlxCommandHandlerAddToContainer::CompletionTextL() const
     {
-    if(!mAlbumName.isNull()){
+    if(!mAlbumName.isNull() && mIsAddtoFavCmd == false){
         return (hbTrId(GLX_IMAGES_ADDED).arg(mAlbumName)); 
         }
 	return 	QString();

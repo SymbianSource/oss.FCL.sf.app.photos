@@ -69,6 +69,8 @@ HEADERS += viewbase/inc/glxview.h \
            fullscreenview/inc/glxcoverflow.h \
            fullscreenview/inc/glxfullscreenview.h \
            detailsview/inc/glxdetailsview.h  \
+           detailsview/inc/glxdetailsviewitemprototype.h \
+           detailsview/inc/glxdetailsviewmodelwrapper.h \
            gridview/inc/glxgridview.h \
            slideshowsettingsview/inc/glxslideshowsettingsview.h \
            listview/inc/glxlistview.h \
@@ -80,7 +82,9 @@ HEADERS += viewbase/inc/glxview.h \
 SOURCES += viewbase/src/glxview.cpp \
            fullscreenview/src/glxcoverflow.cpp \
            fullscreenview/src/glxfullscreenview.cpp \
-	   detailsview/src/glxdetailsview.cpp \
+	   	   detailsview/src/glxdetailsview.cpp \
+	   	   detailsview/src/glxdetailsviewitemprototype.cpp \
+	   	   detailsview/src/glxdetailsviewmodelwrapper.cpp \
            gridview/src/glxgridview.cpp \
            slideshowsettingsview/src/glxslideshowsettingsview.cpp \
            listview/src/glxlistview.cpp \

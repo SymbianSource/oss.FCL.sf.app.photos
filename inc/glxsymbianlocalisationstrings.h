@@ -19,7 +19,7 @@
 #define GLXSYMBIANLOCALISATIONSTRINGS_H_
 
 //SYMBIAN RELATED LOCALISATION STRINGS
-_LIT(KNoImages,"txt_photos_grid_no_images"); 
+_LIT(KAlbumContainer,"txt_photos_dblist_val_ln_images"); 
 _LIT(KCameraText,"txt_photos_dblist_my_camera");
 _LIT(KMyFavText,"txt_photos_dblist_my_favorites");	
 

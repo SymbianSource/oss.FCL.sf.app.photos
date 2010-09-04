@@ -241,8 +241,8 @@ void GlxViewManager::updateProgressDialog( int currentValue )
     static int i = 0;
     HbIcon icon;
     User::ResetInactivityTime();  
+    QString text( GLX_REFRESHING );
 
-    //To:Do temp code remove later
     if ( mProgressDialog ) {
         i = ++i % 10;
         icon = HbIcon( QString( ":/data/Wait/qgn_graf_ring_wait_%1.svg" ).arg( i + 1, 2, 10, QChar( '0' ) ) );
@@ -255,13 +255,16 @@ void GlxViewManager::updateProgressDialog( int currentValue )
         }
         
         if ( currentValue < 0 ) {
-            mProgressDialog->setText( QString( GLX_REFRESHING ) ); //To:Do string will change later
+            mProgressDialog->setText( text ); 
             mProgressDialog->setProgressValue( 0 );
+            mProgressDialog->setProgressDialogType( HbProgressDialog::WaitDialog );
         }
         else {
             int value = max - currentValue;
             mProgressDialog->setProgressValue( value );
-            mProgressDialog->setText( QString( " %1 " ).arg( currentValue ) );
+            text.append( QString( "\n  %1 " ).arg( currentValue ) );
+            mProgressDialog->setText( text );
+            mProgressDialog->setProgressDialogType( HbProgressDialog::ProgressDialog );
         }
     }
 }

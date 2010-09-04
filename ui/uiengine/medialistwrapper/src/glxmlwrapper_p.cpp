@@ -1315,9 +1315,10 @@ HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap, TInt
     //QImage share the memory occupied by data
     QImage image(data, aBitmap->SizeInPixels().iWidth, aBitmap->SizeInPixels().iHeight, bytesPerLine, QImage::Format_RGB16);
         
-    QPixmap pixmap = QPixmap::fromImage(image);
-    pixmap = pixmap.scaled( itemWidth, itemHeight, Qt::KeepAspectRatio );
-  
+    QPixmap pixmap = QPixmap::fromImage(image);    
+    if ( aBitmap->SizeInPixels().iWidth > itemWidth || aBitmap->SizeInPixels().iHeight > itemHeight ) {
+        pixmap = pixmap.scaled( itemWidth, itemHeight, Qt::KeepAspectRatio );
+    }  
     
     aBitmap->UnlockHeap();
     HbIcon* targetIcon = new HbIcon( QIcon( pixmap ) );

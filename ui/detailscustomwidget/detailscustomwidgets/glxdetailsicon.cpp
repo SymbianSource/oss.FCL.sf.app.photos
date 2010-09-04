@@ -50,7 +50,7 @@ GlxDetailsIcon::GlxDetailsIcon(QGraphicsItem *parent) : HbWidget(parent)
   stackedLayout->addItem( mFavIcon );
   setLayout( stackedLayout );
   
-  mFavIcon->setOpacity(0.7);
+  mFavIcon->setOpacity(0.9);
   HbFrameItem* frame = new HbFrameItem(this);
   frame->frameDrawer().setFrameType(HbFrameDrawer::NinePieces);
   frame->frameDrawer().setFrameGraphicsName("qtg_fr_multimedia_trans");

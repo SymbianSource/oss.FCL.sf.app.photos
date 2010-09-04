@@ -54,6 +54,7 @@ SYSTEMINCLUDE   ../../../../../commonutilities/common/inc
 SYSTEMINCLUDE   ../../../../../inc
 SYSTEMINCLUDE   ../../../../../gallery/loc
 SYSTEMINCLUDE   ../../../datasource/manager/inc
+SYSTEMINCLUDE	/epoc32/include/mw/hb/hbcore
 
 // System includes for epoc32/include
 
@@ -69,5 +70,6 @@ LIBRARY         glxcommon.lib
 LIBRARY         glxdatasourcemanager.lib
 LIBRARY         mpxcommon.lib
 LIBRARY         flogger.lib
+LIBRARY		HbCore.lib
 SMPSAFE
 // End of File

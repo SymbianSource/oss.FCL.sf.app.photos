@@ -302,6 +302,10 @@ QVariant GlxMediaModel::data( const QModelIndex &index, int role ) const
         return (mMLWrapper->retrieveItemUri(itemIndex));
     }
     
+	 if (role == GlxImageTitle) {
+           return mMLWrapper->retrieveListTitle(itemIndex);
+    }
+			
     if(role == GlxDimensionsRole) {
         return (mMLWrapper->retrieveItemDimension(itemIndex));
     }

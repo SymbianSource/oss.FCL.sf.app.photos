@@ -1,32 +1,39 @@
 /*
-* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
-* All rights reserved.
-* This component and the accompanying materials are made available
-* under the terms of "Eclipse Public License v1.0"
-* which accompanies this distribution, and is available
-* at the URL "http://www.eclipse.org/legal/epl-v10.html".
-*
-* Initial Contributors:
-* Nokia Corporation - initial contribution.
-*
-* Contributors:
-*
-* Description: 
-*
-*/
+ * Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
+ * All rights reserved.
+ * This component and the accompanying materials are made available
+ * under the terms of "Eclipse Public License v1.0"
+ * which accompanies this distribution, and is available
+ * at the URL "http://www.eclipse.org/legal/epl-v10.html".
+ *
+ * Initial Contributors:
+ * Nokia Corporation - initial contribution.
+ *
+ * Contributors:
+ *
+ * Description: 
+ *
+ */
 
-#include <hbmessagebox.h>
+//Includes Qt/Symbian
+#include <QFile>
+#include <caf/manager.h>
+
+//Includes Orbit
 #include <hblabel.h>
+#include <hbmessagebox.h>
 
-#include <mpxcollectionpath.h>
+//User Includes
 #include <mglxmedialist.h>
-#include <glxcommandfactory.h>
-#include <glxcommandhandlerrename.h>
-#include <glxattributecontext.h>
-#include <glxattributeretriever.h>
-#include <glxfetchcontextremover.h>
 #include <glxcommondialogs.h>
+#include <mpxcollectionpath.h>
+#include <glxcommandfactory.h>
+#include <glxattributecontext.h>
+#include <glxcommandhandlers.hrh>
+#include <glxattributeretriever.h>
 #include "glxlocalisationstrings.h"
+#include <glxfetchcontextremover.h>
+#include <glxcommandhandlerrename.h>   
 
 GlxCommandHandlerRename::GlxCommandHandlerRename()
     {
@@ -42,29 +49,88 @@ CMPXCommand* GlxCommandHandlerRename::CreateCommandL(TInt aCommandId,
     Q_UNUSED(aCommandId);
     Q_UNUSED(aConsume);
     
+    bool ok = false;
     CMPXCommand* command = NULL;
+    CMPXCollectionPath* path = NULL;
     QString mainPane = GetName(aMediaList);
-    QString mediaTitle = NULL;
-    bool ok = false;    
     GlxTextInputDialog* dlg = new GlxTextInputDialog();
-    mediaTitle = dlg->getText(GLX_DIALOG_NAME_PROMPT, mainPane, &ok);
+
+    if (aCommandId == EGlxCmdRenameFile)
+        {
+        mMediaTitle = dlg->getText(GLX_DIALOG_NAME_PROMPT, mainPane, &ok);
+        }
+    else
+        {
+        mMediaTitle = dlg->getText(GLX_DIALOG_ALBUM_PROMPT, mainPane, &ok);
+        }
     delete dlg;
 
     if(ok == true)
         {
-        TPtrC16 newMediaItemTitleDes
-            = (reinterpret_cast<const TUint16*> (mediaTitle.utf16()));
-
+        TPtrC16 newMediaItemTitleDes =
+                (reinterpret_cast<const TUint16*> (mMediaTitle.utf16()));
         HBufC* newMediaItemTitle = newMediaItemTitleDes.Alloc();
         CleanupStack::PushL(newMediaItemTitle);
 
-        CMPXCollectionPath* path = aMediaList.PathLC(
-                NGlxListDefs::EPathFocusOrSelection);
-        command = 
-            TGlxCommandFactory::RenameCommandLC(*newMediaItemTitle,*path);
-        CleanupStack::Pop(command);
-        CleanupStack::PopAndDestroy(path);
-        CleanupStack::PopAndDestroy(newMediaItemTitle);
+        if (aCommandId == EGlxCmdRenameFile)
+            {
+            TDesC& aTitleText = *newMediaItemTitle;
+            TInt index = aMediaList.FocusIndex();
+            const TGlxMedia& media = aMediaList.Item(index);
+            TParsePtrC parsePtr(media.Uri());
+
+            //Constructs the File Name with complete Path
+            TFileName destinationFileName;
+            destinationFileName.Append(parsePtr.DriveAndPath());
+            destinationFileName.Append(aTitleText);
+            destinationFileName.Append(parsePtr.Ext());
+
+            HBufC* modifiedName = destinationFileName.AllocLC();
+            QString fileName = QString::fromUtf16(modifiedName->Ptr(),
+                    modifiedName->Length());
+
+            ContentAccess::CManager *manager =
+                    ContentAccess::CManager::NewL();
+            CleanupStack::PushL(manager);
+
+            QFile filePath(fileName);
+            bool isFileExist = filePath.exists();
+
+            if (!isFileExist)
+                {
+                //rename the media
+                TInt error = manager->RenameFile(media.Uri(), *modifiedName);
+
+                if (error == KErrNone)
+                    {
+                    path = aMediaList.PathLC(
+                            NGlxListDefs::EPathFocusOrSelection);
+                    command = TGlxCommandFactory::RenameCommandLC(
+                            *newMediaItemTitle, *path);
+                    CleanupStack::Pop(command);
+                    CleanupStack::PopAndDestroy(path);
+                    }
+                }
+            else
+                {
+                //The Name of the file name already exists, display an message .
+                HandleErrorL(KErrAlreadyExists);
+                }
+            CleanupStack::PopAndDestroy(manager);
+            CleanupStack::PopAndDestroy(modifiedName);
+            CleanupStack::PopAndDestroy(newMediaItemTitle);
+            }
+        else
+            {
+            //Rename of Album
+            CMPXCollectionPath* path = aMediaList.PathLC(
+                    NGlxListDefs::EPathFocusOrSelection);
+            command = TGlxCommandFactory::RenameCommandLC(*newMediaItemTitle,
+                    *path);
+            CleanupStack::Pop(command);
+            CleanupStack::PopAndDestroy(path);
+            CleanupStack::PopAndDestroy(newMediaItemTitle);
+            }
         }
     return command;
     }
@@ -146,12 +212,13 @@ QString GlxCommandHandlerRename::GetName(MGlxMediaList& aMediaList) const
     return title;
     }
 
-void GlxCommandHandlerRename::HandleErrorL(TInt aErrorCode)
+void GlxCommandHandlerRename::HandleErrorL(TInt aErrorCode) const
 	{
     if(aErrorCode == KErrAlreadyExists)
         {
-        HbMessageBox::warning("Name Already Exist!!!", new HbLabel(
-                "Rename"));
+        QString stringToDisplay = hbTrId(GLX_NAME_ALREADY_EXIST).arg(
+                mMediaTitle);
+        HbMessageBox::warning(stringToDisplay);
         }
 	else{
 		GlxMpxCommandHandler::HandleErrorL(aErrorCode);

@@ -67,7 +67,7 @@ CMPXCommand* GlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
     bool ok = false;
 	QString mediaTitle = NULL;
     GlxTextInputDialog* dlg = new GlxTextInputDialog();
-    mediaTitle = dlg->getText(GLX_DIALOG_NAME_PROMPT, mainPane, &ok);
+    mediaTitle = dlg->getText(GLX_DIALOG_ALBUM_PROMPT, mainPane, &ok);
     delete dlg;
     iNewMediaCreationError = KErrNone;
     if (ok == true)
@@ -182,9 +182,12 @@ void GlxCommandHandlerNewMedia::HandleError(TInt /*aError*/)
 void GlxCommandHandlerNewMedia::HandleErrorL(TInt aErrorCode)
     {
     OstTraceFunctionEntry0( GLXCOMMANDHANDLERNEWMEDIA_HANDLEERRORL_ENTRY );
-    if (aErrorCode == KErrAlreadyExists && !mShowConfirmation)
+    if (aErrorCode == KErrAlreadyExists && !mShowConfirmation && iNewMediaItemTitle)
         {
-        HbMessageBox::warning("Album Already Exist!!!" );
+        QString albumName = QString::fromUtf16(iNewMediaItemTitle->Des().Ptr(),
+            iNewMediaItemTitle->Length());
+        QString stringToDisplay = hbTrId(GLX_NAME_ALREADY_EXIST).arg(albumName);
+        HbMessageBox::warning(stringToDisplay);
         }
     OstTraceFunctionExit0( GLXCOMMANDHANDLERNEWMEDIA_HANDLEERRORL_EXIT );
     }

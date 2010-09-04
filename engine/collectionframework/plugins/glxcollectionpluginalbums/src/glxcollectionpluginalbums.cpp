@@ -37,6 +37,7 @@
 #include <glxmediageneraldefs.h>
 #include <glxmediacollectioninternaldefs.h>
 #include <glxcollectiongeneraldefs.h>
+#include <hbtextresolversymbian.h>
 
 #include <glxpanic.h>
 #include <mglxdatasource.h>
@@ -214,24 +215,13 @@ void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(CMPXMedia* aRespons
             	}
             else
             	{
-            	if(0 == usageCount)
-            		{
-                	tempTitle = LoadLocalizedStringLC(KNoImages); 
+                tempTitle = HbTextResolverSymbian::LoadLC(KAlbumContainer, usageCount);
          
                 	
                 	// Set the title in the response.
             		aResponse->SetTextValueL(attr, *tempTitle);  
             		CleanupStack::PopAndDestroy(tempTitle);
             		continue;                	
-            		}            	
-            	else if (1 == usageCount)
-                	{
-                	tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALBUM_ITEM_SUB_TITLE_SINGLE);
-                	}
-                else
-                	{
-                    tempTitle = LoadLocalizedStringLC(KResourceFile, R_ALBUM_ITEM_SUB_TITLE_MULTI);
-                	}
             	}
             
             TPtr formatString = tempTitle->Des();
@@ -279,13 +269,13 @@ void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(CMPXMedia* aRespons
 					{
 					if( TGlxMediaId(KCapturedAlbumId) == aMediaId )
 						{
-						 HBufC* title = LoadLocalizedStringLC(KCameraText);
+						 HBufC* title = HbTextResolverSymbian::LoadLC(KCameraText); 
 						 aResponse->SetTextValueL(attr, *title);  
 						 CleanupStack::PopAndDestroy(title);						
 						}
 					else if (TGlxMediaId(KFavoriteAlbumId) == aMediaId  )
 						{
-						HBufC* title = LoadLocalizedStringLC(KMyFavText);
+						HBufC* title = HbTextResolverSymbian::LoadLC(KMyFavText); 
 						aResponse->SetTextValueL(attr, *title);  
 						CleanupStack::PopAndDestroy(title);						
 						}

@@ -42,7 +42,7 @@ public:
 
 public slots:
     void messageDialogClose(HbAction* action);
-
+    void commandCancelled();
 protected: // From MGlxMediaListObserver    
     /// See @ref MGlxMediaListObserver::HandleItemAddedL
     void HandleItemAddedL(TInt aStartIndex, TInt aEndIndex, MGlxMediaList* aList);
@@ -81,7 +81,7 @@ protected: // From derived class
 
     virtual CMPXCommand* CreateCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume) const = 0;
 	virtual void DoExecuteCommandL(TInt aCommandId, MGlxMediaList& aMediaList, TBool& aConsume);
-	virtual void HandleErrorL(TInt aErrorCode);
+	virtual void HandleErrorL(TInt aErrorCode) const;
 	virtual QString CompletionTextL() const;
 	virtual QString ProgressTextL() const;        
     virtual QString ConfirmationTextL(bool multiSelection = false) const; 

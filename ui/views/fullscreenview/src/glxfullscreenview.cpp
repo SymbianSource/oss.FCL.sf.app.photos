@@ -74,8 +74,8 @@ GlxFullScreenView::GlxFullScreenView(HbMainWindow *window,HbDocumentLoader *DocL
     
     HbEffect::add( QString( "HbGridView" ), QString( ":/data/transitionup.fxml" ), QString( "TapShow" ) );
     HbEffect::add( QString( "HbGridView" ), QString( ":/data/transitiondown.fxml" ), QString( "TapHide" ) );
-    HbEffect::add( QString( "HbGridViewItem" ), QString( ":/data/zoomin.fxml" ), QString( "SelectHide" ) );
-    HbEffect::add( QString( "HbGridViewItem" ), QString( ":/data/zoomout.fxml" ), QString( "SelectShow" ) );
+    HbEffect::add( QString( "HbGridViewItem" ), QString( ":/data/fullscreenzoomin.fxml" ), QString( "SelectHide" ) );
+    HbEffect::add( QString( "HbGridViewItem" ), QString( ":/data/fullscreenzoomout.fxml" ), QString( "SelectShow" ) );
     HbEffect::add( QString( "HbIconItem" ), QString( ":/data/rotatefslandscape.fxml" ), QString( "RotateFSLS" ) );
     HbEffect::add( QString( "HbIconItem" ), QString( ":/data/rotatefsprotrait.fxml" ), QString( "RotateFSPT" ) );
     
@@ -742,6 +742,7 @@ void GlxFullScreenView::removeConnection()
 	if( mCoverFlow && mZoomWidget ) {
 		disconnect(mZoomWidget,SIGNAL( pinchGestureReceived(int) ), mCoverFlow, SLOT( zoomStarted(int) ) );
 		disconnect(mZoomWidget,SIGNAL( zoomWidgetMovedBackground(int) ), mCoverFlow, SLOT( zoomFinished(int) ) );
+        disconnect( mCoverFlow, SIGNAL( doubleTapEventReceived( QPointF ) ), mZoomWidget, SLOT( animateZoomIn( QPointF ) ) );
 	}
     
 	disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationChanged(Qt::Orientation)));
@@ -783,8 +784,8 @@ GlxFullScreenView::~GlxFullScreenView()
     
     HbEffect::remove( QString("HbGridView"), QString(":/data/transitionup.fxml"), QString( "TapShow" ));
     HbEffect::remove( QString("HbGridView"), QString(":/data/transitiondown.fxml"), QString( "TapHide" ));
-    HbEffect::remove( QString( "HbGridViewItem" ), QString( ":/data/zoomin.fxml" ), QString( "SelectHide" ) );
-    HbEffect::remove( QString( "HbGridViewItem" ), QString( ":/data/zoomout.fxml" ), QString( "SelectShow" ) );
+    HbEffect::remove( QString( "HbGridViewItem" ), QString( ":/data/fullscreenzoomin.fxml" ), QString( "SelectHide" ) );
+    HbEffect::remove( QString( "HbGridViewItem" ), QString( ":/data/fullscreenzoomout.fxml" ), QString( "SelectShow" ) );
     HbEffect::remove( QString( "HbIconItem" ), QString( ":/data/rotatefslandscape.fxml" ), QString( "RotateFSLS" ) );
     HbEffect::remove( QString( "HbIconItem" ), QString( ":/data/rotatefsprotrait.fxml" ), QString( "RotateFSPT" ) );
         
@@ -803,6 +804,7 @@ void GlxFullScreenView::initAnimationItem()
             mIconItems[ i ]->setZValue( mImageStrip->zValue() - 2 );
             mIconItems[ i ]->setPos( 0, 0 );
             mIconItems[ i ]->setAlignment( Qt::AlignCenter );
+            mIconItems[ i ]->setIconScaling( false );
         }        
     }
 }

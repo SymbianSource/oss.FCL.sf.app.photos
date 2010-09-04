@@ -107,26 +107,7 @@ QObject* GlxSlideShowViewDocLoader::createObject(const QString &type, const QStr
 QObject* GlxDetailsViewDocLoader::createObject(const QString &type, const QString &name)
     {
     qDebug() <<"GlxDetailsViewDocLoader::createObject -->";
-
-
-    if (GLX_DETAILSVIEW_IMGNAME == name)
-        {
-        qDebug() << "GlxDetailsViewDocLoader::createObject:GLX_DETAILSVIEW_IMGNAME -->";
-
-        QObject *object = new GlxDetailsTextEdit();
-        object->setObjectName(name);
-        return object;
-        }
-    
-    if (GLX_DETAILSVIEW_DESCRPTIONTEXT == name)
-        {
-        qDebug() << "GlxDetailsViewDocLoader::createObject:GLX_DETAILSVIEW_DESCRPTIONTEXT -->";
-
-        QObject *object = new GlxDetailsTextEdit();
-        object->setObjectName(name);
-        return object;
-        }
-    
+   
     if (GLX_DETAILSVIEW_FAVICON == name)
         {
         qDebug() << "GlxDetailsViewDocLoader::createObject:ICON -->";

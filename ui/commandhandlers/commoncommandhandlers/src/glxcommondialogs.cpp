@@ -19,6 +19,7 @@
 
 #include <hbaction.h>
 #include <QEventLoop>
+const int MAXSTRINGLENGHT = 256; 
 
 GlxTextInputDialog::GlxTextInputDialog(bool disableOkForEmptyText) 
     : mDialog ( NULL ),
@@ -42,6 +43,7 @@ QString GlxTextInputDialog::getText(const QString &label,
     mDialog->setPromptText(label);
     mDialog->setInputMode(HbInputDialog::TextInput);
     mDialog->setValue(text);
+    mDialog->lineEdit(0)->setMaxLength(MAXSTRINGLENGHT);
     if(mDisableOkForEmptyText){
         connect(mDialog->lineEdit(0), SIGNAL( textChanged (const QString &) ),
                 this, SLOT( textChanged (const QString &)));

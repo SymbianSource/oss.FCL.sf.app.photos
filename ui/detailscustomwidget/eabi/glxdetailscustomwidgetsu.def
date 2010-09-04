@@ -15,11 +15,11 @@ EXPORTS
 	_ZN18GlxDetailsTextEdit11qt_metacallEN11QMetaObject4CallEiPPv @ 14 NONAME
 	_ZN18GlxDetailsTextEdit11qt_metacastEPKc @ 15 NONAME
 	_ZN18GlxDetailsTextEdit11setItemTextERK7QString @ 16 NONAME
-	_ZN18GlxDetailsTextEdit12focusInEventEP11QFocusEvent @ 17 NONAME
-	_ZN18GlxDetailsTextEdit12labelPressedEv @ 18 NONAME
-	_ZN18GlxDetailsTextEdit13focusOutEventEP11QFocusEvent @ 19 NONAME
-	_ZN18GlxDetailsTextEdit16staticMetaObjectE @ 20 NONAME DATA 16
-	_ZN18GlxDetailsTextEdit19getStaticMetaObjectEv @ 21 NONAME
+	_ZN18GlxDetailsTextEdit12editorTappedEv @ 17 NONAME
+	_ZN18GlxDetailsTextEdit12gestureEventEP13QGestureEvent @ 18 NONAME
+	_ZN18GlxDetailsTextEdit16staticMetaObjectE @ 19 NONAME DATA 16
+	_ZN18GlxDetailsTextEdit19getStaticMetaObjectEv @ 20 NONAME
+	_ZN18GlxDetailsTextEdit19setTextItemReadOnlyEb @ 21 NONAME
 	_ZN18GlxDetailsTextEditC1EP13QGraphicsItem @ 22 NONAME
 	_ZN18GlxDetailsTextEditC2EP13QGraphicsItem @ 23 NONAME
 	_ZN18GlxDetailsTextEditD0Ev @ 24 NONAME
@@ -39,8 +39,6 @@ EXPORTS
 	_ZThn8_N14GlxDetailsIcon17mouseReleaseEventEP24QGraphicsSceneMouseEvent @ 38 NONAME
 	_ZThn8_N14GlxDetailsIconD0Ev @ 39 NONAME
 	_ZThn8_N14GlxDetailsIconD1Ev @ 40 NONAME
-	_ZThn8_N18GlxDetailsTextEdit12focusInEventEP11QFocusEvent @ 41 NONAME
-	_ZThn8_N18GlxDetailsTextEdit13focusOutEventEP11QFocusEvent @ 42 NONAME
-	_ZThn8_N18GlxDetailsTextEditD0Ev @ 43 NONAME
-	_ZThn8_N18GlxDetailsTextEditD1Ev @ 44 NONAME
+	_ZThn8_N18GlxDetailsTextEditD0Ev @ 41 NONAME
+	_ZThn8_N18GlxDetailsTextEditD1Ev @ 42 NONAME
 

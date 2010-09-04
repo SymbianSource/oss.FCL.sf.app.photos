@@ -36,7 +36,11 @@ public:
 private:
     QString CompletionTextL() const;
     QString GetName(MGlxMediaList& aMediaList) const;
-	void HandleErrorL(TInt aErrorCode);
+	void HandleErrorL(TInt aErrorCode) const;
+	
+public :
+	//Stores the Name of the Album or File.
+	mutable QString mMediaTitle;
 	};
 
 #endif // GLXCOMMANDHANDLERRENAME_H

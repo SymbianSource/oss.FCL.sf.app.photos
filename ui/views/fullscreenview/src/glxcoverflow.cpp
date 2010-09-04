@@ -34,6 +34,8 @@
 #define GLX_COVERFLOW_SPEED  32
 #define GLX_BOUNCEBACK_SPEED 16
 #define GLX_BOUNCEBACK_DELTA 8
+#define MAX_GIF_DIMENSION    640
+const int KBytesInMB = 1024 * 1024;
 
 GlxCoverFlow::GlxCoverFlow( QGraphicsItem *parent ) 
      : HbWidget( parent ), 
@@ -76,6 +78,7 @@ void GlxCoverFlow::setCoverFlow()
         mIconItem[i]->setBrush( QBrush( Qt::black ) );
         mIconItem[i]->setSize( QSize( 0, 0 ) );
         mIconItem[i]->setAlignment( Qt::AlignCenter );
+        mIconItem[i]->setIconScaling( false );
         mIconItem[i]->setObjectName( QString( "Cover%1" ).arg( i ) );
     }
     
@@ -199,7 +202,6 @@ void GlxCoverFlow::dataChanged(QModelIndex startIndex, QModelIndex endIndex)
         index = calculateIndex( mSelIndex + i - 2 );
         if ( index == startIndex.row() ) {
             index = ( mSelItemIndex + i - 2 + NBR_ICON_ITEM ) % NBR_ICON_ITEM;
-            qDebug("GlxCoverFlow::dataChanged index = %d mSelItemIndex = %d ", index, mSelItemIndex );
             mIconItem[ index ]->setIcon( getIcon( startIndex.row() ) );
             if ( index == mSelItemIndex ) {
                 playAnimation( );
@@ -614,6 +616,25 @@ QString GlxCoverFlow::getUri( int index )
     return QString();
 }
 
+QSize GlxCoverFlow::getImageDimension( int index )
+{
+    QVariant variant = mModel->data( mModel->index( index, 0 ), GlxDimensionsRole );
+    if ( variant.isValid() && variant.canConvert< QSize > () ){
+        return variant.value< QSize > () ;
+    }
+    return QSize();    
+}
+
+int GlxCoverFlow::getImageSize( int index )
+{
+    QVariant variant = mModel->data( mModel->index( index, 0 ), GlxSizeRole );
+    if ( variant.isValid() && variant.canConvert< int > () ){
+        return variant.value< int > () ;
+    }
+    return 0;     
+}
+
+
 bool GlxCoverFlow::isAnimatedImage( int index )
 {
     int frameCount = 0;
@@ -621,5 +642,14 @@ bool GlxCoverFlow::isAnimatedImage( int index )
     if ( variant.isValid() && variant.canConvert< int > () ) {
          frameCount = variant.value< int > () ;
     }
-    return frameCount > 1 ? true : false ;
+    
+    if ( frameCount > 1 ) {
+        int size = getImageSize( index );
+        QSize dimn = getImageDimension( index );
+        
+        if ( size <=  KBytesInMB  && dimn.width() <= MAX_GIF_DIMENSION && dimn.height() <= MAX_GIF_DIMENSION  ) {
+            return true;
+        }
+    }
+    return false ;
 }

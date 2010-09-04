@@ -9,6 +9,8 @@
         <file>data/opacity_deactivate.fxml</file>
         <file>data/zoomin.fxml</file>
         <file>data/zoomout.fxml</file>
+        <file>data/fullscreenzoomin.fxml</file>
+        <file>data/fullscreenzoomout.fxml</file>
         <file>data/helix.fxml</file>
         <file>data/fadein.fxml</file>  
         <file>data/uphide.fxml</file>
@@ -21,10 +23,10 @@
         <file>data/rotatefslandscape.fxml</file>
         <file>data/rotatefsprotrait.fxml</file>
         <file>data/photos.css</file>
-        <file>data/listview.docml</file>
-        <file>data/fullscreen.docml</file>
-        <file>data/slideshow.docml</file>
-        <file>data/detailsview.docml</file>
+	<file alias="data/listview.docml">data/listview.docml.bin</file>
+	<file alias="data/fullscreen.docml">data/fullscreen.docml.bin</file>
+	<file alias="data/slideshow.docml">data/slideshow.docml.bin</file>
+	<file alias="data/detailsview.docml">data/detailsview.docml.bin</file>
         <file>data/Wait/qgn_graf_ring_wait_01.svg</file>
         <file>data/Wait/qgn_graf_ring_wait_02.svg</file>
         <file>data/Wait/qgn_graf_ring_wait_03.svg</file>
@@ -35,5 +37,6 @@
         <file>data/Wait/qgn_graf_ring_wait_08.svg</file>
         <file>data/Wait/qgn_graf_ring_wait_09.svg</file>
         <file>data/Wait/qgn_graf_ring_wait_10.svg</file>
+		<file>data/details.svg</file>
     </qresource>
 </RCC>

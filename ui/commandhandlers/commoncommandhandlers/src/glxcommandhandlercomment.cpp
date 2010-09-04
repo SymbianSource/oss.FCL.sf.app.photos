@@ -15,7 +15,6 @@
 *
 */
 
-#include <hbmessagebox.h>
 #include <hblabel.h>
 
 #include <mpxcollectionpath.h>
@@ -44,7 +43,7 @@ CMPXCommand* GlxCommandHandlerComment::CreateCommandL(TInt aCommandId,
     
     CMPXCommand* command = NULL;
     QString mainPane = GetName(aMediaList);
-    QString title(GLX_DETAILS_DESCRIPTION);
+    QString title(GLX_DIALOG_DESCRIPTION);
     QString mediaTitle = NULL;
     bool ok = false;    
     GlxTextInputDialog* dlg = new GlxTextInputDialog(false);

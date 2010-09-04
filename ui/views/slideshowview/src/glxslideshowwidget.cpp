@@ -75,6 +75,7 @@ void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
     mBackGroundItem->setBrush( QBrush( Qt::black ) );
     mAnimItem = new HbIconItem( this );
     mAnimItem->setAlignment( Qt::AlignCenter );
+    mAnimItem->setIconScaling( false );
     
     // Now load the view and the contents.
     // and then set the play icon to the button
@@ -87,6 +88,7 @@ void GlxSlideShowWidget::setSlideShowWidget(HbDocumentLoader *DocLoader)
         mSelIndex[ i ] = -1;
         mIconItems[ i ] = new HbIconItem( this );
         mIconItems[ i ]->setAlignment( Qt::AlignCenter );
+        mIconItems[ i ]->setIconScaling( false );
         mIconItems[ i ]->setObjectName( QString( "SlideShowIcon%1" ).arg( i ) );
     }    
     

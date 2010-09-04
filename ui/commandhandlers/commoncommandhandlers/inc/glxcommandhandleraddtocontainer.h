@@ -53,6 +53,7 @@ private:
     mutable bool mNewMediaAdded ;
     mutable CMPXCollectionPath* mTargetContainers ;
     mutable QString mAlbumName;
+    mutable bool mIsAddtoFavCmd;
 };
 
 class GlxAlbumSelectionPopup: public QObject

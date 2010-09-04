@@ -66,8 +66,7 @@ GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent),
 
 GlxZoomWidget::~GlxZoomWidget()
 {
-    //disconnect all existing signals
-    disconnect(this,SIGNAL( pinchGestureReceived(int) ), this, SLOT( sendDecodeRequest(int) ) );
+   
     //AA
     disconnect( this, SIGNAL( stepZoom() ), this, SLOT( animateDoubleTap()));
     //no Null checks required
@@ -76,9 +75,15 @@ GlxZoomWidget::~GlxZoomWidget()
     delete mBlackBackgroundItem;
     //reset the decoder to cancel pending tasks
     if(mImageDecoder) {
-        mImageDecoder->resetDecoder();
+        resetDecoder();
         delete mImageDecoder;
     }
+}
+void GlxZoomWidget::resetDecoder()
+{
+        mImageDecoder->resetDecoder();
+        mImageDecodeRequestSend = false;
+        mDecodedImageAvailable = false;
 }
 
 void GlxZoomWidget::setModel (QAbstractItemModel *model)
@@ -113,7 +118,7 @@ void GlxZoomWidget::forceZoomToBackground()
     emit zoomWidgetMovedBackground(mFocusIndex);
     //this actually resets the ZoomWidget and decoder
     if(mImageDecoder) {
-        mImageDecoder->resetDecoder();
+        resetDecoder();
     }
     retreiveFocusedImage();
 
@@ -122,22 +127,21 @@ void GlxZoomWidget::forceZoomToBackground()
 void GlxZoomWidget::indexChanged(int index)
 {
     if(mFocusIndex != index) {
-        mImageDecoder->resetDecoder();//reset the decoder first to cancel pending tasks
-        mImageDecodeRequestSend = false;
-        mDecodedImageAvailable = false;
+        resetDecoder();          //reset the decoder first to cancel pending tasks
         retreiveFocusedImage();  //Update mZoomItem with focused Image
     }
 }
 
 void GlxZoomWidget::cleanUp()
 {
+    disconnect(this,SIGNAL( pinchGestureReceived(int) ), this, SLOT( sendDecodeRequest(int) ) );
     if(mModel) {
         disconnect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
         disconnect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
         mModel = NULL;
     }
     if(mImageDecoder) {
-        mImageDecoder->resetDecoder();
+        resetDecoder();
     }
     mZoomItem->setPixmap(QPixmap());
 }
@@ -222,11 +226,14 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
        if (pinchG->state() == Qt::GestureStarted) {
            emit pinchGestureReceived(mFocusIndex);
            //bring the zoom widget to foreground
+           if(zValue()!=mMaxZValue)
+           {
             setZValue(mMaxZValue);
             //show the black background
             mBlackBackgroundItem->setParentItem(parentItem());
             mBlackBackgroundItem->setZValue(mMaxZValue - 1);
             mBlackBackgroundItem->show();
+           }
        }
 
        if (pinchG->state() == Qt::GestureFinished) {

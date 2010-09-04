@@ -50,18 +50,15 @@
 #define  GLX_LISTVIEW_DOCMLPATH  ":/data/listview.docml"
 
 //DETAILS VIEW
-#define GLX_DETAILSVIEW_DOCMLPATH  ":/data/detailsview.docml"
-#define GLX_DETAILSVIEW_VIEW       "view"
-#define GLX_DETAILSVIEW_IMAGE      "ImageIcon"
-#define GLX_DETAILSVIEW_FAVICON    "FavIcon"    
-#define GLX_DETAILSVIEW_IMGNAME    "ImageName"
-#define GLX_DETAILSVIEW_DATETEXT   "DateText"
-#define GLX_DETAILSVIEW_SIZETEXT   "SizeText"
-#define GLX_DETAILSVIEW_TIMETEXT   "TimeText"
-#define GLX_DETAILSVIEW_DESCRPTION "Descriptions"
-#define GLX_DETAILSVIEW_DESCRPTIONTEXT "DescriptionsText"
-#define  GLX_DETAILSVIEW_LSSECTION   "landscape"
-#define  GLX_DETAILSVIEW_PTSECTION   "portrait"
+#define GLX_DETAILSVIEW_DOCMLPATH    ":/data/detailsview.docml"
+#define GLX_DETAILSVIEW_VIEW         "view"
+#define GLX_DETAILSVIEW_IMGBCKGROUND "ImageBackGround"
+#define GLX_DETAILSVIEW_IMAGE        "ImageIcon"
+#define GLX_DETAILSVIEW_FAVICON      "FavIcon"    
+#define GLX_DETAILSVIEW_SHAREBUTTON  "ShareButton"
+#define GLX_DETAILSVIEW_LISTWIDGET   "DetailsViewList"
+#define GLX_DETAILSVIEW_LSSECTION    "landscape"
+#define GLX_DETAILSVIEW_PTSECTION    "portrait"
 
 
 #endif /* GLXDOCLOADERDEFS_H */

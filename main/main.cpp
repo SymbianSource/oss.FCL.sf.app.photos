@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     OstTraceExt3( TRACE_NORMAL, DUP1__MAIN, "::main Time at Launch HHMMSS =%d::%d::%d",
             localTime.hour(), localTime.minute(), localTime.second() );
 
-    GlxApplication app(argc, argv, Hb::NoSplash);	
+    GlxApplication app(argc, argv, XQServiceUtil::isService(argc, argv) ? Hb::NoSplash : Hb::DefaultApplicationFlags);	
     bool loaded(false);	
     QTranslator translator;
     QString path = "Z:/resource/qt/translations/";
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     OstTraceEventStart0( EVENT_DUP1__MAIN_START, "launch" );
 
     if(!XQServiceUtil::isService()){
-        HbSplashScreen::start();
+        
         stateMgr = new GlxStateManager();
         app.setApplicationName( GLX_TITLE );
         stateMgr->launchApplication();  

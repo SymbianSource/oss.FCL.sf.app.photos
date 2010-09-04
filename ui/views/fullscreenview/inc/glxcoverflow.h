@@ -335,6 +335,20 @@ protected:
      * @return - return the uri of the image.
      */
     QString getUri( int index );
+
+    /**
+     * getImageDimension - To get the dimension of the image.
+     * @param - image index.
+     * @return - return the dimension of the image.
+     */    
+    QSize getImageDimension( int index );
+    
+    /**
+     * getImageSize() - To get the image size.
+     * @param - image index.
+     * @return - return the size of the image.
+     */
+    int getImageSize( int index ); 
     
     /**
      * isAnimatedImage() - To get the GIF file info of the image

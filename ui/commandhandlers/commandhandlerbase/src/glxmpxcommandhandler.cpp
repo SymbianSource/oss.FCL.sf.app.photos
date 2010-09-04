@@ -349,6 +349,7 @@ void GlxMpxCommandHandler::TryExitL(TInt aErrorCode)
         {
         // @todo error received. Close progress note 
         DismissProgressNoteL();
+        MGlxMediaList::UnmarkAllL(*iMediaList);
         iMediaList->RemoveMediaListObserver(this);
         iMediaList->Close();
         iMediaList = NULL;
@@ -371,19 +372,9 @@ void GlxMpxCommandHandler::TryExitL(TInt aErrorCode)
 // Default implementation shows an error note
 // -----------------------------------------------------------------------------
 //	
-void GlxMpxCommandHandler::HandleErrorL(TInt aErrorCode)
+void GlxMpxCommandHandler::HandleErrorL(TInt aErrorCode) const
     {
     OstTraceFunctionEntry0( GLXMPXCOMMANDHANDLER_HANDLEERRORL_ENTRY );
-    // show error note
-    // TextResolver instance for error resolving.
-    CTextResolver* textresolver = CTextResolver::NewLC();
-    // Resolve the error text
-    const TDesC& text = textresolver->ResolveErrorString(aErrorCode);
-
-    QString qtText = QString::fromUtf16(text.Ptr(), text.Length());
-
-	HbNotificationDialog::launchDialog(qtText);
-    CleanupStack::PopAndDestroy(textresolver);
     OstTraceFunctionExit0( GLXMPXCOMMANDHANDLER_HANDLEERRORL_EXIT );
     }
 
@@ -410,6 +401,7 @@ void GlxMpxCommandHandler::ProgressNoteL(TInt /*aCommandId*/)
     {
     mProgressDialog = new HbProgressDialog(HbProgressDialog::WaitDialog);
     mProgressDialog->setText(ProgressTextL());
+    connect ( mProgressDialog, SIGNAL (cancelled()), this, SLOT(commandCancelled()));
     mProgressDialog->show();
     }
 
@@ -524,4 +516,12 @@ void GlxMpxCommandHandler::messageDialogClose(HbAction* action)
 QString GlxMpxCommandHandler::ConfirmationTextL(bool /*multiSelection */) const
     {
     return QString();
+    }
+
+void GlxMpxCommandHandler::commandCancelled()
+    {
+    disconnect ( mProgressDialog, SIGNAL (cancelled()), this, SLOT(commandCancelled()));
+    mProgressDialog = NULL;
+    iMediaList->CancelCommand();
+    TryExitL(KErrCancel);
     }

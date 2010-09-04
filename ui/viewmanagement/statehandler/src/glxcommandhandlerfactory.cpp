@@ -51,6 +51,7 @@ GlxCommandHandler* GlxCommandHandlerFactory::CreateCommandHandler(int commandId)
 		case EGlxCmdSend : cmdHandler = new GlxCommandHandlerSend();  
 	         break;
 
+		case EGlxCmdRenameFile:     
         case EGlxCmdRename: cmdHandler = new GlxCommandHandlerRename();
            break;
            

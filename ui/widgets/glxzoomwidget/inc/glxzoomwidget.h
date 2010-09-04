@@ -101,6 +101,8 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     void setZoomParams();
 
     bool isFocussedItemCorrupt();
+    //Reset the decoder and the associated flags
+    void resetDecoder();
     //data members
 private:
     //to be in sync with the model
