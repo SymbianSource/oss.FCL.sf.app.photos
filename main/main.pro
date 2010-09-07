@@ -38,10 +38,6 @@ CONFIG += HB
 
 DEFINES += QT_NO_DEBUG_OUTPUT QT_NO_WARNING_OUTPUT
 
-DOCML += ../data/listview.docml \
-         ../data/detailsview.docml \
-         ../data/fullscreen.docml \
-         ../data/slideshow.docml
 symbian: { 
     TARGET.UID3 = 0x20000A14
     SKINICON = qtg_large_photos
