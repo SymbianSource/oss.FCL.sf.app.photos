@@ -91,7 +91,7 @@ protected:
 	 * @param aAtIndex media list index
 	 */
 	void SetDataT( const CGlxBinding& aBinding, const TGlxMedia& aMedia,
-        TInt aAtIndex );
+        TInt aAtIndex, MGlxMediaList& aMediaList);
 
     /// @todo docs	 
 	void UpdateItems( TInt aIndex, TInt aCount );

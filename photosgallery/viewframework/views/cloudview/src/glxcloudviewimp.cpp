@@ -456,7 +456,11 @@ void CGlxCloudViewImp::SetScrollBarRect()
 void CGlxCloudViewImp::HandleGridMenuListL(TInt aCommand)
     {
     TRACER("GLX_CLOUD::CGlxCloudViewImp::HandleGridMenuListL");
-    ProcessCommandL(aCommand);
+    iCloudControl->ShowContextItemMenuL(EFalse);
+    if (aCommand)
+        {
+        ProcessCommandL(aCommand);
+        }
     }
 
 // ----------------------------------------------------------------------------

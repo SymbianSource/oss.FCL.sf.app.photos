@@ -11,16 +11,12 @@
 *
 * Contributors:
 *
-* Description:    Delete command handler
+* Description:    New media command handler
 *
 */
 
 
 
-
-/**
- * @internal reviewed 06/06/2007 by Dave Schofield
- */
 
 #include "glxcommandhandlernewmedia.h"
 
@@ -297,14 +293,18 @@ void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId,
             KGlxMediaCollectionPluginSpecificDefaultMediaTitle);
     rootList->AddContextL(attributeContext, KGlxFetchContextPriorityBlocking);
 
-    TGlxFetchContextRemover contextRemover(attributeContext, *rootList);
-    // put to cleanupstack as cleanupstack is emptied before stack objects
-    // are deleted
-    CleanupClosePushL(contextRemover);
-    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext,
-            *rootList, ETrue));
-    // context off the list
-    CleanupStack::PopAndDestroy(&contextRemover);
+    // Media list must not have been deleted when the destructor of 
+    // TGlxContextRemover is called while going out-of-scope.
+        {
+        TGlxFetchContextRemover contextRemover(attributeContext, *rootList);
+        // put to cleanupstack as cleanupstack is emptied before stack objects
+        // are deleted
+        CleanupClosePushL(contextRemover);
+        User::LeaveIfError(GlxAttributeRetriever::RetrieveL(
+                *attributeContext, *rootList, ETrue));
+        // context off the list
+        CleanupStack::PopAndDestroy(&contextRemover);
+        } // Limiting scope of contextRemover
 
     TInt index = rootList->Index(KGlxIdSpaceIdRoot, aCollectionId);
 

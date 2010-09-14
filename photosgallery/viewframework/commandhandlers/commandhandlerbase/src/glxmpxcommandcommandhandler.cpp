@@ -531,21 +531,26 @@ void CGlxMpxCommandCommandHandler::ProgressNoteL(TInt aCommandId)
     // get progress note 
     HBufC* progressText = ProgressTextL(aCommandId);
     __ASSERT_DEBUG(progressText, Panic(EGlxPanicNullDescriptor));
-	CleanupStack::PushL(progressText);
+    CleanupStack::PushL(progressText);
     // construct progress dialog
-	iProgressDialog = new(ELeave)CAknProgressDialog(
-			(REINTERPRET_CAST(CEikDialog**,&iProgressDialog)));
-	iProgressDialog->PrepareLC(R_GLX_PROGRESS_NOTE); 
-	iProgressDialog->SetTextL(*progressText);
-	iProgressDialog->SetCallback(this);
-	
+    iProgressDialog = new (ELeave) CAknProgressDialog(
+            (REINTERPRET_CAST(CEikDialog**,&iProgressDialog)));
+    iProgressDialog->PrepareLC(R_GLX_PROGRESS_NOTE);
+    if (aCommandId == EGlxCmdRename)
+        {
+        iProgressDialog->ButtonGroupContainer().SetCommandSetL(
+                R_AVKON_SOFTKEYS_EMPTY);
+        }
+    iProgressDialog->SetTextL(*progressText);
+    iProgressDialog->SetCallback(this);
+
     // pick up progress info so that progress notification can be later updated
-	iProgressInfo = iProgressDialog->GetProgressInfoL();
-	
+    iProgressInfo = iProgressDialog->GetProgressInfoL();
+
     // launch the note
-	iProgressDialog->RunLD();
-	CleanupStack::PopAndDestroy(progressText); 
-	}
+    iProgressDialog->RunLD();
+    CleanupStack::PopAndDestroy(progressText);
+    }
 
 // -----------------------------------------------------------------------------
 // DismissProgressNoteL

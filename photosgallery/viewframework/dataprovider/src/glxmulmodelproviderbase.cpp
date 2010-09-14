@@ -312,7 +312,7 @@ void CGlxMulModelProviderBase::UpdateItems( TInt aIndex, TInt aCount )
 // ----------------------------------------------------------------------------
 //	
 void CGlxMulModelProviderBase::SetDataT( const CGlxBinding& aBinding,
-        const TGlxMedia& aMedia, TInt aAtIndex )
+        const TGlxMedia& aMedia, TInt aAtIndex, MGlxMediaList& aMediaList )
     {
     TRACER("CGlxMulModelProviderBase::SetDataT");
     
@@ -335,7 +335,7 @@ void CGlxMulModelProviderBase::SetDataT( const CGlxBinding& aBinding,
             if (!iDrmGifTextureCreator)
                 {
                 iDrmGifTextureCreator = CGlxDrmGifTextureCreator::NewL(
-                        aBinding, aMedia, aAtIndex, iModel);
+                        aBinding, aMedia, aAtIndex, iModel, aMediaList);
                 }
             else
                 {

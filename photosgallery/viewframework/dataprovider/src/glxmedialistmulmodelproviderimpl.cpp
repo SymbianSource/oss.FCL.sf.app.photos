@@ -135,7 +135,7 @@ void CGlxMediaListMulModelProviderImpl::HandleBindingChanged(
     {
     TRACER("CGlxMediaListMulModelProviderImpl::HandleBindingChanged");
     SetDataT( aBinding, iMediaList.Item(iMediaList.FocusIndex()), 
-                iMediaList.FocusIndex() );
+                iMediaList.FocusIndex(), iMediaList);
     
     }
     
@@ -285,7 +285,7 @@ void  CGlxMediaListMulModelProviderImpl::ProvideData (int aIndex, int aCount,
         {
         for(int i = aIndex; i < aIndex + aCount ; i++)
             {
-		    SetDataT( *iBindingSet, iMediaList.Item(i), i );            
+		    SetDataT( *iBindingSet, iMediaList.Item(i), i, iMediaList);            
             }
         }
     else

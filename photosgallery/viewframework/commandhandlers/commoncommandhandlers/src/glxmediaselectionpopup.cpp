@@ -15,11 +15,6 @@
 *
 */
 
-
-/**
- * @internal reviewed 06/06/2007 by Dave Schofield
- * @internal reviewed 13/07/2007 by Aki Vanhatalo
- */
 // INCLUDE FILES
 
 #include "glxmediaselectionpopup.h"
@@ -248,8 +243,14 @@ void CGlxSingleGraphicPopupMenuStyleList::HandleListBoxEventL(
 					{
 					cbaContainer->SetCommandSetL(R_AVKON_SOFTKEYS_CANCEL);
 					}
+                //LSK / SK1’s visibility is determined by the screen context, if single click support enabled.
+                //As suggested by Avkon, disable the CEikCba’s item specific softkey default behavior.
+				CEikCba* eikCba = static_cast<CEikCba*>( cbaContainer->ButtonGroup() );
+				if( eikCba )
+					{
+					eikCba->EnableItemSpecificSoftkey( EFalse );
+					}
 				cbaContainer->DrawDeferred();
-
                 }
             listBox->DrawDeferred();
 
@@ -334,7 +335,9 @@ TKeyResponse CGlxSingleGraphicPopupMenuStyleListBox::OfferKeyEventL(
 		const TKeyEvent& aKeyEvent, TEventCode aType)
 	{
     TRACER("CGlxSingleGraphicPopupMenuStyleListBox::OfferKeyEventL");
-
+    //Note: To add custom implementation to OfferKeyEventL(), change 
+    //CAknSingleGraphicPopupMenuStyleListBox to CGlxSingleGraphicPopupMenuStyleListBox.
+    
     //Based on the selected item index, disable the MultipleSelection flag
     //to stop the flickering of 'marked box', when Highlighted 'New Tag' is selected.
     CGlxMediaListAdaptor* mediaListAdaptor =
@@ -485,11 +488,9 @@ EXPORT_C CMPXCollectionPath* CGlxMediaSelectionPopup::ExecuteLD(
 
     iMediaList->RemoveMediaListObserver(this); // We no longer require any callbacks from the media list
 
-
     CMPXCollectionPath* path = NULL;
     if (aAccepted)
         {
-
 		//Check if a static item is selected
 		if (iMediaListAdaptor->IsStaticItemSelected())
             {
@@ -519,7 +520,6 @@ EXPORT_C CMPXCollectionPath* CGlxMediaSelectionPopup::ExecuteLD(
                 // The error is neither KErrNone or KErrCancel, leave.
                 User::Leave(error);
                 }
-
             }
         else
             {
@@ -885,14 +885,18 @@ void CGlxMediaSelectionPopup::FetchTitlesL()
             KGlxMediaCollectionPluginSpecificSelectMediaPopupTitle);
     rootList->AddContextL(attributeContext, KGlxFetchContextPriorityBlocking);
 
-    // TGlxContextRemover will remove the context when it goes out of scope
-    // Used here to avoid a trap and still have safe cleanup   
-    TGlxFetchContextRemover contextRemover(attributeContext, *rootList);
-    CleanupClosePushL(contextRemover);
-    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext,
-            *rootList, EFalse));
-    // context off the list
-    CleanupStack::PopAndDestroy(&contextRemover);
+    // Media list must not have been deleted when the destructor of 
+    // TGlxContextRemover is called while going out-of-scope.
+        {
+        // TGlxContextRemover will remove the context when it goes out of scope
+        // Used here to avoid a trap and still have safe cleanup   
+        TGlxFetchContextRemover contextRemover(attributeContext, *rootList);
+        CleanupClosePushL(contextRemover);
+        User::LeaveIfError(GlxAttributeRetriever::RetrieveL(
+                *attributeContext, *rootList, EFalse));
+        // context off the list
+        CleanupStack::PopAndDestroy(&contextRemover);
+        } // Limiting scope of contextRemover
 
     TInt index = rootList->Index(KGlxIdSpaceIdRoot, iCollectionId);
 

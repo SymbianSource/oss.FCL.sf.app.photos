@@ -172,20 +172,19 @@ TInt CGlxAttributeContext::AttributeRequestL(const MGlxMediaList* aList,
             }
         }
     
-    
     // If the attribute request is for Thumbnail, Check if there is a match found.
     // And set the size and thumbnail quality
 	TIdentityRelation<TMPXAttribute> matchContent(&TMPXAttribute::MatchContentId);
 	TMPXAttribute tnAttr(KGlxMediaIdThumbnail, 0);
 	
-	if (iAttributes.Find(tnAttr, matchContent) != KErrNotFound) 
+	if (aAttributes.Find(tnAttr, matchContent) != KErrNotFound) 
 		{
 		// Allocate CMPXAttributeSpecs
 		CMPXAttributeSpecs* attributeSpecs = CMPXAttributeSpecs::NewL();
 		CleanupStack::PushL(attributeSpecs);
 		
-	attributeSpecs->SetTObjectValueL(
-	   TMPXAttribute( KGlxMediaIdThumbnail,
+		attributeSpecs->SetTObjectValueL(
+	    TMPXAttribute( KGlxMediaIdThumbnail,
 					   KGlxAttribSpecThumbnailSize ), 
 					   TSize(iDefaultSpecSize.iWidth,iDefaultSpecSize.iHeight) );
 		
@@ -193,11 +192,16 @@ TInt CGlxAttributeContext::AttributeRequestL(const MGlxMediaList* aList,
 		   TMPXAttribute( KGlxMediaIdThumbnail,
 					   KGlxAttribSpecThumbnailQualityOverSpeed ), ETrue );
 		
+		// Memory leak guard check
+		if (aDetailedSpecs)
+		    {
+            delete aDetailedSpecs;
+            aDetailedSpecs = NULL;
+		    }
 		aDetailedSpecs = attributeSpecs;
 		
 		// Pop from stack
 		CleanupStack::Pop(attributeSpecs);
-		
 		}
 
     // If an error was found, return KErrGeneral

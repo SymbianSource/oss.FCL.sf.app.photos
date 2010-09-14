@@ -633,6 +633,12 @@ void CGlxListViewImp::PreviewTNReadyL(CFbsBitmap* aBitmap, CFbsBitmap*
     if (iMediaList->FocusIndex() != EGlxListItemAll || iMediaList->IdSpaceId(
             0) != KGlxIdSpaceIdRoot)
         {
+        // Delete the bitmap; otherwise this memory will be leaked
+        if (aBitmap)
+            {
+            delete aBitmap;
+            aBitmap = NULL;
+            }
         GLX_LOG_INFO("CGlxListViewImp::PreviewTNReadyL()- Ignore!");
         return;
         }
@@ -716,16 +722,6 @@ void CGlxListViewImp::CreateListL()
             HBufC* emptyText = StringLoader::LoadLC(R_LIST_EMPTY_VIEW_TEXT); 
             iList->SetEmptyTextL(*emptyText);
             CleanupStack::PopAndDestroy(emptyText);
-            
-            //While coming back to main listview
-            TGlxIdSpaceId id = iMediaList->IdSpaceId(0);
-            if((id == KGlxIdSpaceIdRoot) && (mediaCount > 0))
-                {            
-                for (TInt i = 0; i < mediaCount; i++)
-                    {
-                    SetDefaultThumbnailL(i);
-                    }
-                }            
             }		
         
 		//Fix for ESLM-7SAHPT::Clear Flag to Disable QWERTY search input in list view
@@ -743,11 +739,18 @@ void CGlxListViewImp::CreateListL()
 		
 	if (mediaCount)
 	    {
+        TGlxIdSpaceId id = iMediaList->IdSpaceId(0);
+
 		for (TInt i=0; i<mediaCount; i++)
 			{
 		   	const TGlxMedia& item = iMediaList->Item(i);
 			iList->ItemL(i).SetTitleL(item.Title());
 			iList->ItemL(i).SetTextL(item.SubTitle());
+            // Set the default TNs for the main listview
+            if (id == KGlxIdSpaceIdRoot)
+                {
+                SetDefaultThumbnailL(i);
+                }
 			}
 		GLX_DEBUG3("CGlxListViewImp::CreateListL() Medialist Count = %d, "
 		        "iLastFocusIndex %d",mediaCount,iLastFocusedIndex);
@@ -1166,10 +1169,6 @@ void CGlxListViewImp::HandleForegroundEventL(TBool aForeground)
         if (aForeground)
             {
             iProgressIndicator->ShowProgressbarL();
-            }
-        else
-            {
-            iProgressIndicator->DismissProgressDialog();
             }
         }
     }

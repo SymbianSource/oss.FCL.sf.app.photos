@@ -285,7 +285,7 @@ void  CGlxDetailsMulModelProviderImpl::ProvideData (int aIndex, int aCount,
 		{
 		if( KErrNotFound != iMediaList.FocusIndex())
 			{
-			SetDataT( *iEntries[ i ], iMediaList.Item(iMediaList.FocusIndex()), i ) ;
+			SetDataT( *iEntries[ i ], iMediaList.Item(iMediaList.FocusIndex()), i, iMediaList);
 			}
 		}       
     }       

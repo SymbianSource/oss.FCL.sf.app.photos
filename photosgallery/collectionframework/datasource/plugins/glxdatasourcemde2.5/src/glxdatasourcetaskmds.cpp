@@ -314,6 +314,10 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
         {
         __ASSERT_DEBUG((EGlxFilterImage == aFilterProperties.iItemType), Panic(
                 EGlxPanicIllegalArgument));
+
+        CMdEPropertyDef& drmProperty = DataSource()->ImageDef().GetPropertyDefL(MdeConstants::MediaObject::KDRMProperty);
+        CMdEPropertyCondition& drmPropertyCondition = aLogicCondition.AddPropertyConditionL(drmProperty);
+        drmPropertyCondition.SetNegate(ETrue);
         }
         
     if( aFilterProperties.iPath )          // If this is set. Then we need to filter on the Ids it supplies

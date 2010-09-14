@@ -86,5 +86,6 @@ LIBRARY         ws32.lib
 LIBRARY         commonengine.lib
 LIBRARY         caf.lib
 LIBRARY         libpthread.lib
+LIBRARY			eikdlg.lib
 // End of File
 

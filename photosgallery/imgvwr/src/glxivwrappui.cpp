@@ -37,7 +37,7 @@
 #include <glxtracer.h>
 #include <glxlog.h>
 #include <glxivwr.rsg>
-
+#include <eikbtgpc.h>
 
 
 //constants
@@ -73,7 +73,13 @@ void CGlxIVwrAppUi::ConstructL()
 
     // Enable Avkon skins.
     BaseConstructL( EAknEnableSkin | EAknEnableMSK | EAknSingleClickCompatible );
-
+     
+    // Hide status pane
+	StatusPane()->MakeVisible(EFalse);
+	// Hide Softkeys
+	CEikButtonGroupContainer* cba = CEikButtonGroupContainer::Current();
+	cba->MakeVisible(EFalse); 
+       
     // Create navigational state 
     iNavigationalState = CGlxNavigationalState::InstanceL();
     iNavigationalState->AddObserverL( *this );

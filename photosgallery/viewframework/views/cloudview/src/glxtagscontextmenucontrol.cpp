@@ -275,26 +275,21 @@ void CGlxTagsContextMenuControl::SetDisplay(const TPoint& aPoint)
         }
 
     TInt upperYPos = aPoint.iY - KMinimalGap;
-    TInt XPos = aPoint.iX;
+    TInt xPos = aPoint.iX;
     
-    //Preferred is to display in upper area
-    TInt upperDisplayableHeight = upperYPos - iViewableRect.iTl.iY;
-    TInt rightDisplayableWidth = iViewableRect.iBr.iX - (XPos + KRightMargin
-            + KWidthPadding);
-
     //always draw above
-    if(rightDisplayableWidth < iMaxTextWidth)
+    if ((iViewableRect.iBr.iX - (xPos + KRightMargin + KWidthPadding))
+            < iMaxTextWidth)
         {
-        XPos = aPoint.iX - iMaxTextWidth;
+        xPos = aPoint.iX - iMaxTextWidth;
         }
-    if(upperDisplayableHeight < KGridHeight)
+
+    if (upperYPos + KGridHeight > iViewableRect.iBr.iY)
         {
-        iMainVisual->SetPos(TAlfRealPoint(XPos , upperYPos ));
+        upperYPos = iViewableRect.iBr.iY - KGridHeight;
         }
-    else
-        {
-        iMainVisual->SetPos(TAlfRealPoint(XPos , upperYPos - KGridHeight));
-        }
+
+    iMainVisual->SetPos(TAlfRealPoint(xPos, upperYPos));
     
 	if ( iTimer)
 	    {
@@ -446,6 +441,7 @@ void CGlxTagsContextMenuControl::TimerCompleteL()
     {
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::TimerCompleteL");
     ShowItemMenuL(EFalse);
+    iItemMenuObserver.HandleGridMenuListL();
     }
 
 // --------------------------------------------------------------------------- 

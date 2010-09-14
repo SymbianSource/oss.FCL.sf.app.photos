@@ -179,7 +179,6 @@ void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue, TBool aShow)
     else
         {
         iProgressDialog->ProcessFinishedL();
-        iGlxGridViewNotifyObserver.HandleDialogDismissedL();
         if (iProgressDialog)
             {
             iProgressDialog = NULL;
@@ -223,6 +222,7 @@ void CGlxProgressIndicator::DialogDismissedL(TInt /*aButtonId*/)
         }
     iProgressDialog = NULL;
     iProgressInfo = NULL;
+    iGlxGridViewNotifyObserver.HandleDialogDismissedL();
     }
 
 // -----------------------------------------------------------------------------
@@ -256,6 +256,12 @@ TInt CGlxProgressIndicator::CalculateDisplayBarIncrement()
 void EXPORT_C CGlxProgressIndicator::ShowProgressbarL()
     {
     TRACER("CGlxProgressIndicator::ShowProgressbarL");
+    if (iProgressDialog)
+        {
+        GLX_DEBUG1("Glx: ShowProgressbarL() - Already displayed. No need to Re-create it!");
+        return;
+        }
+    
     TInt itemsLeft = iUiUtility->GetItemsLeftCount();
     GLX_DEBUG3("ShowProgressbarL itemsLeft(%d), iFinalCount(%d)", itemsLeft,
             iFinalCount);

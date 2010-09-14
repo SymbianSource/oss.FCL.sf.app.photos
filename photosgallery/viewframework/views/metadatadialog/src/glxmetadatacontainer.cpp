@@ -135,6 +135,9 @@ void CGlxMetadataContainer::ConstructL(const TRect& /*aRect*/,
 
     //Flag to indicate rename command is started
     iRenameStarted = EFalse;
+
+    // Flag to indicate text entry popup display status
+	iIsPopupShown = EFalse;
     }
 
 // ---------------------------------------------------------
@@ -814,11 +817,13 @@ void CGlxMetadataContainer::SetNameDescriptionL(TInt aItem)
         {
         popup->SetLeftSoftKeyL(ETrue);
         }
+    iIsPopupShown = ETrue;
 
     //action upon selecting ok from the editor 
     if (popup->ExecuteLD() == EEikBidOk)
         {
-		if(0 != (popupText.Compare(*textBuf)))
+        iIsPopupShown = EFalse;
+		if (iItemMediaList->Count() && 0 != (popupText.Compare(*textBuf)))
             {
             TFileName fileName = ParseFileName(*textBuf);
             //check If filename already exists
@@ -921,6 +926,10 @@ void CGlxMetadataContainer::SetNameDescriptionL(TInt aItem)
 
     //notify observer that some operation has happened. So refresh the toolbar area..
     iResetToolbarObs.HandleToolbarResetting(EFalse);
+    if (!iItemMediaList->Count())
+        {
+        iDialogObesrver.HandleItemRemovedL();
+        }
     }
 
 // ----------------------------------------------------------------------------
@@ -1060,23 +1069,23 @@ void CGlxMetadataContainer::HandleAttributesAvailableL(TInt /*aItemIndex*/,
             CGlxUStringConverter* stringConverter =
                     CGlxUStringConverter::NewL();
             CleanupStack::PushL(stringConverter);
-
-            //fetch media uri
-            stringConverter->AsStringL(item, aAttributes[index], 0,
-                    modifiedUri);
-            CleanupStack::PopAndDestroy(stringConverter);
-
-            //Check if media item was renamed
-            if (modifiedUri && modifiedUri->Compare(*iUri) != 0)
-                {
-                //Set rename command as started since
-                //Rename is also possible from File Manager
-                iRenameStarted = ETrue;
-                CleanupStack::PushL(modifiedUri);
-                RefreshMediaListL(*modifiedUri);
-                CleanupStack::PopAndDestroy(modifiedUri);
-                }
-            }
+			//fetch media uri
+			stringConverter->AsStringL(item, aAttributes[index], 0, modifiedUri);
+			if (modifiedUri)
+				{
+				CleanupStack::PushL(modifiedUri);
+				//Check if media item was renamed
+				if (modifiedUri->Compare(*iUri) != 0)
+					{
+					//Set rename command as started since
+					//Rename is also possible from File Manager
+					iRenameStarted = ETrue;
+					RefreshMediaListL(*modifiedUri);
+					}
+				CleanupStack::PopAndDestroy(modifiedUri);
+				}
+			CleanupStack::PopAndDestroy(stringConverter);
+			}
 
         }
 
@@ -1278,7 +1287,7 @@ void CGlxMetadataContainer::HandleItemRemovedL(TInt /*aStartIndex*/,
         TInt /*aEndIndex*/, MGlxMediaList* /*aList*/)
     {
     TRACER("CGlxMetadataContainer::HandleItemRemovedL()");
-    if (iItemMediaList->Count() == 0)
+    if (!iItemMediaList->Count() && !iIsPopupShown)
         {
         iDialogObesrver.HandleItemRemovedL();
         }

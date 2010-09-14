@@ -153,9 +153,11 @@ void CGlxPreviewThumbnailBinding::TimerTickedL()
             if (value)
                 {
                 CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
+                CleanupStack::PushL(bitmap);
                 ScaleBitmapToListSizeL(value->iBitmap, bitmap);
                 GLX_LOG_INFO1("iObserver.PreviewTNReadyL() iTrialCount=%d", iTrialCount);
                 iObserver.PreviewTNReadyL(bitmap, NULL);
+                CleanupStack::Pop(bitmap);
                 }
             else
                 {

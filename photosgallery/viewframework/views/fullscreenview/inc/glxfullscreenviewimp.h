@@ -315,6 +315,18 @@ private:
      */
     void UpdateItems();
 
+    /**
+     * Handle coverflow item removed event / 
+     * external file deletion while gaining foreground
+     */
+    void HandleItemRemovedL();
+    
+    /**
+     * Sets the title pane text
+     * @param aTitleText Title text
+     */
+    void SetTitlePaneTextL(const TDesC& aTitleText);
+
 private:
     /** Softkey resource id's */
     TFullScreenViewResourceIds iResourceIds; 
@@ -367,6 +379,9 @@ private:
     TInt iInitialZoomRatio ;
     //Previous focused index
     TInt iOldFocusIndex;
+    // Previous focused Uri
+    HBufC* iUri;
+
     TBool iImgViewerMode;
 	CGlxMMCNotifier* iMMCNotifier;
 	TBool iMMCState;

@@ -70,6 +70,9 @@ protected:
     TBool DoIsDisabled(TInt aCommandId, MGlxMediaList& aList) const;
     /// @ref CGlxMediaListCommandHandler::BypassFiltersForExecute
     TBool BypassFiltersForExecute() const;
+    /// @ref CGlxMediaListCommandHandler::DynInitMenuPaneL
+    void DynInitMenuPaneL(TInt aResourceId, CEikMenuPane* aMenuPane, 
+                            TBool aIsBrowseMode);
     /// @ref CGlxCommandHandler::PopulateToolbar
     void PopulateToolbarL();
 private:    // From MGlxMediaListObserver

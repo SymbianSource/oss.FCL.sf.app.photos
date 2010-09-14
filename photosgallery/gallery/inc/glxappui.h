@@ -153,25 +153,33 @@ private:
     void ReserveMemoryL(TEntryType aType);
 
     //OOM
-    /*
-    *Invoked by the OOM framwork when photos app needs to free memory for other applications.
-    */
+    /**
+     * Invoked by the OOM framework FreeRam event 
+     * to free the memory for other applications.
+     */
     void StartCleanupL();
 
     //OOM
-    /*
-    *Invoked by the OOM framwork when photos app needs to free memory for other applications.
-    */
+    /**
+     * Invoked by the OOM framework MemoryGood event 
+     * to stop the memory clean-up operation.
+     */
     void StopCleanupL();
-	
-	/**
+
+    /**
      * Check for updates via IAD.
      */
     void DoCheckForIADUpdatesL();
+    
     /**
      * close photos app.
      */
-     void ClosePhotosL();
+    void ClosePhotosL();
+
+    /**
+     * Open navigational state at root level
+     */
+    void NavigateToMainListL();
 
 private:
     MMPXViewUtility* iViewUtility;
@@ -202,23 +210,17 @@ private:
      * IAD updater class
      */
     CGlxIadUpdate* iIadUpdate;
-	
-    /**
-    *This flag to chk whether red key has been pressed
-    */
-    TBool iEndKeyPressed;
 
     /**
-     *Timer to check for IAD updates 30 seconds after application startup.
+     * Timer to check for IAD updates 30 seconds after application startup.
      */
-     CPeriodic* iPeriodic ;
-     
-     /**
-      * Flag to filter any spurious EPathChanged event from MPX Collection f/w.
-      */     
-     TBool iStateChangeRequested;
-} ;
+    CPeriodic* iPeriodic;
 
+    /**
+     * Flag to filter any spurious EPathChanged event from MPX Collection f/w.
+     */
+    TBool iStateChangeRequested;
+    };
 
 #endif // C_GLXWERAPPUI_H
 

@@ -38,11 +38,11 @@ const TInt KDefaultFrameInterval = 100000;
 // -----------------------------------------------------------------------------
 CGlxDrmGifTextureCreator* CGlxDrmGifTextureCreator::NewL(
         const CGlxBinding& aBinding, const TGlxMedia& aMedia,
-        TInt aItemIndex, Alf::IMulModel* aModel)
+        TInt aItemIndex, Alf::IMulModel* aModel, MGlxMediaList& aMediaList)
     {
     TRACER("CGlxDrmGifTextureCreator* CGlxDrmGifTextureCreator::NewL()");
     CGlxDrmGifTextureCreator* self = new (ELeave) CGlxDrmGifTextureCreator(
-            aBinding, aMedia, aItemIndex, aModel);
+            aBinding, aMedia, aItemIndex, aModel, aMediaList);
     CleanupStack::PushL(self);
     self->ConstructL();
     CleanupStack::Pop(self);
@@ -119,9 +119,9 @@ void CGlxDrmGifTextureCreator::ReleaseContent()
 // -----------------------------------------------------------------------------
 CGlxDrmGifTextureCreator::CGlxDrmGifTextureCreator(
         const CGlxBinding& aBinding, const TGlxMedia& aMedia,
-        TInt aItemIndex, Alf::IMulModel* aModel) :
+        TInt aItemIndex, Alf::IMulModel* aModel, MGlxMediaList& aMediaList) :
     iBinding(&aBinding), iMedia(&aMedia), iModel(aModel), iItemIndex(
-            aItemIndex)
+            aItemIndex), iMediaList(aMediaList)
     {
     TRACER("CGlxDrmGifTextureCreator::CGlxDrmGifTextureCreator()");
     // Implement nothing here
@@ -230,19 +230,25 @@ void CGlxDrmGifTextureCreator::RefreshL()
     GLX_LOG_INFO2("DrmGif: RefreshL() iAnimCount=%d, iFrameShift=%d",
             iAnimCount, iFrameShift);
     TInt textureId = KErrNotFound;
-    if (iTransparencyPossible && !iFrameShift)
+    if(iMediaList.Count())
         {
-        textureId
-                = (iUiUtility->GlxTextureManager().CreateDRMAnimatedGifTextureL(
-                        *iMedia, iMedia->IdSpaceId(), iAnimCount,
-                        iDecodedBitmap[iAnimCount], iDecodedMask[iAnimCount])).Id();
-        }
-    else
-        {
-        textureId
-                = (iUiUtility->GlxTextureManager().CreateDRMAnimatedGifTextureL(
-                        *iMedia, iMedia->IdSpaceId(), iAnimCount,
-                        iDecodedBitmap[iAnimCount], NULL)).Id();
+        const TGlxMedia media = iMediaList.Item(iItemIndex);
+
+        if (iTransparencyPossible && !iFrameShift)
+            {
+            textureId
+                    = (iUiUtility->GlxTextureManager().CreateDRMAnimatedGifTextureL(
+                            media, media.IdSpaceId(), iAnimCount,
+                            iDecodedBitmap[iAnimCount],
+                            iDecodedMask[iAnimCount])).Id();
+            }
+        else
+            {
+            textureId
+                    = (iUiUtility->GlxTextureManager().CreateDRMAnimatedGifTextureL(
+                            media, media.IdSpaceId(), iAnimCount,
+                            iDecodedBitmap[iAnimCount], NULL)).Id();
+            }
         }
 
     SetTexture(textureId);
@@ -495,6 +501,9 @@ void CGlxDrmGifTextureCreator::SetTexture(TInt aTextureId)
     {
     TRACER("CGlxDrmGifTextureCreator::SetTexture()");
     auto_ptr<MulVisualItem> item(new (EMM) MulVisualItem());
-    iBinding->PopulateT(*item, *iMedia, ETrue, aTextureId);
-    iModel->SetData(iItemIndex, item);
+    if (iMediaList.Count())
+        {
+        iBinding->PopulateT(*item, iMediaList.Item(iItemIndex), ETrue, aTextureId);
+        iModel->SetData(iItemIndex, item);
+        }
     }

@@ -19,7 +19,8 @@
 
 #include <w32std.h>
 #include <fbs.h>
-#include <icl\imagedata.h>
+#include <icl/imagedata.h>
+#include <mglxmedialist.h>                         // Interface for reading lists of media items
 
 class CGlxDRMgifDecoderAO;
 class CImageDecoder;
@@ -44,7 +45,7 @@ public:
      * 
      */
     static CGlxDrmGifTextureCreator* NewL(const CGlxBinding& aBinding,
-            const TGlxMedia& aMedia, TInt aItemIndex,  Alf::IMulModel* aModel);
+            const TGlxMedia& aMedia, TInt aItemIndex,  Alf::IMulModel* aModel, MGlxMediaList& aMediaList);
     
     /*
      * destructor
@@ -71,7 +72,7 @@ private:
      * Ctor 
      */
     CGlxDrmGifTextureCreator(const CGlxBinding& aBinding,
-            const TGlxMedia& aMedia, TInt aItemIndex,  Alf::IMulModel* aModel);
+            const TGlxMedia& aMedia, TInt aItemIndex,  Alf::IMulModel* aModel, MGlxMediaList& aMediaList);
     
     /*
      * ConstructL()
@@ -144,5 +145,6 @@ private:
     TBool iTransparencyPossible;
     TFrameInfo iFrameInfo;
     TBool iFrameShift;
+    MGlxMediaList& iMediaList;
     };
 #endif /* GLXDRMGIFTEXTURECREATOR_H_ */

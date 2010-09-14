@@ -19,23 +19,23 @@ EXPORTS
 	?AddMpxAttributeBindingL@TGlxMulBindingSetFactory@@IBEXABW4TVisualAttribute@mulvisualitem@Alf@@ABVTMPXAttribute@@H@Z @ 18 NONAME ; void TGlxMulBindingSetFactory::AddMpxAttributeBindingL(enum Alf::mulvisualitem::TVisualAttribute const &, class TMPXAttribute const &, int) const
 	??0TGlxMulBindingSetFactory@@IAE@XZ @ 19 NONAME ; TGlxMulBindingSetFactory::TGlxMulBindingSetFactory(void)
 	??1CGlxDetailsMulModelProvider@@UAE@XZ @ 20 NONAME ; CGlxDetailsMulModelProvider::~CGlxDetailsMulModelProvider(void)
-	??1CGlxMediaListMulModelProvider@@UAE@XZ @ 21 NONAME ; CGlxMediaListMulModelProvider::~CGlxMediaListMulModelProvider(void)
-	?NewL@CGlxMediaListMulModelProvider@@SAPAV1@AAVCAlfEnv@@AAVIMulWidget@Alf@@AAVMGlxMediaList@@ABVTGlxMulBindingSetFactory@@W4TLogicalTemplate@mulwidget@4@H@Z @ 22 NONAME ; class CGlxMediaListMulModelProvider * CGlxMediaListMulModelProvider::NewL(class CAlfEnv &, class Alf::IMulWidget &, class MGlxMediaList &, class TGlxMulBindingSetFactory const &, enum Alf::mulwidget::TLogicalTemplate, int)
-	?HideLocationMenuItem@CGlxDetailsMulModelProvider@@QAEXAAVCEikMenuPane@@@Z @ 23 NONAME ; void CGlxDetailsMulModelProvider::HideLocationMenuItem(class CEikMenuPane &)
-	?NewL@CGlxDescriptionBoundCommand@@SAPAV1@XZ @ 24 NONAME ; class CGlxDescriptionBoundCommand * CGlxDescriptionBoundCommand::NewL(void)
-	?AddFullScreenThumbnailBindingL@TGlxMulBindingSetFactory@@IBEXABW4TVisualAttribute@mulvisualitem@Alf@@@Z @ 25 NONAME ; void TGlxMulBindingSetFactory::AddFullScreenThumbnailBindingL(enum Alf::mulvisualitem::TVisualAttribute const &) const
-	?AddIconBindingL@TGlxMulBindingSetFactory@@IBEXABW4TVisualAttribute@mulvisualitem@Alf@@PBVCGlxMulIconProvider@@ABVTSize@@@Z @ 26 NONAME ; void TGlxMulBindingSetFactory::AddIconBindingL(enum Alf::mulvisualitem::TVisualAttribute const &, class CGlxMulIconProvider const *, class TSize const &) const
-	?NewL@CGlxAttributeRequirements@@SAPAV1@AAVMGlxMediaList@@@Z @ 27 NONAME ; class CGlxAttributeRequirements * CGlxAttributeRequirements::NewL(class MGlxMediaList &)
-	?EnableMskL@CGlxDetailsMulModelProvider@@QAEXXZ @ 28 NONAME ; void CGlxDetailsMulModelProvider::EnableMskL(void)
-	?NewL@CGlxMulLocationIconProvider@@SAPAV1@XZ @ 29 NONAME ; class CGlxMulLocationIconProvider * CGlxMulLocationIconProvider::NewL(void)
-	?AddCommandBindingL@TGlxMulBindingSetFactory@@IBEXPAVMGlxBoundCommand@@@Z @ 30 NONAME ; void TGlxMulBindingSetFactory::AddCommandBindingL(class MGlxBoundCommand *) const
-	?NewL@CGlxDateAndTimeBoundCommand@@SAPAV1@XZ @ 31 NONAME ; class CGlxDateAndTimeBoundCommand * CGlxDateAndTimeBoundCommand::NewL(void)
-	?AddTemplateBindingL@TGlxMulBindingSetFactory@@IBEXW4TLogicalTemplate@mulwidget@Alf@@0@Z @ 32 NONAME ; void TGlxMulBindingSetFactory::AddTemplateBindingL(enum Alf::mulwidget::TLogicalTemplate, enum Alf::mulwidget::TLogicalTemplate) const
-	?NewL@CGlxFileSizeBoundCommand@@SAPAV1@XZ @ 33 NONAME ; class CGlxFileSizeBoundCommand * CGlxFileSizeBoundCommand::NewL(void)
-	?NewL@CGlxMulStaticIconProvider@@SAPAV1@H@Z @ 34 NONAME ; class CGlxMulStaticIconProvider * CGlxMulStaticIconProvider::NewL(int)
-	?NewL@CGlxMulVideoIconProvider@@SAPAV1@H@Z @ 35 NONAME ; class CGlxMulVideoIconProvider * CGlxMulVideoIconProvider::NewL(int)
-	?AddThumbnailBindingL@TGlxMulBindingSetFactory@@IBEXABW4TVisualAttribute@mulvisualitem@Alf@@ABVTSize@@@Z @ 36 NONAME ; void TGlxMulBindingSetFactory::AddThumbnailBindingL(enum Alf::mulvisualitem::TVisualAttribute const &, class TSize const &) const
-	?NewL@CGlxMulDriveIconProvider@@SAPAV1@XZ @ 37 NONAME ; class CGlxMulDriveIconProvider * CGlxMulDriveIconProvider::NewL(void)
-	?NewL@CGlxDetailsMulModelProvider@@SAPAV1@AAVCAlfEnv@@AAVIMulWidget@Alf@@AAVMGlxMediaList@@W4TLogicalTemplate@mulwidget@4@H@Z @ 38 NONAME ; class CGlxDetailsMulModelProvider * CGlxDetailsMulModelProvider::NewL(class CAlfEnv &, class Alf::IMulWidget &, class MGlxMediaList &, enum Alf::mulwidget::TLogicalTemplate, int)
-	?AnimateDRMGifItem@CGlxMediaListMulModelProvider@@QAEXH@Z @ 39 NONAME ; void CGlxMediaListMulModelProvider::AnimateDRMGifItem(int)
+	?AnimateDRMGifItem@CGlxMediaListMulModelProvider@@QAEXH@Z @ 21 NONAME ; void CGlxMediaListMulModelProvider::AnimateDRMGifItem(int)
+	??1CGlxMediaListMulModelProvider@@UAE@XZ @ 22 NONAME ; CGlxMediaListMulModelProvider::~CGlxMediaListMulModelProvider(void)
+	?NewL@CGlxMediaListMulModelProvider@@SAPAV1@AAVCAlfEnv@@AAVIMulWidget@Alf@@AAVMGlxMediaList@@ABVTGlxMulBindingSetFactory@@W4TLogicalTemplate@mulwidget@4@H@Z @ 23 NONAME ; class CGlxMediaListMulModelProvider * CGlxMediaListMulModelProvider::NewL(class CAlfEnv &, class Alf::IMulWidget &, class MGlxMediaList &, class TGlxMulBindingSetFactory const &, enum Alf::mulwidget::TLogicalTemplate, int)
+	?HideLocationMenuItem@CGlxDetailsMulModelProvider@@QAEXAAVCEikMenuPane@@@Z @ 24 NONAME ; void CGlxDetailsMulModelProvider::HideLocationMenuItem(class CEikMenuPane &)
+	?NewL@CGlxDescriptionBoundCommand@@SAPAV1@XZ @ 25 NONAME ; class CGlxDescriptionBoundCommand * CGlxDescriptionBoundCommand::NewL(void)
+	?AddFullScreenThumbnailBindingL@TGlxMulBindingSetFactory@@IBEXABW4TVisualAttribute@mulvisualitem@Alf@@@Z @ 26 NONAME ; void TGlxMulBindingSetFactory::AddFullScreenThumbnailBindingL(enum Alf::mulvisualitem::TVisualAttribute const &) const
+	?AddIconBindingL@TGlxMulBindingSetFactory@@IBEXABW4TVisualAttribute@mulvisualitem@Alf@@PBVCGlxMulIconProvider@@ABVTSize@@@Z @ 27 NONAME ; void TGlxMulBindingSetFactory::AddIconBindingL(enum Alf::mulvisualitem::TVisualAttribute const &, class CGlxMulIconProvider const *, class TSize const &) const
+	?NewL@CGlxAttributeRequirements@@SAPAV1@AAVMGlxMediaList@@@Z @ 28 NONAME ; class CGlxAttributeRequirements * CGlxAttributeRequirements::NewL(class MGlxMediaList &)
+	?EnableMskL@CGlxDetailsMulModelProvider@@QAEXXZ @ 29 NONAME ; void CGlxDetailsMulModelProvider::EnableMskL(void)
+	?NewL@CGlxMulLocationIconProvider@@SAPAV1@XZ @ 30 NONAME ; class CGlxMulLocationIconProvider * CGlxMulLocationIconProvider::NewL(void)
+	?AddCommandBindingL@TGlxMulBindingSetFactory@@IBEXPAVMGlxBoundCommand@@@Z @ 31 NONAME ; void TGlxMulBindingSetFactory::AddCommandBindingL(class MGlxBoundCommand *) const
+	?NewL@CGlxDateAndTimeBoundCommand@@SAPAV1@XZ @ 32 NONAME ; class CGlxDateAndTimeBoundCommand * CGlxDateAndTimeBoundCommand::NewL(void)
+	?AddTemplateBindingL@TGlxMulBindingSetFactory@@IBEXW4TLogicalTemplate@mulwidget@Alf@@0@Z @ 33 NONAME ; void TGlxMulBindingSetFactory::AddTemplateBindingL(enum Alf::mulwidget::TLogicalTemplate, enum Alf::mulwidget::TLogicalTemplate) const
+	?NewL@CGlxFileSizeBoundCommand@@SAPAV1@XZ @ 34 NONAME ; class CGlxFileSizeBoundCommand * CGlxFileSizeBoundCommand::NewL(void)
+	?NewL@CGlxMulStaticIconProvider@@SAPAV1@H@Z @ 35 NONAME ; class CGlxMulStaticIconProvider * CGlxMulStaticIconProvider::NewL(int)
+	?NewL@CGlxMulVideoIconProvider@@SAPAV1@H@Z @ 36 NONAME ; class CGlxMulVideoIconProvider * CGlxMulVideoIconProvider::NewL(int)
+	?AddThumbnailBindingL@TGlxMulBindingSetFactory@@IBEXABW4TVisualAttribute@mulvisualitem@Alf@@ABVTSize@@@Z @ 37 NONAME ; void TGlxMulBindingSetFactory::AddThumbnailBindingL(enum Alf::mulvisualitem::TVisualAttribute const &, class TSize const &) const
+	?NewL@CGlxMulDriveIconProvider@@SAPAV1@XZ @ 38 NONAME ; class CGlxMulDriveIconProvider * CGlxMulDriveIconProvider::NewL(void)
+	?NewL@CGlxDetailsMulModelProvider@@SAPAV1@AAVCAlfEnv@@AAVIMulWidget@Alf@@AAVMGlxMediaList@@W4TLogicalTemplate@mulwidget@4@H@Z @ 39 NONAME ; class CGlxDetailsMulModelProvider * CGlxDetailsMulModelProvider::NewL(class CAlfEnv &, class Alf::IMulWidget &, class MGlxMediaList &, enum Alf::mulwidget::TLogicalTemplate, int)
 

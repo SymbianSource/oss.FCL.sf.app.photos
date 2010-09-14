@@ -217,6 +217,8 @@ private: 	//data
     	//Flag to indicate rename command is started
     	TBool iRenameStarted;
 
+        // Flag to indicate text entry popup display status
+        TBool iIsPopupShown;
 	};
 
 #endif //C_GLXMETADATACONTAINER_H__

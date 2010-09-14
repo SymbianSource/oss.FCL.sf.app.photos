@@ -46,6 +46,7 @@
 #include <mpxcollectionpath.h>
 
 #include <gesturehelper.h>
+#include <coeutils.h>
 
 using namespace GestureHelper;
 
@@ -229,6 +230,12 @@ CGlxFullScreenViewImp::~CGlxFullScreenViewImp()
         delete iMMCNotifier;
         iMMCNotifier = NULL;
         }
+    
+    if (iUri)
+        {
+        delete iUri;
+        }
+    
     if(iMediaListMulModelProvider)
         {
         delete iMediaListMulModelProvider;
@@ -425,6 +432,7 @@ void CGlxFullScreenViewImp::DoMLViewActivateL(
     CAknViewAppUi* appui = AppUi();
     if ( appui )
         {
+        SetTitlePaneTextL(KNullDesC);
         appui->StatusPane()->MakeVisible(EFalse);
         appui->Cba()->MakeVisible(EFalse);
         }
@@ -949,6 +957,11 @@ void CGlxFullScreenViewImp::HandleForegroundEventL(TBool aForeground)
     if(iZoomControl && iZoomControl->Activated())
         {
         iZoomControl->HandleZoomForegroundEvent(aForeground);
+        if (aForeground && iUri && !ConeUtils::FileExists(iUri->Des()))
+            {
+            GLX_LOG_INFO("File does not exist, Exit zoom view!");
+            HandleItemRemovedL();
+            }
         }
 
     if (!aForeground)
@@ -1163,36 +1176,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
             case ETypeItemRemoved:
                 {
                 GLX_LOG_INFO("CGlxFullScreenViewImp::OfferEventL ETypeItemRemoved");
-                TInt focusIndex = iMediaList->FocusIndex();
-                TInt mlCount = iMediaList->Count();
-                GLX_LOG_INFO2("CGlxFullScreenViewImp::OfferEventL focusIndex=%d, iOldFocusIndex=%d",
-                        focusIndex, iOldFocusIndex);
-                if (mlCount && (iOldFocusIndex == focusIndex
-                        || iOldFocusIndex == mlCount) && iZoomControl
-                        && iZoomControl->Activated())
-                    {
-                    GLX_LOG_INFO("Fcused item is removed, Exit zoom view!");
-                    DeactivateZoomControlL();
-                    }
-                SetItemToHDMIL();
-                if (focusIndex != KErrNotFound && EUiOn == GetUiState())
-                    {
-                    // show/hide the slider
-                    if (iSliderWidget)
-                        {
-                        iSliderWidget->ShowWidget(CheckIfSliderToBeShownL());
-                        }
-                    }
-                /** if this is the last image deleted when Photo is in foreground, go back to the previous view*/
-                if (mlCount == 0 && IsForeground()
-                        && iNaviState->ViewingMode()
-                                == NGlxNavigationalState::EView)
-                    {
-                    iUiUtility->SetViewNavigationDirection(
-                            EGlxNavigationBackwards);
-                    iNaviState->ActivatePreviousViewL();
-                    }
-                TRAP_IGNORE(ShowDrmExpiryNoteL());
+                HandleItemRemovedL();
                 return EEventConsumed;
                 }
             case ETypeHighlight:
@@ -1317,6 +1301,9 @@ TBool CGlxFullScreenViewImp::HandleViewCommandL(TInt aCommand)
 		case EAknSoftkeyBack:
             {
             HideUi(ETrue);
+            // Enable status pane  and  Set null text 
+			StatusPane()->MakeVisible(ETrue);
+			SetTitlePaneTextL(KNullDesC);
             break;
             }                        
         } 
@@ -1854,7 +1841,11 @@ void CGlxFullScreenViewImp::SetItemToHDMIL()
         //(e.g. video, corrupted item, item with invalid DRM)
         iHdmiController->ItemNotSupported();
         }
+    
     iOldFocusIndex = iMediaList->FocusIndex();
+    delete iUri;
+    iUri = NULL;   
+    iUri = item.Uri().AllocL();
     }
 
 // ---------------------------------------------------------------------------
@@ -2090,4 +2081,61 @@ void CGlxFullScreenViewImp::UpdateItems()
                 }
             }
         }
+    }
+
+// ---------------------------------------------------------------------------
+// Sets the title pane text
+// ---------------------------------------------------------------------------
+void CGlxFullScreenViewImp::SetTitlePaneTextL(const TDesC& aTitleText)
+	{
+    TRACER("CGlxFullScreenViewImp::SetTitlePaneTextL()");
+    CAknViewAppUi* appui = AppUi();
+    if (appui)
+        {
+        CAknTitlePane* titlePane =
+                (CAknTitlePane*) appui->StatusPane()->ControlL(TUid::Uid(
+                        EEikStatusPaneUidTitle));
+        titlePane->SetTextL(aTitleText);
+        titlePane->DrawNow();
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// HandleItemRemovedL
+// ---------------------------------------------------------------------------
+void CGlxFullScreenViewImp::HandleItemRemovedL()
+    {
+    TRACER("CGlxFullScreenViewImp::HandleItemRemovedL()");
+    TInt focusIndex = iMediaList->FocusIndex();
+    TInt mlCount = iMediaList->Count();
+    GLX_LOG_INFO2("CGlxFullScreenViewImp::HandleItemRemovedL focusIndex=%d, iOldFocusIndex=%d",
+            focusIndex, iOldFocusIndex);
+    // When photos is in background, the Following scenario could happen,
+    // 1) First item is deleted => iOldFocusIndex == focusIndex (or)
+    // 2) Last item is deleted => iOldFocusIndex == mlCount (or)
+    // 3) New item is added and focused item is deleted => iOldFocusIndex != focusIndex
+    if (mlCount && (iOldFocusIndex == focusIndex || iOldFocusIndex == mlCount
+            || iOldFocusIndex != focusIndex) && iZoomControl
+            && iZoomControl->Activated())
+        {
+        GLX_LOG_INFO("Focused item is removed, Exit zoom view!");
+        DeactivateZoomControlL();
+        }
+    SetItemToHDMIL();
+    if (focusIndex != KErrNotFound && EUiOn == GetUiState())
+        {
+        // show/hide the slider
+        if (iSliderWidget)
+            {
+            iSliderWidget->ShowWidget(CheckIfSliderToBeShownL());
+            }
+        }
+    /** if this is the last image deleted when Photo is in foreground, go back to the previous view*/
+    if (mlCount == 0 && IsForeground() && iNaviState->ViewingMode()
+            == NGlxNavigationalState::EView)
+        {
+        iUiUtility->SetViewNavigationDirection(EGlxNavigationBackwards);
+        iNaviState->ActivatePreviousViewL();
+        }
+    TRAP_IGNORE(ShowDrmExpiryNoteL());
     }
