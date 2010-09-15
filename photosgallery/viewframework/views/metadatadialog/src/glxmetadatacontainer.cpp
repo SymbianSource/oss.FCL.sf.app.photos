@@ -1075,7 +1075,7 @@ void CGlxMetadataContainer::HandleAttributesAvailableL(TInt /*aItemIndex*/,
 				{
 				CleanupStack::PushL(modifiedUri);
 				//Check if media item was renamed
-				if (modifiedUri->Compare(*iUri) != 0)
+				if (modifiedUri->CompareF(*iUri) != 0)
 					{
 					//Set rename command as started since
 					//Rename is also possible from File Manager
@@ -1287,7 +1287,8 @@ void CGlxMetadataContainer::HandleItemRemovedL(TInt /*aStartIndex*/,
         TInt /*aEndIndex*/, MGlxMediaList* /*aList*/)
     {
     TRACER("CGlxMetadataContainer::HandleItemRemovedL()");
-    if (!iItemMediaList->Count() && !iIsPopupShown)
+    //Ignore if this callback corresponds to a rename operation.
+    if (!iItemMediaList->Count() && !iIsPopupShown && !iRenameStarted)
         {
         iDialogObesrver.HandleItemRemovedL();
         }

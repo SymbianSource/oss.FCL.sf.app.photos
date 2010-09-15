@@ -71,6 +71,8 @@
 #include <glxicons.mbg>
 #include <AknIconUtils.h>
 #include <glxuistd.h>
+#include <glxuiutilities.rsg>
+#include <glxgeneraluiutilities.h>
 
 namespace
     {
@@ -243,6 +245,14 @@ TInt CShwSlideshowView::StartEngineL()
 				{
 				iWaitDialog->ProcessFinishedL();
 				}
+            HBufC* popupText = NULL;
+            //Load the "No Images to Play Slideshow" string from the resource file
+            popupText = StringLoader::LoadLC(R_GLX_NO_IMAGES_TO_PLAY_SLIDESHOW);
+            // Show the Info Note.
+            GlxGeneralUiUtilities::ShowInfoNoteL(popupText->Des(), EFalse);
+            // LoadLC will push text on to cleanupstack, 
+            // hence it should be poped and destroyed
+            CleanupStack::PopAndDestroy(popupText);
 			}
 		else
 			{

@@ -554,6 +554,12 @@ void  CGlxFullScreenViewImp::ShowUiL(TBool aStartTimer)
     //Since the toolbar should not be present for ImageViewer.
     if(!iImgViewerMode)
         {
+		TInt focusIndex = iMediaList->FocusIndex();
+		if (focusIndex >= 0 && focusIndex < iMediaList->Count())
+			{
+			TBool dimmed = (EMPXVideo == iMediaList->Item(focusIndex).Category());
+			Toolbar()->SetItemDimmed(EGlxCmdSlideshowPlay, dimmed, ETrue);
+			}
         //show the toolbar
         EnableFSToolbar(ETrue);
         }
@@ -1031,6 +1037,7 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
     TRACER("CGlxFullScreenViewImp::offerEventL");
     if ( aEvent.IsKeyEvent())
         {
+		GLX_LOG_INFO1("CGlxFullScreenViewImp::OfferEventL aEvent.KeyEvent().iScanCode: %d",aEvent.KeyEvent().iScanCode); 
         switch ( aEvent.KeyEvent().iScanCode )
             {
             case EStdKeyNkpAsterisk :
@@ -1043,12 +1050,19 @@ AlfEventStatus CGlxFullScreenViewImp::OfferEventL(const TAlfEvent& aEvent)
                 //EKeyApplicationC for which TStdScancode is EStdKeyApplicatoinC
             case EStdKeyApplicationC: 
                 {
-                if(EEventKeyDown == aEvent.Code())
+                TInt focusIndex = iMediaList->FocusIndex();
+                if (focusIndex >= 0 && focusIndex < iMediaList->Count())
                     {
-                    HideUi(EFalse);
-                    TRAP_IGNORE( ActivateZoomControlL(EZoomStartKey));
-                    return EEventConsumed;
+                    if (EEventKey == aEvent.Code() && (EMPXImage 
+                            == iMediaList->Item(focusIndex).Category()))
+                        {
+                        HideUi(EFalse);
+                        SetSliderToMin();
+                        TRAP_IGNORE(ActivateZoomControlL(EZoomStartKey));
+                        return EEventHandled;
+                        }
                     }
+				// Fall through to show the UI in case of EMPXVideo
                 }
             case EStdKeyUpArrow:            
             case EStdKeyDownArrow:
@@ -2122,13 +2136,16 @@ void CGlxFullScreenViewImp::HandleItemRemovedL()
         DeactivateZoomControlL();
         }
     SetItemToHDMIL();
-    if (focusIndex != KErrNotFound && EUiOn == GetUiState())
+    if (focusIndex != KErrNotFound && focusIndex < iMediaList->Count() && EUiOn
+            == GetUiState())
         {
         // show/hide the slider
         if (iSliderWidget)
             {
             iSliderWidget->ShowWidget(CheckIfSliderToBeShownL());
             }
+        TBool dimmed = (EMPXVideo == iMediaList->Item(focusIndex).Category());
+        Toolbar()->SetItemDimmed(EGlxCmdSlideshowPlay, dimmed, ETrue);
         }
     /** if this is the last image deleted when Photo is in foreground, go back to the previous view*/
     if (mlCount == 0 && IsForeground() && iNaviState->ViewingMode()
