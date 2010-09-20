@@ -28,9 +28,9 @@
 // constructor.
 // ---------------------------------------------------------------------------
 //
-GlxMLWrapper::GlxMLWrapper(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri)
+GlxMLWrapper::GlxMLWrapper(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri,GlxFetcherFilterType fetcherFilterType)
 {
-    mMLWrapperPrivate = GlxMLWrapperPrivate::Instance(this, aCollectionId, aHierarchyId, aFilterType,uri);
+    mMLWrapperPrivate = GlxMLWrapperPrivate::Instance(this, aCollectionId, aHierarchyId, aFilterType,uri,fetcherFilterType);
 }
 
 // ---------------------------------------------------------------------------

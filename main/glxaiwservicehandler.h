@@ -56,7 +56,7 @@ public:
      * launch image fetcher view
      * @param viewTitle title for image fetcher
      */
-	void launchFetcher(QString viewTitle);
+	void launchFetcher(QString viewTitle,int fetcherFilterType = 0);
 
 	/**
      * launch image viewer 

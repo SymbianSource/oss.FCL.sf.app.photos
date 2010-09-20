@@ -180,20 +180,20 @@ void GlxTvOutWrapperPrivate::SetToCloningMode()
 // setToNativeMode 
 // -----------------------------------------------------------------------------
 void GlxTvOutWrapperPrivate::SetToNativeMode()
-    {
+{
     TRACER("GlxTvOutWrapperPrivate::SetToNativeMode()");
     iIsPhotosInForeground = true;
-    
-    if(iHdmiController && iHdmiConnected) {
-    if (!isImageSetToHdmi){
+
+    if ( iHdmiConnected ) {
+        if ( !isImageSetToHdmi ) {
+            SetNewImage(); // this case can occur when FS image is opened and set to background
+            // HDMI cable connected and then FS is brought to foreground
+        }
     }
-    SetNewImage(); // this case can occur when FS image is opened and set to background
-                   // HDMI cable connected and then FS is brought to foreground
+    else {
+        iHdmiController->ShiftToPostingMode();
     }
-    else{
-    iHdmiController->ShiftToPostingMode();
-    }
-    }
+}
 
 // -----------------------------------------------------------------------------
 // itemNotSupported 

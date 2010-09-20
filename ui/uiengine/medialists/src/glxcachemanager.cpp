@@ -710,8 +710,8 @@ void CGlxCacheManager::MaintainCacheL()
                         {
                         CGlxImageViewerManager *imageVwrMgr = CGlxImageViewerManager::InstanceL();
 						CleanupClosePushL(*imageVwrMgr);
-#ifdef _DEBUG
-                        TInt mediaCnt = list->Count();
+#ifdef GLX_LOGGING_ENABLED
+						TInt mediaCnt = list->Count();
 #endif                        
                         TInt errInImage = KErrNone;
  

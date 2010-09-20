@@ -95,21 +95,22 @@ void GlxDetailsView::initializeView(QAbstractItemModel *model, GlxView *preView)
     if (!mDocLoader) {
         mDocLoader = new GlxDetailsViewDocLoader();
     }
-    mDocLoader->load(GLX_DETAILSVIEW_DOCMLPATH, &loaded);
+    
+    if ( mDocLoader ) {
+        mDocLoader->load(GLX_DETAILSVIEW_DOCMLPATH, &loaded);
 
-    if (!mView) {
+        if (!mView) {
 
-        mView = static_cast<HbView*> (mDocLoader->findWidget(GLX_DETAILSVIEW_VIEW));
-        mImageBackGround = static_cast<HbLabel*> (mDocLoader->findWidget(
-            GLX_DETAILSVIEW_IMGBCKGROUND));
-        mDetailsIcon = static_cast<HbLabel*> (mDocLoader->findWidget(GLX_DETAILSVIEW_IMAGE));
+            mView = static_cast<HbView*> (mDocLoader->findWidget(GLX_DETAILSVIEW_VIEW));
+            mImageBackGround = static_cast<HbLabel*> (mDocLoader->findWidget(
+                GLX_DETAILSVIEW_IMGBCKGROUND));
+            mDetailsIcon = static_cast<HbLabel*> (mDocLoader->findWidget(GLX_DETAILSVIEW_IMAGE));
+        }
+
+        mFavIcon = static_cast<GlxDetailsIcon*> (mDocLoader->findWidget(GLX_DETAILSVIEW_FAVICON));
+        mShareButton = static_cast<HbPushButton*> (mDocLoader->findWidget(GLX_DETAILSVIEW_SHAREBUTTON));
+        mListView = static_cast<HbListView*> (mDocLoader->findWidget(GLX_DETAILSVIEW_LISTWIDGET));
     }
-
-    mFavIcon = static_cast<GlxDetailsIcon*> (mDocLoader->findWidget(GLX_DETAILSVIEW_FAVICON));
-
-    mShareButton = static_cast<HbPushButton*> (mDocLoader->findWidget(GLX_DETAILSVIEW_SHAREBUTTON));
-
-    mListView = static_cast<HbListView*> (mDocLoader->findWidget(GLX_DETAILSVIEW_LISTWIDGET));
 
     //Set the Model
     mModel = model;
@@ -125,9 +126,7 @@ void GlxDetailsView::initializeView(QAbstractItemModel *model, GlxView *preView)
     mImageBackGround->show();
     mDetailsIcon->show();
     
-    setWidget(mView);
-
-    
+    setWidget(mView); 
 
     OstTraceFunctionExit0( GLXDETAILSVIEW_INITIALIZEVIEW_EXIT );
 }

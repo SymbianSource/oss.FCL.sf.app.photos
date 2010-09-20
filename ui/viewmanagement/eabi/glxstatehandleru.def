@@ -8,7 +8,7 @@ EXPORTS
 	_ZN15GlxStateManager11qt_metacastEPKc @ 7 NONAME
 	_ZN15GlxStateManager12eventHandlerERi @ 8 NONAME
 	_ZN15GlxStateManager13cleanAllModelEv @ 9 NONAME
-	_ZN15GlxStateManager13launchFetcherEv @ 10 NONAME
+	_ZN15GlxStateManager13launchFetcherEi @ 10 NONAME
 	_ZN15GlxStateManager13previousStateEv @ 11 NONAME
 	_ZN15GlxStateManager14executeCommandEi @ 12 NONAME
 	_ZN15GlxStateManager14launchActivityEv @ 13 NONAME

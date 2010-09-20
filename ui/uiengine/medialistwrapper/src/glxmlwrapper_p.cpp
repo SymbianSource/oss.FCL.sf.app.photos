@@ -61,6 +61,8 @@ const TInt KFullScreenTNLSWidth (640);
 const TInt KFullScreenTNLSHeight (360);
 const TInt KFullScreenTNPTWidth (360);
 const TInt KFullScreenTNPTHeight (640);
+_LIT(KMymeTypeJpeg, "jpeg");
+_LIT(KMymeTypeJp2, "jp2");
 
 // ======== MEMBER FUNCTIONS ========
 
@@ -69,13 +71,13 @@ const TInt KFullScreenTNPTHeight (640);
 // ---------------------------------------------------------------------------
 //
 GlxMLWrapperPrivate* GlxMLWrapperPrivate::Instance(GlxMLWrapper* aMLWrapper,
-    int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri)
+    int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri,GlxFetcherFilterType fetcherFilterType)
     {
     TRACER("GlxMLWrapperPrivate::NewLC()");
 
     GlxMLWrapperPrivate* self = new GlxMLWrapperPrivate(aMLWrapper);
    if(self){
-	   TRAPD(err,self->ConstructL(aCollectionId, aHierarchyId, aFilterType,uri));
+	   TRAPD(err,self->ConstructL(aCollectionId, aHierarchyId, aFilterType,uri,fetcherFilterType));
 	   if(err != KErrNone){
 		   delete self;
 		   self = NULL;
@@ -116,7 +118,7 @@ GlxMLWrapperPrivate::GlxMLWrapperPrivate(GlxMLWrapper* aMLWrapper)
 // Symbian 2nd phase constructor can leave.
 // ---------------------------------------------------------------------------
 //  
-void GlxMLWrapperPrivate::ConstructL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri)
+void GlxMLWrapperPrivate::ConstructL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri,GlxFetcherFilterType fetcherFilterType)
     {
     TRACER("GlxMLWrapperPrivate::ConstructL");
      if(aCollectionId == KGlxCollectionPluginFavoritesAlbumId)
@@ -125,12 +127,12 @@ void GlxMLWrapperPrivate::ConstructL(int aCollectionId, int aHierarchyId, TGlxFi
          }
      else if(aCollectionId != KGlxAlbumsMediaId)
 		{
-		CreateMediaListL(aCollectionId, aHierarchyId,aFilterType);
+		CreateMediaListL(aCollectionId, aHierarchyId,aFilterType,fetcherFilterType);
 		}
 	else
 		{
 		//for creating Medial List for Albums Media path Items
-		CreateMediaListAlbumItemL(aCollectionId, aHierarchyId,aFilterType);
+		CreateMediaListAlbumItemL(aCollectionId, aHierarchyId,aFilterType,fetcherFilterType);
 		}
 	iMLGenericObserver = CGlxMLGenericObserver::NewL(*iMediaList,this);
 	iBlockyIteratorForFilmStrip.SetRangeOffsets(0,0);
@@ -552,7 +554,7 @@ int GlxMLWrapperPrivate::GetItemCount()
 // CreateMediaListAlbumItemL()
 // Creates the media list for the album Item 
 // ---------------------------------------------------------------------------
-void GlxMLWrapperPrivate::CreateMediaListAlbumItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType)
+void GlxMLWrapperPrivate::CreateMediaListAlbumItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,GlxFetcherFilterType fetcherFilterType)
 	{
 	TRACER("GlxMLWrapperPrivate::CreateMediaListAlbumItemL");
 	Q_UNUSED(aCollectionId);
@@ -565,7 +567,30 @@ void GlxMLWrapperPrivate::CreateMediaListAlbumItemL(int aCollectionId, int aHier
 	iMediaList->Close();
 	iMediaList = NULL;
 	//create new media list with the derived path
-	CMPXFilter* filter = TGlxFilterFactory::CreateItemTypeFilterL(aFilterType);   //todo take actual filter type
+    GLX_LOG_INFO1("GlxMLWrapperPrivate::CreateMediaListAlbumItemL  - Filter Type = %d",aFilterType);
+    CMPXFilter* filter = NULL;
+    if( EGlxFilterExcludeCamera == aFilterType)
+        {
+        filter = TGlxFilterFactory::CreateCameraAlbumExclusionFilterL();
+        }
+    else if(EGlxFilterImage == aFilterType)
+        {
+        filter = TGlxFilterFactory::CreateExcludeDrmImageTypeFilterL(aFilterType);   
+        }
+    else if( EGlxFilterFetcherMimeType == aFilterType )
+        {
+        if(fetcherFilterType == EGlxFetcherFilterJpeg)
+            {
+            filter = TGlxFilterFactory::CreateMimeTypeFilterL(KMymeTypeJpeg);
+            }
+        else if(fetcherFilterType == EGlxFetcherFilterJp2){
+            filter = TGlxFilterFactory::CreateMimeTypeFilterL(KMymeTypeJp2);
+            }
+        }
+    else 
+        {
+        filter = TGlxFilterFactory::CreateItemTypeFilterL(aFilterType);   //todo take actual filter type
+        }
 	CleanupStack::PushL(filter);
 	iMediaList = MGlxMediaList::InstanceL( *path, 
 	                  TGlxHierarchyId(0), filter );  //todo take actual hierarchy
@@ -581,7 +606,7 @@ void GlxMLWrapperPrivate::CreateMediaListAlbumItemL(int aCollectionId, int aHier
 // Create a filter as requested filtertype
 // Creates the medialist
 // ---------------------------------------------------------------------------
-void GlxMLWrapperPrivate::CreateMediaListL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType) 
+void GlxMLWrapperPrivate::CreateMediaListL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,GlxFetcherFilterType fetcherFilterType) 
 	{
 	TRACER("GlxMLWrapperPrivate::CreateMediaListL");
   	Q_UNUSED(aHierarchyId);	
@@ -603,6 +628,17 @@ void GlxMLWrapperPrivate::CreateMediaListL(int aCollectionId, int aHierarchyId, 
 		filter = TGlxFilterFactory::CreateExcludeDrmImageTypeFilterL(aFilterType);   
 		CleanupStack::PushL(filter);
 		}
+	else if( EGlxFilterFetcherMimeType == aFilterType )
+	    {
+        if(fetcherFilterType == EGlxFetcherFilterJpeg)
+            {
+            filter = TGlxFilterFactory::CreateMimeTypeFilterL(KMymeTypeJpeg);
+            }
+        else if(fetcherFilterType == EGlxFetcherFilterJp2){
+            filter = TGlxFilterFactory::CreateMimeTypeFilterL(KMymeTypeJp2);
+            }
+        CleanupStack::PushL(filter);
+	    }
 	else 
 		{
 		filter = TGlxFilterFactory::CreateItemTypeFilterL(aFilterType);   //todo take actual filter type

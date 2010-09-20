@@ -51,7 +51,7 @@ public:
      *
      * @return Pointer to newly created object. NULL if creation fails. Avoiding Leave as would be called by a QT wrapper Class
      */
-    static GlxMLWrapperPrivate* Instance(GlxMLWrapper* aMLWrapper, int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri);								
+    static GlxMLWrapperPrivate* Instance(GlxMLWrapper* aMLWrapper, int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri,GlxFetcherFilterType fetcherFilterType);								
     /**
      * Destructor.
      */
@@ -149,14 +149,14 @@ private:
     /**
      * By default Symbian 2nd phase constructor is private.
      */
-    void ConstructL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri=NULL);
+    void ConstructL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri=NULL,GlxFetcherFilterType fetcherFilterType = EGlxFetcherFilterNone);
 	/**
      * Create an instance of Media List.
      *
      * @leave with error code if creation fails.
      */
-	void CreateMediaListL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);
-	void CreateMediaListAlbumItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);
+	void CreateMediaListL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,GlxFetcherFilterType fetcherFilterType = EGlxFetcherFilterNone);
+	void CreateMediaListAlbumItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,GlxFetcherFilterType fetcherFilterType);
 	void CreateMediaListFavoritesItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri);
 	void SetThumbnailContextL(GlxContextMode aContextMode);
 	void SetListContextL(GlxContextMode aContextMode);

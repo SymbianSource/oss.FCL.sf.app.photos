@@ -46,8 +46,8 @@ EXPORTS
 	_ZN12GlxMLWrapper23handleListItemAvailableEi @ 45 NONAME
 	_ZN12GlxMLWrapper26handleDetailsItemAvailableEi @ 46 NONAME
 	_ZN12GlxMLWrapper9populatedEv @ 47 NONAME
-	_ZN12GlxMLWrapperC1Eii18TGlxFilterItemType7QString @ 48 NONAME
-	_ZN12GlxMLWrapperC2Eii18TGlxFilterItemType7QString @ 49 NONAME
+	_ZN12GlxMLWrapperC1Eii18TGlxFilterItemType7QString20GlxFetcherFilterType @ 48 NONAME
+	_ZN12GlxMLWrapperC2Eii18TGlxFilterItemType7QString20GlxFetcherFilterType @ 49 NONAME
 	_ZN12GlxMLWrapperD0Ev @ 50 NONAME
 	_ZN12GlxMLWrapperD1Ev @ 51 NONAME
 	_ZN12GlxMLWrapperD2Ev @ 52 NONAME

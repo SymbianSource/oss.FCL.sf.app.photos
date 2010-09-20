@@ -49,6 +49,8 @@ data=DATAZ_/ECOM_RESOURCE_DIR/glxplugintags.rsc                ECOM_RESOURCE_DIR
 
 ECOM_PLUGIN( glxcollectionpluginimageviewer.dll, glxcollectionpluginimageviewer.rsc )
 
+ECOM_PLUGIN( glxmemoryplugin.dll, glxmemoryplugin.rsc )
+
 // logger
 file=ABI_DIR/BUILD_DIR/glxlogging.dll              			SHARED_LIB_DIR/glxlogging.dll
 

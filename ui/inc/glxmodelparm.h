@@ -32,7 +32,8 @@ public:
 	      mDepth(depth) , 
 	      mFilterType( filterType ),
 	      mContextMode( contextMode ),
-          mUri(uri)
+          mUri(uri),
+          mFetcherFiletrType(EGlxFetcherFilterNone)
 	{
 	
 	}
@@ -44,8 +45,11 @@ public:
 	QString path() { return mUri; }
 	void setPath(QString uri = NULL) {  mUri=uri; }
 	TGlxFilterItemType filterType() { return mFilterType; }
+	void setFilterType(TGlxFilterItemType filterType) { mFilterType = filterType; }
 	void setContextMode( GlxContextMode contextMode ) { mContextMode = contextMode ; }
 	GlxContextMode contextMode() { return mContextMode ; }
+	void setFetcherFiterType(GlxFetcherFilterType filterType ){mFetcherFiletrType = filterType;}
+	GlxFetcherFilterType fetcherFiterType() { return mFetcherFiletrType;}
 	
 private:
 	qint32 mCollectionId;
@@ -53,6 +57,7 @@ private:
 	TGlxFilterItemType mFilterType;
 	GlxContextMode mContextMode;
 	QString mUri;
+	GlxFetcherFilterType mFetcherFiletrType;
 };
 
 

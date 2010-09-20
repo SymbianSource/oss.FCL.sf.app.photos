@@ -45,7 +45,7 @@ GlxMediaModel::GlxMediaModel(GlxModelParm & modelParm)
 	
 	thumbnailPopulatedFlag = modelParm.collection() == KGlxCollectionPluginAllImplementationUid ? false : true;
 	mPaintPage = modelParm.collection() == KGlxCollectionPluginAllImplementationUid ? true : false;
-	mMLWrapper = new GlxMLWrapper(modelParm.collection(),0,EGlxFilterImage);
+	mMLWrapper = new GlxMLWrapper(modelParm.collection(),0,modelParm.filterType(),NULL,modelParm.fetcherFiterType());
 	mMLWrapper->setContextMode( modelParm.contextMode() );
 	mContextMode = modelParm.contextMode( ) ; 
 	mDRMUtilityWrapper = new GlxDRMUtilityWrapper();

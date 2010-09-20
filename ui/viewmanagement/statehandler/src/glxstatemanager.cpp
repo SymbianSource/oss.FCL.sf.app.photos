@@ -62,7 +62,8 @@ GlxStateManager::GlxStateManager()
       mCurrentState( NULL ), 
       mActionHandler( NULL ),
       mTNObserver ( NULL ),
-      isProgressbarRunning ( false )
+      isProgressbarRunning ( false ),
+      mFetcherFilterType ( EGlxFetcherFilterNone )
 {
     qDebug("GlxStateManager::GlxStateManager");
     PERFORMANCE_ADV ( d1, "view manager creation time") {
@@ -121,12 +122,12 @@ bool GlxStateManager::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-void GlxStateManager::launchFetcher()
+void GlxStateManager::launchFetcher(int fetcherFilterType)
 {
     qDebug("GlxStateManager::launchFetcher");
     mCurrentState = createState(GLX_GRIDVIEW_ID);
     mCurrentState->setState(FETCHER_ITEM_S);
-    
+	mFetcherFilterType = (GlxFetcherFilterType)fetcherFilterType;
     createModel(GLX_GRIDVIEW_ID);
     mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
 }
@@ -578,7 +579,7 @@ void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
 {
     GlxModelParm modelParm;
     GlxContextMode mode;
-    
+    modelParm.setFilterType(EGlxFilterImage);
     if ( mViewManager->orientation() == Qt::Horizontal ) {
         mode = GlxContextLsGrid ;
     }
@@ -588,7 +589,6 @@ void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
     
     switch( internalState) {
     case ALL_ITEM_S :
-	case FETCHER_ITEM_S:
         if ( mAllMediaModel == NULL ) {
             modelParm.setCollection( KGlxCollectionPluginAllImplementationUid );
             modelParm.setDepth(0);
@@ -599,9 +599,24 @@ void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
         mCurrentModel = mAllMediaModel;
         mViewManager->updateToolBarIcon(GLX_ALL_ACTION_ID);
         break;
+
+    case FETCHER_ITEM_S:
+        if ( mAllMediaModel == NULL ) {
+            modelParm.setCollection( KGlxCollectionPluginAllImplementationUid );
+            modelParm.setDepth(0); 
+            if(EGlxFetcherFilterNone != mFetcherFilterType ){
+                modelParm.setFilterType(EGlxFilterFetcherMimeType);
+                modelParm.setFetcherFiterType(mFetcherFilterType);
+            }
+            modelParm.setContextMode( mode ) ;
+            mAllMediaModel = new GlxMediaModel( modelParm );
+        }
+        mCollectionId = KGlxCollectionPluginAllImplementationUid;
+        mCurrentModel = mAllMediaModel;
+        mViewManager->updateToolBarIcon(GLX_ALL_ACTION_ID);
+        break;
         
     case ALBUM_ITEM_S :
-    case FETCHER_ALBUM_ITEM_S :    
         if ( dir != BACKWARD_DIR ) { 
             modelParm.setCollection( KGlxAlbumsMediaId );
             modelParm.setDepth(0);
@@ -610,7 +625,21 @@ void GlxStateManager::createGridModel(int internalState, NavigationDir dir)
         }               
         mCollectionId = KGlxAlbumsMediaId;
         mCurrentModel = mAlbumGridMediaModel ;
-        mViewManager->updateToolBarIcon(NO_ACTION_ID);
+        break;
+
+    case FETCHER_ALBUM_ITEM_S :    
+        if ( dir != BACKWARD_DIR ) { 
+            modelParm.setCollection( KGlxAlbumsMediaId );
+            modelParm.setDepth(0);
+            if(EGlxFetcherFilterNone != mFetcherFilterType){
+                modelParm.setFilterType(EGlxFilterFetcherMimeType);
+                modelParm.setFetcherFiterType(mFetcherFilterType);
+            }
+            modelParm.setContextMode( mode ) ;
+            mAlbumGridMediaModel = new GlxMediaModel( modelParm );
+        }               
+        mCollectionId = KGlxAlbumsMediaId;
+        mCurrentModel = mAlbumGridMediaModel ;
         break;
     
     default :

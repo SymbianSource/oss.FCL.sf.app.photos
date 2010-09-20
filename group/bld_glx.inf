@@ -61,3 +61,5 @@ PRJ_EXPORTS
 #include "../ui/uiengine/medialists/group/bld.inf"
 
 #include "../tvout/tvoutengine/group/bld.inf"
+
+#include "../memoryplugin/group/bld.inf"

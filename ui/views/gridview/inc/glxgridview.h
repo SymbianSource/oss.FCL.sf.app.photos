@@ -71,6 +71,21 @@ public slots:
     void initializeNewModel();
     void showAlbumTitle(QString aTitle);
     void populated();
+    
+    /**
+     * rowsInserted() - call back of new row inserted in the model.
+     */    
+    void rowsInserted();
+    
+    /**
+     * rowsRemoved() - call back of new row removed in the model.
+     */    
+    void rowsRemoved( );
+    
+    /**
+     * rowsRemoved() - call back to handle the user action in album grid view toolbar.
+     */ 
+    void handleToolBarAction();    
 
 protected :
    
@@ -93,6 +108,11 @@ private:
     //It is used to hide and show the toolbar
     //In album grid it is not required to show the tool bar
     void updateToolBar();
+	
+	/**
+     * createAlbumGridToolBar() - Create a new album grid view toolbar.
+     */ 
+    void createAlbumGridToolBar();
 
 	HbMainWindow        *mWindow;          // no ownership
 	QAbstractItemModel  *mModel ;
@@ -110,7 +130,12 @@ private:
     HbGroupBox          *mAlbumNameHeading;
     QGraphicsLinearLayout *mMarkContainer;
     GlxSettingInterface *mSettings;    
-    HbWidget *mMarkingWidget;
+    HbWidget            *mMarkingWidget;
+    HbToolBar           *mToolBar;   //This toolbar is used for album grid
+    //no ownership only pointed to the current toolbar, this view have three toolbar
+    //View manager has ownership of two tool bar and above one is ownership by itself.
+    // This variable is required to tackle the complexity of these three tool bar
+    HbToolBar           *mCurrentToolBar;  
 };
 
 #endif /* GLXGRIDVIEW_H_ */

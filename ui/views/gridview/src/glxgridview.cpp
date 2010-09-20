@@ -22,7 +22,8 @@
 #include <hggrid.h>
 #include <glxmodelwrapper.h>
 #include <hbpushbutton.h>
-#include <HbToolBar> // Temp
+#include <HbToolBar> 
+#include <HbAction>
 #include <hbiconitem.h>
 #include <hbicon.h>
 #include <xqserviceutil.h>
@@ -66,7 +67,9 @@ GlxGridView::GlxGridView(HbMainWindow *window)
       mZeroItemLabel(NULL),
       mAlbumNameHeading(NULL),
       mMarkContainer(NULL),
-      mMarkingWidget(NULL)
+      mMarkingWidget(NULL),
+      mToolBar( NULL ),
+      mCurrentToolBar( NULL )
 {
     OstTraceFunctionEntry0( GLXGRIDVIEW_GLXGRIDVIEW_ENTRY );
     mModelWrapper = new GlxModelWrapper();
@@ -134,52 +137,53 @@ void GlxGridView::initializeView( QAbstractItemModel *model, GlxView *preView )
 void GlxGridView::clearCurrentModel()
 {
     if ( mModel ) {
-        disconnect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(showItemCount()));
-        disconnect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(showItemCount()));
-        disconnect(mModel, SIGNAL(destroyed()), this, SLOT( clearCurrentModel()));
-        disconnect(mModel, SIGNAL(albumTitleAvailable(QString)), this, SLOT(showAlbumTitle(QString)));
-        disconnect(mModel, SIGNAL(populated()), this, SLOT( populated()));
-        mModel = NULL ;
+        disconnect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( rowsInserted() ) );
+        disconnect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int ) ), this, SLOT( rowsRemoved() ) );
+        disconnect( mModel, SIGNAL(destroyed()), this, SLOT( clearCurrentModel() ) );
+        disconnect( mModel, SIGNAL( albumTitleAvailable( QString ) ), this, SLOT( showAlbumTitle( QString ) ) );
+        disconnect( mModel, SIGNAL( populated() ), this, SLOT( populated() ) );
+        mModel = NULL;
     }
 }
 
 void GlxGridView::initializeNewModel()
 {
     if ( mModel ) {
-        connect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(showItemCount()));
-        connect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(showItemCount()));
-        connect(mModel, SIGNAL(destroyed()), this, SLOT( clearCurrentModel()));
-        if(getSubState() == ALBUM_ITEM_S){
-            connect(mModel, SIGNAL(albumTitleAvailable(QString)), this, SLOT(showAlbumTitle(QString)));
+        connect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( rowsInserted() ) );
+        connect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int ) ), this, SLOT( rowsRemoved() ) );
+        connect( mModel, SIGNAL(destroyed()), this, SLOT( clearCurrentModel() ) );
+        if ( getSubState() == ALBUM_ITEM_S ) {
+            connect( mModel, SIGNAL( albumTitleAvailable( QString ) ), this, SLOT( showAlbumTitle( QString ) ) );
         }
-        connect(mModel, SIGNAL(populated()), this, SLOT( populated()));
+        connect( mModel, SIGNAL( populated() ), this, SLOT( populated() ) );
     }
 }
 
-void GlxGridView::setModel(QAbstractItemModel *model)
+void GlxGridView::setModel( QAbstractItemModel *model )
 {
     OstTraceFunctionEntry0( GLXGRIDVIEW_SETMODEL_ENTRY );
-    if(model)
-        {
+    if( model ) {
         clearCurrentModel();
         mModel = model;
         initializeNewModel();
+        
         QVariant variantimage = mModel->data(mModel->index(0,0),GlxDefaultImage);
-        if (mWidget && variantimage.isValid() &&  variantimage.canConvert<QImage> () )
-            {
-            mWidget->setDefaultImage(variantimage.value<QImage>());
-            }
-        mModelWrapper->setModel(mModel);
-        mWidget->setModel(mModelWrapper);
-        if(!mSelectionModel)
-            {
-            mSelectionModel = new QItemSelectionModel(mModelWrapper, this);
-            connect(mSelectionModel, SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(visibleIndexChanged(const QModelIndex &, const QModelIndex &)));
-            mWidget->setSelectionModel(mSelectionModel);
-            }
-        scrolltofocus();  // Need to do it here ?
-        showItemCount();
+        if ( variantimage.isValid() && variantimage.canConvert<QImage> () ) {
+            mWidget->setDefaultImage( variantimage.value<QImage>() );
         }
+        
+        mModelWrapper->setModel( mModel );
+        mWidget->setModel( mModelWrapper );
+        
+        if( !mSelectionModel ) {
+            mSelectionModel = new QItemSelectionModel( mModelWrapper, this );
+            connect( mSelectionModel, SIGNAL( currentChanged( const QModelIndex &, const QModelIndex & ) ), this, SLOT( visibleIndexChanged( const QModelIndex &, const QModelIndex & ) ) );
+            mWidget->setSelectionModel( mSelectionModel );
+        }
+        
+        scrolltofocus(); // Need to do it here ?
+        showItemCount();
+    }
     OstTraceFunctionExit0( GLXGRIDVIEW_SETMODEL_EXIT );
 }
 
@@ -198,7 +202,38 @@ void GlxGridView::visibleIndexChanged(const QModelIndex& current, const QModelIn
 void GlxGridView::addToolBar( HbToolBar *toolBar )
 {
     OstTraceFunctionEntry0( GLXGRIDVIEW_ADDTOOLBAR_ENTRY );
-    setToolBar(toolBar);
+    
+    //For album grid view, add and remove from album tool bar will be shown
+    int subState = getSubState();
+    if ( subState == ALBUM_ITEM_S && mWidget->selectionMode() == HgWidget::NoSelection ) {
+        if ( !mToolBar ) {
+            createAlbumGridToolBar();
+        }
+        if ( mToolBar ) {
+            //remove from action will be disable if number of images in the album grid is zero.
+            if ( mModel->rowCount()  ) {
+                mToolBar->actions().at(0)->setEnabled( true ); //To:Do remove once selection dialog is implemented
+                mToolBar->actions().at(1)->setEnabled( true );
+            }
+            else {
+                mToolBar->actions().at(0)->setEnabled( false );
+                mToolBar->actions().at(1)->setEnabled( false );
+            }
+            if ( mToolBar != mCurrentToolBar ) {
+                takeToolBar();
+                setToolBar( mToolBar );
+                mCurrentToolBar = mToolBar;
+            }
+        }
+    }
+    else {
+        if ( toolBar != mCurrentToolBar ) {
+            takeToolBar();
+            setToolBar( toolBar );
+            mCurrentToolBar = toolBar;
+        }
+    }
+    
     showHbItems();
     OstTraceFunctionExit0( GLXGRIDVIEW_ADDTOOLBAR_EXIT );
 }
@@ -270,33 +305,30 @@ void GlxGridView::showMarkedItemCount()
 {
     int count = mModel->rowCount();
     QModelIndexList indexList = mWidget->selectionModel()->selectedIndexes();
-    int markItemCount = indexList.count();
-    
-    QString text= HbParameterLengthLimiter(GLX_LABEL_MARK_COUNT).arg(markItemCount).arg(count);    
-    
+    int markItemCount = indexList.count();    
+    QString text= HbParameterLengthLimiter(GLX_LABEL_MARK_COUNT).arg(markItemCount).arg(count);     
     mMarkCountLabel->setPlainText( text );    
 }
 
 void GlxGridView::showItemCount()
 {
     int count = 0;
-    if(mModel) {
+    if( mModel ) {
         count = mModel->rowCount();
         QSize deviceSize = HbDeviceProfile::current().logicalSize();
         QSize screenSize = ( mWindow->orientation() == Qt::Vertical ) ? QSize( deviceSize.width(), deviceSize.height() )
                                                                        : QSize( deviceSize.height(), deviceSize.width() )  ;
-        if(count) {
+        if( count ) {
             if(mZeroItemLabel) {
                 mZeroItemLabel->hide();
             }
             
-            if(isItemVisible(Hb::TitleBarItem)) {
+            if( isItemVisible( Hb::TitleBarItem ) ) {
                 QString text;
-                if(XQServiceUtil::isService())
-                    {
+                if(XQServiceUtil::isService()) {
                     showAlbumTitle(GLX_SELECT_IMAGE);
-                    }
-                else if (getSubState() == ALL_ITEM_S) {
+                }
+                else if ( getSubState() == ALL_ITEM_S ) {
 					if (mAlbumNameHeading) {
                     	mAlbumNameHeading->hide();
 					}
@@ -305,7 +337,7 @@ void GlxGridView::showItemCount()
                     mTotalImagesCount->setHeading ( text );
                     mTotalImagesCount->show();
                 }
-                else if (getSubState() == ALBUM_ITEM_S) {
+                else if ( getSubState() == ALBUM_ITEM_S ) {
                     mTotalImagesCount->hide();
                     QVariant variant = mModel->data(mModel->index(0,0),GlxViewTitle);
                     if (variant.toString() != NULL) {
@@ -406,13 +438,38 @@ void GlxGridView::showNoImageString()
 
 void GlxGridView::populated()
 {
-      QVariant variant = mModelWrapper->data(mModelWrapper->index(0,0), GlxVisualWindowIndex );
-       int visualIndex = 0;
-       if ( variant.isValid() &&  variant.canConvert<int> () )  {
-           visualIndex = variant.value<int>();
-       }
-       mWidget->scrollTo(mModelWrapper->index(visualIndex,0));
+    QVariant variant = mModelWrapper->data(mModelWrapper->index(0,0), GlxVisualWindowIndex );
+    int visualIndex = 0;
+    if ( variant.isValid() &&  variant.canConvert<int> () )  {
+        visualIndex = variant.value<int>();
+    }
+    mWidget->scrollTo(mModelWrapper->index(visualIndex,0));
     showItemCount();
+}
+
+void GlxGridView::rowsInserted()
+{
+    showItemCount();
+    if( getSubState() == ALBUM_ITEM_S  && mToolBar ) {
+        mToolBar->actions().at(0)->setEnabled( true ); //To:Do remove once selection dialog is implemented
+        mToolBar->actions().at(1)->setEnabled( true );
+    }
+}
+
+void GlxGridView::rowsRemoved()
+{
+    showItemCount(); 
+    if( getSubState() == ALBUM_ITEM_S  && mModel->rowCount() == 0 && mToolBar ) {
+        mToolBar->actions().at(0)->setEnabled( false ); //To:Do remove once selection dialog is implemented
+        mToolBar->actions().at(1)->setEnabled( false );
+    }    
+}
+
+void GlxGridView::handleToolBarAction()
+{
+    HbAction *action = qobject_cast<HbAction*>( sender() );
+    qint32 commandId = action->data().toInt();
+    emit actionTriggered( commandId );
 }
 
 void GlxGridView::handleUserAction(qint32 commandId)
@@ -671,25 +728,23 @@ void GlxGridView::scrollingStarted()
 void GlxGridView::scrollingEnded()
 {
     mScrolling = FALSE;
-    if (mUiOnButton && (mWindow->orientation() == Qt::Horizontal))
-        {
+    if ( mUiOnButton && ( mWindow->orientation() == Qt::Horizontal ) ) {
         mUiOnButton->show();
-        }
+    }
+    
     QList<QModelIndex> visibleIndex = mWidget->getVisibleItemIndices();
-    if (visibleIndex.count() <= 0)
-        {
+    if ( visibleIndex.count() <= 0 ) {
         return;
-        }
+    }
     QModelIndex index = visibleIndex.at(0);
-    if (  index.row() < 0 || index.row() >= mModel->rowCount() )
-        {
-        return;
+
+    if(mModel) {
+        if ( index.row() < 0 || index.row() >= mModel->rowCount() ) {
+            return;
         }
-    if(mModel)
-        {
-        mModel->setData( index, index.row(), GlxVisualWindowIndex);
+        mModel->setData( index, index.row(), GlxVisualWindowIndex );
         mModel->setData( index, index.row(), GlxFocusIndexRole );
-        }
+    }
 }
 
 GlxGridView::~GlxGridView()
@@ -716,6 +771,7 @@ GlxGridView::~GlxGridView()
     delete mMarkCountLabel;
     delete mMarkingWidget;
     delete mZeroItemLabel;
+    delete mToolBar;
     
     OstTraceFunctionExit0( DUP1_GLXGRIDVIEW_GLXGRIDVIEW_EXIT );
 }
@@ -779,13 +835,35 @@ void GlxGridView::updateToolBar()
         return ;
     }
     
-    //In Album grid it is not required to show tool bar
+    //In the case of fetcher, there is no tool bar for album grid view
     int subState = getSubState();
-    if ( subState == ALBUM_ITEM_S || subState == FETCHER_ALBUM_ITEM_S ) {
+    if ( subState == FETCHER_ALBUM_ITEM_S ) {
         setItemVisible( Hb::ToolBarItem, FALSE ) ;
     }
     else {
         setItemVisible( Hb::ToolBarItem, TRUE );
     }
+}
+
+void GlxGridView::createAlbumGridToolBar()
+{
+    mToolBar = new HbToolBar();
+    mToolBar->setOrientation( Qt::Horizontal );
+    mToolBar->setVisible(true);
+    mToolBar->clearActions();
+    
+    HbAction *action = new HbAction();
+    action->setData( EGlxCmdAddToAlbum );
+    action->setIcon( HbIcon( GLXICON_ADD ) );
+    action->setObjectName( "Add Action" );
+    mToolBar->addAction( action );
+    connect( action, SIGNAL( triggered( ) ), this, SLOT( handleToolBarAction( ) ) );
+    
+    action = new HbAction();
+    action->setData( EGlxCmdRemoveFrom );
+    action->setIcon( HbIcon( GLXICON_REMOVE ) );
+    action->setObjectName( "Remove Action" );
+    mToolBar->addAction( action );
+    connect( action, SIGNAL( triggered( ) ), this, SLOT( handleToolBarAction( ) ) );
 }
 

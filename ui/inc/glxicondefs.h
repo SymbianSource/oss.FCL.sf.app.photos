@@ -33,6 +33,10 @@
 #define GLXICON_CAMERA  "qtg_mono_camera"
 #define GLXICON_OVI     "qtg_small_ovi"
 
+//ALBUM GRID TOOLBAR
+#define GLXICON_ADD     "qtg_mono_add_to_video_collection"
+#define GLXICON_REMOVE  "qtg_mono_remove_from_video_collection"
+
 //CORRUPT ICON
 #define GLXICON_CORRUPT "qtg_large_corrupted"
 

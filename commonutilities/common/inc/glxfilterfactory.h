@@ -179,6 +179,15 @@ public:
                                                                             CMPXCollectionPath* aSelectedListPath = NULL,
                                                                             TBool aReverseSortDirection = EFalse);
     
+
+    /**
+    * Creates a MimeType  filter, Used to specify item of perticulr mime type.
+    *
+    * @param const TDesC& aMimeType ( mime type of item)
+    * @return a filter object with array elements set specifying mime type filter type
+    */
+    IMPORT_C static CMPXFilter* TGlxFilterFactory::CreateMimeTypeFilterL(const TDesC& aMimeType);    
+
     /**
     * Creates a combined filter. items will be sorted by the filters specified
     *

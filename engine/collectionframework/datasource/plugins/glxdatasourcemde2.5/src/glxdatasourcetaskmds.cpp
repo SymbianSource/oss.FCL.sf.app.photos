@@ -71,6 +71,7 @@ _LIT(KPropertyDefNameLastModifiedDate, "LastModifiedDate");
 _LIT(KPropertyDefNameTitle, "Title");
 _LIT(KPropertyDefNameFrameCount, "FrameCount");
 _LIT(KPropertyDefNameOrigin, "Origin");
+_LIT(KPropertyDefNameMymetype, "ItemType");
 
 // ----------------------------------------------------------------------------
 //  Constructor
@@ -360,7 +361,12 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
             logicCondition.AddObjectConditionL( DataSource()->ImageDef() ); 
 			}        
         }
-        
+    if(aFilterProperties.iMimeType)
+        {
+        CMdEPropertyDef& mimetypeProperty = aObjectDef.GetPropertyDefL(KPropertyDefNameMymetype);
+        aLogicCondition.AddPropertyConditionL(mimetypeProperty, ETextPropertyConditionCompareEndsWith,*aFilterProperties.iMimeType);
+        }
+    
     if( aFilterProperties.iExcludeAnimation )
         {
         // Exclude any image with a frame count > 1

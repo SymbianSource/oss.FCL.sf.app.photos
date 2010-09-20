@@ -29,6 +29,7 @@
 #include <xqserviceutil.h>
 #include <xqaiwdeclplat.h>
 #include <xqappmgr.h>
+#include <xqaiwdecl.h>
 
 #include <glxmodelroles.h>
 #include <glxaiwservicehandler.h>
@@ -41,7 +42,7 @@
 #define IMAGE_FETCHER_SERVICE_DEPINTERFACE_NAME QLatin1String("photos.Image")
 #define IMAGE_FETCHER_DEPSERVICE_DEPINTERFACE_NAME QLatin1String("com.nokia.services.media.Image")
 #define FILE_VIEWER_SERVICE_NAME QLatin1String("photos.com.nokia.symbian.IFileView")
-
+#define XQINFO_KEY_FILTER_TYPE QLatin1String("GlxFetcherFilter")
 
 // ----------------------------------------------------------------------------
 // GlxAiwServiceHandler()
@@ -148,7 +149,7 @@ void GlxAiwServiceHandler::itemSelected(const QModelIndex & index,QAbstractItemM
     }	
 
 
-void GlxAiwServiceHandler::launchFetcher(QString viewTitle)
+void GlxAiwServiceHandler::launchFetcher(QString viewTitle,int fetcherFilterType)
     {
     qDebug() << "GlxAiwServiceHandler::launchFetcher START";
     qApp->setApplicationName(viewTitle);
@@ -161,7 +162,7 @@ void GlxAiwServiceHandler::launchFetcher(QString viewTitle)
             SLOT( itemSelected(const QModelIndex &,QAbstractItemModel &)));
 	qDebug() << "GlxAiwServiceHandler::launchFetcher err = "<< err;
 	
-    mStateMgr->launchFetcher();
+    mStateMgr->launchFetcher(fetcherFilterType);
     return;
     }
 
@@ -254,8 +255,18 @@ bool GlxGetImageService::isActive()
 void GlxGetImageService::fetch()
     {
     mImageRequestIndex = setCurrentRequestAsync();
-    QString title =  GLX_TITLE;
-    mServiceApp->launchFetcher(title);
+
+    QString title = requestInfo().info(XQINFO_KEY_WINDOW_TITLE).toString();
+    if(title.isNull()){
+        title = GLX_TITLE;
+    }
+
+	int fetcherFilterType = 0; //no filter
+    if(requestInfo().info(XQINFO_KEY_FILTER_TYPE).canConvert<int>()){
+        fetcherFilterType = (requestInfo().info(XQINFO_KEY_FILTER_TYPE)).toInt();
+        qDebug()<< "GlxGetImageService::fetch() fetcherFilterType = " << fetcherFilterType;
+    }
+    mServiceApp->launchFetcher(title,fetcherFilterType);
     }
 
 // ----------------------------------------------------------------------------
@@ -344,7 +355,12 @@ void GlxGetImageServiceNSDI::fetch()
     {
     qDebug() << "GlxGetImageServiceNSDI::fetch START";
     mImageRequestIndex = setCurrentRequestAsync();
-    QString title = GLX_TITLE;
+
+    QString title = requestInfo().info(XQINFO_KEY_WINDOW_TITLE).toString();
+    if(title.isNull()){
+        title = GLX_TITLE;
+    }
+
     mServiceApp->launchFetcher(title);
     qDebug() << "GlxGetImageServiceNSDI::fetch END";
     }
@@ -424,7 +440,11 @@ void GlxGetImageServiceDSDI::fetch(QVariantMap filter, QVariant flag)
     Q_UNUSED(filter)
     Q_UNUSED(flag)
     mImageRequestIndex = setCurrentRequestAsync();
-    QString title  = GLX_TITLE;    
+    QString title = requestInfo().info(XQINFO_KEY_WINDOW_TITLE).toString();
+    if(title.isNull()){
+        title = GLX_TITLE;
+    }
+    
     mServiceApp->launchFetcher(title);
     }
 
@@ -488,7 +508,7 @@ bool GlxImageViewerService::view(QString file)
         mAsyncReqId = setCurrentRequestAsync();
         }
 
-    QString title = requestInfo().info("WindowTitle").toString();
+    QString title = requestInfo().info(XQINFO_KEY_WINDOW_TITLE).toString();
     if(title.isNull()){
         title =GLX_IMAGE_VIEWER;
     }
@@ -499,6 +519,20 @@ bool GlxImageViewerService::view(QString file)
 
 bool GlxImageViewerService::view(XQSharableFile sf)
     {
+    XQApplicationManager appmgr;
+    QFile tempfile(sf.fileName());
+    QVariantList attrValues;
+    QList<int> attrNames;
+    attrNames.append(XQApplicationManager::IsProtected);
+    bool ok1 = appmgr.getDrmAttributes(tempfile, attrNames, attrValues);
+    if(ok1 && attrValues.at(0).toBool()){
+        HbNotificationDialog::launchDialog("NOT SUPPORTED");
+        connect(this, SIGNAL(returnValueDelivered()), mServiceApp,
+                SLOT(handleAnswerDelivered()));
+        complete(true);
+        return false;
+    }
+
     if (!mImageViewerInstance)
         {
         mImageViewerInstance = CGlxImageViewerManager::InstanceL();
@@ -511,7 +545,7 @@ bool GlxImageViewerService::view(XQSharableFile sf)
         sf.close();
         }
 
-    QString title = requestInfo().info("WindowTitle").toString();
+    QString title = requestInfo().info(XQINFO_KEY_WINDOW_TITLE).toString();
     if(title.isNull()){
         title = GLX_IMAGE_VIEWER;
     }

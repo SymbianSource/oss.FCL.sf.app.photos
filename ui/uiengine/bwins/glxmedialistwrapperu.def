@@ -55,7 +55,7 @@ EXPORTS
 	?qt_metacast@GlxMLWrapper@@UAEPAXPBD@Z @ 54 NONAME ; void * GlxMLWrapper::qt_metacast(char const *)
 	?retrieveItemImage@GlxMLWrapper@@QAE?AVQImage@@HW4GlxTBContextType@@@Z @ 55 NONAME ; class QImage GlxMLWrapper::retrieveItemImage(int, enum GlxTBContextType)
 	?setSelectedIndex@GlxMLWrapper@@QAEXH@Z @ 56 NONAME ; void GlxMLWrapper::setSelectedIndex(int)
-	??0GlxMLWrapper@@QAE@HHW4TGlxFilterItemType@@VQString@@@Z @ 57 NONAME ; GlxMLWrapper::GlxMLWrapper(int, int, enum TGlxFilterItemType, class QString)
+	??0GlxMLWrapper@@QAE@HHW4TGlxFilterItemType@@VQString@@W4GlxFetcherFilterType@@@Z @ 57 NONAME ; GlxMLWrapper::GlxMLWrapper(int, int, enum TGlxFilterItemType, class QString, enum GlxFetcherFilterType)
 	?retrieveItemIcon@GlxMLWrapper@@QAEPAVHbIcon@@HW4GlxTBContextType@@@Z @ 58 NONAME ; class HbIcon * GlxMLWrapper::retrieveItemIcon(int, enum GlxTBContextType)
 	?itemsAdded@GlxMLWrapper@@QAEXHH@Z @ 59 NONAME ; void GlxMLWrapper::itemsAdded(int, int)
 

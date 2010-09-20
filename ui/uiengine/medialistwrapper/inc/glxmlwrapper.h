@@ -52,7 +52,7 @@ public:
 	/**
 	*constructor
 	*/
-    GlxMLWrapper(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri = NULL);
+    GlxMLWrapper(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType,QString uri = NULL,GlxFetcherFilterType fetcherFilterType = EGlxFetcherFilterNone);
 	/**
 	*destructor
 	**/

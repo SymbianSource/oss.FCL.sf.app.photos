@@ -223,7 +223,20 @@ EXPORT_C CMPXFilter* TGlxFilterFactory::CreateSlideShowFilterFromExistingFilterL
     filterProperties.iExcludeAnimation = ETrue;;
     return CreateCombinedFilterL(filterProperties, aOriginalFilter);
     }
-    
+
+// ---------------------------------------------------------------------------
+// Creates a URI filter object
+// ---------------------------------------------------------------------------
+//   
+EXPORT_C CMPXFilter* TGlxFilterFactory::CreateMimeTypeFilterL(const TDesC& aMimeType)
+    {
+    TGlxFilterProperties filterProperties;
+    filterProperties.iItemType = EGlxFilterImage;
+    filterProperties.iNoDRM = ETrue;
+    filterProperties.iMimeType = &aMimeType;
+    return CreateCombinedFilterL(filterProperties);
+    }
+
 // ---------------------------------------------------------------------------
 // Creates a combined filter object.
 // ---------------------------------------------------------------------------
@@ -470,7 +483,19 @@ EXPORT_C CMPXFilter* TGlxFilterFactory::CreateCombinedFilterL(  const TGlxFilter
         {
         filter->SetTextValueL(KGlxFilterGeneralUri, *uri);    
         }
-   
+    const TDesC* mimeType = aFilterProperties.iMimeType;
+    if( aOriginalFilter->IsSupported(KGlxFilterGeneralMimeType) )
+        {
+        if( !aOverrideOriginal || ( !aFilterProperties.iMimeType ) )
+            {
+	        mimeType = &aOriginalFilter->ValueText(KGlxFilterGeneralMimeType);
+            }
+        }
+    if( mimeType )
+        {
+        filter->SetTextValueL(KGlxFilterGeneralMimeType, *mimeType);    
+        }
+    
     CleanupStack::Pop(filter);
     return filter;
     }
@@ -547,6 +572,10 @@ EXPORT_C TGlxFilterProperties TGlxFilterFactory::ExtractAttributes(CMPXFilter* a
     if( aFilter->IsSupported(KGlxFilterGeneralUri) )
         {
         filterProperties.iUri = &aFilter->ValueText(KGlxFilterGeneralUri);
+        }
+    if( aFilter->IsSupported(KGlxFilterGeneralMimeType) )
+        {
+        filterProperties.iMimeType = &aFilter->ValueText(KGlxFilterGeneralMimeType);
         }
     return filterProperties;
     }

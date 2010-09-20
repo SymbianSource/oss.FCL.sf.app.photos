@@ -38,14 +38,36 @@ private slots:
      *
      */
     void init(); 
-    void removeModelTestCase1();
-    void removeModelTestCase2();
-    void createStateTestCase();
-    void createModelTestCase1();
-    void createModelTestCase2();
-    void createGridModelTestCase1();
-    void createGridModelTestCase2();
     
+    void removeModelGridTestCase();
+    void removeModelAlbumGridTestCase();
+    void removeModelAlbumListTestCase();
+    
+    void cleanModelGridTestCase();
+    void cleanModelAlbumListTestCase();
+    
+    void createStateGridTestCase();
+    void createStateListTestCase();
+    void createStateSettingTestCase();
+    void createStateDetailTestCase();
+    void createStateNoneTestCase();
+    
+    void createModelAlbumListTestCase();
+    void createModelImageViewerTestCase();
+    void createModelAlbumSlideShowTestCase();
+    void createGridModelAllTestCase();
+    void createGridModelAlbumTestCase();  
+   
+    void gridInternalStateTestCase();
+    void gridTransitionParameterTestCase();    
+    void listInternalStateTestCase();
+    void listTransitionParameterTestCase();
+    void fullScreenInternalStateTestCase();
+    void fullScreenTransitionParameterTestCase();
+    void slideShowInternalStateTestCase();
+    void detailInternalStateTestCase();
+    void detailTransitionParameterNegativeTestCase();
+    void detailTransitionParameterTestCase(); 
     
     /**
      * will be called after every testfunction.

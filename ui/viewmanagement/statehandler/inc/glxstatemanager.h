@@ -65,7 +65,7 @@ public :
     /**
      * launchFetcher() - launch image fetcher
      */
-	void launchFetcher();    
+	void launchFetcher(int fetcherFilterType);    
 
 	/**
      * launchFromExternal() - Fuction to launch the application from some external world
@@ -277,6 +277,7 @@ private:
     int                 mCollectionId;
     bool                isProgressbarRunning;
     QMap<QString, qint32> mSaveActivity;
+    GlxFetcherFilterType mFetcherFilterType;
 };
 
 

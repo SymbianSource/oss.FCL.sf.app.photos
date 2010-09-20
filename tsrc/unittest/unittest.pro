@@ -26,3 +26,4 @@ CONFIG += ordered
 SUBDIRS	   += unittest_imagedecoderwrapper
 SUBDIRS	   += unittest_medialistwrapper
 SUBDIRS	   += unittest_statehandler
+SUBDIRS	   += unittest_mediamodel

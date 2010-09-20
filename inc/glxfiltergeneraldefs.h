@@ -87,6 +87,7 @@ const TMPXAttributeData KGlxFilterGeneralOrigin = { KGlxFilterIdGeneral, EGlxFil
 const TMPXAttributeData KGlxFilterGeneralNoDRM = { KGlxFilterIdGeneral, EGlxFilterNoDRM }; /// TBool
 const TMPXAttributeData KGlxFilterGeneralNavigationalStateOnly = { KGlxFilterIdGeneral, 0x4000 }; /// TBool
 const TMPXAttributeData KGlxFilterGeneralMaxCount = { KGlxFilterIdGeneral, 0x8000 }; // TInt
+const TMPXAttributeData KGlxFilterGeneralMimeType = { KGlxFilterIdGeneral, 0x10000 }; // Text
 
 enum TGlxFilterSortOrder
     {
@@ -116,7 +117,8 @@ enum TGlxFilterItemType
     EGlxFilterAlbum,
     EGlxFilterTag,
     EGlxFilterMonth,
-    EGlxFilterExcludeCamera
+    EGlxFilterExcludeCamera,
+    EGlxFilterFetcherMimeType
     };
     
 enum TGlxFilterOrigin

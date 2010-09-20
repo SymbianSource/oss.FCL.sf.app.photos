@@ -82,6 +82,9 @@
 "" - "z:\sys\bin\glxmedialists.dll"
 "" - "z:\sys\bin\glxtvout.dll"
 
+;OOM plugin
+"" - "z:\sys\bin\glxmemoryplugin.dll"
+
 ; viewmanagement
 "" - "z:\sys\bin\glxstatehandler.dll"
 "" - "z:\sys\bin\glxviewmanager.dll"

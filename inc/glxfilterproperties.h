@@ -52,7 +52,8 @@ public:
 				iUri(NULL),
 				iStartDate(0),
 				iEndDate(0),
-				iNoDRM(EFalse)
+				iNoDRM(EFalse),
+				iMimeType(NULL)
 				  {}
 
 public:
@@ -73,6 +74,7 @@ public:
 	TTime iStartDate;
 	TTime iEndDate;
 	TBool iNoDRM;
+	const TDesC* iMimeType;
 	};
 
 

@@ -32,8 +32,13 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //GlxDetailsViewItemProtoType
 //--------------------------------------------------------------------------------------------------------------------------------------------
-GlxDetailsViewItemProtoType::GlxDetailsViewItemProtoType(QGraphicsItem* parent) :
-    HbListViewItem(parent)
+GlxDetailsViewItemProtoType::GlxDetailsViewItemProtoType(QGraphicsItem* parent) 
+    : HbListViewItem(parent),
+      mImageNameEditor( NULL ),
+      mDescriptionEditor( NULL ),
+      mDateLabel( NULL ),
+      mTimeLabel( NULL ),
+      mSizeLabel( NULL )
 {
 }
 

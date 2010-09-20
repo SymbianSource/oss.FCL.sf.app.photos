@@ -186,7 +186,7 @@ void CGlxHdmiSurfaceUpdater::ConstructL(CFbsBitmap* aFsBitmap, const TDesC& aIma
     if (iEffectsOn)
         {
         GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::ConstructL() Creating iAnimTimer");
-        iAnimTimer = CPeriodic::NewL( CActive::EPriorityStandard-1 );
+        iAnimTimer = CPeriodic::NewL( CActive::EPriorityStandard );
         }
 
     TInt error = iFsSession.Connect ();
@@ -301,7 +301,7 @@ void CGlxHdmiSurfaceUpdater::CreateHdmiL(TBool aCreateSurface)
     if(!iSurfBufferAO)
         {
         iSurfBufferAO = new(ELeave) CGlxActiveCallBack(TCallBack(SurfBuffer0Ready, this),
-                    CActive::EPriorityStandard-1);
+                    CActive::EPriorityStandard);
         CActiveScheduler::Add(iSurfBufferAO);    
         }
     }
@@ -781,7 +781,7 @@ void CGlxHdmiSurfaceUpdater::ShiftToPostingMode()
     if (iEffectsOn && !iAnimTimer)
         {
         GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::ShiftToPostingMode() Creating iAnimTimer");
-        iAnimTimer = CPeriodic::NewL( CActive::EPriorityStandard-1 );
+        iAnimTimer = CPeriodic::NewL( CActive::EPriorityStandard );
         }
 	if(iSurfManager)
 		{
@@ -901,7 +901,7 @@ void CGlxHdmiSurfaceUpdater::FadeTheSurface(TBool aFadeInOut)
     if (iEffectsOn && !iAnimTimer)
         {
         GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::FadeTheSurface() Creating iAnimTimer");
-        iAnimTimer = CPeriodic::NewL( CActive::EPriorityStandard-1 );
+        iAnimTimer = CPeriodic::NewL( CActive::EPriorityStandard );
         }
     if (!ialfCompositionSurface)
         {

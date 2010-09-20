@@ -31,6 +31,15 @@ enum TGlxHuiCustomCommands
 	EGlxHuiCustomEventBackToSharpPath
 	};
 
+enum GlxFetcherFilterType
+    {
+    EGlxFetcherFilterNone = 0x00,
+    EGlxFetcherFilterJpeg = 0x01,
+    EGlxFetcherFilterNonJpeg = 0x02,
+    EGlxFetcherFilterJp2 = 0x04,
+    EGlxFetcherFilterNonJp2 = 0x08,
+    EGlxFetcherFilterLast = 0xFF
+    };
 enum GlxContextMode
 {
     GlxContextInvalid = -1,

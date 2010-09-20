@@ -93,6 +93,9 @@
 "\epoc32\release\armv5\urel\glxmedialists.dll"            	-"!:\sys\bin\glxmedialists.dll"
 "\epoc32\release\armv5\urel\glxdrmutility.dll"              -"!:\sys\bin\glxdrmutility.dll"
 
+; OOM plugin
+"\epoc32\release\armv5\urel\glxmemoryplugin.dll"            		-"!:\sys\bin\glxmemoryplugin.dll"
+
 ; viewmanagement
 "\epoc32\release\armv5\urel\glxstatehandler.dll"        	-"!:\sys\bin\glxstatehandler.dll"
 "\epoc32\release\armv5\urel\glxviewmanager.dll"        		-"!:\sys\bin\glxviewmanager.dll"
