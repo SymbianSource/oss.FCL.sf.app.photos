@@ -12,7 +12,7 @@
                 <enums name="scrollDirections" value="Horizontal"/>
                 <real name="z" value="7"/>
                 <integer name="columnCount" value="1"/>
-                <sizehint height="44.77612un" type="PREFERRED" width="44.77612un"/>
+                <sizehint height="11.50546un" type="PREFERRED" width="53.731343un"/>
                 <bool name="frictionEnabled" value="TRUE"/>
                 <integer name="rowCount" value="1"/>
             </widget>
@@ -37,7 +37,7 @@
                 <anchoritem dst="mCoverFlow" dstEdge="RIGHT" spacing="var(hb-param-margin-view-right)" src="" srcEdge="RIGHT"/>
                 <anchoritem dst="mCoverFlow" dstEdge="BOTTOM" spacing="var(hb-param-margin-view-bottom)" src="" srcEdge="BOTTOM"/>
                 <anchoritem dst="mImageStrip" dstEdge="LEFT" spacing="var(hb-param-margin-view-left)" src="" srcEdge="LEFT"/>
-                <anchoritem dst="mImageStrip" dstEdge="TOP" spacing="85.51999un" src="" srcEdge="TOP"/>
+                <anchoritem dst="mImageStrip" dstEdge="TOP" spacing="84.016928un" src="" srcEdge="TOP"/>
                 <anchoritem dst="mImageStrip" dstEdge="RIGHT" spacing="var(hb-param-margin-view-right)" src="" srcEdge="RIGHT"/>
                 <anchoritem dst="mImageStrip" dstEdge="BOTTOM" spacing="var(hb-param-margin-view-bottom)" src="" srcEdge="BOTTOM"/>
                 <anchoritem dst="toolBar" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
@@ -55,6 +55,7 @@
         <widget name="mImageStrip" type="HbGridView">
             <integer name="columnCount" value="4"/>
             <integer name="rowCount" value="1"/>
+            <sizehint height="11.50546un" type="PREFERRED" width="53.731343un"/>
         </widget>
         <widget name="toolBar" type="HbToolBar">
             <sizehint height="58.50746un" type="PREFERRED" width="9.40299un"/>
@@ -66,7 +67,7 @@
                 <anchoritem dst="mCoverFlow" dstEdge="RIGHT" spacing="var(hb-param-margin-view-right)" src="" srcEdge="RIGHT"/>
                 <anchoritem dst="mCoverFlow" dstEdge="BOTTOM" spacing="var(hb-param-margin-view-bottom)" src="" srcEdge="BOTTOM"/>
                 <anchoritem dst="mImageStrip" dstEdge="LEFT" spacing="var(hb-param-margin-view-left)" src="" srcEdge="LEFT"/>
-                <anchoritem dst="mImageStrip" dstEdge="TOP" spacing="83.59454un" src="" srcEdge="TOP"/>
+                <anchoritem dst="mImageStrip" dstEdge="TOP" spacing="84.016928un" src="" srcEdge="TOP"/>
                 <anchoritem dst="mImageStrip" dstEdge="RIGHT" spacing="var(hb-param-margin-view-right)" src="" srcEdge="RIGHT"/>
                 <anchoritem dst="mImageStrip" dstEdge="BOTTOM" spacing="var(hb-param-margin-view-bottom)" src="" srcEdge="BOTTOM"/>
                 <anchoritem dst="toolBar" dstEdge="LEFT" spacing="0un" src="" srcEdge="LEFT"/>
@@ -86,6 +87,7 @@
         <widget name="mImageStrip" type="HbGridView">
             <integer name="columnCount" value="6"/>
             <integer name="rowCount" value="1"/>
+            <sizehint height="12.2811un" type="PREFERRED" width="85.970158un"/>
         </widget>
         <widget name="toolBar" type="HbToolBar">
             <sizehint height="46.71642un" type="PREFERRED" width="9.4427un"/>
@@ -97,7 +99,7 @@
                 <anchoritem dst="mCoverFlow" dstEdge="RIGHT" spacing="var(hb-param-margin-view-right)" src="" srcEdge="RIGHT"/>
                 <anchoritem dst="mCoverFlow" dstEdge="BOTTOM" spacing="var(hb-param-margin-view-bottom)" src="" srcEdge="BOTTOM"/>
                 <anchoritem dst="mImageStrip" dstEdge="LEFT" spacing="9.55223un" src="" srcEdge="LEFT"/>
-                <anchoritem dst="mImageStrip" dstEdge="TOP" spacing="41.2897un" src="" srcEdge="TOP"/>
+                <anchoritem dst="mImageStrip" dstEdge="TOP" spacing="41.450243un" src="" srcEdge="TOP"/>
                 <anchoritem dst="mImageStrip" dstEdge="RIGHT" spacing="0un" src="" srcEdge="RIGHT"/>
                 <anchoritem dst="mImageStrip" dstEdge="BOTTOM" spacing="0un" src="" srcEdge="BOTTOM"/>
                 <anchoritem dst="toolBar" dstEdge="TOP" spacing="9.7015un" src="" srcEdge="TOP"/>

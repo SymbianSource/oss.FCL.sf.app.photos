@@ -53,10 +53,17 @@ const TInt KTBAttributeAvailable(1);
 const TInt KTBAttributeUnavailable(0);
 const TInt KTBAttributeCorrupt(-1);
 const TInt KListDataWindowSize(10);
+//for grid thumbnail
 const TInt KGridTNWIdth (127);
 const TInt KGridTNHeight (110);
 const TInt KGridTNPTWIdth (119);
 const TInt KGridTNPTHeight (103);
+//for image strip thumbnail
+const TInt KImageStripLSTNWIdth (95);
+const TInt KImageStripLSTNHeight (83);
+const TInt KImageStripPTTNWIdth (89);
+const TInt KImageStripPTTNHeight (78);
+
 const TInt KFullScreenTNLSWidth (640);
 const TInt KFullScreenTNLSHeight (360);
 const TInt KFullScreenTNPTWidth (360);
@@ -689,7 +696,7 @@ HbIcon* GlxMLWrapperPrivate::RetrieveItemIcon(int aItemIndex, GlxTBContextType a
 {
     TInt itemHeight = 0;
     TInt itemWidth = 0;
-    switch (aTBContextType) {
+    switch ( aTBContextType ) {
         case GlxTBContextGrid: {
             itemHeight = KGridTNHeight;
             itemWidth = KGridTNWIdth;
@@ -720,10 +727,16 @@ HbIcon* GlxMLWrapperPrivate::RetrieveItemIcon(int aItemIndex, GlxTBContextType a
 	
     if ( value && value->iBitmap != NULL ) {
         if( aTBContextType == GlxTBContextGrid ) {
-            GLX_LOG_INFO1("### GlxMLWrapperPrivate::RetrieveItemIcon value-Index is %d",aItemIndex);
+            GLX_LOG_INFO1("### GlxMLWrapperPrivate::RetrieveItemIcon value-Index is %d",aItemIndex );
             
             if (  iContextMode == GlxContextPtGrid ) {
-                return convertFBSBitmapToHbIcon( value->iBitmap , KGridTNPTWIdth, KGridTNPTHeight);
+                return convertFBSBitmapToHbIcon( value->iBitmap , KGridTNPTWIdth, KGridTNPTHeight );
+            }
+            else if ( iContextMode == GlxContextLsFs ) {
+                return convertFBSBitmapToHbIcon( value->iBitmap , KImageStripLSTNWIdth, KImageStripLSTNHeight, Qt::IgnoreAspectRatio );
+            }
+            else if ( iContextMode == GlxContextPtFs ) {
+                return convertFBSBitmapToHbIcon( value->iBitmap , KImageStripPTTNWIdth, KImageStripPTTNHeight, Qt::IgnoreAspectRatio );
             }
             else {
                 return convertFBSBitmapToHbIcon( value->iBitmap );
@@ -744,72 +757,63 @@ HbIcon* GlxMLWrapperPrivate::RetrieveItemIcon(int aItemIndex, GlxTBContextType a
     return NULL;
 }
 
-QImage GlxMLWrapperPrivate::RetrieveItemImage(int aItemIndex, GlxTBContextType aTBContextType)
-    {
+QImage GlxMLWrapperPrivate::RetrieveItemImage( int aItemIndex, GlxTBContextType aTBContextType )
+{
     TInt itemHeight = 0;
     TInt itemWidth = 0;
-    switch (aTBContextType)
-        {
-        case GlxTBContextGrid: 
-            {
-            itemHeight = KGridTNHeight;
-            itemWidth = KGridTNWIdth;
-            }
-            break;
-        case GlxTBContextPtFs: 
-            {
-            itemHeight = KFullScreenTNPTHeight;
-            itemWidth = KFullScreenTNPTWidth;
-            }
-            break;
-        case GlxTBContextLsFs: 
-            {
-            itemHeight = KFullScreenTNLSHeight;
-            itemWidth = KFullScreenTNLSWidth;
-            }
-            break;
-        }
+    switch ( aTBContextType ) {
+    case GlxTBContextGrid: 
+        itemHeight = KGridTNHeight;
+        itemWidth = KGridTNWIdth;
+        break;
+        
+    case GlxTBContextPtFs:
+        itemHeight = KFullScreenTNPTHeight;
+        itemWidth = KFullScreenTNPTWidth;
+        break;
+        
+    case GlxTBContextLsFs: 
+        itemHeight = KFullScreenTNLSHeight;
+        itemWidth = KFullScreenTNLSWidth;
+        break;
+    }
+    
     const TGlxMedia& item = iMediaList->Item( aItemIndex );
-    TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail, 
-            GlxFullThumbnailAttributeId( ETrue,itemWidth,itemHeight ) );      
-    const CGlxThumbnailAttribute* value = item.ThumbnailAttribute(
-            thumbnailAttribute );
-    TInt tnError = GlxErrorManager::HasAttributeErrorL(
-                      item.Properties(), KGlxMediaIdThumbnail );
-    TSize iconSize(itemWidth, itemHeight);
+    TMPXAttribute thumbnailAttribute( KGlxMediaIdThumbnail, GlxFullThumbnailAttributeId( ETrue, itemWidth, itemHeight ) );
+    const CGlxThumbnailAttribute* value = item.ThumbnailAttribute( thumbnailAttribute );
+    TInt tnError = GlxErrorManager::HasAttributeErrorL( item.Properties(), KGlxMediaIdThumbnail );
 
-    if (value && value->iBitmap != NULL)
-        {
+    if ( value && value->iBitmap != NULL ) {
         value->iBitmap->LockHeap();
         TUint32 *tempData = value->iBitmap->DataAddress();
-        uchar *data = (uchar *)(tempData);  
-        int bytesPerLine = value->iBitmap->ScanLineLength(value->iBitmap->SizeInPixels().iWidth , value->iBitmap->DisplayMode());
-        QImage image = QImage(data, value->iBitmap->SizeInPixels().iWidth, value->iBitmap->SizeInPixels().iHeight, bytesPerLine, QImage::Format_RGB16).convertToFormat(QImage::Format_ARGB32_Premultiplied);
+        uchar *data = (uchar *) ( tempData );
+        int bytesPerLine = value->iBitmap->ScanLineLength( value->iBitmap->SizeInPixels().iWidth, value->iBitmap->DisplayMode() );
+        QImage image = QImage( data, 
+                                  value->iBitmap->SizeInPixels().iWidth,
+                                  value->iBitmap->SizeInPixels().iHeight, 
+                                  bytesPerLine, 
+                                  QImage::Format_RGB16 ).convertToFormat( QImage::Format_ARGB32_Premultiplied );
         value->iBitmap->UnlockHeap();
         return image;
-         }
-    else if( tnError == KErrCANoRights) 
-        {
+    }
+    else if ( tnError == KErrCANoRights ) {
         //handle DRM case
-        }
-    else if( tnError ) 
-        {
-        if(iCorruptImage.isNull())
-            {
-            HbIcon *icon = new HbIcon(GLXICON_CORRUPT);
-            if(!icon->isNull())
-                {
+    }
+    else if ( tnError ) {
+        if ( iCorruptImage.isNull() ) {
+            HbIcon *icon = new HbIcon( GLXICON_CORRUPT );
+            if ( !icon->isNull() ) {
                 // this image Creation is Slow. 
                 // But what to do, Q class's Does not undersatnd our Localised File names
                 iCorruptImage = icon->pixmap().toImage();
-                }
-            delete icon;
             }
-        return iCorruptImage;
+            delete icon;
         }
-
-     return QImage();
+        return iCorruptImage;
     }
+
+    return QImage();
+}
 // ---------------------------------------------------------------------------
 //  RetrieveListTitle
 // ---------------------------------------------------------------------------
@@ -1026,7 +1030,7 @@ CFbsBitmap* GlxMLWrapperPrivate::RetrieveBitmap(int aItemIndex)
             return defaultBitmap;
             }
         }
-}
+    }
 
 // ---------------------------------------------------------------------------
 // HandleItemAddedL
@@ -1340,7 +1344,7 @@ HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap)
 	return targetIcon;
 }
 
-HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap, TInt itemWidth, TInt itemHeight)
+HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap, TInt itemWidth, TInt itemHeight, Qt::AspectRatioMode aspectRatio )
 {
     GLX_LOG_INFO1("### GlxMLWrapperPrivate::convertFBSBitmapToHbIcon 1 %d", 0);
     
@@ -1353,7 +1357,7 @@ HbIcon * GlxMLWrapperPrivate::convertFBSBitmapToHbIcon(CFbsBitmap* aBitmap, TInt
         
     QPixmap pixmap = QPixmap::fromImage(image);    
     if ( aBitmap->SizeInPixels().iWidth > itemWidth || aBitmap->SizeInPixels().iHeight > itemHeight ) {
-        pixmap = pixmap.scaled( itemWidth, itemHeight, Qt::KeepAspectRatio );
+        pixmap = pixmap.scaled( itemWidth, itemHeight, aspectRatio );
     }  
     
     aBitmap->UnlockHeap();

@@ -43,11 +43,11 @@ GlxTvOutWrapper::~GlxTvOutWrapper()
 // setModel 
 // and Create the private instance to pass the model
 // -----------------------------------------------------------------------------
-void GlxTvOutWrapper::setModel(QAbstractItemModel* aModel,QSize aScreenSize,bool aEfectsOn)
+void GlxTvOutWrapper::setModel(QAbstractItemModel* aModel,QSize aScreenSize)
     {
     if (!mTvOutWrapperPrivate)
         {
-        mTvOutWrapperPrivate = GlxTvOutWrapperPrivate::Instance(this,aModel,aScreenSize,aEfectsOn);
+        mTvOutWrapperPrivate = GlxTvOutWrapperPrivate::Instance(this,aModel,aScreenSize);
         }
     else
         {
@@ -112,16 +112,6 @@ void GlxTvOutWrapper::deactivateZoom()
     {
     if(mTvOutWrapperPrivate){
         mTvOutWrapperPrivate->DeactivateZoom();
-        }
-    }
-
-// -----------------------------------------------------------------------------
-// deactivateZoom 
-// -----------------------------------------------------------------------------
-void GlxTvOutWrapper::fadeSurface(bool aFadeInOut)
-    {
-    if(mTvOutWrapperPrivate){
-        mTvOutWrapperPrivate->FadeSurface(aFadeInOut);
         }
     }
 

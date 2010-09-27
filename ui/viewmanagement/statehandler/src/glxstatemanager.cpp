@@ -751,27 +751,6 @@ void GlxStateManager::eventHandler(qint32 &id)
         id = EGlxCmdHandled;
 		}
         break;	
-    
-   case EGlxCmdDelete :
-		{
-        GlxExternalData* externalItems = GlxExternalUtility::instance()->getExternalData();
-        if(externalItems){
-            QVariant variant = mCurrentModel->data( mCurrentModel->index(0,0), GlxFocusIndexRole );    
-            if ( variant.isValid() &&  variant.canConvert<int> () ) {
-                int selIndex = variant.value<int>(); 
-                int externalDataCount = externalItems->count();
-                if(selIndex < externalDataCount){
-                    GlxInterfaceParams tmp = externalItems->value(selIndex);
-                    tmp.isSelected = true;
-                    externalItems->replace(selIndex,tmp);
-                    emit externalCommand(EGlxPluginCmdDelete);
-                    return;
-                }
-            }
-        }
-        mActionHandler->handleAction(id,mCollectionId);
-		}
-        break;
         
    case EGlxCmdMarkAll :
    case EGlxCmdUnMarkAll :
@@ -841,8 +820,4 @@ void GlxStateManager::cleanupExternal()
 {
     qDebug("GlxStateManager::cleanupExternal");
     mViewManager->deactivateCurrentView();
-    GlxMediaModel *glxModel = dynamic_cast<GlxMediaModel *>(mCurrentModel);
-    if(glxModel) {
-		glxModel->clearExternalItems();  
-	}
 }

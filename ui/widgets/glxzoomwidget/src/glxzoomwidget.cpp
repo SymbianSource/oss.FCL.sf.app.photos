@@ -29,6 +29,8 @@ const int MINZVALUE = 0;
 const int NOOFSTEPSZI = 24;
 const int NOOFSTEPSZO = 18;
 const float MAXDTZOOMIN = 3.5;
+const int NO_OF_STEPS_FOR_SPRINGBACK_AT_MAX = 12;
+const int NO_OF_STEPS_FOR_SPRINGBACK_AT_MIN = 5;
 
 GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent), 
             mModel(NULL), mMinZValue(MINZVALUE), 
@@ -62,6 +64,7 @@ GlxZoomWidget::GlxZoomWidget(QGraphicsItem *parent):HbScrollArea(parent),
 	//AA: signal and slot to perform double tap animation
     //after every step redraw, signal is emitted to perform the next step
 	connect( this, SIGNAL( stepZoom() ), this, SLOT( animateDoubleTap() ), Qt::QueuedConnection );
+	mDoubleTap = false;
 }
 
 GlxZoomWidget::~GlxZoomWidget()
@@ -144,6 +147,7 @@ void GlxZoomWidget::cleanUp()
         resetDecoder();
     }
     mZoomItem->setPixmap(QPixmap());
+	mBlackBackgroundItem->setParentItem(this);
 }
 
 void GlxZoomWidget::activate()
@@ -238,26 +242,26 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
 
        if (pinchG->state() == Qt::GestureFinished) {
                //For giving a spring effect when user has zoomed more than normal.
-               if(mStepCurrentSize.width() > mMaxScaleDecSize.width())   {
-                   //scale the image to limited size
-                   qreal value = mMaxScaleDecSize.width()/mCurrentSize.width();
-                   QPointF center(mWindowSize.width()/2, mWindowSize.height()/2);
-                   QPointF sceneGestureCenter = source->sceneTransform().map(center);
-                   zoomImage(value, sceneGestureCenter);
-               }
-               mPinchGestureOngoing = false;
-                //finalize the transforms to the geometry else panning will not work
-                finalizeWidgetTransform();
+		  mPinchGestureOngoing = false;               
+        //scale the image to limited size
+		if(mCurrentSize.width() > mMaxScaleDecSize.width() )
+        {
+        	  QPointF center(mWindowSize.width()/2, mWindowSize.height()/2);
+		       m_AnimRefPoint = source->sceneTransform().map(center);
+		       springEffectAtMax();
+               return true;
+		}
        
-//push the Zoom widget to background when zoomed image size nears FS image
-           if(mStepCurrentSize.width() <= mMinDecScaleSize.width()*1.3)  {
-               mBlackBackgroundItem->hide();
-               //push the widget back to background
-               setZValue(mMinZValue);
-               mZoomOngoing = false;
-               emit zoomWidgetMovedBackground(mFocusIndex);
+		if(mCurrentSize.width() < mMinDecScaleSize.width())
+        {
+              QPointF center(mWindowSize.width()/2, mWindowSize.height()/2);
+              m_AnimRefPoint = source->sceneTransform().map(center);
+              springEffectAtMin();
+              return true;
                //do not reset the transform here as it will then zoom-in the widget to decoded image size
-           }
+        }
+        //finalize the transforms to the geometry else panning will not work
+        finalizeWidgetTransform();
        }
        //gesture accepted
        return true;
@@ -268,6 +272,38 @@ bool GlxZoomWidget::executeGestureEvent(QGraphicsItem *source,QGestureEvent *eve
      }
      return true;
 
+}
+void GlxZoomWidget::springEffectAtMax()
+{
+    //set the no. of steps for double tap animation 
+    mdoubletapSteps = NO_OF_STEPS_FOR_SPRINGBACK_AT_MAX;
+    //initiale variable for double tap animation
+    mIncSF = 1;
+    
+    //For giving a spring effect when user has zoomed out more than normal.
+    //Zoom out to mMaxScaleDecSize from the currentsize
+    m_FinalAnimatedScaleFactor = mMaxScaleDecSize.width()/mCurrentSize.width();
+    //calculate the step increment SF for each step
+    msfInc = (1 - m_FinalAnimatedScaleFactor)/(mdoubletapSteps);
+    //preserve the size when zoom out was initiated, requried for calculates applicable/req scale factor
+    minitSize = mCurrentSize;
+    animateDoubleTap();
+}
+
+void GlxZoomWidget::springEffectAtMin()
+{
+      
+        m_FinalAnimatedScaleFactor = mMinDecScaleSize.width()/mCurrentSize.width();
+        //set the no. of steps for double tap animation 
+        mdoubletapSteps = NO_OF_STEPS_FOR_SPRINGBACK_AT_MIN;
+        //initiale variable for double tap animation
+        mIncSF = 1;
+        //SF has to always greater than 1 for upscaling, hence range for zoomout is [1,m_FinalAnimatedScaleFactor]
+        msfInc = (m_FinalAnimatedScaleFactor-1)/mdoubletapSteps;
+        //preserve the size when zoom out was initiated, requried for calculates applicable/req scale factor
+        minitSize = mCurrentSize;
+        animateDoubleTap();
+       
 }
 
 void GlxZoomWidget::zoomImage(qreal zoomFactor, QPointF center)
@@ -297,8 +333,8 @@ void GlxZoomWidget::limitRequiredSize(QSizeF &requiredSize)
     if(requiredSize.width() > mMaxScaleSize.width() ) {
         requiredSize = mMaxScaleSize ;
     }
-    else if(requiredSize.width() < mMinDecScaleSize.width() ) {
-        requiredSize = mMinDecScaleSize ;
+    else if(requiredSize.width() < mMinScaleSize.width() ) {
+        requiredSize = mMinScaleSize ;
     }
 
 
@@ -579,6 +615,7 @@ void GlxZoomWidget::animateZoomOut(QPointF animRefPoint)
 
 void GlxZoomWidget::animateDoubleTap()
     {
+    mDoubleTap = true;
     //calculate increamental scale factor based on the step and then calculate the applicable scale factor this step
     //increamental SF works on the ImageSize when double tap started, applicable(required) SF calculates the delate SF
     if(m_FinalAnimatedScaleFactor > 1) {
@@ -609,15 +646,24 @@ void GlxZoomWidget::animateDoubleTap()
 void GlxZoomWidget::animationTimeLineFinished()
 {
 	finalizeWidgetTransform();
-//push the Zoom widget to background when zoomed image size nears FS image
-           if(mStepCurrentSize.width() <= mMinDecScaleSize.width()*1.3)  {
+    //push the Zoom widget to background when zoomed image size nears FS image
+	if(mDoubleTap && (mStepCurrentSize.width() <= mMinDecScaleSize.width()*1.3))  {
                mBlackBackgroundItem->hide();
                //push the widget back to background
                setZValue(mMinZValue);
                mZoomOngoing = false;
                emit zoomWidgetMovedBackground(mFocusIndex);
                //do not reset the transform here as it will then zoom-in the widget to decoded image size
-           }
+			   mDoubleTap = false;
+    }
+	if(mCurrentSize.width() == mMinDecScaleSize.width()) {
+	    	mBlackBackgroundItem->hide();
+    	 	//push the widget back to background
+	         setZValue(mMinZValue);
+	         mZoomOngoing = false;
+	         emit zoomWidgetMovedBackground(mFocusIndex);
+	       
+	}
 }
 
 

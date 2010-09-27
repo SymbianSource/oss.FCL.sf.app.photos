@@ -30,7 +30,6 @@
 class CGlxActiveCallBack;
 class CGlxHdmiDecoderAO;
 class CImageDecoder;
-class CAlfCompositionSource;
 class TSurfaceConfiguration;
 
 class MGlxGenCallback
@@ -55,10 +54,9 @@ public:
      * @param aFsBitmap Fullscreen bitmap (if FS not available,make sure to send grid or default bitmap
      * else it would appear white screen on TV )
      * @param aCallBack MGlxGenCallback instance
-     * @param aEffectsOn If Effects should be on
      */
     static CGlxHdmiSurfaceUpdater* NewL(RWindow* aWindow, const TDesC& aImageFile, 
-            CFbsBitmap* aFsBitmap, MGlxGenCallback* aCallBack,TBool aEffectsOn);
+            CFbsBitmap* aFsBitmap, MGlxGenCallback* aCallBack);
 
     /**
      * Destructor
@@ -102,21 +100,13 @@ public:
      */
     void ShiftToPostingMode();
 
-    /**
-     * Fadeing of the Surface
-     * @param aFadeInOut ETrue - FadeIn ( as in gaining brightness )
-     *                   EFalse - FadeOut ( as in loosing brightness ) 
-     */
-    void FadeTheSurface(TBool aFadeInOut);
-
 private:
     /**
      * Constructor 
      * @param aWindow RWindow
      * @param aCallBack MGlxGenCallback instance
-     * @param aEffectsOn if effects should be on
      */
-    CGlxHdmiSurfaceUpdater(RWindow* aWindow, MGlxGenCallback* aCallBack,TBool aEffectsOn);
+    CGlxHdmiSurfaceUpdater(RWindow* aWindow, MGlxGenCallback* aCallBack);
 
     /**
      * ConstructL
@@ -236,11 +226,6 @@ private:
      */
     void InitiateHdmiL(CFbsBitmap* aFsBitmap,const TDesC& aImageFile);
 
-    /**
-     * Animate untill loop is complete 
-     */
-    void Animate();
-
 private:
     /// window object
     RWindow*            iWindow;                    
@@ -250,7 +235,6 @@ private:
     MGlxGenCallback*    iCallBack;                  
     /// To store the image uri path
     HBufC*              iImagePath;                 
-    TBool               iEffectsOn;
 
     /// If the Fs thumbnail is to be shown before decoding HD images
     TBool       iShwFsThumbnail;                    
@@ -283,8 +267,6 @@ private:
     /// Surface buffer AO
     CGlxActiveCallBack* iSurfBufferAO;              
 
-    CAlfCompositionSource* ialfCompositionSurface;
-
     /// Internal Image decoder AO
     CGlxHdmiDecoderAO*  iGlxDecoderAO;                            
     /// Image Decoder
@@ -295,9 +277,6 @@ private:
     TPoint      iLeftCornerForZoom;                   
     /// Timer for Zoom
     CPeriodic*  iTimer;                              
-    /// Timer for Animation
-    CPeriodic*  iAnimTimer;                         
-    TInt        iAnimCounter;
 
     /// Various objects to store sizes and count
     /// to store the Tv screen size

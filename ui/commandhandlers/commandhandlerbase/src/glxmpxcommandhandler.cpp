@@ -42,7 +42,7 @@
 #include <hbaction.h>
 
 GlxMpxCommandHandler::GlxMpxCommandHandler() :
-    iProgressComplete(EFalse)
+    iProgressComplete(EFalse),iIsCmdActive(EFalse)
     {
     OstTraceFunctionEntry0( GLXMPXCOMMANDHANDLER_GLXMPXCOMMANDHANDLER_ENTRY );
     iMediaList = NULL;
@@ -67,53 +67,59 @@ void GlxMpxCommandHandler::executeCommand(int commandId, int collectionId,QList<
     Q_UNUSED(indexList);
     int aHierarchyId = 0;
     TGlxFilterItemType aFilterType = EGlxFilterImage;
+    if (!iIsCmdActive)
+         {
+        if (collectionId != KGlxAlbumsMediaId)
+            {
+            OstTrace0( TRACE_NORMAL, DUP2_GLXMPXCOMMANDHANDLER_EXECUTECOMMAND, "GlxMpxCommandHandler::executeCommand::CreateMediaListL" );
+            CreateMediaListL(collectionId, aHierarchyId, aFilterType);
+            }
+        else
+            {
+            OstTrace0( TRACE_NORMAL, DUP3_GLXMPXCOMMANDHANDLER_EXECUTECOMMAND, "GlxMpxCommandHandler::executeCommand::CreateMediaListAlbumItemL" );
+            //for creating Medial List for Albums Media path Items
+            CreateMediaListAlbumItemL(collectionId, aHierarchyId, aFilterType);
+            }
 
-    if (collectionId != KGlxAlbumsMediaId)
-        {
-        OstTrace0( TRACE_NORMAL, DUP2_GLXMPXCOMMANDHANDLER_EXECUTECOMMAND, "GlxMpxCommandHandler::executeCommand::CreateMediaListL" );
-        CreateMediaListL(collectionId, aHierarchyId, aFilterType);
+        TBool consume = ETrue;
+        iProgressComplete = EFalse;
+        mProgressDialog = NULL;
+        //Execute Command 
+        DoExecuteCommandL(commandId, *iMediaList, consume);
+        mCommandId = commandId;
+        ConfirmationNoteL(*iMediaList);
         }
-    else
-        {
-        OstTrace0( TRACE_NORMAL, DUP3_GLXMPXCOMMANDHANDLER_EXECUTECOMMAND, "GlxMpxCommandHandler::executeCommand::CreateMediaListAlbumItemL" );
-        //for creating Medial List for Albums Media path Items
-        CreateMediaListAlbumItemL(collectionId, aHierarchyId, aFilterType);
-        }
-
-    TBool consume = ETrue;
-    iProgressComplete = EFalse;
-    mProgressDialog = NULL;
-    //Execute Command 
-    DoExecuteCommandL(commandId, *iMediaList, consume);
-    mCommandId = commandId;
-    ConfirmationNoteL(*iMediaList);
     OstTraceFunctionExit0( GLXMPXCOMMANDHANDLER_EXECUTECOMMAND_EXIT );
     }
 
 void GlxMpxCommandHandler::executeMpxCommand(bool execute)
     {
-    if(execute && !iMediaList->IsCommandActive())            
+    if(iMediaList)
         {
-        TBool consume = ETrue;
-        CMPXCommand* command = CreateCommandL(mCommandId, *iMediaList, consume);
-        if (command)
+        if (execute && !iMediaList->IsCommandActive())
             {
-            command->SetTObjectValueL<TAny*> (KMPXCommandGeneralSessionId,
-                    static_cast<TAny*> (this));
-            iMediaList->AddMediaListObserverL(this);
-            iMediaList->CommandL(*command);
-            
-            if(iMediaList->SelectionCount() > 1)
+            TBool consume = ETrue;
+            CMPXCommand* command = CreateCommandL(mCommandId, *iMediaList,
+                    consume);
+            if (command)
                 {
-                 ProgressNoteL(mCommandId);
+                command->SetTObjectValueL<TAny*> (
+                        KMPXCommandGeneralSessionId,
+                        static_cast<TAny*> (this));
+                iMediaList->AddMediaListObserverL(this);
+                iMediaList->CommandL(*command);
+
+                if (iMediaList->SelectionCount() > 1)
+                    {
+                    ProgressNoteL(mCommandId);
+                    }
                 }
             }
+        else //command cancelled,so unmark all items
+            {
+            MGlxMediaList::UnmarkAllL(*iMediaList);
+            }
         }
-    else //command cancelled,so unmark all items
-        {
-        MGlxMediaList::UnmarkAllL(*iMediaList);
-        }
-    
     }
 
 // ---------------------------------------------------------------------------
@@ -295,11 +301,14 @@ void GlxMpxCommandHandler::HandleCommandCompleteL(TAny* aSessionId,
         CMPXCommand* aCommandResult, TInt aError, MGlxMediaList* aList)
     {
     OstTraceFunctionEntry0( GLXMPXCOMMANDHANDLER_HANDLECOMMANDCOMPLETEL_ENTRY );
-    MGlxMediaList::UnmarkAllL(*iMediaList);
+    if(iMediaList)
+        {
+        MGlxMediaList::UnmarkAllL(*iMediaList);
 
-    DoHandleCommandCompleteL(aSessionId, aCommandResult, aError, aList);
-    iProgressComplete = ETrue;
-    TryExitL(aError);
+        DoHandleCommandCompleteL(aSessionId, aCommandResult, aError, aList);
+        iProgressComplete = ETrue;
+        TryExitL(aError);
+        }
     OstTraceFunctionExit0( GLXMPXCOMMANDHANDLER_HANDLECOMMANDCOMPLETEL_EXIT );
     }
 
@@ -349,10 +358,13 @@ void GlxMpxCommandHandler::TryExitL(TInt aErrorCode)
         {
         // @todo error received. Close progress note 
         DismissProgressNoteL();
-        MGlxMediaList::UnmarkAllL(*iMediaList);
-        iMediaList->RemoveMediaListObserver(this);
-        iMediaList->Close();
-        iMediaList = NULL;
+        if(iMediaList)
+            {
+            MGlxMediaList::UnmarkAllL(*iMediaList);
+            iMediaList->RemoveMediaListObserver(this);
+            iMediaList->Close();
+            iMediaList = NULL;
+            }
         // handle error
         HandleErrorL(aErrorCode);
         }
@@ -365,6 +377,7 @@ void GlxMpxCommandHandler::TryExitL(TInt aErrorCode)
         CompletionNoteL();
         iProgressComplete = EFalse;
         }
+    iIsCmdActive = EFalse;
     OstTraceFunctionExit0( GLXMPXCOMMANDHANDLER_TRYEXITL_EXIT );
     }
 
@@ -418,7 +431,7 @@ void GlxMpxCommandHandler::DismissProgressNoteL()
 void GlxMpxCommandHandler::ConfirmationNoteL(MGlxMediaList& aMediaList)
     {
 	TInt selectionCount = aMediaList.SelectionCount();
-
+	iIsCmdActive = ETrue;
     // If media list is not empty, treat focused item as selected
     // At this point can assume that the command was disabled 
     // if static items were not supported	
@@ -509,6 +522,7 @@ void GlxMpxCommandHandler::messageDialogClose(HbAction* action)
         {
         // Cancellation is done.
         executeMpxCommand(false);
+        iIsCmdActive = EFalse;
         }
     }
 

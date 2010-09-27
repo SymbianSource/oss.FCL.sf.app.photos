@@ -81,6 +81,8 @@ class GLXZOOMWIDGETSHARED_EXPORT GlxZoomWidget : public HbScrollArea
     void modelDestroyed();
 
     private:
+    void springEffectAtMin();
+    void springEffectAtMax();
     bool executeGestureEvent(QGraphicsItem *source,QGestureEvent *event);
     //Responsible for changing the transforms of the widget wrt the ZF and center
 	//Also adjusts the ZF, center and final size so as to respect the boundaries
@@ -155,5 +157,6 @@ private:
     QSizeF minitSize;
     //counter to track the double tap animation steps
     int mdoubletapSteps;
+    bool mDoubleTap;
 };
 #endif  //GLXZOOMWIDGET_H

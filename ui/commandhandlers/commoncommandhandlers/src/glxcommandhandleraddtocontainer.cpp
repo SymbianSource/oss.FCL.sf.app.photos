@@ -183,10 +183,15 @@ CMPXCommand* GlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
             GlxAlbumSelectionPopup popupWidget;
             QModelIndexList modelList = popupWidget.GetSelectionList(albumMediaModel, &ok);
             if(ok && modelList.count() == 0)
-            {
+            	{
                 createNewMedia();
                 ok = false;        
-            }    
+            	}
+            else if(!ok)
+                {
+				// Reset the flag so that next addmedia cmd can  be executed
+                iIsCmdActive = false;
+                }
             OstTraceExt2( TRACE_NORMAL, GLXCOMMANDHANDLERADDTOCONTAINER_CREATECOMMANDL, "GlxCommandHandlerAddToContainer::CreateCommandL;ok=%d;newMedia=%d", ok, mNewMediaAdded );
     
             if (ok || mNewMediaAdded)
@@ -220,6 +225,8 @@ CMPXCommand* GlxCommandHandlerAddToContainer::CreateCommandL(TInt aCommandId,
                 }
             else
                 {
+				// Reset the flag so that next addmedia cmd can  be executed
+                iIsCmdActive = false;
                 MGlxMediaList::UnmarkAllL(aMediaList);
                 }
     

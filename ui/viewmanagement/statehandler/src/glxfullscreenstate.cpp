@@ -16,10 +16,12 @@
 */
 
 
+#include <hbmainwindow.h>
+#include <hbinstance.h>
 
-#include <glxfullscreenstate.h>
-#include <glxstatemanager.h>
-#include <glxcommandhandlers.hrh>
+#include "glxfullscreenstate.h"
+#include "glxstatemanager.h"
+#include "glxcommandhandlers.hrh"
 
 GlxFullScreenState::GlxFullScreenState(GlxStateManager *stateManager, GlxState *preState) : GlxState(GLX_FULLSCREENVIEW_ID, preState)
 {
@@ -63,7 +65,8 @@ void GlxFullScreenState::setTranstionParameter(NavigationDir dir, GlxEffect &eff
     }    
     else if ( dir == BACKWARD_DIR ) {
         if ( preState->compare( GLX_GRIDVIEW_ID ) ) {
-            effect = FULLSCREEN_TO_GRID;
+            HbMainWindow *window = hbInstance->allMainWindows().first();
+            effect = window->orientation() == Qt::Vertical ? FULLSCREEN_TO_GRID_PORTRAIT : FULLSCREEN_TO_GRID ;
             viewEffect = LAUNCH_VIEW;
         }       
     }    

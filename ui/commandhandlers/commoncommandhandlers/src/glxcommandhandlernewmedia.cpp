@@ -72,7 +72,6 @@ CMPXCommand* GlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
     iNewMediaCreationError = KErrNone;
     if (ok == true)
         {
-        
         TPtrC16 newMediaItemTitleDes
                 = (reinterpret_cast<const TUint16*> (mediaTitle.utf16()));
         
@@ -86,6 +85,8 @@ CMPXCommand* GlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
         }
     else
         {
+        // Reset the flag so that next addmedia cmd can  be executed
+        iIsCmdActive = false;
         iNewMediaCreationError = KErrCancel;
         }
 

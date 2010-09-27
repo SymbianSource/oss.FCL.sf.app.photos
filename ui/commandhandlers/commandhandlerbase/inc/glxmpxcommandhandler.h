@@ -96,6 +96,8 @@ private:
     void CreateMediaListL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType) ;
     void CreateMediaListAlbumItemL(int aCollectionId, int aHierarchyId, TGlxFilterItemType aFilterType);
     void executeMpxCommand(bool execute);
+protected:
+    mutable bool iIsCmdActive;
 private:
     // Instance of Media List
     MGlxMediaList* iMediaList;

@@ -60,9 +60,8 @@ public:
      * to pass the model 
      * @param Model datamodel
      * @param screensize the size of the phone screen
-     * @param aEfectsOn if slideshow effects on tv needs to be on, off by default 
      */
-    void setModel(QAbstractItemModel* aModel,QSize aScreenSize,bool aEfectsOn = false);
+    void setModel(QAbstractItemModel* aModel,QSize aScreenSize);
     
     /**
      * Set the image on to HDMI
@@ -99,13 +98,6 @@ public:
      * Note : This function is not required if bounce back effect finishes automatically
      */
     void deactivateZoom();
-    
-    /**
-     * Fadeing of the Surface
-     * @param aFadeInOut    ETrue - FadeIn ( as in gaining brightness )
-     *                      EFalse - FadeOut ( as in loosing brightness ) 
-     */
-    void fadeSurface(bool aFadeInOut);
     
 private:
     /// Private wrapper handler according to PIMPL pattern 

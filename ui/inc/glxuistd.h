@@ -59,8 +59,7 @@ enum GlxTBContextType
 	GlxTBContextGrid,
 	GlxTBContextLsFs,
 	GlxTBContextPtFs,
-	GlxTBContextNone,
-	GlxTBContextExternal
+	GlxTBContextNone
 };
 
 typedef enum
@@ -74,6 +73,7 @@ typedef enum
     FADE_EFFECT,
     GRID_TO_FULLSCREEN,
     FULLSCREEN_TO_GRID,
+    FULLSCREEN_TO_GRID_PORTRAIT,
     FULLSCREEN_TO_DETAIL,
     DETAIL_TO_FULLSCREEN,
     GRID_TO_ALBUMLIST,

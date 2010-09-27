@@ -16,6 +16,7 @@
         <file>data/uphide.fxml</file>
         <file>data/downshow.fxml</file> 
         <file>data/fullscreentogrid.fxml</file>
+        <file>data/fullscreentogridportrait.fxml</file>
         <file>data/gridtofullscreenhide.fxml</file>
         <file>data/gridtofullscreenshow.fxml</file>
         <file>data/rotatelandscape.fxml</file>
@@ -37,6 +38,6 @@
         <file>data/Wait/qgn_graf_ring_wait_08.svg</file>
         <file>data/Wait/qgn_graf_ring_wait_09.svg</file>
         <file>data/Wait/qgn_graf_ring_wait_10.svg</file>
-	<file>data/details.svg</file>
+        <file>data/details.svg</file>
     </qresource>
 </RCC>

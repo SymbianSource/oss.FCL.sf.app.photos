@@ -44,12 +44,10 @@ public:
     /**
      * NewLC 
      * @param aRect rect in which the CCoecontrol actually needs to be constructed
-     * @param EffectsOn - if the effect should be on, by default it is OFF, 
-     *  used only for SLIDESHOW
      *   
      * @return CGlxHdmiController object. 
      */
-    IMPORT_C static CGlxHdmiController* NewL(TRect aRect ,TBool aEfectsOn = EFalse);
+    IMPORT_C static CGlxHdmiController* NewL(TRect aRect );
 
     /**
      * Destructor
@@ -95,20 +93,12 @@ public:
      */
     IMPORT_C void ShiftToPostingMode();
 
-    /**
-     * Fadeing of the Surface
-     * @param aFadeInOut ETrue - FadeIn ( as in gaining brightness )
-     *                   EFalse - FadeOut ( as in loosing brightness ) 
-     */
-    IMPORT_C void FadeSurface(TBool aFadeInOut);
-    
 private:/// class private method
     /**
      * Constructor
      * @param aRect Rect size 
-     * @param aEfectsOn if effects needs to be on(used in Slideshow only)
      */
-    CGlxHdmiController(TRect aRect ,TBool aEfectsOn);
+    CGlxHdmiController(TRect aRect);
     
     /**
      * ConstructL 
@@ -160,8 +150,6 @@ private:
     TRect   iRect;                   
     /// Flag to see if Image is supported
     TBool   iIsImageSupported;      
-    /// Flag to set if effects should be on
-    TBool   iEffectsOn;                 
     };
 
 #endif /* GLXHDMICONTROLLER_H_ */

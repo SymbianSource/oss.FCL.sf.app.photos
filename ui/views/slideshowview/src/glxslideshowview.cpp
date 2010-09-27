@@ -122,7 +122,7 @@ void GlxSlideShowView::setModel(QAbstractItemModel *model)
     mSlideShowWidget->setModel(mModel);
     
     if (mTvOutWrapper){
-        mTvOutWrapper->setModel(mModel, screenSize(), true);
+        mTvOutWrapper->setModel(mModel, screenSize());
         mTvOutWrapper->setImagetoHDMI();
     }
 }
@@ -180,9 +180,6 @@ void GlxSlideShowView::slideShowEventHandler( GlxSlideShowEvent e)
             break;
             
         case EFFECT_STARTED:
-            if (mTvOutWrapper){
-            mTvOutWrapper->fadeSurface(false);
-            }
             break;
 
         default :

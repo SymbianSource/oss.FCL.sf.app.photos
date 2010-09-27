@@ -42,6 +42,8 @@ class GlxDRMUtilityWrapper;
 class GLX_MEDIAMODEL_EXPORT GlxMediaModel : public QAbstractItemModel
 {
 Q_OBJECT
+friend class TestGlxMediaModel;
+
 public :	
     /**
      * Constructor
@@ -72,6 +74,10 @@ public :
      */
     QModelIndex parent( const QModelIndex &child ) const;
     
+    QVariant itemImageData( const QModelIndex &index, int role ) const;
+    QVariant collectionProperty( int role ) const;
+    QVariant itemProperty( const QModelIndex &index, int role ) const;    
+    
     /**
      * data() -  return the data of corresponding role.
      * @param - model index of interested item.
@@ -94,16 +100,7 @@ public :
      */
     QModelIndex index( int row, int column, const QModelIndex &parent = QModelIndex() ) const;
 
-	/**
-	* addExternalItems() - for setting external image data to the model. 
-	*/
-	void addExternalItems( GlxExternalData* externalItems );
 	
-	/**
-	 * clearExternalItems() - for removing all external image data from the model. 
-	 */
-	void clearExternalItems();
-
 signals :
     /**
      * albumTitleAvailable() - emit this signal when album title is available.
@@ -150,16 +147,14 @@ private:
      * @param - media list context type
      * @return - return the hbicon of the item
      */	
-	HbIcon* GetFsIconItem( int itemIndex,GlxTBContextType tbContextType )const;
-
-    /**
-     * GetExternalIconItem() - To fetch the grid size thumbnail of external item.
-     * @param - item index
-     * @param - media list context type
-     * @return - return the hbicon of the item
-     */ 	
-	HbIcon* GetExternalIconItem( int itemIndex,GlxTBContextType tbContextType )const;
+	HbIcon* GetFsIconItem( int itemIndex, GlxTBContextType tbContextType )const;
 	
+	HbIcon gridToFullscreenIcon( HbIcon * icon, int itemIndex ) const;
+	
+	HbIcon getFullScreenIcon( int itemIndex ) const;
+	
+	QImage getFullScreenImage( int itemIndex ) const;
+
     /**
      * setContextMode() - for setting the attribute context mode will be used mainly for 
      * retreiving thumbnail of different sizes.
@@ -258,23 +253,18 @@ private slots:
     void updateItemIcon( int itemIndex, HbIcon* itemIcon, GlxTBContextType tbContextType );
     
 private:
-	GlxMLWrapper* mMLWrapper;	
-	QCache<int, HbIcon> itemIconCache;
-	QCache<int, HbIcon> itemFsIconCache;
-	HbIcon* m_DefaultIcon;
-	HbIcon* m_CorruptIcon;
-	
-	GlxContextMode mContextMode;
-	//for external data to be populated by model
-	GlxExternalData* mExternalItems;
-	QCache<int, HbIcon> itemExternalIconCache;
-	int externalDataCount;
-	int mFocusIndex;
-	int mSubState;
-	GlxDRMUtilityWrapper* mDRMUtilityWrapper;
-	int mTempVisibleWindowIndex;
-	bool thumbnailPopulatedFlag;
-	bool mPaintPage;
+	GlxMLWrapper* mMLWrapper;
+    QCache<int, HbIcon> itemIconCache;
+    QCache<int, HbIcon> itemFsIconCache;
+    HbIcon* m_DefaultIcon;
+    HbIcon* m_CorruptIcon;
+    GlxContextMode mContextMode;
+    int mFocusIndex;
+    int mSubState;
+    GlxDRMUtilityWrapper* mDRMUtilityWrapper;
+    int mTempVisibleWindowIndex;
+    bool thumbnailPopulatedFlag;
+    bool mPaintPage;
 };
 
 

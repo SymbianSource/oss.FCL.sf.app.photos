@@ -29,12 +29,12 @@
 // Static method to create the private wrapper instance 
 // -----------------------------------------------------------------------------
 GlxTvOutWrapperPrivate* GlxTvOutWrapperPrivate::Instance(GlxTvOutWrapper* aTvOutWrapper,
-        QAbstractItemModel* aModel,QSize aScreenSize,bool aEfectsOn)
+        QAbstractItemModel* aModel,QSize aScreenSize)
     {
     TRACER("GlxTvOutWrapperPrivate::Instance()");
     GlxTvOutWrapperPrivate* self = new GlxTvOutWrapperPrivate(aTvOutWrapper,aModel);
     if (self){
-        TRAPD(err,self->ConstructL(aScreenSize,aEfectsOn));
+        TRAPD(err,self->ConstructL(aScreenSize));
         if(err != KErrNone){
             delete self;
             self = NULL;
@@ -47,14 +47,13 @@ GlxTvOutWrapperPrivate* GlxTvOutWrapperPrivate::Instance(GlxTvOutWrapper* aTvOut
 // ConstructL
 // This creates the Connection observer and the Hdmi Controller
 // -----------------------------------------------------------------------------
-void GlxTvOutWrapperPrivate::ConstructL(QSize aScreenSize,bool aEfectsOn)
+void GlxTvOutWrapperPrivate::ConstructL(QSize aScreenSize)
     {
     TRACER("GlxTvOutWrapperPrivate::ConstructL()");
     iConnectionObserver = CGlxConnectionObserver::NewL(this);
     if (!iHdmiController) {
         TRect rect(0,0,aScreenSize.width(),aScreenSize.height());
-        iHdmiController = CGlxHdmiController::NewL(rect,
-                aEfectsOn);
+        iHdmiController = CGlxHdmiController::NewL(rect);
         iHdmiConnected = iConnectionObserver->IsHdmiConnected();
         }
     }
@@ -223,16 +222,6 @@ void GlxTvOutWrapperPrivate::DeactivateZoom()
     {
     if(iHdmiController && iHdmiConnected){
     iHdmiController->DeactivateZoom();
-    }
-    }
-
-// -----------------------------------------------------------------------------
-// FadeSurface 
-// -----------------------------------------------------------------------------
-void GlxTvOutWrapperPrivate::FadeSurface(bool aFadeInOut)
-    {
-    if(iHdmiController && iHdmiConnected){
-    iHdmiController->FadeSurface(aFadeInOut);
     }
     }
 

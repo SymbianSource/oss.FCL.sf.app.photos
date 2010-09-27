@@ -28,14 +28,14 @@
 #define GLXICON_USEIMAGE    "qtg_small_ovi"
 
 //GRID TOOLBAR
-#define GLXICON_ALL     "qtg_mono_photos"
-#define GLXICON_ALBUMS  "qtg_mono_photo_albums"
-#define GLXICON_CAMERA  "qtg_mono_camera"
-#define GLXICON_OVI     "qtg_small_ovi"
+#define GLXICON_ALL         "qtg_mono_photos"
+#define GLXICON_ALBUMS      "qtg_mono_photo_albums"
+#define GLXICON_CAMERA      "qtg_mono_camera"
+#define GLXICON_OVI         "qtg_small_ovi"
 
 //ALBUM GRID TOOLBAR
-#define GLXICON_ADD     "qtg_mono_add_to_video_collection"
-#define GLXICON_REMOVE  "qtg_mono_remove_from_video_collection"
+#define GLXICON_ADD         "qtg_mono_add_to_video_collection"
+#define GLXICON_REMOVE      "qtg_mono_remove_from_video_collection"
 
 //CORRUPT ICON
 #define GLXICON_CORRUPT "qtg_large_corrupted"
@@ -44,7 +44,7 @@
 #define GLXICON_PLAY    "qtg_mono_play"
 
 //DEFAULT ICON
-#define GLXICON_DEFAULT "qtg_mono_camera"
+#define GLXICON_DEFAULT  "qtg_mono_photos"
 
 #define GLXICON_ADD_TO_FAV  "qtg_graf_ratingslider_rated"
 #define GLXICON_REMOVE_FAV  "qtg_graf_ratingslider_unrated"

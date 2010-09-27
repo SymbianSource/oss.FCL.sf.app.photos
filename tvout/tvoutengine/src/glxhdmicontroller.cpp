@@ -27,10 +27,10 @@
 // -----------------------------------------------------------------------------
 // NewLC
 // -----------------------------------------------------------------------------
-EXPORT_C CGlxHdmiController* CGlxHdmiController::NewL(TRect aRect ,TBool aEfectsOn)
+EXPORT_C CGlxHdmiController* CGlxHdmiController::NewL(TRect aRect)
     {
     TRACER("CGlxHdmiController* CGlxHdmiController::NewL()");
-    CGlxHdmiController* self = new (ELeave) CGlxHdmiController(aRect,aEfectsOn);
+    CGlxHdmiController* self = new (ELeave) CGlxHdmiController(aRect);
     CleanupStack::PushL(self);
     self->ConstructL();
     CleanupStack::Pop(self);
@@ -166,27 +166,13 @@ EXPORT_C void CGlxHdmiController::ShiftToPostingMode()
         }
     }
 
-
-// -----------------------------------------------------------------------------
-// FadeSurface 
-// -----------------------------------------------------------------------------
-EXPORT_C void CGlxHdmiController::FadeSurface(TBool aFadeInOut)
-    {
-    TRACER("CGlxHdmiController::FadeSurface()");
-    if (iSurfaceUpdater)
-        {
-        iSurfaceUpdater->FadeTheSurface(aFadeInOut);
-        }
-    }
-
 // -----------------------------------------------------------------------------
 // Constructor
 // -----------------------------------------------------------------------------
-CGlxHdmiController::CGlxHdmiController(TRect aRect,TBool aEffectsOn):
+CGlxHdmiController::CGlxHdmiController(TRect aRect):
             iFsBitmap(NULL),
             iStoredImagePath(NULL),
-            iRect(aRect),
-            iEffectsOn(aEffectsOn)
+            iRect(aRect)
     {
     TRACER("CGlxHdmiController::CGlxHdmiController()");
     // Implement nothing here
@@ -243,8 +229,7 @@ void CGlxHdmiController::CreateSurfaceUpdaterL(const TDesC& aImageFile)
     {
     TRACER("CGlxHdmiController::CreateSurfaceUpdater()");
     iSurfaceUpdater = CGlxHdmiSurfaceUpdater::NewL(iHdmiContainer->GetWindow(), 
-                                                aImageFile, iFsBitmap,iHdmiContainer,
-                                                iEffectsOn);
+                                                aImageFile, iFsBitmap,iHdmiContainer);
     iHdmiContainer->DrawNow();
     }
 

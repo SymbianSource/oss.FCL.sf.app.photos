@@ -45,13 +45,11 @@ public:
      * @param aTvOutWrapper GlxTvOutWrapper Instance 
      * @param aModel item model
      * @param aScreenSize screensize of the phone
-     * @param aEfectsOn to ON the Effects for Slideshow on TV- currently only 
-     *                  fade in fade out is supported
      * 
      * @return GlxTvOutWrapperPrivate Instance
      */
     static GlxTvOutWrapperPrivate* Instance(GlxTvOutWrapper* aTvOutWrapper,
-            QAbstractItemModel* aModel,QSize aScreenSize,bool aEfectsOn);
+            QAbstractItemModel* aModel,QSize aScreenSize);
 
     /**
      * destructor
@@ -116,9 +114,8 @@ private:
     /**
      * constructL()
      * @param aScreenSize screensize 
-     * @param aEffectsOn to On the Effects of Slideshow - currently only fade in fade out
      */
-    void ConstructL(QSize aScreenSize,bool aEfectsOn);
+    void ConstructL(QSize aScreenSize);
     
     /**
      * SetNewImage
