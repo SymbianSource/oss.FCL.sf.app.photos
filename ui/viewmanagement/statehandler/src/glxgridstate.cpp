@@ -66,13 +66,18 @@ void GlxGridState::defaultEventHandler ( qint32 &id )
        id = EGlxCmdHandled;
        mStateManager->nextState( GLX_FULLSCREENVIEW_ID, FETCHER_S );
        break;
+   case EGlxCmdBrowseFullScreenOpen:   
+       id = EGlxCmdHandled;
+       mStateManager->nextState( GLX_FULLSCREENVIEW_ID, BROWSE_S );
+       break;
+
    case EGlxCmdAddToAlbum :
    case EGlxCmdDelete :
    case EGlxCmdRemoveFrom :
-   case EGlxCmdSend :       
+   case EGlxCmdSend :
+       mCommandId = id;
        mStateManager->enterMarkingMode();
        mIsMarkingMode = TRUE;
-       mCommandId = id;
        id = EGlxCmdHandled;
        break;
        

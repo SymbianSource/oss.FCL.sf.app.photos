@@ -21,7 +21,7 @@ EXPORTS
 	_ZN14GlxViewManager15exitMarkingModeEi @ 20 NONAME
 	_ZN14GlxViewManager15externalCommandEi @ 21 NONAME
 	_ZN14GlxViewManager15handleReadyViewEv @ 22 NONAME
-	_ZN14GlxViewManager16enterMarkingModeEi @ 23 NONAME
+	_ZN14GlxViewManager16enterMarkingModeEii @ 23 NONAME
 	_ZN14GlxViewManager16handleMenuActionEi @ 24 NONAME
 	_ZN14GlxViewManager16handleUserActionEii @ 25 NONAME
 	_ZN14GlxViewManager16removeConnectionEv @ 26 NONAME
@@ -35,18 +35,19 @@ EXPORTS
 	_ZN14GlxViewManager20launchProgressDialogEi @ 34 NONAME
 	_ZN14GlxViewManager20updateProgressDialogEi @ 35 NONAME
 	_ZN14GlxViewManager21deactivateCurrentViewEv @ 36 NONAME
-	_ZN14GlxViewManager24createMarkingModeActionsEv @ 37 NONAME
-	_ZN14GlxViewManager24createMarkingModeToolBarEv @ 38 NONAME
-	_ZN14GlxViewManager25itemSpecificMenuTriggeredEi7QPointF @ 39 NONAME
-	_ZN14GlxViewManager8findViewEi @ 40 NONAME
-	_ZN14GlxViewManager8setModelEP18QAbstractItemModel @ 41 NONAME
-	_ZN14GlxViewManagerC1Ev @ 42 NONAME
-	_ZN14GlxViewManagerC2Ev @ 43 NONAME
-	_ZN14GlxViewManagerD0Ev @ 44 NONAME
-	_ZN14GlxViewManagerD1Ev @ 45 NONAME
-	_ZN14GlxViewManagerD2Ev @ 46 NONAME
-	_ZNK14GlxViewManager10metaObjectEv @ 47 NONAME
-	_ZNK14GlxViewManager11orientationEv @ 48 NONAME
-	_ZTI14GlxViewManager @ 49 NONAME
-	_ZTV14GlxViewManager @ 50 NONAME
+	_ZN14GlxViewManager23setMarkingToolBarActionEi @ 37 NONAME
+	_ZN14GlxViewManager24createMarkingModeActionsEv @ 38 NONAME
+	_ZN14GlxViewManager24createMarkingModeToolBarEv @ 39 NONAME
+	_ZN14GlxViewManager25itemSpecificMenuTriggeredEi7QPointF @ 40 NONAME
+	_ZN14GlxViewManager8findViewEi @ 41 NONAME
+	_ZN14GlxViewManager8setModelEP18QAbstractItemModel @ 42 NONAME
+	_ZN14GlxViewManagerC1Ev @ 43 NONAME
+	_ZN14GlxViewManagerC2Ev @ 44 NONAME
+	_ZN14GlxViewManagerD0Ev @ 45 NONAME
+	_ZN14GlxViewManagerD1Ev @ 46 NONAME
+	_ZN14GlxViewManagerD2Ev @ 47 NONAME
+	_ZNK14GlxViewManager10metaObjectEv @ 48 NONAME
+	_ZNK14GlxViewManager11orientationEv @ 49 NONAME
+	_ZTI14GlxViewManager @ 50 NONAME
+	_ZTV14GlxViewManager @ 51 NONAME
 

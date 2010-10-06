@@ -150,6 +150,13 @@ public slots:
 	 */
 	void zoomFinished( int index );
 
+    /**
+     * setOrientChangeAnim() - To set the playing status of orientation change animation
+     * to coverflow.
+     *  @param - focus index.
+     */	
+	void setOrientChangeAnim( bool isPlaying ) { mIsOrientChangeAnim = isPlaying ; }
+
 signals :
     /**
      * coverFlowEvent() - To emit signal about coverflow event happen like panning, zomming ( For ui off ),
@@ -375,6 +382,7 @@ private:
     int mTimerId;
     bool mIsInit;
     bool mIsAutoMoving;
+    bool mIsOrientChangeAnim;                 //To check status of orientation change animation.
 };
 
 #endif /* GLXCOVERFLOW_H_ */

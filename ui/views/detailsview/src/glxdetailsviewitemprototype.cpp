@@ -38,7 +38,8 @@ GlxDetailsViewItemProtoType::GlxDetailsViewItemProtoType(QGraphicsItem* parent)
       mDescriptionEditor( NULL ),
       mDateLabel( NULL ),
       mTimeLabel( NULL ),
-      mSizeLabel( NULL )
+      mSizeLabel( NULL ),
+      mImgNameLabel( NULL )
 {
 }
 
@@ -53,7 +54,7 @@ GlxDetailsViewItemProtoType::~GlxDetailsViewItemProtoType()
     case widgetNameIndex:
     {
         delete mImageNameEditor;
-        mImageNameEditor = NULL;
+        delete mImgNameLabel;
         break;
     }
 
@@ -109,10 +110,17 @@ void GlxDetailsViewItemProtoType::updateChildItems()
 
     case widgetNameIndex:
     {
-        //create the editor
-        mImageNameEditor = new GlxDetailsTextEdit(this);        
-        mImageNameEditor->setMaxRows(1);
-        
+        int substate = modelIndex().data(GlxSubStateRole).toInt();
+        if(substate == IMAGEVIEWER_DETAIL_S)
+            {
+            mImgNameLabel = new HbLabel(this);
+            }
+        else
+            {
+            //create the editor
+            mImageNameEditor = new GlxDetailsTextEdit(this);        
+            mImageNameEditor->setMaxRows(1);
+            }
         //retrieve the name from the model
         QString nameString(GLX_DETAILS_NAME);
         QVariant nameData = modelIndex().data(GlxUriRole).toString();
@@ -121,15 +129,19 @@ void GlxDetailsViewItemProtoType::updateChildItems()
                 nameString.append(nameData.toString());
             }
         }
-        mImageNameEditor->setItemText(nameString);
+        if(substate == IMAGEVIEWER_DETAIL_S)
+            {
+            mImgNameLabel->setPlainText(nameString);
+            mImgNameLabel->setMinimumHeight(size().height() + 50);
+            }
+        else
+            {
+            mImageNameEditor->setItemText(nameString);
+            }
 
         //Get the sub state of the details view
-        int substate = modelIndex().data(GlxSubStateRole).toInt();
         if (substate != IMAGEVIEWER_DETAIL_S) {
             connect(mImageNameEditor, SIGNAL(editorTapped()), this, SLOT(forwardSignalsToView()));
-        }
-        else {
-            mImageNameEditor->setTextItemReadOnly(TRUE);
         }
 
         //Connect the Signals
@@ -139,7 +151,14 @@ void GlxDetailsViewItemProtoType::updateChildItems()
         //Add the Layout
         QGraphicsLinearLayout *widgetLayout = new QGraphicsLinearLayout(Qt::Horizontal, 0);
         widgetLayout->setContentsMargins(CONTENTMARGINS,CONTENTMARGINS,CONTENTMARGINS,CONTENTMARGINS);
-        widgetLayout->addItem(mImageNameEditor);
+        if(substate == IMAGEVIEWER_DETAIL_S)
+            {
+            widgetLayout->addItem(mImgNameLabel);
+            }
+        else
+            {
+            widgetLayout->addItem(mImageNameEditor);
+            }
         setLayout(widgetLayout);
         break;
     }
@@ -278,7 +297,8 @@ void GlxDetailsViewItemProtoType::updateWidgetValues()
     int widgetIndex = modelIndex().row();
     if (widgetIndex == GlxDetailsViewItemProtoType::widgetNameIndex) {
 
-        QString nameString(GLX_DETAILS_NAME);
+		int substate = modelIndex().data(GlxSubStateRole).toInt();
+		QString nameString(GLX_DETAILS_NAME);
         QVariant nameData = modelIndex().data(GlxUriRole).toString();
 
         if (nameData.isValid()) {
@@ -286,7 +306,14 @@ void GlxDetailsViewItemProtoType::updateWidgetValues()
                 nameString.append(nameData.toString());
             }
         }
-        mImageNameEditor->setItemText(nameString);
+        if (substate == IMAGEVIEWER_DETAIL_S)
+            {
+            mImgNameLabel->setPlainText(nameString);
+            }
+        else
+            {
+            mImageNameEditor->setItemText(nameString);
+            }
     }
     else {
         QString descString(GLX_DETAILS_DESCRIPTION);

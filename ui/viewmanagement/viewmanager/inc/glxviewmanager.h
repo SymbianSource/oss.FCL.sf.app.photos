@@ -79,7 +79,7 @@ public :
      * @param id viewId
      * @param model model to be used for the view
      */
-    void launchApplication(qint32 id, QAbstractItemModel *model);
+    void launchApplication( qint32 id, QAbstractItemModel *model );
 
     /**
      * add back key action
@@ -101,27 +101,27 @@ public :
      *  To update the tool bar enable and disable icon
      *  id = This should be selected toolbar tab id
      */    
-    void updateToolBarIcon(int id);
+    void updateToolBarIcon( int id );
 
     /**
      * Enable the marking mode of the view to select multiple item
      */    
-    void enterMarkingMode(qint32 viewId);
+    void enterMarkingMode( qint32 viewId, qint32 commandId );
 
     /**
      * Enable the normal mode of the view
      */    
-    void exitMarkingMode(qint32 viewId);
+    void exitMarkingMode( qint32 viewId );
 
     /**
      * Pass the user action to the view
      */    
-    void handleUserAction(qint32 viewId, qint32 commandId);
+    void handleUserAction( qint32 viewId, qint32 commandId );
 
     /**
      *  Return the selection model to the user
      */    
-    QItemSelectionModel * getSelectionModel(qint32 viewId);
+    QItemSelectionModel * getSelectionModel( qint32 viewId );
 
     /**
      * To set the model of current view
@@ -132,39 +132,39 @@ signals :
     /**
      *  emit the user action
      */
-    void actionTriggered(qint32 id);
-    void externalCommand(int cmdId);
+    void actionTriggered( qint32 id );
+    void externalCommand( int cmdId );
 
 public slots:
     /**
      *  This public slot is used to launch the view
      */
-    void launchView (qint32 id, QAbstractItemModel *model);
+    void launchView ( qint32 id, QAbstractItemModel *model );
 
     /**
      *  It is over load slot and used to run the animation for view transition and launch the view
      */    
-    void launchView (qint32 id, QAbstractItemModel *model, GlxEffect effect, GlxViewEffect viewEffect);
+    void launchView ( qint32 id, QAbstractItemModel *model, GlxEffect effect, GlxViewEffect viewEffect );
     
     void launchProgressDialog( int maxValue );
-    void updateProgressDialog( int currentValue);
+    void updateProgressDialog( int currentValue );
 
     /**
      *  It will removed and deleted the view.
      *  Currently It is not used so may be in future, It will be removed.
      */    
-    void destroyView (qint32 id);
+    void destroyView ( qint32 id );
 
     /**
      *  It will pass the user action to the state manager
      */    
-    void actionProcess(qint32 id);
+    void actionProcess( qint32 id );
 
     /**
      *  It will pass the user selected menu action to state manager 
      *  check for depricated with actionProcess api
      */    
-    void handleMenuAction(qint32 commandId);
+    void handleMenuAction( qint32 commandId );
 
     /**
      *  It will pass the user action ( tool bar + back ) to state manager
@@ -180,7 +180,7 @@ public slots:
     /**
      *  This will open the item specifc Menu
      */    
-    void itemSpecificMenuTriggered(qint32,QPointF );
+    void itemSpecificMenuTriggered( qint32, QPointF );
     
     void handleReadyView();
 	
@@ -193,12 +193,12 @@ private:
     /**
      * It will create and return the view
      */
-    GlxView * resolveView (qint32 id);
+    GlxView * resolveView ( qint32 id );
 
     /**
      *  It will find a view from the view list and return it
      */    
-    GlxView * findView (qint32 id);
+    GlxView * findView ( qint32 id );
 
     /**
      *  It will deativate the current view
@@ -229,6 +229,11 @@ private:
      *  It will create the marking mode tool bar
      */    
     void createMarkingModeToolBar();
+    
+    /**
+     * setMarkingToolBarAction() - set the toolbar action text
+     */
+    void setMarkingToolBarAction( qint32 commandId );
 
     /**
      *  It will add all the view manager related connection

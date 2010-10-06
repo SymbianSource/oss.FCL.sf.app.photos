@@ -276,7 +276,7 @@ void TestGlxStateManager::fullScreenTransitionParameterTestCase()
     QCOMPARE( viewEffect, BOTH_VIEW ); 
     
     state->setTranstionParameter( BACKWARD_DIR, effect, viewEffect );
-    QCOMPARE( effect, FULLSCREEN_TO_GRID ); 
+    QVERIFY( effect == FULLSCREEN_TO_GRID_PORTRAIT || effect == FULLSCREEN_TO_GRID );
     QCOMPARE( viewEffect, LAUNCH_VIEW ); 
     
     delete state;

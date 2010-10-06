@@ -40,9 +40,7 @@
 #include <glxrequest.h>
 #include <glxthumbnailattributeinfo.h>
 #include <glxthumbnailrequest.h>
-#include <glxtndatabase.h>
 #include <glxtnfileinfo.h>
-#include <glxtnthumbnailcreator.h>
 #include <glxtracer.h>
 #include <lbsposition.h>
 #include <mdeconstants.h>
@@ -103,11 +101,7 @@ void CGlxDataSourceTaskMde::ConstructL()
     {
     TRACER("CGlxDataSourceTaskMde::ConstructL()");
     CreateResponseL();
-#ifdef USE_S60_TNM
     DataSource()->CancelFetchThumbnail();
-#else    
-    DataSource()->ThumbnailCreator().CancelRequest( TGlxMediaId(0) );
-#endif
     }
 
 // ----------------------------------------------------------------------------

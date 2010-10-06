@@ -28,8 +28,6 @@
 #include <e32math.h>
 #include <glxcommandrequest.h>
 #include <glxpanic.h>
-#include <glxtndatabase.h>
-#include <glxtnthumbnailcreator.h>
 #include <glxtracer.h>
 #include <caf/manager.h>
 #include <mdeconstants.h>
@@ -136,11 +134,7 @@ void CGlxDataSourceTaskMdeCommand::ConstructL()
 	{
     TRACER("CGlxDataSourceTaskMdeCommand::ConstructL()");
 	iResponse = CMPXCommand::NewL(static_cast<CGlxCommandRequest*>(iRequest)->Command());
-#ifdef USE_S60_TNM
     DataSource()->CancelFetchThumbnail();
-#else    
-    DataSource()->ThumbnailCreator().CancelRequest( TGlxMediaId(0) );
-#endif    
     
     iTimer = CPeriodic::NewL(CActive::EPriorityStandard);
     iSchedulerWait = new (ELeave) CActiveSchedulerWait();
@@ -490,10 +484,6 @@ void CGlxDataSourceTaskMdeCommand::SetCaptureLocationL(const RArray<TGlxMediaId>
 void CGlxDataSourceTaskMdeCommand::ThumbnailCleanupL()
 	{
     TRACER("CGlxDataSourceTaskMdeCommand::ThumbnailCleanupL()");
-#ifndef USE_S60_TNM
-    CGlxDataSourceMde* ds = DataSource();
-    ds->ThumbnailCreator().CleanupThumbnailsL(&ds->ThumbnailDatabase());
-#endif
 	HandleRequestComplete(KErrNone);	
 	}
 

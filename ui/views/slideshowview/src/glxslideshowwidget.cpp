@@ -424,7 +424,7 @@ void GlxSlideShowWidget::clearCurrentModel()
 {
     TRACER ( "GlxSlideShowWidget::clearCurrentModel( ) ");
     if ( mModel ) {
-        disconnect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
+        disconnect( mModel, SIGNAL( fullScreenDataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
         disconnect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex,int,int)));
         disconnect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
         disconnect(mModel, SIGNAL(destroyed()), this, SLOT( modelDestroyed()));
@@ -436,7 +436,7 @@ void GlxSlideShowWidget::initializeNewModel()
 {
     TRACER("GlxSlideShowWidget::initializeNewModel" );
     if ( mModel ) {
-        connect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
+        connect( mModel, SIGNAL( fullScreenDataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
         connect(mModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex,int,int)));
         connect(mModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
         connect(mModel, SIGNAL(destroyed()), this, SLOT( modelDestroyed()));

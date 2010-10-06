@@ -45,3 +45,11 @@ symbian: {
     TARGET.UID3 = 0x20000A0E
     MMP_RULES += SMPSAFE 
 }
+
+myFiles.sources = "../../../gallery/data/Battle.jpg"
+myFiles.sources += "../../../gallery/data/abstract5.jpg"
+myFiles.sources += "../../../gallery/data/newitem1.jpg"
+myFiles.sources += "../../../gallery/data/newitem2.jpg"
+myFiles.sources += "../../../gallery/data/newitem3.jpg"
+myFiles.path = c:\data\Images
+DEPLOYMENT += myFiles

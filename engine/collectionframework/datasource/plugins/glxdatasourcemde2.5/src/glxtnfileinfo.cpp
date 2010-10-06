@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
 * All rights reserved.
 * This component and the accompanying materials are made available
 * under the terms of "Eclipse Public License v1.0"
@@ -11,16 +11,11 @@
 *
 * Contributors:
 *
-* Description:   Implementation of CGlxtnFileInfo
+* Description:    Implementation of CGlxtnFileInfo
 *
 */
 
 
-
-
-/**
- * @internal reviewed 31/07/2007 by Simon Brooks
- */
 #include "glxtnfileinfo.h"
 
 #include <glxtracer.h>

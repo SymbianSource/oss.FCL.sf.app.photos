@@ -51,7 +51,8 @@ GlxCoverFlow::GlxCoverFlow( QGraphicsItem *parent )
 	   mZoomOn( false ),
 	   mMultitouchFilter( NULL ),
        mTimerId( 0 ),
-       mIsInit( false )
+       mIsInit( false ),
+       mIsOrientChangeAnim( false )
 {
     qDebug( "GlxCoverFlow::GlxCoverFlow" );
     mIsAutoMoving = FALSE;
@@ -174,7 +175,11 @@ void GlxCoverFlow::panGesture ( const QPointF & delta )
 {
     qDebug("GlxCoverFlow::panGesture deltaX= %d", (int)delta.x());  
    
-    if( !mIsInit || getSubState() == IMAGEVIEWER_S || getSubState() == FETCHER_S || mIsAutoMoving == TRUE ) {
+    if( !mIsInit 
+            || !mModel 
+            || getSubState() == IMAGEVIEWER_S 
+            || getSubState() == FETCHER_S 
+            || mIsAutoMoving ) {
         return;
     }
     
@@ -186,7 +191,7 @@ void GlxCoverFlow::panGesture ( const QPointF & delta )
         mMoveDir = LEFT_MOVE;
     }
     
-    if ( mUiOn == TRUE  ) {
+    if ( mUiOn ) {
         emit coverFlowEvent( PANNING_START_EVENT );
         mUiOn = FALSE;
     }
@@ -196,6 +201,10 @@ void GlxCoverFlow::dataChanged(QModelIndex startIndex, QModelIndex endIndex)
 {
     Q_UNUSED(endIndex);
     qDebug("GlxCoverFlow::dataChanged startIndex = %d mSelIndex = %d ", startIndex.row(), mSelIndex  );
+    
+    if ( mIsOrientChangeAnim ) {
+        return;
+    }
     
     int index = 0;
     for (int i = 0; i < NBR_ICON_ITEM ; i++) {
@@ -481,7 +490,7 @@ void GlxCoverFlow::clearCurrentModel()
 {
     qDebug("GlxCoverFlow::clearCurrentModel ");
     if ( mModel ) {
-        disconnect( mModel, SIGNAL( dataChanged( QModelIndex, QModelIndex ) ), this, SLOT( dataChanged( QModelIndex, QModelIndex ) ) );
+        disconnect( mModel, SIGNAL( fullScreenDataChanged( QModelIndex, QModelIndex ) ), this, SLOT( dataChanged( QModelIndex, QModelIndex ) ) );
         disconnect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( rowsInserted( QModelIndex, int, int ) ) );
         disconnect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int) ), this, SLOT( rowsRemoved( QModelIndex, int, int ) ) );
         disconnect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
@@ -493,7 +502,7 @@ void GlxCoverFlow::initializeNewModel()
 {
     qDebug("GlxCoverFlow::initializeNewModel" );
     if ( mModel ) {
-        connect( mModel, SIGNAL( dataChanged( QModelIndex, QModelIndex ) ), this, SLOT( dataChanged( QModelIndex, QModelIndex ) ) );
+        connect( mModel, SIGNAL( fullScreenDataChanged( QModelIndex, QModelIndex ) ), this, SLOT( dataChanged( QModelIndex, QModelIndex ) ) );
         connect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( rowsInserted( QModelIndex, int, int ) ) );
         connect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int) ), this, SLOT( rowsRemoved( QModelIndex, int, int ) ) );
         connect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );

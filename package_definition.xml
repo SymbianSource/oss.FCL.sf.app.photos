@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <SystemDefinition schema="3.0.0" xmlns:qt="http://www.nokia.com/qt">
- <package id="photos" name="Photos" levels="util support ui app">
+ <package id="photos" name="Photos" version="12.0.0" levels="util support ui app">
   <collection id="photos_group" name="Photos Group" level="support">
    <component id="photos_group_build" filter="s60" name="Photos Group Build" introduced="^4">
     <!--<unit bldFile="group" qt:proFile="group.pro"/> -->

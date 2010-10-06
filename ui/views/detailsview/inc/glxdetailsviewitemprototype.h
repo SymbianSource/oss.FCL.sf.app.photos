@@ -111,6 +111,9 @@ private:
     
     //Displays the size of the image 
     HbLabel *mSizeLabel;
+
+	//Displays the name of the image in imageviewer
+    HbLabel *mImgNameLabel;
     };
 
 #endif // GLXDETAILSVIEWITEMPROTOTYPE_H

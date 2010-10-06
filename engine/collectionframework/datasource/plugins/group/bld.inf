@@ -18,9 +18,4 @@
 
 
 PRJ_MMPFILES
-
-#ifdef GLX_USE_MDS_2_0
-#include "../glxdatasourcemde/group/bld.inf"
-#else
 #include "../glxdatasourcemde2.5/group/bld.inf"
-#endif

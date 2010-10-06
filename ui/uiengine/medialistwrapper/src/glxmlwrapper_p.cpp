@@ -56,8 +56,6 @@ const TInt KListDataWindowSize(10);
 //for grid thumbnail
 const TInt KGridTNWIdth (127);
 const TInt KGridTNHeight (110);
-const TInt KGridTNPTWIdth (119);
-const TInt KGridTNPTHeight (103);
 //for image strip thumbnail
 const TInt KImageStripLSTNWIdth (95);
 const TInt KImageStripLSTNHeight (83);
@@ -204,10 +202,34 @@ void GlxMLWrapperPrivate::SetContextMode(GlxContextMode aContextMode)
 //
 void GlxMLWrapperPrivate::RemoveContextMode(GlxContextMode aContextMode)
 {
-  if(aContextMode == GlxContextComment) 
-      {
-       RemoveDescContext();
-      }
+    switch( aContextMode ){
+    case GlxContextLsGrid :        
+    case GlxContextPtGrid :
+        RemoveGridContext();
+        break;
+        
+    case GlxContextLsFs :
+    case GlxContextPtFs :
+        RemovePtFsContext();
+        break;
+        
+    case GlxContextLsList :
+    case GlxContextPtList :
+    case GlxContextSelectionList :
+        RemoveListContext();
+        break;
+        
+    case GlxContextFavorite :
+        RemoveFavouriteContext();
+        break;
+        
+    case GlxContextComment :
+        RemoveDescContext();
+        break;
+        
+    default :
+        break;
+    }
 }
 // ---------------------------------------------------------------------------
 // SetFavouriteContextL
@@ -297,21 +319,21 @@ void GlxMLWrapperPrivate::SetListContextL(GlxContextMode aContextMode)
 void GlxMLWrapperPrivate::SetThumbnailContextL(GlxContextMode aContextMode)
 {
     TRACER("GlxMLWrapperPrivate::SetThumbnailContext()");
-    if( aContextMode == GlxContextLsGrid || aContextMode == GlxContextPtGrid) {
-        if(!iGridContextActivated) {
+    if( aContextMode == GlxContextLsGrid || aContextMode == GlxContextPtGrid ) {
+        if( !iGridContextActivated ) {
             CreateGridContextL();
         }
     
-        if(iPtFsContextActivated) {
+        if( iPtFsContextActivated ) {
             RemovePtFsContext();
         }
         
-        if(iLsFsContextActivated) {
+        /*if(iLsFsContextActivated) {
             RemoveLsFsContext();
-        }
+        }*/
     }
 	
-	if(aContextMode == GlxContextLsFs && !iLsFsContextActivated) {
+/*	if( ( aContextMode == GlxContextLsFs && !iLsFsContextActivated) {
 	    if(!iGridContextActivated) {
 	        CreateGridContextL();
 	    }
@@ -319,16 +341,15 @@ void GlxMLWrapperPrivate::SetThumbnailContextL(GlxContextMode aContextMode)
 			RemovePtFsContext();
 		}
 		CreateLsFsContextL();
-	}
+	}*/
 	
-	if(aContextMode == GlxContextPtFs && !iPtFsContextActivated) {
-        if(!iGridContextActivated) {
+	if( aContextMode == GlxContextPtFs || aContextMode == GlxContextLsFs  ) {
+        if( !iGridContextActivated ) {
             CreateGridContextL();
         }
-		if(iLsFsContextActivated) {
-			RemoveLsFsContext();
-		}
-		CreatePtFsContextL();
+        if ( !iPtFsContextActivated ) {
+		    CreatePtFsContextL();
+        }
 	}
 }
 
@@ -703,15 +724,10 @@ HbIcon* GlxMLWrapperPrivate::RetrieveItemIcon(int aItemIndex, GlxTBContextType a
         }
         break;
         
-        case GlxTBContextPtFs:  {
+        case GlxTBContextPtFs:  
+        case GlxTBContextLsFs: {
             itemHeight = KFullScreenTNPTHeight;
             itemWidth = KFullScreenTNPTWidth;
-        }
-        break;
-        
-        case GlxTBContextLsFs: {
-            itemHeight = KFullScreenTNLSHeight;
-            itemWidth = KFullScreenTNLSWidth;
         }
         break;
         
@@ -720,38 +736,29 @@ HbIcon* GlxMLWrapperPrivate::RetrieveItemIcon(int aItemIndex, GlxTBContextType a
     }
     
     const TGlxMedia& item = iMediaList->Item( aItemIndex );
-    TMPXAttribute thumbnailAttribute( KGlxMediaIdThumbnail, 
-                       GlxFullThumbnailAttributeId( ETrue, itemWidth, itemHeight ) ); //todo map icon size with actual mode        
+    TMPXAttribute thumbnailAttribute( KGlxMediaIdThumbnail, GlxFullThumbnailAttributeId( ETrue, itemWidth, itemHeight ) ); //todo map icon size with actual mode        
     const CGlxThumbnailAttribute* value = item.ThumbnailAttribute( thumbnailAttribute );
-    TInt tnError = GlxErrorManager::HasAttributeErrorL( item.Properties(), KGlxMediaIdThumbnail );
 	
     if ( value && value->iBitmap != NULL ) {
         if( aTBContextType == GlxTBContextGrid ) {
             GLX_LOG_INFO1("### GlxMLWrapperPrivate::RetrieveItemIcon value-Index is %d",aItemIndex );
-            
-            if (  iContextMode == GlxContextPtGrid ) {
-                return convertFBSBitmapToHbIcon( value->iBitmap , KGridTNPTWIdth, KGridTNPTHeight );
-            }
-            else if ( iContextMode == GlxContextLsFs ) {
-                return convertFBSBitmapToHbIcon( value->iBitmap , KImageStripLSTNWIdth, KImageStripLSTNHeight, Qt::IgnoreAspectRatio );
+            if ( iContextMode == GlxContextLsFs ) {
+                return convertFBSBitmapToHbIcon( value->iBitmap, KImageStripLSTNWIdth, KImageStripLSTNHeight, Qt::IgnoreAspectRatio );
             }
             else if ( iContextMode == GlxContextPtFs ) {
-                return convertFBSBitmapToHbIcon( value->iBitmap , KImageStripPTTNWIdth, KImageStripPTTNHeight, Qt::IgnoreAspectRatio );
+                return convertFBSBitmapToHbIcon( value->iBitmap, KImageStripPTTNWIdth, KImageStripPTTNHeight, Qt::IgnoreAspectRatio );
             }
-            else {
-                return convertFBSBitmapToHbIcon( value->iBitmap );
-            }
+			else {
+				return convertFBSBitmapToHbIcon( value->iBitmap );
+			}
+        }
+        else if ( aTBContextType == GlxTBContextLsFs ){
+            return convertFBSBitmapToHbIcon( value->iBitmap, KFullScreenTNLSWidth, KFullScreenTNLSHeight ) ;
         }
         else {
             return convertFBSBitmapToHbIcon( value->iBitmap, itemWidth, itemHeight ) ;
         }
     }
-    /*else if (item.GetIconInfo(icon))   //todo will be required if we are planning to have static item else remove
-    {  
-        GLX_LOG_INFO1("### GlxMLWrapperPrivate::HandleAttributesAvailableL GetIconInfo-Index is %d",aItemIndex);
-    }*/
-        //handle DRM case
-
     
     GLX_LOG_INFO1("### GlxMLWrapperPrivate::RetrieveItemIcon value-Index is %d and have returned empty icon",aItemIndex);
     return NULL;
@@ -1067,26 +1074,27 @@ void GlxMLWrapperPrivate::HandleItemRemovedL( TInt aStartIndex, TInt aEndIndex, 
 // iMLWrapper
 // ---------------------------------------------------------------------------
 //
-void GlxMLWrapperPrivate::HandleAttributesAvailableL( TInt aItemIndex, 
-		const RArray<TMPXAttribute>& aAttributes, MGlxMediaList* aList )
-	{
-	GLX_LOG_INFO1("### GlxMLWrapperPrivate::HandleAttributesAvailableL %d",aItemIndex);
-	Q_UNUSED(aList);
-    // char temp[100];
-	// sprintf(temp, "execution time of update %d", aItemIndex);
-	// PERFORMANCE_ADV( d1, temp) {
-	if ( iGridContextActivated || iLsFsContextActivated || iPtFsContextActivated )
-	    CheckGridTBAttribute(aItemIndex, aAttributes);
-	if ( iPtFsContextActivated )
-	    CheckPtFsTBAttribute(aItemIndex, aAttributes);
-	if ( iLsFsContextActivated )
-	    CheckLsFsTBAttribute(aItemIndex, aAttributes);
-	if (iPtListContextActivated || iSelectionListContextActivated)
-	    CheckListAttributes(aItemIndex, aAttributes);
- 	if( iDetailsContextActivated && aItemIndex == iMediaList->FocusIndex() )
- 	   CheckDetailsAttributes(aItemIndex, aAttributes);
-	
-	}
+void GlxMLWrapperPrivate::HandleAttributesAvailableL( TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes, MGlxMediaList* aList )
+{
+    GLX_LOG_INFO1("### GlxMLWrapperPrivate::HandleAttributesAvailableL %d",aItemIndex);
+    Q_UNUSED(aList);
+    
+    if ( iGridContextActivated || iLsFsContextActivated || iPtFsContextActivated ) {
+        CheckGridTBAttribute( aItemIndex, aAttributes );
+    }
+    if ( iPtFsContextActivated ) {
+        CheckPtFsTBAttribute( aItemIndex, aAttributes );
+    }
+    /*if ( iLsFsContextActivated ) {
+        CheckLsFsTBAttribute(aItemIndex, aAttributes);
+    }*/
+    if ( iPtListContextActivated || iSelectionListContextActivated ) {
+        CheckListAttributes( aItemIndex, aAttributes );
+    }
+    if ( iDetailsContextActivated && aItemIndex == iMediaList->FocusIndex() ) {
+        CheckDetailsAttributes( aItemIndex, aAttributes );
+    }
+}
 // ---------------------------------------------------------------------------
 // CheckGridTBAttribute
 // ---------------------------------------------------------------------------
@@ -1112,19 +1120,18 @@ void GlxMLWrapperPrivate::CheckGridTBAttribute(TInt aItemIndex, const RArray<TMP
 // ---------------------------------------------------------------------------
 //
 void GlxMLWrapperPrivate::CheckPtFsTBAttribute(TInt aItemIndex, const RArray<TMPXAttribute>& aAttributes)
-	{
-	TMPXAttribute thumbnailAttribute(KGlxMediaIdThumbnail, 
-            GlxFullThumbnailAttributeId( ETrue, KFullScreenTNPTWidth, KFullScreenTNPTHeight ) ); //todo map icon size with actual mode
-	TInt searchStatus = CheckTBAttributesPresenceandSanity(aItemIndex, aAttributes, thumbnailAttribute);
-	if(searchStatus == KTBAttributeAvailable)
-		{
-		iMLWrapper->handleReceivedIcon(aItemIndex, GlxTBContextPtFs);
-		}
-	else if(searchStatus == KTBAttributeCorrupt)
-		{
-		iMLWrapper->handleIconCorrupt(aItemIndex);
-		}
-	}
+{
+    TMPXAttribute thumbnailAttribute( KGlxMediaIdThumbnail, GlxFullThumbnailAttributeId( ETrue,
+        KFullScreenTNPTWidth, KFullScreenTNPTHeight ) ); //todo map icon size with actual mode
+    TInt searchStatus = CheckTBAttributesPresenceandSanity( aItemIndex, aAttributes, thumbnailAttribute );
+    
+    if ( searchStatus == KTBAttributeAvailable ) {
+        iMLWrapper->handleReceivedIcon( aItemIndex, GlxTBContextPtFs );
+    }
+    else if ( searchStatus == KTBAttributeCorrupt ) {
+        iMLWrapper->handleIconCorrupt( aItemIndex );
+    }
+}
 
 // ---------------------------------------------------------------------------
 // CheckLsFsTBAttribute

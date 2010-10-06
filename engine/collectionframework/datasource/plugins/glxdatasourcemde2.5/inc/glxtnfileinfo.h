@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies).
+* Copyright (c) 2009 Nokia Corporation and/or its subsidiary(-ies).
 * All rights reserved.
 * This component and the accompanying materials are made available
 * under the terms of "Eclipse Public License v1.0"
@@ -11,15 +11,10 @@
 *
 * Contributors:
 *
-* Description:   Definition of CGlxtnFileInfo
+* Description: 
 *
 */
 
-
-
-/**
- * @internal reviewed 30/07/2007 by Simon Brooks
- */
 
 #ifndef C_GLXTNFILEINFO_H
 #define C_GLXTNFILEINFO_H
@@ -29,8 +24,6 @@
 /**
  * Object holding information about a file to be thumbnailed.
  *
- * @author Dan Rhodes
- * @ingroup glx_thumbnail_creator
  */
 class CGlxtnFileInfo : public CBase
     {

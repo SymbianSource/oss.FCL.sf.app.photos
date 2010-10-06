@@ -25,18 +25,22 @@
 #include <hbdocumentloader.h>
 #include <hbabstractviewitem.h>
 #include <hblistviewitem.h>
+#include <hbgroupbox.h>
+#include <hbparameterlengthlimiter.h>
+
 //User Includes
 #include "glxviewids.h"
 #include "glxlistview.h"
 #include "glxmodelparm.h"
 #include "glxdocloaderdefs.h"
 #include "glxcommandhandlers.hrh"
-
+#include "glxlocalisationstrings.h"
 
 GlxListView::GlxListView(HbMainWindow *window) 
     : GlxView ( GLX_LISTVIEW_ID ), 
       mListView(NULL), 
       mView(NULL), 
+      mAlbumCount(NULL),
       mWindow(window), 
       mModel ( NULL),
       mIsLongPress( false )
@@ -64,10 +68,15 @@ void GlxListView::setModel(QAbstractItemModel *model)
     qDebug("GlxListView::setModel()");
     if ( mModel ) {
         disconnect(mModel, SIGNAL(listPopulated()), this, SLOT( populated()));
+        disconnect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( showAlbumCount() ) );
+        disconnect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int ) ), this, SLOT( showAlbumCount() ) );
     }
     mModel =  model ;
     mListView->setModel(mModel);
     connect(mModel, SIGNAL(listPopulated()), this, SLOT( populated()));
+    connect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( showAlbumCount() ) );
+    connect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int ) ), this, SLOT( showAlbumCount() ) );
+    showAlbumCount();
 }
 
 void GlxListView::addToolBar( HbToolBar *toolBar ) 
@@ -139,6 +148,7 @@ void GlxListView::loadListView()
             //retrieve the widgets
             mView = static_cast<HbView*>(mDocLoader->findWidget(QString(GLX_LISTVIEW_VIEW)));
             mListView = static_cast<HbListView*>(mDocLoader->findWidget(QString(GLX_LISTVIEW_LIST)));
+            mAlbumCount = static_cast<HbGroupBox*>(mDocLoader->findWidget(QString(GLX_LISTVIEW_ALBUMCOUNT)));
 
             if( mListView ) { 
                 //sets the widget
@@ -167,6 +177,11 @@ GlxListView::~GlxListView()
     }       
 
     removeViewConnection();
+
+    if(mAlbumCount) {
+        delete mAlbumCount ;
+        mAlbumCount = NULL;
+    }
 
     if(mListView) {
         delete mListView;
@@ -231,3 +246,9 @@ void GlxListView::indicateLongPress(HbAbstractViewItem *item, QPointF coords)
     emit itemSpecificMenuTriggered(viewId(),coords);
 }
 
+void GlxListView::showAlbumCount()
+{
+    int albumCnt = mModel->rowCount();
+    QString text = HbParameterLengthLimiter(GLX_ALBUM_LIST_COUNT_LABEL, albumCnt);
+    mAlbumCount->setHeading(text);
+}

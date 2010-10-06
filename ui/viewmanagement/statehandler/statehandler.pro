@@ -53,7 +53,8 @@ LIBS += -lglxviewmanager.dll \
         -lglxcommoncommandhandlers.dll \
         -lglxlogging.dll \
         -lglxcommon.dll \
-	-lglximageviewermanager.dll
+	-lglximageviewermanager.dll \
+	-lafservice.dll
 
 
 # Input

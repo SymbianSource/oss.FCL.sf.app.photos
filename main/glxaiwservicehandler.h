@@ -32,6 +32,7 @@ class GlxStateManager;
 class CGlxImageViewerManager;
 class GlxGetImageServiceNSDI;
 class GlxGetImageServiceDSDI;
+class GlxBrowseImageService;
 
 class GlxExternalUtility;
 /**
@@ -64,6 +65,8 @@ public:
      */
 	void launchImageViewer(QString viewTitle);
 	
+	void launchImageBrowser(QString viewTitle);
+	
 public slots:  
     /**
      * This slot is called when image to be returned to fetcher 
@@ -89,6 +92,7 @@ private:
     /// image fetcher service provider with depricated name and depricated inaterface name
     GlxGetImageServiceDSDI* mDSDIService;
     GlxImageViewerService* mImageViewerService;
+	GlxBrowseImageService* mImageBrowserService;
     GlxExternalUtility *mUtil;
     };
 
@@ -311,5 +315,43 @@ private:
     CGlxImageViewerManager* mImageViewerInstance;
 };
 
+/**
+ *  GlxGetImageService : Image fetcher service provider
+ * 
+ */	
+class GlxBrowseImageService : public XQServiceProvider
+{
+    Q_OBJECT
+public:
+    /**
+     * Constructor
+     */
+    GlxBrowseImageService( GlxAiwServiceHandler *parent = 0 );
+
+    /**
+     * Destructor.
+     */
+    ~GlxBrowseImageService();
+
+    /**
+     * called to complete fetch service and return to client
+     * @param fileList list of Uri to be returned to client 
+     */
+    void complete( bool ok);
+    bool asyncRequest() {return mAsyncRequest;}
+public slots:
+    /**
+     * slot for qthighway to notify provider about request
+     */
+    void browse();
+    
+    
+private:
+    /// current service request id
+    int mAsyncReqId;
+	bool mAsyncRequest;
+    /// service handler for all photos services
+    GlxAiwServiceHandler* mServiceApp;
+};
     
 #endif //GLXFETCHER_H

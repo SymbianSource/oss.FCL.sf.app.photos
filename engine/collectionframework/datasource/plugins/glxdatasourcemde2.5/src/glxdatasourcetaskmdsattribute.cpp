@@ -36,9 +36,7 @@
 #include <glxrequest.h>
 #include <glxthumbnailattributeinfo.h>
 #include <glxthumbnailrequest.h>
-#include <glxtndatabase.h>
 #include <glxtnfileinfo.h>
-#include <glxtnthumbnailcreator.h>
 #include <glxtracer.h>
 #include <lbsposition.h>
 #include <mdeconstants.h>

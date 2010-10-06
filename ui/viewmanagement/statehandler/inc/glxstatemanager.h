@@ -34,6 +34,8 @@ class GlxAlbumModel;
 class QAbstractItemModel;
 class GlxActionHandler;
 class GlxTNObserver;
+class AfActivityStorage;
+class AfActivation;
 
 #ifdef BUILD_STATEMANAGER
 #define GLX_STATEMANAGER_EXPORT Q_DECL_EXPORT
@@ -259,6 +261,8 @@ private:
       */
      void saveImage();
      
+     bool validateActivityData();
+     
 private:
     GlxViewManager      *mViewManager;
     /// for all grid
@@ -278,6 +282,8 @@ private:
     bool                isProgressbarRunning;
     QMap<QString, qint32> mSaveActivity;
     GlxFetcherFilterType mFetcherFilterType;
+    AfActivityStorage   *mActivityStorage;
+    AfActivation        *mActivation;
 };
 
 

@@ -25,24 +25,16 @@
  */
 
 #include "glxdatasourcetaskmdsattribute.h"
-
-#ifdef USE_S60_TNM
 #include "mthumbnailfetchrequestobserver.h"
-#endif
 
-#include <mglxtnthumbnailcreatorclient.h>
 #include <glxthumbnailrequest.h>
 
 /**
  *  CGlxDataSourceTaskMdeThumnail class 
  *  Services thumbnail requests
  */
-NONSHARABLE_CLASS(CGlxDataSourceTaskMdeThumbnail) : public CGlxDataSourceTaskMde 
-#ifdef USE_S60_TNM
-									                , public MThumbnailFetchRequestObserver
-#else									                
-									                , public MGlxtnThumbnailCreatorClient
-#endif									                
+NONSHARABLE_CLASS(CGlxDataSourceTaskMdeThumbnail) : public CGlxDataSourceTaskMde,  
+									                public MThumbnailFetchRequestObserver
 	{
 public:
     /**
@@ -75,44 +67,9 @@ private: // From CGlxDataSourceTaskMde
      */ 
     void DoHandleQueryCompletedL(CMdEQuery& aQuery);
 
-#ifdef USE_S60_TNM
 private: //MThumbnailFetchRequestObserver
     void ThumbnailFetchComplete(TInt aError, TBool aQuality);
     void FetchFileInfoL();
-#endif
-
-private: // From MGlxtnThumbnailCreatorClient
-    /**
-     * See @ref MGlxtnThumbnailCreatorClient::ThumbnailFetchComplete
-     */ 
-    void ThumbnailFetchComplete(const TGlxMediaId& aItemId,
-                            TGlxThumbnailQuality aQuality, TInt aErrorCode);
-            
-    /**
-     * See @ref MGlxtnThumbnailCreatorClient::ThumbnailDeletionComplete
-     */
-    void ThumbnailDeletionComplete(const TGlxMediaId& aItemId, TInt aErrorCode);
-
-    /**
-     * See @ref MGlxtnThumbnailCreatorClient::FilterAvailableComplete
-     */
-    void FilterAvailableComplete(const RArray<TGlxMediaId>& aIdArray, TInt aErrorCode);
-    
-    /**
-     * See @ref MGlxtnThumbnailCreatorClient::FetchFileInfoL
-     */
-    void FetchFileInfoL(CGlxtnFileInfo* aInfo, const TGlxMediaId& aItemId,
-                    TRequestStatus* aStatus);
-      
-    /**
-     * See @ref MGlxtnThumbnailCreatorClient::CancelFetchUri
-     */
-    void CancelFetchUri(const TGlxMediaId& aItemId);
-    
-    /**
-     * See @ref MGlxtnThumbnailCreatorClient::ThumbnailStorage
-     */
-    MGlxtnThumbnailStorage* ThumbnailStorage();
     			
 private:
 	void HandleThumbnailFetchCompleteL(const TGlxMediaId& aId,

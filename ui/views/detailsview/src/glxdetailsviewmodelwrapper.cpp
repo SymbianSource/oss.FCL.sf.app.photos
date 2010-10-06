@@ -22,6 +22,7 @@
 #include <hbparameterlengthlimiter.h>
 
 //User Includes
+#include "glxviewids.h"
 #include "glxmodelroles.h"  //Contains the declaration of the roles used to retrieve the data from model
 #include "glxlocalisationstrings.h" //contains the localisation strings
 #include "glxdetailsviewmodelwrapper.h" //contains the declaration of this file/class
@@ -54,7 +55,17 @@ GlxDetailsViewModelWrapper::~GlxDetailsViewModelWrapper()
 int GlxDetailsViewModelWrapper::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return TOTAL_NO_FIELDS_LIST;
+    int substate = 0;
+
+    if (mModel) {
+        QVariant variant = mModel->data(mModel->index(0, 0), GlxSubStateRole);
+
+        if (variant.isValid() && variant.canConvert<int> ()) {
+            substate = variant.value<int> ();
+        }
+    }
+    //If photos app, then show the Description field, from imageviewer app - hide description field
+    return (substate != IMAGEVIEWER_DETAIL_S)?TOTAL_NO_FIELDS_LIST:(TOTAL_NO_FIELDS_LIST - 1);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------

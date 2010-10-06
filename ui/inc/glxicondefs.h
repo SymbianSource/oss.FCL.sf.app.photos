@@ -23,7 +23,7 @@
 
 //FULLSCREEN TOOLBAR
 #define GLXICON_FLIP        "qtg_mono_info"
-#define GLXICON_SEND        "qtg_mono_send"
+#define GLXICON_SEND        "qtg_mono_share"
 #define GLXICON_DELETE      "qtg_mono_delete"
 #define GLXICON_USEIMAGE    "qtg_small_ovi"
 

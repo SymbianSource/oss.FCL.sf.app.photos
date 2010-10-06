@@ -48,6 +48,7 @@ Q_DECLARE_METATYPE(CFbsBitmap*)
 class GLX_MLWRAPPER_EXPORT GlxMLWrapper : public QObject
 {
     Q_OBJECT
+    friend class TestGlxMLWrapper;
 public:
 	/**
 	*constructor
@@ -149,7 +150,6 @@ signals:
 
 private:
 	GlxMLWrapperPrivate* mMLWrapperPrivate;
-
 };
 
 #endif //GLXMLWRAPPER_H

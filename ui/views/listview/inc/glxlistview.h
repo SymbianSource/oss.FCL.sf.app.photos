@@ -26,6 +26,7 @@ class HbListView;
 class HbMainWindow;
 class HbAbstractViewItem;
 class HbDocumentLoader;
+class HbGroupBox;
 
 class GlxListView : public GlxView
 {
@@ -44,6 +45,7 @@ public :
 public slots:
     void itemSelected(const QModelIndex &  index);
     void populated();
+    void showAlbumCount();
     
 private slots:
 	void indicateLongPress( HbAbstractViewItem *item, QPointF coords );
@@ -62,6 +64,7 @@ private:
 private:
 	HbListView         *mListView;
 	HbView             *mView;
+	HbGroupBox         *mAlbumCount;
 	HbMainWindow       *mWindow;  //no ownership
 	QAbstractItemModel *mModel ;
 	HbDocumentLoader   *mDocLoader; //Docml loader to load the widgets from docml

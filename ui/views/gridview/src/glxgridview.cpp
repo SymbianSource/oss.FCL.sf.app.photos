@@ -341,10 +341,10 @@ void GlxGridView::showItemCount()
             
             if( isItemVisible( Hb::TitleBarItem ) ) {
                 QString text;
-                if(XQServiceUtil::isService()) {
-                    showAlbumTitle(GLX_SELECT_IMAGE);
-                }
-                else if ( getSubState() == ALL_ITEM_S ) {
+				if(XQServiceUtil::isService() && (0 == XQServiceUtil::interfaceName().compare(QLatin1String("com.nokia.symbian.IImageFetch")))) {
+					showAlbumTitle(GLX_SELECT_IMAGE);
+				}
+                else if ( getSubState() == ALL_ITEM_S || ( getSubState() == FETCHER_ITEM_S)) {
 					if (mAlbumNameHeading) {
                     	mAlbumNameHeading->hide();
 					}
@@ -354,7 +354,7 @@ void GlxGridView::showItemCount()
                     mTotalImagesCount->setGeometry(QRectF(0,0,screenSize.width(),deviceSize.height()/24));
                     mTotalImagesCount->show();
                 }
-                else if ( getSubState() == ALBUM_ITEM_S ) {
+                else if ( getSubState() == ALBUM_ITEM_S || (getSubState() ==  FETCHER_ALBUM_ITEM_S)) {
                     mTotalImagesCount->hide();
                     QVariant variant = mModel->data(mModel->index(0,0),GlxViewTitle);
                     if (variant.toString() != NULL) {
@@ -707,12 +707,18 @@ void GlxGridView::itemSelected(const QModelIndex &  index)
     if ( mModel ) {
         mModel->setData( index, index.row(), GlxFocusIndexRole );
     }
-    if(XQServiceUtil::isService()){
-        qDebug("GlxGridView::itemSelected actionTriggered( EGlxCmdFetcherSelect )" );
-        emit actionTriggered( EGlxCmdFetcherSelect );
-        return;
+    if(XQServiceUtil::isService() ){
+		if(0 == XQServiceUtil::interfaceName().compare(QLatin1String("com.nokia.symbian.IImageFetch"))){
+	        qDebug("GlxGridView::itemSelected actionTriggered( EGlxCmdFetcherSelect )" );
+	        emit actionTriggered( EGlxCmdFetcherSelect );
+		}
+		else{
+			emit actionTriggered( EGlxCmdBrowseFullScreenOpen);
+		}
     }
-    emit actionTriggered( EGlxCmdFullScreenOpen );
+	else{
+		emit actionTriggered( EGlxCmdFullScreenOpen );
+	}
     OstTraceEventStop( EVENT_DUP1_GLXGRIDVIEW_ITEMSELECTED_STOP, "Fullscreen Launch Time", EVENT_DUP1_GLXGRIDVIEW_ITEMSELECTED_START );
 }
 
@@ -755,7 +761,6 @@ void GlxGridView::scrollingEnded()
             return;
         }
         mModel->setData( index, index.row(), GlxVisualWindowIndex );
-        mModel->setData( index, index.row(), GlxFocusIndexRole );
     }
 }
 

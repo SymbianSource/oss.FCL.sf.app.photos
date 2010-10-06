@@ -131,6 +131,13 @@ signals :
      * updateDetailsView() - emit the signal to update the details view
      */
     void updateDetailsView();
+    
+    /**
+     * fullScreenDataChanged() - emit the signal when fullscreen thumbnail is updated.
+     * @param - start index of updated data
+     * @param - end index of updated data
+     */    
+    void fullScreenDataChanged( const QModelIndex &topLeft, const QModelIndex &bottomRight );
 
 private:
     /**

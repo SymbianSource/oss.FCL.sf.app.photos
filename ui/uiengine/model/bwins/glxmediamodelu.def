@@ -45,4 +45,5 @@ EXPORTS
 	?updateDetailItems@GlxMediaModel@@QAEXXZ @ 44 NONAME ; void GlxMediaModel::updateDetailItems(void)
 	?index@GlxMediaModel@@UBE?AVQModelIndex@@HHABV2@@Z @ 45 NONAME ; class QModelIndex GlxMediaModel::index(int, int, class QModelIndex const &) const
 	?albumTitleAvailable@GlxMediaModel@@IAEXVQString@@@Z @ 46 NONAME ; void GlxMediaModel::albumTitleAvailable(class QString)
+	?fullScreenDataChanged@GlxMediaModel@@IAEXABVQModelIndex@@0@Z @ 47 NONAME ; void GlxMediaModel::fullScreenDataChanged(class QModelIndex const &, class QModelIndex const &)
 

@@ -42,6 +42,7 @@
 #define IMAGE_FETCHER_SERVICE_DEPINTERFACE_NAME QLatin1String("photos.Image")
 #define IMAGE_FETCHER_DEPSERVICE_DEPINTERFACE_NAME QLatin1String("com.nokia.services.media.Image")
 #define FILE_VIEWER_SERVICE_NAME QLatin1String("photos.com.nokia.symbian.IFileView")
+#define FILE_BROWSER_SERVICE_NAME QLatin1String("photos.com.nokia.symbian.IImageBrowse")
 #define XQINFO_KEY_FILTER_TYPE QLatin1String("GlxFetcherFilter")
 
 // ----------------------------------------------------------------------------
@@ -54,7 +55,8 @@ GlxAiwServiceHandler::GlxAiwServiceHandler() :
     mFetcherService(NULL),
     mNSDIService(NULL),
     mDSDIService(NULL),
-    mImageViewerService(NULL)
+    mImageViewerService(NULL),
+	mImageBrowserService(NULL)
     {
     QString currentInterfaceName = XQServiceUtil::interfaceName();
     if( 0 == currentInterfaceName.compare(QLatin1String("com.nokia.symbian.IImageFetch")))
@@ -71,6 +73,10 @@ GlxAiwServiceHandler::GlxAiwServiceHandler() :
 		viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
 		viewport()->grabGesture(Qt::PinchGesture);
         mImageViewerService = new GlxImageViewerService(this);
+        }
+    else if( 0 == currentInterfaceName.compare(QLatin1String("com.nokia.symbian.IImageBrowse")))
+        {
+        mImageBrowserService = new GlxBrowseImageService(this);
         }
 
 #ifdef _DEBUG
@@ -95,6 +101,7 @@ GlxAiwServiceHandler::~GlxAiwServiceHandler()
     delete mNSDIService;
     delete mDSDIService;
     delete mImageViewerService;
+	delete mImageBrowserService;
     }
 
 void GlxAiwServiceHandler::handleClientDisconnect()
@@ -182,6 +189,21 @@ void GlxAiwServiceHandler::launchImageViewer(QString viewTitle)
         }
     return;
     }
+
+void GlxAiwServiceHandler::launchImageBrowser(QString viewTitle)
+    {
+    qApp->setApplicationName(viewTitle);
+    mStateMgr = new GlxStateManager();
+	mStateMgr->launchFetcher(0);
+    if (mImageBrowserService && mImageBrowserService->asyncRequest())
+        {
+        connect(mImageBrowserService, SIGNAL(returnValueDelivered()), this,
+                SLOT(handleAnswerDelivered()));
+        mImageBrowserService->complete(true);
+        }
+    return;
+    }
+	
 // ----------------------------------------------------------------------------
 // GlxGetImageService()
 // ----------------------------------------------------------------------------
@@ -562,5 +584,41 @@ bool GlxImageViewerService::view(XQSharableFile sf)
     return true;
     }
 
+// ----------GlxBrowseImageService---------------
+
+GlxBrowseImageService::GlxBrowseImageService(GlxAiwServiceHandler* parent) :
+    XQServiceProvider(FILE_BROWSER_SERVICE_NAME, parent),
+            mServiceApp(parent), mAsyncReqId(-1), mAsyncRequest(false)
+
+    {
+    publishAll();
+    connect(this, SIGNAL(clientDisconnected()), mServiceApp,
+            SLOT(handleClientDisconnect()));
+    }
+
+GlxBrowseImageService::~GlxBrowseImageService()
+    {
+    }
+
+void GlxBrowseImageService::complete(bool ok)
+    {
+    if (mAsyncReqId == -1)
+        return;
+    completeRequest(mAsyncReqId, QVariant(ok));
+    }
+
+void GlxBrowseImageService::browse()
+    {
+	mServiceApp->launchImageBrowser(GLX_TITLE);
+    XQRequestInfo info = requestInfo();
+    mAsyncRequest = !info.isSynchronous();
+	
+    if (mAsyncRequest)
+        {
+        mAsyncReqId = setCurrentRequestAsync();
+        connect(this, SIGNAL(clientDisconnected()), this,
+                SLOT(handleClientDisconnect()));
+        }
+    }
 
 	

@@ -22,8 +22,10 @@
 #include <hbnotificationdialog.h>
 #include <QProcess>
 #include <hbinstance.h>
-#include <HbActivityManager.h>
 #include <hbapplication.h>
+#include <afactivitystorage.h>
+#include <afactivation.h>
+
 
 //user includes
 #include "glxstatemanager.h"
@@ -63,13 +65,17 @@ GlxStateManager::GlxStateManager()
       mActionHandler( NULL ),
       mTNObserver ( NULL ),
       isProgressbarRunning ( false ),
-      mFetcherFilterType ( EGlxFetcherFilterNone )
+      mFetcherFilterType ( EGlxFetcherFilterNone ),
+      mActivityStorage (NULL),
+      mActivation (NULL)
 {
     qDebug("GlxStateManager::GlxStateManager");
     PERFORMANCE_ADV ( d1, "view manager creation time") {
         mViewManager = new GlxViewManager();
     }
     mTNObserver = new GlxTNObserver();
+    mActivityStorage = new AfActivityStorage();
+    mActivation = new AfActivation();
     
     connect ( this, SIGNAL( setupItemsSignal() ), this, SLOT( setupItems() ), Qt::QueuedConnection );
     connect ( mViewManager, SIGNAL(actionTriggered( qint32 )), this, SLOT(actionTriggered( qint32 )), Qt::QueuedConnection );
@@ -80,7 +86,7 @@ GlxStateManager::GlxStateManager()
 
 void GlxStateManager::enterMarkingMode()
 {
-    mViewManager->enterMarkingMode(mCurrentState->id());
+    mViewManager->enterMarkingMode( mCurrentState->id(), mCurrentState->commandId() );
 }
 
 void GlxStateManager::exitMarkingMode()
@@ -137,9 +143,10 @@ void GlxStateManager::launchApplication()
     qDebug("GlxStateManager::launchApplication");   
     bool activitySuccess = false;  
     //To:Do use it in future once performance code is removed nextState(GLX_GRIDVIEW_ID, ALL_ITEM_S)
-    HbApplication* app = qobject_cast<HbApplication*>(qApp);
-    if(app->activateReason() == Hb::ActivationReasonActivity) {
+    
+    if( mActivation->reason() == Af::ActivationReasonActivity ) {
         activitySuccess = launchActivity();
+        qDebug("GlxStateManager::launchApplication as Activity");
     }
     
     if( !activitySuccess ) { 
@@ -158,8 +165,8 @@ void GlxStateManager::launchApplication()
         mTNObserver->startTNObserving() ; 
     }
     
-    HbActivityManager* activityManager = app->activityManager();
-    bool ok = activityManager->removeActivity("PhotosMainView");
+    
+    bool ok = mActivityStorage->removeActivity("PhotosMainView");
     if ( !ok )
     {
          qDebug("launchapplication::Remove activity failed" );
@@ -168,19 +175,17 @@ void GlxStateManager::launchApplication()
 
 bool GlxStateManager::launchActivity()
 {
-    HbApplication* app = qobject_cast<HbApplication*>(qApp);
-    bool ok = app->activityManager()->waitActivity();
-    if ( !ok )
-    {
-        qDebug("subscribing to activity manager failed" );
-    }
-    QVariant data = app->activityManager()->activityData( "PhotosMainView" );
+    QVariant data = mActivityStorage->activityData("PhotosMainView");
     QByteArray serializedModel = data.toByteArray();
     QDataStream stream(&serializedModel, QIODevice::ReadOnly);
     
     //Fetch the data from the activity Manager
     stream >> mSaveActivity;  
-    qint32 stateId = mSaveActivity.value("ID");
+    
+    if(!validateActivityData())
+        return false;
+    
+	qint32 stateId = mSaveActivity.value("ID");
     mCurrentState = createState(stateId);
     mCurrentState->setState( mSaveActivity.value("InternalState") );
     createModel( stateId);
@@ -192,6 +197,26 @@ bool GlxStateManager::launchActivity()
     mViewManager->launchApplication(stateId, mCurrentModel); 
     return true;
 }
+
+bool GlxStateManager::validateActivityData()
+{
+    
+    if( (mSaveActivity.value("ID") == GLX_GRIDVIEW_ID) || 
+         ( (mSaveActivity.value("ID") == GLX_LISTVIEW_ID) && (mSaveActivity.value("InternalState") == ALL_ITEM_S) ) ||
+             (mSaveActivity.value("VisibleIndex") >= 0 ) ) {
+        qDebug("GlxStateManager::validation passed");
+        return true;
+    }
+    
+    qDebug("GlxStateManager::Validation failed");
+    qDebug("VIEW : %u", mSaveActivity.value("ID"));
+    qDebug("SUB STATE: %u", mSaveActivity.value("InternalState"));
+    qDebug("Visible Index: %u", mSaveActivity.value("VisibleIndex"));
+    
+    return false;
+     
+}
+
 
 void GlxStateManager::launchFromExternal()
 {
@@ -276,7 +301,7 @@ void GlxStateManager::saveData()
  			mSaveActivity.insert("VisibleIndex",0);
  		}
     
-        HbActivityManager* activityManager = qobject_cast<HbApplication*>(qApp)->activityManager();
+        
         QVariantHash metadata;
         HbMainWindow *window = hbInstance->allMainWindows().first();
         metadata.insert("screenshot", QPixmap::grabWidget(window, window->rect()));
@@ -284,11 +309,11 @@ void GlxStateManager::saveData()
         QByteArray serializedModel;
         QDataStream stream(&serializedModel, QIODevice::WriteOnly | QIODevice::Append);
         stream << mSaveActivity;
+        bool ok = mActivityStorage->saveActivity("PhotosMainView", serializedModel, metadata);
         
-        bool ok = activityManager->addActivity("PhotosMainView", serializedModel, metadata);
         if ( !ok )
         {
-            qDebug("SaveData::Add activity failed" );
+            qDebug("SaveData::Save activity failed" );
         }
     }
 }
@@ -794,6 +819,8 @@ GlxStateManager::~GlxStateManager()
     cleanAllModel();
     mSaveActivity.clear();
     delete mActionHandler;
+    delete mActivation;
+    delete mActivityStorage;
     qDebug("GlxStateManager::~GlxStateManager delete Model");
     
     disconnect ( mViewManager, SIGNAL(actionTriggered(qint32 )), this, SLOT(actionTriggered(qint32 )) );

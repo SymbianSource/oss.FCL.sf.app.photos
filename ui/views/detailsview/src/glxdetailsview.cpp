@@ -158,6 +158,9 @@ void GlxDetailsView::activate()
 
     //Set context mode to fetch descriptions
     mModel->setData(QModelIndex(), (int) GlxContextComment, GlxContextRole);
+    
+    //Set the Layout Correspondingly.
+    updateLayout(mWindow->orientation());
 
     OstTraceFunctionExit0( GLXDETAILSVIEW_ACTIVATE_EXIT );
 }
@@ -401,6 +404,7 @@ void GlxDetailsView::updateLayout(Qt::Orientation orient)
     mDocLoader->load(GLX_DETAILSVIEW_DOCMLPATH, section, &loaded);
 
     showImage();
+    updateGeometry();
 
     GLX_LOG_INFO1("GlxDetailsView::updateLayout =%d\n",loaded);
 }

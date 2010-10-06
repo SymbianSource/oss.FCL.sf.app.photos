@@ -58,7 +58,6 @@ SYSTEMINCLUDE         ../../../../../inc							//Gallery includes
 SYSTEMINCLUDE         ../../../../../gallery/loc							//Gallery Loc
 SYSTEMINCLUDE         ../../../datasource/manager/inc			//DataSource Include
 SYSTEMINCLUDE         ../../../../../commonutilities/common/inc
-SYSTEMINCLUDE         ../../../thumbnailcreator/inc
 
 
 // System includes from epoc32/include

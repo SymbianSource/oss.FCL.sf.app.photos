@@ -100,6 +100,7 @@ enum TGlxCommandId
     EGlxCmdFetcherAllGridOpen,  //open fetcher grid in all collection
     EGlxCmdFullScreenOpen,
     EGlxCmdFetcherFullScreenOpen,  //open fetcher in fullscreen
+    EGlxCmdBrowseFullScreenOpen,   //open browse service in FS
     EGlxCmdAlbumGridOpen,
     EGlxCmdFetcherAlbumGridOpen,  //open fetcher album grid
     EGlxCmdAlbumListOpen,

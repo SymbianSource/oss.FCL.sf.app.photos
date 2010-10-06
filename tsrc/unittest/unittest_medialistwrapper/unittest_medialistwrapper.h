@@ -21,10 +21,10 @@
 
 class GlxMLWrapper;
 
-class TestGlxMLWrapper : public QObject
+class TestGlxMLWrapper: public QObject
 {
-    Q_OBJECT
-    
+Q_OBJECT
+
 signals:
 
 private slots:
@@ -33,55 +33,82 @@ private slots:
      */
     void initTestCase();
 
-  /**
+    /**
      * will be called before each testfunction is executed.
      *
      */
-    void init(); 
-    
+    void init();
+
     /**
      * will be called after every testfunction.
      *
      */
     void cleanup();
-    
+
     /**
      * will be called after testing ends
      *
      */
     void cleanupTestCase();
- 
     
-    void testGetItemCount();
     void testRetrieveItemDateIsNull();
     void testRetrieveItemIconIsNull();
-    void testSetContextMode();
-    void testRetrieveItemIcon();
+    
+    void testSetContextModeGrid();
+    void testSetContextModeFullScreen();
+    void testSetContextModeList();
+    void testSetContextModeFavorite();
+    void testSetContextModeComment();
+    
+    void testRemoveContextModeGrid();
+    void testRemoveContextModeFullScreen();
+    void testRemoveContextModeList();
+    void testRemoveContextModeFavorite();    
+    void testRemoveContextComment();    
+
+    void testGetItemCount();    
     void testGetFocusIndex();
     void testSetFocusIndex();
-	void testRetrieveItemUri();
-	void testRetrieveItemUriName();
-	void testRetrieveItemDateIsNotNull();
-	void testRetrieveItemDateIsValid();
-	void testRetrieveItemDateValidate();
+    void testSetSelectedIndex();
+    
+    void testRetrieveListTitle();
+    void testRetrieveListSubTitle();
+    
+    void testRetrieveListDesc();    
     void testGetVisibleWindowIndex();
     void testSetVisibleWindowIndex();
+    void testRetrieveItemUri();
+    void testRetrieveItemUriName();    
+    void testRetrieveItemSize();
+    void testRetrieveItemIcon();
+    void testRetrieveItemDateIsNotNull();
+    void testRetrieveItemDateIsValid();
+    void testRetrieveItemDateValidate();    
+    void testRetrieveItemTime();
+    void testRetrieveViewTitle();
+    
+    void testIsDrmProtected();
+    void testIsDrmValid();
+    void testSetDrmVaild();
+    
+    void testRetrieveBitmap();
+    void testRetrieveListItemCount();
+    void testIsSystemItem();
+    void testIsCorruptedImage();
+    
     void testItemsAdded();
     void testItemsRemoved();
     void testHandleReceivedIcon();
     void testHandleIconCorrupt();
     void testHandleListItemAvailable();
-    // void testRetrieveListTitle();
-    // void testRetrieveListSubTitle();
-    // void testRetrieveItemDimension();
-    // void testHandleGeneralError();
 
 private:
-  
+
     /**
      * object under test
-     */  
+     */
     GlxMLWrapper *mTestObject;
+    GlxMLWrapper *mListTestObject;
 };
 
 #endif //__UNITTEST_MEDIALISTWRAPPER_H__

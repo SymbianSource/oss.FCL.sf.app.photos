@@ -40,26 +40,17 @@
 
 #include <harvesterclient.h>
 #include <harvestereventenum.h>
-
-#include <mglxtnstorage.h>
 #include <mpxcollectionmessagedefs.h>
-
-#ifdef USE_S60_TNM
 #include <thumbnailmanager.h>
 #include <thumbnailmanagerobserver.h>
 #include <thumbnaildata.h>
 #include <thumbnailobjectsource.h>
 
 #include "mthumbnailfetchrequestobserver.h"
-#endif
 #include "glxdatasource.h"
 
 // FORWARD DECLARATIONS
 class CGlxRequest;
-#ifndef USE_S60_TNM
-class CGlxtnThumbnailCreator;
-class CGlxtnThumbnailDatabase;
-#endif
 class CGlxDataSourceMde ;
 
 const TUid KHarvesterPSShutdown = { 0x200009F5 } ;
@@ -169,12 +160,8 @@ class CGlxDataSourceMde : public CGlxDataSource,
                           public MMdEObjectPresentObserver,
                           public MMdERelationObserver,
                           public MMdERelationPresentObserver,
-                          public MHarvesterEventObserver
-#ifdef USE_S60_TNM
-						, public MThumbnailManagerObserver
-#else
-                        , public MGlxtnThumbnailStorageObserver
-#endif
+                          public MHarvesterEventObserver,
+						  public MThumbnailManagerObserver
     {
 public:
     static CGlxDataSourceMde* NewL();
@@ -197,27 +184,10 @@ public:
                 HarvesterEventState aHarvesterEventState,
                 TInt aItemsLeft );
 
-#ifdef USE_S60_TNM
 public:
 	void FetchThumbnailL(CGlxRequest* aRequest, 
 	        MThumbnailFetchRequestObserver& aObserver);
 	TInt CancelFetchThumbnail();
-#else
-private: 
-    // from MGlxtnThumbnailStorageObserver
-    /**
-    * Notify that a given thumbnail is available in storage.
-    * @param aId Media item ID.
-    * @param aSize Requested thumbnail size.
-    */
-    void ThumbnailAvailable(const TGlxMediaId& aId, const TSize& aSize);
-    /**
-    * Notify that a given thumbnail is available in storage.
-    * @param aId Media item ID.
-    * @param aSize Thumbnail size.
-    */
-    void BackgroundThumbnailError(const TGlxMediaId& aId, TInt aError);
-#endif
 
 private: 
     /**
@@ -257,14 +227,12 @@ private: //MMdERelationPresentObserver
 	void HandleRelationPresentNotification(CMdESession& aSession,
 			TBool aPresent, const RArray<TItemId>& aRelationIdArray);
 
-#ifdef USE_S60_TNM
     // from MThumbnailManagerObserver
     void ThumbnailPreviewReady( MThumbnailData& aThumbnail,
         TThumbnailRequestId aId );
     
     void ThumbnailReady( TInt aError, MThumbnailData& aThumbnail,
         TThumbnailRequestId aId );
-#endif
 		
 private:
     void BackgroundThumbnailMessageL(const TGlxMediaId& aId, const TSize& aSize, 
@@ -289,13 +257,11 @@ private:
 
     void TaskStartedL();
     
-#ifdef USE_S60_TNM
     /*
      * This function doesnt add up any value, added to reduce compiler warnings
      */
     void ThumbnailReadyL( TInt aError, MThumbnailData& aThumbnail,
         TThumbnailRequestId aId, TBool aQuality );
-#endif
     
 public:
 
@@ -303,12 +269,6 @@ public:
     
     inline CMdESession& Session() const;
     
-#ifndef USE_S60_TNM
-    inline CGlxtnThumbnailCreator& ThumbnailCreator() const;
-
-    inline CGlxtnThumbnailDatabase& ThumbnailDatabase() const;
-#endif
-
     inline RFs& FileServerSession();
 
     inline const TGlxMediaId& CameraAlbumId() const;
@@ -360,7 +320,6 @@ public:
     void ShutdownNotification(TInt aShutdownState);
 
 private:
-#ifdef USE_S60_TNM
 	MThumbnailFetchRequestObserver* iTnFetchObserver; 
     CThumbnailManager* iTnEngine;
     CFbsBitmap* iTnThumbnail;
@@ -370,11 +329,6 @@ private:
     TInt iTnHandle;
     TGlxMediaId iMediaId;
     
-#else
-    CGlxtnThumbnailCreator*   iThumbnailCreator;
-    CGlxtnThumbnailDatabase*  iThumbnailDatabase;
-#endif
-
     CMdESession*              iSession;
     RFs iFs;
     TBool                     iSessionOpen;

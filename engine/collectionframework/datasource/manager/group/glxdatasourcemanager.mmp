@@ -48,7 +48,7 @@ USERINCLUDE     ../inc
 // System includes from the source tree
 SYSTEMINCLUDE   ../../../../../commonutilities/common/inc
 SYSTEMINCLUDE   ../../../../../inc
-SYSTEMINCLUDE   ../../../thumbnailcreator/inc
+SYSTEMINCLUDE  ../../plugins/glxdatasourcemde2.5/inc
 SYSTEMINCLUDE	/epoc32/include/mw/hb/hbcore
 
 

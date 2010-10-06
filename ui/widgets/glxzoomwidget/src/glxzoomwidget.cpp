@@ -95,7 +95,7 @@ void GlxZoomWidget::setModel (QAbstractItemModel *model)
     {
         mModel = model;
         retreiveFocusedImage(); //Update mZoomItem with focused Image
-        connect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
+        connect( mModel, SIGNAL( fullScreenDataChanged( QModelIndex, QModelIndex ) ), this, SLOT( dataChanged( QModelIndex, QModelIndex ) ) );
         connect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
     }
 }
@@ -139,7 +139,7 @@ void GlxZoomWidget::cleanUp()
 {
     disconnect(this,SIGNAL( pinchGestureReceived(int) ), this, SLOT( sendDecodeRequest(int) ) );
     if(mModel) {
-        disconnect( mModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this, SLOT( dataChanged(QModelIndex,QModelIndex) ) );
+        disconnect( mModel, SIGNAL( fullScreenDataChanged( QModelIndex, QModelIndex ) ), this, SLOT( dataChanged( QModelIndex, QModelIndex ) ) );
         disconnect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
         mModel = NULL;
     }

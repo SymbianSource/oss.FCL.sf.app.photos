@@ -42,9 +42,7 @@
 #include <glxrequest.h>
 #include <glxthumbnailattributeinfo.h>
 #include <glxthumbnailrequest.h>
-#include <glxtndatabase.h>
 #include <glxtnfileinfo.h>
-#include <glxtnthumbnailcreator.h>
 #include <glxtracer.h>
 #include <lbsposition.h>
 #include <mdeconstants.h>
@@ -93,17 +91,6 @@ CGlxDataSourceTaskMdeIdList::~CGlxDataSourceTaskMdeIdList()
     {
     TRACER("CGlxDataSourceTaskMdeIdList::~CGlxDataSourceTaskMdeIdList()")
     // No implementation required
-    }
-
-// ----------------------------------------------------------------------------
-// CGlxDataSourceTaskMde::FilterAvailableComplete
-// ----------------------------------------------------------------------------
-//  
-void CGlxDataSourceTaskMdeIdList::FilterAvailableComplete(
-                                const RArray<TGlxMediaId>& aIdArray, TInt aErrorCode)
-    {
-    TRACER("CGlxDataSourceTaskMdeIdList::FilterAvailableComplete()")
-    DoPostFilterComplete(aIdArray, aErrorCode);
     }
 
 // ----------------------------------------------------------------------------
@@ -246,6 +233,10 @@ void CGlxDataSourceTaskMdeIdList::DoMonthListCreationL(CMdEQuery& aQuery,
                                   const TGlxFilterProperties& aFilterProperties)
     {
     TRACER("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL()")
+#ifdef _DEBUG
+    TTime startTime;
+    startTime.HomeTime(); 
+#endif            
     CMdEProperty* time;
     CMdEPropertyDef& creationDateDef = DataSource()->ObjectDef().GetPropertyDefL(KPropertyDefNameCreationDate);
     if (creationDateDef.PropertyType() != EPropertyTime)
@@ -280,6 +271,12 @@ void CGlxDataSourceTaskMdeIdList::DoMonthListCreationL(CMdEQuery& aQuery,
     GLX_DEBUG2("CGlxDataSourceTaskMdeIdList::DoMonthListCreationL monthList.Count=%d", monthList.Count());    
     PostFilterL(monthList, aFilterProperties);
     CleanupStack::PopAndDestroy(&monthList);
+#ifdef _DEBUG
+    TTime stopTime;
+    stopTime.HomeTime(); 
+    GLX_DEBUG2("GlxDataSrcTaskMdeIdList:DoMonthListCreationL() took %d us",
+                     (TInt)stopTime.MicroSecondsFrom(startTime).Int64());
+#endif     
     }
 
 // ----------------------------------------------------------------------------

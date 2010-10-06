@@ -29,12 +29,6 @@
 #include <glxidlistrequest.h>
 #include <glxrequest.h>
 #include <glxthumbnailrequest.h>
-
-#ifndef USE_S60_TNM
-#include <glxtndatabase.h>
-#include <glxtnthumbnailcreator.h>
-#endif
-
 #include <glxtracer.h>
 #include <glxlog.h>
 #include <mdeobjectcondition.h>
@@ -49,13 +43,7 @@
 #include "glxdatasourcetaskmdsidlist.h"
 #include "glxdatasourcetaskmdsthumbnail.h"
 
-#ifdef USE_S60_TNM
 const TInt KMaxGridThumbnailWidth = 200;
-#else
-const TInt KGlxThumbnailCleanupAfterDeletions = 200;
-
-_LIT(KGlxMdeDataSourceThumbnailDatabase, "glxmdstn");
-#endif
 
 _LIT(KObjectDefLocation, "Location");
 _LIT(KObjectDefNameAlbum, "Album");
@@ -234,7 +222,6 @@ CGlxDataSourceMde::~CGlxDataSourceMde()
     TRACER("CGlxDataSourceMde::~CGlxDataSourceMde()");
     delete iSession;
     
-#ifdef USE_S60_TNM
     delete iTnThumbnail;
     iTnThumbnail = NULL;    
 
@@ -243,13 +230,7 @@ CGlxDataSourceMde::~CGlxDataSourceMde()
 
     delete iTnEngine;
     iTnEngine = NULL;    
-#else 
-     if (iThumbnailCreator)
-    	{
-    	iThumbnailCreator->Close(iThumbnailDatabase);
-    	}
-    delete iThumbnailDatabase;
-#endif
+
     iFs.Close();
     iHC.Close();
     RFbsSession::Disconnect();
@@ -287,15 +268,9 @@ void CGlxDataSourceMde::ConstructL()
             
     User::LeaveIfError(RFbsSession::Connect());
 
-#ifdef USE_S60_TNM
     iTnEngine = CThumbnailManager::NewL( *this);
     iTnEngine->SetDisplayModeL( EColor16M );
     iTnRequestInProgress = EFalse;
-#else
-	iThumbnailCreator = CGlxtnThumbnailCreator::InstanceL();
-	iThumbnailDatabase = CGlxtnThumbnailDatabase::NewL(
-            	                        KGlxMdeDataSourceThumbnailDatabase, this);
-#endif
             	                        
     iCreateSessionCallback = new ( ELeave )
 	    CAsyncCallBack( TCallBack( CreateSession, this ), CActive::EPriorityHigh );
@@ -421,30 +396,6 @@ CGlxDataSourceTask* CGlxDataSourceMde::CreateTaskL(CGlxRequest* aRequest,
 		return NULL; // stops compiler warning
 		}
 	}
-
-#ifndef USE_S60_TNM
-// ---------------------------------------------------------------------------
-// ThumbnailAvailable
-// ---------------------------------------------------------------------------
-//
-void CGlxDataSourceMde::ThumbnailAvailable(const TGlxMediaId& 
-        /*aId*/, const TSize& /*aSize*/)
-	{
-    TRACER("CGlxDataSourceMde::ThumbnailAvailable(const TGlxMediaId& /*aId*/, const TSize& /*aSize*/)");
-	//No implementation
-	}
-
-// ---------------------------------------------------------------------------
-// BackgroundThumbnailError
-// ---------------------------------------------------------------------------
-//
-void CGlxDataSourceMde::BackgroundThumbnailError(const TGlxMediaId& aId, TInt aError)
-	{
-    TRACER("CGlxDataSourceMde::BackgroundThumbnailError(const TGlxMediaId& aId, TInt aError)");
-	TSize size(0, 0);
-	TRAP_IGNORE(BackgroundThumbnailMessageL(aId, size, aError));
-	}
-#endif
 
 // ---------------------------------------------------------------------------
 // BackgroundThumbnailMessageL
@@ -580,29 +531,6 @@ void CGlxDataSourceMde::HandleObjectNotification(CMdESession& /*aSession*/,
 
    	GLX_DEBUG1("HandleObjectNotification - ProcessUpdateArray");
 	ProcessUpdateArray(aObjectIdArray,  MPXChangeEventType(aType), ETrue);
-#ifndef USE_S60_TNM
-	if(MPXChangeEventType(aType) == EMPXItemDeleted )
-		{			
-		TInt count = aObjectIdArray.Count();
-		iDeletedCount += count;
-		GLX_DEBUG3("EMPXItemDeleted - aObjectIdArray.Count()=%d, iDeletedCount=%d", 
-		        count, iDeletedCount);
-		if(iDeletedCount > KGlxThumbnailCleanupAfterDeletions)
-		    {
-	    	TRAPD(err, ThumbnailCreator().CleanupThumbnailsL(iThumbnailDatabase));
-	    	if(!err)
-	    	    {
-	    	    iDeletedCount = 0;
-	    	    }
-		    }
-		}
-
-	if(MPXChangeEventType(aType) == EMPXItemModified )
-	    {
-	    GLX_DEBUG1("HandleObjectNotification - EMPXItemModified");
-	    TRAP_IGNORE(ThumbnailCreator().CleanupThumbnailsL(iThumbnailDatabase));
-		}
-#endif		
 	}
 
 // ---------------------------------------------------------------------------
@@ -1058,7 +986,6 @@ void CGlxDataSourceMde::TaskStartedL()
     iPauseUpdate = ETrue;
     }	
     
-#ifdef USE_S60_TNM
 void CGlxDataSourceMde::FetchThumbnailL(CGlxRequest* aRequest, 
         MThumbnailFetchRequestObserver& aObserver)
 	{
@@ -1210,7 +1137,6 @@ void CGlxDataSourceMde::ThumbnailReadyL(TInt aError,
         iTnRequestInProgress = EFalse;
         }
     }
-#endif
 
 // ---------------------------------------------------------------------------
 // CGlxDataSourceMde

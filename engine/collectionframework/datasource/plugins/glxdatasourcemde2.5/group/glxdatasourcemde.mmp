@@ -46,15 +46,11 @@ SOURCE          glxdatasourcetaskmdsattribute.cpp
 SOURCE          glxdatasourcetaskmdscommand.cpp
 SOURCE          glxdatasourcetaskmdsidlist.cpp
 SOURCE          glxdatasourcetaskmdsthumbnail.cpp
-
-// if you comment the lines below out, Photos dB will be used for thumbnail fetching
-MACRO USE_S60_TNM
-#define USE_S60_TNM
+SOURCE          glxtnfileinfo.cpp
 
 // System includes from the source tree
 SYSTEMINCLUDE   ../../../../../../commonutilities/common/inc
 SYSTEMINCLUDE   ../../../../../../inc
-SYSTEMINCLUDE   ../../../../thumbnailcreator/inc
 SYSTEMINCLUDE   ../../../manager/inc
 SYSTEMINCLUDE   ../inc
 
@@ -81,12 +77,8 @@ LIBRARY         euser.lib
 LIBRARY         fbscli.lib 
 LIBRARY         glxcommon.lib
 LIBRARY         glxdatasourcemanager.lib
-#ifdef USE_S60_TNM
 LIBRARY         thumbnailmanager.lib
 LIBRARY         bitgdi.lib
-#else
-LIBRARY         glxthumbnailcreator.lib
-#endif
 LIBRARY         inetprotutil.lib
 LIBRARY         lbs.lib
 LIBRARY         mdeclient.lib

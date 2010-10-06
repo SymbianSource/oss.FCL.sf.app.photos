@@ -123,9 +123,11 @@
 //to show the total image count in grid view
 #define GLX_GRID_VIEW_COUNT_LABEL       "txt_photos_subhead_all_l2" 
 
+//to show the total album count in Album list view
+#define GLX_ALBUM_LIST_COUNT_LABEL      "txt_photos_subhead_albums_l2"
+
 //mark all label to be shown in marking mode view
 #define GLX_LABEL_MARK_ALL              hbTrId("txt_photos_list_mark_all")
-
 
 //mark all label to be shown in marking mode view
 #define GLX_LABEL_MARK_COUNT            "txt_photos_list_l1l2" 
@@ -235,6 +237,16 @@
 #define GLX_BUTTON_HIDE              hbTrId("txt_common_button_hide")
 
 #define GLX_BUTTON_NEW               hbTrId("txt_photos_button_new")
+
+#define GLX_BUTTON_PLAY              hbTrId("txt_common_button_play_video")
+
+#define GLX_BUTTON_ADD               hbTrId("txt_common_button_add") 
+
+#define GLX_BUTTON_DELETE            hbTrId("txt_common_button_delete_toolbar") 
+
+#define GLX_BUTTON_REMOVE            hbTrId("txt_common_button_remove") 
+
+#define GLX_BUTTON_SHARE             hbTrId("txt_photos_button_share") 
 
 //-----------------------------END OF BUTTON LOCALISATION STRING----------------------------------
 

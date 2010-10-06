@@ -47,6 +47,7 @@
 //LIST VIEW
 #define  GLX_LISTVIEW_VIEW       "glxlistview"
 #define  GLX_LISTVIEW_LIST       "listview"
+#define  GLX_LISTVIEW_ALBUMCOUNT "albumCount"
 #define  GLX_LISTVIEW_DOCMLPATH  ":/data/listview.docml"
 
 //DETAILS VIEW

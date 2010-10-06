@@ -45,4 +45,5 @@ EXPORTS
 	_ZNK13GlxMediaModel8rowCountERK11QModelIndex @ 44 NONAME
 	_ZTI13GlxMediaModel @ 45 NONAME
 	_ZTV13GlxMediaModel @ 46 NONAME
+	_ZN13GlxMediaModel21fullScreenDataChangedERK11QModelIndexS2_ @ 47 NONAME
 

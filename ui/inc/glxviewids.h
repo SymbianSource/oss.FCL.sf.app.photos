@@ -51,7 +51,8 @@ typedef enum
 	ALBUM_FULLSCREEN_S,
     EXTERNAL_S,
     IMAGEVIEWER_S,
-	FETCHER_S,  
+	FETCHER_S,
+	BROWSE_S,	
 	MAX_FULLSCREEN_S
 } FullScreenState;
 

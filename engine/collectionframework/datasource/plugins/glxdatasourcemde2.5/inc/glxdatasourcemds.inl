@@ -33,26 +33,6 @@ CMdESession& CGlxDataSourceMde::Session() const
     return *iSession;
     }
 
-#ifndef USE_S60_TNM
-// ----------------------------------------------------------------------------
-//  CGlxDataSourceMde::ThumbnailCreator
-// ----------------------------------------------------------------------------
-// 
-CGlxtnThumbnailCreator& CGlxDataSourceMde::ThumbnailCreator() const
-    {
-    return *iThumbnailCreator;
-    }
-
-// ----------------------------------------------------------------------------
-//  CGlxDataSourceMde::ThumbnailDatabase
-// ----------------------------------------------------------------------------
-// 
-CGlxtnThumbnailDatabase& CGlxDataSourceMde::ThumbnailDatabase() const
-    {
-    return *iThumbnailDatabase;
-    }
-#endif
-
 // ----------------------------------------------------------------------------
 //  CGlxDataSourceMde::FileServerSession
 // ----------------------------------------------------------------------------

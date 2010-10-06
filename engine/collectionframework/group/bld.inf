@@ -17,7 +17,6 @@
 
 
 
-#include "../thumbnailcreator/group/bld.inf"
 #include <platform_paths.hrh>    //APP_LAYER_DOMAIN_EXPORT_PATH
 
 PRJ_TESTEXPORTS

@@ -218,7 +218,8 @@ void GlxFullScreenView::resetView()
     cancelSelectionAnimation(); //cancel the image selection effect before cleaning the view
     //Clean up the rest of the resources allocated
     cleanUp(); 
-        
+	//Hide ImageStrip while launching Details view
+	mImageStrip->hide();
     //Clear the 4 icons present in the Coverflow,so that the transition between the views are smooth
     mCoverFlow->partiallyClean();
     
@@ -316,13 +317,14 @@ void GlxFullScreenView::orientationChanged(Qt::Orientation orient)
         mUiOffTimer->start(KUiOffTime);
     }
     setModelContext();
-    loadViewSection();
-    setLayout();
+    loadViewSection();        
     
     if ( mZoomWidget->zValue() >= mCoverFlow->zValue() ) {
+        mZoomWidget->setWindowSize( screenSize() );
         playZoomOrientChangeAnim();
     }
     else {
+        mCoverFlow->setOrientChangeAnim( true );
         playOrientChangeAnim();
     }
     
@@ -344,7 +346,7 @@ void GlxFullScreenView::hideUi()
 	if ( getSubState() != FETCHER_S ) {
 	    setViewFlags( viewFlags() | HbView::ViewTitleBarHidden | HbView::ViewStatusBarHidden );
 	}
-    if ( mImageStrip && ( getSubState() != IMAGEVIEWER_S && getSubState() != FETCHER_S ) ) {
+    if ( mImageStrip && ( getSubState() != IMAGEVIEWER_S && getSubState() != FETCHER_S && getSubState() != BROWSE_S) ) {
         HbEffect::start( mImageStrip, QString("HbGridView"), QString("TapHide"), this, "effectFinished" );
     }
 
@@ -544,13 +546,20 @@ void GlxFullScreenView::orientChangeAnimFinished( const HbEffect::EffectStatus s
     mIconItems[ 0 ]->resetTransform();   
     mIconItems[ 0 ]->setVisible( false );
     mBackGroundItem->setVisible( false );
+    QSize sz = screenSize();
+    mCoverFlow->setOrientChangeAnim( false );
+    mCoverFlow->setItemSize( sz );
     mCoverFlow->setVisible( true );
     mZoomWidget->setVisible( true );
+    mZoomWidget->setWindowSize( screenSize() );
 }
 
 void GlxFullScreenView::zoomOrientChangeAnimFinished( const HbEffect::EffectStatus status )
 {
-    mZoomWidget->resetTransform();
+    Q_UNUSED( status )
+    mZoomWidget->resetTransform();	
+	QSize sz = screenSize();
+	mCoverFlow->setItemSize( sz );
 }
 
 void GlxFullScreenView::handleToolBarAction()
@@ -647,10 +656,10 @@ void GlxFullScreenView::activateUI()
 {
     OstTraceFunctionEntry0( GLXFULLSCREENVIEW_ACTIVATEUI_ENTRY );
     
-    if ( mUiOff && getSubState() != FETCHER_S ){      
-        if( !mFullScreenToolBar ) {
-            loadFullScreenToolBar();
-        }
+    if ( mUiOff && (!(getSubState() == FETCHER_S || getSubState() == BROWSE_S)) ){  
+			if( !mFullScreenToolBar ) {
+				loadFullScreenToolBar();
+			}
         mUiOff = FALSE;
         
         QVariant variant = mModel->data( mModel->index(0,0), GlxFocusIndexRole );    
@@ -672,6 +681,12 @@ void GlxFullScreenView::activateUI()
         mFullScreenToolBar->setOpacity( 1 );
         mFullScreenToolBar->show();
     }
+	else if( mUiOff && getSubState() == BROWSE_S){
+		mUiOff = FALSE;
+        setItemVisible( Hb::AllItems, TRUE );
+        setViewFlags( viewFlags() &~ HbView::ViewTitleBarHidden &~ HbView::ViewStatusBarHidden );
+		mUiOffTimer->start(KUiOffTime);
+	}
     else {
         hideUi();
     }

@@ -43,7 +43,6 @@ SYSTEMINCLUDE   ../../../../../commonutilities/common/inc
 SYSTEMINCLUDE   ../../../../../inc
 SYSTEMINCLUDE   ../../../../../gallery/loc
 SYSTEMINCLUDE   ../../../datasource/manager/inc
-SYSTEMINCLUDE   ../../../thumbnailcreator/inc
 
 // System includes for epoc32/include
 APP_LAYER_SYSTEMINCLUDE

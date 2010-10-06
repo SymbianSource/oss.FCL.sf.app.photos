@@ -313,14 +313,16 @@ void GlxViewManager::checkMarked()
     }
 }
 
-void GlxViewManager::enterMarkingMode(qint32 viewId)
+void GlxViewManager::enterMarkingMode( qint32 viewId, qint32 commandId )
 {
     GlxView *view = findView ( viewId );
     qDebug("GlxViewManager::enterMarkingMode view ID %d", viewId);
     
-    if ( mMarkingToolBar == NULL) {
+    if ( !mMarkingToolBar ) {
         createMarkingModeToolBar(); //Marking mode tool bar is different from normal mode tool bar
     }
+    
+    setMarkingToolBarAction( commandId );
     
     if ( view ) { 
         view->enableMarking();
@@ -336,7 +338,7 @@ void GlxViewManager::enterMarkingMode(qint32 viewId)
     qDebug("GlxViewManager::enterMarkingMode view ID %d exit", viewId);
 }
 
-void GlxViewManager::exitMarkingMode(qint32 viewId)
+void GlxViewManager::exitMarkingMode( qint32 viewId )
 {
     GlxView *view = findView ( viewId );
     qDebug("GlxViewManager::exitMarkingMode view ID %d", viewId);
@@ -595,6 +597,31 @@ void GlxViewManager::createMarkingModeToolBar()
     mMarkingToolBar->setVisible(true);            
     mMarkingToolBar->clearActions();    
     createMarkingModeActions();
+}
+
+void GlxViewManager::setMarkingToolBarAction( qint32 commandId )
+{
+    switch( commandId ) {
+    case EGlxCmdAddToAlbum :
+        mMarkingActionList.at( 0 )->setText( GLX_BUTTON_ADD );
+        break;
+        
+    case EGlxCmdDelete :
+        mMarkingActionList.at( 0 )->setText( GLX_BUTTON_DELETE );
+        break;
+        
+    case EGlxCmdRemoveFrom :
+        mMarkingActionList.at( 0 )->setText( GLX_BUTTON_REMOVE );
+       break;
+       
+    case EGlxCmdSend :
+        mMarkingActionList.at( 0 )->setText( GLX_BUTTON_SHARE );
+        break;
+        
+    default :
+        mMarkingActionList.at( 0 )->setText( GLX_BUTTON_OK );
+        break;
+    }
 }
 
 void GlxViewManager::addConnection()

@@ -36,9 +36,7 @@
 #include <glxrequest.h>
 #include <glxthumbnailattributeinfo.h>
 #include <glxthumbnailrequest.h>
-#include <glxtndatabase.h>
 #include <glxtnfileinfo.h>
-#include <glxtnthumbnailcreator.h>
 #include <glxtracer.h>
 #include <lbsposition.h>
 #include <mdeconstants.h>
@@ -129,24 +127,9 @@ CGlxDataSourceTaskMdeThumbnail:: CGlxDataSourceTaskMdeThumbnail(CGlxThumbnailReq
 CGlxDataSourceTaskMdeThumbnail::~CGlxDataSourceTaskMdeThumbnail()
     {
     TRACER("CGlxDataSourceTaskMdeThumbnail::~CGlxDataSourceTaskMdeThumbnail()")    
-#ifdef USE_S60_TNM
     DataSource()->CancelFetchThumbnail();
     delete iTnFileInfo;
     iTnFileInfo = NULL;
-#else
-    if( iTnRequestStatus )
-        {
-        CancelFetchUri(TGlxMediaId());
-        }
-    if( iTnRequestInProgress )
-        {
-        CGlxThumbnailRequest* request = static_cast<CGlxThumbnailRequest*>(iRequest);
-    
-        TGlxThumbnailRequest tnReq;
-        request->ThumbnailRequest(tnReq);
-        DataSource()->ThumbnailCreator().CancelRequest(tnReq.iId);
-        }
-#endif        
     }
 
 // ----------------------------------------------------------------------------
@@ -167,7 +150,6 @@ void CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL()
     						tnReq.iSizeClass.iWidth, tnReq.iSizeClass.iHeight);
     GLX_DEBUG2("CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL() iPriorityMode=%d", tnReq.iPriorityMode);
 	
-#ifdef USE_S60_TNM
 	if(request->ThumbnailInfo())
 		{
 		if (tnReq.iSizeClass.iWidth > 0 && tnReq.iSizeClass.iHeight > 0 )
@@ -183,10 +165,6 @@ void CGlxDataSourceTaskMdeThumbnail::ExecuteRequestL()
 		{
 	   	FetchFileInfoL();
 		}
-#else
-    iTnRequestInProgress = ETrue;
-    DataSource()->ThumbnailCreator().FetchThumbnailL(tnReq, *this);
-#endif
     }
 
 // ----------------------------------------------------------------------------
@@ -278,7 +256,6 @@ void CGlxDataSourceTaskMdeThumbnail::HandleThumbnailFetchCompleteL(const TGlxMed
     CleanupStack::PopAndDestroy(tnAttribute);
     }
 
-#ifdef USE_S60_TNM
 void CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete(TInt aError, 
                                                             TBool aQuality)
 	{
@@ -298,131 +275,6 @@ void CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete(TInt aError,
         }
     HandleRequestComplete(err);
 	}
-#else
-// -----------------------------------------------------------------------------
-// ThumbnailFetchComplete
-// Notifies that a thumbnail for a given item is available, or that
-// thumbnail generation failed.
-// -----------------------------------------------------------------------------
-//
-void CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete(
-    const TGlxMediaId& aItemId, TGlxThumbnailQuality aQuality, TInt aErrorCode)
-    {
-    TRACER("CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete()")
-    GLX_DEBUG2("CGlxDataSourceTaskMdeThumbnail::ThumbnailFetchComplete() aErrorCode=%d", aErrorCode);
-    iTnRequestInProgress = EFalse;
-    TInt err = aErrorCode;
-    if(!err)
-        {
-        TRAP(err, HandleThumbnailFetchCompleteL(aItemId, aQuality));
-        }
-    HandleRequestComplete(err);
-    }
-
-
-// ----------------------------------------------------------------------------
-//  CGlxDataSourceTaskMdeThumbnail::ThumbnailDeletionComplete
-// ----------------------------------------------------------------------------
-//   
-void CGlxDataSourceTaskMdeThumbnail::ThumbnailDeletionComplete(
-                                const TGlxMediaId& /*aItemId*/, TInt /*aErrorCode*/)
-    {
-    TRACER("CGlxDataSourceTaskMdeThumbnail::ThumbnailDeletionComplete()")
-    }
-
-
-// ----------------------------------------------------------------------------
-//  CGlxDataSourceTaskMdeThumbnail::FilterAvailableComplete
-// ----------------------------------------------------------------------------
-//   
-void CGlxDataSourceTaskMdeThumbnail::FilterAvailableComplete(
-                                const RArray<TGlxMediaId>& /*aIdArray*/, TInt /*aErrorCode*/)
-    {
-    TRACER("CGlxDataSourceTaskMdeThumbnail::FilterAvailableComplete()")
-    // No implementation
-    }
-
-// ----------------------------------------------------------------------------
-//  CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL
-// ----------------------------------------------------------------------------
-//  
-void CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL(CGlxtnFileInfo* aInfo,
-                        const TGlxMediaId& aItemId, TRequestStatus* aStatus)
-    {
-    TRACER("CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL()")
-    __ASSERT_DEBUG(dynamic_cast<CGlxThumbnailRequest*>(iRequest), Panic(EGlxPanicLogicError));
-    CGlxThumbnailRequest* request = static_cast<CGlxThumbnailRequest*>(iRequest);
-    if(request->ThumbnailInfo())
-        {
-        aInfo->CopyInfoL(*request->ThumbnailInfo());
-        *aStatus = KRequestPending;
-        User::RequestComplete(aStatus, KErrNone);
-        return;
-        }
-
-    CMdEObject* item = DataSource()->Session().GetObjectL((TItemId)aItemId.Value());
-    if(!item)
-        {
-        User::Leave(KErrNotFound);
-        }
-        
-    CleanupStack::PushL(item);
-    iTnRequestStatus = aStatus;
-    iTnFileInfo = aInfo;
-    *iTnRequestStatus = KRequestPending;
-    
-    CGlxDataSource::TContainerType containerType = DataSource()->ContainerType(item);
-    if( CGlxDataSource::EContainerTypeNotAContainer != containerType )
-        {
-        iTnFileInfo->iTemporary = ETrue;
-        
-        TGlxMediaId container = aItemId;
-        CMdEObjectDef* objectDef = &item->Def();
-        
-        /// @todo: use default filter so we can ensure we always get correct first item if filters change
-        iFilterProperties.iSortOrder = EGlxFilterSortOrderCaptureDate;
-        iFilterProperties.iSortDirection = EGlxFilterSortDirectionOverrideToDescendingIfDate;
-        iFilterProperties.iLastCaptureDate = ETrue;
-
-        if( CGlxDataSource::EContainerTypeMonth == containerType )
-            {
-            iFilterProperties.iOrigin = EGlxFilterOriginAll;
-            AddMonthFilterL(item, iFilterProperties);
-            container = TGlxMediaId(KGlxCollectionRootId);
-            objectDef = &DataSource()->ObjectDef();
-            }
-            
-        DoQueryL(*objectDef, ETrue, EContainerFirstItemQuery,  
-                EQueryResultModeItem, container);        
-        }
-    else
-        {
-        CompleteFetchFileInfoL(item);
-        }
-
-    CleanupStack::PopAndDestroy(item);
-    }
-
-// ----------------------------------------------------------------------------
-//  CGlxDataSourceTaskMdeThumbnail::CancelFetchUri
-// ----------------------------------------------------------------------------
-//  
-void CGlxDataSourceTaskMdeThumbnail::CancelFetchUri(const TGlxMediaId& /*aItemId*/)
-    {
-    TRACER("CGlxDataSourceTaskMdeThumbnail::CancelFetchUri()")
-    CompleteThumbnailRequest(KErrCancel);
-    }
-
-// ----------------------------------------------------------------------------
-//  CGlxDataSourceTaskMdeThumbnail::ThumbnailStorage
-// ----------------------------------------------------------------------------
-//  
-MGlxtnThumbnailStorage* CGlxDataSourceTaskMdeThumbnail::ThumbnailStorage()
-    {
-    TRACER("CGlxDataSourceTaskMdeThumbnail::ThumbnailStorage()")
-    return &DataSource()->ThumbnailDatabase();
-    }
-#endif
 
 // ----------------------------------------------------------------------------
 //  CGlxDataSourceTaskMdeThumbnail::CompleteFetchFileInfoL
@@ -529,7 +381,6 @@ void CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest(TInt aError)
 	{
     TRACER("CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest(TInt aError)")
     GLX_DEBUG2("CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest  aError=%d", aError);
-#ifdef USE_S60_TNM
 	if (aError != KErrNone)
 		{
 		ThumbnailFetchComplete(aError, EFalse);
@@ -553,17 +404,9 @@ void CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest(TInt aError)
 		    GLX_LOG_INFO("CGlxDataSourceTaskMdeThumbnail::CompleteThumbnailRequest KErrArgument");
 			ThumbnailFetchComplete(KErrArgument, EFalse);
 			}
-			}
-#else
-    if (iTnRequestStatus)
-        {
-    	*iTnRequestStatus = KRequestPending;
-        User::RequestComplete(iTnRequestStatus, aError);
-        }
-#endif
+		}
 	}
 
-#ifdef USE_S60_TNM
 // ----------------------------------------------------------------------------
 //  CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL
 // ----------------------------------------------------------------------------
@@ -616,5 +459,3 @@ void CGlxDataSourceTaskMdeThumbnail::FetchFileInfoL()
 
     CleanupStack::PopAndDestroy(item);
     }
-
-#endif

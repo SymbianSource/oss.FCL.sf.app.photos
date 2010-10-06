@@ -49,7 +49,7 @@ class CGlxDRMUtility;
  */
 class GlxMLWrapperPrivate: public QObject, public MGlxTitleFetcherObserver
 {
-
+friend class TestGlxMLWrapper;
 public:
     /**
      * Two-phased constructor.

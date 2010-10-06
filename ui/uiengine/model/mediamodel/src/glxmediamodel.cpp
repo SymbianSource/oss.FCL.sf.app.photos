@@ -402,20 +402,21 @@ QImage GlxMediaModel::getFullScreenImage( int itemIndex ) const
     }    
 }
 
-void GlxMediaModel::itemUpdated( int mlIndex, GlxTBContextType tbContextType )
+void GlxMediaModel::itemUpdated( int itemIndex, GlxTBContextType tbContextType )
 {
-    qDebug( "GlxMediaModel::itemUpdated %d", mlIndex );
+    qDebug( "GlxMediaModel::itemUpdated %d", itemIndex );
     //clear the grid and FS cache if they have any icons with them for that index
     if ( tbContextType == GlxTBContextGrid ) {
         if ( !thumbnailPopulatedFlag ) {
-            thumbnailPopulatedCheck( mlIndex );
+            thumbnailPopulatedCheck( itemIndex );
         }
-        itemIconCache.remove( mlIndex );
+        itemIconCache.remove( itemIndex );
+        emit dataChanged( index( itemIndex, 0 ), index( itemIndex, 0 ) );
     }
     if ( tbContextType == GlxTBContextLsFs || tbContextType == GlxTBContextPtFs ) {
-        itemFsIconCache.remove( mlIndex );
+        itemFsIconCache.remove( itemIndex );
+        emit fullScreenDataChanged( index( itemIndex, 0 ), index( itemIndex, 0 ) );
     }
-    emit dataChanged( index( mlIndex, 0 ), index( mlIndex, 0 ) );
 }
 
 void GlxMediaModel::itemCorrupted( int itemIndex )
@@ -425,6 +426,7 @@ void GlxMediaModel::itemCorrupted( int itemIndex )
         thumbnailPopulatedCheck( itemIndex );
     }
     emit dataChanged( index( itemIndex, 0 ), index( itemIndex, 0 ) );
+    emit fullScreenDataChanged( index( itemIndex, 0 ), index( itemIndex, 0 ) );
 }
 
 void GlxMediaModel::modelpopulated()

@@ -21,16 +21,18 @@
 #include <glxcommandhandlers.hrh>
 
 
-GlxSlideShowSettingsState::GlxSlideShowSettingsState(GlxStateManager *stateManager, GlxState *preState ) : GlxState(GLX_SLIDESHOWSETTINGSVIEW_ID, preState)
+GlxSlideShowSettingsState::GlxSlideShowSettingsState(GlxStateManager *stateManager, GlxState *preState ) : GlxState( GLX_SLIDESHOWSETTINGSVIEW_ID, preState )
 {
-     if ( preState)
-         qDebug("GlxSlideShowSettingsState::GlxSlideShowSettingsState() state id = %d", preState->id());
-     mStateManager = stateManager ;
+    mStateManager = stateManager;
 }
 
-void GlxSlideShowSettingsState::eventHandler(qint32 &id)
-{      
-    qDebug("GlxSlideShowSettingsState::eventHandler() action id = %d", id);
-		return;
+void GlxSlideShowSettingsState::eventHandler( qint32 &id )
+{
+    if ( id == EGlxCmdSelectSlideshow ) {
+        if ( previousState()->id() == GLX_SLIDESHOWVIEW_ID ) {
+            mStateManager->previousState() ;
+            id = EGlxCmdHandled;
+        }
+    }
 }
 

@@ -371,7 +371,7 @@ TBool CGlxCollectionPluginCamera::IsUpdateMessageIgnoredL(CMPXMessage& /*aMessag
 // 
 TGlxFilterProperties CGlxCollectionPluginCamera::DefaultFilter(TInt aLevel)
     {
-    TRACER("CGlxCollectionPluginDownloads::DefaultFilter");
+    TRACER("CGlxCollectionPluginCamera::DefaultFilter");
     
     __ASSERT_DEBUG(( (aLevel == KGlxCollectionRootLevel) || (aLevel == KGlxCollectionRootLevel+1) 
     || (aLevel == KGlxCollectionRootLevel+2) ), Panic(EGlxPanicInvalidPathLevel));

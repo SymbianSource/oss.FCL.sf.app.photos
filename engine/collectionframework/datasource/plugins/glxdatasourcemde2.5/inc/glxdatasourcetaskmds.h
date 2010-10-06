@@ -31,13 +31,11 @@
 #include <glxfilterproperties.h>
 #include <mdccommon.h>
 #include <mdequery.h>
-#include <mglxtnthumbnailcreatorclient.h>
 #include <mpxfilter.h>
 
 // FORWARD DECLARATIONS
 class CGlxDataSourceMde;
 class CGlxRequest;
-class CGlxtnThumbnailCreator;
 class CMdEObjectDef;
 class CMdEObjectQuery;
 class CMdESession;

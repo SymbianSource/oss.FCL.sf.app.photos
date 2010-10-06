@@ -74,7 +74,7 @@ void GlxMenuManager::disableAction(HbMenu* menu, bool disable)
 void GlxMenuManager::addMenu(qint32 viewId, HbMenu* menu)
 {
     int curState = viewSubState();
-    if( curState == FETCHER_ITEM_S || curState == FETCHER_S || curState == FETCHER_ALBUM_S ||  curState == IMAGEVIEWER_S)
+    if( curState == FETCHER_ITEM_S || curState == BROWSE_S || curState == FETCHER_S || curState == FETCHER_ALBUM_S ||  curState == IMAGEVIEWER_S)
         return;
     
     switch(viewId) {

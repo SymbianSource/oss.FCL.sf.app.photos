@@ -11,7 +11,7 @@
 *
 * Contributors:
 *
-* Description:   
+* Description:    Data Source Task MDS IDlist class
 *
 */
 
@@ -31,14 +31,12 @@
 #include <glxdatasourcetask.h>
 #include <glxdatasource.h>
 #include <mdccommon.h>
-#include <mglxtnthumbnailcreatorclient.h>
 #include <mpxfilter.h>
 #include <glxfilterproperties.h>
 #include "glxdatasourcetaskmds.h"
 // FORWARD DECLARATIONS
 class CGlxDataSourceMde;
 class CGlxIdListRequest;
-class CGlxtnThumbnailCreator;
 class CMdEObjectDef;
 class CMdEObjectQuery;
 class CMdESession;
@@ -47,9 +45,7 @@ class CMdESession;
  *  CGlxDataSourceTaskMdeIdList class 
  *  Task to handle id list requests.
  */
-NONSHARABLE_CLASS(CGlxDataSourceTaskMdeIdList) : public CGlxDataSourceTaskMde,
-                                                 public MGlxtnThumbnailCreatorClient
-
+NONSHARABLE_CLASS(CGlxDataSourceTaskMdeIdList) : public CGlxDataSourceTaskMde
 	{
 public:
     /**
@@ -65,46 +61,7 @@ public:
       * Destructor.
       */
      ~CGlxDataSourceTaskMdeIdList();
-    	
-private: // from MGlxtnThumbnailCreatorClient
-	/**
-	 * Not used (pure virtual stubbed)
-	 * See @ref MGlxtnThumbnailCreatorClient::ThumbnailFetchComplete
-	 */ 
-	void ThumbnailFetchComplete(const TGlxMediaId& /*aItemId*/,
-            TGlxThumbnailQuality /*aQuality*/, TInt /*aErrorCode*/) {};
 	 
-	/**
-	 * Not used (pure virtual stubbed)
-	 * See @ref MGlxtnThumbnailCreatorClient::ThumbnailDeletionComplete
-	 */ 
-	 void ThumbnailDeletionComplete(const TGlxMediaId& /*aItemId*/,
-             TInt /*aErrorCode*/) {};
-	 
-	/**
-	 * See @ref MGlxtnThumbnailCreatorClient::FilterAvailableComplete
-	 */ 
-	 void FilterAvailableComplete(const RArray<TGlxMediaId>& aIdArray,
-	                                         TInt aErrorCode);
-	/**
-	 * Not used (pure virtual stubbed)
-	 * See @ref MGlxtnThumbnailCreatorClient::FetchFileInfoL
-	 */ 
-	 void FetchFileInfoL(CGlxtnFileInfo* /*aInfo*/,
-	                 const TGlxMediaId& /*aItemId*/, TRequestStatus* /*aStatus*/) {};
-	
-    /**
-	 * Not used (pure virtual stubbed)
-	 * See @ref MGlxtnThumbnailCreatorClient::CancelFetchUri
-	 */ 
-	 void CancelFetchUri(const TGlxMediaId& /*aItemId*/) {};
-	 
-	/**
-	 * Not used (pure virtual stubbed)
-	 * See @ref MGlxtnThumbnailCreatorClient::ThumbnailStorage
-	 */ 
-	 MGlxtnThumbnailStorage* ThumbnailStorage() { return NULL; };
-
 public: // From CGlxDataSourceTask    
     /**
      * See @ref CGlxDataSourceTask::ExecuteRequestL

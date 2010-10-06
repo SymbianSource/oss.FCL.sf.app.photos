@@ -30,7 +30,6 @@
 #include <glxcommandparser.h>
 #include <mdequery.h>
 #include <mdeitem.h>
-#include <mglxtnthumbnailcreatorclient.h>
 #include <glxcommandrequest.h>
 #include "glxdatasourcetaskmds.h"
 
