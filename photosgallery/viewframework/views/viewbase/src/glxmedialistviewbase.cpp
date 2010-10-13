@@ -169,11 +169,8 @@ EXPORT_C void CGlxMediaListViewBase::DoViewActivateL(
         if ((navigationalState->Id() != TMPXItemId(
 				KGlxCollectionPluginAlbumsImplementationUid)))
             {
-			if (!iPreloadContextForCommandHandlers)
-				{
-				iPreloadContextForCommandHandlers
-						= new (ELeave) CGlxAttributeContext(&iSelectionIterator);
-				}
+            iPreloadContextForCommandHandlers
+                    = new (ELeave) CGlxAttributeContext(&iSelectionIterator);
             TInt commandHandlerCount = iCommandHandlerList.Count();
             for (TInt i = 0; i < commandHandlerCount; i++)
                 {
@@ -393,8 +390,6 @@ void CGlxMediaListViewBase::CloseMediaList()
         if (iPreloadContextForCommandHandlers)
             {
             iMediaList->RemoveContext(iPreloadContextForCommandHandlers);
-            delete iPreloadContextForCommandHandlers;
-            iPreloadContextForCommandHandlers = NULL;
             }
         iMediaList->Close();
         iMediaList = NULL;

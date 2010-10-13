@@ -253,9 +253,6 @@ protected:
 	
 	/// The view animation time
     TInt iViewAnimationTime; 
-    
-    /// Status of FullScreen Transition is started
-    TBool iIsTransEffectStarted;
 private:
     /**
      * Functions to handle view activate asynchronously

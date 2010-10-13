@@ -26,10 +26,17 @@ PRJ_TESTEXPORTS
 PRJ_EXPORTS
 
 PRJ_TESTMMPFILES
+//t_cshwzoomandpaneffect.mmp
 t_cshwdefaulteffectmanager.mmp
 t_cshwtimercontrol.mmp
 t_cshwviewcontrol.mmp
 t_cshweventrouter.mmp
+//t_cshwmusiccontrol.mmp
+//t_cshwsettingsmodel.mmp
+//t_cshweffects.mmp
+//t_cshweffectcontrol.mmp
+//t_cshwslideshowengine.mmp
+//t_cshwplaybackfactory.mmp
 
 PRJ_MMPFILES
 ../../group/shwslideshowengine.mmp

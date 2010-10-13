@@ -43,12 +43,9 @@
 #include <glxcommandhandlers.hrh>
 #include <glxtracer.h>
 #include <glxresourceutilities.h>                // for CGlxResourceUtilities
-#include <glxnavigationalstate.h>
-#include <mpxcollectionpath.h>
-#include <glxcollectionpluginimageviewer.hrh>
-#include <glximageviewermanager.h>
-#include <caf/manager.h>
 
+/// @todo Move elsewhere
+const TInt KGlxMaxNoteLength = 256;
 
 // -----------------------------------------------------------------------------
 // ConstructL
@@ -123,85 +120,40 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::DoExecuteL(TInt aCommandId,
 
     if ( consume )
         {
-        CGlxNavigationalState* navState = CGlxNavigationalState::InstanceL();
-		CleanupClosePushL(*navState);
-        CMPXCollectionPath* path = navState->StateLC();
-        CreateImageViewerInstanceL();
-        TBool privatePath = iImageViewerInstance->IsPrivate();
-        TBool viewerPathId = (path->Id() == TMPXItemId(KGlxCollectionPluginImageViewerImplementationUid)) ? ETrue : EFalse;
-        iImageViewerInstance->CloseImageDecoder();
-        DeleteImageViewerInstance();
-        CleanupStack::PopAndDestroy(path);
-        CleanupStack::PopAndDestroy(navState);
-	 		
-        if (viewerPathId && !privatePath)
+        // get a command object from the deriving class.
+        // Allow deriving class modify the consume value, even without 
+        // creating a commmand (in case it wants to filter out a command)
+        CMPXCommand* command = CreateCommandL(aCommandId, aList, consume);
+        
+        if (command)
             {
-            RFs fs;
-			CleanupClosePushL(fs);
-            User::LeaveIfError(fs.Connect());
-			ContentAccess::CManager *manager = ContentAccess::CManager::NewL();
-			CleanupStack::PushL(manager);
-			fs.SetAtt(focusedMedia.Uri(), 0, KEntryAttReadOnly);		
-            TInt ret = manager->DeleteFile(focusedMedia.Uri());
-            if(ret != KErrNone)
+            CleanupStack::PushL(command);
+            
+            if ( CommandInfo(aCommandId).iStopAnimationForExecution )
                 {
-				CreateImageViewerInstanceL();
-				iImageViewerInstance->CreateImageDecoderL();
-				DeleteImageViewerInstance();
-                HBufC* noteText = StringLoader::LoadL(R_GLX_DELETION_FAILURE_NOTE);
-                CleanupStack::PushL(noteText);
-                const TDesC& itemName = focusedMedia.Uri();
-                TParsePtrC parse(focusedMedia.Uri());
-                TBuf<KMaxFileName> text;
-                StringLoader::Format(text, *noteText, -1, parse.Name());
-                GlxGeneralUiUtilities::ShowErrorNoteL(text, ETrue);
-                CleanupStack::PopAndDestroy(noteText);
+                // Stop GIF animation
+                iAppUi->ProcessCommandL(EGlxCmdDisableAnimations);
+                iAnimationStopped = ETrue;
                 }
-            CleanupStack::PopAndDestroy(manager);
-            CleanupStack::PopAndDestroy(&fs);
-            if(ret == KErrNone)
+            
+            // Add the pointer of this command handler as session id into the message
+            // This can be used to ensure that this object is the intended recipient
+            // of a message
+            command->SetTObjectValueL<TAny*>(KMPXCommandGeneralSessionId,
+            		static_cast<TAny*>(this));
+
+       		aList.AddMediaListObserverL(this);
+			
+            aList.CommandL(*command);
+            
+            // raise progress note. Note will be closed when complete message received
+			// For EGlxCmdAddMedia we dont need to show dialog as EGlxCmdAddToAlbum or
+			// EGlxCmdAddTag will show processing dialog.
+            if (aCommandId != EGlxCmdAddMedia)
                 {
-                iAppUi->ProcessCommandL(EAknSoftkeyExit);
+                ProgressNoteL(aCommandId);
                 }
-            }
-        else
-            {
-            // get a command object from the deriving class.
-            // Allow deriving class modify the consume value, even without 
-            // creating a commmand (in case it wants to filter out a command)
-            CMPXCommand* command = CreateCommandL(aCommandId, aList, consume);
-
-            if (command)
-                {
-                CleanupStack::PushL(command);
-
-                if (CommandInfo(aCommandId).iStopAnimationForExecution)
-                    {
-                    // Stop GIF animation
-                    iAppUi->ProcessCommandL(EGlxCmdDisableAnimations);
-                    iAnimationStopped = ETrue;
-                    }
-
-                // Add the pointer of this command handler as session id into the message
-                // This can be used to ensure that this object is the intended recipient
-                // of a message
-                command->SetTObjectValueL<TAny*> (
-                        KMPXCommandGeneralSessionId,
-                        static_cast<TAny*> (this));
-
-                aList.AddMediaListObserverL(this);
-
-                aList.CommandL(*command);
-
-                // raise progress note. Note will be closed when complete message received
-                // For EGlxCmdAddMedia we dont need to show dialog as EGlxCmdAddToAlbum or
-                // EGlxCmdAddTag will show processing dialog.
-                if (aCommandId != EGlxCmdAddMedia)
-                    {
-                    ProgressNoteL(aCommandId);
-                    }
-                CleanupStack::PopAndDestroy(command);
-                }
+            CleanupStack::PopAndDestroy(command);
             }
         }
     
@@ -429,7 +381,7 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::ConfirmationNoteSingleL(TInt aComma
             // noteText has a place for a title string in it
             const TDesC& itemName = media->ValueText(KMPXMediaGeneralTitle);
     
-            TBuf<KMaxFileName> text;
+            TBuf<KGlxMaxNoteLength> text;
             StringLoader::Format(text, *noteText, -1, itemName);
     
             // show popup
@@ -464,7 +416,7 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::ConfirmationNoteMultipleL(TInt aCom
         // item count
 		TInt count = aMediaList.SelectionCount();
 
-        TBuf<KMaxFileName> text;
+        TBuf<KGlxMaxNoteLength> text;
 		GlxGeneralUiUtilities::FormatString(text, *noteText, -1, count, ETrue);
 		
         // show popup
@@ -531,26 +483,21 @@ void CGlxMpxCommandCommandHandler::ProgressNoteL(TInt aCommandId)
     // get progress note 
     HBufC* progressText = ProgressTextL(aCommandId);
     __ASSERT_DEBUG(progressText, Panic(EGlxPanicNullDescriptor));
-    CleanupStack::PushL(progressText);
+	CleanupStack::PushL(progressText);
     // construct progress dialog
-    iProgressDialog = new (ELeave) CAknProgressDialog(
-            (REINTERPRET_CAST(CEikDialog**,&iProgressDialog)));
-    iProgressDialog->PrepareLC(R_GLX_PROGRESS_NOTE);
-    if (aCommandId == EGlxCmdRename)
-        {
-        iProgressDialog->ButtonGroupContainer().SetCommandSetL(
-                R_AVKON_SOFTKEYS_EMPTY);
-        }
-    iProgressDialog->SetTextL(*progressText);
-    iProgressDialog->SetCallback(this);
-
+	iProgressDialog = new(ELeave)CAknProgressDialog(
+			(REINTERPRET_CAST(CEikDialog**,&iProgressDialog)));
+	iProgressDialog->PrepareLC(R_GLX_PROGRESS_NOTE); 
+	iProgressDialog->SetTextL(*progressText);
+	iProgressDialog->SetCallback(this);
+	
     // pick up progress info so that progress notification can be later updated
-    iProgressInfo = iProgressDialog->GetProgressInfoL();
-
+	iProgressInfo = iProgressDialog->GetProgressInfoL();
+	
     // launch the note
-    iProgressDialog->RunLD();
-    CleanupStack::PopAndDestroy(progressText);
-    }
+	iProgressDialog->RunLD();
+	CleanupStack::PopAndDestroy(progressText); 
+	}
 
 // -----------------------------------------------------------------------------
 // DismissProgressNoteL
@@ -750,29 +697,5 @@ EXPORT_C void CGlxMpxCommandCommandHandler::Deactivate()
 	if (iProgressDialog)
         {
         TRAP_IGNORE(DismissProgressNoteL());
-        }
-    }
-
-// -----------------------------------------------------------------------------
-// CreateImageViewerInstanceL
-// -----------------------------------------------------------------------------
-//
-void CGlxMpxCommandCommandHandler::CreateImageViewerInstanceL()
-    {
-    TRACER("CGlxMpxCommandCommandHandler::CreateImageViewerInstanceL");
-    iImageViewerInstance = CGlxImageViewerManager::InstanceL();    
-    __ASSERT_ALWAYS(iImageViewerInstance, Panic(EGlxPanicNullPointer));
-    }
-
-// -----------------------------------------------------------------------------
-// DeleteImageViewerInstance
-// -----------------------------------------------------------------------------
-//
-void CGlxMpxCommandCommandHandler::DeleteImageViewerInstance()
-    {
-    TRACER("CGlxMpxCommandCommandHandler::DeleteImageViewerInstance");
-    if ( iImageViewerInstance )
-        {
-        iImageViewerInstance->DeleteInstance();
         }
     }

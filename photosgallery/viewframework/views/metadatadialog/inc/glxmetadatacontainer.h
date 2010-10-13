@@ -96,6 +96,7 @@ public:
    
    //Enable disble the options based on the current selected item
    TBool IsItemModifiable();
+   TBool IsLicenseItem();
    TBool IsLocationItem();
    
    //Delete the location information
@@ -217,8 +218,6 @@ private: 	//data
     	//Flag to indicate rename command is started
     	TBool iRenameStarted;
 
-        // Flag to indicate text entry popup display status
-        TBool iIsPopupShown;
 	};
 
 #endif //C_GLXMETADATACONTAINER_H__

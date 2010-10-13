@@ -43,9 +43,6 @@
 
 #include <aknbutton.h>                      // for getting the button state
 
-// For transition effects                           
-#include <gfxtranseffect/gfxtranseffect.h>
-
 _LIT(KGlxViewBaseResource, "glxviewbase.rsc");
 
 /// Length of time a view-switch animation should take
@@ -57,7 +54,6 @@ const TInt KGlxViewSwitchAnimationDuration = 1000 * KGlxAnimationSlowDownFactor;
 //	
 EXPORT_C CGlxViewBase::CGlxViewBase(TBool aSyncActivation) :
     iViewAnimationTime(KGlxViewSwitchAnimationDuration),
-    iIsTransEffectStarted(EFalse),
     iViewAnimationInProgress(EGlxViewAnimationNone),
     iSyncActivation(aSyncActivation)
     {
@@ -551,6 +547,10 @@ EXPORT_C void CGlxViewBase::OfferToolbarEventL( TInt aCommand )
     CAknToolbar* toolbar = GetToolBar();
     if(toolbar)
         {
+        CAknButton* slideshowButton =
+            static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdSlideshow));
+        TBool slideshowdimmed = EFalse;
+
         //Here after the toolbar cmd is processed it is enabled
         //back. For share the toolbar state should be same as it was 
         //earlier, so we take the current state and reset back after
@@ -562,35 +562,28 @@ EXPORT_C void CGlxViewBase::OfferToolbarEventL( TInt aCommand )
         CAknButton* markButton =
             static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdStartMultipleMarking));
         TBool markButtondimmed = EFalse;
-        
-        CAknButton* deleteButton =
-            static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdDelete));
-        TBool deleteButtondimmed = EFalse;
-        
-        CAknButton* sendButton =
-            static_cast<CAknButton*> (toolbar->ControlOrNull(EGlxCmdSend));
-        TBool sendButtondimmed = EFalse;
+
+        if(slideshowButton)
+            {
+            // Get current button state
+            CAknButtonState* currentState = slideshowButton->State();
+            slideshowdimmed = slideshowButton->IsDimmed();
+            }
 
         if(markButton)
             {
+            // Get current button state
+            CAknButtonState* currentState = markButton->State();
             markButtondimmed = markButton->IsDimmed();
             }        
         
         if(uploadButton)
             {
+            // Get current button state
+            CAknButtonState* currentState = uploadButton->State();
             uploaddimmed = uploadButton->IsDimmed();
-            }     
-        
-        if(deleteButton)
-            {
-			deleteButtondimmed = deleteButton->IsDimmed();
             }
-        
-        if(sendButton)
-            {
-			sendButtondimmed = sendButton->IsDimmed();
-            }
-        
+
         // Deactivate the toolbar. Don't accept the toolbar input when the command
         // execution is already in progress.
         SetToolbarItemsDimmed(ETrue); 
@@ -602,28 +595,20 @@ EXPORT_C void CGlxViewBase::OfferToolbarEventL( TInt aCommand )
         // after command execution.
         SetToolbarStateL();
 
-        // Note: Slideshow toolbar item update is done
-        // at CGlxToolbarController::SetStatusL()
-
         if(!markButtondimmed)
             {
             toolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, EFalse, ETrue);
             }
 
+        if(!slideshowdimmed)
+            {
+            toolbar->SetItemDimmed(EGlxCmdSlideshowPlay, EFalse, ETrue);
+            }
+        
         if(uploaddimmed || (aCommand == EGlxCmdStartMultipleMarking))
             {
             toolbar->SetItemDimmed(EGlxCmdUpload, ETrue, ETrue);
             }
- 
-        if(!deleteButtondimmed)
-            {
-            toolbar->SetItemDimmed(EGlxCmdDelete, EFalse, ETrue);
-            }
-        
-        if(!sendButtondimmed)
-            {
-            toolbar->SetItemDimmed(EGlxCmdSend, EFalse, ETrue);
-            }        
         }    
     }
 
@@ -725,14 +710,6 @@ void CGlxViewBase::ViewActivateL()
         iCommandHandlerList[i]->ActivateL(Id().iUid);
         i++;
         }
-    
-    //Check if transition effect is already started.
-    //Calling the 'EndFullScreen()' actually starts the FS transition effect.
-    if(iIsTransEffectStarted)
-		{
-		GfxTransEffect::EndFullScreen();
-		iIsTransEffectStarted = EFalse;
-		}
 
     InitAnimationL(EGlxViewAnimationEntry); 
     }
@@ -750,8 +727,6 @@ void CGlxViewBase::SetToolbarItemsDimmed(TBool aDimmed)
         toolbar->SetItemDimmed(EGlxCmdSlideshowPlay, aDimmed, ETrue);
         toolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, aDimmed, ETrue);
         toolbar->SetItemDimmed(EGlxCmdUpload, aDimmed, ETrue);
-        toolbar->SetItemDimmed(EGlxCmdDelete, aDimmed, ETrue);
-        toolbar->SetItemDimmed(EGlxCmdSend, aDimmed, ETrue);
         }
     }
 

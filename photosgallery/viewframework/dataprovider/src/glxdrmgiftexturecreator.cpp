@@ -29,6 +29,8 @@
 #include "glxuiutility.h"
 #include "glxdrmgiftexturecreator.h"
 #include "glxdrmgifactivedecoder.h"
+#include <glxdrmutility.h>
+#include <glximageviewermanager.h>
 
 // Default frame interval for animation, in microseconds
 const TInt KDefaultFrameInterval = 100000;
@@ -65,9 +67,11 @@ CGlxDrmGifTextureCreator::~CGlxDrmGifTextureCreator()
         }
 
     iUiUtility->Close();
-
+    if (iDrmUtility)
+        {
+        iDrmUtility->Close();
+        }
     delete iGlxDecoderAO;
-
     iFsSession.Close();
     }
 
@@ -83,6 +87,12 @@ void CGlxDrmGifTextureCreator::ReleaseContent()
     iTransparencyPossible = EFalse;
     iFrameShift = EFalse;
 
+    //delete image viewer instance, if present.
+    if ( iImageViewerInstance )
+        {
+        iImageViewerInstance->DeleteInstance();
+        }
+    
     if (iGlxDecoderAO)
         {
         iGlxDecoderAO->Cancel();
@@ -135,21 +145,14 @@ void CGlxDrmGifTextureCreator::ConstructL()
     TRACER("CGlxDrmGifTextureCreator::ConstructL()");
     iUiUtility = CGlxUiUtility::UtilityL();
     User::LeaveIfError(iFsSession.Connect());
-    iBitmapReady = EFalse;
-    iAnimCount = 0;
-    iAnimateFlag = EFalse;
-    iTransparencyPossible = EFalse;
-    iFrameShift = EFalse;
-
-    //Set the initial texture, it could be default or the FS texture
-    SetTexture();
+    
+    //Create DRM Utility to check DRM rights validity 
+    iDrmUtility = CGlxDRMUtility::InstanceL();
     // Create the active object
     iGlxDecoderAO = CGlxDRMgifDecoderAO::NewL(this);
-#ifdef _DEBUG
-    iStartTime.HomeTime();
-#endif	
-    CreateImageDecoderL(iMedia->Uri());
-    CreateBitmapAndStartDecodingL();
+    
+    //Set the initial texture.And create and starts the Image Decoder
+    SetInitialTextureAndStartDecodingL();
     }
 
 // -----------------------------------------------------------------------------
@@ -160,8 +163,17 @@ void CGlxDrmGifTextureCreator::UpdateNewImageL(const TGlxMedia& aMedia,
     {
     TRACER("CGlxDrmGifTextureCreator::UpdateNewImageL()");
     GLX_LOG_INFO1("DrmGif: UpdateNewImageL() aItemIndex=%d", aItemIndex);
+    
+    //Start Decoding only if the aItemIndex refers to new Item index
     if (aItemIndex == iItemIndex)
         {
+        //All textures were flushed when in background.
+        //so, when app. comes to foreground again and DRM Rights have expired for 
+        //current item, then create default Texture.
+        if(iUiUtility->GetForegroundStatus() && IsDRMRightsExpiredL())
+            {
+            SetTexture();
+            }
         return;
         }
 
@@ -171,19 +183,38 @@ void CGlxDrmGifTextureCreator::UpdateNewImageL(const TGlxMedia& aMedia,
     iItemIndex = aItemIndex;
     iMedia = &aMedia;
 
+    //Set the initial texture.And create and starts the Image Decoder
+    SetInitialTextureAndStartDecodingL();
+    }
+
+// -----------------------------------------------------------------------------
+// SetInitialTextureAndStartDecodingL 
+// -----------------------------------------------------------------------------
+void CGlxDrmGifTextureCreator::SetInitialTextureAndStartDecodingL()
+    {
+    TRACER("CGlxDrmGifTextureCreator::SetInitialTextureAndStartDecodingL()");
+    
     iBitmapReady = EFalse;
     iAnimCount = 0;
     iAnimateFlag = EFalse;
     iTransparencyPossible = EFalse;
     iFrameShift = EFalse;
 
+    //Creates the image viewer instance, if not created already.
+    iImageViewerInstance = CGlxImageViewerManager::InstanceL();    
+    __ASSERT_ALWAYS(iImageViewerInstance, Panic(EGlxPanicNullPointer));
+    
     //Set the initial texture, it could be default or the FS texture
     SetTexture();
 #ifdef _DEBUG
     iStartTime.HomeTime();
 #endif
-    CreateImageDecoderL(iMedia->Uri());
-    CreateBitmapAndStartDecodingL();
+    //Check if DRM Rights are not expired before starting image decoding
+    if (!IsDRMRightsExpiredL())
+        {
+        CreateImageDecoderL(iMedia->Uri());
+        CreateBitmapAndStartDecodingL();
+        }  
     }
 
 // -----------------------------------------------------------------------------
@@ -507,3 +538,27 @@ void CGlxDrmGifTextureCreator::SetTexture(TInt aTextureId)
         iModel->SetData(iItemIndex, item);
         }
     }
+
+// -----------------------------------------------------------------------------
+// IsDRMRightsExpiredL
+// -----------------------------------------------------------------------------
+//
+TBool CGlxDrmGifTextureCreator::IsDRMRightsExpiredL()
+    {
+    TRACER("CGlxDrmGifTextureCreator::IsDRMRightsExpiredL");
+    //To check if DRM rights are expired
+    TBool expired = EFalse;
+    TMPXGeneralCategory cat = iMedia->Category();
+    
+    if (iImageViewerInstance->IsPrivate())
+        {
+        expired = !iDrmUtility->DisplayItemRightsCheckL
+                            (iImageViewerInstance->ImageFileHandle(),(cat == EMPXImage));
+        }
+    else
+        {
+        expired = !iDrmUtility->DisplayItemRightsCheckL(iMedia->Uri(), (cat == EMPXImage));
+        }
+    return expired;
+    }
+

@@ -490,6 +490,19 @@ EXPORT_C void CGlxZoomControl::HandleZoomForegroundEvent(TBool aForeground)
         }
     else
         {
+        TInt focus = iMediaList.FocusIndex();
+        const TGlxMedia item = iMediaList.Item(focus);
+        TGlxIdSpaceId spaceId = iMediaList.IdSpaceId(focus);
+        GLX_LOG_INFO("CGlxZoomControl::HandleZoomForegroundEvent - Get the FS texture");
+        // Get the texture created in fullscreen view.
+        TRAPD(err, iImageTexture = &(iTextureMgr->CreateNewTextureForMediaL(
+                                ScreenSize(), item, spaceId, this)));
+
+        if (iImageTexture && iImageTexture->HasContent() && KErrNone == err)
+            {
+            GLX_LOG_INFO("CGlxZoomControl::HandleZoomForegroundEvent - Show the FS texture");
+            iImageVisual->SetImage(*iImageTexture);
+            }
         iGPUMemMonitor->RequestMemory();
         }
     } 
@@ -552,9 +565,11 @@ AlfEventStatus CGlxZoomControl::offerEvent( CAlfWidgetControl& /*aControl*/,
 // TextureContentChangedL
 // -----------------------------------------------------------------------------
 //
-void CGlxZoomControl::TextureContentChangedL( TBool /*aHasContent*/ , CAlfTexture* aNewTexture)
+void CGlxZoomControl::TextureContentChangedL(TBool aHasContent,
+        CAlfTexture* aNewTexture)
     {
     TRACER("CGlxZoomControl::TextureContentChangedL ");
+    GLX_LOG_INFO2("CGlxZoomControl::TextureContentChangedL() aNewTexture=%x, aHasContent=%d", aNewTexture, aHasContent);
     //if both the textures are null that means we do not have memory to 
     //decode and show anything. So try and check if the fullscreen texture 
     //is created by now if not then go to fullscreen view.
@@ -563,40 +578,43 @@ void CGlxZoomControl::TextureContentChangedL( TBool /*aHasContent*/ , CAlfTextur
         {
         if(NULL == iImageTexture)
             {
-            TSize TextureSize = ScreenSize();
+            TSize textureSize = ScreenSize();
             TInt focus = iMediaList.FocusIndex();
             TGlxMedia item = iMediaList.Item( focus );
             TGlxIdSpaceId idspace = iMediaList.IdSpaceId( focus );
     
             CAlfTexture* newTexture = NULL;
-            //Get the texture Created in fullscreen View.
-            TRAPD(errtexture, newTexture = &(iTextureMgr->CreateNewTextureForMediaL(
-                            TextureSize,item, idspace, this )));
+            // Get the texture created in fullscreen view.
+            TRAPD(err, newTexture = &(iTextureMgr->CreateNewTextureForMediaL(
+                            textureSize,item, idspace, this)));
             
-            if(errtexture != KErrNone)
+            GLX_LOG_INFO2("CGlxZoomControl::TextureContentChangedL(1) newTexture=%x, err=%d", newTexture, err);
+            if(newTexture && newTexture->HasContent() && err == KErrNone)
                 {
-                GLX_LOG_INFO( "CGlxTextureManagerImpl::HandleBitmapDecodedL::CreateNewTextureForMediaL Failed");
-                //Exit zoom and goto fullscreen
-                HandleZoomOutL(KGlxZoomOutCommand);
+                GLX_LOG_INFO("CGlxZoomControl::TextureContentChangedL:Show FS texture");
+                // Show the fullscreen texture.
+                iImageTexture = newTexture;
+                iImageVisual->SetImage(*iImageTexture);
                 }
             else
                 {
-                //show the fullscreen texture.
-                iImageTexture = newTexture;
-                iImageVisual->SetImage( *iImageTexture );   
+                GLX_LOG_INFO("CGlxZoomControl::TextureContentChangedL:CreateNewTextureForMediaL Failed");
+                // Exit zoom and goto fullscreen
+                HandleZoomOutL(KGlxZoomOutCommand);
                 }           
             }
-         else
+         else if (iImageTexture->HasContent())
             {
-            //show the existing first level decoded image texture in case second level
-            //decoding fails
-            iImageVisual->SetImage( *iImageTexture );   
+            // Show the existing decoded image texture
+            GLX_LOG_INFO("CGlxZoomControl::TextureContentChangedL - Show the existing texture");
+            iImageVisual->SetImage(*iImageTexture);
             }                   
         }
-    else
+    else if (aHasContent && aNewTexture->HasContent())
         {
+        GLX_LOG_INFO("CGlxZoomControl::TextureContentChangedL - Show the NEW texture");
         iImageTexture = aNewTexture;
-        iImageVisual->SetImage( *iImageTexture );        
+        iImageVisual->SetImage(*iImageTexture);
         }
     }
 
@@ -960,7 +978,6 @@ void CGlxZoomControl::HandleGoomMemoryReleased(TInt aStatus)
         {
         //Refeed the textures if we are coming back to foreground from background
         //To Retrive the image details
-        TMPXAttribute thumbNailAttribute(0, 0);
         TInt focusIndex = iMediaList.FocusIndex();
         TGlxIdSpaceId idspace = iMediaList.IdSpaceId(focusIndex);
         //Get the texture Created in fullscreen View.
@@ -968,16 +985,17 @@ void CGlxZoomControl::HandleGoomMemoryReleased(TInt aStatus)
 
         // if we already have the decoded zoomed image bitmap use the texture corresponding to that.
         // Else make do with the fullscreen texture till that happens.  
-        TRAP_IGNORE(iImageTexture =
-                iTextureMgr->CreateZoomedTextureL());
+        TRAPD(err, iImageTexture = iTextureMgr->CreateZoomedTextureL());
 
-        if (NULL == iImageTexture)
+        GLX_LOG_INFO2("CGlxZoomControl::HandleGoomMemoryReleased(1) iImageTexture=%x err=%d", iImageTexture, err);
+        if (!iImageTexture || KErrNone != err)
             {
-            TRAP_IGNORE(iImageTexture = &(iTextureMgr->CreateNewTextureForMediaL(
+            TRAP(err, iImageTexture = &(iTextureMgr->CreateNewTextureForMediaL(
                                     ScreenSize(), item, idspace, this)))
             }
 
-        if (NULL != iImageTexture)
+        GLX_LOG_INFO2("CGlxZoomControl::HandleGoomMemoryReleased(2) iImageTexture=%x err=%d", iImageTexture, err);
+        if (iImageTexture && iImageTexture->HasContent() && KErrNone == err)
             {
             iImageVisual->SetImage(*iImageTexture);
             return;

@@ -161,7 +161,7 @@ EXPORT_C void CGlxHdmiController::ShiftToPostingMode()
     {
     TRACER("CGlxHdmiController::ShiftToPostingMode()");
     iIsPhotosInForeground = ETrue;
-    if (iGlxTvOut->IsHDMIConnected() && iIsImageSupported)
+    if (iGlxTvOut->IsHDMIConnected())
         {
         if (!iSurfaceUpdater)
             {

@@ -11,12 +11,16 @@
 *
 * Contributors:
 *
-* Description:    New media command handler
+* Description:    Delete command handler
 *
 */
 
 
 
+
+/**
+ * @internal reviewed 06/06/2007 by Dave Schofield
+ */
 
 #include "glxcommandhandlernewmedia.h"
 
@@ -41,11 +45,12 @@
 #include <mpxcollectionpath.h>
 #include <mpxcommonframeworkdefs.h>
 #include <StringLoader.h>
-#include <glxmediageneraldefs.h>    // for KMaxMediaPopupTextLength
+
 #include <data_caging_path_literals.hrh>
 #include <glxuiutilities.rsg>
-#include <e32const.h> //For TDigitType
 
+const TInt KMaxMediaPopupTitleLength = 0x28;    // Accepts only 40 characters
+const TInt KMaxNewMediaItemTitleLength = 0x28;  // Accepts only 40 characters
 const TInt KMaxNumberLength = 10;
 
 _LIT(KOpenBracket, "(");
@@ -187,7 +192,7 @@ CMPXCommand* CGlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
     CMPXCollectionPath* path = aMediaList.PathLC( NGlxListDefs::EPathParent );
     CMPXCommand* command = NULL;
 
-    TBuf <KMaxMediaPopupTextLength> defaultNewMediaItemTitle;
+    TBuf <KMaxNewMediaItemTitleLength> defaultNewMediaItemTitle;
     
     TRAPD(error, TitlesL(TGlxMediaId(path->Id(0)), defaultNewMediaItemTitle));
     if(error != KErrNone)
@@ -211,6 +216,8 @@ CMPXCommand* CGlxCommandHandlerNewMedia::CreateCommandL(TInt /*aCommandId*/,
     TPtr newMediaItemTitleDes = iNewMediaItemTitle->Des();
     
     CGlxTextEntryPopup* dialog = CGlxTextEntryPopup::NewL(*mediaPopupTitle, newMediaItemTitleDes);
+    
+    
     if(dialog->ExecuteLD() == EEikBidOk)
     	{
         command = TGlxCommandFactory::AddContainerCommandLC(*iNewMediaItemTitle, path->Id(0));
@@ -293,18 +300,14 @@ void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId,
             KGlxMediaCollectionPluginSpecificDefaultMediaTitle);
     rootList->AddContextL(attributeContext, KGlxFetchContextPriorityBlocking);
 
-    // Media list must not have been deleted when the destructor of 
-    // TGlxContextRemover is called while going out-of-scope.
-        {
-        TGlxFetchContextRemover contextRemover(attributeContext, *rootList);
-        // put to cleanupstack as cleanupstack is emptied before stack objects
-        // are deleted
-        CleanupClosePushL(contextRemover);
-        User::LeaveIfError(GlxAttributeRetriever::RetrieveL(
-                *attributeContext, *rootList, ETrue));
-        // context off the list
-        CleanupStack::PopAndDestroy(&contextRemover);
-        } // Limiting scope of contextRemover
+    TGlxFetchContextRemover contextRemover(attributeContext, *rootList);
+    // put to cleanupstack as cleanupstack is emptied before stack objects
+    // are deleted
+    CleanupClosePushL(contextRemover);
+    User::LeaveIfError(GlxAttributeRetriever::RetrieveL(*attributeContext,
+            *rootList, ETrue));
+    // context off the list
+    CleanupStack::PopAndDestroy(&contextRemover);
 
     TInt index = rootList->Index(KGlxIdSpaceIdRoot, aCollectionId);
 
@@ -317,7 +320,7 @@ void CGlxCommandHandlerNewMedia::TitlesL(const TGlxMediaId aCollectionId,
         {
         aDefaultNewMediaItemTitle.Copy(media->ValueText(
                 KGlxMediaCollectionPluginSpecificDefaultMediaTitle).Left(
-                        KMaxMediaPopupTextLength));
+                KMaxMediaPopupTitleLength));
         }
 
     CleanupStack::PopAndDestroy(attributeContext);
@@ -384,17 +387,12 @@ HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL(
                                 - KCloseBracket().Length();
                         if (length > 0)
                             {
-							HBufC* num = title.Mid(pos, length).AllocLC();
-							TPtr numPtr = num->Des();
-							//Change to Western numeric for determining next numeral
-							AknTextUtils::ConvertDigitsTo(numPtr,EDigitTypeWestern);
-                            TLex lex(numPtr);
+                            TLex lex = title.Mid(pos, length);
                             TInt val = 0;
                             if (lex.Val(val) == KErrNone)
                                 {
                                 numbers.InsertInOrderL(val);
                                 }
-                            CleanupStack::PopAndDestroy(num);
                             }
                         }
                     }
@@ -422,21 +420,18 @@ HBufC* CGlxCommandHandlerNewMedia::GenerateNewMediaItemTitleL(
     TInt defaultTitleLength = aDefaultNewMediaItemTitle.Length()
             + KFileNameFormatString().Length() + KCloseBracket().Length()
             + KMaxNumberLength;
-    // If the default title length is bigger than KMaxMediaPopupTextLength, 
+    // If the default title length is bigger than KMaxMediaPopupTitleLength, 
     // make sure we allocate enough space for it.
-    TInt titleLength = defaultTitleLength > KMaxMediaPopupTextLength ? 
+    TInt titleLength = defaultTitleLength > KMaxMediaPopupTitleLength ? 
                                             defaultTitleLength
-                                            : KMaxMediaPopupTextLength;
+                                            : KMaxMediaPopupTitleLength;
     HBufC* newMediaItemTitle = HBufC::NewL(titleLength);
     TPtr newMediaItemTitleDes = newMediaItemTitle->Des();
     newMediaItemTitleDes.Append(aDefaultNewMediaItemTitle);
 
     if (nextNumber > 0)
         {
-		newMediaItemTitleDes.AppendFormat(KFileNameFormatString, nextNumber);
-		//Change numeric according to current input language here
-		AknTextUtils::ConvertDigitsTo(newMediaItemTitleDes,
-				AknTextUtils::TextEditorDigitType());
+        newMediaItemTitleDes.AppendFormat(KFileNameFormatString, nextNumber);
         }
     else
         {

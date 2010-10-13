@@ -41,8 +41,6 @@ namespace
     const TInt KGlxCriticalRAMForPhotos = 9056550;
     const TInt KGlxDecodeBitmapFactor = 3;
     
-    _LIT(KMimeJpeg,"image/jpeg");
-    _LIT(KMimeJpg,"image/jpg");
     }
 
 // ---------------------------------------------------------------------------
@@ -64,8 +62,7 @@ CGlxBitmapDecoderWrapper* CGlxBitmapDecoderWrapper::NewL(
 // Constructor
 // ---------------------------------------------------------------------------
 //
-CGlxBitmapDecoderWrapper::CGlxBitmapDecoderWrapper() :
-    CActive(EPriorityLow)
+CGlxBitmapDecoderWrapper::CGlxBitmapDecoderWrapper()
     {
     TRACER("CGlxBitmapDecoderWrapper::CGlxBitmapDecoderWrapper()");
     }		
@@ -77,12 +74,16 @@ CGlxBitmapDecoderWrapper::CGlxBitmapDecoderWrapper() :
 CGlxBitmapDecoderWrapper::~CGlxBitmapDecoderWrapper()
     {
     TRACER("CGlxBitmapDecoderWrapper::~CGlxBitmapDecoderWrapper()");
-    iFs.Close();
-    Cancel();
-    if (iImageDecoder)
+    if (iTnManager)
         {
-        delete iImageDecoder;
-        iImageDecoder = NULL;
+        iTnManager->CancelRequest(iTnReqId);
+        delete iTnManager;
+        iTnManager = NULL;
+        }
+    if(iBitmap)
+        {
+        delete iBitmap;
+        iBitmap = NULL;
         }
     if (iImagePath)
         {
@@ -98,80 +99,31 @@ void CGlxBitmapDecoderWrapper::ConstructL(MGlxBitmapDecoderObserver* aObserver)
     {
     TRACER("CGlxBitmapDecoderWrapper::ConstructL ");
     iObserver = aObserver;
-    User::LeaveIfError(iFs.Connect());
-    CActiveScheduler::Add( this );
     }
 
 // ---------------------------------------------------------------------------
 // DoDecodeImageL
 // ---------------------------------------------------------------------------		
-void CGlxBitmapDecoderWrapper::DoDecodeImageL(const TDesC& aSourceFileName,
+void CGlxBitmapDecoderWrapper::DoDecodeImageL(const TGlxMedia& aMedia,
         TInt aIndex)
     {
     TRACER("CGlxBitmapDecoderWrapper::DoDecodeImageL()");
-    GLX_LOG_URI("CGlxBitmapDecoderWrapper::DoDecodeImageL(%S)",
-            &aSourceFileName);
 
     iThumbnailIndex = aIndex;
+    TSize originalDim;
+    aMedia.GetDimensions(originalDim);
+    iOriginalSize.iWidth = originalDim.iWidth;
+    iOriginalSize.iHeight = originalDim.iHeight;
 
-#ifdef _DEBUG
-    iStartTime.HomeTime();
-#endif                          
-
-    if (iImageDecoder)
-        {
-        delete iImageDecoder;
-        iImageDecoder = NULL;
-        }
-
-    CImageDecoder::TOptions options =
-            (CImageDecoder::TOptions) (CImageDecoder::EOptionNoDither
-                    | CImageDecoder::EOptionAlwaysThread);
-
-    // Use extended JPEG decoder
-    GLX_DEBUG1("DoDecodeImageL:: EHwImplementation" );
-    TRAPD( err, iImageDecoder = CExtJpegDecoder::FileNewL(
-                    CExtJpegDecoder::EHwImplementation, iFs,
-                    aSourceFileName, options ) );
-    GLX_DEBUG2("DoDecodeImageL:: EHwImplementation (%d)", err);
-    if (KErrNone != err)
-        {
-        TRAP(err,iImageDecoder = CExtJpegDecoder::FileNewL(
-                        CExtJpegDecoder::ESwImplementation, iFs,
-                        aSourceFileName, options ) );
-        GLX_DEBUG2("DoDecodeImageL:: ESwImplementation (%d)", err);
-        if (KErrNone != err)
-            {
-            GLX_DEBUG1("DoDecodeImageL::CImageDecoder");
-            // Not a JPEG - use standard decoder
-            iImageDecoder = CImageDecoder::FileNewL(iFs, aSourceFileName,
-                    options);
-            }
-        }
-#ifdef _DEBUG
-    iStopTime.HomeTime();
-    GLX_DEBUG2("*** Decoder Creation took <%d> us ***",
-            (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
-#endif                          
-
-    TSize imageSize = iImageDecoder->FrameInfo().iOverallSizeInPixels;
-    GLX_DEBUG3("GlxDecoderWrapper::DecodeImageL() - OverallSize: w=%d, h=%d",
-            imageSize.iWidth, imageSize.iHeight);
-    iOriginalSize.iWidth = imageSize.iWidth;
-    iOriginalSize.iHeight = imageSize.iHeight;
-
-    if (iBitmap)
-        {
-        delete iBitmap;
-        iBitmap = NULL;
-        }
-    
     if (iImagePath)
         {
         delete iImagePath;
         iImagePath = NULL;
         }
-    iImagePath = aSourceFileName.Alloc();
+
+    const TDesC& uri = aMedia.Uri();
+    GLX_LOG_URI("CGlxBitmapDecoderWrapper::DoDecodeImageL(%S)", &uri);
+    iImagePath = uri.Alloc();
     
     DecodeImageL();
     }
@@ -229,13 +181,8 @@ void CGlxBitmapDecoderWrapper::DecodeImageL()
         if (minmemorytodecode < (freeMemory - KGlxCriticalRAMForPhotos))
             {
             GLX_DEBUG1("DecodeImageL:RAM available decoding image");            
-            iBitmap = new (ELeave) CFbsBitmap();
-            iBitmap->Create(ReCalculateSizeL(),
-                    iImageDecoder->FrameInfo().iFrameDisplayMode);
-#ifdef _DEBUG
-            iStartTime.HomeTime(); // Get home time
-#endif                          
-            iImageDecoder->Convert(&iStatus, *iBitmap);
+             
+            GetThumbnailL(iImagePath);
             }
         else
             {
@@ -257,77 +204,18 @@ void CGlxBitmapDecoderWrapper::DecodeImageL()
             if (err != KErrNoMemory)
                 {
                 GLX_DEBUG1("DecodeImageL:Sufficient RAM available");                
-                iBitmap = new (ELeave) CFbsBitmap();
-                iBitmap->Create(ReCalculateSizeL(),
-                        iImageDecoder->FrameInfo().iFrameDisplayMode);
-#ifdef _DEBUG
-                iStartTime.HomeTime(); // Get home time
-#endif                          
-                iImageDecoder->Convert(&iStatus, *iBitmap);
+                GetThumbnailL(iImagePath);
                 }
             else
                 {
                 GLX_DEBUG1("NOT ENOUGH MEMORY - "
                         "Using the Fullscreen Thumbnail For Zoom");
-                //release the file held by decoder immediately.
-                iImageDecoder->Cancel();
-                delete iImageDecoder;
-                iImageDecoder = NULL;
                 //Inform the client that there is no decode happened and there we take care 
                 //of showing the fullscreen thumbnail.
                 iObserver->HandleBitmapDecodedL(iThumbnailIndex, NULL);
                 return;
                 }
             }
-
-        SetActive();
-        }
-    }
-
-// ---------------------------------------------------------------------------
-// RunL
-// ---------------------------------------------------------------------------
-//
-void CGlxBitmapDecoderWrapper::RunL()
-    {
-    TRACER("CGlxBitmapDecoderWrapper::RunL()");
-    if( iStatus == KErrNone )
-        {
-        iObserver->HandleBitmapDecodedL(iThumbnailIndex,iBitmap);
-        iBitmap = NULL;
-
-        //release the file held by decoder immediately.
-        GLX_DEBUG1("CGlxBitmapDecoderWrapper::RunL:Decoding Finished");
-        iImageDecoder->Cancel();
-        delete iImageDecoder;
-        iImageDecoder = NULL;
-#ifdef _DEBUG
-        iStopTime.HomeTime();
-        GLX_DEBUG2("*** Image Decode took <%d> us ***", 
-                       (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());            
-#endif                          
-
-        }
-    }
-
-// ---------------------------------------------------------------------------
-// DoCancel
-// ---------------------------------------------------------------------------
-//
-void CGlxBitmapDecoderWrapper::DoCancel()
-    {
-    TRACER("CGlxBitmapDecoderWrapper::DoCancel ");
-    if(iImageDecoder)
-        {
-        GLX_DEBUG1("CGlxBitmapDecoderWrapper::DoCancel iImageDecoder delete");
-        iImageDecoder->Cancel();
-        delete iImageDecoder;
-        iImageDecoder = NULL;
-        }
-    if(iBitmap)
-        {
-        delete iBitmap;
-        iBitmap = NULL;
         }
     }
 
@@ -359,57 +247,89 @@ TInt CGlxBitmapDecoderWrapper::OOMRequestFreeMemoryL(TInt aBytesRequested)
     }
 
 // -----------------------------------------------------------------------------
-// DoesMimeTypeNeedsRecalculateL()
+// CGlxBitmapDecoderWrapper::GetThumbnailL()
 // -----------------------------------------------------------------------------
 //
-TBool CGlxBitmapDecoderWrapper::DoesMimeTypeNeedsRecalculateL()
+void CGlxBitmapDecoderWrapper::GetThumbnailL( HBufC* aImagePath )
     {
-    TRACER("CGlxBitmapDecoderWrapper::DoesMimeTypeNeedsRecalculateL");
-    RApaLsSession session;
-    TDataType mimeType;
-    TUid uid;
-
-    User::LeaveIfError(session.Connect());
-    CleanupClosePushL(session);
-    User::LeaveIfError(session.AppForDocument(iImagePath->Des(), uid,
-            mimeType));
-    CleanupStack::PopAndDestroy(&session);
-
-    if (mimeType.Des().Compare(KMimeJpeg) == 0 || mimeType.Des().Compare(
-            KMimeJpg) == 0)
+    TRACER("CGlxBitmapDecoderWrapper::GetThumbnailL");
+    if (!iTnManager)
         {
-        GLX_LOG_INFO("CGlxBitmapDecoderWrapper::DoesMimeTypeNeedsRecalculateL - jpeg");
-        return EFalse;
+        iTnManager = CThumbnailManager::NewL(*this);
+        iTnManager->SetDisplayModeL(EColor16M);
         }
-    else
-        {
-        GLX_LOG_INFO("CGlxHdmiSurfaceUpdater::DoesMimeTypeNeedsRecalculateL - non jpeg");
-        return ETrue;
-        }
+
+    iTnManager->SetFlagsL(CThumbnailManager::EDefaultFlags);
+    iTnManager->SetThumbnailSizeL(iTargetBitmapSize);
+    iTnManager->SetQualityPreferenceL(CThumbnailManager::EOptimizeForQuality);
+    const TDesC& uri = aImagePath->Des();
+    GLX_LOG_URI("CGlxBitmapDecoderWrapper::GetThumbnailL: (%S)", aImagePath );
+    CThumbnailObjectSource* source = CThumbnailObjectSource::NewLC(uri, 0);
+#ifdef _DEBUG
+    iStartTime.HomeTime(); // Get home time
+#endif                          
+    iTnReqId = iTnManager->GetThumbnailL(*source);
+    CleanupStack::PopAndDestroy(source);
     }
 
 // -----------------------------------------------------------------------------
-// ReCalculateSize 
+// CGlxBitmapDecoderWrapper::ThumbnailPreviewReady
+// From MThumbnailManagerObserver
 // -----------------------------------------------------------------------------
-TSize CGlxBitmapDecoderWrapper::ReCalculateSizeL()
+//
+void CGlxBitmapDecoderWrapper::ThumbnailPreviewReady( MThumbnailData& /*aThumbnail*/, 
+                            TThumbnailRequestId /*aId*/ )
     {
-    TRACER("CGlxBitmapDecoderWrapper::ReCalculateSizeL()");
-    if (DoesMimeTypeNeedsRecalculateL())
+    TRACER("CGlxBitmapDecoderWrapper::ThumbnailPreviewReady");    
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxBitmapDecoderWrapper::ThumbnailReady
+// From MThumbnailManagerObserver
+// -----------------------------------------------------------------------------
+//                            
+void CGlxBitmapDecoderWrapper::ThumbnailReady( TInt aError, 
+                     MThumbnailData& aThumbnail, 
+                     TThumbnailRequestId /*aId*/ )
+    {
+    TRACER("CGlxBitmapDecoderWrapper::ThumbnailReady");
+#ifdef _DEBUG
+    iStopTime.HomeTime();
+    GLX_DEBUG2("*** CGlxBitmapDecoderWrapper::ThumbnailReady() TNM took <%d> us to decode***",
+            (TInt)iStopTime.MicroSecondsFrom(iStartTime).Int64());
+#endif                          
+
+    if (aError == KErrNone)
         {
-        TSize fullFrameSize = iImageDecoder->FrameInfo().iOverallSizeInPixels;
-        // calculate the reduction factor on what size we need
-        TInt reductionFactor = iImageDecoder->ReductionFactor(fullFrameSize,
-                iTargetBitmapSize);
-        // get the reduced size onto destination size
-        TSize destSize;
-        User::LeaveIfError(iImageDecoder->ReducedSize(fullFrameSize,
-                reductionFactor, destSize));
-        GLX_LOG_INFO2("CGlxBitmapDecoderWrapper::ReCalculateSizeL() "
-                        "destSize=%d, %d",destSize.iWidth,destSize.iHeight);
-        return destSize;
+        if (iBitmap)
+            {
+            delete iBitmap;
+            iBitmap = NULL;
+            }
+        iBitmap = aThumbnail.DetachBitmap();
+        iObserver->HandleBitmapDecodedL(iThumbnailIndex, iBitmap);
+        iBitmap = NULL;
+		}
+    }
+
+// -----------------------------------------------------------------------------
+// CGlxBitmapDecoderWrapper::CancelRequest()
+// Cancels all the pending requests and release resources
+// -----------------------------------------------------------------------------
+//
+void CGlxBitmapDecoderWrapper::CancelRequest()
+    {
+    TRACER("CGlxBitmapDecoderWrapper::CancelRequest");
+    if (iTnManager)
+        {
+        iTnManager->CancelRequest(iTnReqId);
+        delete iTnManager;
+        iTnManager = NULL;
         }
-    else
+
+    if (iBitmap)
         {
-        return iTargetBitmapSize;
+        delete iBitmap;
+        iBitmap = NULL;
         }
     }

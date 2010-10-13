@@ -38,12 +38,12 @@ SYSTEMINCLUDE           ../../../common/inc
 
 USERINCLUDE             ../inc
 
-LIBRARY                 efsrv.lib
-LIBRARY                 euser.lib
+LIBRARY 				efsrv.lib
+LIBRARY					euser.lib
 LIBRARY                 caf.lib             // ContentAccess::CManager
 LIBRARY                 flogger.lib         // For Logging Tracer
 LIBRARY                 glxcommon.lib       // CGlxSingetonStore
 LIBRARY                 cone.lib            // ConeUtils
 LIBRARY                 platformenv.lib     // DriveInfo
-LIBRARY                 imageconversion.lib // CImageDecoder
+
 //EXPORTUNFROZEN

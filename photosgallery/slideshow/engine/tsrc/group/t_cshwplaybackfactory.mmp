@@ -1,0 +1,102 @@
+/*
+* Copyright (c) 2007-2007 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:  Slideshow engine build file for test
+ *
+*/
+
+
+
+#include        <platform_paths.hrh>
+#include "../../../../group/glxbuildcommon.mmh"
+
+TARGET          t_cshwplaybackfactory.dll
+TARGETTYPE      dll
+UID             0x1000af5a 0x01700000
+
+CAPABILITY              ALL -TCB
+
+// test code
+SOURCEPATH      ../t_cshwplaybackfactory
+SOURCE          t_cshwplaybackfactory.cpp
+SOURCE          t_cshwplaybackfactory_dllmain.cpp
+
+// stubs for code under test
+SOURCEPATH      ../stubs
+SOURCE          tmglxvisuallist_adapter.cpp
+SOURCE          stub_glxfetchcontexts.cpp
+
+// code under test
+SOURCEPATH      ../../controlsrc
+SOURCE          shwevent.cpp
+SOURCE          shweffectcontrol.cpp
+SOURCE          shwviewcontrol.cpp
+SOURCE          shwtimercontrol.cpp
+SOURCE          shweventrouter.cpp
+SOURCE          shwmusiccontrol.cpp
+SOURCE          shweventpublisherbase.cpp
+SOURCEPATH      ../../effectsrc
+SOURCE          shwdefaulteffectmanager.cpp
+SOURCEPATH      ../../coresrc
+SOURCE          shwplaybackfactory.cpp
+SOURCE          shwthumbnailloader.cpp
+SOURCE          shwsettingsmodel.cpp
+SOURCE          shwtimer.cpp
+SOURCE          shwthumbnailcontext.cpp
+
+// test code
+USERINCLUDE     ../t_cshwplaybackfactory
+USERINCLUDE     ../stubs
+USERINCLUDE     ../../../../viewframework/medialists/tsrc/inc
+
+// User include folders required by the code under test
+USERINCLUDE     ../../inc
+USERINCLUDE     ../../coresrc
+USERINCLUDE     ../../../utils
+USERINCLUDE     ../../controlsrc
+USERINCLUDE     ../../effectsrc
+
+
+
+// System include folders required by the code under test
+SYSTEMINCLUDE   ../../../../commonui/inc
+SYSTEMINCLUDE   ../../../../viewframework/medialists/inc
+SYSTEMINCLUDE   ../../../../viewframework/layouts/inc
+SYSTEMINCLUDE   ../../../../viewframework/visuallistmanager/inc
+SYSTEMINCLUDE   ../../../../viewframework/uiutilities/inc // for attribute retriever
+SYSTEMINCLUDE   ../../../../inc
+APP_LAYER_SYSTEMINCLUDE
+
+
+LIBRARY         EUnit.lib
+LIBRARY         EUnitUtil.lib
+LIBRARY         euser.lib
+
+// Libraries required by the code under test
+LIBRARY         glxlayouts.lib
+LIBRARY         mpxplaybackutility.lib  // for music playback
+LIBRARY         efsrv.lib
+LIBRARY         mpxcommon.lib
+
+// For central repository
+LIBRARY         centralrepository.lib 
+
+// allow writeable statics
+#ifndef WINSCW
+EPOCALLOWDLLDATA
+#endif
+
+// no need to export test DLLs
+EXPORTUNFROZEN
+
+// End of file

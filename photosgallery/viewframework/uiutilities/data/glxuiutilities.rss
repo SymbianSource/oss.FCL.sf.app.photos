@@ -297,15 +297,17 @@ RESOURCE DIALOG r_glx_text_entry_query
         DLG_LINE
             {
             type = EAknCtQuery;
-            id = EGeneralQuery;
+            id = EAknCtQuery;
             control = AVKON_DATA_QUERY
                 {
-                layout = EDataLayout;
-                control=EDWIN
-                    {
-                    maxlength = 40; // KMaxMediaPopupTextLength
-                    lines = 1;
-                    };
+                    layout = EDataLayout;
+                    control=EDWIN
+                        {
+                        flags = EEikEdwinAutoSelection | KSingleLineHorizontalScrollingEditorFlags;
+                        maxlength = 128; // KMGXMaxFileName
+                        lines = 1;
+                        avkon_flags = EAknEditorFlagNoT9;
+                        };
                 };
             }
         };
@@ -853,16 +855,4 @@ RESOURCE DIALOG r_progress_note
                 };
             }
         };
-    }
-
-//resource for image viewer deletion failure note
-RESOURCE TBUF r_glx_deletion_failure_note
-    { 
-    buf = qtn_fldr_cant_delete_item; 
-    }
-
-//resource for illegal characters in file name note
-RESOURCE TBUF r_glx_qtn_fldr_illegal_characters
-    { 
-    buf = qtn_fldr_illegal_characters; 
     }

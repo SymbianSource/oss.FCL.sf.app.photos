@@ -24,6 +24,12 @@
 // INCLUDE FILES
 #include<alf/alftimedvalue.h>
 #include <IclExtJpegApi.h>  // For CExtJpegDecoder
+// For decoding via TNM 
+#include <thumbnailmanager.h>
+#include <thumbnailmanagerobserver.h>
+#include <thumbnailobjectsource.h>
+#include <thumbnaildata.h>
+#include <glxmedia.h>
 
 /**
  * Observer interface used to be notified when texture bitmap   is completed.
@@ -42,7 +48,9 @@ NONSHARABLE_CLASS( MGlxBitmapDecoderObserver )
  * this is a wrapper class, doesn't actually decode the images.
  */
 
-class CGlxBitmapDecoderWrapper: public CActive
+class CGlxBitmapDecoderWrapper: public CBase
+                               ,public MThumbnailManagerObserver
+    
     {
 public:
     /*This Enums specifies the state of the Decoding*/
@@ -72,7 +80,7 @@ public:
      * @param aSourceFileName :contains the file name
      * @param aindex:contains the index value
      */
-    void DoDecodeImageL(const TDesC & aSourceFileName,TInt aIndex);
+    void DoDecodeImageL(const TGlxMedia& aMedia,TInt aIndex);
 
     /**
      * starts the decoding and updates the state of the decoding
@@ -83,14 +91,12 @@ public:
      * @param aBytesRequested : Request for free memory in Bytes
      */
     TInt OOMRequestFreeMemoryL( TInt aBytesRequested);
-
-public:    
     /**
-     * Standard Active object functions
+     * Cancels all the pending requests and release resources
      */
-    virtual void RunL();
-    virtual void DoCancel();
+    void CancelRequest();
 
+    
 private:
     /**
      * Constructor
@@ -101,33 +107,32 @@ private:
      * Second-phase constuction 
      */
     void ConstructL(MGlxBitmapDecoderObserver* aObserver);
-    
     /**
-     * If the image format is non jpeg, then we need to calculate as per
-     * reduction factor and reduced size as what the decoder is going to return us
-     * This function returns if that needs to be done. 
+     * Gets Thumbnails from TNM. 
      */
-    TBool DoesMimeTypeNeedsRecalculateL();
-    
+    void GetThumbnailL( HBufC* aImagePath );
     /**
-     * Recalculate the size for png/bmp as decoder fails to 
-     * decode for desired size 
-     */
-    TSize ReCalculateSizeL();
+    *  From MThumbnailManagerObserver, not used
+    */
+    virtual void ThumbnailPreviewReady( MThumbnailData& aThumbnail, 
+                                TThumbnailRequestId aId );
+                                
+    /**
+    *  From MThumbnailManagerObserver
+    */  
+    virtual void ThumbnailReady( TInt aError, 
+                         MThumbnailData& aThumbnail, 
+                         TThumbnailRequestId aId );
 
 private:    
     /* Contains the TextureManagerImpl object,calls the HandleBitmapDecoded*/
     MGlxBitmapDecoderObserver* iObserver;
-    /*Specifies the Decoder */
-    CImageDecoder* iImageDecoder; // decoder from ICL API
     /*Contains the Thumbnail Index*/
     TInt iThumbnailIndex;
     /*Contains the Bitmap generated*/
     CFbsBitmap* iBitmap;
     /*contains the original size of the image*/
     TAlfRealSize iOriginalSize;
-    /*A handle to a file server session.*/ 
-    RFs iFs;
     /*To store the target image size*/
     TSize iTargetBitmapSize;
     /*To store the image uri path*/ 
@@ -136,6 +141,9 @@ private:
     TTime iStartTime;
     TTime iStopTime;
 #endif
+
+    CThumbnailManager* iTnManager;
+    TThumbnailRequestId iTnReqId;
     };
 
 #endif //C_GLXBITMAPDECODERWRAPPER_H

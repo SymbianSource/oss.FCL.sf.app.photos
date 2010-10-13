@@ -32,6 +32,7 @@
 #include <AknsBasicBackgroundControlContext.h>      // Background Context
 
 #include <glxuistd.h>                               // KGlxFetchontextPriorityNormal and KGlxIconsFilename           
+#include <glxcollectionpluginall.hrh> 	            // All item collection plugin id
 #include <glxfilterfactory.h>                       // For Filters required in Medilaits
 #include <glxresourceutilities.h>                   // for CGlxResourceUtilities
 #include <glxfetcherdialog.rsg>                     // FOR GETTING Dialog ID AND RESOURCE ID
@@ -57,6 +58,11 @@
 #include "glxfetchercommandhandler.h"
 
 const TInt KPadding(7);
+const TInt KNoOfPages(4);
+const TInt KBufferTreshold(1);
+const TInt KItemsPerPage(18);
+const TInt KBufferSize(KNoOfPages * KItemsPerPage);
+const TInt KBufferTresholdSize(KBufferTreshold * KItemsPerPage);
 
 //-----------------------------------------------------------------------------
 // Two-phased constructor.
@@ -137,6 +143,7 @@ CGlxFetcherContainer::~CGlxFetcherContainer()
         }
     }
 
+
 // ---------------------------------------------------------------------------
 // CreateAndDisplayGridL
 // ---------------------------------------------------------------------------
@@ -162,7 +169,6 @@ void CGlxFetcherContainer::CreateAndDisplayGridL()
 	    iMultipleMarkNotStarted = EFalse;
 	    }
 	}
-
 // ---------------------------------------------------------------------------
 // CreateMediaListL()
 // Creates a collection path
@@ -193,7 +199,6 @@ void CGlxFetcherContainer::CreateMediaListL()
 	
 	CleanupStack::PopAndDestroy( path );
 	}
-
 // ---------------------------------------------------------------------------
 // CreateHgGridWidgetL
 // ---------------------------------------------------------------------------
@@ -247,9 +252,7 @@ void CGlxFetcherContainer::CreateHgGridWidgetL()
     // This Displays the scrollbar at the opening of the Grid view
     iHgGrid->SetScrollBarTypeL(CHgScroller::EHgScrollerTimeStrip );
     // Enable Buffer support
-    iHgGrid->EnableScrollBufferL(*this, (KNoOfPages
-            * iUiUtility->VisibleItemsInPageGranularityL()),
-            KBufferTresholdSize);
+    iHgGrid->EnableScrollBufferL(*this, KBufferSize, KBufferTresholdSize);
     // Enable Marking support
     iHgGrid->SetMarkingObserver(*this);
 
@@ -262,12 +265,12 @@ void CGlxFetcherContainer::CreateHgGridWidgetL()
 //  
 void CGlxFetcherContainer::CreateGridMediaListObserverL()
     {
-    iGlxGridMLObserver = CGlxGridViewMLObserver::NewL(*this, *iMediaList,
-            iHgGrid, iFilterType);
+    iGlxGridMLObserver = CGlxGridViewMLObserver::NewL(*iMediaList, iHgGrid,
+            iFilterType);
     }
     
 // ---------------------------------------------------------------------------
-// Request
+// BufferPositionChanged
 // ---------------------------------------------------------------------------
 //  
 void CGlxFetcherContainer::Request(TInt aRequestStart, TInt aRequestEnd,
@@ -276,7 +279,6 @@ void CGlxFetcherContainer::Request(TInt aRequestStart, TInt aRequestEnd,
     TRACER("CGlxFetcherContainer::Request()");
     TRAP_IGNORE(RequestL( aRequestStart, aRequestEnd ));
     }
-
 // ---------------------------------------------------------------------------
 // RequestL
 // ---------------------------------------------------------------------------
@@ -301,7 +303,7 @@ void CGlxFetcherContainer::RequestL(TInt aRequestStart, TInt aRequestEnd)
             visIndex = 0;
             }
 		
-        GLX_LOG_INFO1("CGlxFetcherContainer::Request - SetVisibleWindowIndex "
+        GLX_LOG_INFO1("CGlxGridViewImp::Request - SetVisibleWindowIndex "
                 "visIndex(%d)", visIndex);
         iMediaList->SetVisibleWindowIndexL(visIndex);
         }
@@ -312,14 +314,13 @@ void CGlxFetcherContainer::RequestL(TInt aRequestStart, TInt aRequestEnd)
         TInt lastOnScreen = firstIndex + iHgGrid->ItemsOnScreen() - 1;
         if (i >= firstIndex && i <= lastOnScreen)
             {
-            GLX_LOG_INFO1("CGlxFetcherContainer::Request - RefreshScreen i(%d)", i);
+            GLX_LOG_INFO1("CGlxGridViewImp::Request - RefreshScreen i(%d)", i);
             iHgGrid->RefreshScreen(i);
             }
         }
     }
-
 // ---------------------------------------------------------------------------
-// SetIconsL
+// SetIcons
 // ---------------------------------------------------------------------------
 //  
 void CGlxFetcherContainer::SetIconsL(TInt aIndex)
@@ -342,11 +343,11 @@ void CGlxFetcherContainer::SetIconsL(TInt aIndex)
         CFbsBitmap* bitmap = new (ELeave) CFbsBitmap;
         bitmap->Duplicate( value->iBitmap->Handle());
         iHgGrid->ItemL(aIndex).SetIcon(CGulIcon::NewL(bitmap));
-        GLX_LOG_INFO1("### CGlxFetcherContainer::Request value-Index is %d",aIndex);
+        GLX_LOG_INFO1("### CGlxGridViewImp::Request value-Index is %d",aIndex);
         }
     else if (item.GetIconInfo(icon))
         {
-        GLX_LOG_INFO1("CGlxFetcherContainer::Request - icon(%d)", aIndex);
+        GLX_LOG_INFO1("CGlxGridViewImp::Request - icon(%d)", aIndex);
         CFbsBitmap* bitmap = NULL;
         CFbsBitmap* mask = NULL;
         AknsUtils::CreateIconLC(AknsUtils::SkinInstance(), KAknsIIDNone,
@@ -362,13 +363,13 @@ void CGlxFetcherContainer::SetIconsL(TInt aIndex)
         iHgGrid->ItemL(aIndex).SetIcon(CGulIcon::NewL(bitmap, mask));
         CleanupStack::Pop(mask);
         CleanupStack::Pop(bitmap);
-        GLX_LOG_INFO1("### CGlxFetcherContainer::Request GetIconInfo-Index is %d",
+        GLX_LOG_INFO1("### CGlxGridViewImp::Request GetIconInfo-Index is %d",
                 aIndex);
         }
     else if (KErrNone != tnError && KErrNotSupported != tnError)
         {
         GLX_LOG_INFO2(
-                "CGlxFetcherContainer::Request - image_corrupted tnError(%d), "
+                "CGlxGridViewImp::Request - image_corrupted tnError(%d), "
                     "i(%d)", tnError, aIndex);
 
         CFbsBitmap* bitmap = NULL;
@@ -440,29 +441,22 @@ void CGlxFetcherContainer::Release(TInt /*aReleaseStart*/, TInt /*aReleaseEnd*/)
     }
 
 // ---------------------------------------------------------------------------
-// HandleSelectL
+// HandleSelect
 // ---------------------------------------------------------------------------
 //  
 void CGlxFetcherContainer::HandleSelectL( TInt aIndex )
     {
-    TRACER("CGlxFetcherContainer::HandleSelectL()");
-    GLX_LOG_INFO1("CGlxFetcherContainer::HandleSelectL(%d)", aIndex);
+    TRACER("CGlxGridViewImp::HandleSelect()");
     // Make sure that the Selection Index is inside medialist count
-    if (aIndex < iMediaList->Count() && aIndex >= 0)
+    if (aIndex <iMediaList->Count() && aIndex >=0)
         {
         // Setting the focus of the medialist
-        iMediaList->SetFocusL(NGlxListDefs::EAbsolute, aIndex);
-
-        //Show Left Soft Key when media is selected
-        CEikButtonGroupContainer* cbaContainer =
-                CEikButtonGroupContainer::Current();
-        cbaContainer->SetCommandSetL(R_AVKON_SOFTKEYS_OK_CANCEL);
-        cbaContainer->DrawDeferred();
+        iMediaList->SetFocusL(NGlxListDefs::EAbsolute, aIndex);        
         }
     }
 
 // ---------------------------------------------------------------------------
-// HandleOpenL
+// HandleOpen
 // ---------------------------------------------------------------------------
 //  
 void CGlxFetcherContainer::HandleOpenL( TInt aIndex )
@@ -488,7 +482,7 @@ void CGlxFetcherContainer::HandleOpenL( TInt aIndex )
 //  
 void CGlxFetcherContainer::HandleMarkingL( TInt aIndex, TBool/* aMarked*/ )
     {
-    TRACER("CGlxFetcherContainer::HandleMarkingL()");
+    TRACER("CGlxGridViewImp::HandleMarkingL()");
     HandleMultipleMarkingL(aIndex);
     iEventObserver.HandleMarkEventL();    
     }
@@ -499,7 +493,7 @@ void CGlxFetcherContainer::HandleMarkingL( TInt aIndex, TBool/* aMarked*/ )
 //  
 void CGlxFetcherContainer::HandleMultipleMarkingL(TInt aIndex )
     {
-    TRACER("CGlxFetcherContainer::HandleMultipleMarkingL()");
+    TRACER("CGlxGridViewImp::HandleMultipleMarkingL()");
     if(iMediaList->IsSelected(aIndex))
         {
         if(iHgGrid)
@@ -608,6 +602,7 @@ TBool CGlxFetcherContainer::DoExecuteL(TInt aCommandId)
         }    
     return retVal;
     }
+
 
 // -----------------------------------------------------------------------------
 // Retrieve Uris

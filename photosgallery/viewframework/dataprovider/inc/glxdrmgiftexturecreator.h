@@ -28,6 +28,8 @@ class CGlxUiUtility;
 class CGlxBinding;
 class TGlxMedia;                            // Reference to a media item in the item pool
 class CAlfEnv;
+class CGlxDRMUtility;
+class CGlxImageViewerManager;
 
 namespace Alf
     {
@@ -113,6 +115,19 @@ private:
 	void ProcessImageL();
 	
 	void SetTexture(TInt aTextureId=KErrNotFound);
+	
+	/*
+     * Check whether the drm rights are expired or not
+     * for animated gifs.
+     */
+    TBool IsDRMRightsExpiredL();
+    
+    /**
+     * Sets the default or FS texture as initial texture.
+     * Then creates Image decoder & starts image decoding 
+     * if DRM Rights are not expired.
+     */
+    void SetInitialTextureAndStartDecodingL();
 
 private:
 
@@ -146,5 +161,10 @@ private:
     TFrameInfo iFrameInfo;
     TBool iFrameShift;
     MGlxMediaList& iMediaList;
+	
+	/** Poniter to instance of DRM utility (owned) */
+    CGlxDRMUtility* iDrmUtility; 
+    /** For image viewer, not own */
+    CGlxImageViewerManager* iImageViewerInstance;
     };
 #endif /* GLXDRMGIFTEXTURECREATOR_H_ */

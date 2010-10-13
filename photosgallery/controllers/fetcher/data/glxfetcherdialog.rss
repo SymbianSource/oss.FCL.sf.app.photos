@@ -152,19 +152,79 @@ RESOURCE MENU_PANE r_multiselect_marking_submenu
         };
     }
 	
-RESOURCE DIALOG r_glx_fetcher_dialog
-    {
-    // blocking dialog with CBA and no border please
-    flags=EEikDialogFlagNoDrag | EEikDialogFlagFillAppClientRect |
-    EEikDialogFlagCbaButtons | EEikDialogFlagWait |
-    EEikDialogFlagNoBackgroundFade |EEikDialogFlagNoBorder;
-    buttons = R_AVKON_SOFTKEYS_CANCEL;
-    // Do not add any items
-    }
+RESOURCE MENU_BAR r_multiselect_ok_menubar
+	{
+	titles=
+		{
+		MENU_TITLE { menu_pane=r_multiselect_ok_menu; txt=""; }
+		};
+	}
 
-RESOURCE TBUF r_glx_softkey_cancel
-    {buf = text_softkey_cancel;}
+
+RESOURCE MENU_PANE r_multiselect_ok_menu
+	{
+    items=
+        {
+        MENU_ITEM
+            {
+            command=EAknSoftkeySelect; 
+            txt = qtn_cffh_options_select; 
+            },
+
+        MENU_ITEM 
+            {
+            command=EGlxCmdSelectMarked; 
+            txt = qtn_cffh_select_marked; 
+            },
+        MENU_ITEM
+			{
+			command = EGlxCmdStartMultipleMarking; 
+			txt = qtn_lgal_options_mark_multi;
+			},
+        MENU_ITEM 
+            {
+            command=EGlxCmdMarkingSubmenu;
+            txt = qtn_options_list; 
+            cascade = r_multiselect_marking_submenu; 
+            }
+        };
+	}
+
+	
+//End of MultiSelect	
+
+RESOURCE DIALOG r_modal_single_dialog
+  {
+  // blocking dialog with CBA and no border please
+  flags=EEikDialogFlagNoDrag | EEikDialogFlagFillAppClientRect |
+      EEikDialogFlagCbaButtons | EEikDialogFlagWait |
+          EEikDialogFlagNoBackgroundFade |EEikDialogFlagNoBorder;
+  buttons = R_AVKON_SOFTKEYS_CANCEL;
+  // Do not add any items
+  }
+
+RESOURCE DIALOG r_modal_multi_dialog
+  {
+  // blocking dialog with CBA and no border please
+  flags=EEikDialogFlagNoDrag | EEikDialogFlagFillAppClientRect |
+      EEikDialogFlagCbaButtons | EEikDialogFlagWait |
+          EEikDialogFlagNoBackgroundFade |EEikDialogFlagNoBorder;
+  buttons = R_AVKON_SOFTKEYS_CANCEL;
+  // Do not add any items
+  }
+
+RESOURCE TBUF r_glx_softkey_cancel  { buf = text_softkey_cancel; }
 
 RESOURCE TBUF r_glx_marking_mark
-    {buf=qtn_msk_mark;}
+    { buf=qtn_msk_mark; }
 
+// custom CBA resource for options - ok options menu - cancel
+RESOURCE CBA r_glx_softkeys_options_cancel_context
+    {
+    buttons =
+        {
+        CBA_BUTTON { id=EAknSoftkeyOptions; txt = text_softkey_option; },
+        CBA_BUTTON { id=EAknSoftkeyCancel; txt = text_softkey_cancel; },
+        CBA_BUTTON { id=EAknSoftkeyContextOptions; txt = text_softkey_option; }
+        };
+    }

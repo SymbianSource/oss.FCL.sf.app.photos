@@ -52,7 +52,6 @@ class CGlxHdmiController;
 class CGestureHelper;
 class TGlxMedia;
 class CGlxFullScreenBusyIcon;
-class CGlxNavigationalState;
 
 namespace Alf
 	{
@@ -315,18 +314,6 @@ private:
      */
     void UpdateItems();
 
-    /**
-     * Handle coverflow item removed event / 
-     * external file deletion while gaining foreground
-     */
-    void HandleItemRemovedL();
-    
-    /**
-     * Sets the title pane text
-     * @param aTitleText Title text
-     */
-    void SetTitlePaneTextL(const TDesC& aTitleText);
-
 private:
     /** Softkey resource id's */
     TFullScreenViewResourceIds iResourceIds; 
@@ -370,8 +357,6 @@ private:
     CPeriodic* iPeriodic;
     CGlxFullScreenBusyIcon* iBusyIcon;
 	
-    CGlxNavigationalState* iNaviState;
-    
     GestureHelper::CGestureHelper* iGestureHelper;
     TBool   iMultiTouchGestureOngoing   ;
     
@@ -379,9 +364,6 @@ private:
     TInt iInitialZoomRatio ;
     //Previous focused index
     TInt iOldFocusIndex;
-    // Previous focused Uri
-    HBufC* iUri;
-
     TBool iImgViewerMode;
 	CGlxMMCNotifier* iMMCNotifier;
 	TBool iMMCState;

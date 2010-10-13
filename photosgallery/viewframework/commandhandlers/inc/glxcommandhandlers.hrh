@@ -93,7 +93,6 @@ enum TGlxCommandId
     EGlxCmdSave,
     EGlxCmdRenameCompleted, 
     EGlxCmdDialogLaunched,
-    EGlxCmdDialogDismissed, //For sendui dialog dismiss.Handled in FS and Grid
     EGlxCmdAiwBase = 0x6000
     };
     

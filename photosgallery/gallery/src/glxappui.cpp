@@ -60,10 +60,6 @@
 #include <hal_data.h>
 #include <oommonitorsession.h>
 #include <glxtracer.h>
-#include <glxmedialist.h>
-#include <glxmedialistiterator.h>
-#include <glxattributecontext.h>
-#include <glxattributeretriever.h>
 
 //OOM
 #include <oommonitorplugin.h>
@@ -123,6 +119,7 @@ void CGlxAppUi::ConstructL()
     ReserveMemoryL(EEntryTypeStartUp);
     // publish zoom context, no zoom keys for now
     NGlxZoomStatePublisher::PublishStateL( EFalse );
+    iEndKeyPressed = EFalse;
     iStateChangeRequested = EFalse;
     }
 
@@ -133,6 +130,7 @@ void CGlxAppUi::ConstructL()
 CGlxAppUi::~CGlxAppUi()
     {
     TRACER("CGlxAppUi::~CGlxAppUi()");
+	iEndKeyPressed = EFalse;
     if ( iNavigationalState )
         {
         iNavigationalState->RemoveObserver(*this);
@@ -245,7 +243,12 @@ TBool CGlxAppUi::ProcessCommandParametersL(TApaCommand aCommand,
     TRAPD(err, HandleActivationMessageL(aCommand, aDocumentName, aTail));
     if ( KErrNone != err )
         {
-        NavigateToMainListL();
+        // Open navigational state at root level
+        CMPXCollectionPath* newState = CMPXCollectionPath::NewL();
+        CleanupStack::PushL( newState );
+        iNavigationalState->NavigateToL( *newState );
+        iStateChangeRequested = ETrue;
+        CleanupStack::PopAndDestroy( newState );
         }
 
     //Start a timer to check for thr IAD update after 60 Secs.
@@ -450,28 +453,18 @@ void CGlxAppUi::HandleActivationMessageL(const TApaCommand& /*aCommand*/,
 
     if (aData.Length() == 0 )
         {
-        NavigateToMainListL();
+        // Open navigational state at root level
+        CMPXCollectionPath* newState = CMPXCollectionPath::NewL();
+        CleanupStack::PushL(newState);
+        iNavigationalState->NavigateToL(*newState);
+        iStateChangeRequested = ETrue;
+        CleanupStack::PopAndDestroy(newState);
         }
     else
         {
         GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL(aData)");        
         HandleActivationMessageL( aData );
         }
-    }
-
-// ---------------------------------------------------------------------------
-// NavigateToMainListL
-// ---------------------------------------------------------------------------
-//
-void CGlxAppUi::NavigateToMainListL()
-    {
-    TRACER("void CGlxAppUi::NavigateToMainListL()");
-    // Open navigational state at root level
-    CMPXCollectionPath* collPath = CMPXCollectionPath::NewL();
-    CleanupStack::PushL(collPath);
-    iNavigationalState->NavigateToL(*collPath);
-    iStateChangeRequested = ETrue;
-    CleanupStack::PopAndDestroy(collPath);
     }
 
 // ---------------------------------------------------------------------------
@@ -492,8 +485,8 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
     RDesReadStream stream(aData);
     CleanupClosePushL(stream);
     stream >> msgUid;
-
-    switch (msgUid.iUid)
+    
+    switch ( msgUid.iUid )
         {
         case KGlxActivationCmdShowLastModified:
         case KGlxActivationCameraAlbum:
@@ -501,64 +494,17 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
             {
             GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: Creating Screen Clearer");
             iUiUtility->DisplayScreenClearerL();
-
             HBufC8* activationParam = HBufC8::NewLC(KMaxUidName);
-            // While harvesting is in progress, activate the Camera Album 
-            // instead of All grid. However, do not change the activation
-            // parameter as it is used within photos.
             activationParam->Des().AppendNum(KGlxActivationCmdShowAll);
             SetActivationParamL(*activationParam);
             CleanupStack::PopAndDestroy(activationParam);
-
+            
+            // Go to All grid view
+            GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: All Grid View");
             // Send the command to reset the view
             ProcessCommandL(EGlxCmdResetView);
             iNavigationalState->SetBackExitStatus(ETrue);
-            
-            // 1)While harvesting is going on, TNM publishes itemsleft 'PSkey' value.
-            //      After harvesting is over, itemsleft count will be 0.
-            // 2)Tnm sets the value to KErrNotReady until it gets the total count while harvesting.
-            //      TNM doesn't update the key value in batches. It updates @ a single shot. 
-            //      so need to check against KErrNotReady also.
-            if (iUiUtility->GetItemsLeftCount() == KErrNotReady
-                    || iUiUtility->GetItemsLeftCount())
-                {
-                // Go to Camera Album grid view
-                GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: Camera Album Grid View");
-                path->AppendL(KGlxCollectionPluginAlbumsImplementationUid);
-                MGlxMediaList* mediaList = MGlxMediaList::InstanceL(*path);
-                CleanupClosePushL(*mediaList);
-
-                TGlxSequentialIterator iter;
-                CGlxAttributeContext* attributeContext =
-                        new (ELeave) CGlxAttributeContext(&iter);
-                CleanupStack::PushL(attributeContext);
-                iter.SetRange(1);
-                attributeContext->AddAttributeL(KMPXMediaGeneralTitle);
-                mediaList->AddContextL(attributeContext,
-                        KGlxFetchContextPriorityBlocking);
-                TRAPD(err, GlxAttributeRetriever::RetrieveL(
-                        *attributeContext, *mediaList, EFalse));
-                if (err != KErrNone)
-                    {
-                    mediaList->RemoveContext(attributeContext);
-                    User::Leave( err);
-                    }
-                TInt count = mediaList->Count();
-                GLX_LOG_INFO1("CGlxAppUi::HandleActivationMessageL() count=%d", count);
-                __ASSERT_DEBUG(count != 0, Panic(EGlxPanicRequiredItemNotFound));
-
-                path->AppendL(TMPXItemId(mediaList->Item(0).Id().Value()));
-
-                mediaList->RemoveContext(attributeContext);
-                CleanupStack::PopAndDestroy(attributeContext);
-                CleanupStack::PopAndDestroy(mediaList);
-                }
-            else
-                {
-                // Go to All grid view
-                GLX_LOG_INFO("CGlxAppUi::HandleActivationMessageL: All Grid View");
-                path->AppendL(KGlxCollectionPluginAllImplementationUid);
-                }
+            path->AppendL(KGlxCollectionPluginAllImplementationUid);
             }
             break;
 
@@ -568,10 +514,10 @@ void CGlxAppUi::HandleActivationMessageL(const TDesC8& aData)
         }
     CleanupStack::PopAndDestroy(&stream);
     iNavigationalState->SetStartingLevel(path->Levels());
-    iNavigationalState->NavigateToL(*path);
+    iNavigationalState->NavigateToL( *path );
     iStateChangeRequested = ETrue;
     CleanupStack::PopAndDestroy(path);
-
+    
     // Introduced to fix bug EMJN-78GH6N. 
     if (0 != iEikonEnv->RootWin().OrdinalPosition())
         {
@@ -703,34 +649,36 @@ void CGlxAppUi::ReserveMemoryL(TEntryType aType)
 // Handle OOM events.
 // ---------------------------------------------------------------------------
 //
-void CGlxAppUi::HandleApplicationSpecificEventL(TInt aEventType,
-        const TWsEvent& aWsEvent)
-    {
-    TRACER("CGlxAppUi::HandleApplicationSpecificEventL");
-    GLX_LOG_INFO1("CGlxAppUi::HandleApplicationSpecificEventL() aEventType=%d", aEventType);
 
-    CAknViewAppUi::HandleApplicationSpecificEventL(aEventType, aWsEvent);
-    if (aWsEvent.Type() == KAknUidValueEndKeyCloseEvent)
-        {
-        ClosePhotosL();
-        }
-
-    switch (aEventType)
-        {
-        case KAppOomMonitor_FreeRam:
-            {
-            StartCleanupL();
-            }
-            break;
-        case KAppOomMonitor_MemoryGood:
-            {
-            StopCleanupL();
-            }
-            break;
-        default:
-            break;
-        }
-    }
+void CGlxAppUi::HandleApplicationSpecificEventL(TInt aEventType, const TWsEvent& aWsEvent)
+{
+TRACER("CGlxAppUi::HandleApplicationSpecificEventL");
+CAknViewAppUi::HandleApplicationSpecificEventL(aEventType,aWsEvent);
+	if(aWsEvent.Type() == KAknUidValueEndKeyCloseEvent)
+		{
+		/**
+		* Making the flag etrue ensures that it will not call LaunchMmViewL in handlecommandl while 
+		* red key is pressed. Otherwise it will launch matrix menu, not idle screen. 
+		*/
+		iEndKeyPressed = ETrue;
+		ClosePhotosL();
+		}
+switch(aEventType)	
+	{
+	case KAppOomMonitor_FreeRam:
+		{
+		StartCleanupL();				
+		}
+		break;
+	case KAppOomMonitor_MemoryGood:
+		{
+		StopCleanupL();
+		}
+		break;
+	default:
+		break;
+	}
+}
 
 // ---------------------------------------------------------------------------
 // StartCleanup
@@ -739,7 +687,6 @@ void CGlxAppUi::HandleApplicationSpecificEventL(TInt aEventType,
 //
 void CGlxAppUi::StartCleanupL()
     {
-    TRACER("CGlxAppUi::StartCleanupL");
     MGlxCache* cacheManager = MGlxCache::InstanceL();
     cacheManager->ReleaseRAML();
     cacheManager->Close();
@@ -752,7 +699,6 @@ void CGlxAppUi::StartCleanupL()
 //
 void CGlxAppUi::StopCleanupL()
     {
-    TRACER("CGlxAppUi::StopCleanupL");
     MGlxCache* cacheManager = MGlxCache::InstanceL();
     cacheManager->StopRAMReleaseL();
     cacheManager->Close();

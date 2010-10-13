@@ -72,4 +72,5 @@ LIBRARY         oommonitor.lib       // For Requesting RAM
 LIBRARY         glximageviewermanager.lib
 LIBRARY         apgrfx.lib
 LIBRARY         apmime.lib
+LIBRARY         thumbnailmanager.lib
 // End of File

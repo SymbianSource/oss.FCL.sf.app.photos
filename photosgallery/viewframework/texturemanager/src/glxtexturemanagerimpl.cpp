@@ -518,7 +518,7 @@ void CGlxTextureManagerImpl::RemoveZoomList()
     GLX_LOG_INFO1("CGlxTextureManagerImpl RemoveZoomList  Count()=%d",count);
 	if(iZoomDecoder)
       {
-       iZoomDecoder->Cancel();
+      iZoomDecoder->CancelRequest();
       }
     for(TInt i = count - 1; i >= 0; i--)
         {
@@ -859,7 +859,7 @@ CAlfTexture& CGlxTextureManagerImpl::CreateZoomedTextureL(
 	iZoomedList[index].iBitmap=NULL;
 	iZoomedList[index].iObserver = aObserver ;  
 
-	iZoomDecoder->DoDecodeImageL(aMedia.Uri(), iZoomedList.Count()-1);
+	iZoomDecoder->DoDecodeImageL(aMedia,iZoomedList.Count()-1);
 	return *(iZoomedList[index].iTexture);
     }
 

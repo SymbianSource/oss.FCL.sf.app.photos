@@ -251,8 +251,6 @@ RESOURCE MENU_PANE r_glx_imageviewer_fullscreen_menu
                             txt = qtn_options_send_via; },
                 MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
                             /* txt comes from ShareOnline 4.3 */},
-                MENU_ITEM { command = EGlxCmdDelete;
-                            txt = qtn_lgal_options_delete; }, 
                 MENU_ITEM { command = EGlxCmdAiwEdit; 
                             txt = qtn_lgal_options_edit; },
                 MENU_ITEM { command = EGlxCmdDetails;

@@ -37,7 +37,7 @@ public:
      * To Handle menu items in Grid layout
      * @param aCommand command to be handled
      */
-    virtual void HandleGridMenuListL(TInt aCommand = 0) = 0;
+    virtual void HandleGridMenuListL(TInt aCommand) = 0;
     };
 
 class CGlxTagsContextMenuControl : public CAlfControl,

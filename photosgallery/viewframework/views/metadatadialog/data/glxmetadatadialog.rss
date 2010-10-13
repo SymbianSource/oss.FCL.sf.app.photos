@@ -217,9 +217,11 @@ RESOURCE MENU_PANE r_metadata_menu
 	{
 	items=
 		{
+		MENU_ITEM { command = KGlxViewBoundMenuCommandId; txt = qtn_lgal_options_view; },
+        	MENU_ITEM { command = EGlxCmdAiwShowMap; txt = qtn_lgal_option_show_on_map;},
 		MENU_ITEM { command = KGlxDeleteBoundMenuCommandId; txt = qtn_lgal_options_delete;flags = EEikMenuItemSpecific; },
 		MENU_ITEM { command = EAknCmdHelp; txt = qtn_options_help; }
-	        };
+	    };
 	}
     	
 // -----------------------------------------------------------------------------
@@ -435,9 +437,9 @@ RESOURCE DIALOG r_img_viewer_metadata_dialog
                         },
                     AVKON_SETTING_ITEM
                         {
-                        identifier = EImgVwrMimeTypeItem;
+                        identifier = EImgVwrDescriptionItem;
                         setting_page_resource = r_metadata_name_settings_page;
-                        name = qtn_lgal_details_type;
+                        name = qtn_lgal_details_description;
                         empty_item_text = " ";
                         },
                     AVKON_SETTING_ITEM

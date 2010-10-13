@@ -23,15 +23,10 @@
 #include <mglxmedialistobserver.h>
 #include <glxfiltergeneraldefs.h>
 
-// CONSTANTS
-const TInt KNoOfPages(3);
-const TInt KBufferTresholdSize(3);    // in rows
-
 // FORWARD DECLARATIONS
 class CGlxMediaList;
 class CHgGrid;
 class CGlxDRMUtility;
-class MHgScrollBufferObserver;
 //class CHgContextUtility;
 
 // CLASS DECLARATION
@@ -46,10 +41,9 @@ public:
      *
      * @return Pointer to newly created object.
      */
-    IMPORT_C static CGlxGridViewMLObserver* NewL(
-            MHgScrollBufferObserver& aHgScrollBufferObs,
-            MGlxMediaList& aMediaList, CHgGrid* aHgGrid,
-            TGlxFilterItemType aFilterType = EGlxFilterVideoAndImages);
+    IMPORT_C static CGlxGridViewMLObserver* NewL(MGlxMediaList& aMediaList,
+            CHgGrid* aHgGrid, TGlxFilterItemType aFilterType =
+                    EGlxFilterVideoAndImages);
 
     /**
      * Destructor.
@@ -77,8 +71,7 @@ private:
     /**
      * C++ default constructor.
      */
-    CGlxGridViewMLObserver(MHgScrollBufferObserver& aHgScrollBufferObs,
-            MGlxMediaList& aMediaList, CHgGrid* aHgGrid,
+    CGlxGridViewMLObserver(MGlxMediaList& aMediaList, CHgGrid* aHgGrid,
             TGlxFilterItemType aFilterType);
 
     /**
@@ -134,8 +127,6 @@ private:
     void SetIconL(TInt aItemIndex, TInt aBitmapId, TInt aMaskId, TInt aFlags);
     
 private:
-    // Hg Grid scroll buffer observer
-    MHgScrollBufferObserver& iHgScrollBufferObs;
 
     MGlxMediaList& iMediaList;
 	

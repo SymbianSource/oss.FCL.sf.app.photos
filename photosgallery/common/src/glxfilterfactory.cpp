@@ -230,20 +230,16 @@ EXPORT_C CMPXFilter* TGlxFilterFactory::CreateSlideShowFilterL( CMPXCollectionPa
 // Creates a filter most suited for the SlideShow
 // ---------------------------------------------------------------------------
 //   
-EXPORT_C CMPXFilter* TGlxFilterFactory::CreateSlideShowFilterFromExistingFilterL(
-        CMPXFilter* aOriginalFilter, CMPXCollectionPath* aSelectedListPath,
-        TBool aReverseSortDirection)
-    {
+EXPORT_C CMPXFilter* TGlxFilterFactory::CreateSlideShowFilterFromExistingFilterL(   CMPXFilter* aOriginalFilter,
+                                                                                    CMPXCollectionPath* aSelectedListPath,
+                                                                                    TBool aReverseSortDirection)
+    {     
     TGlxFilterProperties filterProperties;
-    // Ref:NShwSlideshow::TPlayDirection
-	// EPlayForwards = 0; Chronological Order (Older to newer)
-    // EPlayBackwards = 1; Reverse Chronological Order (Newer to older)
-    filterProperties.iSortDirection = aReverseSortDirection ? 
-            EGlxFilterSortDirectionNotUsed : EGlxFilterSortDirectionReverse;
+    filterProperties.iSortDirection = aReverseSortDirection ? EGlxFilterSortDirectionReverse : EGlxFilterSortDirectionNotUsed;
     filterProperties.iItemType = EGlxFilterImage;
     filterProperties.iPath = aSelectedListPath;
-    filterProperties.iNoDRM = ETrue;
-    filterProperties.iExcludeAnimation = ETrue;
+    filterProperties.iNoDRM = ETrue;;
+    filterProperties.iExcludeAnimation = ETrue;;
     return CreateCombinedFilterL(filterProperties, aOriginalFilter);
     }
     

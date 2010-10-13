@@ -20,18 +20,31 @@
 
 //system includes
 #include <AknUtils.h>                   //for AknUtils
+#include <lbsposition.h> 
 #include <akntitle.h>
+#include <coeaui.h>
 #include <data_caging_path_literals.hrh>// KDC_APP_RESOURCE_DIR 
+#include <eikmenub.h>                   // for CEikMenuBar
 #include <StringLoader.h>
 #include <akntoolbar.h>
+#include <glxcommandhandleraddtocontainer.h>         // For CGlxCommandHandlerAddToContainer
 
 //User includes
 #include <glxmetadatadialog.rsg>
 #include <glxresourceutilities.h>
 #include <glxlog.h>
 #include <glxtracer.h>
+#include <glxcollectionpluginall.hrh>
+#include <glxfilterfactory.h>               // for TGlxFilterFactory
+#include <glxuiutility.h>
 #include <glxcommandhandlers.hrh>
+#include <hlplch.h>                     // for HlpLauncher
+#include <photos.hlp.hrh>
+#include <glxgallery.hrh>
 #include <glxdetailsboundcommand.hrh>
+#include <glxscreenfurniture.h>
+#include <glxuiutilities.rsg>
+#include <glxpanic.h>                    // For Panics
 #include "glxmetadatacommandhandler.h"
 
 // ============================ MEMBER FUNCTIONS ===============================
@@ -51,14 +64,10 @@ EXPORT_C CGlxImgVwrMetadataDialog* CGlxImgVwrMetadataDialog::NewL( const TDesC& 
     return self;
     }
 
-// -----------------------------------------------------------------------------
-// CGlxImgVwrMetadataDialog
-// -----------------------------------------------------------------------------
-//
 CGlxImgVwrMetadataDialog::CGlxImgVwrMetadataDialog(const TDesC& aUri):iUri(aUri)
     {
-    }
 
+    }
 // -----------------------------------------------------------------------------
 // ConstructL
 // -----------------------------------------------------------------------------
@@ -84,11 +93,13 @@ void CGlxImgVwrMetadataDialog::ConstructL()
         iStatusPaneAvailable = ETrue;       
         }
 
+    // make the toolbar disabled
+    SetDetailsDlgToolbarVisibility(EFalse);        
+
     // do we have status pane
     if( statusPane )
         {
-        GLX_LOG_INFO1("GLX_UMP::CGlxImgVwrMetadataDialog::ConstructL::STATUS PANE = %d",
-                statusPane->IsVisible());    
+        GLX_LOG_INFO1("GLX_UMP::CGlxImgVwrMetadataDialog::ConstructL::STATUS PANE = %d",statusPane->IsVisible());    
         // load the title text
         HBufC* text = StringLoader::LoadL(R_GLX_METADATA_VIEW_TITLE_DETAILS, iEikonEnv );
         SetTitleL( *text );
@@ -98,6 +109,9 @@ void CGlxImgVwrMetadataDialog::ConstructL()
             }
         iAvkonAppUi->StatusPane()->MakeVisible(ETrue);             
         }
+
+    iUiUtility = CGlxUiUtility::UtilityL(); 
+
     } 
 
 // -----------------------------------------------------------------------------
@@ -106,7 +120,9 @@ void CGlxImgVwrMetadataDialog::ConstructL()
 //
 CGlxImgVwrMetadataDialog::~CGlxImgVwrMetadataDialog()
     {
+
     TRACER("CGlxImgVwrMetadataDialog::~CGlxImgVwrMetadataDialog");
+
 
     //To Disable the status pane if the dialog is launched from fullscreenview  
     if (!iStatusPaneAvailable && iAvkonAppUi)
@@ -125,6 +141,11 @@ CGlxImgVwrMetadataDialog::~CGlxImgVwrMetadataDialog()
     if (iAvkonAppUi)
         {
         TRAP_IGNORE(iAvkonAppUi->ProcessCommandL(EGlxCmdResetView));
+        }
+
+    if( iUiUtility )
+        {
+        iUiUtility->Close();
         }
 
     if (iResourceOffset)
@@ -158,40 +179,55 @@ EXPORT_C TInt CGlxImgVwrMetadataDialog::ExecuteLD()
     TRACER("CGlxImgVwrMetadataDialog::ExecuteLD");     
     return CAknDialog::ExecuteLD( R_IMG_VIEWER_METADATA_DIALOG );
     }
-
 // -----------------------------------------------------------------------------
 // ProcessCommandL
 // -----------------------------------------------------------------------------
 //
-void CGlxImgVwrMetadataDialog::ProcessCommandL(TInt /*aCommandId*/)
+void CGlxImgVwrMetadataDialog::ProcessCommandL( TInt aCommandId )
     {
     TRACER("CGlxImgVwrMetadataDialog::ProcessCommandL");
     // hide menu bar
     iMenuBar->StopDisplayingMenuBar();
     }
-
 //-----------------------------------------------------------------------------
 // CGlxImgVwrMetadataDialog::CreateCustomControlL
 //-----------------------------------------------------------------------------
 SEikControlInfo CGlxImgVwrMetadataDialog::CreateCustomControlL(TInt 
         aControlType)
     {
-    GLX_LOG_INFO("CGlxImgVwrMetadataDialog::CreateCustomControlL");
+    GLX_LOG_INFO("CShwSlideshowSettingsDialog::CreateCustomControlL");
 
     // create control info, no flags or trailer text set
     SEikControlInfo controlInfo;
-    controlInfo.iControl = NULL;
-    controlInfo.iTrailerTextId = 0;
-    controlInfo.iFlags = 0;
+    controlInfo.iControl        = NULL;
+    controlInfo.iTrailerTextId  = 0;
+    controlInfo.iFlags          = 0;
     if (aControlType == EMetaDataDialogListBox)
         {
-        iContainer = CGlxImgVwrMetadataContainer::NewL(
-                iAvkonAppUi->ClientRect(), iUri);
+        iContainer = CGlxImgVwrMetadataContainer::NewL(iAvkonAppUi->ClientRect(),iUri);        
         controlInfo.iControl = iContainer; // giving ownership   
         }
     return controlInfo; // returns ownership of ItemList
     }
 
+// -----------------------------------------------------------------------------
+// CGlxImgVwrMetadataDialog::DynInitMenuPaneL
+// -----------------------------------------------------------------------------
+//
+void CGlxImgVwrMetadataDialog::DynInitMenuPaneL(TInt /*aMenuId*/,
+        CEikMenuPane* /*aMenuPane*/)
+    {
+    //no implementation
+    }
+
+//-----------------------------------------------------------------------------
+// CGlxImgVwrMetadataDialog::SizeChanged
+//-----------------------------------------------------------------------------
+void CGlxImgVwrMetadataDialog::SizeChanged()
+    {
+    TRACER("CGlxImgVwrMetadataDialog::SizeChanged");
+    CAknDialog::SizeChanged();
+    }
 // -----------------------------------------------------------------------------
 // CGlxImgVwrMetadataDialog::InitResourceL
 // -----------------------------------------------------------------------------
@@ -210,12 +246,65 @@ void CGlxImgVwrMetadataDialog::InitResourceL()
     iResourceOffset = CCoeEnv::Static()->AddResourceFileL(resourceFile);
     }  
 
+
+// -----------------------------------------------------------------------------
+// CGlxImgVwrMetadataDialog::HandleViewCommandL
+// -----------------------------------------------------------------------------
+//    
+TBool CGlxImgVwrMetadataDialog::HandleViewCommandL( TInt /*aCommand*/ )
+    {
+    TRACER("CGlxImgVwrMetadataDialog::HandleViewCommandL");
+    return EFalse;
+    }
+// ---------------------------------------------------------------------------
+// CGlxImgVwrMetadataDialog::PreLayoutDynInitL
+// ---------------------------------------------------------------------------
+//
+void CGlxImgVwrMetadataDialog::PreLayoutDynInitL()
+    {
+    // No Implementation
+    }
+
+//-----------------------------------------------------------------------------
+// CGlxImgVwrMetadataDialog::PostLayoutDynInitL
+//-----------------------------------------------------------------------------
+//
+void CGlxImgVwrMetadataDialog::PostLayoutDynInitL()
+    {}
+
+//-----------------------------------------------------------------------------
+// CGlxImgVwrMetadataDialog::Draw
+//-----------------------------------------------------------------------------
+//
+void CGlxImgVwrMetadataDialog::Draw( const TRect& /*aRect*/ ) const
+{
+TRACER("CGlxImgVwrMetadataDialog::Draw");
+TRect rect;
+AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
+
+// Get the standard graphics context
+CWindowGc& gc = SystemGc();
+gc.SetBrushColor(KRgbWhite);
+gc.DrawRect(rect);
+}
+
+//-----------------------------------------------------------------------------
+// CGlxImgVwrMetadataDialog::HandlePointerEventL
+//-----------------------------------------------------------------------------
+//
+void CGlxImgVwrMetadataDialog::HandlePointerEventL(
+        const TPointerEvent& aPointerEvent)
+    {
+    TRACER("CGlxImgVwrMetadataDialog::HandlePointerEventL");
+    CCoeControl::HandlePointerEventL( aPointerEvent );
+    }
+
 // ---------------------------------------------------------------------------
 // CGlxImgVwrMetadataDialog::SetTitleL()
 // ---------------------------------------------------------------------------
 void CGlxImgVwrMetadataDialog::SetTitleL(const TDesC& aTitleText)
     {
-    TRACER("CGlxImgVwrMetadataDialog::SetTitleL");
+    TRACER("CGlxFetcherContainer::SetTitleL");
     CEikStatusPane* statusPane = iEikonEnv->AppUiFactory()->StatusPane();
     CleanupStack::PushL(statusPane);
     // get pointer to the default title pane control
@@ -239,7 +328,7 @@ void CGlxImgVwrMetadataDialog::SetTitleL(const TDesC& aTitleText)
 // ---------------------------------------------------------------------------
 void CGlxImgVwrMetadataDialog::SetPreviousTitleL()
     {
-    TRACER("CGlxImgVwrMetadataDialog::SetPreviousTitleL");
+    TRACER("CGlxFetcherContainer::SetPreviousTitleL");
     CEikStatusPane* prevStatusPane = iEikonEnv->AppUiFactory()->StatusPane();
     CleanupStack::PushL(prevStatusPane);
     CAknTitlePane* prevTitlePane = ( CAknTitlePane* )prevStatusPane->ControlL(
@@ -253,7 +342,16 @@ void CGlxImgVwrMetadataDialog::SetPreviousTitleL()
     CleanupStack::Pop(prevTitlePane);
     CleanupStack::Pop(prevStatusPane);
     }
-
+// -----------------------------------------------------------------------------
+// CGlxImgVwrMetadataDialog::HandleResourceChange
+// -----------------------------------------------------------------------------
+//
+void CGlxImgVwrMetadataDialog::HandleResourceChange( TInt aType )
+    {
+    TRACER("CGlxImgVwrMetadataDialog::HandleResourceChange");
+    //Handle global resource changes, such as scalable UI or skin events and orientation change (override)
+    CAknDialog::HandleResourceChange( aType );
+    }
 // -----------------------------------------------------------------------------
 // CGlxImgVwrMetadataDialog::HandleToolbarResetting
 // -----------------------------------------------------------------------------

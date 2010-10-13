@@ -71,9 +71,6 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
     TRAP_IGNORE(iDecoderObserver.HandleHDMIDecodingEventL(EHdmiDisconnected));
 
     ReleaseContent();
-
-    delete iNextImagePath;
-
     if (iWindow)
         {
         iWindow->RemoveBackgroundSurface(ETrue);
@@ -83,8 +80,11 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
         iTimer->Cancel();
         }
     delete iTimer;
-    delete iGlxDecoderAO;
-    delete iSurfBufferAO;
+    if (iGlxDecoderAO)
+        {
+        delete iGlxDecoderAO;
+        }
+    iGlxDecoderAO = NULL;
     iFsSession.Close();
     if (iSurfManager)
         {
@@ -99,6 +99,7 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
             iSurfChunk->Close();
             }
         delete iSurfChunk;
+        iSurfChunk = NULL;
         GLX_LOG_INFO(
                 "CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater(). iSurfManager->CloseSurface()");
         iSurfManager->CloseSurface(iSurfId);
@@ -106,6 +107,7 @@ CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater()
                 "CGlxHdmiSurfaceUpdater::~CGlxHdmiSurfaceUpdater(). iSurfManager->Close()");
         iSurfManager->Close();
         delete iSurfManager;
+        iSurfManager = NULL;
         }
     }
 
@@ -236,9 +238,6 @@ void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile,
         const TDesC& aNextImageFile, CFbsBitmap* aFsBitmap)
     {
     TRACER("CGlxHdmiSurfaceUpdater::UpdateNewImageL()");
-    delete iNextImagePath;
-    iNextImagePath = NULL;
-
     if (!aImageFile.CompareC(*iImagePath) && !iDecodingCurrent
             && !iDecodingNext)
         {
@@ -269,6 +268,11 @@ void CGlxHdmiSurfaceUpdater::UpdateNewImageL(const TDesC& aImageFile,
     else
         {
         ReleaseContent();
+		if (iNextImagePath)
+			{
+			delete iNextImagePath;
+			iNextImagePath = NULL;
+			}
 		// Ongoing decoding is cancelled if any,reset the decoding flags. 
 		iDecodingNext = EFalse;
 		iDecodingCurrent = EFalse;
@@ -1000,8 +1004,11 @@ void CGlxHdmiSurfaceUpdater::DecodeNextImageL()
     TRACER("CGlxHdmiSurfaceUpdater::DecodeNextImageL()");
     ReleaseContent();
     iImagePath = iNextImagePath->Alloc();
-    delete iNextImagePath;
-    iNextImagePath = NULL;
+    if (iNextImagePath)
+        {
+        delete iNextImagePath;
+        iNextImagePath = NULL;
+        }
     iIsNonJpeg = EFalse;
     GLX_LOG_INFO("Before - iWindow->Size()");
     iTvScreenSize = iWindow->Size();

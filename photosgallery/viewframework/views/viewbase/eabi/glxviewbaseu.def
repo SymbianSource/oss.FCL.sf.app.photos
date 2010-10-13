@@ -52,8 +52,8 @@ EXPORTS
 	_ZTV20MGlxMediaListFactory @ 51 NONAME
 	_ZTV21CGlxMediaListViewBase @ 52 NONAME
 	_ZThn12_N12CGlxViewBase16DynInitMenuPaneLEiP12CEikMenuPane @ 53 NONAME
-	_ZThn172_N21CGlxMediaListViewBase9MediaListEv @ 54 NONAME
-	_ZThn176_N21CGlxMediaListViewBase21HandleTitleAvailableLERK7TDesC16 @ 55 NONAME
+	_ZThn168_N21CGlxMediaListViewBase9MediaListEv @ 54 NONAME
+	_ZThn172_N21CGlxMediaListViewBase21HandleTitleAvailableLERK7TDesC16 @ 55 NONAME
 	_ZThn4_N12CGlxViewBase14ViewActivatedLERK10TVwsViewId4TUidRK6TDesC8 @ 56 NONAME
 	_ZThn4_N12CGlxViewBase15ViewDeactivatedEv @ 57 NONAME
 	_ZThn80_N12CGlxViewBase17AnimationCompleteEP13MGlxAnimation @ 58 NONAME

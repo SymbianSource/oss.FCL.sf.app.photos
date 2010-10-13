@@ -44,6 +44,7 @@
 #include <glxattributecontext.h> //attribute context
 #include <mglxmedialist.h> //for medialist
 
+#include "glxcontainerinfobubble.h" //intelligent class for data of infobubble
 #include "glxcloudview.hrh"
 #include "mglxcloudviewmskobserver.h" // For Msk Observer
 #include "mglxenterkeyeventobserver.h" // For enterkey observer
@@ -61,7 +62,7 @@ const TInt KFontLargest = 44;
 const TInt KRowHeight = 72;
 const TInt KLeftMargin = 10;
 const TInt KNumMinRowSpace = 2;
-const TInt KColSpace = 30;
+const TInt KColSpace = 20;
 const TInt KRightmargin = 10;//Aligning Right margin
 const TInt KMinTagSize = 77;
 const TInt KTagScreenHeight = 460;
@@ -198,6 +199,8 @@ void CGlxCloudViewControl::ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisp
 
         if ( iLabels.Count ()==listCount && iAttributeContext->RequestCountL (&iMediaList)==0)
             {
+            //if we navigate in forward direction, first item should be highlighted.if we are navigating in
+            // backwards direction, index is not necessarily zero, it will be restored.
             if ( iUiUtility->ViewNavigationDirection ()== EGlxNavigationForwards && iMediaList.Count ())
                 {
                 iMediaList.SetFocusL (NGlxListDefs::EAbsolute, 0);
@@ -209,7 +212,6 @@ void CGlxCloudViewControl::ConstructL(const TDesC& aEmptyText,CAlfDisplay& aDisp
     iTouchFeedback = MTouchFeedback::Instance(); 
     iPhysics = CAknPhysics::NewL(*this, NULL);
     InitPhysicsL();
-    iShowFocus = EFalse;
     }
 
 
@@ -240,6 +242,7 @@ void CGlxCloudViewControl::VisualLayoutUpdated(CAlfVisual &/* aVisual*/)
 // --------------------------------------------------------------------------- 
 //
 CGlxCloudViewControl::~CGlxCloudViewControl()
+
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::~CGlxCloudViewControl");
     iCloudInfo.Close ();
@@ -269,23 +272,20 @@ CGlxCloudViewControl::~CGlxCloudViewControl()
 TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIndex
         , TInt aRowEndIndex)
     {
-    TRACER("CGlxCloudViewControl::LayoutVisibleRows");
+    TRACER("GLX_CLOUD::CGlxCloudViewControl::DrawRow");
     TSize vsize;
     TPoint tl, br;
     tl = aStartPoint;
-    br.iX = 0;
     br.iY = tl.iY + KRowHeight;
-    const TInt KMaxScreenWidth = iTagScreenWidth - iScrollPaneHandle.iW;
     //drawing in reverse for arabic hebrew support
     if ( GlxGeneralUiUtilities::LayoutIsMirrored ())
         {
-		GLX_LOG_INFO("Mirrorred Layout");
-		//In Mirrored layout, 'BottomRight' considers scrollpane width for each row
-        br.iX =  aStartPoint.iX  - iScrollPaneHandle.iW;
+        br.iX =  aStartPoint.iX; 
+        const TInt KMaxScreenWidth = iTagScreenWidth - iScrollPaneHandle.iW;
         //Set the positions of tags in a row.
         for (TInt j = aRowStartIndex; j <= aRowEndIndex; j++)
             {
-            vsize = iLabels[j]->TextExtents();
+            vsize = iLabels[j]->TextExtents ();
             if ( vsize.iWidth < KMinTagSize )
                 {
                 vsize.iWidth = KMinTagSize;
@@ -295,15 +295,15 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
                 {
                 TAlfRealSize tagSize( KMaxScreenWidth, br.iY );
                 iLabels[j]->SetWrapping( CAlfTextVisual::ELineWrapTruncate );
+                vsize = iLabels[j]->TextExtents ();
                 tl.iX -= aStartPoint.iX;
                 tl.iY = aStartPoint.iY;
                 br.iX = tagSize.iWidth;              
                 }
             else
                 {
-				tl.iX = br.iX - vsize.iWidth;
+                tl.iX -= (vsize.iWidth + KColSpace);
                 }
-            
             //Set the anchor points for the tags 	            	        
             iLayout->SetAnchor (EAlfAnchorTopLeft, iLayoutIndex,
                     EAlfAnchorOriginLeft, EAlfAnchorOriginTop,
@@ -313,17 +313,17 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
                     EAlfAnchorOriginLeft, EAlfAnchorOriginTop,
                     EAlfAnchorMetricAbsolute, EAlfAnchorMetricAbsolute,
                     TAlfTimedPoint (br.iX, br.iY));
-            //Bottom-Right corner for next tag in same row
             br.iX -= (vsize.iWidth + KColSpace); 
             iLayoutIndex += 1;
             }
+
         }
     else
         {
-		GLX_LOG_INFO("NOT Mirrorred Layout");
+        const TInt KMaxScreenWidth = iTagScreenWidth - iScrollPaneHandle.iW;
         for (TInt j = aRowStartIndex; j <= aRowEndIndex; j++)
             {
-            vsize = iLabels[j]->TextExtents();
+            vsize = iLabels[j]->TextExtents ();
             if( vsize.iWidth < KMinTagSize )
                 {
                 vsize.iWidth = KMinTagSize;
@@ -331,6 +331,7 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
             if (vsize.iWidth > KMaxScreenWidth)
                 {
                 TAlfRealSize tagSize( KMaxScreenWidth, br.iY );
+                TAlfRealPoint startPos( aStartPoint.iX, 0 );
                 iLabels[j]->SetWrapping( CAlfTextVisual::ELineWrapTruncate );
                 tl.iX = aStartPoint.iX;
                 tl.iY = aStartPoint.iY;
@@ -338,9 +339,8 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
                 }
             else
                 {
-                br.iX = tl.iX + vsize.iWidth;
+                br.iX += vsize.iWidth + KColSpace;
                 }
-            
             iLayout->SetAnchor (EAlfAnchorTopLeft, iLayoutIndex,
                     EAlfAnchorOriginLeft, EAlfAnchorOriginTop,
                     EAlfAnchorMetricAbsolute, EAlfAnchorMetricAbsolute,
@@ -349,13 +349,15 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
                     EAlfAnchorOriginLeft, EAlfAnchorOriginTop,
                     EAlfAnchorMetricAbsolute, EAlfAnchorMetricAbsolute,
                     TAlfTimedPoint (br.iX, br.iY));
-            //Top-Left Corner for next tag in same row
-            tl.iX += (vsize.iWidth + KColSpace);
+            tl.iX = br.iX;
             iLayoutIndex += 1;
             }
         }
     return 0;
     }
+
+
+
 
 // --------------------------------------------------------------------------- 
 // LayoutVisibleArea()
@@ -363,7 +365,6 @@ TInt CGlxCloudViewControl::LayoutVisibleRows(TPoint aStartPoint,TInt aRowStartIn
 // ---------------------------------------------------------------------------
 void CGlxCloudViewControl::LayoutVisibleArea()
     {
-	TRACER("CGlxCloudViewControl::LayoutVisibleArea");
     //screen height for boundary check:how many rows fit in.
     //find out how many rows can fit in.
     //add upper and lower margin spacing 5 pixels
@@ -376,13 +377,13 @@ void CGlxCloudViewControl::LayoutVisibleArea()
         {
         startpoint.iX = iTagScreenWidth - KRightmargin;        
         }
-    //else start from beginning
+
+    //else start from biginning
     else
         {
         startpoint.iX = KLeftMargin;
         }
         startpoint.iY = KNumMinRowSpace;
-    
     //associate the active visuals with anchor layout
     GLX_LOG_INFO("GLX_CLOUD ::CGlxCloudViewControl::::LayoutVisibleArea Layout reset");
     GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::::LayoutVisibleArea layout Count after reset  %d ", iLayout->Count ());
@@ -393,6 +394,7 @@ void CGlxCloudViewControl::LayoutVisibleArea()
         {
         GLX_LOG_INFO("GLX_CLOUD ::CGlxCloudViewControl::::FindEndRowIndex Entering layout append");
 
+
         TAlfTimedValue opacity;
         opacity.SetValueNow(1.0); // immediate change
         iLabels[j]->SetOpacity(opacity);
@@ -401,14 +403,16 @@ void CGlxCloudViewControl::LayoutVisibleArea()
     GLX_LOG_INFO("GLX_CLOUD ::CGlxCloudViewControl::::LayoutVisibleArea Exiting layout append");
     iLayoutIndex = 0;
     GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::::LayoutVisibleArea layout Count realloc  %d ", iLayout->Count ());
-    TInt totalHeight = 0;
-    for (TInt j = 0; j <= iCloudInfo.Count() - 1; j++)
+    for (TInt j = 0; j <= iEndRowIndex; j++)
         {
         GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::::LayoutVisibleArea Drawing row started  %d ", j);
         LayoutVisibleRows (startpoint,iCloudInfo[j].iStartIndex, 
                 iCloudInfo[j].iEndIndex);
         startpoint.iY += KRowHeight + KNumMinRowSpace;		
-
+        }
+    TInt totalHeight = 0;
+    for (TInt j = 0; j <= iCloudInfo.Count()-1; j++)
+        {
         totalHeight+=KRowHeight;
         totalHeight+=KNumMinRowSpace;
         }
@@ -443,7 +447,9 @@ void CGlxCloudViewControl::LayoutVisibleArea()
                 iScrollEventData.mViewLength,
                 0);
         DisplayScrollBar();
-        }   	
+        }
+    //constructing the bubblecontainer
+    CreateBubleContainer();   	
 
     iLayout->UpdateChildrenLayout (); //update layout
 
@@ -452,191 +458,156 @@ void CGlxCloudViewControl::LayoutVisibleArea()
     MoveDownIfRequired();
     }
 
+
 // --------------------------------------------------------------------------- 
 // OfferEventL()
 // --------------------------------------------------------------------------- 
 //
 TBool CGlxCloudViewControl::OfferEventL(const TAlfEvent &aEvent)
-    {
-    TRACER("GLX_CLOUD:: CGlxCloudViewControl::OfferEventL");
+    {   TRACER("GLX_CLOUD:: CGlxCloudViewControl::OfferEventL");
 
     //check if key inputs needs handling
     TBool consumed = EFalse;
-    if (iLabels.Count() == 0)
+    if ( ( iLabels.Count () == 0 ) ) 
         {
         GLX_LOG_INFO( "GLX_CLOUD ::CGlxCloudViewControl::offerkeyeventL no key press returning  ");
         return EFalse; //return as no futher processing is required
-        }
-
-    if (aEvent.IsKeyEvent() && iTagsContextMenuControl->ItemMenuVisibility())
-        {
-        // Hide the context menu, if visible
-        ShowContextItemMenuL(EFalse);
         }
 
     if ( aEvent.IsKeyEvent ()&& aEvent.Code() == EEventKey )
         {
         switch (aEvent.KeyEvent().iCode)            
             {	
+            //@ EABI-7R7FRU Fute failure: Tag views enter key has no functionality.
             case EKeyEnter :
             case EKeyDevice3:
                 {
-                if (iShowFocus)
-                    {
-                    iShowFocus = EFalse;
-                    iObserverEnterKeyEvent.HandleEnterKeyEventL(
-                            (TInt) EAknCmdOpen);
-                    }
-                else
-                    {
-                    SetFocusToFirstVisibleItemL();
-                    }
-                consumed = ETrue;
+                iObserverEnterKeyEvent.HandleEnterKeyEventL( (TInt)EAknCmdOpen );
+                consumed= ETrue;
                 }
                 break;
             case EKeyUpArrow:
-                {
-                if (iShowFocus)
+                {             
+                if(iCloudInfo.Count() >1 )
                     {
-                    HandleKeyUpL();
-                    iFocusRowIndex = RowNumber(iMediaList.FocusIndex());
+                    HandleKeyUpL ();
+                    consumed = ETrue;
+                    iFocusRowIndex = RowNumber (iMediaList.FocusIndex ()); 
 
-                    MoveUpIfRequired();
+                    MoveUpIfRequired();                   
                     }
-                else
-                    {
-                    SetFocusToFirstVisibleItemL();
-                    }
-                consumed = ETrue;
                 }
                 break;
 
             case EKeyDownArrow:
-                {
-                if (iShowFocus)
+                {              
+                if (iCloudInfo.Count() > 1)
                     {
-                    HandleKeyDownL();
-                    iFocusRowIndex = RowNumber(iMediaList.FocusIndex());
+                    HandleKeyDownL ();
+                    consumed = ETrue;
+                    iFocusRowIndex = RowNumber (iMediaList.FocusIndex ());
 
-                    MoveDownIfRequired();
-                    }
-                else
-                    {
-                    SetFocusToFirstVisibleItemL();
-                    }
-                consumed = ETrue;
+                    MoveDownIfRequired();                                 
+                    }                  
                 }
                 break;
 
             case EKeyLeftArrow:
             case EKeyPrevious:
                 {
-                if (iShowFocus)
+                // arabic hebrew change
+                if ( GlxGeneralUiUtilities::LayoutIsMirrored () )
                     {
-                    // arabic hebrew change
-                    if (GlxGeneralUiUtilities::LayoutIsMirrored())
+                    if ( iMediaList.FocusIndex() == iMediaList.Count() - 1 )
                         {
-                        if (iMediaList.FocusIndex() == iMediaList.Count() - 1)
-                            {
-                            iMediaList.SetFocusL(NGlxListDefs::EAbsolute, 0);
-                            }
-                        else
-                            {
-                            iMediaList.SetFocusL(NGlxListDefs::EAbsolute,
-                                    iMediaList.FocusIndex() + 1);
-                            }
-                        iScrollDirection = 0;
+                        iMediaList.SetFocusL (NGlxListDefs::EAbsolute, 0);
                         }
                     else
                         {
-                        if (iMediaList.FocusIndex() == 0)
-                            {
-                            iMediaList.SetFocusL(NGlxListDefs::EAbsolute,
-                                    iMediaList.Count() - 1);
-                            }
-                        else
-                            {
-                            iMediaList.SetFocusL(NGlxListDefs::EAbsolute,
-                                    iMediaList.FocusIndex() - 1);
-                            }
-                        iScrollDirection = 1;
+                        iMediaList.SetFocusL (NGlxListDefs::EAbsolute,
+                                iMediaList.FocusIndex ()+ 1);
                         }
-                    TInt focusRowIndex = RowNumber(iMediaList.FocusIndex());
-                    if (iFocusRowIndex != focusRowIndex)
-                        {
-                        iFocusRowIndex = focusRowIndex;
-                        if (iScrollDirection == 0)
-                            {
-                            MoveDownIfRequired();
-                            }
-                        else
-                            {
-                            MoveUpIfRequired();
-                            }
-                        }
+                    iScrollDirection = 0;
                     }
                 else
                     {
-                    SetFocusToFirstVisibleItemL();
+                    if ( iMediaList.FocusIndex ()== 0 )
+                        {
+                        iMediaList.SetFocusL (NGlxListDefs::EAbsolute,
+                                iMediaList.Count() - 1 );
+                        }
+                    else
+                        {
+                        iMediaList.SetFocusL (NGlxListDefs::EAbsolute,
+                                iMediaList.FocusIndex ()- 1);
+                        }
+                    iScrollDirection = 1;
                     }
                 consumed = ETrue;
+                TInt focusRowIndex = RowNumber (iMediaList.FocusIndex ());
+                if(iFocusRowIndex != focusRowIndex)
+                    {
+                    iFocusRowIndex = focusRowIndex; 
+                    if( iScrollDirection == 0 )
+                        {                      
+                        MoveDownIfRequired();
+                        }
+                    else
+                        {
+                        MoveUpIfRequired();
+                        }
+                    }                
                 }
+
                 break;
 
             case EKeyRightArrow:
             case EKeyNext:
-                {
-                if (iShowFocus)
+                {               
+                // arabic hebrew change
+                if ( GlxGeneralUiUtilities::LayoutIsMirrored () )
                     {
-                    // arabic hebrew change
-                    if (GlxGeneralUiUtilities::LayoutIsMirrored())
+                    if ( iMediaList.FocusIndex ()== 0 )
                         {
-                        if (iMediaList.FocusIndex() == 0)
-                            {
-                            iMediaList.SetFocusL(NGlxListDefs::EAbsolute,
-                                    iMediaList.Count() - 1);
-                            }
-                        else
-                            {
-                            iMediaList.SetFocusL(NGlxListDefs::EAbsolute,
-                                    iMediaList.FocusIndex() - 1);
-                            }
-                        iScrollDirection = 1;
+                        iMediaList.SetFocusL (NGlxListDefs::EAbsolute,
+                                iMediaList.Count() - 1 );
                         }
                     else
                         {
-                        if (iMediaList.FocusIndex() == iMediaList.Count() - 1)
-                            {
-                            iMediaList.SetFocusL(NGlxListDefs::EAbsolute, 0);
-                            }
-                        else
-                            {
-                            iMediaList.SetFocusL(NGlxListDefs::EAbsolute,
-                                    iMediaList.FocusIndex() + 1);
-                            }
-                        iScrollDirection = 0;
+                        iMediaList.SetFocusL (NGlxListDefs::EAbsolute,
+                                iMediaList.FocusIndex ()- 1);
                         }
-                    TInt focusRowIndex = RowNumber(iMediaList.FocusIndex());
-
-                    if (iFocusRowIndex != focusRowIndex)
-                        {
-                        iFocusRowIndex = focusRowIndex;
-                        if (iScrollDirection == 1)
-                            {
-                            MoveUpIfRequired();
-                            }
-                        else
-                            {
-                            MoveDownIfRequired();
-                            }
-                        }
+                    iScrollDirection = 1;
                     }
                 else
                     {
-                    SetFocusToFirstVisibleItemL();
+                    if ( iMediaList.FocusIndex ()== iMediaList.Count() - 1 )
+                        {
+                        iMediaList.SetFocusL (NGlxListDefs::EAbsolute, 0);
+                        }
+                    else
+                        {
+                        iMediaList.SetFocusL (NGlxListDefs::EAbsolute,
+                                iMediaList.FocusIndex ()+ 1);
+                        }
+                    iScrollDirection = 0;
                     }
-                consumed = ETrue;
+                TInt focusRowIndex = RowNumber (iMediaList.FocusIndex ());
+
+                if( iFocusRowIndex != focusRowIndex )
+                    {
+                    iFocusRowIndex = focusRowIndex;  
+                    if( iScrollDirection == 1 )
+                        {                           
+                        MoveUpIfRequired();                               
+                        }
+                    else
+                        {                           
+                        MoveDownIfRequired();                               
+                        }
+                    }
                 }
+                consumed = ETrue;
                 break;
 
             default:
@@ -678,6 +649,7 @@ void CGlxCloudViewControl::HandleKeyUpL()
     iScrollDirection = 1;
     }
 
+
 // --------------------------------------------------------------------------- 
 // HandleKeyDown()
 // --------------------------------------------------------------------------- 
@@ -712,13 +684,13 @@ void CGlxCloudViewControl::HandleLayoutFocusChange()
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::HandleLayoutFocusChange");
 
-    if ((iShowFocus || !iUiUtility->IsPenSupported()) && (iLabels.Count() - 1
-            >= iMediaList.FocusIndex()))
+    if ( iLabels.Count()-1 >= iMediaList.FocusIndex())
         {
         //to highlight focused element 
         SetFocusColor(); 
         }
     }
+
 
 // --------------------------------------------------------------------------- 
 // FocusUpdate()
@@ -727,11 +699,13 @@ void CGlxCloudViewControl::HandleLayoutFocusChange()
 void CGlxCloudViewControl::FocusUpdate()
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::FocusUpdate");
-    iFocusRowIndex = RowNumber(iMediaList.FocusIndex());
-    GLX_LOG_INFO1("GLX_CLOUD::FocusUpdate iFocusRowIndex=%d", 
-            iFocusRowIndex);
+    GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::FocusUpdate HighLighted RowNum  %d ",iFocusRowIndex);
+    GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::FocusUpdate End RowNumn %d ",iCloudInfo.Count()-1);
+    iFocusRowIndex = RowNumber (iMediaList.FocusIndex ());
+    iEndRowIndex = iCloudInfo.Count()-1;
     LayoutVisibleArea();
     }
+
 
 // --------------------------------------------------------------------------- 
 // ResetLayout()
@@ -749,23 +723,25 @@ void CGlxCloudViewControl::UpdateLayout()
     iLabels.Reset();
     }
 
+
 // --------------------------------------------------------------------------- 
 // GetRownum()
 // --------------------------------------------------------------------------- 
 //
 TInt CGlxCloudViewControl::RowNumber(TInt aItemIndex) const
-	{
-	TRACER("GLX_CLOUD::CGlxCloudViewControl::GetRownum");
-	//Get the rownumber of the given item index.
-	TInt i;
-	for (i = 0; i < iCloudInfo.Count(); i++)
-		{
-		if ((aItemIndex >= iCloudInfo[i].iStartIndex) && (aItemIndex
-				<= iCloudInfo[i].iEndIndex))
-			break;
-		}
-	return i;
-	}
+{
+
+TRACER("GLX_CLOUD::CGlxCloudViewControl::GetRownum");
+//Get the rownumber of the given item index.
+TInt i;
+for (i = 0; i < iCloudInfo.Count (); i++)
+    {
+    if ( (aItemIndex >= iCloudInfo[i].iStartIndex) && (aItemIndex <=iCloudInfo[i].iEndIndex))
+        break;
+    }
+return i;
+
+}
 
 // --------------------------------------------------------------------------- 
 // FetchAttributeFromCacheL()
@@ -799,6 +775,7 @@ void CGlxCloudViewControl::FetchAttributeFromCacheL()
         }
     }
 
+
 //medialist Observers
 
 // ---------------------------------------------------------------------------
@@ -828,10 +805,15 @@ void CGlxCloudViewControl::HandleItemAddedL(TInt aStartIndex, TInt aEndIndex,
         //reset the layout and get the items from cache
         UpdateLayout(); //remove all the visuals from the layout.layout is empty now.
         iCloudInfo.Close (); //row information is reset
+        //get the new array contents from cache.no need to reset the array as the number
+        //of items in array will remain same.
+        FetchAttributeFromCacheL();
+        UpdateRowDataL (); //updates the row data and reassigns font sizes and draw the layout on screen.
         }
 
     InitPhysicsL();
     }
+
 
 // ---------------------------------------------------------------------------
 // HandleMediaL().
@@ -915,6 +897,8 @@ void CGlxCloudViewControl::HandleAttributesAvailableL(TInt aItemIndex,
         //of items in array will remain same.
         UpdateLayout(); //remove all the visuals from the layout.layout is empty now.        
         FetchAttributeFromCacheL();
+        //if we navigate in forward direction, first item should be highlighted.if we are navigating in
+        // backwards direction, index is not necessarily zero, it will be restored.
         if ( iUiUtility->ViewNavigationDirection ()== EGlxNavigationForwards && iMediaList.Count ())
             {
             iMediaList.SetFocusL (NGlxListDefs::EAbsolute, 0);
@@ -985,6 +969,7 @@ void CGlxCloudViewControl::HandlePopulatedL(MGlxMediaList* /*aList*/)
 // ---------------------------------------------------------------------------
 //
 void CGlxCloudViewControl::UpdateRowDataL()
+
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::UpdateRowData()");
 
@@ -1006,7 +991,7 @@ void CGlxCloudViewControl::UpdateRowDataL()
     //Setting the Font Styles based on association counts
     //Finding the maximum value of image association
     //Determining the Font(Style) for each visual
-    TInt maxCount = MaxUsageCount (); //Maximum Association count 
+    TInt maxCount= MaxUsageCount (); //Maximum Association count 
     GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::UpdateRowData  mediaCount %d ", maxCount);
     GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::UpdateRowData  iLabels.Count()  %d ",iLabels.Count());
     if ( 0 == maxCount )
@@ -1045,7 +1030,7 @@ void CGlxCloudViewControl::UpdateRowDataL()
             }
 
         // Current row width will be progressively incremented to fit as many tags as possible
-        rowWidth += currentTagSize.iWidth + KColSpace;
+        rowWidth += currentTagSize.iWidth + 10;
         GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::UpdateRowData   currentTagSize.iWidth %d ", currentTagSize.iWidth);
         GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::UpdateRowData  rowWidth %d ", rowWidth);
 
@@ -1069,7 +1054,7 @@ void CGlxCloudViewControl::UpdateRowDataL()
         // then we must fit the current visual into the next row.
         // Do that check now and adjust accordingly.
         // Fix for EAHN-7BZD78 is to exclude the gap value between the row's tags from the logic
-        else if ( rowWidth - KColSpace > KMaxScreenWidth )
+        else if ( rowWidth - 10 > KMaxScreenWidth )
             {
             GLX_LOG_INFO("GLX_CLOUD :: CGlxCloudViewControl::UpdateRowData Row added");
             lastRowStartTagIndex = currentTagIndex - 1;
@@ -1097,6 +1082,8 @@ void CGlxCloudViewControl::UpdateRowDataL()
 
     GLX_LOG_INFO1("GLX_CLOUD ::CGlxCloudViewControl::UpdateRowData  iCloudInfo.count loop exit  %d ", iCloudInfo.Count());
     FocusUpdate (); //Start screen drawing 
+
+    iEndRowIndex = iCloudInfo.Count()-1;
     }
 
 // ---------------------------------------------------------------------------
@@ -1259,11 +1246,11 @@ TInt CGlxCloudViewControl::UsageCount(TInt aIndex)
     }
 
 // ---------------------------------------------------------------------------
-// AppendToCloudArrayL()
+// SetFocusColor()
 // ---------------------------------------------------------------------------
 //
-void CGlxCloudViewControl::AppendToCloudArrayL(TGlxCloudInfo& aCloudInfo,
-        const TInt& aStartIndex, const TInt& aEndIndex)
+void CGlxCloudViewControl::AppendToCloudArrayL( 
+        TGlxCloudInfo& aCloudInfo,const TInt& aStartIndex, const TInt& aEndIndex )
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::AppendToCloudArrayL");
     aCloudInfo.iStartIndex = aStartIndex;
@@ -1275,28 +1262,30 @@ void CGlxCloudViewControl::AppendToCloudArrayL(TGlxCloudInfo& aCloudInfo,
 // SetFocusColor()
 // ---------------------------------------------------------------------------
 //
-void CGlxCloudViewControl::SetFocusColor()
+void  CGlxCloudViewControl::SetFocusColor()
     {
-    TRACER("GLX_CLOUD::CGlxCloudViewControl::SetFocusColor");
-    if (iMediaList.Count())
-        {
-        iLabels[iMediaList.FocusIndex()]->SetColor(
-                KAknsIIDQsnHighlightColors, EAknsCIQsnHighlightColorsCG3);
-        }
+    iLabels[iMediaList.FocusIndex()]->SetColor (KAknsIIDQsnHighlightColors ,EAknsCIQsnHighlightColorsCG3); 
+    }
+
+
+// ---------------------------------------------------------------------------
+// SetBubleMidPoint()
+// ---------------------------------------------------------------------------
+//
+void  CGlxCloudViewControl::SetBubleMidPoint(TPoint& aMidPoint)
+    {
+    TRACER("GLX_CLOUD::CGlxCloudViewControl::SetBubleMidPoint");
+    //Substract the viewport position so as to set the buble at the right position on the screen     
+    aMidPoint.iX-=iViewPortPosition.iX;
+    aMidPoint.iY-=iViewPortPosition.iY;
     }
 
 // ---------------------------------------------------------------------------
-// ResetFocusColor()
+// CreateBubleContainer()
 // ---------------------------------------------------------------------------
-//
-void CGlxCloudViewControl::ResetFocusColor()
-    {
-    TRACER("GLX_CLOUD::CGlxCloudViewControl::ResetFocusColor");
-    if (iMediaList.Count())
-        {
-        iLabels[iMediaList.FocusIndex()]->SetColor(KAknsIIDQsnTextColors,
-                EAknsCIQsnTextColorsCG6);
-        }
+//   
+void CGlxCloudViewControl::CreateBubleContainer()
+    {   
     }
 
 // ---------------------------------------------------------------------------
@@ -1306,21 +1295,19 @@ void CGlxCloudViewControl::ResetFocusColor()
 void CGlxCloudViewControl::MoveUpIfRequired()
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::MoveUpIfRequired");
-    TInt focusIndex = iMediaList.FocusIndex();
-
     //get the focused item's position
     TPoint point;
-    iLayout->ChildPos(focusIndex,point);
+    iLayout->ChildPos(iMediaList.FocusIndex(),point);
     TSize size;
-    iLayout->ChildSize(focusIndex,size);
-
-    TInt rownumber = RowNumber(focusIndex);
+    iLayout->ChildSize(iMediaList.FocusIndex(),size);
+    TInt focus = iMediaList.FocusIndex();
+    TInt rownumber = RowNumber(focus);
     //if the focused item is not visible then move the viewport
     if(point.iY < iViewPortPosition.iY)         
         { 
         //set the new position of viewport
-        TInt offset = iViewPortPosition.iY - point.iY;
-        iViewPortPosition.iY-=offset;
+        TInt offeset = iViewPortPosition.iY - point.iY;
+        iViewPortPosition.iY-=offeset;
         if( (iViewPortPosition.iY < 0) )
             {
             iViewPortPosition.iY = 0;
@@ -1336,57 +1323,89 @@ void CGlxCloudViewControl::MoveUpIfRequired()
     Scroll();  
     }
 
+
 // ---------------------------------------------------------------------------
 // MoveDownIfRequired()
 // ---------------------------------------------------------------------------
 //
 void CGlxCloudViewControl::MoveDownIfRequired()
     {
-    TRACER("GLX_CLOUD::CGlxCloudViewControl::MoveDownIfRequired");
-    TInt focusIndex = iMediaList.FocusIndex();
-
+    TRACER("GLX_CLOUD::CGlxCloudViewControl::MoveDownIfRequired");  
     //get the focused item's position
     TPoint point;
-    iLayout->ChildPos(focusIndex, point);
+    iLayout->ChildPos(iMediaList.FocusIndex(),point);
     TSize size;
-    iLayout->ChildSize(focusIndex, size);
-
-    //Reset viewport position for cases:
-    //case 1)Focus index is first item
-    if (focusIndex == 0)
-        {
-		iViewPortPosition.iY = 0;
-		}
-    //case 2)Focused item is in last screen
-    else if( point.iY > (iViewPortVirtualSize.iHeight - iViewPortSize.iHeight))
-        {
-        iViewPortPosition.iY = iViewPortVirtualSize.iHeight - iViewPortSize.iHeight;
+    iLayout->ChildSize(iMediaList.FocusIndex(),size);
+    //if the focused visual is not visible then move the viewport 
+    if(point.iY+size.iHeight > iViewPortPosition.iY+iViewPortSize.iHeight )
+        { 
+        //set the new position of viewport
+        TInt offeset = (point.iY+size.iHeight) - (iViewPortPosition.iY+iViewPortSize.iHeight);
+        iViewPortPosition.iY+=offeset;
+        if( (iViewPortPosition.iY > iViewPortVirtualSize.iHeight) )
+            {
+            iViewPortPosition.iY = iViewPortVirtualSize.iHeight - iViewPortSize.iHeight;
+            } 
         }
-    else
+    //if its key event then it should be cyclic
+    else if (iMediaList.FocusIndex() == 0)
         {
-        iViewPortPosition.iY = point.iY + KNumMinRowSpace;
-        }
-
-    //Validate the viewport position
-    if ((iViewPortPosition.iY > iViewPortVirtualSize.iHeight))
-        {
-		iViewPortPosition.iY = iViewPortVirtualSize.iHeight - iViewPortSize.iHeight;
-        }
-
-    GLX_LOG_INFO1("GLX_CLOUD::MoveDownIfRequired() iViewPortPosition.iY:%d",
-            iViewPortPosition.iY);
+        iViewPortPosition.iY = 0;
+        }     
     iViewPortLayout->SetViewportPos(iViewPortPosition, KSlowCloudMovement);
     iScrollEventData.mViewStartPos = iViewPortPosition.iY;
     if(iScrollBarWidget)
         {
-        Scroll();
+        Scroll();           
         }
-    }
+    }     
+
+// ---------------------------------------------------------------------------
+// MoveDownIfRequired()
+// ---------------------------------------------------------------------------
+//
+void CGlxCloudViewControl::CalculateBubleMidPoint()
+    { 
+    TRACER("GLX_CLOUD::CGlxCloudViewControl::CalculateBubleMidPoint");
+    TPoint midpoint;
+    TAlfRealRect focussedItemRect;
+    TRect mainPaneRect;
+    AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, mainPaneRect);
+
+    CAlfVisual& visual = iLayout->Visual( iMediaList.FocusIndex() );
+    focussedItemRect = visual.DisplayRect();
+
+    if( GlxGeneralUiUtilities::LayoutIsMirrored () )
+        {  
+        midpoint.iX = focussedItemRect.iBr.iX +
+        ((focussedItemRect.iTl.iX - focussedItemRect.iBr.iX )/2);
+        }
+
+    else 
+        {
+        midpoint.iX=focussedItemRect.iTl.iX +
+        ((focussedItemRect.iBr.iX - focussedItemRect.iTl.iX )/2);
+        }
+
+    midpoint.iY=focussedItemRect.iTl.iY+
+                ((focussedItemRect.iBr.iY - focussedItemRect.iTl.iY )/2); 
+    TPoint anchorRect;
+
+    //Get the position of anchor layout
+    iViewPortLayout->ChildPos (0, anchorRect);
+
+    //Add the differance to the midpoint
+    midpoint.iX+=anchorRect.iX;
+    midpoint.iY+=anchorRect.iY; 
+
+    //Substract from the viewport position the viewport position    
+    SetBubleMidPoint(midpoint);   
+    } 
 
 // ---------------------------------------------------------------------------
 // HandlePointerEventL()
 // ---------------------------------------------------------------------------
-//
+//  
 TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::HandlePointerEventL");
@@ -1424,8 +1443,6 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
                     {
                     iTouchFeedback->InstantFeedback(ETouchFeedbackBasic);
                     iMediaList.SetFocusL (NGlxListDefs::EAbsolute, index);
-                    iShowFocus = ETrue;
-                    HandleLayoutFocusChange();
 
                     //Start the timer to interpret longpress events
                     iTimerComplete = EFalse;
@@ -1448,12 +1465,6 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
         }
     else if (iDownEventReceived && aEvent.PointerUp())
         {
-        if (!iTagsContextMenuControl->ItemMenuVisibility())
-            {
-            iShowFocus = EFalse;
-            ResetFocusColor();
-            }
-
         iDownEventReceived = EFalse;
         Display()->Roster().SetPointerEventObservers(0, *this);
         consumed = ETrue;
@@ -1487,8 +1498,10 @@ TBool CGlxCloudViewControl::HandlePointerEventL( const TAlfEvent &aEvent )
                     TInt focus = iMediaList.FocusIndex();
                     if (index != focus)
                         {
+                        iTouchFeedback->InstantFeedback( ETouchFeedbackBasic );
                         TInt focusrowindex = iFocusRowIndex;
                         iMediaList.SetFocusL(NGlxListDefs::EAbsolute, index);
+                        SetFocusColor();
                         iFocusRowIndex = RowNumber (iMediaList.FocusIndex ());
                         
                         if( iFocusRowIndex > focusrowindex)
@@ -1757,17 +1770,15 @@ bool CGlxCloudViewControl::accept(CAlfWidgetControl& /*aControl*/,
     }
 
 // ---------------------------------------------------------------------------
-// InitializeScrollBar()
+// attachScrollBar()
 // ---------------------------------------------------------------------------
-//
-void CGlxCloudViewControl::InitializeScrollBar(
-        IAlfScrollBarWidget* aScrollBarWidget)
+//	
+void CGlxCloudViewControl::InitializeScrollBar(IAlfScrollBarWidget* aScrollBarWidget)
     {
     TRACER("GLX_CLOUD::CGlxCloudViewControl::InitializeScrollBar");
     iScrollBarWidget = aScrollBarWidget;
     ((IAlfScrollBarModel *) (iScrollBarWidget->model()))->initializeData(
             iScrollEventData.mSpan, iScrollEventData.mViewLength, 0);
-    Scroll();
     DisplayScrollBar();
     }
 
@@ -1824,30 +1835,19 @@ void CGlxCloudViewControl::UpdateScrollBar(TInt aNumberOfSteps, TBool aDiff)
 // DisplayScrollBar()
 // ---------------------------------------------------------------------------
 //
-void CGlxCloudViewControl::DisplayScrollBar()
+void CGlxCloudViewControl::DisplayScrollBar() 
     {
-    TRACER("GLX_CLOUD::CGlxCloudViewControl::DisplayScrollBar()");
     if (iScrollBarWidget)
         {
         IAlfElement* vertBaseElement =(iScrollBarWidget->control()->findElement ("BaseElement"));
         IAlfScrollBarDefaultBaseElement* scrollbarbaselement=static_cast<IAlfScrollBarDefaultBaseElement*> (
             vertBaseElement->makeInterface (IAlfScrollBarDefaultBaseElement::type() ) );
 
-        TInt totalHeight = 0;
-        for (TInt index = 0; index <= iCloudInfo.Count() - 1; index++)
-            {
-            totalHeight += KRowHeight;
-            totalHeight += KNumMinRowSpace;
-            }
-
-        // To set the scrollbar visibility, it's enough to set the opacity
-        // of baselayout. No need to set the opacity of thumb separately.
-        // Set the scrollbar visibility only
-        // when visuals height exceeds the screen height
-        if (iScrollEventData.mSpan && totalHeight > iTagScreenHeight)
+        // To set the scrollbar visibility, it's enough to set the opacity 
+        // of baselayout. No need to set the opacity of thumb separately. 
+        if (iScrollEventData.mSpan)
             {
             //make scroll bar visible
-            GLX_LOG_INFO("GLX_CLOUD: Make scrollbar visible!");
             scrollbarbaselement->setOpacity(1.0);
             }
         else
@@ -1868,31 +1868,30 @@ void CGlxCloudViewControl::UpdateLayoutL()
     AknLayoutUtils::LayoutMetricsRect (AknLayoutUtils::EMainPane, rect);
     if ((rect.Width() != (iTagScreenWidth + KRightmargin)) || (rect.Height() != iScreenHeight))
         {
-		//set the new screen dimensions
-		iScreenHeight = rect.Height();
-		iTagScreenWidth = rect.Width() - KRightmargin;
-		if (IsLandscape())
-			{
-			iTagScreenHeight = rect.Height();
-			}
-		else
-			{
-			iTagScreenHeight = KTagScreenHeight;
-			}
+        //set the new screen dimensions
+        iScreenHeight=rect.Height();
+       iTagScreenWidth = rect.Width()- KRightmargin;
+        if(IsLandscape())
+            {   
+            iTagScreenHeight = rect.Height();   
+            }
+        else 
+            {
+            iTagScreenHeight = KTagScreenHeight;
+            }
 
-		iViewPortLayout->SetSize(
-				TAlfRealSize(iTagScreenWidth, iTagScreenHeight), 0);
-		//delete all layout associations
-		if (iCloudInfo.Count() != 0)//check for the empty cloud view
-			{
-			UpdateLayout();
-			FetchAttributeFromCacheL();
-			//generate row structures and draw rows on screen
-			UpdateRowDataL();
+        iViewPortLayout->SetSize(TAlfRealSize(iTagScreenWidth,iTagScreenHeight), 0);
+        //delete all layout associations
+        if ( iCloudInfo.Count ()!= 0)//check for the empty cloud view
+            {
+            UpdateLayout();
+            FetchAttributeFromCacheL();
+            //generate row structures and draw rows on screen
+            UpdateRowDataL ();                                    
 
-			InitPhysicsL();
-			}
-		}
+            InitPhysicsL();
+            }
+        }
     }
 
 // ---------------------------------------------------------------------------
@@ -1964,7 +1963,6 @@ TBool CGlxCloudViewControl::IsLandscape()
         return EFalse;
         }
     }
-
 // ---------------------------------------------------------------------------
 // TimerCompleteL()
 // ---------------------------------------------------------------------------
@@ -1985,54 +1983,23 @@ void CGlxCloudViewControl::TimerCompleteL()
     TRect rect;
     AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EMainPane, rect);
     
-    //only if not dragged and physics hasnt started
-    if (!iPhysicsStarted && !iViewDragged)
+    if(!iPhysicsStarted)//only if physics hasnt started
         {
         iTagsContextMenuControl->SetViewableRect(rect);
         iTagsContextMenuControl->ShowItemMenuL(ETrue);
         iTagsContextMenuControl->SetDisplay(midpoint);
         }
    }
-
 // ---------------------------------------------------------------------------
 // ShowContextItemMenuL()
 // ---------------------------------------------------------------------------
 //
 void CGlxCloudViewControl::ShowContextItemMenuL(TBool aShow)
     {
-    TRACER("GLX_CLOUD::ShowContextItemMenuL");
-    GLX_LOG_INFO1("GLX_CLOUD::ShowContextItemMenuL() aShow=%d", aShow);
     iTagsContextMenuControl->ShowItemMenuL(aShow);
     if(!aShow)
         {
         iViewPortLayout->UpdateChildrenLayout(0);
-        iShowFocus = EFalse;
-        ResetFocusColor();
-        }
-    }
-
-// ---------------------------------------------------------------------------
-// SetFocusToFirstVisibleItemL()
-// ---------------------------------------------------------------------------
-//
-void CGlxCloudViewControl::SetFocusToFirstVisibleItemL()
-    {
-    TRACER("GLX_CLOUD::CGlxCloudViewControl::SetFocusToFirstVisibleItemL()");
-    iShowFocus = ETrue;
-
-    TInt visIndex = GetAbsoluteIndex(TPoint(KLeftMargin + KLeftMargin,
-            KColSpace));
-    GLX_LOG_INFO1("GLX_CLOUD::SetFocusToFirstVisibleItemL() visIndex=%d", visIndex);
-
-    if (visIndex != KErrNotFound)
-        {
-        iMediaList.SetFocusL(NGlxListDefs::EAbsolute, visIndex);
-
-        MoveUpIfRequired();
-        }
-    else
-        {
-        HandleLayoutFocusChange();
         }
     }
 

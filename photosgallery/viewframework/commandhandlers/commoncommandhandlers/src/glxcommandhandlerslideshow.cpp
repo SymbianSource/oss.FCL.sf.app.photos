@@ -46,8 +46,6 @@
 #include <glxsettingsmodel.h>
 #include <glxupnprenderer.h> // get UPnP state
 #include <glxgeneraluiutilities.h>
-#include <glxthumbnailattributeinfo.h>
-
 namespace
 	{
 	const TInt KShwDefaultBufferSize = 128;
@@ -554,96 +552,5 @@ void CGlxCommandHandlerSlideshow::PopulateToolbarL()
     iUiUtility->ScreenFurniture()->SetTooltipL(EGlxCmdSlideshowPlay,
             CAknButton::EPositionLeft);
 	}
-
-// -----------------------------------------------------------------------------
-// DynInitMenuPaneL
-// -----------------------------------------------------------------------------
-//
-void CGlxCommandHandlerSlideshow::DynInitMenuPaneL(TInt /*aResourceId*/,
-        CEikMenuPane* aMenuPane, TBool aIsBrowseMode)
-    {
-    TRACER("CGlxCommandHandlerSlideshow::DynInitMenuPaneL");
-    MGlxMediaList& mediaList = MediaList();
-    if (aMenuPane)
-        {
-        TInt pos = 0;
-        if (mediaList.Count())
-            {
-            TInt focusIndex = mediaList.FocusIndex();
-            if (!aIsBrowseMode && focusIndex > KErrNotFound && focusIndex
-                    < mediaList.Count())
-                {
-                if (aMenuPane->MenuItemExists(EGlxCmdSlideshowPlay, pos))
-                    {
-                    const TGlxMedia& media = mediaList.Item(focusIndex);
-                    if (EMPXVideo == media.Category())
-                        {
-                        aMenuPane->SetItemDimmed(EGlxCmdSlideshowPlay, ETrue);
-                        }
-                    else
-                        {
-                        CEikMenuPaneItem::SData& item =
-                                aMenuPane->ItemDataByIndexL(pos);
-                        if (item.iFlags & EEikMenuItemSpecific)
-                            {
-                            TSize tnSize = iUiUtility->GetGridIconSize();
-                            TMPXAttribute thumbnailAttribute(
-                                    KGlxMediaIdThumbnail,
-                                    GlxFullThumbnailAttributeId(ETrue,
-                                            tnSize.iWidth, tnSize.iHeight));
-
-                            const CGlxThumbnailAttribute* value =
-                                    media.ThumbnailAttribute(
-                                            thumbnailAttribute);
-
-                            // No thumbnail available, hence there might be
-                            // no vaild items to play slideshow
-                            if (!value)
-                                {
-                                aMenuPane->SetItemDimmed(
-                                        EGlxCmdSlideshowPlay, ETrue);
-                                }
-                            }
-                        }
-                    }
-                }
-
-            if (aIsBrowseMode)
-                {
-                if (aMenuPane->MenuItemExists(EGlxCmdSlideshow, pos)
-                        && mediaList.SelectionCount())
-                    {
-                    aMenuPane->SetItemDimmed(EGlxCmdSlideshow, ETrue);
-                    }
-
-                if (aMenuPane->MenuItemExists(EGlxCmdSlideshowPlay, pos)
-                        && mediaList.SelectionCount() == 0)
-                    {
-                    CEikMenuPaneItem::SData& item =
-                            aMenuPane->ItemDataByIndexL(pos);
-                    if (item.iFlags & EEikMenuItemSpecific
-                            && EMPXVideo == mediaList.Item(
-                                    mediaList.FocusIndex()).Category())
-                        {
-                        aMenuPane->SetItemDimmed(EGlxCmdSlideshowPlay, ETrue);
-                        }
-                    }
-                }
-            }
-        else
-            {
-            if (aMenuPane->MenuItemExists(EGlxCmdSlideshowPlay, pos))
-                {
-                aMenuPane->SetItemDimmed(EGlxCmdSlideshowPlay, ETrue);
-                }
-
-            if (aMenuPane->MenuItemExists(EGlxCmdSlideshow, pos))
-                {
-                aMenuPane->SetItemDimmed(EGlxCmdSlideshow, ETrue);
-                }
-            }
-        }
-    }
-
 
 // End of File

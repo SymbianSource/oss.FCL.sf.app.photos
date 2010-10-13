@@ -146,9 +146,9 @@ void CGlxVisualListWindow::SetupObjectL( TInt aIndex, CBase& aObject )
 		object.SetScaleMode(CAlfImageVisual::EScaleNormal);
 		}
 			    
-	// Keep the visual invisible to avoid showing wrong visual in the starting, 
-	// Effect control will make it visisble
-    object.SetVisible( EFalse );
+    // show the object. do this before notifying control, to show
+    // at the image if control leaves
+    object.SetVisible( ETrue );
     
     // notify observer
     iControl->HandleVisualAddedL( object.Visual(), aIndex );

@@ -34,7 +34,6 @@ class MGlxMetadataDialogObserver
 		virtual void OnLocationEditL() = 0;
 		virtual void AddTagL() = 0;
 		virtual void AddAlbumL() = 0;
-		virtual void HandleItemRemovedL() = 0;
 	};
 
 #endif /*MGLXMETADATADIALOGOBSERVER_H_*/

@@ -365,17 +365,17 @@ private:
 	 **/
     void SetFocusColor();
     
-    /** 
-     * Resets focused item color
-     **/
-    void ResetFocusColor();
     
-    /**
-     *  Set the focus to first visible item
-     *  in the current view position
-     */
-    void SetFocusToFirstVisibleItemL();
-
+    /** 
+	 * Set the middle point of the infobuble
+	 **/
+    void SetBubleMidPoint(TPoint& aMidPoint);
+  
+   /** 
+	 * Create the infobublecontainer
+	 **/  
+    void CreateBubleContainer();
+    
    /** 
 	 * Move the viewport up depending on the condition
 	 *
@@ -387,6 +387,11 @@ private:
 	 **/  
     void MoveDownIfRequired();
 
+    /** 
+	 * calculate the mid point of the bubble
+	 **/
+    void CalculateBubleMidPoint();
+	 
 public:
 
 	void HandleItemAddedL(TInt aStartIndex, TInt aEndIndex,
@@ -555,6 +560,9 @@ private:
 	// FocusIndex keeps track of the focussed row 
 	TInt iFocusRowIndex;
 
+	// EndRowindex keeps track of the end row 
+	TInt iEndRowIndex;
+
 	//keeps track of the end row 
 	TInt iLayoutIndex;
 
@@ -645,9 +653,6 @@ private:
 
     /**flag to identify the next down event */
     TBool iDownEventReceived;
-    
-    // Flag to show Alf visual focus
-    TBool iShowFocus;
 	};
 
 #endif // C_GLXCLOUDVIEWCONTROL_H

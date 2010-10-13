@@ -52,7 +52,7 @@ enum TDetailsFields
 enum TImageVwrDetailsFields
 	{
 	EImgVwrNameItem,
-	EImgVwrMimeTypeItem,
+	EImgVwrDescriptionItem,
 	EImgVwrDateAndTimeItem,
 	EImgVwrSizeItem,
 	EImgVwrResolutionItem,

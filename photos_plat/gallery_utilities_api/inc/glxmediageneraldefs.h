@@ -114,9 +114,4 @@ enum TGlxMediaGeneralRightsValidity
     EGlxDrmRightsValid,
     EGlxDrmRightsInvalid
     }; 
-
-// Maximum length of a media pop-up text
-// Example, Album/Tag/Title/Description's length is set to 40 chars maximum
-const TInt KMaxMediaPopupTextLength = 40;
-
 #endif // __T_GLXMEDIAGENERALDEFS_H__

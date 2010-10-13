@@ -138,7 +138,6 @@ TBool CGlxCommandHandlerSend::DoExecuteL(TInt aCommandId,
 	
     if (aCommandId == EGlxCmdSend)
         {
-        iAvkonAppUi->ProcessCommandL(EGlxCmdDialogLaunched);
         SendSelectedItemsL();
         return ETrue;
         }
@@ -365,7 +364,6 @@ void CGlxCommandHandlerSend::SendSelectedItemsL()
 	CleanupStack::PopAndDestroy(filterOutPlugins);
 	CleanupStack::PopAndDestroy(title);
 	CleanupStack::PopAndDestroy(msgData);
-	iAvkonAppUi->ProcessCommandL(EGlxCmdDialogDismissed);
 	}
 	
 

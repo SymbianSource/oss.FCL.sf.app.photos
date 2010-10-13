@@ -30,8 +30,7 @@
 class MGlxMediaList;
 class MGlxMediaListProvider;
 class CAknAppUi;
-class CGlxImageViewerManager;
-
+	
 /**
  * @class CGlxMpxCommandCommandHandler
  *  
@@ -231,16 +230,6 @@ private:
      * Remove medialist observer
      */
     void RemoveMediaListObserver();
-	
-    /**
-     * Creates the image viewer instance, if not created already.
-     */    
-    void CreateImageViewerInstanceL();
-    
-    /**
-     * Deletes the image viewer instance, if created already.
-     */    
-    void DeleteImageViewerInstance();
 
 protected: // From MGlxMediaListObserver    
     /// See @ref MGlxMediaListObserver::HandleItemAddedL
@@ -292,9 +281,6 @@ private:
 	
     /// The AppUI. Not owned
     CAknAppUi* iAppUi;
-    
-    // For image viewer, not own
-    CGlxImageViewerManager* iImageViewerInstance;
 	};
 
 #endif // __C_GLXMPXCOMMANDCOMMANDHANDLER_H__

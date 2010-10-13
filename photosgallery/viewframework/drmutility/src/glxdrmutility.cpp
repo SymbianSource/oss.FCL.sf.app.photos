@@ -32,9 +32,6 @@
 #include "glxtracer.h"
 #include "glxlog.h"
 
-#include <drmuihandling.h>
-using namespace DRM;
-
 const TInt KGlxDRMThumbnailHeight = 120;
 const TInt KGlxDRMThumbnailWidth = 90;
 
@@ -171,16 +168,7 @@ EXPORT_C TBool CGlxDRMUtility::ItemRightsValidityCheckL(RFile& aFileHandle,
 #ifdef _DEBUG
     TTime startTime;
     startTime.HomeTime();
-#endif 
-    TFileName fileName(KNullDesC);
-    fileName.Append(aFileHandle.FullName(fileName));
-    if (iLastConsumedItemUri->Length() > 0)
-        {
-        if (fileName.CompareF(*iLastConsumedItemUri) == 0)
-            {
-            return ETrue;
-            }
-        }
+#endif         
     TBool rightsValid = EFalse;
     ContentAccess::TAttribute attrib =
         aCheckViewRights ? ContentAccess::ECanView : ContentAccess::ECanPlay;
@@ -231,20 +219,6 @@ EXPORT_C TBool CGlxDRMUtility::DisplayItemRightsCheckL(RFile& aFileHandle,
         TBool aCheckViewRights)
     {
     TRACER("CGlxDRMUtility::DisplayItemRightsCheckL(RFile)");
-    TFileName fileName(KNullDesC);
-    fileName.Append(aFileHandle.FullName(fileName));
-    // Allow to display if rights for a URI was just consumed (i.e. same as stored URI)
-    if (iLastConsumedItemUri->Length() > 0)
-        {
-        if (fileName.CompareF(*iLastConsumedItemUri) == 0)
-            {
-            return ETrue;
-            }
-        }
-
-    //Clear the stored uri
-    ClearLastConsumedItemUriL();
-
     // Otherwise, check current rights for the URI of newly focused item
     return ItemRightsValidityCheckL(aFileHandle, aCheckViewRights);
     }
@@ -288,22 +262,7 @@ EXPORT_C TBool CGlxDRMUtility::ConsumeRightsL(RFile& aFileHandle)
     {
     TRACER("CGlxDRMUtility::ConsumeRightsL(RFile)");
     CData* data = CData::NewLC(aFileHandle, KDefaultContentObject(), EPeek);
-
-    //When consuming rights for a URI, clear stored URI
-    ClearLastConsumedItemUriL();
-
     TInt err = data->ExecuteIntent(ContentAccess::EView);
-    TFileName fileName(KNullDesC);
-    fileName.Append(aFileHandle.FullName(fileName));
-
-    if (err == KErrNone)
-        {
-        //Update stored URI
-        iLastConsumedItemUri = iLastConsumedItemUri->ReAllocL(fileName.Length());
-        TPtr newPtr = iLastConsumedItemUri->Des();
-        newPtr.Copy(fileName);
-        }
-
     CleanupStack::PopAndDestroy(data);
     return (err == KErrNone);
     }
@@ -407,22 +366,15 @@ EXPORT_C void CGlxDRMUtility::SetAsAutomatedL(const TDesC& aUri,
 EXPORT_C void CGlxDRMUtility::ShowDRMDetailsPaneL(const TDesC& aUri)
     {
     TRACER("CGlxDRMUtility::ShowDRMDetailsPaneL(URI)");
-    GLX_LOG_URI("CGlxDRMUtility::ShowDRMDetailsPaneL(%S)", &aUri);
-    RFs fs;
-    User::LeaveIfError(fs.Connect());
-    CleanupClosePushL(fs);
+    TRAPD( err, iDrmHelper->LaunchDetailsViewEmbeddedL( aUri ) );
+    // if no rights ask user to re-activate
+    if (err == KErrCANoRights)
+        {
+        HBufC* buf = aUri.AllocLC();
+        iDrmHelper->ActivateContentL(*buf);
+        CleanupStack::PopAndDestroy(buf);
+        }
 
-    RFile64 drmFile;
-    User::LeaveIfError(drmFile.Open(fs, aUri, EFileRead
-            | EFileShareReadersOrWriters));
-    CleanupClosePushL(drmFile);
-
-    CDrmUiHandling* drmUiHandler = CDrmUiHandling::NewLC();
-    TRAP_IGNORE(drmUiHandler->ShowDetailsViewL(drmFile));
-    CleanupStack::PopAndDestroy(drmUiHandler);
-
-    CleanupStack::PopAndDestroy(&drmFile);
-    CleanupStack::PopAndDestroy(&fs);
     }
 
 //============================================================================
@@ -431,9 +383,12 @@ EXPORT_C void CGlxDRMUtility::ShowDRMDetailsPaneL(const TDesC& aUri)
 EXPORT_C void CGlxDRMUtility::ShowDRMDetailsPaneL(RFile& aFileHandle)
     {
     TRACER("CGlxDRMUtility::ShowDRMDetailsPaneL(RFile)");
-    CDrmUiHandling* drmUiHandler = CDrmUiHandling::NewLC();
-    TRAP_IGNORE(drmUiHandler->ShowDetailsViewL(aFileHandle));
-    CleanupStack::PopAndDestroy(drmUiHandler);
+    TRAPD( err, iDrmHelper->LaunchDetailsViewEmbeddedL( aFileHandle ) );
+    // if no rights ask user to re-activate
+    if (err == KErrCANoRights)
+        {
+        //need to check if we need to handle.
+        }
     }
 
 //============================================================================

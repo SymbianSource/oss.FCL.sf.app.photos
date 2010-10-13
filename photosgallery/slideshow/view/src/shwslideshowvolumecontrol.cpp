@@ -163,6 +163,35 @@ void CShwSlideshowVolumeControl::ConstructL()
     // BackGround Visual
     iBackgroundImageVisual->EnableBrushesL();
     iBackgroundImageVisual->SetOpacity( KHalfOpacityOpaque );
+
+	// Get the icon file
+	TFileName mifFile( KDC_APP_BITMAP_DIR );
+    mifFile.Append( KIconsFilename );
+    User::LeaveIfError( CompleteWithAppPath( mifFile ) );
+    // Get the texture manager
+   	CGlxTextureManager& textureMgr = iUtility.GlxTextureManager();
+    // Load the background texture
+    
+    // Below given icon ID is to be changed once the Capped_element Icon
+    // is available in the build
+    CAlfTexture& backgroundTexture = textureMgr.CreateIconTextureL
+        ( EMbmGlxiconsQgn_graf_adapt_search_bg, mifFile );
+    
+    // apply an image brush to the visual
+    iBrush = CAlfImageBrush::NewL(iAlfEnv, TAlfImage( backgroundTexture ) );
+    iBackgroundImageVisual->Brushes()->AppendL( iBrush, EAlfHasOwnership );
+	iBackgroundImageVisual->SetScaleMode( CAlfImageVisual::EScaleFitInside );
+	// Muted visual
+	CAlfTexture& textureMuted = iUtility.GlxTextureManager().CreateIconTextureL
+	    ( EMbmGlxiconsQgn_indi_mup_speaker_muted, mifFile );										
+	iMuteImageVisual->SetImage( textureMuted );
+    iMuteImageVisual->SetScaleMode( CAlfImageVisual::EScaleFitInside );
+    
+	// Speaker visual
+	CAlfTexture& textureSpkr = iUtility.GlxTextureManager().CreateIconTextureL
+        ( EMbmGlxiconsQgn_indi_mup_speaker, mifFile );
+    iSpeakerImageVisual->SetImage( textureSpkr );
+    iSpeakerImageVisual->SetScaleMode( CAlfImageVisual::EScaleFitInside );	
 	
 	//hide the volume level visualation by default
 	iMainVisual->SetOpacity(KOpacityTransperent);
@@ -225,43 +254,6 @@ void CShwSlideshowVolumeControl::Hide()
 		roster.Hide( *group );
 		}	
 	}
-
-// ---------------------------------------------------------------------------
-// InitControlTextureL
-// ---------------------------------------------------------------------------
-void CShwSlideshowVolumeControl::InitControlTextureL()
-    {
-    TRACER("CShwSlideshowVolumeControl::InitControlTextureL");
-    // Get the icon file
-    TFileName mifFile( KDC_APP_BITMAP_DIR );
-    mifFile.Append( KIconsFilename );
-    User::LeaveIfError( CompleteWithAppPath( mifFile ) );
-    // Get the texture manager
-    CGlxTextureManager& textureMgr = iUtility.GlxTextureManager();
-    // Load the background texture
-    
-    // Below given icon ID is to be changed once the Capped_element Icon
-    // is available in the build
-    CAlfTexture& backgroundTexture = textureMgr.CreateIconTextureL
-        ( EMbmGlxiconsQgn_graf_adapt_search_bg, mifFile );
-    
-    // apply an image brush to the visual
-    iBrush = CAlfImageBrush::NewL(iAlfEnv, TAlfImage( backgroundTexture ) );
-    iBackgroundImageVisual->Brushes()->AppendL( iBrush, EAlfHasOwnership );
-    iBackgroundImageVisual->SetScaleMode( CAlfImageVisual::EScaleFitInside );
-    // Muted visual
-    CAlfTexture& textureMuted = iUtility.GlxTextureManager().CreateIconTextureL
-        ( EMbmGlxiconsQgn_indi_mup_speaker_muted, mifFile );                                        
-    iMuteImageVisual->SetImage( textureMuted );
-    iMuteImageVisual->SetScaleMode( CAlfImageVisual::EScaleFitInside );
-    
-    // Speaker visual
-    CAlfTexture& textureSpkr = iUtility.GlxTextureManager().CreateIconTextureL
-        ( EMbmGlxiconsQgn_indi_mup_speaker, mifFile );
-    iSpeakerImageVisual->SetImage( textureSpkr );
-    iSpeakerImageVisual->SetScaleMode( CAlfImageVisual::EScaleFitInside );      
-    }
-
 // ---------------------------------------------------------------------------
 // ShowControlL
 // ---------------------------------------------------------------------------

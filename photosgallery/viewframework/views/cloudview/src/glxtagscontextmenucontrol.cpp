@@ -36,7 +36,6 @@
 #include <alf/alfframebrush.h>
 
 #include <StringLoader.h>
-#include <touchfeedback.h>
 
 // Photos Headers
 #include "glxtagscontextmenucontrol.h"
@@ -275,21 +274,26 @@ void CGlxTagsContextMenuControl::SetDisplay(const TPoint& aPoint)
         }
 
     TInt upperYPos = aPoint.iY - KMinimalGap;
-    TInt xPos = aPoint.iX;
+    TInt XPos = aPoint.iX;
     
+    //Preferred is to display in upper area
+    TInt upperDisplayableHeight = upperYPos - iViewableRect.iTl.iY;
+    TInt rightDisplayableWidth = iViewableRect.iBr.iX - (XPos + KRightMargin
+            + KWidthPadding);
+
     //always draw above
-    if ((iViewableRect.iBr.iX - (xPos + KRightMargin + KWidthPadding))
-            < iMaxTextWidth)
+    if(rightDisplayableWidth < iMaxTextWidth)
         {
-        xPos = aPoint.iX - iMaxTextWidth;
+        XPos = aPoint.iX - iMaxTextWidth;
         }
-
-    if (upperYPos + KGridHeight > iViewableRect.iBr.iY)
+    if(upperDisplayableHeight < KGridHeight)
         {
-        upperYPos = iViewableRect.iBr.iY - KGridHeight;
+        iMainVisual->SetPos(TAlfRealPoint(XPos , upperYPos ));
         }
-
-    iMainVisual->SetPos(TAlfRealPoint(xPos, upperYPos));
+    else
+        {
+        iMainVisual->SetPos(TAlfRealPoint(XPos , upperYPos - KGridHeight));
+        }
     
 	if ( iTimer)
 	    {
@@ -341,7 +345,6 @@ TBool CGlxTagsContextMenuControl::OfferEventL(const TAlfEvent& aEvent)
 
     if (aEvent.IsPointerEvent() && iItemMenuVisibility )
         {
-        MTouchFeedback* feedback = MTouchFeedback::Instance();
         if (aEvent.PointerDown())
             {
             iCommandId = KErrNotFound;
@@ -386,10 +389,6 @@ TBool CGlxTagsContextMenuControl::OfferEventL(const TAlfEvent& aEvent)
                     iCommandId = EGlxCmdRename;
                     }
                 consumed = ETrue;
-                if (feedback)
-                    {
-                    feedback->InstantFeedback(ETouchFeedbackBasic);
-                    }
                 CleanupStack::Pop(brush);
                 }//End of iItemMenuVisibility check
             }//End of Pointer down event 
@@ -422,10 +421,6 @@ TBool CGlxTagsContextMenuControl::OfferEventL(const TAlfEvent& aEvent)
                 {
                 HandleUpEventL();
                 }
-            else if (eventInsideControl && feedback)
-                {
-                feedback->InstantFeedback(ETouchFeedbackBasic);
-                }
             consumed = ETrue;
             }
         consumed = ETrue;
@@ -441,7 +436,6 @@ void CGlxTagsContextMenuControl::TimerCompleteL()
     {
     TRACER("GLX_CLOUD::CGlxTagsContextMenuControl::TimerCompleteL");
     ShowItemMenuL(EFalse);
-    iItemMenuObserver.HandleGridMenuListL();
     }
 
 // --------------------------------------------------------------------------- 

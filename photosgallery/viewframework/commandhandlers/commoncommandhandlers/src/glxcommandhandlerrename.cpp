@@ -38,10 +38,13 @@
 #include <glxicons.mbg>
 #include <glxtracer.h>
 #include <glxlog.h>
-#include <glxmediageneraldefs.h>    // for KMaxMediaPopupTextLength
 
 #include "glxcommandfactory.h"
 
+namespace
+	{
+	const TInt KNameMaxLength = 128;
+	}
 
 // ---------------------------------------------------------------------------
 // Two-phased constructor.
@@ -78,7 +81,7 @@ CGlxCommandHandlerRename::CGlxCommandHandlerRename( MGlxMediaListProvider*
 //
 void CGlxCommandHandlerRename::ConstructL(const TDesC& aFileName)
 	{
-	iRenameText = HBufC::NewL(KMaxMediaPopupTextLength);
+	iRenameText = HBufC::NewL(KNameMaxLength);
 
 	iResourceOffset = CCoeEnv::Static()->AddResourceFileL(aFileName);
 
@@ -134,13 +137,16 @@ CMPXCommand* CGlxCommandHandlerRename::CreateCommandL(TInt /*aCommandId*/,
     TPtr textPtr = iRenameText->Des();
     GetTitleL( textPtr, aMediaList );
     // store the current name.
-    TBuf<KMaxMediaPopupTextLength> currentName; 
+    TBuf<KNameMaxLength> currentName; 
     currentName.Copy(textPtr);  
 
  	// Load the title for the popup 
     HBufC* title = StringLoader::LoadLC( R_GLX_POPUP_RENAME_TITLE );
     CGlxTextEntryPopup* popup = CGlxTextEntryPopup::NewL( *title,
     	textPtr );
+
+
+    	
 	if ( popup->ExecuteLD() == EEikBidOk && currentName != *iRenameText)
 		{
 		// Text entry was successful

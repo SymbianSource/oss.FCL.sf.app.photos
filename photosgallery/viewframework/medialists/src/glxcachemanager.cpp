@@ -1007,8 +1007,6 @@ void CGlxCacheManager::MaintainCacheL()
                         TGlxIdSpaceId spaceId = list->IdSpaceId(iRequestedItemIndexes[0]);
                         HandleCollectionMediaL(spaceId, *iMPXMedia, KErrNone);
                         DeleteImageViewerInstance();
-                        delete iReader;
-                        iReader = NULL;
                         return;
                         }
                     else

@@ -225,10 +225,7 @@ void CGlxToolbarController::SetStatusOnViewActivationL( MGlxMediaList* aList )
     TRAPD(err, CheckShareonlineVersionL());
     GLX_LOG_INFO2("CGlxToolbarController::SetStatusOnViewActivationL(%d),"
             " err(%d)", aList->Count(), err);
-    if (iToolbar->IsDimmed())
-    	{
-        iToolbar->SetDimmed(EFalse);
-    	}
+
     CGlxNavigationalState* navigationalState =
             CGlxNavigationalState::InstanceL();
     CleanupClosePushL(*navigationalState);
@@ -322,21 +319,13 @@ void CGlxToolbarController::SetStatusL(MGlxMediaList* aList)
 		if (navigationalState->ViewingMode() == NGlxNavigationalState::EView)
 			{
 			SetToolbarItemsDimmed(EFalse);
-            TInt focusIndex = aList->FocusIndex();
-            if (focusIndex >= 0 && focusIndex < aList->Count())
-                {
-                TBool dimmed = (EMPXVideo
-                        == aList->Item(focusIndex).Category());
-                iToolbar->SetItemDimmed(EGlxCmdSlideshowPlay, dimmed, ETrue);
-                }
-            }
+			}
 		else if (navigationalState->ViewingMode()
 				== NGlxNavigationalState::EBrowse)
 			{
 			TBool dimmed = aList->SelectionCount() ? EFalse : ETrue;
 			iToolbar->SetItemDimmed(EGlxCmdSend, dimmed, ETrue);
 			iToolbar->SetItemDimmed(EGlxCmdUpload, dimmed, ETrue);
-			iToolbar->SetItemDimmed(EGlxCmdSlideshowPlay, EFalse, ETrue);
 			}
 		CleanupStack::PopAndDestroy(navigationalState);
 		}
@@ -393,7 +382,6 @@ void CGlxToolbarController::SetToolbarItemsDimmed(TBool aDimmed)
         iToolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, aDimmed, ETrue);
         iToolbar->SetItemDimmed(EGlxCmdSend, aDimmed, ETrue);
         iToolbar->SetItemDimmed(EGlxCmdUpload, aDimmed, ETrue);
-        iToolbar->SetItemDimmed(EGlxCmdDelete, aDimmed, ETrue);
         }
     }
 

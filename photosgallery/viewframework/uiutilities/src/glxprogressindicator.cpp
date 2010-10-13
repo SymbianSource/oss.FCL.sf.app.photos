@@ -179,6 +179,7 @@ void CGlxProgressIndicator::StartProgressNoteL(TInt aFinalValue, TBool aShow)
     else
         {
         iProgressDialog->ProcessFinishedL();
+        iGlxGridViewNotifyObserver.HandleDialogDismissedL();
         if (iProgressDialog)
             {
             iProgressDialog = NULL;
@@ -222,7 +223,6 @@ void CGlxProgressIndicator::DialogDismissedL(TInt /*aButtonId*/)
         }
     iProgressDialog = NULL;
     iProgressInfo = NULL;
-    iGlxGridViewNotifyObserver.HandleDialogDismissedL();
     }
 
 // -----------------------------------------------------------------------------

@@ -1,22 +1,25 @@
 /*
- * Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
- * All rights reserved.
- * This component and the accompanying materials are made available
- * under the terms of "Eclipse Public License v1.0"
- * which accompanies this distribution, and is available
- * at the URL "http://www.eclipse.org/legal/epl-v10.html".
- *
- * Initial Contributors:
- * Nokia Corporation - initial contribution.
- *
- * Contributors:
- *
- * Description:    Resource definitions for Grid View plugin
- *
- */
+* Copyright (c) 2008-2009 Nokia Corporation and/or its subsidiary(-ies). 
+* All rights reserved.
+* This component and the accompanying materials are made available
+* under the terms of "Eclipse Public License v1.0"
+* which accompanies this distribution, and is available
+* at the URL "http://www.eclipse.org/legal/epl-v10.html".
+*
+* Initial Contributors:
+* Nokia Corporation - initial contribution.
+*
+* Contributors:
+*
+* Description:    Resource definitions for Grid View plugin
+*
+*/
+
+
+
 
 //	RESOURCE IDENTIFIER
-NAME MPXC
+NAME	MPXC
 
 //	INCLUDES
 
@@ -35,11 +38,9 @@ NAME MPXC
 
 //	RESOURCE DEFINITIONS 
 
-RESOURCE RSS_SIGNATURE
-    {}
+RESOURCE RSS_SIGNATURE { }
 
-RESOURCE TBUF
-    {buf="GLTV";}
+RESOURCE TBUF { buf="GLTV"; }
 
 // -----------------------------------------------------------------------------------
 // Resource Definitions
@@ -47,10 +48,10 @@ RESOURCE TBUF
 
 // Downloads Grid View
 RESOURCE AVKON_VIEW r_grid_view
-    {
-    menubar = r_grid_menubar;
-    cba = r_grid_softkeys;
-    }
+	{
+	menubar = r_grid_menubar;
+	cba = r_grid_softkeys;  
+	}
 
 // Captured Grid View
 RESOURCE AVKON_VIEW r_glx_captured_grid_view
@@ -80,27 +81,26 @@ RESOURCE AVKON_VIEW r_taggrid_view
     cba = r_grid_softkeys;
     }
 
+
 // ------------------------------------------------------------------------------------
 // Menu Bar Resources 
 // ------------------------------------------------------------------------------------
 
 // Basic Grid Views
 RESOURCE MENU_BAR r_grid_menubar
-    {
-    titles=
-        {
-        MENU_TITLE
-            {menu_pane=r_glx_grid_menu; txt="";}
-        };
-    }
+	{
+	titles=
+		{
+		MENU_TITLE { menu_pane=r_glx_grid_menu; txt=""; }
+		};
+	}
 
 // Albums Grid View
 RESOURCE MENU_BAR r_glx_album_grid_menubar
     {
     titles=
         {
-        MENU_TITLE
-            {menu_pane=r_glx_album_grid_menu; txt="";}
+        MENU_TITLE { menu_pane=r_glx_album_grid_menu; txt=""; }
         };
     }
 
@@ -109,10 +109,10 @@ RESOURCE MENU_BAR r_taggrid_menubar
     {
     titles=
         {
-        MENU_TITLE
-            {menu_pane=r_taggrid_menu; txt="";}
+        MENU_TITLE { menu_pane=r_taggrid_menu; txt=""; }
         };
-    }
+    }   
+
 
 // ------------------------------------------------------------------------------------
 // Menu Contents for Grid views
@@ -121,179 +121,143 @@ RESOURCE MENU_BAR r_taggrid_menubar
 // Basic grid views
 RESOURCE MENU_PANE r_glx_grid_menu
     {
-    items=
-        {
-        MENU_ITEM
-            {command = EGlxCmdPlay;
-            txt = qtn_lgal_options_play;},
-        MENU_ITEM
-            {command = EGlxCmdSend;
-            txt = qtn_options_send_via;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdAiwShareOnOvi;
-            /* txt comes from ShareOnline 4.3 */},
-        MENU_ITEM
-            {command = EGlxCmdDelete;
-            txt = qtn_lgal_options_delete;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdSlideshowPlay;
-            txt = qtn_lgal_options_slideshow;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdSlideshow;
-            txt = qtn_lgal_options_slideshow;
-            cascade = r_grid_shw_menu;},
-        MENU_ITEM
-            {command = EGlxCmdAiwEdit;
-            txt = qtn_lgal_options_edit;
-            flags = EEikMenuItemSpecificListQuery;},
-        MENU_ITEM
-            {command = EGlxCmdDetails;
-            txt = qtn_lgal_options_details;},
-        MENU_ITEM
-            {command = EAknMarkAll;
-            txt = qtn_options_list_mark_all;},
-        MENU_ITEM
-            {command = EAknUnmarkAll;
-            txt = qtn_options_list_unmark_all;},
-        MENU_ITEM
-            {command = EGlxCmdAddToAlbum;
-            txt = qtn_lgal_options_add_to_album;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdAddTag;
-            txt = qtn_lgal_options_properties_add_tag;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EAknCmdHelp;
-            txt = qtn_options_help;},
-        MENU_ITEM
-            {command = EAknCmdExit;
-            txt = qtn_options_exit;}
-        };
+        items=
+                {
+                  MENU_ITEM { command = EGlxCmdPlay;
+                              txt = qtn_lgal_options_play; },
+                  MENU_ITEM { command = EGlxCmdSend;
+                              txt = qtn_options_send_via; 
+                              flags = EEikMenuItemSpecific; },
+                  MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
+                           /* txt comes from ShareOnline 4.3 */ 
+                           flags = EEikMenuItemSpecific;},        
+                  MENU_ITEM { command = EGlxCmdDelete;
+                              txt = qtn_lgal_options_delete; 
+                              flags = EEikMenuItemSpecific; }, 
+                   MENU_ITEM { command = EGlxCmdSlideshowPlay;
+                              txt = qtn_lgal_options_slideshow;
+                              flags = EEikMenuItemSpecific;},
+                  MENU_ITEM { command = EGlxCmdSlideshow;
+                              txt = qtn_lgal_options_slideshow;
+                              cascade = r_grid_shw_menu; },
+                  MENU_ITEM { command = EGlxCmdAiwEdit; 
+                              txt = qtn_lgal_options_edit; 
+                              flags = EEikMenuItemSpecificListQuery;}, 
+                  MENU_ITEM { command = EGlxCmdDetails;
+                              txt = qtn_lgal_options_details; },    
+                  MENU_ITEM { command = EAknMarkAll;
+                              txt = qtn_options_list_mark_all;},   
+                  MENU_ITEM { command = EAknUnmarkAll;
+                              txt = qtn_options_list_unmark_all;},                                                                                
+                  MENU_ITEM { command = EGlxCmdAddToAlbum;
+                              txt = qtn_lgal_options_add_to_album; 
+                              flags = EEikMenuItemSpecific; },
+                  MENU_ITEM { command = EGlxCmdAddTag;
+                              txt = qtn_lgal_options_properties_add_tag;
+                              flags = EEikMenuItemSpecific; }, 
+                  MENU_ITEM { command = EAknCmdHelp; 
+                              txt = qtn_options_help; },
+                  MENU_ITEM { command = EAknCmdExit; 
+                              txt = qtn_options_exit; }
+                };
     }
 
 // Albums Grid
 RESOURCE MENU_PANE r_glx_album_grid_menu
     {
-    items=
-        {
-        MENU_ITEM
-            {command = EGlxCmdPlay;
-            txt = qtn_lgal_options_play;},
-        MENU_ITEM
-            {command = EGlxCmdSend;
-            txt = qtn_options_send_via;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdAiwShareOnOvi;
-            /* txt comes from ShareOnline 4.3 */},
-        MENU_ITEM
-            {command = EGlxCmdRemoveFrom;
-            txt = qtn_lgal_options_remove_from_album;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdDelete;
-            txt = qtn_lgal_options_delete;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdSlideshowPlay;
-            txt = qtn_lgal_options_slideshow;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdSlideshow;
-            txt = qtn_lgal_options_slideshow;
-            cascade = r_grid_shw_menu;},
-        MENU_ITEM
-            {command = EGlxCmdAiwEdit;
-            txt = qtn_lgal_options_edit;
-            flags = EEikMenuItemSpecificListQuery;},
-        MENU_ITEM
-            {command = EGlxCmdDetails;
-            txt = qtn_lgal_options_details;},
-        MENU_ITEM
-            {command = EAknMarkAll;
-            txt = qtn_options_list_mark_all;},
-        MENU_ITEM
-            {command = EAknUnmarkAll;
-            txt = qtn_options_list_unmark_all;},
-        MENU_ITEM
-            {command = EGlxCmdAddToAlbum;
-            txt = qtn_lgal_options_add_to_album;},
-        MENU_ITEM
-            {command = EGlxCmdAddTag;
-            txt = qtn_lgal_options_properties_add_tag;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EAknCmdHelp;
-            txt = qtn_options_help;},
-        MENU_ITEM
-            {command = EAknCmdExit;
-            txt = qtn_options_exit;}
-        };
-    }
+        items= 
+            {                             
+                  MENU_ITEM { command = EGlxCmdPlay;
+                              txt = qtn_lgal_options_play; },
+                  MENU_ITEM { command = EGlxCmdSend;
+                              txt = qtn_options_send_via; 
+                              flags = EEikMenuItemSpecific; },  
+                  MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
+                           /* txt comes from ShareOnline 4.3 */ 
+                               flags = EEikMenuItemSpecific;},  
+                  MENU_ITEM { command = EGlxCmdRemoveFrom;
+                              txt = qtn_lgal_options_remove_from_album; 
+                              flags = EEikMenuItemSpecific; },
+                  MENU_ITEM { command = EGlxCmdDelete;
+                              txt = qtn_lgal_options_delete; 
+                              flags = EEikMenuItemSpecific; },
+                  MENU_ITEM { command = EGlxCmdSlideshowPlay;
+                              txt = qtn_lgal_options_slideshow;
+                              flags = EEikMenuItemSpecific;},
+                  MENU_ITEM { command = EGlxCmdSlideshow;
+                              txt = qtn_lgal_options_slideshow;
+                              cascade = r_grid_shw_menu; },
+                  MENU_ITEM { command = EGlxCmdAiwEdit; 
+                              txt = qtn_lgal_options_edit; 
+                              flags = EEikMenuItemSpecificListQuery;}, 
+                  MENU_ITEM { command = EGlxCmdDetails;
+                              txt = qtn_lgal_options_details; },    
+ 		  MENU_ITEM { command = EAknMarkAll;
+                              txt = qtn_options_list_mark_all;},   
+		  MENU_ITEM { command = EAknUnmarkAll;
+                              txt = qtn_options_list_unmark_all;},                                                                                
+                  MENU_ITEM { command = EGlxCmdAddToAlbum;
+                              txt = qtn_lgal_options_add_to_album; 
+                              flags = EEikMenuItemSpecific; },
+                  MENU_ITEM { command = EGlxCmdAddTag;
+                              txt = qtn_lgal_options_properties_add_tag;
+                              flags = EEikMenuItemSpecific; }, 
+                  MENU_ITEM { command = EAknCmdHelp; 
+                              txt = qtn_options_help; },
+                  MENU_ITEM { command = EAknCmdExit; 
+                              txt = qtn_options_exit; }
+                };
+        }
 
 // Tags Grid
 RESOURCE MENU_PANE r_taggrid_menu
-    {
-    items=
-        {
-        MENU_ITEM
-            {command = EGlxCmdPlay;
-            txt = qtn_lgal_options_play;},
-        MENU_ITEM
-            {command = EGlxCmdSend;
-            txt = qtn_options_send_via;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdAiwShareOnOvi;
-            /* txt comes from ShareOnline 4.3 */},
-        MENU_ITEM
-            {command=EGlxCmdRemoveFrom;
-            txt = qtn_lgal_options_remove_from_tag;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdDelete;
-            txt = qtn_lgal_options_delete;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdSlideshowPlay;
-            txt = qtn_lgal_options_slideshow;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdSlideshow;
-            txt = qtn_lgal_options_slideshow;
-            cascade = r_grid_shw_menu;},
-        MENU_ITEM
-            {command = EGlxCmdAiwEdit;
-            txt = qtn_lgal_options_edit;
-            flags = EEikMenuItemSpecificListQuery;},
-        MENU_ITEM
-            {command = EGlxCmdDetails;
-            txt = qtn_lgal_options_details;},
-        MENU_ITEM
-            {command = EAknMarkAll;
-            txt = qtn_options_list_mark_all;},
-        MENU_ITEM
-            {command = EAknUnmarkAll;
-            txt = qtn_options_list_unmark_all;},
-        MENU_ITEM
-            {command = EGlxCmdAddToAlbum;
-            txt = qtn_lgal_options_add_to_album;
-            flags = EEikMenuItemSpecific;},
-        MENU_ITEM
-            {command = EGlxCmdAddTag;
-            txt = qtn_lgal_options_properties_add_tag;},
-        MENU_ITEM
-            {command = EAknCmdHelp;
-            txt = qtn_options_help;},
-        MENU_ITEM
-            {command = EAknCmdExit;
-            txt = qtn_options_exit;}
-        };
+   {
+   items=
+         {
+        MENU_ITEM { command = EGlxCmdPlay;
+                    txt = qtn_lgal_options_play; },
+        MENU_ITEM { command = EGlxCmdSend;
+                    txt = qtn_options_send_via; 
+                    flags = EEikMenuItemSpecific; },
+        MENU_ITEM { command = EGlxCmdAiwShareOnOvi; 
+                 /* txt comes from ShareOnline 4.3 */ 
+                 flags = EEikMenuItemSpecific;},  
+        MENU_ITEM { command=EGlxCmdRemoveFrom; 
+                    txt = qtn_lgal_options_remove_from_tag; 
+                    flags = EEikMenuItemSpecific; },
+        MENU_ITEM { command = EGlxCmdDelete;
+                    txt = qtn_lgal_options_delete; 
+                    flags = EEikMenuItemSpecific; }, 
+        MENU_ITEM { command = EGlxCmdSlideshowPlay;
+                    txt = qtn_lgal_options_slideshow;
+                    flags = EEikMenuItemSpecific;},
+        MENU_ITEM { command = EGlxCmdSlideshow;
+                    txt = qtn_lgal_options_slideshow;
+                    cascade = r_grid_shw_menu; },
+        MENU_ITEM { command = EGlxCmdAiwEdit; 
+                    txt = qtn_lgal_options_edit; 
+                    flags = EEikMenuItemSpecificListQuery;}, 
+        MENU_ITEM { command = EGlxCmdDetails;
+                    txt = qtn_lgal_options_details; },    
+        MENU_ITEM { command = EAknMarkAll;
+                    txt = qtn_options_list_mark_all;},   
+		MENU_ITEM { command = EAknUnmarkAll;
+                    txt = qtn_options_list_unmark_all;},
+        MENU_ITEM { command = EGlxCmdAddToAlbum;
+                    txt = qtn_lgal_options_add_to_album;
+                    flags = EEikMenuItemSpecific; },
+        MENU_ITEM { command = EGlxCmdAddTag;
+                    txt = qtn_lgal_options_properties_add_tag; 
+                    flags = EEikMenuItemSpecific; },
+         MENU_ITEM { command = EAknCmdHelp; 
+                     txt = qtn_options_help; },
+         MENU_ITEM { command = EAknCmdExit; 
+                     txt = qtn_options_exit; }                     
+         };
     }
+
+
+
 
 // ------------------------------------------------------------------------------------
 // Submenu contents
@@ -304,14 +268,11 @@ RESOURCE MENU_PANE r_grid_shw_menu
     {
     items=
         {
-        MENU_ITEM
-            {command=EGlxCmdSlideshowPlay;
-            txt=qtn_lgal_options_slideshow_play;},
-        MENU_ITEM
-            {command=EGlxCmdSlideshowSettings;
-            txt=qtn_lgal_options_slideshow_settings_general;}
+        MENU_ITEM { command=EGlxCmdSlideshowPlay; txt=qtn_lgal_options_slideshow_play; },
+        MENU_ITEM { command=EGlxCmdSlideshowSettings; txt=qtn_lgal_options_slideshow_settings_general; }        
         };
     }
+
 
 // EditList sub menu for Marking
 RESOURCE MENU_PANE r_viu_editlist_menu
@@ -319,138 +280,134 @@ RESOURCE MENU_PANE r_viu_editlist_menu
     items =
         {
         /*MENU_ITEM
-         {
-         command = EAknCmdMark;
-         txt = qtn_options_list_mark_one;
-         },*/
+            {
+            command = EAknCmdMark;
+            txt = qtn_options_list_mark_one;
+            },*/
         MENU_ITEM
             {
             command = EAknMarkAll;
             txt = qtn_options_list_mark_all;
             },
         /*MENU_ITEM
-         {
-         command = EAknCmdUnmark;
-         txt = qtn_options_list_unmark_one;
-         },*/
+            {
+            command = EAknCmdUnmark;
+            txt = qtn_options_list_unmark_one;
+            },*/
         MENU_ITEM
             {
             command = EAknUnmarkAll;
             txt = qtn_options_list_unmark_all;
-            }
+            }                       
         };
     }
+
+// Rotate Sub menu
+//RESOURCE MENU_PANE r_rotate_sub_menu
+//    {
+//    items = 
+//        {
+//         MENU_ITEM
+//            {
+//             command = EGlxCmdRotateLeft;
+//             txt = qtn_lgal_options_rotate_left;
+//            },
+//         MENU_ITEM
+//            {
+//             command = EGlxCmdRotateRight;
+//             txt = qtn_lgal_options_rotate_right;
+//            }
+//        };
+//    }
 
 // Home Network sub menu
 RESOURCE MENU_PANE r_home_network_menu
     {
     items=
         {
-        MENU_ITEM
-            {command=EGlxShowViaUpnpSubmenuVersion;
-            txt=qtn_lgal_options_sub_show_ext;},
-        MENU_ITEM
-            {command=EGlxStopShowingSubmenuVersion;
-            txt=qtn_lgal_options_sub_stop_show;},
-        MENU_ITEM
-            {command=EGlxCopyToHomeNetwork;
-            txt=qtn_lgal_options_copy_to_home_net;}
+        MENU_ITEM { command=EGlxShowViaUpnpSubmenuVersion; txt=qtn_lgal_options_sub_show_ext; },
+        MENU_ITEM { command=EGlxStopShowingSubmenuVersion; txt=qtn_lgal_options_sub_stop_show; },
+        MENU_ITEM { command=EGlxCopyToHomeNetwork; txt=qtn_lgal_options_copy_to_home_net; }
         };
     }
+
 
 // ------------------------------------------------------------------------------------
 // Other Menubars
 // ------------------------------------------------------------------------------------
 
 RESOURCE MENU_BAR r_grid_ok_menubar
-    {
-    titles=
-        {
-        MENU_TITLE
-            {menu_pane=r_grid_ok_menu; txt="";}
-        };
-    }
-
+	{
+	titles=
+		{
+		MENU_TITLE { menu_pane=r_grid_ok_menu; txt=""; }
+		};
+	}
+	
 RESOURCE MENU_BAR r_grid_ok_menubar_album_gridview
-    {
-    titles=
-        {
-        MENU_TITLE
-            {menu_pane=r_grid_ok_menu_album_gridview; txt="";}
-        };
-    }
+	{
+	titles=
+		{
+		MENU_TITLE { menu_pane=r_grid_ok_menu_album_gridview; txt=""; }
+		};
+	}
 
 RESOURCE MENU_BAR r_grid_ok_menubar_tag_gridview
     {
     titles=
         {
-        MENU_TITLE
-            {menu_pane=r_grid_ok_menu_tag_gridview; txt="";}
+        MENU_TITLE { menu_pane=r_grid_ok_menu_tag_gridview; txt=""; }
         };
     }
 
 RESOURCE MENU_PANE r_grid_ok_menu
-    {
-    items=
-        {
-        MENU_ITEM
-            {command = EGlxCmdDelete;
-            txt = qtn_lgal_options_delete;},
-        MENU_ITEM
-            {command = EAknUnmarkAll;
-            txt = qtn_options_list_unmark_all;},
-        MENU_ITEM
-            {command = EGlxCmdAddToAlbum;
-            txt = qtn_lgal_options_add_to_album;},
-        MENU_ITEM
-            {command = EGlxCmdAddTag;
-            txt = qtn_lgal_options_properties_add_tag;}
-        };
-    }
+  {
+        items=
+                {
+                MENU_ITEM { command = EGlxCmdDelete; 
+                            txt = qtn_lgal_options_delete; },
+                MENU_ITEM { command = EAknUnmarkAll;
+                            txt = qtn_options_list_unmark_all; },
+                MENU_ITEM { command = EGlxCmdAddToAlbum; 
+                            txt = qtn_lgal_options_add_to_album; },
+                MENU_ITEM { command = EGlxCmdAddTag;
+                            txt = qtn_lgal_options_properties_add_tag; }
+                };
+  }
 
 RESOURCE MENU_PANE r_grid_ok_menu_album_gridview
-    {
-    items=
-        {
-        MENU_ITEM
-            {command = EGlxCmdDelete;
-            txt = qtn_lgal_options_delete;},
-        MENU_ITEM
-            {command = EAknUnmarkAll;
-            txt = qtn_options_list_unmark_all;},
-        MENU_ITEM
-            {command = EGlxCmdAddToAlbum;
-            txt = qtn_lgal_options_add_to_album;},
-        MENU_ITEM
-            {command = EGlxCmdAddTag;
-            txt = qtn_lgal_options_properties_add_tag;},
-        MENU_ITEM
-            {command = EGlxCmdRemoveFrom;
-            txt = qtn_lgal_options_remove_from_album;}
-        };
-    }
+  {
+        items=
+                {
+                MENU_ITEM { command = EGlxCmdDelete; 
+                            txt = qtn_lgal_options_delete; },
+                MENU_ITEM { command = EAknUnmarkAll;
+                            txt = qtn_options_list_unmark_all; },
+                MENU_ITEM { command = EGlxCmdAddToAlbum; 
+                            txt = qtn_lgal_options_add_to_album; },
+                MENU_ITEM { command = EGlxCmdAddTag;
+                            txt = qtn_lgal_options_properties_add_tag; }, 
+                MENU_ITEM { command = EGlxCmdRemoveFrom; 
+                            txt = qtn_lgal_options_remove_from_album; }
+                };
+  }
 
 RESOURCE MENU_PANE r_grid_ok_menu_tag_gridview
-    {
-    items=
-        {
-        MENU_ITEM
-            {command = EGlxCmdDelete;
-            txt = qtn_lgal_options_delete;},
-        MENU_ITEM
-            {command = EAknUnmarkAll;
-            txt = qtn_options_list_unmark_all;},
-        MENU_ITEM
-            {command = EGlxCmdAddToAlbum;
-            txt = qtn_lgal_options_add_to_album;},
-        MENU_ITEM
-            {command = EGlxCmdAddTag;
-            txt = qtn_lgal_options_properties_add_tag;},
-        MENU_ITEM
-            {command=EGlxCmdRemoveFrom;
-            txt=qtn_lgal_options_remove_from_tag;}
-        };
-    }
+  {
+        items=
+                {
+                MENU_ITEM { command = EGlxCmdDelete; 
+                            txt = qtn_lgal_options_delete; },
+                MENU_ITEM { command = EAknUnmarkAll;
+                            txt = qtn_options_list_unmark_all; },
+                MENU_ITEM { command = EGlxCmdAddToAlbum; 
+                            txt = qtn_lgal_options_add_to_album; },
+                MENU_ITEM { command = EGlxCmdAddTag;
+                            txt = qtn_lgal_options_properties_add_tag; }, 
+                MENU_ITEM { command=EGlxCmdRemoveFrom; 
+                            txt=qtn_lgal_options_remove_from_tag; }
+                };
+  }
 
 // ------------------------------------------------------------------------------------
 // Softkey resources
@@ -477,6 +434,7 @@ RESOURCE CBA r_grid_softkeys
             }
         };
     }
+
 
 RESOURCE CBA r_grid_softkeys_fullscreen
     {
@@ -505,7 +463,7 @@ RESOURCE CBA r_grid_softkeys_fullscreen
 // ------------------------------------------------------------------------------------
 RESOURCE TBUF r_grid_empty_view_text
     {
-    buf = qtn_lgal_empty_grid_no_items;
+    buf = qtn_lgal_empty_grid_no_items; 
     }
 
 RESOURCE TBUF r_grid_empty_view_text_image
@@ -537,57 +495,57 @@ RESOURCE AVKON_TOOLBAR r_glx_grid_view_toolbar
     items =
         {
         TBAR_CTRL
-            {
-            type = EAknCtButton;
-            id = EGlxCmdSlideshowPlay;
-            control = AVKON_BUTTON
-                {
-                flags = 0;
-                states =
-                    {
-                    AVKON_BUTTON_STATE
-                        {
-                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
-                        bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
-                        bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
-                        press_bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
-                        press_bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
-                        helptxt = qtn_lgal_tooltip_slideshow;
-                        }
-                    };
-                };
-            },
-        TBAR_CTRL
-            {
-            type = EAknCtButton;
-            id = EGlxCmdStartMultipleMarking;
-            control = AVKON_BUTTON
-                {
-                flags = 0;
-                states =
-                    {
-                    AVKON_BUTTON_STATE
-                        {
-                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
-                        bmpid = EMbmGlxiconsQgn_indi_cam4_tb_mark;
-                        bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_mark_mask;
-                        press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_mark;
-                        press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_mark_mask;
-                        helptxt = qtn_lgal_tooltip_mark_items;
-                        },
-                    AVKON_BUTTON_STATE
-                        {
-                        flags = KAknButtonStateHasLatchedFrame;
-                        bmpfile = "z:\\Resource\\apps\\glxicons.mif";
-                        bmpid = EMbmGlxiconsQgn_indi_tb_unmark;
-                        bmpmask = EMbmGlxiconsQgn_indi_tb_unmark_mask;
-                        press_bmpid = EMbmGlxiconsQgn_indi_tb_unmark;
-                        press_bmpmask = EMbmGlxiconsQgn_indi_tb_unmark_mask;
-                        helptxt = qtn_lgal_tooltip_unmark_all;
-                        }
-                    };
-                };
-            },
+              {
+              type = EAknCtButton;
+              id = EGlxCmdSlideshowPlay;
+              control = AVKON_BUTTON
+                  {
+                  flags = 0;
+                  states =
+                      {
+                      AVKON_BUTTON_STATE
+                          {
+                          bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                          bmpid = EMbmGlxiconsQgn_indi_tb_slideshow; 
+                          bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                          press_bmpid = EMbmGlxiconsQgn_indi_tb_slideshow;
+                          press_bmpmask = EMbmGlxiconsQgn_indi_tb_slideshow_mask;
+                          helptxt = qtn_lgal_tooltip_slideshow;
+                          }
+                      };
+                  };
+              },
+          TBAR_CTRL
+              {
+              type = EAknCtButton;
+              id = EGlxCmdStartMultipleMarking;
+              control = AVKON_BUTTON
+                  {
+                  flags = 0;
+                  states =
+                      {
+                      AVKON_BUTTON_STATE
+                          {
+                          bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                          bmpid = EMbmGlxiconsQgn_indi_cam4_tb_mark; 
+                          bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_mark_mask;
+                          press_bmpid = EMbmGlxiconsQgn_indi_cam4_tb_mark;
+                          press_bmpmask = EMbmGlxiconsQgn_indi_cam4_tb_mark_mask;
+                          helptxt = qtn_lgal_tooltip_mark_items;
+                          },
+                      AVKON_BUTTON_STATE
+                          {
+                          flags = KAknButtonStateHasLatchedFrame;
+                          bmpfile = "z:\\Resource\\apps\\glxicons.mif";
+                          bmpid = EMbmGlxiconsQgn_indi_tb_unmark; 
+                          bmpmask = EMbmGlxiconsQgn_indi_tb_unmark_mask;
+                          press_bmpid = EMbmGlxiconsQgn_indi_tb_unmark;
+                          press_bmpmask = EMbmGlxiconsQgn_indi_tb_unmark_mask;
+                          helptxt = qtn_lgal_tooltip_unmark_all;
+                          }
+                      };
+                  };
+              },
         TBAR_CTRL
             {
             type = EAknCtButton;
@@ -624,7 +582,7 @@ RESOURCE AVKON_TOOLBAR r_glx_grid_view_toolbar
                         bmpid = EMbmGlxicons1click_default_icon_active;
                         bmpmask = EMbmGlxicons1click_default_icon_active_mask;
                         press_bmpid = EMbmGlxicons1click_default_icon_active;
-                        press_bmpmask = EMbmGlxicons1click_default_icon_active_mask;
+                        press_bmpmask = EMbmGlxicons1click_default_icon_active_mask;                      
                         }
                     };
                 };

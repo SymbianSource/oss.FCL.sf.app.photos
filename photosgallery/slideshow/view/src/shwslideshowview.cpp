@@ -40,7 +40,6 @@
 #include <glxresolutionutility.h>               // for CGlxResolutionUtility
 #include <shwslideshowview.rsg> // view's resource
 #include <data_caging_path_literals.hrh>	// for resource directory path
-#include <glxcommandhandlers.hrh>			// for EGlxCmdResetView
 #include <glxlog.h>
 #include <glxtracer.h>
 #include <aknsoundsystem.h>				// for CAknKeySoundSystem
@@ -71,8 +70,8 @@
 #include <glxicons.mbg>
 #include <AknIconUtils.h>
 #include <glxuistd.h>
-#include <glxuiutilities.rsg>
 #include <glxgeneraluiutilities.h>
+#include <glxuiutilities.rsg>
 
 namespace
     {
@@ -245,23 +244,11 @@ TInt CShwSlideshowView::StartEngineL()
 				{
 				iWaitDialog->ProcessFinishedL();
 				}
-            HBufC* popupText = NULL;
-            //Load the "No Images to Play Slideshow" string from the resource file
-            popupText = StringLoader::LoadLC(R_GLX_NO_IMAGES_TO_PLAY_SLIDESHOW);
-            // Show the Info Note.
-            GlxGeneralUiUtilities::ShowInfoNoteL(popupText->Des(), EFalse);
-            // LoadLC will push text on to cleanupstack, 
-            // hence it should be poped and destroyed
-            CleanupStack::PopAndDestroy(popupText);
 			}
 		else
 			{
 			// The list should now be populated, so set the focus
 			SetListFocusL();
-
-			// Initialize control textures            
-			iVolumeControl->InitControlTextureL();
-
 			// Need to take latest screen size as layout has changed
 			TRect currentScreen;
 			AknLayoutUtils::LayoutMetricsRect(AknLayoutUtils::EScreen,
@@ -391,8 +378,6 @@ void CShwSlideshowView::ConstructL()
             &CShwSlideshowView::PopulateListL> (this));
     iMSKPressed = EFalse;
     iLSKPressed = EFalse;
-    iAknEventMonitor
-            = static_cast<CAknAppUiBase*> (CCoeEnv::Static()->AppUi())->EventMonitor();
     }
    
 // ---------------------------------------------------------------------------
@@ -409,16 +394,15 @@ TUid CShwSlideshowView::Id() const
 
 // ---------------------------------------------------------------------------
 // From CAknView
-// Background event handling in HandleWsEventL.
-// Foreground event handling this function.
+// Foreground event handling function.
 // ---------------------------------------------------------------------------
 //
 void CShwSlideshowView::HandleForegroundEventL(TBool aForeground)
     {
-	TRACER("CShwSlideshowView::HandleForegroundEventL");
-	GLX_LOG_INFO1("CShwSlideshowView::HandleForegroundEventL(%d)", aForeground);
+    TRACER("CShwSlideshowView::HandleForegroundEventL");
+  	GLX_LOG_INFO( "CShwSlideshowView::HandleForegroundEventL()" );
 	iIsForegrnd = aForeground;
-	if (aForeground)
+    if( aForeground )
         {
         if (iHdmiController && iHdmiActive)
             {
@@ -435,6 +419,16 @@ void CShwSlideshowView::HandleForegroundEventL(TBool aForeground)
             iEngine->GetMusicVolumeL();
             }
         }
+    else
+        {
+        if (iHdmiController && iHdmiActive)
+            {
+            iHdmiController->ShiftToCloningMode();
+            }
+        // Something else has gained the foreground
+        iPauseHandler->SwitchToBackgroundL();
+        }
+
     CAknView::HandleForegroundEventL(aForeground);
     }
 
@@ -516,8 +510,6 @@ void CShwSlideshowView::DoViewActivateL(const TVwsViewId& /*aPrevViewId*/,
 	// We will require to act on events ONLY when the view is active.
 	// So listen to them only when the view is active.
     iShwGestureControl->AddObserverL(this);    
-    iAknEventMonitor->Enable(ETrue);
-    iAknEventMonitor->AddObserverL(this);
     }
 
 // -----------------------------------------------------------------------------
@@ -558,8 +550,6 @@ void CShwSlideshowView::DoViewDeactivate()
     //are always valid so no need to test for != NULL
    	iDisplay->Roster().Hide( *iVolumeControlGroup );
 
-    iAknEventMonitor->Enable(EFalse);
-    iAknEventMonitor->RemoveObserver(this);
 
   	//Ensure we revert to a proper background
     TRAP_IGNORE( 
@@ -773,23 +763,23 @@ void CShwSlideshowView::HandlePopulatedL( MGlxMediaList* aList )
 // ---------------------------------------------------------------------------
 //
 void CShwSlideshowView::EngineStartedL()
-    {
-    TRACER("CShwSlideshowView::EngineStartedL");
-    GLX_LOG_INFO( "CShwSlideshowView::EngineStartedL()" );
-    if (iWaitDialog)
-        {
-        // cancel the progress bar
-        iWaitDialog->ProcessFinishedL();
-        }
-    if (iHdmiController)
-        {
-        iHdmiController->ShiftToPostingMode();
-        }
-    // Here, iShwState value is either 0(first instance)
-    // or EShwExiting(remembered from previous instance)
-    iShwState = EShwPlay;
-    ShowShwFurnitureL();
-    }
+	{
+	TRACER("CShwSlideshowView::EngineStartedL");
+	GLX_LOG_INFO( "CShwSlideshowView::EngineStartedL()" );
+
+	if (iWaitDialog)
+		{
+		// cancel the progress bar
+		iWaitDialog->ProcessFinishedL();
+		}
+	if (iHdmiController)
+		{
+		iHdmiController->ShiftToPostingMode();
+		}
+	iShwState = EShwPlay;
+	ReplaceCommandSetL(R_SHW_SOFTKEYS_END_PAUSE, R_SHW_SOFTKEYS_END_PAUSE);
+	ShowShwFurnitureL();
+	}
 
 // ---------------------------------------------------------------------------
 // From MShwEngineObserver
@@ -799,19 +789,20 @@ void CShwSlideshowView::EngineStartedL()
 void CShwSlideshowView::EnginePausedL()
     {
     TRACER("CShwSlideshowView::EnginePausedL");
-    GLX_LOG_INFO( "CShwSlideshowView::EnginePausedL()" );
+  	GLX_LOG_INFO( "CShwSlideshowView::EnginePausedL()" );
+    
     // Cancel the backlight if it's on
-    if (iBackLightTimer->IsRunning())
+    if ( iBackLightTimer->IsRunning() )
         {
         iBackLightTimer->Cancel();
         }
-    if (!iUiUtility->IsExitingState() && (iShwState != EShwExiting))
-        {
-        iShwState = EShwPause;
-        ReplaceCommandSetL(R_SHW_SOFTKEYS_END_CONTINUE,
-                R_SHW_SOFTKEYS_END_PAUSE);
-        ShowShwFurnitureL();
-        }
+        
+    if(!iUiUtility->IsExitingState())
+    	{
+    	iShwState = EShwPause;
+   		ReplaceCommandSetL(R_SHW_SOFTKEYS_END_CONTINUE,R_SHW_SOFTKEYS_END_PAUSE);
+    	ShowShwFurnitureL();
+    	}
     }
 
 // ---------------------------------------------------------------------------
@@ -819,24 +810,20 @@ void CShwSlideshowView::EnginePausedL()
 // Engine resumed callback.
 // ---------------------------------------------------------------------------
 //
-void CShwSlideshowView::EngineResumedL()
-    {
-    TRACER("CShwSlideshowView::EngineResumedL");
-    GLX_LOG_INFO( "CShwSlideshowView::EngineResumedL" );
-    iEngine->GetMusicVolumeL();
+void CShwSlideshowView::EngineResumedL()   
+	{
+	TRACER("CShwSlideshowView::EngineResumedL");
+  	GLX_LOG_INFO( "CShwSlideshowView::EngineResumedL" );
+	iEngine->GetMusicVolumeL();
     // Re-enable the backlight if it's off
-    if (!iBackLightTimer->IsRunning())
+    if ( !iBackLightTimer->IsRunning() )
         {
         iBackLightTimer->StartL();
         }
-    if (iShwState != EShwExiting)
-        {
-        iShwState = EShwPlay;
-        ReplaceCommandSetL(R_SHW_SOFTKEYS_END_PAUSE,
-                R_SHW_SOFTKEYS_END_CONTINUE);
-        ShowShwFurnitureL();
-        }
-    }
+    iShwState = EShwPlay;
+    ReplaceCommandSetL(R_SHW_SOFTKEYS_END_PAUSE,R_SHW_SOFTKEYS_END_CONTINUE);
+    ShowShwFurnitureL();
+	}
 // ---------------------------------------------------------------------------
 // From MShwEngineObserver
 // Engine LSK Pressed
@@ -1024,12 +1011,16 @@ void CShwSlideshowView::GetPathAndPlaybackDirectionL( const TDesC8& aData )
 	CleanupClosePushL( stream );
 	stream.ReadInt32L();
 
+
 	//Get the play direction.
+	
 	CShwSettingsModel* shwSettingsMdl = CShwSettingsModel::NewL();
-	CleanupStack::PushL(shwSettingsMdl);
-	iPlayDirection
-			= static_cast<NShwSlideshow::TPlayDirection> (shwSettingsMdl->PlayOrderL());
+        CleanupStack::PushL( shwSettingsMdl );
+        iPlayDirection = static_cast< NShwSlideshow::
+	TPlayDirection>(shwSettingsMdl->PlayOrderL());	
         CleanupStack::PopAndDestroy( shwSettingsMdl );   
+
+
 
 	// Retrieve the path
 	iCollectionPath = CMPXCollectionPath::NewL();
@@ -1061,31 +1052,28 @@ void CShwSlideshowView::GetPathAndPlaybackDirectionL( const TDesC8& aData )
 void CShwSlideshowView::SetListFocusL()
     {
     TRACER("CShwSlideshowView::SetListFocusL");
-    GLX_LOG_INFO("CShwSlideshowView::SetListFocusL");
+  	GLX_LOG_INFO( "CShwSlideshowView::SetListFocusL" );
     // Ensure that we start the slideshow from the correct image index:
     // if there are any selected images we always start from the first one,
     // otherwise we try to use the item with focus from the unfiltered list
     // so long as it hasn't been filtered out, in which case we use the first image.
     TInt selectionCount = iCollectionPath->Selection().Count();
     TInt focusIndex = 0;
-    if (selectionCount == 0)
+    if ( selectionCount == 0 )
         {
-
         // nothing selected, so determine which item has focus in the original list
         focusIndex = iMediaList->FocusIndex();
-        GLX_LOG_INFO1("SlideshowView::SetListFocusL focusIndex(%d)", focusIndex);
-
-        const TGlxMedia& mediaItem = iMediaList->Item(focusIndex);
+        const TGlxMedia& mediaItem = iMediaList->Item( focusIndex );
         // Check if this item is in the filtered list
-        TGlxIdSpaceId spaceId = iMediaList->IdSpaceId(focusIndex);
-        focusIndex = iFilteredList->Index(spaceId, mediaItem.Id());
-        if (focusIndex == KErrNotFound)
+        TGlxIdSpaceId spaceId = iMediaList->IdSpaceId( focusIndex );
+        focusIndex = iFilteredList->Index( spaceId, mediaItem.Id() );
+        if ( focusIndex == KErrNotFound )
             {
-            focusIndex = ((iPlayDirection == NShwSlideshow::EPlayBackwards)
-                          ? 0 : iFilteredList->Count() - 1);
+            // it's been filtered out so just use the first item
+            focusIndex = 0;
             }
         }
-    iFilteredList->SetFocusL(NGlxListDefs::EAbsolute, focusIndex);
+    iFilteredList->SetFocusL( NGlxListDefs::EAbsolute, focusIndex );
     }
 
 
@@ -1198,6 +1186,8 @@ void CShwSlideshowView::InitializeCbaL()
         CEikButtonGroupContainer::EVertical,
         this, R_SHW_SOFTKEYS_END_PAUSE );
     iShwCba->MakeVisible(EFalse); 
+    //set the current active command set
+	ReplaceCommandSetL(R_SHW_SOFTKEYS_END_PAUSE,R_SHW_SOFTKEYS_END_PAUSE);
 	}
 	
 // -----------------------------------------------------------------------------
@@ -1217,6 +1207,8 @@ void CShwSlideshowView::ReplaceCommandSetL(TInt aNewComandId, TInt aOldCommandSe
         }
     // set the new command set
     iShwCba->SetCommandSetL( aNewComandId );
+    // keep the current active command set
+    iCurrentActiveCommandSet = aNewComandId;
     }
 
 	
@@ -1237,6 +1229,7 @@ void CShwSlideshowView::HideShwFurniture()
 	    iVolumeControl->Hide();
 	    }	
 	iShwFurniture = EFurnitureHidden;
+	
 	}
 	
 // -----------------------------------------------------------------------------
@@ -1269,19 +1262,13 @@ void CShwSlideshowView::ProcessCommandL(TInt aCommandId)
     {
     TRACER("CShwSlideshowView::ProcessCommandL");
     GLX_LOG_INFO( "CShwSlideshowView::ProcessCommandL" );
-    switch (aCommandId)
+    switch(aCommandId)
         {
         case EShwSlideshowCmdEnd:
-        case EAknSoftkeyBack:
-        case EGlxCmdResetView:
             {
             iShwState = EShwExiting;
-            iDisplay->Roster().Hide(*iGestureControlGroup);
-            HideShwFurniture();
-            if (aCommandId == EShwSlideshowCmdEnd)
-                {
-                aCommandId = EAknSoftkeyBack;
-                }
+            aCommandId = EAknSoftkeyBack;
+            iDisplay->Roster().Hide( *iGestureControlGroup );        
             break;
             }
             //When user presses MSK or LSK this cmd will Generated
@@ -1289,11 +1276,11 @@ void CShwSlideshowView::ProcessCommandL(TInt aCommandId)
         case EShwSlideshowCmdContinue:
             {
             // If MSK preesed to toggle visibility of softekey
-            if (iMSKPressed)
+            if(iMSKPressed)
                 {
                 iMSKPressed = EFalse;
-                }
-            else if (iLSKPressed)
+                }            
+            else if(iLSKPressed)
                 {
                 iLSKPressed = EFalse;// Already Handlled
                 }
@@ -1301,8 +1288,9 @@ void CShwSlideshowView::ProcessCommandL(TInt aCommandId)
                 {
                 iPauseHandler->UserToggledPauseL();
                 }
-            break;
+            break;  
             }
+
         default:
             {
             break;
@@ -1552,51 +1540,4 @@ void CShwSlideshowView::HandleHDMIDecodingEventL(THdmiDecodingStatus aStatus)
 	{
 	TRACER("CShwSlideshowView::HandleHDMIDecodingEventL()");
 	iEngine->HandleHDMIDecodingEventL(aStatus);
-	}
-// -------------------------------------------------------------------------------------------------
-//   CShwSlideshowView::IsAppInForegroundL()
-// -------------------------------------------------------------------------------------------------
-//
-TBool CShwSlideshowView::IsAppInForegroundL()
-    {
-    TRACER("CShwSlideshowView::IsAppInForegroundL()");
-    TBool ret = EFalse;
-    CArrayFixFlat<TInt>* wgList = new (ELeave) CArrayFixFlat<TInt> (
-            iEikonEnv->WsSession().NumWindowGroups());
-    CleanupStack::PushL(wgList);
-    if (iEikonEnv->WsSession().WindowGroupList(0, wgList) == KErrNone)
-        {
-        //  Check if Photos App window group is in foreground
-        ret = (iCoeEnv->RootWin().Identifier() == wgList->At(0));
-        GLX_LOG_INFO2("SlideshowView::IsAppInForegroundL() ret=%d, wgId=%u",
-                ret, wgList->At(0));
-        }
-
-    CleanupStack::PopAndDestroy(wgList);
-    return ret;
-    }
-
-// -------------------------------------------------------------------------------------------------
-// CShwSlideshowView::HandleWsEventL()
-// WS Events handling function
-// -------------------------------------------------------------------------------------------------
-//
-void CShwSlideshowView::HandleWsEventL(const TWsEvent& aEvent,
-        CCoeControl* /*aDestination*/)
-    {
-	TRACER("CShwSlideshowView::HandleWsEventL()");
-	TInt event = aEvent.Type();
-	GLX_LOG_INFO1("CShwSlideshowView::HandleWsEventL() event=%d", event);
-
-	// If we are sent to full background, shift to cloning mode
-	if ((event == KAknFullOrPartialForegroundLost) && !IsAppInForegroundL())
-		{
-		GLX_LOG_INFO("SlideshowView::HandleWsEventL() App is in background!");
-		if (iHdmiController && iHdmiActive)
-			{
-			iHdmiController->ShiftToCloningMode();
-			}
-		// Something else has gained the foreground
-		iPauseHandler->SwitchToBackgroundL();
-		}
 	}

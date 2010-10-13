@@ -127,6 +127,9 @@ void CGlxGridViewImp::DoMLViewActivateL(
 	{
 	TRACER("CGlxGridViewImp::DoMLViewActivateL()");
 
+    TUint transitionID = (iUiUtility->ViewNavigationDirection()==
+          EGlxNavigationForwards)?KActivateTransitionId:KFSDeActivateTransitionId; 
+    
     HBufC8* activationParam = HBufC8::NewLC(KMaxUidName);
     activationParam->Des().AppendNum(KGlxActivationCmdShowAll);    
 
@@ -177,8 +180,8 @@ void CGlxGridViewImp::DoMLViewActivateL(
         iToolbar = CAknToolbar::NewL(R_GLX_GRID_VIEW_TOOLBAR);
         SetGridToolBar(iToolbar);
         SetToolbarObserver(this);
-        iToolbar->SetDimmed(ETrue);
-        iToolbar->SetToolbarVisibility(ETrue);
+        //Make the toolbar visible only when the medialist is populated
+        iToolbar->SetToolbarVisibility(iMediaList->IsPopulated());
         }
 	//Create gridview container
 	iGlxGridViewContainer = CGlxGridViewContainer::NewL(iMediaList,
@@ -190,14 +193,11 @@ void CGlxGridViewImp::DoMLViewActivateL(
     // except if launched from Camera App.
     if (aCustomMessage.Compare(activationParam->Des()) != 0) 
         {
-		TUint transitionID = (iUiUtility->ViewNavigationDirection()
-				== EGlxNavigationForwards) ? KActivateTransitionId
-				: KFSDeActivateTransitionId;
         GfxTransEffect::BeginFullScreen( transitionID, TRect(),
                                     AknTransEffect::EParameterType, 
                                     AknTransEffect::GfxTransParam( KPhotosUid,
-                                    AknTransEffect::TParameter::EEnableEffects) );
-        iIsTransEffectStarted = ETrue;
+                                    AknTransEffect::TParameter::EEnableEffects) );	
+        GfxTransEffect::EndFullScreen();
         }	
 	CleanupStack::PopAndDestroy(activationParam);
 	}

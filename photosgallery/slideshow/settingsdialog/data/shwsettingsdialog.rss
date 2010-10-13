@@ -264,7 +264,6 @@ RESOURCE ARRAY r_shw_settingslist_music_popup_texts
     }
 // -----------------------------------------------------------------------------
 // Slideshow settings play direction popup setting texts resource
-// Direction of slideshow play (0->Older to newer, 1->newer to older)
 // -----------------------------------------------------------------------------
 RESOURCE ARRAY r_shw_settingslist_play_direction_texts
     {
@@ -272,12 +271,12 @@ RESOURCE ARRAY r_shw_settingslist_play_direction_texts
         {
         AVKON_ENUMERATED_TEXT
             {
-            value = 0;
+            value = 1;
             text = qtn_lgal_slideshow_settings_older_to_newer;
             },
         AVKON_ENUMERATED_TEXT
             {
-            value = 1;
+            value = 0;
             text = qtn_lgal_slideshow_settings_newer_to_older;
             }
         };
@@ -354,16 +353,15 @@ RESOURCE AVKON_SETTING_PAGE r_shw_settingslist_delay_setting_page
 // ---------------------------------------------------------------------------
 // Delay transition slider.
 // ---------------------------------------------------------------------------
-RESOURCE SLIDER_WITH_FEEDBACK_STYLE  r_shw_settingslist_delay_slider
+RESOURCE SLIDER r_shw_settingslist_delay_slider
     {
-    feedbackstyle = EAknSliderFbDynamic;
-    layout = EAknSettingsItemSliderLayout;
-    minvalue = KMinTransDelay;
-    maxvalue = KMaxTransDelay;
-    step = KTransDelayStep;
+    layout 	  = EAknSettingsItemSliderLayout;
+    minvalue  = KMinTransDelay;  
+    maxvalue  = KMaxTransDelay;
+    step 	  = KTransDelayStep;	
     valuetype = EAknSliderValueNone;
-    minlabel = qtn_lgal_slideshow_settings_delay_slow;
-    maxlabel = qtn_lgal_slideshow_settings_delay_fast;
+    minlabel  = qtn_lgal_slideshow_settings_delay_slow;
+    maxlabel  = qtn_lgal_slideshow_settings_delay_fast;
     }
     
     
