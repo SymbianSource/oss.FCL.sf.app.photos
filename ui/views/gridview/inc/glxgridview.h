@@ -122,12 +122,12 @@ private:
     HbPushButton        *mUiOnButton;    
     bool                 mScrolling;
     HbIconItem          *mIconItem;
+    HbIconItem          *mBackGroundItem;
     HbCheckBox          *mMarkCheckBox;    // Mark All checkbox 
-    HbGroupBox          *mTotalImagesCount;       // Item count of the grid
+    HbGroupBox          *mTotalImagesCountGrpBox;       // Item count of the grid
     HbGroupBox          *mMarkSelectHeading;    
     HbLabel             *mMarkCountLabel;      // Marked item count
     HbLabel             *mZeroItemLabel;   // zero itemcount
-    HbGroupBox          *mAlbumNameHeading;
     QGraphicsLinearLayout *mMarkContainer;
     GlxSettingInterface *mSettings;    
     HbWidget            *mMarkingWidget;

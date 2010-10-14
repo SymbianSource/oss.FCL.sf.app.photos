@@ -53,17 +53,17 @@ void GlxCommandHandlerEditImage::executeCommand(int commandId,
     const QString operation = QLatin1String("view(QString,int)");
     
     //Connect to service provider
-    if(mReq == NULL)
+    if( !mReq )
         {
         mReq = mAppmgr.create(service, interface, operation, true);
-        mReq->setEmbedded(true);
-        mReq->setSynchronous(false);
         }
     
-    if(mReq == NULL)
+    if( !mReq )
         {
         return;
         } 
+	mReq->setEmbedded(true);
+	mReq->setSynchronous(false);
     
     connect(mReq, SIGNAL(requestOk(const QVariant&)), this, SLOT(handleOk(const QVariant&)));
     connect(mReq, SIGNAL(requestError(int,const QString&)), this, SLOT(handleError(int,const QString&)));

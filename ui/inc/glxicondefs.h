@@ -45,6 +45,8 @@
 
 //DEFAULT ICON
 #define GLXICON_DEFAULT  "qtg_mono_photos"
+#define GLXICON_DEFAULT_ALBUMLIST  "qtg_large_photo_collection"
+#define GLXICON_DEFAULT_FAVOURITE  "qtg_large_favourites"
 
 #define GLXICON_ADD_TO_FAV  "qtg_graf_ratingslider_rated"
 #define GLXICON_REMOVE_FAV  "qtg_graf_ratingslider_unrated"

@@ -82,6 +82,7 @@ private:
     GlxMLWrapper* mMLWrapper;
     GlxContextMode mContextMode;
     HbIcon* mDefaultIcon;
+    HbIcon* mDefaultfavIcon;
     QCache<int, HbIcon> itemIconCache;
     int mTempVisibleWindowIndex;
     HbIcon* m_CorruptIcon;

@@ -50,10 +50,20 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //GlxDetailsView
 //--------------------------------------------------------------------------------------------------------------------------------------------
-GlxDetailsView::GlxDetailsView(HbMainWindow *window) :
-    GlxView(GLX_DETAILSVIEW_ID), mImageBackGround(NULL), mDetailsIcon(NULL), mView(NULL), mFavIcon(
-        NULL), mModel(NULL), mFavModel(NULL), mWindow(window), mSelIndex(0), mDocLoader(NULL),
-        mListView(NULL), mListModel(NULL), mShareButton(NULL)
+GlxDetailsView::GlxDetailsView(HbMainWindow *window) 
+    : GlxView( GLX_DETAILSVIEW_ID ), 
+      mImageBackGround( NULL ), 
+      mDetailsIcon(NULL), 
+      mView(NULL), 
+      mFavIcon( NULL), 
+      mModel( NULL ), 
+      mFavModel( NULL ), 
+      mWindow( window ), 
+      mSelIndex( 0 ), 
+      mDocLoader( NULL ),
+      mListView( NULL ), 
+      mListModel( NULL ), 
+      mShareButton( NULL )
 {
     GLX_LOG_INFO("GlxDetailsView::GlxDetailsView");
     OstTraceFunctionEntry0( GLXDETAILSVIEW_GLXDETAILSVIEW_ENTRY );
@@ -201,6 +211,10 @@ void GlxDetailsView::deActivate()
 {
     GLX_LOG_INFO("GlxDetailsView::deActivate");
     OstTraceFunctionEntry0( GLXDETAILSVIEW_DEACTIVATE_ENTRY );
+    
+    if ( mFavModel ){
+        resetView();
+    }
 
     mImageBackGround->hide();
     mDetailsIcon->hide();
@@ -320,7 +334,6 @@ void GlxDetailsView::clearCurrentModel()
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::setConnections()
 {
-
     connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this,
         SLOT(updateLayout(Qt::Orientation)));
 
@@ -351,19 +364,12 @@ void GlxDetailsView::clearConnections()
 
     disconnect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this,
         SLOT(updateLayout(Qt::Orientation)));
-
-    if (mModel && getSubState() != IMAGEVIEWER_DETAIL_S) {
-
-        disconnect((mListView->itemPrototypes()).at(0), SIGNAL(signalFromCustomWidget(int)), this,
+     disconnect((mListView->itemPrototypes()).at(0), SIGNAL(signalFromCustomWidget(int)), this,
             SLOT(triggerTheCommand(int)));
-
-        disconnect(mShareButton, SIGNAL(released()), this, SLOT(launchShareDialog()));
-
-        disconnect(mFavIcon, SIGNAL(updateFavourites()), this, SLOT(updateFavourites()));
-
-        disconnect(mFavModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this,
+	 disconnect(mShareButton, SIGNAL(released()), this, SLOT(launchShareDialog()));
+	 disconnect(mFavIcon, SIGNAL(updateFavourites()), this, SLOT(updateFavourites()));
+	 disconnect(mFavModel, SIGNAL( dataChanged(QModelIndex,QModelIndex) ), this,
             SLOT( dataChanged(QModelIndex,QModelIndex) ));
-    }
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -433,6 +439,8 @@ void GlxDetailsView::rowsRemoved(const QModelIndex &parent, int start, int end)
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void GlxDetailsView::modelDestroyed()
 {
+    delete mListModel;
+    mListModel = NULL;
     mModel = NULL;
 }
 

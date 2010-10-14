@@ -25,6 +25,8 @@
 
 #include "glxicondefs.h" //Contains the icon names/Ids
 
+#define FAV_ROW_INDEX 1
+
 GlxAlbumModel::GlxAlbumModel(GlxModelParm & modelParm):mContextMode(GlxContextInvalid)
 {
     qDebug("GlxAlbumModel::GlxAlbumModel()");
@@ -36,7 +38,8 @@ GlxAlbumModel::GlxAlbumModel(GlxModelParm & modelParm):mContextMode(GlxContextIn
     mContextMode = GlxContextSelectionList;
     
     //todo get this Default icon from some generic path and not directly.
-     mDefaultIcon = new HbIcon(GLXICON_DEFAULT);
+     mDefaultIcon = new HbIcon(GLXICON_DEFAULT_ALBUMLIST);
+     mDefaultfavIcon = new HbIcon(GLXICON_DEFAULT_FAVOURITE);
 	 m_CorruptIcon = new HbIcon( GLXICON_CORRUPT );
 
 	int err = connect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
@@ -58,6 +61,8 @@ GlxAlbumModel::~GlxAlbumModel()
     qDebug("GlxAlbumModel::~GlxAlbumModel()");
     delete mDefaultIcon;
     mDefaultIcon = NULL;
+    delete mDefaultfavIcon;
+    mDefaultfavIcon = NULL;
 	delete m_CorruptIcon;
 	int err = disconnect(mMLWrapper, SIGNAL(updateItem(int, GlxTBContextType)), this, SLOT(itemUpdated1(int, GlxTBContextType)));
 	err = disconnect(mMLWrapper, SIGNAL(insertItems(int, int)), this, SLOT(itemsAdded(int, int)));
@@ -155,6 +160,9 @@ HbIcon * GlxAlbumModel::getCorruptDefaultIcon( const QModelIndex &index ) const
 {
     if ( mMLWrapper->isCorruptedImage( index.row() ) ) {
         return m_CorruptIcon ;
+    }
+    if( index.row() == FAV_ROW_INDEX ){
+        return mDefaultfavIcon;
     }
     return mDefaultIcon ;
 }

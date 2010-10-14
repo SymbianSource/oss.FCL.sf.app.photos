@@ -46,6 +46,7 @@ public slots:
     void itemSelected(const QModelIndex &  index);
     void populated();
     void showAlbumCount();
+	void modelDestroyed();
     
 private slots:
 	void indicateLongPress( HbAbstractViewItem *item, QPointF coords );
@@ -68,7 +69,6 @@ private:
 	HbMainWindow       *mWindow;  //no ownership
 	QAbstractItemModel *mModel ;
 	HbDocumentLoader   *mDocLoader; //Docml loader to load the widgets from docml
-	bool               mIsLongPress;
 };
 
 #endif /* GLXLISTVIEW_H */

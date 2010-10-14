@@ -121,7 +121,7 @@
 #define GLX_ALBUM_NAME_COUNT_LABEL      "txt_photos_subhead_1_l2"
 
 //to show the total image count in grid view
-#define GLX_GRID_VIEW_COUNT_LABEL       "txt_photos_subhead_all_l2" 
+#define GLX_GRID_VIEW_COUNT_LABEL       "txt_photos_subhead_all_l1" 
 
 //to show the total album count in Album list view
 #define GLX_ALBUM_LIST_COUNT_LABEL      "txt_photos_subhead_albums_l2"
@@ -236,7 +236,7 @@
 
 #define GLX_BUTTON_HIDE              hbTrId("txt_common_button_hide")
 
-#define GLX_BUTTON_NEW               hbTrId("txt_photos_button_new")
+#define GLX_BUTTON_NEW               hbTrId("txt_photos_button_new_album")
 
 #define GLX_BUTTON_PLAY              hbTrId("txt_common_button_play_video")
 

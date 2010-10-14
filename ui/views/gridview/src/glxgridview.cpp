@@ -50,24 +50,24 @@
 #include "glxgridviewTraces.h"
 #endif
 
-GlxGridView::GlxGridView(HbMainWindow *window)
+GlxGridView::GlxGridView( HbMainWindow *window )
     : GlxView ( GLX_GRIDVIEW_ID ),
-      mWindow(window),
-      mModel ( NULL),
-      mWidget(NULL),
-      mSelectionModel(NULL),
-      mModelWrapper(NULL),
-      mUiOnButton(NULL),      
-      mScrolling(FALSE),
-      mIconItem(NULL),
-      mMarkCheckBox(NULL),
-      mTotalImagesCount(NULL),
-      mMarkSelectHeading(NULL),
-      mMarkCountLabel(NULL),
-      mZeroItemLabel(NULL),
-      mAlbumNameHeading(NULL),
-      mMarkContainer(NULL),
-      mMarkingWidget(NULL),
+      mWindow( window ),
+      mModel ( NULL ),
+      mWidget( NULL ),
+      mSelectionModel( NULL ),
+      mModelWrapper( NULL ),
+      mUiOnButton( NULL ),      
+      mScrolling( FALSE ),
+      mIconItem( NULL ),
+      mBackGroundItem( NULL ),
+      mMarkCheckBox( NULL ),
+      mTotalImagesCountGrpBox( NULL ),
+      mMarkSelectHeading( NULL ),
+      mMarkCountLabel( NULL ),
+      mZeroItemLabel( NULL ),
+      mMarkContainer( NULL ),
+      mMarkingWidget( NULL ),
       mToolBar( NULL ),
       mCurrentToolBar( NULL )
 {
@@ -92,12 +92,12 @@ void GlxGridView::activate()
     OstTraceFunctionEntry0( GLXGRIDVIEW_ACTIVATE_ENTRY );
     loadGridView();
 	connect(mWindow, SIGNAL(orientationChanged(Qt::Orientation)), this, SLOT(orientationchanged(Qt::Orientation)),Qt::UniqueConnection);
-    if(mTotalImagesCount == NULL) {
-        mTotalImagesCount = new HbGroupBox(this);
-        mTotalImagesCount->setObjectName( "Count" );
-        mTotalImagesCount->hide();
+    if(mTotalImagesCountGrpBox == NULL) {
+        mTotalImagesCountGrpBox = new HbGroupBox(this);
+        mTotalImagesCountGrpBox->setObjectName( "Count" );
+        mTotalImagesCountGrpBox->hide();
     }
-    mWidget->resetTransform();
+    resetTransform();
     OstTraceFunctionExit0( GLXGRIDVIEW_ACTIVATE_EXIT );
 }
 
@@ -114,11 +114,8 @@ void GlxGridView::deActivate()
         mIconItem->setOpacity(0);
         mIconItem->setZValue(mIconItem->zValue()-20);
     }
-    if (mTotalImagesCount) {
-        mTotalImagesCount->hide();
-    }
-    if (mAlbumNameHeading) {
-        mAlbumNameHeading->hide();
+    if (mTotalImagesCountGrpBox) {
+        mTotalImagesCountGrpBox->hide();
     }
     if(mZeroItemLabel) {
         mZeroItemLabel->hide();
@@ -345,17 +342,13 @@ void GlxGridView::showItemCount()
 					showAlbumTitle(GLX_SELECT_IMAGE);
 				}
                 else if ( getSubState() == ALL_ITEM_S || ( getSubState() == FETCHER_ITEM_S)) {
-					if (mAlbumNameHeading) {
-                    	mAlbumNameHeading->hide();
-					}
-				
-                    text = HbParameterLengthLimiter(GLX_GRID_VIEW_COUNT_LABEL, count); 
-                    mTotalImagesCount->setHeading ( text );
-                    mTotalImagesCount->setGeometry(QRectF(0,0,screenSize.width(),deviceSize.height()/24));
-                    mTotalImagesCount->show();
+                    text = HbParameterLengthLimiter(GLX_GRID_VIEW_COUNT_LABEL).arg(count); 
+                    mTotalImagesCountGrpBox->setHeading ( text );
+                    mTotalImagesCountGrpBox->setGeometry(QRectF(0,0,screenSize.width(),deviceSize.height()/24));
+                    mTotalImagesCountGrpBox->show();
                 }
-                else if ( getSubState() == ALBUM_ITEM_S || (getSubState() ==  FETCHER_ALBUM_ITEM_S)) {
-                    mTotalImagesCount->hide();
+                else if ( getSubState() == ALBUM_ITEM_S || (getSubState() ==  FETCHER_ALBUM_ITEM_S) ) {
+                    mTotalImagesCountGrpBox->hide();
                     QVariant variant = mModel->data(mModel->index(0,0),GlxViewTitle);
                     if (variant.toString() != NULL) {
                         showAlbumTitle(variant.toString());
@@ -363,11 +356,8 @@ void GlxGridView::showItemCount()
                 }
             }
             else {
-                if (mTotalImagesCount) {
-                    mTotalImagesCount->hide();
-                }
-                if (mAlbumNameHeading) {
-                    mAlbumNameHeading->hide();
+                if (mTotalImagesCountGrpBox) {
+                    mTotalImagesCountGrpBox->hide();
                 }
             }
 
@@ -380,19 +370,22 @@ void GlxGridView::showItemCount()
                 populated = variant.value<bool>();
                 }
             if(populated) {
-                if (mTotalImagesCount) {
-                    mTotalImagesCount->hide();
-                }
-                if (mAlbumNameHeading) {
-                    mAlbumNameHeading->hide();
-                }
-
                 showNoImageString();
-
-                if (getSubState() == ALBUM_ITEM_S) {
-                    QVariant variant = mModel->data(mModel->index(0,0),GlxViewTitle);
-                    if (variant.toString() != NULL) {
-                        showAlbumTitle(variant.toString());
+                if(!(XQServiceUtil::isService() && 
+                        (0 == XQServiceUtil::interfaceName().compare(QLatin1String("com.nokia.symbian.IImageFetch")))))
+                    {
+                    if( getSubState() == ALL_ITEM_S ||  getSubState() == FETCHER_ITEM_S) {
+                        QString text;
+                        text = HbParameterLengthLimiter(GLX_GRID_VIEW_COUNT_LABEL).arg(count); 
+                        mTotalImagesCountGrpBox->setHeading ( text );
+                        mTotalImagesCountGrpBox->setGeometry(QRectF(0,0,screenSize.width(),deviceSize.height()/24));
+                        mTotalImagesCountGrpBox->show();
+                    }
+                    else if (getSubState() == ALBUM_ITEM_S || getSubState() ==  FETCHER_ALBUM_ITEM_S) {
+                        QVariant variant = mModel->data(mModel->index(0,0),GlxViewTitle);
+                        if (variant.toString() != NULL) {
+                            showAlbumTitle(variant.toString());
+                        }
                     }
 				}	
             }
@@ -406,27 +399,22 @@ void GlxGridView::showAlbumTitle(QString aTitle)
     QSize deviceSize = HbDeviceProfile::current().logicalSize();
     QSize screenSize = ( mWindow->orientation() == Qt::Vertical ) ? QSize( deviceSize.width(), deviceSize.height() )
                                                                    : QSize( deviceSize.height(), deviceSize.width() )  ;
-    if (mAlbumNameHeading == NULL)
-        {
-        mAlbumNameHeading = new HbGroupBox(this);
-        mAlbumNameHeading->setObjectName("Album Name");
-        }
-
     //If fetcher service set only title text
-    if ((XQServiceUtil::isService()) && isItemVisible(Hb::TitleBarItem))
+    if ((XQServiceUtil::isService()) && isItemVisible(Hb::TitleBarItem) &&
+            (0 == XQServiceUtil::interfaceName().compare(QLatin1String("com.nokia.symbian.IImageFetch"))))
         {       
-        mAlbumNameHeading->setHeading(aTitle);
-        mAlbumNameHeading->setGeometry(QRectF(0, 0, screenSize.width(),deviceSize.height() / 24));       
-        mAlbumNameHeading->show();
+        mTotalImagesCountGrpBox->setHeading(aTitle);
+        mTotalImagesCountGrpBox->setGeometry(QRectF(0, 0, screenSize.width(),deviceSize.height() / 24));       
+        mTotalImagesCountGrpBox->show();
         }
     else
         { //handle album tiltle and count display logic here
         if (isItemVisible(Hb::TitleBarItem))
             {
             QString text = HbParameterLengthLimiter(GLX_ALBUM_NAME_COUNT_LABEL).arg(aTitle).arg(count);    
-            mAlbumNameHeading->setHeading(text);
-            mAlbumNameHeading->setGeometry(QRectF(0, 0, screenSize.width(),deviceSize.height()/24));                 
-            mAlbumNameHeading->show();
+            mTotalImagesCountGrpBox->setHeading(text);
+            mTotalImagesCountGrpBox->setGeometry(QRectF(0, 0, screenSize.width(),deviceSize.height()/24));                 
+            mTotalImagesCountGrpBox->show();
             }
         }
 }
@@ -530,7 +518,13 @@ QGraphicsItem * GlxGridView::getAnimationItem(GlxEffect transitionEffect)
     int selIndex = -1;
 
     if ( transitionEffect == FULLSCREEN_TO_GRID  || transitionEffect == FULLSCREEN_TO_GRID_PORTRAIT ) {
-        return mWidget;
+        if ( !mBackGroundItem ) {
+            mBackGroundItem = new HbIconItem();
+            setBackgroundItem( mBackGroundItem );            
+        }
+        HbIcon icon = HbIcon( mWindow->backgroundImageName( mWindow->orientation() ) );
+        mBackGroundItem->setIcon( icon );
+        return this;
     }
 
     if ( transitionEffect == GRID_TO_FULLSCREEN ) {
@@ -570,7 +564,7 @@ QGraphicsItem * GlxGridView::getAnimationItem(GlxEffect transitionEffect)
     }
 
     if ( transitionEffect == GRID_TO_ALBUMLIST || transitionEffect == ALBUMLIST_TO_GRID ) {
-        return mWidget;
+        return this;
     }
     OstTraceFunctionExit0( GLXGRIDVIEW_GETANIMATIONITEM_EXIT );
     return NULL;
@@ -588,14 +582,12 @@ void GlxGridView::loadGridView()
         mWidget->setObjectName( "Media Wall" );
         mWidget->setLongPressEnabled(true);
         mWidget->setScrollBarPolicy(HgWidget::ScrollBarAutoHide);
-        if(XQServiceUtil::isService())
-            {
+        if(XQServiceUtil::isService()) {
             mWidget->setEffect3dEnabled(EFalse);
-            }
-        else
-            {
+        }
+        else {
             mWidget->setEffect3dEnabled(mSettings->mediaWall3DEffect());
-            }
+        }
         setWidget( mWidget );
         addViewConnection();
     }
@@ -637,11 +629,8 @@ void GlxGridView::hideorshowitems(Qt::Orientation orient)
         if (mUiOnButton) {
             mUiOnButton->hide();
         }
-        if (mTotalImagesCount) {
-            mTotalImagesCount->hide();
-        }
-        if (mAlbumNameHeading) {
-            mAlbumNameHeading->hide();
+        if (mTotalImagesCountGrpBox) {
+            mTotalImagesCountGrpBox->hide();
         }
         
         QSize deviceSize = HbDeviceProfile::current().logicalSize();
@@ -732,11 +721,8 @@ void GlxGridView::scrollingStarted()
             {
             mUiOnButton->hide();
             }
-		if (mTotalImagesCount) {
-			mTotalImagesCount->hide();
-		}
-		if (mAlbumNameHeading) {
-            mAlbumNameHeading->hide();
+		if (mTotalImagesCountGrpBox) {
+			mTotalImagesCountGrpBox->hide();
 		}
     }
 
@@ -781,8 +767,7 @@ GlxGridView::~GlxGridView()
     }
     
     delete mIconItem;
-    delete mTotalImagesCount;
-    delete mAlbumNameHeading;
+    delete mTotalImagesCountGrpBox;
     delete mMarkSelectHeading;
     delete mMarkCheckBox;
     delete mMarkCountLabel;

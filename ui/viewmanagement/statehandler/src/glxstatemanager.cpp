@@ -131,11 +131,11 @@ bool GlxStateManager::eventFilter(QObject *obj, QEvent *event)
 void GlxStateManager::launchFetcher(int fetcherFilterType)
 {
     qDebug("GlxStateManager::launchFetcher");
-    mCurrentState = createState(GLX_GRIDVIEW_ID);
-    mCurrentState->setState(FETCHER_ITEM_S);
-	mFetcherFilterType = (GlxFetcherFilterType)fetcherFilterType;
-    createModel(GLX_GRIDVIEW_ID);
-    mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel);
+    mCurrentState = createState( GLX_GRIDVIEW_ID );
+    mCurrentState->setState( FETCHER_ITEM_S );
+	mFetcherFilterType = ( GlxFetcherFilterType )fetcherFilterType;
+    createModel( GLX_GRIDVIEW_ID );
+    mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel );
 }
 
 void GlxStateManager::launchApplication()
@@ -146,7 +146,6 @@ void GlxStateManager::launchApplication()
     
     if( mActivation->reason() == Af::ActivationReasonActivity ) {
         activitySuccess = launchActivity();
-        qDebug("GlxStateManager::launchApplication as Activity");
     }
     
     if( !activitySuccess ) { 
@@ -154,7 +153,7 @@ void GlxStateManager::launchApplication()
         mCurrentState->setState( ALL_ITEM_S );
        
         int leftCount = mTNObserver->getTNLeftCount() ;
-        if (  leftCount > 0  ) {
+        if (  leftCount > 0  || leftCount == KErrNotReady ) {
             mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel );
             launchProgressDialog();
         }
@@ -163,14 +162,9 @@ void GlxStateManager::launchApplication()
             mViewManager->launchApplication( GLX_GRIDVIEW_ID, mCurrentModel );
         }    
         mTNObserver->startTNObserving() ; 
-    }
+    }   
     
-    
-    bool ok = mActivityStorage->removeActivity("PhotosMainView");
-    if ( !ok )
-    {
-         qDebug("launchapplication::Remove activity failed" );
-    } 
+    mActivityStorage->removeActivity( "PhotosMainView" );
 }
 
 bool GlxStateManager::launchActivity()
@@ -199,22 +193,15 @@ bool GlxStateManager::launchActivity()
 }
 
 bool GlxStateManager::validateActivityData()
-{
-    
-    if( (mSaveActivity.value("ID") == GLX_GRIDVIEW_ID) || 
-         ( (mSaveActivity.value("ID") == GLX_LISTVIEW_ID) && (mSaveActivity.value("InternalState") == ALL_ITEM_S) ) ||
-             (mSaveActivity.value("VisibleIndex") >= 0 ) ) {
-        qDebug("GlxStateManager::validation passed");
+{    
+    if( ( mSaveActivity.value("ID") == GLX_GRIDVIEW_ID ) || 
+         ( ( mSaveActivity.value("ID") == GLX_LISTVIEW_ID ) && ( mSaveActivity.value("InternalState") == ALL_ITEM_S ) ) ||
+             ( mSaveActivity.value("VisibleIndex") >= 0 ) ) {
         return true;
     }
     
     qDebug("GlxStateManager::Validation failed");
-    qDebug("VIEW : %u", mSaveActivity.value("ID"));
-    qDebug("SUB STATE: %u", mSaveActivity.value("InternalState"));
-    qDebug("Visible Index: %u", mSaveActivity.value("VisibleIndex"));
-    
-    return false;
-     
+    return false;     
 }
 
 
@@ -243,16 +230,20 @@ void GlxStateManager::setupItems()
 {    
     qDebug("GlxStateManager::setupItems()");
     mActionHandler = new GlxActionHandler();
-    connect ( mViewManager, SIGNAL(externalCommand(int )), this, SIGNAL(externalCommand(int )) );
     mViewManager->setupItems();
-    switch( mSaveActivity.value( "ID" ) ){
+    
+    switch( mCurrentState->id() ){
         case GLX_LISTVIEW_ID:
-            mViewManager->updateToolBarIcon(GLX_ALBUM_ACTION_ID);
+            mViewManager->updateToolBarIcon( GLX_ALBUM_ACTION_ID );
             break;
             
         case GLX_GRIDVIEW_ID:
+            mViewManager->updateToolBarIcon( GLX_ALL_ACTION_ID );
+            break;
+            
         default:
-            mViewManager->updateToolBarIcon(GLX_ALL_ACTION_ID);
+            mViewManager->updateToolBarIcon( GLX_ALL_ACTION_ID );
+            break;
     }
 }
 
@@ -263,9 +254,10 @@ void GlxStateManager::updateTNProgress( int count)
     // in the case of rename of an image or capture the single item
     // it is also launching the progress bar, to avoid this scenario add the check of count more than 5
     if ( mCurrentModel && ( count > 5  ) ) { 
-         goBack( GLX_GRIDVIEW_ID, ALL_ITEM_S ) ;
-         cleanAllModel();
-         launchProgressDialog();
+        mViewManager->cancelViewTransitionEffect();
+        goBack( GLX_GRIDVIEW_ID, ALL_ITEM_S ) ;
+        cleanAllModel();
+        launchProgressDialog();
     }
     
     if ( isProgressbarRunning ){
@@ -318,33 +310,38 @@ void GlxStateManager::saveData()
     }
 }
 
-void GlxStateManager::nextState(qint32 state, int internalState)
+void GlxStateManager::nextState( qint32 state, int internalState )
 {
     qDebug("GlxStateManager::nextState next state = %u", state);
+    //no view transition is aloo during the progress dialog display
+    if( isProgressbarRunning ) {
+        return ;
+    }
+    
     GlxEffect effect = NO_EFFECT ;
     GlxViewEffect viewEffect = NO_VIEW ;
     
-    PERFORMANCE ( d1, State Creation Time ) {
-        mCurrentState = createState(state); //create a new state
-        mCurrentState->setState(internalState); 
+    mCurrentState = createState( state ); //create a new state
+    mCurrentState->setState( internalState );     
+    createModel( state ); //model should created after the internal state was set.
+
+    mCurrentState->setTranstionParameter( FORWARD_DIR, effect, viewEffect ); // to run the transtion effect
+    if ( viewEffect == NO_VIEW ) {
+        mViewManager->launchView( state, mCurrentModel );
     }
-    
-    createModel(state); //model should created after the internal state was set.
-    
-    PERFORMANCE ( d2, view launch time ) {
-        mCurrentState->setTranstionParameter( FORWARD_DIR, effect, viewEffect); // to run the transtion effect
-        if ( viewEffect == NO_VIEW ) {
-            mViewManager->launchView( state, mCurrentModel );
-        }
-        else {
-            mViewManager->launchView( state, mCurrentModel, effect, viewEffect);
-        }
+    else {
+        mViewManager->launchView( state, mCurrentModel, effect, viewEffect );
     }
 }
 
 void GlxStateManager::previousState()
 {
     qDebug("GlxStateManager::previousState");
+    //no view transition is aloo during the progress dialog display
+    if( isProgressbarRunning ) {
+        return ;
+    }
+    
     GlxEffect effect = NO_EFFECT ;
     GlxViewEffect viewEffect = NO_VIEW ;
 
@@ -401,7 +398,11 @@ void GlxStateManager::saveImage()
 void GlxStateManager::goBack(qint32 stateId, int internalState)
 {
     qDebug("GlxStateManager::goBack()");
-    
+    //no view transition is aloo during the progress dialog display
+    if( isProgressbarRunning ) {
+        return ;
+    }
+        
     //if current state and it internal state is same then no need to do any thing
     if ( mCurrentState->id() == stateId  && mCurrentState->state() == internalState ) {
         return ;
@@ -433,7 +434,11 @@ void GlxStateManager::goBack(qint32 stateId, int internalState)
 void GlxStateManager::changeState(qint32 stateId, int internalState)
 {
     qDebug("GlxStateManager::changeState %d", stateId);	
-    
+    //no view transition is aloo during the progress dialog display
+    if( isProgressbarRunning ) {
+        return ;
+    }
+        
     GlxState *state = mCurrentState;
     GlxEffect effect = NO_EFFECT ;
     GlxViewEffect viewEffect = NO_VIEW ;
@@ -536,6 +541,7 @@ GlxState * GlxStateManager::createState(qint32 stateId)
         
     case GLX_SLIDESHOWVIEW_ID :
         return new GlxSlideShowState( this, mCurrentState );
+        
     case GLX_SLIDESHOWSETTINGSVIEW_ID :
         return new GlxSlideShowSettingsState(this, mCurrentState );
     	
@@ -765,14 +771,16 @@ void GlxStateManager::eventHandler(qint32 &id)
     	
     case EGlxCmdCameraOpen:
 		{
-		QProcess::startDetached(QString("cxui.exe"));
+		QProcess::startDetached( QString( "cxui.exe" ) );
+		mViewManager->updateToolBarActionState( GLX_CAMERA_ACTION_ID, false );
 		id = EGlxCmdHandled;
 		}
         break;	
         
     case EGlxCmdOviOpen:
 		{
-		HbNotificationDialog::launchDialog("Not Implemented");
+		HbNotificationDialog::launchDialog( "Not Implemented" );
+		mViewManager->updateToolBarActionState( GLX_OVI_ACTION_ID, false );
         id = EGlxCmdHandled;
 		}
         break;	
@@ -824,7 +832,6 @@ GlxStateManager::~GlxStateManager()
     qDebug("GlxStateManager::~GlxStateManager delete Model");
     
     disconnect ( mViewManager, SIGNAL(actionTriggered(qint32 )), this, SLOT(actionTriggered(qint32 )) );
-    disconnect ( mViewManager, SIGNAL(externalCommand(int )), this, SIGNAL(externalCommand(int )) );
     disconnect ( mTNObserver, SIGNAL( leftTNCount( int ) ), this, SLOT( updateTNProgress( int ) ) );
     disconnect ( this, SIGNAL( setupItemsSignal() ), this, SLOT( setupItems() ) );
     disconnect ( qobject_cast<HbApplication*>(qApp), SIGNAL (aboutToQuit()), this, SLOT(saveData()));

@@ -488,7 +488,6 @@ void CGlxDataSourceMde::AddMdEObserversL()
 // CGlxDataSourceMde::HandleObjectNotification
 // ---------------------------------------------------------------------------
 //
-///@todo AB test this
 void CGlxDataSourceMde::HandleObjectNotification(CMdESession& /*aSession*/, 
 					TObserverNotificationType aType,
 					const RArray<TItemId>& aObjectIdArray)
@@ -537,7 +536,6 @@ void CGlxDataSourceMde::HandleObjectNotification(CMdESession& /*aSession*/,
 // CGlxDataSourceMde::HandleObjectPresentNotification
 // ---------------------------------------------------------------------------
 //
-///@todo AB test this
 void CGlxDataSourceMde::HandleObjectPresentNotification(CMdESession& /*aSession*/, 
 		TBool aPresent, const RArray<TItemId>& aObjectIdArray)
 	{
@@ -556,7 +554,6 @@ void CGlxDataSourceMde::HandleObjectPresentNotification(CMdESession& /*aSession*
 // CGlxDataSourceMde::HandleRelationNotification
 // ---------------------------------------------------------------------------
 //
-///@todo AB test this
 void CGlxDataSourceMde::HandleRelationNotification(CMdESession& /*aSession*/, 
 			TObserverNotificationType aType,
 			const RArray<TItemId>& aRelationIdArray)
@@ -569,7 +566,6 @@ void CGlxDataSourceMde::HandleRelationNotification(CMdESession& /*aSession*/,
 // CGlxDataSourceMde::HandleRelationPresentNotification
 // ---------------------------------------------------------------------------
 //
-///@todo AB test this
 void CGlxDataSourceMde::HandleRelationPresentNotification(CMdESession& /*aSession*/,
 			TBool aPresent, const RArray<TItemId>& aRelationIdArray)
 	{
@@ -1155,7 +1151,11 @@ void CGlxDataSourceMde::HarvestingUpdated(
     switch(aHarvesterEventState)
         {
         case EHEStateStarted:
-            GLX_LOG_INFO("CGlxDataSourceMde::HarvestingUpdated() - EHEStateStarted");
+        	 {
+             GLX_LOG_INFO("CGlxDataSourceMde::HarvestingUpdated() - EHEStateStarted");
+             iHarvestingOngoing = ETrue;
+	         }
+             break;
         case EHEStateResumed:
         case EHEStateHarvesting:
         	 {

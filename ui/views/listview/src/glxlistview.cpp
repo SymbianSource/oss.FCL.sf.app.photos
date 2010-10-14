@@ -38,12 +38,11 @@
 
 GlxListView::GlxListView(HbMainWindow *window) 
     : GlxView ( GLX_LISTVIEW_ID ), 
-      mListView(NULL), 
-      mView(NULL), 
-      mAlbumCount(NULL),
-      mWindow(window), 
-      mModel ( NULL),
-      mIsLongPress( false )
+      mListView( NULL ), 
+      mView( NULL ), 
+      mAlbumCount( NULL ),
+      mWindow( window ), 
+      mModel ( NULL)
 {
     qDebug("GlxListView::GlxListView()");
     mDocLoader = new HbDocumentLoader();
@@ -53,7 +52,7 @@ void GlxListView::activate()
 {
     qDebug("GlxListView::activate() %d", mWindow->orientation() );    
 
-    if (mListView == NULL) {
+    if ( !mListView ) {
         createListView();
     }
  }
@@ -70,12 +69,14 @@ void GlxListView::setModel(QAbstractItemModel *model)
         disconnect(mModel, SIGNAL(listPopulated()), this, SLOT( populated()));
         disconnect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( showAlbumCount() ) );
         disconnect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int ) ), this, SLOT( showAlbumCount() ) );
+		disconnect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
     }
     mModel =  model ;
     mListView->setModel(mModel);
     connect(mModel, SIGNAL(listPopulated()), this, SLOT( populated()));
     connect( mModel, SIGNAL( rowsInserted( QModelIndex, int, int ) ), this, SLOT( showAlbumCount() ) );
     connect( mModel, SIGNAL( rowsRemoved( QModelIndex, int, int ) ), this, SLOT( showAlbumCount() ) );
+    connect( mModel, SIGNAL( destroyed() ), this, SLOT( modelDestroyed() ) );
     showAlbumCount();
 }
 
@@ -88,7 +89,7 @@ void GlxListView::initializeView( QAbstractItemModel *model, GlxView *preView )
 {
     Q_UNUSED( preView )
     qDebug("GlxListView::initializeView()");
-    if ( mListView == NULL ) {
+    if ( !mListView ) {
         createListView();
     }
     setModel( model );
@@ -97,7 +98,7 @@ void GlxListView::initializeView( QAbstractItemModel *model, GlxView *preView )
 QGraphicsItem * GlxListView::getAnimationItem( GlxEffect transtionEffect )
 {
     if ( transtionEffect == GRID_TO_ALBUMLIST  || transtionEffect == ALBUMLIST_TO_GRID ) {
-        return mListView;
+        return this;
     }
     
     return NULL;
@@ -106,16 +107,16 @@ QGraphicsItem * GlxListView::getAnimationItem( GlxEffect transtionEffect )
 void GlxListView::addViewConnection ()
 {
     qDebug("GlxListView::addViewConnection()");
-    connect(mListView, SIGNAL(activated(const QModelIndex &)), this, SLOT( itemSelected(const QModelIndex &)));
-    connect(mListView, SIGNAL(longPressed( HbAbstractViewItem*, QPointF )),this, SLOT( indicateLongPress( HbAbstractViewItem*, QPointF ) ) );
+    connect( mListView, SIGNAL( activated( const QModelIndex & ) ), this, SLOT( itemSelected( const QModelIndex & ) ) );
+    connect( mListView, SIGNAL( longPressed( HbAbstractViewItem*, QPointF ) ), this, SLOT( indicateLongPress( HbAbstractViewItem*, QPointF ) ) );
     connect( mListView, SIGNAL( scrollingEnded() ), this, SLOT( setVisvalWindowIndex() ) );
 }
 
 void GlxListView::removeViewConnection()
 {
     qDebug("GlxListView::removeViewConnection()");
-    disconnect(mListView, SIGNAL(activated(const QModelIndex &)), this, SLOT( itemSelected(const QModelIndex &)));
-    disconnect(mListView, SIGNAL(longPressed( HbAbstractViewItem*, QPointF )),this, SLOT( indicateLongPress( HbAbstractViewItem*, QPointF ) ) );
+    disconnect( mListView, SIGNAL( activated( const QModelIndex & ) ), this, SLOT( itemSelected( const QModelIndex & ) ) );
+    disconnect( mListView, SIGNAL( longPressed( HbAbstractViewItem*, QPointF ) ), this, SLOT( indicateLongPress( HbAbstractViewItem*, QPointF ) ) );
     disconnect( mListView, SIGNAL( scrollingEnded() ), this, SLOT( setVisvalWindowIndex() ) );
 }
 
@@ -171,29 +172,29 @@ GlxListView::~GlxListView()
 {
     qDebug("GlxListView::~GlxListView()");
 
-    if(widget()) {
+    if( widget() ) {
         qDebug("GlxListView::~GlxListView() takeWidget");
         takeWidget();    
     }       
 
     removeViewConnection();
 
-    if(mAlbumCount) {
+    if( mAlbumCount ) {
         delete mAlbumCount ;
         mAlbumCount = NULL;
     }
 
-    if(mListView) {
+    if( mListView ) {
         delete mListView;
         mListView = NULL;
     }
 
-    if(mView) {
+    if( mView ) {
         delete mView ;
         mView = NULL;
     }
     
-    if(mDocLoader) {
+    if( mDocLoader ) {
         delete mDocLoader;
         mDocLoader = NULL;
     }
@@ -210,13 +211,16 @@ void GlxListView::populated()
 	//Scroll To the Visible Index as mentioned in the AM.
     mListView->scrollTo(mModel->index(visualIndex, 0),  HbAbstractItemView::PositionAtTop );
 }
+
+void GlxListView::modelDestroyed()
+{
+    mModel = NULL ;    
+}
+
 void GlxListView::itemSelected(const QModelIndex &  index)
 {
     qDebug("GlxListView::itemSelected() index = %d", index.row() );
-    if ( mIsLongPress ) {
-        mIsLongPress = false ;
-        return ;
-    }
+
     if ( mModel ) {
         mModel->setData( index, index.row(), GlxFocusIndexRole );
     }
@@ -242,13 +246,12 @@ void GlxListView::indicateLongPress(HbAbstractViewItem *item, QPointF coords)
     if ( mModel ) {
         mModel->setData( item->modelIndex(), item->modelIndex().row(), GlxFocusIndexRole );
     }
-    mIsLongPress = true;
     emit itemSpecificMenuTriggered(viewId(),coords);
 }
 
 void GlxListView::showAlbumCount()
 {
     int albumCnt = mModel->rowCount();
-    QString text = HbParameterLengthLimiter(GLX_ALBUM_LIST_COUNT_LABEL, albumCnt);
+    QString text = HbParameterLengthLimiter(GLX_ALBUM_LIST_COUNT_LABEL).arg(albumCnt);
     mAlbumCount->setHeading(text);
 }

@@ -35,10 +35,18 @@ GlxView * GlxViewsFactory::createView(qint32 viewId, HbMainWindow *window)
 {
     switch ( viewId ) {
     case GLX_GRIDVIEW_ID :
-        return new GlxGridView(window);
+    {
+        GlxGridView *gridView = new GlxGridView( window );
+        gridView->toolBar();
+        return gridView;
+    }
 
     case GLX_LISTVIEW_ID :
-        return new GlxListView ( window );
+    {
+        GlxListView *listView = new GlxListView ( window );
+        listView->toolBar();
+        return listView;
+    }
 
     case GLX_FULLSCREENVIEW_ID :
 	{

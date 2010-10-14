@@ -100,8 +100,29 @@ CMPXCommand* GlxCommandHandlerRename::CreateCommandL(TInt aCommandId,
                 {
                 //rename the media
                 TInt error = manager->RenameFile(media.Uri(), *modifiedName);
-
-                if (error == KErrNone)
+				//reset the flag to 'false'!
+                iIsCmdActive = false;
+                
+				/*
+				1. Photos renames the file with file system services
+                2. Photos tries to update the title of the renamed images
+                -> Image object is opened for modifications
+                3. MDS gets notification from the file server that the image has been renamed
+                -> Handling this fails with -22 KErrLocked as the same object is opened
+                by Photos for changing the title
+                -> MDS cannot update the the URI or Title for locked object
+                4. Photos completes updating the title
+                -> title for xxx.jpg is set as A, but the uri is still xxx.jpg in
+                MDS DB as MDS could not modify the object--
+				So Removing the manually changing of the title completely.
+				As MDS will update the title field automatically if it was originally
+				populated from the uri, changing the title manually after rename is complitely
+				unnecessary anyway. So let MDS do the updating by itself as it should,
+				and you will still get modified event from MDS when the update, including
+				the title, is complete
+                */
+				/*
+				if (error == KErrNone)
                     {
                     path = aMediaList.PathLC(
                             NGlxListDefs::EPathFocusOrSelection);
@@ -109,7 +130,7 @@ CMPXCommand* GlxCommandHandlerRename::CreateCommandL(TInt aCommandId,
                             *newMediaItemTitle, *path);
                     CleanupStack::Pop(command);
                     CleanupStack::PopAndDestroy(path);
-                    }
+                    }*/
                 }
             else
                 {
@@ -131,6 +152,11 @@ CMPXCommand* GlxCommandHandlerRename::CreateCommandL(TInt aCommandId,
             CleanupStack::PopAndDestroy(path);
             CleanupStack::PopAndDestroy(newMediaItemTitle);
             }
+        }
+    else
+        {
+		// If cancel is pressed, reset the flag!!
+        iIsCmdActive = false;
         }
     return command;
     }

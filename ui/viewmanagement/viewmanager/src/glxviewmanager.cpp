@@ -50,7 +50,9 @@ GlxViewManager::GlxViewManager()
       mViewToolBar( NULL ), 
       mMarkingToolBar( NULL ), 
       mSelectionModel ( NULL ),
-      mProgressDialog( NULL )
+      mProgressDialog( NULL ),
+      mIsViewTransitionRunning( false ),
+      mEffect( NO_EFFECT )
 {
     qDebug("GlxViewManager::GlxViewManager() ");
 
@@ -59,21 +61,46 @@ GlxViewManager::GlxViewManager()
     if(mMainWindow == NULL)	{
         mMainWindow = new HbMainWindow();
     }
-    connect(mMainWindow, SIGNAL( viewReady() ), this, SLOT( handleReadyView() ));
+    connect( mMainWindow, SIGNAL( viewReady() ), this, 
+            SLOT( handleReadyView() ) );
+    
     //Without this Zoom Does not work
-
     mWindowEventFilter = new GlxMainWindowEventFilter;
-    mMainWindow->scene()->installEventFilter(mWindowEventFilter);
-    mMainWindow->viewport()->setAttribute(Qt::WA_AcceptTouchEvents);
-    mMainWindow->viewport()->grabGesture(Qt::PinchGesture);
+    mMainWindow->scene()->installEventFilter( mWindowEventFilter );
+    mMainWindow->viewport()->setAttribute( Qt::WA_AcceptTouchEvents );
+    mMainWindow->viewport()->grabGesture( Qt::PinchGesture );
 
-    HbStyleLoader::registerFilePath(":/data/photos.css");
+    HbStyleLoader::registerFilePath( ":/data/photos.css" );
 }
 
-void GlxViewManager::handleReadyView()
+GlxViewManager::~GlxViewManager()
 {
-    emit actionTriggered( EGlxCmdSetupItem );
-    disconnect( mMainWindow, SIGNAL( viewReady() ), this, SLOT( handleReadyView() ) );
+    qDebug("GlxViewManager::~GlxViewManager");
+    HbStyleLoader::unregisterFilePath(":/data/photos.css");    
+    removeConnection();
+    
+    delete mMenuManager; 
+    delete mViewToolBar;
+    delete mMarkingToolBar;
+    
+    while( mViewList.isEmpty( ) == FALSE){
+        delete mViewList.takeLast() ;
+    }
+        
+    delete mBackAction;
+    delete mProgressDialog;
+    
+    if ( mEffectEngine ) {
+        mEffectEngine->deregistertransitionEffect();
+        delete mEffectEngine;
+    }
+ 
+    if( mMainWindow != GlxExternalUtility::instance()->getMainWindow() ){
+        delete mMainWindow;
+    }
+    delete mWindowEventFilter;
+    
+    qDebug("GlxViewManager::~GlxViewManager Exit");
 }
 
 void GlxViewManager::setupItems( )
@@ -106,11 +133,6 @@ void GlxViewManager::launchApplication(qint32 id, QAbstractItemModel *model)
     mView->addToolBar( mViewToolBar ); 
     mMainWindow->setCurrentView( mView, false );
     mMainWindow->showFullScreen();
-}
-
-void GlxViewManager::handleMenuAction(qint32 commandId)
-{
-    emit actionTriggered(commandId);
 }
 
 void GlxViewManager::handleAction()
@@ -152,19 +174,19 @@ void GlxViewManager::launchView (qint32 id, QAbstractItemModel *model, GlxEffect
 
     //In the case of no animation is play during the view transition just call launch view and return
     if ( viewEffect == NO_VIEW ) {
-        return launchView(id, model);
+        return launchView( id, model );
     }
     
     //create and registered the effect
     if ( mEffectEngine == NULL ) { 
         mEffectEngine = new GlxEffectEngine();
         mEffectEngine->registerTransitionEffect();
-        connect( mEffectEngine, SIGNAL( effectFinished() ), this, SLOT( effectFinished() ), Qt::QueuedConnection );
+        connect( mEffectEngine, SIGNAL( effectFinished() ), this, 
+                SLOT( effectFinished() ), Qt::QueuedConnection );
     }
     
-    QList< QGraphicsItem * > itemList;
     QGraphicsItem *item = NULL;
-    itemList.clear();
+    mItemList.clear();
     
     //partially clean the view so that animation run smoothly
     GlxView *curr_view = (GlxView *) mMainWindow->currentView();
@@ -177,21 +199,21 @@ void GlxViewManager::launchView (qint32 id, QAbstractItemModel *model, GlxEffect
     mModel = model; 
 
     if ( viewEffect == CURRENT_VIEW || viewEffect == BOTH_VIEW ) { 
-        item = curr_view->getAnimationItem(effect);
+        item = curr_view->getAnimationItem( effect );
         if ( item ) {
-            itemList.append(item);
+            mItemList.append(item);
             item = NULL;
         }
     }
     
     if ( viewEffect == LAUNCH_VIEW || viewEffect == BOTH_VIEW ) {
-        item = mView->getAnimationItem(effect);
+        item = mView->getAnimationItem( effect );
         if ( item ) {
             //increase the z value and show the view to shown the view animation
-            mView->setZValue(curr_view->zValue() + 2);
+            mView->setZValue( curr_view->zValue() + 2 );
             mView->show();
             item->show();        
-            itemList.append(item);
+            mItemList.append( item );
         }
     }
     
@@ -200,9 +222,11 @@ void GlxViewManager::launchView (qint32 id, QAbstractItemModel *model, GlxEffect
     }
     
     //error check
-    if ( itemList.count() > 0 ) {
-        mEffectEngine->runEffect(itemList, effect);
+    if ( mItemList.count() > 0 ) {
+        mEffectEngine->runEffect( mItemList, effect );
         mMainWindow->grabMouse();
+        mIsViewTransitionRunning = true;
+        mEffect = effect;
     }
     else {
         deActivateView();
@@ -221,7 +245,8 @@ void GlxViewManager::launchProgressDialog( int maxValue )
     if ( mProgressDialog == NULL ) {
         mProgressDialog = new HbProgressDialog( HbProgressDialog::ProgressDialog );
         mProgressDialog->actions().at(0)->disconnect( SIGNAL( triggered() ) );
-        connect ( mProgressDialog->actions().at(0), SIGNAL( triggered() ), this, SLOT( hideProgressDialog() ) );
+        connect ( mProgressDialog->actions().at(0), SIGNAL( triggered() ), 
+                this, SLOT( hideProgressDialog() ) );
         mProgressDialog->setMinimum( 0 );
     }
     mProgressDialog->setMaximum( maxValue );
@@ -300,6 +325,21 @@ void GlxViewManager::updateToolBarIcon(int id)
     }
 }
 
+void GlxViewManager::updateToolBarActionState( int id, bool isChecked )
+{
+    int toolBarActionId = (int) GLX_ALL_ACTION_ID;
+    int count = mActionList.count();
+    
+    for ( int i = 0; i < count ; i++ ) {
+        //check and get the icon path
+        if ( ( id & toolBarActionId ) == toolBarActionId ) {
+            mActionList[i]->setChecked( isChecked );                        
+        }
+        //to get it the next action id to verify it is selecter or not
+        toolBarActionId = toolBarActionId << 1; 
+    }
+}
+
 void GlxViewManager::checkMarked()
 {
     qDebug("GlxViewManager::checkMarked");
@@ -327,31 +367,31 @@ void GlxViewManager::enterMarkingMode( qint32 viewId, qint32 commandId )
     if ( view ) { 
         view->enableMarking();
         view->takeToolBar();
-        view->addToolBar(mMarkingToolBar);
+        view->addToolBar( mMarkingToolBar );
         mSelectionModel = view->getSelectionModel();
-        if(mSelectionModel) 
-        {
-            connect(mSelectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection& ) ), this, SLOT(checkMarked()));
+        if( mSelectionModel ) {
+            connect(mSelectionModel, SIGNAL( selectionChanged
+                    ( const QItemSelection &, const QItemSelection& ) ),
+                    this, SLOT( checkMarked() ) );
             checkMarked();
         }
     }
-    qDebug("GlxViewManager::enterMarkingMode view ID %d exit", viewId);
 }
 
 void GlxViewManager::exitMarkingMode( qint32 viewId )
 {
     GlxView *view = findView ( viewId );
-    qDebug("GlxViewManager::exitMarkingMode view ID %d", viewId);
+    qDebug( "GlxViewManager::exitMarkingMode view ID %d", viewId );
     if ( view ) { 
         view->disableMarking(); 
         view->takeToolBar();
-        view->addToolBar(mViewToolBar);
-        if(mSelectionModel)
-        {
-            disconnect(mSelectionModel, SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection& ) ), this, SLOT(checkMarked()));
+        view->addToolBar( mViewToolBar );
+        if( mSelectionModel ) {
+            disconnect( mSelectionModel, SIGNAL( selectionChanged
+                    ( const QItemSelection &, const QItemSelection& ) ), 
+                    this, SLOT( checkMarked() ) );
         }
     }
-    qDebug("GlxViewManager::exitMarkingMode view ID %d exit", viewId);
 }
 
 void GlxViewManager::handleUserAction(qint32 viewId, qint32 commandId)
@@ -383,6 +423,14 @@ void GlxViewManager::setModel( QAbstractItemModel *model )
     }    
 }
 
+void GlxViewManager::cancelViewTransitionEffect()
+{
+    if( mIsViewTransitionRunning ) {
+        mEffectEngine->cancelEffect( mItemList, mEffect );
+        effectFinished();
+    }
+}
+
 GlxView * GlxViewManager::resolveView( qint32 id )
 {
     qDebug("GlxViewManager::resolveView %d", id );
@@ -411,17 +459,23 @@ void GlxViewManager::itemSpecificMenuTriggered(qint32 viewId,QPointF pos)
     mMenuManager->ShowItemSpecificMenu(viewId,pos);
 }
 
-void GlxViewManager::cancelTimer()
+void GlxViewManager::handleReadyView()
 {
-    emit externalCommand(EGlxPluginCmdUserActivity);
+    emit actionTriggered( EGlxCmdSetupItem );
+    disconnect( mMainWindow, SIGNAL( viewReady() ), this, 
+            SLOT( handleReadyView() ) );
 }
 
 void GlxViewManager::effectFinished( )
 {
     qDebug("GlxViewManager::EffectFinished");
-    mMainWindow->releaseMouse();
-    deActivateView();
-    activateView(); 
+    if ( mIsViewTransitionRunning ) {
+        mMainWindow->releaseMouse();
+        deActivateView();
+        activateView();
+        mIsViewTransitionRunning = false;
+        mItemList.clear();
+    }
 }
 
 GlxView * GlxViewManager::findView(qint32 id)
@@ -626,13 +680,17 @@ void GlxViewManager::setMarkingToolBarAction( qint32 commandId )
 
 void GlxViewManager::addConnection()
 {    
-    if ( mMenuManager )
-        connect(mMenuManager, SIGNAL( commandTriggered(qint32 ) ), this, SLOT( handleMenuAction(qint32 ) ));
-    if ( mBackAction )
+    if ( mMenuManager ) {
+        connect( mMenuManager, SIGNAL( commandTriggered(qint32 ) ), 
+                this, SLOT( actionProcess(qint32 ) ));
+    }
+    if ( mBackAction ) {
         connect(mBackAction, SIGNAL( triggered() ), this, SLOT( handleAction() ));
+    }
         
     if ( mEffectEngine )  {
-        connect( mEffectEngine, SIGNAL( effectFinished() ), this, SLOT( effectFinished() ), Qt::QueuedConnection );
+        connect( mEffectEngine, SIGNAL( effectFinished() ), this, 
+                SLOT( effectFinished() ), Qt::QueuedConnection );
     }        
 }
 
@@ -655,8 +713,10 @@ void GlxViewManager::removeConnection()
         mMenuManager->removeMenu( mViewList.at(i)->viewId(), mViewList.at(i)->menu() ) ;
     }
 	   
-    if ( mMenuManager )
-        disconnect(mMenuManager, SIGNAL( commandTriggered(qint32 ) ), this, SLOT( handleMenuAction(qint32 ) ));
+    if ( mMenuManager ) {
+        disconnect( mMenuManager, SIGNAL( commandTriggered( qint32 ) ), 
+                this, SLOT( actionProcess( qint32 ) ) );
+    }
     
     if ( mBackAction )
         disconnect(mBackAction, SIGNAL( triggered() ), this, SLOT( handleAction() ));
@@ -678,41 +738,6 @@ void GlxViewManager::actionProcess(qint32 id)
 {
     qDebug("GlxViewManager::actionProcess action Id = %d ", id);
     emit actionTriggered(id);
-}
-
-GlxViewManager::~GlxViewManager()
-{
-    qDebug("GlxViewManager::~GlxViewManager");
-    HbStyleLoader::unregisterFilePath(":/data/photos.css");
-	
-    removeConnection();
-	
-    delete mMenuManager;
-    qDebug("GlxViewManager::~GlxViewManager deleted menu manager");    
-    delete mViewToolBar;
-    delete mMarkingToolBar;
-    qDebug("GlxViewManager::~GlxViewManager deleted toolbar");
-    
-    while( mViewList.isEmpty( ) == FALSE){
-        delete mViewList.takeLast() ;
-    }
-    qDebug("GlxViewManager::~GlxViewManager view deleted");    
-        
-    delete mBackAction;
-    delete mProgressDialog;
-    
-    if ( mEffectEngine ) {
-        mEffectEngine->deregistertransitionEffect();
-        delete mEffectEngine;
-    }
- 
-    if( mMainWindow != GlxExternalUtility::instance()->getMainWindow() ){
-        qDebug("GlxViewManager::~GlxViewManager delete mainwindow");
-        delete mMainWindow;
-    }
-    delete mWindowEventFilter;
-    
-    qDebug("GlxViewManager::~GlxViewManager Exit");
 }
 
 int GlxViewManager::getSubState()
