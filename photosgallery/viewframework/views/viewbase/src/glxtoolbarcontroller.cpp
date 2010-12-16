@@ -32,18 +32,6 @@
 #include <centralrepository.h>              // for checking the ShareOnline version
 #include <glxuiutility.h>
 
-// CONSTANTS AND DEFINITIONS
-namespace
-    {
-    // ShareOnline application UID    
-    const TUid KShareOnlineUid = { 0x2002CC1F };
-    // Shareonline Application version
-    const TUint32 KShareApplicationVersion = 0x1010020;
-    // Buffer to maintain the ShareOnline version number in use
-    const TInt KPhotosShareOnlineVersionBufLen = 12;
-    // Minimum version required for OneClickUpload to work
-    const TVersion KShareOnlineMinimumVersion( 5, 0, 0 );
-    }
 
 //----------------------------------------------------------------------------------
 // NewL
@@ -222,35 +210,12 @@ CGlxToolbarController::~CGlxToolbarController()
 void CGlxToolbarController::SetStatusOnViewActivationL( MGlxMediaList* aList )
      {
     TRACER("CGlxToolbarController::SetStatusOnViewActivationL");
-    TRAPD(err, CheckShareonlineVersionL());
-    GLX_LOG_INFO2("CGlxToolbarController::SetStatusOnViewActivationL(%d),"
-            " err(%d)", aList->Count(), err);
-
+    
     CGlxNavigationalState* navigationalState =
             CGlxNavigationalState::InstanceL();
     CleanupClosePushL(*navigationalState);
     if (navigationalState->ViewingMode() == NGlxNavigationalState::EBrowse)
         {
-        if (err == KErrNone)
-            {
-            CAknButton* sendButton =
-                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
-                            EGlxCmdSend));
-            if (sendButton)
-                {
-                iToolbar->RemoveItem(EGlxCmdSend);
-                }
-            }
-        else
-            {
-            CAknButton* uploadButton =
-                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
-                            EGlxCmdUpload));
-            if (uploadButton)
-                {
-                iToolbar->RemoveItem(EGlxCmdUpload);
-                }
-            }
         iToolbar->SetItemDimmed(EGlxCmdSlideshowPlay, EFalse, ETrue);
         iToolbar->SetItemDimmed(EGlxCmdStartMultipleMarking, EFalse, ETrue);
         TBool dimmed = aList->SelectionCount() ? EFalse : ETrue;
@@ -259,26 +224,6 @@ void CGlxToolbarController::SetStatusOnViewActivationL( MGlxMediaList* aList )
         }
     else if (navigationalState->ViewingMode() == NGlxNavigationalState::EView)
         {
-        if (err == KErrNone)
-            {
-            CAknButton* slideshowButton =
-                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
-                            EGlxCmdSlideshowPlay));
-            if (slideshowButton)
-                {
-                iToolbar->RemoveItem(EGlxCmdSlideshowPlay);
-                }
-            }
-        else
-            {
-            CAknButton* uploadButton =
-                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
-                            EGlxCmdUpload));
-            if (uploadButton)
-                {
-                iToolbar->RemoveItem(EGlxCmdUpload);
-                }
-            }
         SetToolbarItemsDimmed(EFalse);
         }
     CleanupStack::PopAndDestroy(navigationalState);
@@ -384,70 +329,5 @@ void CGlxToolbarController::SetToolbarItemsDimmed(TBool aDimmed)
         iToolbar->SetItemDimmed(EGlxCmdUpload, aDimmed, ETrue);
         }
     }
-
-// ----------------------------------------------------------------------------
-// CheckShareonlineVersionL
-// ----------------------------------------------------------------------------
-//
-void CGlxToolbarController::CheckShareonlineVersionL()
-    {
-    TRACER("CGlxToolbarController::CheckShareonlineVersionL");
-
-    CRepository* rep = CRepository::NewLC(KShareOnlineUid);
-    //
-    TBuf<KPhotosShareOnlineVersionBufLen> versionBuf;
-    // Query the ShareOnline version in the build
-    User::LeaveIfError(rep->Get(KShareApplicationVersion, versionBuf));
-
-    // Initialize version to zero
-    TVersion version(0, 0, 0);
-    TLex lex(versionBuf);
-    User::LeaveIfError(lex.Val(version.iMajor));
-    if (lex.Get() != TChar('.'))
-        {
-        User::Leave(KErrCorrupt);
-        }
-    User::LeaveIfError(lex.Val(version.iMinor));
-    if (lex.Get() != TChar('.'))
-        {
-        User::Leave(KErrCorrupt);
-        }
-    User::LeaveIfError(lex.Val(version.iBuild));
-
-    // Compare version number and leave if the detected
-    // version is less than KShareOnlineMinimumVersion.
-    if (version.iMajor < KShareOnlineMinimumVersion.iMajor)
-        {
-        User::LeaveIfError(KErrNotSupported);
-        }
-    else if (version.iMajor == KShareOnlineMinimumVersion.iMajor)
-        {
-        if (version.iMinor < KShareOnlineMinimumVersion.iMinor)
-            {
-            User::LeaveIfError(KErrNotSupported);
-            }
-        else if (version.iMinor == KShareOnlineMinimumVersion.iMinor)
-            {
-            if (version.iBuild < KShareOnlineMinimumVersion.iBuild)
-                {
-                User::LeaveIfError(KErrNotSupported);
-                }
-            else
-                {
-                // Version is supported, fall through
-                }
-            }
-        else
-            {
-            // Version is supported, fall through
-            }
-        }
-    else
-        {
-        // Version is supported, fall through
-        }
-    CleanupStack::PopAndDestroy(rep);
-    }
-
 //end of file
 	

@@ -89,35 +89,46 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::DoExecuteL(TInt aCommandId,
     TBool consume = ETrue;
 	TInt selectionCount = aList.SelectionCount();
 	
-	// Do not consume If no item is selected and 
-	// "focused" item index is invalid
-	TInt focusIndex = aList.FocusIndex();
-	if ((selectionCount == 0) && (KErrNotFound == focusIndex || focusIndex
-			> aList.Count()))
-		{
-		return EFalse;
-		}
-	
-	const TGlxMedia& focusedMedia = aList.Item(focusIndex);
-    // show confirmation note
-    consume = ConfirmationNoteL(aCommandId, aList);
+	//Check If no default album is present, then allow user to add first album
+	if (aList.Count() == 0 && aCommandId == EGlxCmdAddMedia)
+        {
+        // show confirmation note
+        consume = ConfirmationNoteL(aCommandId, aList);
+        }
+    else
+        {
+        // Do not consume If no item is selected and 
+        // "focused" item index is invalid
+        TInt focusIndex = aList.FocusIndex();
+        if ((selectionCount == 0) && (KErrNotFound == focusIndex || focusIndex
+                > aList.Count()))
+            {
+            return EFalse;
+            }
+        
+        const TGlxMedia& focusedMedia = aList.Item(focusIndex);
+        // show confirmation note
+        consume = ConfirmationNoteL(aCommandId, aList);
 
-    // Check if the selected / focused file(s)s have been deleted from
-	// another application while the confirmation note is displayed
-	// 1. If list is empty or previously Items were selected & are removed in current list
-	if (aList.Count() == 0 || ((selectionCount > 0) && (aList.SelectionCount() == 0)))
-		{
-		consume = EFalse;
-		}
-	// 2.If previously no Item selected then check if current focus index is valid
-	// and previous & current focused item are same.
-	else if ((selectionCount == 0) && ((KErrNotFound != aList.FocusIndex()
-			&& aList.FocusIndex() < aList.Count()) && (focusedMedia.Id()
-			!= aList.Item(aList.FocusIndex()).Id())))
-		{
-		consume = EFalse;
-		}
-
+        // Check if the selected / focused file(s)s have been deleted from
+        // another application while the confirmation note is displayed
+        // 1. If list is empty or previously Items were selected & are removed in current list
+        if (aList.Count() == 0 || ((selectionCount > 0)
+                && (aList.SelectionCount() == 0)))
+            {
+            consume = EFalse;
+            }
+        // 2.If previously no Item selected then check if current focus index is valid
+        // and previous & current focused item are same.
+        else if ((selectionCount == 0)
+                && ((KErrNotFound != aList.FocusIndex() && aList.FocusIndex()
+                        < aList.Count()) && (focusedMedia.Id() != aList.Item(
+                        aList.FocusIndex()).Id())))
+            {
+            consume = EFalse;
+            }
+        }
+        
     if ( consume )
         {
         // get a command object from the deriving class.
@@ -313,7 +324,7 @@ EXPORT_C TBool CGlxMpxCommandCommandHandler::ConfirmationNoteL(TInt aCommandId,
     // If media list is not empty, treat focused item as selected
     // At this point can assume that the command was disabled 
     // if static items were not supported	
-	if ( selectionCount == 0 && aMediaList.Count() > 0 )
+	if ( selectionCount == 0 && aMediaList.Count() >= 0 )
 		{
 		selectionCount = 1;
 		}

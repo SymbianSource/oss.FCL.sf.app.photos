@@ -199,7 +199,7 @@ RESOURCE TBUF r_glx_list_view_empty_text { buf = qtn_lgal_info_no_files; }
 
 RESOURCE TBUF r_list_empty_view_text
     {
-    buf = qtn_lgal_empty_list_no_captured_items;
+    buf = qtn_lgal_list_detail_no_img_vid;
     }
 
 RESOURCE TBUF r_glx_main_list_view_title

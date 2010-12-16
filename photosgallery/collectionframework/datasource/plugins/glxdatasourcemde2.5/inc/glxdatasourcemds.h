@@ -407,6 +407,9 @@ private:
 
     CGlxMDSShutdownObserver* iMDSShutdownObserver;
 
+	//To keep track of no. of retries Photos makes for MDS session.
+    TInt iNoOfRetry;
+
 #ifdef _DEBUG
     TTime iStartTime;
     TTime iStopTime;

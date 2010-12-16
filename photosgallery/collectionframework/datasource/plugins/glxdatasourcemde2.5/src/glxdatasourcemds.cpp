@@ -75,6 +75,17 @@ _LIT(KGlxMdeFavoritesUri, "defaultalbum_favourites");
 
 const TInt KHarvestUpdateChunkSize = 1000;
 
+/**
+ * Wait interval to recover from session creation error, in microseconds
+ * This is to allow MdS to do something for us!
+ */
+const TInt KSessionCreationWaitInterval = 100000;
+
+/**
+ * Maximun number of retries to get default album(s) id
+ */
+const TInt KMaxNoOfRetry = 3;
+
 // ---------------------------------------------------------------------------
 // MPXChangeEventType
 // Helper method
@@ -274,6 +285,7 @@ void CGlxDataSourceMde::ConstructL()
 	{
     TRACER("CGlxDataSourceMde::ConstructL()");
     
+    iNoOfRetry = 0;
 	iDataSourceReady = EFalse;			
     User::LeaveIfError(iFs.Connect());
 	iSession = CMdESession::NewL( *this );
@@ -313,6 +325,7 @@ void CGlxDataSourceMde::ConstructL()
 void CGlxDataSourceMde::HandleSessionOpened( CMdESession& aSession, TInt aError )    
     {
     TRACER("CGlxDataSourceMde::HandleSessionOpened(CMdESession& aSession, TInt aError)");
+    GLX_DEBUG2("CGlxDataSourceMde::HandleSessionOpened() aError(%d)", aError);   
     if( KErrNone != aError )
         {
         HandleSessionError(aSession, aError);
@@ -320,6 +333,7 @@ void CGlxDataSourceMde::HandleSessionOpened( CMdESession& aSession, TInt aError 
     TRAPD(err, DoSessionInitL());
     if (KErrNone == err)
         {
+        iNoOfRetry = 0;
         iSessionOpen = ETrue;
         iDataSourceReady = ETrue;
         TryStartTask(ETrue);
@@ -343,12 +357,22 @@ void CGlxDataSourceMde::HandleSessionError(CMdESession& /*aSession*/, TInt aErro
     iDataSourceReady = EFalse;
     iSessionOpen = EFalse;
 
+    //Wait for 'KSessionCreationWaitInterval' before again requesting for 
+    //MDS session in case of failure.
+    User::After(KSessionCreationWaitInterval);
+
     // We wait till MDS restarts before starting the session if the current session is locked.
     // that is handled separately by the MDS Shutdown PUB SUB Framework.   
     // for everything else we use the generic method and continue.
     if ( (KErrLocked != aError) && ( KErrServerTerminated != aError) )
         {
-        iCreateSessionCallback->CallBack();
+        iNoOfRetry++;
+        GLX_DEBUG2("CGlxDataSourceMde::HandleSessionError() iNoOfRetry(%d)", iNoOfRetry);
+        if (iNoOfRetry <= KMaxNoOfRetry)
+            {
+            GLX_DEBUG1("CGlxDataSourceMde::DoSessionInitL() Retry to create session with MdS");
+            iCreateSessionCallback->CallBack();
+            }
         }
     }
 
@@ -467,22 +491,39 @@ void CGlxDataSourceMde::DoSessionInitL()
 	/// @todo check schema version number
     iNameSpaceDef = &iSession->GetDefaultNamespaceDefL();
     
-	CMdEObject* cameraAlbum = iSession->GetObjectL(KGlxMdeCameraAlbumUri);
-	if ( !cameraAlbum )
-		{
-		User::Leave(KErrCorrupt);
-		}
-	iCameraAlbumId = (TGlxMediaId)cameraAlbum->Id();
-	delete cameraAlbum;
+    TBool retry = EFalse;
+    CMdEObject* cameraAlbum = iSession->GetObjectL(KGlxMdeCameraAlbumUri);
+    if (cameraAlbum)
+        {
+        iCameraAlbumId = (TGlxMediaId) cameraAlbum->Id();
+        delete cameraAlbum;
+        }
+    else
+        {
+        GLX_DEBUG1("CGlxDataSourceMde::DoSessionInitL() failed CameraAlbum");
+        iCameraAlbumId = TGlxMediaId(KErrNone);
+        retry = ETrue;
+        }
 
     CMdEObject* favorites = iSession->GetObjectL(KGlxMdeFavoritesUri);
-	if ( !favorites )
-		{
-		User::Leave(KErrCorrupt);
-		}
-	iFavoritesId = (TGlxMediaId)favorites->Id();
-	delete favorites;
-    
+    if (favorites)
+        {
+        iFavoritesId = (TGlxMediaId) favorites->Id();
+        delete favorites;
+        }
+    else
+        {
+        GLX_DEBUG1("CGlxDataSourceMde::DoSessionInitL() failed Favorites");
+        iFavoritesId = TGlxMediaId(KErrNone);
+        retry = ETrue;
+        }
+
+    GLX_DEBUG3("CGlxDataSourceMde::DoSessionInitL() retry(%d), iNoOfRetry(%d)", retry, iNoOfRetry);
+    if (retry && iNoOfRetry < KMaxNoOfRetry)
+        {
+        GLX_DEBUG1("CGlxDataSourceMde::DoSessionInitL() Retry to get default album(s)");
+        User::Leave(KErrNotFound);
+        }
 	
     iContainsDef = &iNameSpaceDef->GetRelationDefL(KRelationDefNameContains);
     iContainsLocationDef = &iNameSpaceDef->GetRelationDefL(KRelationDefNameContainsLocation);
@@ -1137,6 +1178,7 @@ void CGlxDataSourceMde::ShutdownNotification(TInt aShutdownState)
     if (!iDataSourceReady && 0 == aShutdownState)
         {
         GLX_DEBUG1("Photos MdS ShutdownNotification - MdS Server restarted!");
+        iNoOfRetry = 0;
         CreateSession();
         }
 

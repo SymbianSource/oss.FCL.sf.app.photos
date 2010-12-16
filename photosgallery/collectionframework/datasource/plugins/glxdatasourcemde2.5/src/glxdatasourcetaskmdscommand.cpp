@@ -845,12 +845,14 @@ void CGlxDataSourceTaskMdeCommand::DoHandleAddContainerQueryCompletedL
    	//as title property is left blank in MDS 2.5
    	if(iCollectionUid == TUid::Uid(KGlxCollectionPluginAlbumsImplementationUid))
    		{
-   		if(SearchStringL(R_ALBUM_FAVORITES_TITLE) == 0 || 
-   				SearchStringL(R_ALBUM_CAMERA_TITLE) == 0 )
-    		{
-    		User::Leave(KErrAlreadyExists);	
-    		}        	
-   		}
+        if ((SearchStringL(R_ALBUM_FAVORITES_TITLE) == 0
+                && DataSource()->FavoritesId().Value()) || (SearchStringL(
+                R_ALBUM_CAMERA_TITLE) == 0
+                && DataSource()->CameraAlbumId().Value()))
+            {
+            User::Leave(KErrAlreadyExists);
+            }
+        }
    	   	
     if (aQuery.Count())
         {

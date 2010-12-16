@@ -856,3 +856,8 @@ RESOURCE DIALOG r_progress_note
             }
         };
     }
+//resource for illegal characters in file name note
+RESOURCE TBUF r_glx_qtn_fldr_illegal_characters
+    { 
+    buf = qtn_fldr_illegal_characters; 
+    }

@@ -817,17 +817,28 @@ void CGlxMetadataContainer::SetNameDescriptionL(TInt aItem)
 		{
 		if(0 != (titleText.Compare(*textBuf)))
 			{
-			
 			TFileName fileName = ParseFileName(*textBuf);
 			//check If filename already exists
-			if ((aItem == ENameItem) &&
-					(BaflUtils::FileExists(ControlEnv()->FsSession(), fileName)))
+            RFs& fs = ControlEnv()->FsSession();
+			if ((aItem == ENameItem) && (BaflUtils::FileExists(fs, fileName)))
 				{
-				//if changed title is same as existing one then showing the already use popup to user
-				HBufC* info = StringLoader::LoadLC(R_GLX_NAME_ALREADY_USED, *textBuf);
+				//if changed title is same as existing one 
+			    //then showing the already use popup to user
+				HBufC* info = StringLoader::LoadLC(R_GLX_NAME_ALREADY_USED,
+                        *textBuf);
 				GlxGeneralUiUtilities::ShowInfoNoteL(*info, ETrue);
 				CleanupStack::PopAndDestroy(info);
 				}
+			// Check if both the filename and fullpath are valid
+            else if ((aItem == ENameItem) && ((!fs.IsValidName(*textBuf))
+                    || (!fs.IsValidName(fileName))))
+                {
+                //Show illegal characters error note 
+                HBufC* info = StringLoader::LoadLC(
+                        R_GLX_QTN_FLDR_ILLEGAL_CHARACTERS);
+                GlxGeneralUiUtilities::ShowInfoNoteL(*info, ETrue);
+                CleanupStack::PopAndDestroy(info);
+                }
 			else
 				{
 				//Modify the MDS and setting list only if the entry is different from previous Item value

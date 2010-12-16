@@ -120,7 +120,7 @@ private:
     /**
      * Gets the tooltip text or the Help Text from AIWServiceHandler
      */
-    void GetToolTipL(HBufC*& aToolTipText);
+    void GetToolTipL();
 
 private: // From CGlxMediaListCommandHandler
 	/**
@@ -239,6 +239,9 @@ private: // data
     TBool iIsFullScreenView;
     
     CSvgEngineInterfaceImpl* iSvgEngine;
+    
+    // Tooltip text
+    HBufC* iTooltipText;
 	};
 
 #endif //__GLXCOMMANDHANDLERUPLOAD_H__

@@ -105,14 +105,17 @@ void CGlxCommandHandlerUpload::ConstructL()
 	{
 	TRACER("CGlxCommandHandlerUpload::ConstructL");
 	iUiUtility = CGlxUiUtility::UtilityL();
+	iTooltipText = NULL;
 		
 	// iUploadSupported is zeroed by CBase constructor.
 	// If a leave occurs here, it is left as EFalse.
-	// If InitializeOneClickUploadL() succeeds, it is set to ETrue.
+	// If InitializeOneClickUploadL() succeeds and 'tooltip' is present, 
+	// it is set to ETrue.
 	TRAP_IGNORE(
 	        {
 	        CheckVersionL();
-	        InitializeOneClickUploadL();
+			InitializeOneClickUploadL();
+	        GetToolTipL();
 	        iUploadSupported = ETrue;
 	        } );
 	
@@ -149,7 +152,8 @@ EXPORT_C CGlxCommandHandlerUpload::~CGlxCommandHandlerUpload()
         iUiUtility->Close();
         }
 	delete iServiceHandler;
-	delete iUploadCenRepWatcher;	
+	delete iUploadCenRepWatcher;
+	delete iTooltipText;	
 	}
 	
 // InitializeAIWForShareOnlineL
@@ -275,9 +279,68 @@ void CGlxCommandHandlerUpload::DoActivateL(TInt aViewId)
     
     //Get the grid toolbar here as it wont be created yet in
     //constructor
-    if(!iIsFullScreenView)
-        {    
-        iToolbar = iUiUtility->GetGridToolBar();        
+    if (!iIsFullScreenView)
+        {
+        iToolbar = iUiUtility->GetGridToolBar();
+
+        //For Grid view, check if 'Upload' is supported.
+        //Then show 'Upload' button else 'Send'.
+        if (iUploadSupported)
+            {
+            CAknButton* slideshowButton =
+                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                            EGlxCmdSlideshowPlay));
+            if (slideshowButton)
+                {
+                iToolbar->RemoveItem(EGlxCmdSend);
+                }
+            }
+        else
+            {
+            CAknButton* uploadButton =
+                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                            EGlxCmdUpload));
+            if (uploadButton)
+                {
+                iToolbar->RemoveItem(EGlxCmdUpload);
+                }
+            }
+        }
+    else
+        {
+        //For FullScreen View, ToolBar is already available.
+        //For FullScreen view, check if 'Upload' is supported.
+        //Then show 'Upload' button else 'SlideShowPlay'.
+        if (iUploadSupported)
+            {
+            CAknButton* slideshowButton =
+                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                            EGlxCmdSlideshowPlay));
+            if (slideshowButton)
+                {
+                iToolbar->RemoveItem(EGlxCmdSlideshowPlay);
+                }
+            }
+        else
+            {
+            CAknButton* uploadButton =
+                    static_cast<CAknButton*> (iToolbar->ControlOrNull(
+                            EGlxCmdUpload));
+            if (uploadButton)
+                {
+                iToolbar->RemoveItem(EGlxCmdUpload);
+                }
+            }
+        }
+            
+    if (iUploadSupported && iCurrentCenRepMonitor == EMonitorNone)
+        {
+        TFileName uploadIconFileName;
+        GetIconNameL(uploadIconFileName);
+        if (uploadIconFileName.Length())
+            {
+            DecodeIconL(uploadIconFileName);
+            }
         }
 	}
 	
@@ -381,14 +444,14 @@ void CGlxCommandHandlerUpload::PopulateToolbarL()
 	if( iUploadSupported )
 	    {
 	    SetToolTipL();
-	    } 
+	    }
 	}
 
 // ----------------------------------------------------------------------------
 // GetToolTipL
 // ----------------------------------------------------------------------------
 //
-void CGlxCommandHandlerUpload::GetToolTipL( HBufC*& aToolTipText )
+void CGlxCommandHandlerUpload::GetToolTipL()
     {
     TRACER("CGlxCommandHandlerUpload::GetToolTipL");
     
@@ -414,9 +477,15 @@ void CGlxCommandHandlerUpload::GetToolTipL( HBufC*& aToolTipText )
             {            
             TAiwVariant value = param.Value();
             TPtrC toolTipToBeReturned = value.AsDes();
-            aToolTipText = toolTipToBeReturned.AllocLC();           
+            iTooltipText = toolTipToBeReturned.AllocL();           
             }        
-        }   
+        } 
+   
+    //Check if 'ToolTip' is available, otherwise 'Upload' is not supported
+    if(!iTooltipText)
+      	{
+        User::Leave(KErrNotSupported);
+      	}    
     }
 
 // ----------------------------------------------------------------------------
@@ -435,37 +504,22 @@ void CGlxCommandHandlerUpload::SetToolTipL()
     CAknButton* uploadButton =
             static_cast<CAknButton*> (iToolbar->ControlOrNull(EGlxCmdUpload));
 
-    if (uploadButton && iUploadSupported)
+    if (uploadButton && iUploadSupported && iTooltipText)
         {
-        // Get the tooltip text from AIW ShareOnline application
-        HBufC* toolTipText = NULL;
-
-        // GetToolTipL might allocate memory. Hence toolTipText should 
-        // be popped and destroyed if present.
-        GetToolTipL(toolTipText);
-
-        if (toolTipText)
-            {
-            // Get current button state and set the help text(tool tip)             
+        	  // Get current button state and set the help text(tool tip)             
             CAknButtonState* currentState = uploadButton->State();
 
             TBool dimmed = uploadButton->IsDimmed();
             if (dimmed)
                 {
                 uploadButton->SetDimmed(EFalse);
-                currentState->SetHelpTextL(toolTipText->Des());
+                currentState->SetHelpTextL(iTooltipText->Des());
                 uploadButton->SetDimmed(ETrue);
                 }
             else
                 {
-                currentState->SetHelpTextL(toolTipText->Des());
+                currentState->SetHelpTextL(iTooltipText->Des());
                 }
-            CleanupStack::PopAndDestroy(toolTipText);
-            }
-        else
-            {
-            User::Leave(KErrArgument);
-            }
         } // if(uploadButton && iUploadSupported)
     }
 
@@ -695,40 +749,38 @@ void CGlxCommandHandlerUpload::GetIconNameL(TDes& aUplaodIconNmae)
     {
     TRACER("CGlxCommandHandlerUpload::GetIconNameL");
     TUint32 serviceIconId = KErrNone;
-    
-    if(iSelectedImageCount && iSelectedVideoCount)
+    if (iSelectedImageCount && iSelectedVideoCount)
         {
-        if(iCurrentCenRepMonitor != EImageVideoMonitor)
+        if (iCurrentCenRepMonitor != EImageVideoMonitor)
             {
             serviceIconId = KUploadImageAndVideoServiceIconFileName;
             iCurrentCenRepMonitor = EImageVideoMonitor;
             }
         }
-    else if(iSelectedImageCount)
+    else if (iSelectedVideoCount)
         {
-        if(iCurrentCenRepMonitor != EImageMonitor)
-            {
-            serviceIconId = KUploadImageServiceIconFileName;
-            iCurrentCenRepMonitor = EImageMonitor;
-            }    
-        }
-    else if(iSelectedVideoCount)
-        {
-        if(iCurrentCenRepMonitor != EVideoMonitor)
+        if (iCurrentCenRepMonitor != EVideoMonitor)
             {
             serviceIconId = KUploadVideoServiceIconFileName;
             iCurrentCenRepMonitor = EVideoMonitor;
             }
         }
+    else
+        {
+        if (iCurrentCenRepMonitor != EImageMonitor)
+            {
+            serviceIconId = KUploadImageServiceIconFileName;
+            iCurrentCenRepMonitor = EImageMonitor;
+            }
+        }
     
-    if(serviceIconId != KErrNone)
+    if (serviceIconId != KErrNone)
         {
         delete iUploadCenRepWatcher;
         iUploadCenRepWatcher = NULL;
-        
-        iUploadCenRepWatcher = CGlxUploadCenRepWatcher::NewL(*this, KShareOnlineUid,
-                                                                serviceIconId );
-        iUploadCenRepWatcher->KeyValueL(aUplaodIconNmae);        
+        iUploadCenRepWatcher = CGlxUploadCenRepWatcher::NewL(*this,
+                KShareOnlineUid, serviceIconId);
+        iUploadCenRepWatcher->KeyValueL(aUplaodIconNmae);
         }
     }
 

@@ -214,7 +214,15 @@ void CGlxCollectionPluginAlbums::HandleCpiAttributeResponseL(
 
             if (TGlxMediaId(KGlxCollectionRootId) == aMediaId)
                 {
-                if (1 == usageCount)
+                if (0 == usageCount)
+                    {
+                    tempTitle = LoadLocalizedStringLC(KResourceFile,
+                            R_ALBUM_ITEM_SUB_TITLE_EMPTY);
+                    aResponse->SetTextValueL(attr, *tempTitle);
+                    CleanupStack::PopAndDestroy(tempTitle);
+                    continue;
+                    }
+                else if (1 == usageCount)
                     {
                     tempTitle = LoadLocalizedStringLC(KResourceFile,
                             R_ALBUM_SUB_TITLE_SINGLE);

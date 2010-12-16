@@ -335,7 +335,8 @@ void CGlxDataSourceTaskMde::SetQueryFilterConditionsL(CMdELogicCondition&
         CleanupStack::Pop(&itemList);
         }
         
-    if( !aFilterProperties.iIncludeCameraAlbum )
+    if (!aFilterProperties.iIncludeCameraAlbum
+            && DataSource()->CameraAlbumId().Value())
         {
         CMdEObjectCondition& objectCondition = aLogicCondition.AddObjectConditionL(
         		DataSource()->CameraAlbumId().Value());
